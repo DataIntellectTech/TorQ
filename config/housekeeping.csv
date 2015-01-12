@@ -1,0 +1,2 @@
+function,path,match,exclude,age
+rm,{KDBLOG}/,*.log,,10

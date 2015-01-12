@@ -1,0 +1,12 @@
+host,port,proctype,procname
+localhost,9995,discovery,discovery1
+localhost,9996,discovery,discovery2
+localhost,5010,tickerplant,tickerplant1
+localhost,5011,rdb,rdb1
+localhost,5012,hdb,hdb3
+localhost,5013,hdb,hdb2
+localhost,5020,gateway,gateway1
+localhost,20000,kill,killtick
+localhost,20001,monitor,monitor1
+localhost,20002,tickerlogreplay,tpreplay1
+localhost,20003,housekeeping,housekeeping1
