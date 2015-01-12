@@ -1,3 +1,5 @@
+![TorQ Logo](../master/html/img/torq-logo.png)
+
 Quick Start
 -----------
 
