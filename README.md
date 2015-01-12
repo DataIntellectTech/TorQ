@@ -59,12 +59,15 @@ launchtick.bat
 Release Notes
 -------------
 
-1.0, Feb 2014: 	Initial public release of TorQ
-1.1, Apr 2014:	Added compression utilities, HTML5 utilities, housekeeping process, file alerter process, kdb+tick quick start
-1.2, Sep 2014:	Tested on kdb+ 3.2
-		Added connections to external (non TorQ) processes using nonprocess.csv
-		Modified file alerter with optional switch to move or not move a file if any function fails to process the file
-		Discovery service(s) host:port(s) can be passed on the command line (.servers.DISCOVERY) to a process (this should enable complete bypassing of process.csv if required)
-		Add custom hook (.servers.connectcustom) which is invoked whenever a new connection is made (allows, for example, subscription to a new process)
-		Add optional application detail file ($KDBCONFIG/application.txt) to allow customisation of the start up banner (application version etc.)
-		If required env. variables (KDBCODE, KDBCONFIG, KDBLOG) are not set they will default to $QHOME/code, $QHOME/config, $QHOME/logs respectively (previously the process failed and exited)
+- **1.0, Feb 2014**: 
+  * Initial public release of TorQ
+- **1.1, Apr 2014**: 
+  * Added compression utilities, HTML5 utilities, housekeeping process, file alerter process, kdb+tick quick start
+- **1.2, Sep 2014**:	
+  * Tested on kdb+ 3.2
+  * Added connections to external (non TorQ) processes using nonprocess.csv
+  * Modified file alerter with optional switch to move or not move a file if any function fails to process the file
+  * Discovery service(s) host:port(s) can be passed on the command line (.servers.DISCOVERY) to a process (this should enable complete bypassing of process.csv if required)
+  * Add custom hook (.servers.connectcustom) which is invoked whenever a new connection is made (allows, for example, subscription to a new process)
+  * Add optional application detail file ($KDBCONFIG/application.txt) to allow customisation of the start up banner (application version etc.)
+  * If required env. variables (KDBCODE, KDBCONFIG, KDBLOG) are not set they will default to $QHOME/code, $QHOME/config, $QHOME/logs respectively (previously the process failed and exited)
