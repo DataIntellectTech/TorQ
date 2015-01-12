@@ -10,14 +10,15 @@ Quick Start
 To launch a process wrapped in the framework, you need to set the environment variables and give the process a type and name.  The type and name can be explicitly passed on the command line.  setenv.sh is an example of how to set the environment variables on a unix type system.  For a windows system, see http://www.computerhope.com/issues/ch000549.htm. 
 
 To avoid standard out/err being redirected, used the -debug flag
-
+``` 
 ./setenv.sh         /- Assuming unix type OS
 q torq.q -proctype test -procname mytest -debug
+```
 
 To load a file, use -load
-
+```
 q torq.q -load mytest.q -proctype test -procname mytest -debug
-
+```
 This will launch the a process running within the framework with all the default values.  For the rest, read the document!
 
 
@@ -32,12 +33,14 @@ launchtick.sh and launchtick.bat are provided to launch a simple version of kdb+
 4. Modify the hostname of every process in config/process.csv to the local machine name
 5. On unix (linux/mac/solaris) modify the setenv.sh to contain absolute paths.  Some of the kdb+tick processes change directory, so the relative paths will become invalid
 6. On unix, run
-
+```
 sh launchtick.sh
-
+```
 On windows,
 Edit the bat file to provide full paths to the environment variables, eg:
+```
 setx KDBCODE "C:/path/to/code"
+```
 else C:/q/ is used as the directory holding code, config, html and log folders.
 
 You can set the environment variables permanently by using setx (requires console restart) or by:
@@ -46,8 +49,9 @@ Click advanced system settings
 click environment variables -> add
 
 run
+```
 launchtick.bat
-
+```
 7. Open the Monitor gui by navigating to http://hostname:20001/.non?monitorui
 8. Kill the processes (or some of the processes) by using the kill process as detailed in launch.sh
 9. For more details, read the manual!
