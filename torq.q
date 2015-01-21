@@ -82,6 +82,9 @@ settorqenv:{[envvar; default]
   .lg.o[`init;(string envvar)," is not defined. Defining it to ",val:qhome[],"/",default];	
   setenv[envvar; val]];}
 
+// make sure the path separators are the right way around if running on windows
+if[.z.o like "w*"; {if["\\" in v:getenv[x]; setenv[x;ssr[v;"\\";"/"]]]} each distinct envvars,`KDBLIB`KDBHTML]
+
 // The variables required to be set in each process
 // This is the mimimum set of information that each process must know about itself for registration / advertisement purposes
 req:@[value;`req;`symbol$()]
@@ -137,6 +140,7 @@ err:{[loglevel;proc;id;message;dict]
 // The process name is temporary which we will reset later - once we know what type of process this is
 o:l[`INF;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
 e:err[`ERR;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
+w:l[`WARN;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
 
 // Hook to handle extended logging functionality
 // Leave blank
@@ -249,7 +253,7 @@ readprocs:{[file] @[("SISS";enlist",")0:;file;{.lg.e[`procfile;"failed to read p
 // Pull out the applicable rows
 readprocfile:{[file]
 	res:@[{t:readprocs file;
-          select from t where abs[port]=abs system"p",(host=.z.h) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
+          select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
 	if[0=count res;
 		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
 	first res}	
@@ -268,6 +272,7 @@ $[any null `.proc req;
 // reset the logging functions to now use the name of the process
 .lg.o:.lg.l[`INF;procname;;;()!()]
 .lg.e:.lg.err[`ERR;procname;;;()!()]
+.lg.w:.lg.l[`WARN;procname;;;()!()]
 
 // redirect std out or std err to a file
 // if alias is not null, a softlink will be created back to the actual file

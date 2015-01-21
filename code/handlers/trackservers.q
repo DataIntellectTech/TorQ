@@ -26,7 +26,6 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
-STARTUPCALLED:0b										// flag indicating if .servers.startup[] has been called already 
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -119,7 +118,8 @@ addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
     $[not hpup in (exec hpup from .servers.SERVERS) inter (exec hpup from .servers.nontorqprocesstab);
-	    `.servers.SERVERS insert(name;proctype;hpup;W;0i;$[isalive;.z.p;0Np];.z.p;0Np;attributes);.lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
+	    `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.z.p;0Np];.z.p;0Np;attributes);
+	    .lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
     W
     }
 
@@ -175,8 +175,9 @@ retryrows:{[rows]
         if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w; 
 	connectcustom[connectedrows]]}
 
-connectcustom:{[connectedrows]}  // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
-				 // Input is the line(s) from .servers.SERVERS corresponding to the newly (re)connected service
+// user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
+// Input is the line(s) from .servers.SERVERS corresponding to the newly (re)connected service
+connectcustom:@[value;`.servers.connectcustom;{[connectedrows]}]  
 
 // close handles and remove rows from the table
 removerows:{[rows]
@@ -239,25 +240,29 @@ refreshattributes:{
 // called at start up
 // either load in 	
 startup:{
-	if[.servers.STARTUPCALLED;.lg.o[`conn;"Attempt to call startup routine more than once"];:()]; // terminate fn if startup has already run successfully, log to output
 	// read in the table of processes, both TorQ processes and external processes
-  	procs:update hpup:`$(((":",'string host),'":"),'string port) from .proc.readprocs .proc.file;
+  	procs:update hpup:lower `$(((":",'string host),'":"),'string port) from .proc.readprocs .proc.file;
   	nontorqprocesstab::$[count key NONTORQPROCESSFILE;
-				update hpup:`$(((":",'string host),'":"),'string port) from .proc.readprocs NONTORQPROCESSFILE;
+				update hpup:lower `$(((":",'string host),'":"),'string port) from .proc.readprocs NONTORQPROCESSFILE;
 				0#procs];
 	// If DISCOVERY servers have been explicity defined
        if[count .servers.DISCOVERY;
                 if[not null first .servers.DISCOVERY;
                         if[count select from procs where hpup in .servers.DISCOVERY; .lg.e[`startup; "host:port in .servers.DISCOVERY list is already present in data read from ",string .proc.file]];
                         procs,:([]host:`;port:0Ni;proctype:`discovery;procname:`;hpup:.servers.DISCOVERY)]];
+	// Remove any processes that have an active connection
+	connectedprocs: select procname, proctype, hpup from SERVERS;
+	procs: delete from procs where ([] procname; proctype; hpup) in connectedprocs;
+	nontorqprocs: delete from nontorqprocesstab where ([] procname; proctype; hpup) in connectedprocs;
+	// if there aren't any processes left to connect to, then escape
+	if[ not any count each (procs;nontorqprocs); .lg.o[`conn;"No new processes to connect to.  Escaping..."];:()];
 	if[CONNECTIONSFROMDISCOVERY or DISCOVERYREGISTER; 
 		register[procs;`discovery;0b];
 		retrydiscovery[]];
 	if[not CONNECTIONSFROMDISCOVERY; register[procs;;0b] each $[CONNECTIONS~`ALL;exec distinct proctype from procs;CONNECTIONS]];
-	if[TRACKNONTORQPROCESS;register[nontorqprocesstab;;0b] each  $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocesstab;CONNECTIONS]];
+	if[TRACKNONTORQPROCESS;register[nontorqprocs;;0b] each  $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocs;CONNECTIONS]];
 	// try and open dead connections
-	retry[];
-	.servers.STARTUPCALLED:1b}
+	retry[]}
 
 			
 pc:{[result;W] update w:0Ni,endp:.z.p from`.servers.SERVERS where w=W;cleanup[];result}

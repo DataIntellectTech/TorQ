@@ -114,6 +114,6 @@ $[runnow=1b;[hkrun[];exit 0];]
 //-sets timers occording to csv
 $[(count runtimes)=0;
 	.lg.e[`housekeeping;"No runtimes provided in config file"];
-	[{[runtime].timer.rep[$[.z.p>.z.d+runtime;1D+.z.d+runtime;.z.d+runtime];0Wp;1D;(`hkrun`);0h;"run housekeeping";0b]} each runtimes;.lg.o[`housekeeping;"Housekeeping scheduled for: ", (" " sv string raze runtimes)]]]
+	[{[runtime].timer.rep[$[.z.p>.z.d+runtime;1D+`timestamp$.z.d+runtime;`timestamp$.z.d+runtime];0Wp;1D;(`hkrun`);0h;"run housekeeping";0b]} each runtimes;.lg.o[`housekeeping;"Housekeeping scheduled for: ", (" " sv string raze runtimes)]]]
 
 

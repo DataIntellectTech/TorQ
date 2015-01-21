@@ -93,6 +93,10 @@ results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;::))
 
 // server handles - whether the server is currently running a query
 servers:([handle:`int$()] servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:())
+
+// add a dummy row to .gw.servers to stop attributes collapsing into a table
+`.gw.servers upsert (-1i;`dummy;0b;0b;0;0Np;0D;()!());
+
 addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (handle;servertype;0b;1b;0i;0Np;0D;attributes)}
 addserver:addserverattr[;;()!()]
 setserverstate:{[serverh;use] 
@@ -115,7 +119,7 @@ queryandclients:{aj[`clienth`time;queryqueue;clients]}
 canberun:{
  // check if it's possible to run anything
  if[0=count avail:distinct value availableservers[1b];
-	update required:(),available:(),handles:() from 0#0!queryqueue];
+	:update required:(),available:(),handles:() from 0#0!queryqueue];
  select from 
   (update available:required inter\:avail from
    (update required:(where each null each .gw.results[;1;;0])[queryid] from 
@@ -323,8 +327,20 @@ addserversfromconnectiontable:{
  .gw.addserversfromconnectiontable[.servers.CONNECTIONS];
  // See if any queries can now be run
  runnextquery[]}
- 
+
+// When new connections is made on the timer, try to reconnect
+.servers.connectcustom:{[connectiontab]
+ // add any new connections
+ .gw.addserversfromconnectiontable[.servers.CONNECTIONS];
+ // See if any queries can now be run
+ runnextquery[]}
+
 addserversfromconnectiontable[.servers.CONNECTIONS]
+
+// functions called by end-of-day processes
+\d .
+reloadstart:{.lg.o[`reload;"reload start called"]}
+reloadend:{.lg.o[`reload;"reload end called"]}
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
@@ -335,6 +351,6 @@ if[@[value;`.timer.enabled;0b];
 / if[`add in key `.api;
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]
 .api.add[`.gw.asyncexec;1b;"Execute a function asynchronously.  The result is posted back to the client directly down the socket. The client must block and wait for the result - deferred synchronous.  Equivalent to .gw.asyncexecjpt with join function of raze, no postback and no timeout";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"]
-.api.add[`.gw.syncexecj;1b;"Execute a function asynchronously, join the results with the specified join function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data]";"The result of the query"];
-.api.add[`.gw.syncexec;1b;"Execute a function asynchronously, use raze to join the results";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"];
+.api.add[`.gw.syncexecj;1b;"Execute a function synchronously, join the results with the specified join function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data]";"The result of the query"];
+.api.add[`.gw.syncexec;1b;"Execute a function synchronously, use raze to join the results";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"];
 .api.add[`.gw.getqueue;1b;"Return the current queryqueue with status";"[]";"table: the current queryqueue with either pending or running status"];

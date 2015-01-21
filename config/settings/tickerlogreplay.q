@@ -20,5 +20,6 @@ exitwhencomplete:1b	// exit when the replay is complete
 gc:1b			// garbage collect at appropriate points (after each table save and after the full log replay)			
 
 // turn off some of the standard stuff 
-.proc.loadhandlers:0b
-.proc.logroll:0b
+\d .proc
+loadhandlers:0b
+logroll:0b

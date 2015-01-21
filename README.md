@@ -7,7 +7,7 @@ The framework forms the basis of a production kdb+ system by implementing some c
 Quick Start
 -----------
 
-To launch a process wrapped in the framework, you need to set the environment variables and give the process a type and name.  The type and name can be explicitly passed on the command line.  setenv.sh is an example of how to set the environment variables on a unix type system.  For a windows system, see http://www.computerhope.com/issues/ch000549.htm. 
+To launch a process wrapped in the framework, you need to set the environment variables and give the process a type and name.  The type and name can be explicitly passed on the command line.  setenv.sh is an example of how to set the environment variables on a unix type system.  For a windows system, see http://www.computerhope.com/issues/ch000549.htm.  kdb+ expects all paths to be / (forward-slash) separated so all paths on all OSs should be forward-slash separated. 
 
 To avoid standard out/err being redirected, used the -debug flag
 ``` 
@@ -21,40 +21,10 @@ q torq.q -load mytest.q -proctype test -procname mytest -debug
 ```
 This will launch the a process running within the framework with all the default values.  For the rest, read the document!
 
+Production Setup
+----------------
+The easiest way to get a production capture started is to download and install one of the Starter Packs. 
 
-Tick Integration - Quick(ish) Start
------------------------------------
-
-launchtick.sh and launchtick.bat are provided to launch a simple version of kdb+tick on unix and windows operating systems respectively.  To launch on Windows, you will need to set the environment variables as above. 
-
-1. kdb+tick can be downloaded from http://code.kx.com/wsvn/code/kx/kdb+tick.  Both tick.q and the tick directory should be placed in the same directory as torq.q.
-2. Copy exampleschema.q into the tick folder
-3. Copy tick/u.q to code/common.  This will allow the processes to have pub/sub functionality
-4. Modify the hostname of every process in config/process.csv to the local machine name
-5. On unix (linux/mac/solaris) modify the setenv.sh to contain absolute paths.  Some of the kdb+tick processes change directory, so the relative paths will become invalid
-6. On unix, run
-```
-sh launchtick.sh
-```
-On windows,
-Edit the bat file to provide full paths to the environment variables, eg:
-```
-setx KDBCODE "C:/path/to/code"
-```
-else C:/q/ is used as the directory holding code, config, html and log folders.
-
-You can set the environment variables permanently by using setx (requires console restart) or by:
-Right click my computer -> properties
-Click advanced system settings
-click environment variables -> add
-
-run
-```
-launchtick.bat
-```
-7. Open the Monitor gui by navigating to http://hostname:20001/.non?monitorui
-8. Kill the processes (or some of the processes) by using the kill process as detailed in launch.sh
-9. For more details, read the manual!
 
 Release Notes
 -------------
@@ -71,3 +41,16 @@ Release Notes
   * Add custom hook (.servers.connectcustom) which is invoked whenever a new connection is made (allows, for example, subscription to a new process)
   * Add optional application detail file ($KDBCONFIG/application.txt) to allow customisation of the start up banner (application version etc.)
   * If required env. variables (KDBCODE, KDBCONFIG, KDBLOG) are not set they will default to $QHOME/code, $QHOME/config, $QHOME/logs respectively (previously the process failed and exited)
+- **2.0, Jan 2015**:  
+  * Added RDB process which extends r.q from kdb+ tick.
+  * Added WDB to write down data periodically throughout the day.  Extends w.q.
+  * Added Reporting Process to run reports periodically and process the results
+  * Added Subscription code to manage multiple subscriptions to different data sources
+  * Added email library which uses libcurl.  Used to send emails from TorQ processes
+  * Added standard monitoring checks to the database code
+  * Added data loader script.  Utility functions to load a directory of data into a database in chunks, sort and part at the end
+  * Added tickerplant log recovery utilities to recover as many messages as possible from a log file rather than just stopping at the first bad message
+  * Added compression process to run and compress a given database
+  * Modified compression code to handle par.txt databases
+  * Modified compression code and housekeeping process to run with kdb+ 2.*
+  * Removed launchtick scripts and some default configuration: to create a test system, install a starter pack

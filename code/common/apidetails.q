@@ -60,6 +60,10 @@ add[`.tz.gd;1b;"GMT from default. Convert a timestamp from the default timezone 
 add[`.tz.gl;1b;"GMT from local. Convert a timestamp from the specified local timezone to GMT";"[symbol (list): timezone ids; timestamp (list): timestamps to convert]";"timestamp atom or list"]
 add[`.tz.ttz;1b;"Convert a timestamp from a specified timezone to a specified destination timezone";"[symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]";"timestamp atom or list"]
 
+// subscriptions
+add[`.sub.getsubscriptionhandles;1b;"Connect to a list of processes of a specified type";"[symbol: process type to match; symbol: process name to match; dictionary:attributes of process]";"table of process names, types and the handle connected on"]
+add[`.sub.subscribe;1b;"Subscribe to a table or list of tables and specified instruments";"[symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle";""]
+
 // pubsub
 add[`.ps.publish;1b;"Publish a table of data";"[symbol: name of table; table: table of data]";""]
 add[`.ps.subscribe;1b;"Subscribe to a table and list of instruments";"[symbol(list): table name. ` for all; symbol(list): symbols to subscribe to. ` for all]";"mixed type list of table names and schemas"]
@@ -82,3 +86,24 @@ add[`.cmp.showcomp;1b;"Show which files will be compressed and how; driven from 
 add[`.cmp.compressmaxage;1b;"Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress";"[`:/path/to/database; `:/path/to/configcsv; maxagefilestocompress]";""]
 add[`.cmp.docompression;1b;"Run compression on files using parameters specified in configuration csv file";"[`:/path/to/database; `:/path/to/configcsv]";""]
 
+// data loader
+add[`.loader.loadallfiles;1b;"Generic loader function to read a directory of files in chunks and write them out to disk";"[dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol).  Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)]";""]
+
+
+// sort and set attributes
+add[`.sort.sorttab;1b;"Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)";"[2 item list of (tablename e.g. `trade; partitions to sort and apply attributes to e.g. `:/hdb/2000.01.01/trade`:hdb/2000.01.02/trade)]";""]
+add[`.sort.getsortcsv;1b;"Read in the sort csv from the specified location";"[symbol: the location of the file e.g. `:config/sort.csv]";""]
+
+// garbage collection
+add[`.gc.run;1b;"Run garbage collection, print debug info before and after"; "";""]
+
+// email
+add[`.email.connectdefault;1b;"connect to the default mail server specified in configuration";"[]";""]
+add[`.email.senddefault;1b;"connect to email server if not connected. Send email using default settings";"[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be `html, default is `text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. `none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]";"size in bytes of sent email. -1 if failure"]  
+add[`.email.test;1b;"send a test email";"[symbol(list):email address to send test email to]";"size in bytes of sent email. -1 if failure"]
+add[`.email.connect;1b;"connect to specified email server";"[dictionary of connection settings.  Required dictionary keys are url (symbol url of mail server host:port), user (symbol of user to sign in as) and password (symbol of password to use).  Optional parameters are from (return address on emails, default is torq@aquaq.co.uk), usessl (boolean flag of whether to use ssl/tls, default is 0b), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]";"0 if successful, -1 if failure"]
+add[`.email.send;1b;"Send email using supplied parameters.  Requires connection to already be established";"[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be `html, default is `text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. `none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]";"size in bytes of sent email. -1 if failure"]
+add[`.email.disconnect;1b;"disconnect from email server";"[]";"0"]
+
+// tplog
+add[`.tplog.check;1b;"Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle ";"[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]";"handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt"]

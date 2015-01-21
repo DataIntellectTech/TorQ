@@ -3,7 +3,7 @@
 // Server connection details
 \d .servers
 enabled:1b					// whether server tracking is enabled
-CONNECTIONS:`hdb`rdb`tickerplant`gateway	// list of connections to make at start up
+CONNECTIONS:`hdb`rdb`tickerplant`gateway`wdb	// list of connections to make at start up
 DISCOVERYREGISTER:0b				// whether to register with the discovery service
 CONNECTIONSFROMDISCOVERY:1b			// whether to get connection details from the discovery service (as opposed to the static file)
 SUBSCRIBETODISCOVERY:0b				// whether to subscribe to the discovery service for new processes becoming available

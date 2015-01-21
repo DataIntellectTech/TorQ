@@ -34,6 +34,11 @@ AUTOCLEAN:1b			// clean out old records when handling a close
 RETAIN:`long$0D02		// length of time to retain client information 
 MAXIDLE:`long$0D		// handles which haven't been used in this length of time will be closed. 0 means no clean up
 
+//subscription configuration
+\d .sub
+AUTORECONNECT:0b			// whether to reconnect to processes previously subscribed to
+checksubscriptionperiod:0D00:00:10	// how frequently to check subscriptions are still connected - 0D means don't check
+
 // Access controls
 \d .access
 enabled:0b			// whether the access controls are enabled
@@ -83,6 +88,17 @@ maxindividual:100		// the maximum size in MB of any individual item in the cache
 // timezone functions
 \d .tz
 default:`$"Europe/London"	// default local timezone
+
+// configuration for default mail server
+\d .email
+enabled:.z.o in `w32`l32`l64`m32`m64    	// whether emails are enabled
+url:`                               		// url of email server e.g. `$"smtp://smtpout.secureserver.net:80"
+user:`                               		// user account to use to send emails e.g. torq@aquaq.co.uk
+password:`                           		// password for user account
+from:`$"torq@localhost"                		// address for return emails e.g. torq@aquaq.co.uk
+usessl:0b                              		// connect using SSL/TLS
+debug:0i                               		// debug level for email library: 0i = none, 1i=normal, 2i=verbose
+img:`$getenv[`KDBHTML],"/img/logo-email.png"	// default image for bottom of email
 
 // heartbeating
 \d .hb

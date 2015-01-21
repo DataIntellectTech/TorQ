@@ -13,16 +13,18 @@ tplogfile:@[value;`tplogfile;`]				// the tp log file to replay.  Only this or t
 tplogdir:@[value;`tplogdir;`]				// the tp log directory to read the log files from.  Only this or tplogfile should be used (not both)
 partitiontype:@[value;`partitiontype;`date]		// the partitioning of the database.  Can be date, month or year (int would have to be handled bespokely)
 emptytables:@[value;`emptytables;1b]			// whether to overwrite any tables at start up
-sortafterreplay:@[value;`sortafterreplay;1b]		// whether to re-sort the data at the end of the replay.  Sort order is determined by the result of sortandpart[`tablename]
-partafterreplay:@[value;`partafterreplay;1b]		// whether to apply the parted attribute after the replay.  Parted column is determined by result of first sortandpart[`tablename]
+sortafterreplay:@[value;`sortafterreplay;1b]		// whether to re-sort the data and apply attributes at the end of the replay.  Sort order is determined by the sortcsv (:config/sort.csv)
 basicmode:@[value;`basicmode;0b]			// do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
 exitwhencomplete:@[value;`exitwhencomplete;1b]		// exit when the replay is complete
+checklogfiles:@[value;`checklogfiles;0b] 		// check if the log file is corrupt, if it is then write a new "good" file and replay it instead
 gc:@[value;`gc;1b]					// garbage collect at appropriate points (after each table save and after the full log replay)
-
-savedownmanipulation:()!()				// a dict of table!function used to manipuate tables at EOD save
-sortandpart:{`sym`time}					// function to map tables to parting column and other sort columns.  The first column returned is taken as the parted column
 upd:@[value;`upd;{{[t;x] insert[t;x]}}]			// default upd function used for replaying data
-postreplay:{}						// post replay function, invoked after all the tables have been written down for a given log file
+
+sortcsv:@[value;`sortcsv;`:config/sort.csv]		//location of  sort csv file
+
+/ - settings for the common save code (see code/common/save.q)
+.save.savedownmanipulation:@[value;`savedownmanipulation;()!()] 	// a dict of table!function used to manipuate tables at EOD save
+.save.postreplay:@[value;`postreplay;{{[d;p] }}]			// post replay function, invoked after all the tables have been written down for a given log file
 
 // set up the usage information
 .proc.extrausage:"Log Replay:\n 
@@ -43,19 +45,18 @@ postreplay:{}						// post replay function, invoked after all the tables have be
  [-.replay.lastmessage n]\t\t\tThe last message number to replay. Default is 0W
  [-.replay.messagechunks n]\t\t\tThe size of message chunks to replay. If set to a negative number, the replay progress will be tracked but tables will not be saved until the end. Default is 0W
  [-.replay.partitiontype [date|month|year]] \tMethod used to partition the database - can be date, month or year. Default is date
- [-.replay.sortafterreplay [0|1]]\t\tSort the data on disk after the replay. Default is 1
- [-.replay.partafterreplay [0|1]]\t\tSet the parted attribute on the data after the replay. Default is 1 
+ [-.replay.sortafterreplay [0|1]]\t\tSort the data and apply attributes on disk after the replay. Default is 1
  [-.replay.emptytables [0|1]]\t\t\tCreate empty versions of the tables in the partitions when the replay starts.  This will effectively delete any data which is already there. Default is 1
  [-.replay.basicmode [0|1]]\t\t\tDo a basic replay, which reads the table into memory then saves down with .Q.hdpf.  Is probably faster for basic replays (in-memory sort rather than on-disk). Default is 0
  [-.replay.exitwhencomplete [0|1]]\t\tProcess exits when complete. Default is 1
+ [-.replay.checklogfiles [0|1]\t\t\tCheck log files for corruption, if corrupt then write a good log and replay this.  Default is 0
  \n
  There are some other functions/variables which can be modified to change the behaviour of the replay, but shouldn't be done from the config file
  Instead, load the script in a wrapper script which sets up the definition
  \n
- sortandpart[`tablename]\tfor each table should return a list of column names to sort and part by.  The first column is taken to be the parted column. Default is to return `sym`time
  savedownmanipulation\t\ta dictionary of tablename!function which can be used to manipulate a table before it is saved. Default is empty
  upd[tablename;data]\t\tthe function used to replay data into the tables.  Default is insert
- postreplay[]\t\t\tFunction invoked when each logfile is completely replayed.  Default is set to nothing
+ postreplay[d;p]\t\t\tFunction invoked when each logfile is completely replayed.  Default is set to nothing
  \n
  The behaviour upon encountering errors can be modified using the standard flags. With no flags set, the process will exit when it hits an error. 
  To trap an error and carry on, use the -trap flag
@@ -102,21 +103,8 @@ logstoreplay:$[not null tplogfile;
 if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]
 .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]
 
-memstats:{"mem stats: ",{"; "sv "=" sv'flip (string key x;(string value x),\:" MB")}`long$.Q.w[]%1048576}
-garbagecollect:{
- if[.replay.gc;
-  .lg.o[`replay;"Starting garbage collect. ",memstats[]];
-  r:.Q.gc[];
-  .lg.o[`replay;"Garbage collection returned ",(string `long$r%1048576),"MB. ",memstats[]]]}
-
 // the path to the table to save
 pathtotable:{[h;p;t] `$(string .Q.par[h;partitiontype$p;t]),"/"}
-
-// manipulate a table at save down time
-manipulate:{[t;x] 
- $[t in key savedownmanipulation; 
-  @[savedownmanipulation[t];x;{.lg.e[`replay;"save down manipulation failed : ",y];x}[x]];
-  x]}
 
 // create empty tables - we need to make sure we only create them once
 emptytabs:`symbol$()
@@ -130,7 +118,7 @@ savetabdata:{[h;p;t;data;UPSERT]
  path:pathtotable[h;p;t];
  .lg.o[`replay;"saving table ",(string t)," to ",string path];
  .replay.pathlist[t],:path;
- $[UPSERT;upsert;set] . (path;.Q.en[h;0!manipulate[t;data]])}
+ $[UPSERT;upsert;set] . (path;.Q.en[h;0!.save.manipulate[t;data]])}
 savetabdatatrapped:{[h;p;t;data;UPSERT] .[savetabdata;(h;p;t;data;UPSERT);{.lg.e[`replay;"failed to save table : ",x]}]}
 
 // this function should be invoked for saving tables
@@ -140,26 +128,16 @@ savetab:{[h;p;t]
   .lg.o[`replay;"saving ",(string t)," which has row count ",string count value t];
   savetabdatatrapped[h;p;t;value t;1b];
   delete from t;
-  garbagecollect[]]}
+  if[gc;.gc.run[]]]}
 
-// function to apply the sorting and parting at the end of the replay
+// function to apply the sorting and attributes at the end of the replay
 // input is a dictionary of tablename!(list of paths)
 // should be the same as .replay.pathlist
-applysortandpart:{[pathlist]
- // sort each table
- // there would be better ways to do this but this is probably the safest
- // given that sortandpart can be overwritten by users
- {[sortorder;pathlist] 
-  {[o;p] 
-   if[count o;
-    if[.replay.sortafterreplay;
-     .lg.o[`replay;"sorting path ",(string p)," with order ",-3!o];
-     .[xasc;(o;p);{.lg.e[`replay;"failed to sort table on path ",(string x)," : ",y]}[p]]];
-    if[.replay.partafterreplay;
-     .lg.o[`replay;"applying parted attribute to ",(string p)," on column ",-3!first o];
-     .[@;(p;first o;`p#);{.lg.e[`replay;"failed to apply attribute on part ",(string x)," : ",y]}[p]]]]}[sortorder] each pathlist}'[sortandpart each key pathlist;distinct each value pathlist];
- }
-
+applysortandattr:{[pathlist]
+	/ - convert pathlist dictionary into a keys and values then transpose before passing into .sort.sorttab
+	.sort.sorttab each flip (key;value) @\: distinct each pathlist
+	};
+ 
 // Given a list of table names, return the list in order according to the table counts
 // this is used at save down time as it should minimise memory usage to save the smaller tables first, and then garbage collect
 tabsincountorder:{x iasc count each value each x}
@@ -175,7 +153,7 @@ checkcount:{[h;p;counter]
      .lg.o[`replay;"replayed a chunk of ",(string .replay.messagechunks)," messages.  Total message count so far is ",string .replay.totalcount]];
     [.lg.o[`replay;"number of messages to replay at once (",(string .replay.messagechunks),") has been exceeded.  Saving down"]; 
      savetab[h;p] each tabsincountorder[.replay.tablestoreplay]; 
-     .lg.o[`replay;"save complete"]]];
+     .lg.o[`replay;"save complete- replaying next chunk of data"]]];
   .replay.currentcount:0]}
 
 // function used to finish off the replay
@@ -183,15 +161,17 @@ checkcount:{[h;p;counter]
 finishreplay:{[h;p]
  // save down any tables which haven't been saved
  savetab[h;p] each tabsincountorder[.replay.tablestoreplay];
- // apply the attributes
- applysortandpart[.replay.pathlist];
+ // sort data and apply the attributes
+ if[sortafterreplay;applysortandattr[.replay.pathlist]];
  // invoke any user defined post replay function
- postreplay[];
+ .save.postreplay[h;p];
  }
 
 replaylog:{[logfile]
  // set the upd function to be the initialupd function
  .replay.msgcount:.replay.currentcount:.replay.totalcount:0;
+ // check if logfile is corrupt
+ if[checklogfiles; logfile: .tplog.check[logfile;lastmessage]];
  $[firstmessage>0;
 	[.lg.o[`replay;"skipping first ",(string firstmessage)," messages"];
          @[`.;`upd;:;.replay.initialupd]];
@@ -201,7 +181,7 @@ replaylog:{[logfile]
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we wont replay the last message correctly
- -11!($[lastmessage<0Wj; lastmessage+1;lastmessage];logfile);
+ -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile);
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
@@ -209,7 +189,7 @@ replaylog:{[logfile]
   .Q.hdpf[`::;hdbdir;partitiontype$.replay.replaydate;`sym];
   // if not in basic mode, then we need to finish off the replay
   finishreplay[hdbdir;.replay.replaydate]];
- garbagecollect[];}
+  if[gc;.gc.run[]];}
 
 // upd functions down here
 realupd:{[f;t;x] 
@@ -233,6 +213,9 @@ initialupd:{[t;x]
     @[`.;`upd;:;.replay.realupd]]}
 
 \d .
+/-load the sort csv
+.sort.getsortcsv[.replay.sortcsv]
+
 .replay.replaylog each .replay.logstoreplay;
 .lg.o[`replay;"replay complete"]
 if[.replay.exitwhencomplete; exit 0]

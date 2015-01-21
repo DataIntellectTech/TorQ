@@ -34,12 +34,12 @@ subscribe each (exec w from .servers.SERVERS) except subscribedhandles;
  .servers.retry[];
  subscribe each (exec w from .servers.SERVERS) except subscribedhandles;
  }
-
+.servers.connectcustom:{[connectiontab] 
+ .lg.o[`monitor;"created outgoing connections"];
+ subscribe each (exec w from connectiontab) except subscribedhandles;
+ }
+ 
 // GUI
-
-// initialise pubsub
-.html.init`heartbeat`logmsg`lmchart
-
 /- Table data functions - Return unkeyed sorted tables
 hbdata:{0!`error`warning xdesc .hb.hb}
 lmdata:{0!`time xdesc -20 sublist logmsg}
@@ -55,3 +55,6 @@ start:{.html.wssub each `heartbeat`logmsg`lmchart;
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
 
 monitorui:.html.readpagereplaceHP["index.html"]
+
+// initialise pubsub
+.html.init`heartbeat`logmsg`lmchart

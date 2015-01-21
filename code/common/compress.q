@@ -54,7 +54,9 @@ The minimum block size for compression on windows is 16.
 
 \d .cmp
 
-inputcsv:@[value;`inputcsv;getenv[`KDBCONFIG],"/compressionconfig.csv"];
+inputcsv:@[value;`inputcsv;`$getenv[`KDBCONFIG],"/compressionconfig.csv"];
+
+inputcsv:string inputcsv
 
 checkcsv:{[csvtab]
     if[0b~all colscheck:`table`minage`column`calgo`cblocksize`clevel in (cols csvtab);
@@ -71,13 +73,13 @@ checkcsv:{[csvtab]
         .lg.e[`compression;err:inputcsv," has empty cells in column(s): ", (" " sv string `column`table`minage`clevel where nulls)];'err];}
 
 loadcsv:{[inputcsv] 
-    compressioncsv::@[{.lg.o[`compression;"Opening ", x];("SISJJJ"; enlist ",") 0:"S"$x}; (string inputcsv); {.lg.e[`compression;"failed to open ", (x)," : ",y];'y}[string inputcsv]];
+    compressioncsv::@[{.lg.o[`compression;"Opening ", x];("SISIII"; enlist ",") 0:"S"$x}; (string inputcsv); {.lg.e[`compression;"failed to open ", (x)," : ",y];'y}[string inputcsv]];
     checkcsv[compressioncsv];}
 
 traverse:{$[(0=count k)or x~k:key x; x; .z.s each ` sv' x,/:k where not any k like/:(".d";"*.q";"*.k";"*#")]}
 
 hdbstructure:{
-    t:([]fullpath:(raze/)traverse x);
+    t:([]fullpath:(raze/)traverse x); // orig traverse
      // calculate the length of the input path
     base:count "/" vs string x;
      // split out the full path
@@ -100,7 +102,9 @@ showcomp:{[hdbpath;csvpath;maxage]
     /-load csv
     loadcsv[$[10h = type csvpath;hsym `$csvpath;hsym csvpath]];
     /-build paths table and fill age
-    pathstab:update 0W^age from hdbstructure[hsym hdbpath];
+    $[count key (` sv hdbpath,`$"par.txt");
+	pathstab:update 0W^age from (,/) hdbstructure'[hsym each `$(read0 ` sv hdbpath,`$"par.txt")];
+	pathstab:update 0W^age from hdbstructure[hsym hdbpath]];
     /-delete anything which isn't a table
     pathstab:delete from pathstab where table in `;
     /-tables that are in the hdb but not specified in the csv - compress with `default params
@@ -122,7 +126,7 @@ showcomp:{[hdbpath;csvpath;maxage]
     select from (update currentsize:hcount each fullpath from t) where age within (compressage;maxage) }
 
 compressfromtable:{[table]
-    statstab::([] file:`$(); algo:`long$(); compressedLength:`long$();uncompressedLength:`long$());
+    statstab::([] file:`$(); algo:`int$(); compressedLength:`long$();uncompressedLength:`long$());
     {compress[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize]} each table;}
 
 /- call the compression with a max age paramter implemented
@@ -143,8 +147,8 @@ summarystats:{
     totalcompratio: (sum compressedfiles`uncompressedLength) % sum compressedfiles`compressedLength;
     memoryusage:((sum uncompressedfiles`uncompressedLength) - sum uncompressedfiles`compressedLength) % 2 xexp 20;
     totaldecompratio: neg (sum uncompressedfiles`compressedLength) % sum uncompressedfiles`uncompressedLength;
-    .lg.o[`compression;"Memory savings from compression: ", (.Q.f[2;memorysavings]), "MB. Total compression ratio: ", (.Q.f[2;totalcompratio]),"."];
-    .lg.o[`compression;"Additional memory used from de-compression: ",(.Q.f[2;memoryusage]), "MB. Total de-compression ratio: ", (.Q.f[2;totaldecompratio]),"."];
+    .lg.o[`compression;"Memory savings from compression: ", .Q.f[2;memorysavings], "MB. Total compression ratio: ", .Q.f[2;totalcompratio],"."];
+    .lg.o[`compression;"Additional memory used from de-compression: ",.Q.f[2;memoryusage], "MB. Total de-compression ratio: ", .Q.f[2;totaldecompratio],"."];
     .lg.o[`compression;"Check .cmp.statstab for info on each file."];}
 
 compress:{[filetoCompress;algo;blocksize;level;sizeuncomp] 
@@ -156,14 +160,16 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
         if[0=algo;comprL:(-21!filetoCompress)`compressedLength];
         -19!(filetoCompress;compressedFile;blocksize;algo;level);
          / check the compressed/decomp file and move if appropriate; else delete compressed file and log error
-        $[(get compressedFile)~(sf:get filetoCompress);    
+        $[((get compressedFile)~sf:get filetoCompress) & (count -21!compressedFile) or algo=0;    
             [.lg.o[`compression;"File ", $[algo=0;"decompressed ";"compressed "],"successfully; matches orginal. Deleting original."];
-                system "r ", (last ":" vs string compressedFile)," ", (last ":" vs string filetoCompress);
+                system "r ", (last ":" vs string compressedFile)," ", last ":" vs string filetoCompress;
                 / move the hash files too. 
                 if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"];
                 /-log to the table if the algo wasn't 0
                 $[not 0=algo;statstab ,: (filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);statstab ,: (filetoCompress;algo;comprL;sizeuncomp)]];
-            [.lg.o[`compression; $[algo=0;"Decompressed ";"Compressed "], "file ", (string compressedFile), " doesn't match original. Deleting new file"]; hdel compressedFile]]
+            [$[(not count (-21!compressedFile));
+		[.lg.o[`compression; "Failed to compress file ",(string filetoCompress)];hdel compressedFile]; 
+		.lg.o[`compression; $[algo=0;"Decompressed ";"Compressed "], "file ", (string compressedFile), " doesn't match original. Deleting new file"]; hdel compressedFile]]]
         ];
         / if already compressed/decompressed, then log that and skip.
         [((not 0 = count -21!filetoCompress) & not 0 = algo)|((0 = count -21!filetoCompress) & 0 = algo)];
