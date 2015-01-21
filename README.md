@@ -2,10 +2,11 @@
 
 The framework forms the basis of a production kdb+ system by implementing some core functionality and utilities on top of kdb+, allowing developers to concentrate on the application business logic. It incorporates as many best practices as possible, with particular focus on performance, process management, diagnostic information, maintainability and extensibility. Wherever possible, we have tried to avoid re-inventing the wheel and instead have used contributed code from code.kx.com (either directly or modified). This framework will be suitable for those looking to create a new kdb+ system from scratch or those looking to add additional functionality to their existing kdb+ systems.
 
+The easiest way to get a production capture started is to download and install one of the [Starter Packs](https://github.com/AquaQAnalytics).
+
 ![TorQ Logo](../master/html/img/torq-logo.png)
 
-Quick Start
------------
+## Quick Start
 
 To launch a process wrapped in the framework, you need to set the environment variables and give the process a type and name.  The type and name can be explicitly passed on the command line.  setenv.sh is an example of how to set the environment variables on a unix type system.  For a windows system, see http://www.computerhope.com/issues/ch000549.htm.  kdb+ expects all paths to be / (forward-slash) separated so all paths on all OSs should be forward-slash separated. 
 
@@ -21,13 +22,7 @@ q torq.q -load mytest.q -proctype test -procname mytest -debug
 ```
 This will launch the a process running within the framework with all the default values.  For the rest, read the document!
 
-Production Setup
-----------------
-The easiest way to get a production capture started is to download and install one of the Starter Packs. 
-
-
-Release Notes
--------------
+## Release Notes
 
 - **1.0, Feb 2014**: 
   * Initial public release of TorQ
