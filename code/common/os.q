@@ -1,3 +1,4 @@
+/- courtesy of Simon Garland
 \d .os
 NT:.z.o in`w32`w64
 Fex:{not 0h~type key hsym$[10=type x;`$x;x]}
