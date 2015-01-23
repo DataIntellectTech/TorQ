@@ -7,7 +7,7 @@ ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
 md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
-ren:{system("mv ";"ren ")[NT],pth[x]," ",string y}
+ren:{system("mv ";"move ")[NT],pth[x]," ",pth string y}
 cpy:{system("cp ";"copy ")[NT],pth[x]," ",pth y}
 Vex:not 0h~type key`.@
 df:{(`$("/";"\\")[NT]sv -1_v;`$-1#v:("/";"\\")[NT]vs pth(string x;x)[10h=type x])} 
