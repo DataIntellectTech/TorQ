@@ -17,7 +17,7 @@ generalusage:@[value;`generalusage;"General:
  By default these are read from $KDBCONFIG/process.csv with schema 
  host,port,proctype,procname
  The process uses it's own host (either hostname or ip address) as a lookup to work out it's type and name.
- It will also check for hosts of "localhost" if it can't find anything else, but this is a convenience and not for
+ It will also check for hosts of 'localhost' if it can't find anything else, but this is a convenience and not for
  production environments.
  The name and type of the process are used to determine various things : 
   - the name of the log files to write to
