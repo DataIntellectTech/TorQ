@@ -39,9 +39,6 @@ permitreload:1b                         // enable reload of hdbs/rdbs
 compression:()                          // specify the compress level, empty list if no required
 gc:1b                                   // garbage collect at appropriate points (after each table save and after sorting data)
 
-\d .proc
-loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}
-
 // Server connection details
 \d .servers
 CONNECTIONS:`hdb`tickerplant`rdb`gateway	// list of connections to make at start up
