@@ -103,8 +103,7 @@ endofday:{[pt]
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[])		
-	];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[])];
 	.lg.o[`eod;"end of day is now complete"];
 	}
 	
@@ -117,11 +116,9 @@ endofdaysave:{[dir;pt]
 	
 endofdaysort:{[dir;pt;tablist]
 	/-sort permitted tables in database
+	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
-	if[sortenabled; 
-		/ - sort the table and garbage collect (if enabled)
-		{[x] .sort.sorttab[x];if[gc;.gc.run[]] } each tablist,'.Q.par[dir;pt;] each tablist
-	];
+	{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist;
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb directory to the hdb directory"];
@@ -171,8 +168,9 @@ informsortandreload:{[dir;pt;tablist]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;`sort;()!();1b;0b];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist);] each exec w from sortprocs;
-		.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"]
-	]
+		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
+		 // try to run the sort locally
+		 endofdaysort[dir;pt;tablist]]];
 	};
 
 /-function to set the timer for the save to disk function	
@@ -222,7 +220,8 @@ startup:{[]
 			.z.zd:compression;
 			.lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]];
 	/- get the attributes csv file
-	if[sortenabled; .sort.getsortcsv[sortcsv]];
+  	/- even if running with a sort process should read this file in to cope with backups
+	.sort.getsortcsv[sortcsv];
 	}
 	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
