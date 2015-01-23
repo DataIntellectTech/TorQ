@@ -1,4 +1,4 @@
-// minor ustomisation of controlaccess.q from code.kx
+// minor customisation of controlaccess.q from code.kx
 // http://code.kx.com/wsvn/code/contrib/simon/dotz/
 // main change is that the set up (users, hosts and functions) are loaded from csv files
 // also want to throw an error and have it as an error in the io log rather than a separate log file
@@ -32,13 +32,13 @@ readhostfile:{
 	1!("*B";enlist",")0:hsym `$x
 	}
 
-// Read in the default users file 
+// Read in the default users file
 readuserfile:{
         .lg.o[`access;"reading user file ",x];
         1!("SBBB";enlist",")0:hsym `$x
 	}
 
-// Read in the default functions file 
+// Read in the default functions file
 readfunctionfile:{
         .lg.o[`access;"reading function file ",x];
         res:("*BB*";enlist",")0:hsym `$x;
@@ -55,22 +55,22 @@ readpermissions:{[dir]
 	.lg.o[`access;"reading permissions from ",dir];
 	// Check the directory exists
 	if[()~f:key hsym `$dir; .lg.e[`access;"permissions directory ",dir," doesn't exist"]];
-	
-	// Read in the permissions 
+
+	// Read in the permissions
 	files:{poss:`$(string (`default;.proc.proctype;.proc.procname)),\:y;
 	 poss:poss where poss in x;
 	 if[0=count poss; .lg.e[`access;"failed to find appropriate ",y," file. At least default",y," should be supplied"]];
-	 poss}[key hsym `$dir] each ("_hosts.csv";"_users.csv";"_functions.csv");	
-	
-	// only need to clear out the users - everything else is reset	
+	 poss}[key hsym `$dir] each ("_hosts.csv";"_users.csv";"_functions.csv");
+
+	// only need to clear out the users - everything else is reset
 	.lg.o[`access;"clearing out old permissions"];
         delete from `.access.USERS;
 
 	// Load up each one
 	hosts::raze readhostfile each (dir,"/"),/:string files 0;
 	users::raze readuserfile each (dir,"/"),/:string files 1;
-	funcs::raze readfunctionfile each (dir,"/"),/: string files 2;		
-	
+	funcs::raze readfunctionfile each (dir,"/"),/: string files 2;
+
 	HOSTPATTERNS::exec host from hosts where allowed;
 	addsuperuser each exec distinct user from users where superuser;
 	addpoweruser each exec distinct user from users where not superuser,poweruser;
