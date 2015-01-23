@@ -16,7 +16,9 @@ generalusage:@[value;`generalusage;"General:
   - set previously if sourced from other files (set .proc.proctype and .proc.procname)
  By default these are read from $KDBCONFIG/process.csv with schema 
  host,port,proctype,procname
- The process uses it's own host (either hostname or ip address) as a lookup to work out it's type and name
+ The process uses it's own host (either hostname or ip address) as a lookup to work out it's type and name.
+ It will also check for hosts of "localhost" if it can't find anything else, but this is a convenience and not for
+ production environments.
  The name and type of the process are used to determine various things : 
   - the name of the log files to write to
   - which config to load
@@ -26,9 +28,11 @@ generalusage:@[value;`generalusage;"General:
 // Usage errors
 // The environment usage info
 envusage:@[value;`envusage;"Required environment variables:
- KDBCODE:\t\t\tThe base code directory.  This will be checked for certain folders e.g. $KDBCODE/common;$KDBCODE/handlers
+ KDBCODE:\t\t\tthe base code directory.  This will be checked for certain folders e.g. $KDBCODE/common;$KDBCODE/handlers
  KDBCONFIG:\t\t\twhere the process configuration lives
- KDBLOG:\t\t\twhere log files are written to"]
+ KDBLOG:\t\t\twhere log files are written to
+ KDBHTML:\t\t\tcontains html files
+ KDBLIB:\t\t\tcontains supporting library files"]
 
 // the standard options
 stdoptionusage:@[value;`stdoptionusage;"Standard options:
@@ -71,9 +75,9 @@ helpusage:@[value;`helpusage;"Help:
 getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",stdoptionusage,"\n\n",extrausage,"\n\n",configusage,"\n\n",helpusage,"\n\n"]}
 
 // The required environment variables
-// The base script must have KDBCODE, KDBCONFIG and KDBLOG set
+// The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
 
 // set the torq environment variables if not already set
 qhome:{q:getenv[`QHOME]; if[q~""; q:$[.z.o like "w*"; "c:/q"; getenv[`HOME],"/q"]]; q}
@@ -83,7 +87,7 @@ settorqenv:{[envvar; default]
   setenv[envvar; val]];}
 
 // make sure the path separators are the right way around if running on windows
-if[.z.o like "w*"; {if["\\" in v:getenv[x]; setenv[x;ssr[v;"\\";"/"]]]} each distinct envvars,`KDBLIB`KDBHTML]
+if[.z.o like "w*"; {if["\\" in v:getenv[x]; setenv[x;ssr[v;"\\";"/"]]]} each distinct envvars]
 
 // The variables required to be set in each process
 // This is the mimimum set of information that each process must know about itself for registration / advertisement purposes
@@ -215,7 +219,7 @@ stop:`stop in key params
 if[trap and stop; .log.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
-settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG;("code";"config";"logs")];
+settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
 
 // Check the environment is set up correctly
 .err.env[envvars]
@@ -253,10 +257,12 @@ readprocs:{[file] @[("SISS";enlist",")0:;file;{.lg.e[`procfile;"failed to read p
 // Pull out the applicable rows
 readprocfile:{[file]
 	res:@[{t:readprocs file;
-          select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
+         // allow host=localhost for ease of startup 
+	 select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
 	if[0=count res;
 		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
-	first res}	
+	// if more than one result, take the first non-localhost one
+	$[1<count res; first select from res where not host=`localhost; first res]}	
 
 // The required values aren't set - so read them from the file
 if[not reqset;
