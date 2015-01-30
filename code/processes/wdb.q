@@ -227,7 +227,7 @@ startup:{[]
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[] 
-	$[saveenabled and not () ~ key wdbpart:` sv savedir,`$string getpartition[];
+	$[saveenabled and not () ~ key wdbpart:.Q.par[savedir;getpartition[];`];
 		[.lg.o[`deletewdbdata;"removing wdb data (",(delstrg:1_string wdbpart),") prior to log replay"];
 		@[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing wdb data.  Error was : ",e];'e }];
 		.lg.o[`deletewdbdata;"finished removing wdb data prior to log replay"];
