@@ -122,7 +122,7 @@ endofdaysort:{[dir;pt;tablist]
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb directory to the hdb directory"];
-	.[.os.ren;(-1 _ string .Q.par[dir;pt;`];`$-1_1_string .Q.par[hdbdir;pt;`]);{.lg.e[`mvtohdb;"Failed to move data from pdb to hdb directory"]}];
+	.[.os.ren;(-1 _ string .Q.par[dir;pt;`];-1 _ string .Q.par[hdbdir;pt;`]);{.lg.e[`mvtohdb;"Failed to move data from pdb to hdb directory"]}];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 
