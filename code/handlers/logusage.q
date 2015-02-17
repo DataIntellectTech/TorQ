@@ -10,7 +10,7 @@
 \d .usage
 
 // table to store usage info
-usage:@[value;`usage;([]time:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())]
+usage:@[value;`usage;([]time:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$(); procname:`symbol$(); status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())]
 
 // Check if the process has been initialised correctly
 if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
@@ -62,7 +62,7 @@ createlog:{[logdir;logname;timestamp;suppressalias]
 
 // read in a log file 
 readlog:{[file]
-	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSCISI**JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
+	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSCISI**JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
 
 // roll the logs
 // inmemorypersist = the number 
@@ -76,16 +76,16 @@ rolllogauto:{rolllog[getenv`KDBLOG;.proc.procname;logtimestamp[];.usage.suppress
 meminfo:{5#system"w"}
 
 logDirect:{[id;zcmd;endp;result;arg;startp] / log complete action
-    if[LEVEL>1;write(startp;id;`long$.001*endp-startp;zcmd;"c";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;"")];result}
+    if[LEVEL>1;write(startp;id;`long$.001*endp-startp;zcmd;.proc.proctype;.proc.procname;"c";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;"")];result}
 
 logBefore:{[id;zcmd;arg;startp] / log non-time info before execution
-    if[LEVEL>2;write(startp;id;0Nj;zcmd;"b";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;"")];}
+    if[LEVEL>2;write(startp;id;0Nj;zcmd;.proc.proctype;.proc.procname;"b";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;"")];}
 
 logAfter:{[id;zcmd;endp;result;arg;startp] / fill in time info after execution
-    if[LEVEL>1;write(endp;id;`long$.001*endp-startp;zcmd;"c";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];-22!result;"")];result}
+    if[LEVEL>1;write(endp;id;`long$.001*endp-startp;zcmd;.proc.proctype;.proc.procname;"c";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];-22!result;"")];result}
 	
 logError:{[id;zcmd;endp;arg;startp;error] / fill in error info
-    if[LEVEL>0;write(endp;id;`long$.001*endp-startp;zcmd;"e";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;error)];'error}
+    if[LEVEL>0;write(endp;id;`long$.001*endp-startp;zcmd;.proc.proctype;.proc.procname;"e";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;error)];'error}
 	
 p0:{[x;y;z;a]logDirect[nextid[];`pw;.z.p;y[z;a];(z;"***");.z.p]}
 p1:{logDirect[nextid[];x;.z.p;y z;z;.z.p]}
