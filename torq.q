@@ -103,18 +103,18 @@ getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBCONFIG],"/application
 
 // Set the logging table at the top level
 // This is to allow it to be published
-@[`.;`logmsg;:;([]time:`timestamp$(); sym:`symbol$(); host:`symbol$(); loglevel:`symbol$(); id:`symbol$(); message:())]; 
+@[`.;`logmsg;:;([]time:`timestamp$(); sym:`symbol$(); proctype:`symbol$(); host:`symbol$(); loglevel:`symbol$(); id:`symbol$(); message:())]; 
 
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proc;id;message] "|" sv (string .z.p;string .z.h;string proc;string loglevel;string id;message)}
+format:{[loglevel;proctype;proc;id;message] "|" sv (string .z.p;string .z.h;string proctype;string proc;string loglevel;string id;message)}
 
-publish:{[loglevel;proc;id;message]
+publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
   // check the publish function exists
   if[@[value;`.ps.initialised;0b];
-   .ps.publish[`logmsg;enlist`time`sym`host`loglevel`id`message!(.z.p;proc;.z.h;loglevel;id;message)]]]}
+   .ps.publish[`logmsg;enlist`time`sym`proctype`host`loglevel`id`message!(.z.p;proc;proctype;.z.h;loglevel;id;message)]]]}
 
 // Dictionary of log levels mapped to standard out/err
 // Set to 0 if you don't want the log type to print
@@ -123,18 +123,18 @@ outmap:@[value;`outmap;`ERROR`ERR`INF`WARN!2 2 1 1]
 pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
-l:{[loglevel;proc;id;message;dict]
+l:{[loglevel;proctype;proc;id;message;dict]
 	$[0 < redir:0^outmap[loglevel];
-		neg[redir] .lg.format[loglevel;proc;id;message];
-		ext[loglevel;proc;id;message;dict]];
-        publish[loglevel;proc;id;message];	
+		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
+		ext[loglevel;proctype;proc;id;message;dict]];
+        publish[loglevel;proctype;proc;id;message];	
 	}
 
 // Log an error.  
 // If the process is fully initialised, throw the error
 // If trap mode is set to false, exit
-err:{[loglevel;proc;id;message;dict]
-        l[loglevel;proc;id;message;dict];
+err:{[loglevel;proctype;proc;id;message;dict]
+        l[loglevel;proctype;proc;id;message;dict];
         if[.proc.stop;'message];
  	if[.proc.initialised;:()];
         if[not .proc.trap; exit 3];
@@ -142,13 +142,13 @@ err:{[loglevel;proc;id;message;dict]
 
 // log out and log err
 // The process name is temporary which we will reset later - once we know what type of process this is
-o:l[`INF;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
-e:err[`ERR;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
-w:l[`WARN;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
+o:l[`INF;`torq;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
+e:err[`ERR;`torq;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
+w:l[`WARN;`torq;`$"_" sv string (.z.f;.z.i;system"p");;;()!()]
 
 // Hook to handle extended logging functionality
 // Leave blank
-ext:{[loglevel;proc;id;message;dict]}
+ext:{[loglevel;proctype;proc;id;message;dict]}
 
 banner:{
  width:80;
@@ -276,9 +276,9 @@ $[any null `.proc req;
 	.lg.o[`init;"read in process parameters of ","; " sv "=" sv' string flip(req;`.proc req)]]
 
 // reset the logging functions to now use the name of the process
-.lg.o:.lg.l[`INF;procname;;;()!()]
-.lg.e:.lg.err[`ERR;procname;;;()!()]
-.lg.w:.lg.l[`WARN;procname;;;()!()]
+.lg.o:.lg.l[`INF;proctype;procname;;;()!()]
+.lg.e:.lg.err[`ERR;proctype;procname;;;()!()]
+.lg.w:.lg.l[`WARN;proctype;procname;;;()!()]
 
 // redirect std out or std err to a file
 // if alias is not null, a softlink will be created back to the actual file
