@@ -47,4 +47,5 @@ This will launch the a process running within the framework with all the default
   * Added compression process to run and compress a given database
   * Modified compression code to handle par.txt databases
   * Modified compression code and housekeeping process to run with kdb+ 2.*
+  * Modified std out/err logging and usage logging to include process name and process type (the logmsg table had changed along with some of the functions in the .lg namespace so you might need to check in case you have overridden any of them)
   * Removed launchtick scripts and some default configuration: to create a test system, install a starter pack
