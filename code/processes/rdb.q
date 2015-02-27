@@ -109,7 +109,7 @@ reload:{[date]
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tabs:subtables except ignorelist;
 	/-drop off the first eodtabcount[tab] for each of the tables
-	dropfirstnrows each tabs
+	dropfirstnrows each tabs;
 	rmdtfromgetpar[date];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
