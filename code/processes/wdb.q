@@ -193,6 +193,9 @@ subscribe:{[]
 
 /- will check on each upd to determine where data should be flushed to disk (if max row limit has been exceeded)
 replayupd:{[f;t;d]
+	/- execute the supplied function        
+        f . (t;d);
+
 	/ - if the data count is great than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:maxrows[t];
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
