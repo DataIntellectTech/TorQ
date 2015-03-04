@@ -95,7 +95,7 @@ hdbstructure:{
            13h=type t`partition; t:update age:(`month$.z.D) - partition from t;
            // otherwise it is ints.  If all the values are within 1000 and 3000
            // then assume it is years 
-           t:update age:{$[all x within 1000 3000; x - `year$.z.D;(count x)#0Ni]} from t];
+           t:update age:{$[all x within 1000 3000; x - `year$.z.D;(count x)#0Ni]}[partition] from t];
     delete splitcount,split from t}
 
 showcomp:{[hdbpath;csvpath;maxage]
