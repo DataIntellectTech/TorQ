@@ -135,4 +135,4 @@ FArun:{.lg.o[`alerter;"running filealerter process"];
 loadcsv[];
 loadprocessed[alreadyprocessed];
 
-.timer.rep[.z.p;0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
+.timer.rep[.proc.ft[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]

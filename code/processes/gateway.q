@@ -101,8 +101,8 @@ addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (handle;server
 addserver:addserverattr[;;()!()]
 setserverstate:{[serverh;use] 
  $[use;
-   update inuse:use,lastquery:.z.p,querycount+1i from `.gw.servers where handle in serverh;
-   update inuse:use,usage:usage+.z.p - lastquery from `.gw.servers where handle in serverh]}
+   update inuse:use,lastquery:.proc.ft[],querycount+1i from `.gw.servers where handle in serverh;
+   update inuse:use,usage:usage+.proc.ft[] - lastquery from `.gw.servers where handle in serverh]}
 
 // return a list of available servers
 // override this function for different routing algorithms e.g. maybe only send to servers in the same datacentre, country etc.
@@ -129,13 +129,13 @@ canberun:{
  where 0<count each available}
 
 // Manage client queries
-addquerytimeout:{[query;servertype;join;postback;timeout] `.gw.queryqueue upsert (nextqueryid[];.z.p;.z.w;query;servertype,();join;postback;timeout;0Np;0Np;0b)}
+addquerytimeout:{[query;servertype;join;postback;timeout] `.gw.queryqueue upsert (nextqueryid[];.proc.ft[];.z.w;query;servertype,();join;postback;timeout;0Np;0Np;0b)}
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue;}
-addclientdetails:{`.gw.clients insert (.z.p;x;.z.u;.z.a;.z.h)}
+addclientdetails:{`.gw.clients insert (.proc.ft[];x;.z.u;.z.a;.z.h)}
 removequeries:{[age] 
- .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where .z.p > returntime+age}
+ .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where .proc.ft[] > returntime+age}
 
 // scheduling function to get the next query to execute. Need to ensure we avoid starvation
 // possibilities : 
@@ -150,7 +150,7 @@ getnextqueryid:fifo
 getnextquery:{
  qid:getnextqueryid[];
  if[0=count qid; :()];
- update submittime:.z.p^submittime from `.gw.queryqueue where queryid in qid`queryid;
+ update submittime:.proc.ft[]^submittime from `.gw.queryqueue where queryid in qid`queryid;
  qid}
 
 // finish a query
@@ -159,7 +159,7 @@ getnextquery:{
 // reset the serverhandle
 finishquery:{[qid;err;serverh] 
  deleteresult[qid];
- update error:err,returntime:.z.p from `.gw.queryqueue where queryid in qid;
+ update error:err,returntime:.proc.ft[] from `.gw.queryqueue where queryid in qid;
  setserverstate[serverh;0b];
  }  
 
@@ -233,7 +233,7 @@ removeserverhandle:{[serverh]
 
 // timeout queries
 checktimeout:{
- qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.z.p > time+timeout,null returntime;
+ qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.proc.ft[] > time+timeout,null returntime;
  // propagate a timeout error to each client
  if[count qids;
   sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value"] each qids;
@@ -260,10 +260,10 @@ syncexecj:{[query;servertype;joinfunction]
   '`$"not all of the requested server types are available; missing "," " sv string missing]; 
  // get the list of handles
  handles:(servers:availableservers[0b])?servertype;
- start:.z.p;
+ start:.proc.ft[];
  setserverstate[handles;1b];
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
- (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];()]};query);
+ (neg handles)@\:({@[neg .z.w;@[{(1b;.proc.ft[];value x)};x;{(0b;.proc.ft[];x)}];()]};query);
  // flush
  (neg handles)@\:(::);
  // block and wait for the results
@@ -344,8 +344,8 @@ reloadend:{.lg.o[`reload;"reload end called"]}
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
- .timer.repeat[.z.p;0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
- .timer.repeat[.z.p;0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
+ .timer.repeat[.proc.ft[];0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
+ .timer.repeat[.proc.ft[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
 
 // add in some api details 
 / if[`add in key `.api;
