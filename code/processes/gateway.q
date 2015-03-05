@@ -317,7 +317,7 @@ pc:{
 
 // add servers from the standard connections table
 addserversfromconnectiontable:{
- {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where proctype in x,not w in ((0;0Ni),exec handle from .gw.servers where active)];}
+ {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
 
 // When new connections come in from the discovery service, try to reconnect
 .servers.addprocscustom:{[connectiontab;procs]
