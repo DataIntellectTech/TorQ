@@ -47,8 +47,9 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-noconfig]:\t\t\tdo not load configuration
  [-nopi]:\t\t\treset the definition of .z.pi to the initial value (useful for debugging)
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
+ [-localtime]:\t\t\tapply local time instead of GMT
  [-usage]:\t\t\tprint usage info"]
-
+ 
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
 
@@ -108,13 +109,13 @@ getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBCONFIG],"/application
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|" sv (string .z.p;string .z.h;string proctype;string proc;string loglevel;string id;message)}
+format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.ft[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
   // check the publish function exists
   if[@[value;`.ps.initialised;0b];
-   .ps.publish[`logmsg;enlist`time`sym`proctype`host`loglevel`id`message!(.z.p;proc;proctype;.z.h;loglevel;id;message)]]]}
+   .ps.publish[`logmsg;enlist`time`sym`proctype`host`loglevel`id`message!(.proc.ft[];proc;proctype;.z.h;loglevel;id;message)]]]}
 
 // Dictionary of log levels mapped to standard out/err
 // Set to 0 if you don't want the log type to print
@@ -206,6 +207,8 @@ exitifnull:{[variable]
 params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
+
+ft:$[`localtime in key .proc.params;{.z.P};{.z.p}]
 
 // Check if we are in fail fast mode
 trap:`trap in key params
