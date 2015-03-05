@@ -35,11 +35,11 @@ hbcounter:@[value;`hbcounter;0j]
 // publish a heartbeat
 publishheartbeat:{
  if[@[value;`.ps.initialised;0b];
-  .ps.publish[`heartbeat;enlist `time`sym`procname`counter!(.z.p;.proc.proctype;.proc.procname;hbcounter)];
+  .ps.publish[`heartbeat;enlist `time`sym`procname`counter!(.proc.ft[];.proc.proctype;.proc.procname;hbcounter)];
   hbcounter+::1]}
 
 // add a set of process names and types to seed the heartbeat table
-addprocs:{[proctypes;procnames] .hb.hb:(2!([]sym:proctypes,();procname:procnames,();time:.z.p;counter:0Nj;warning:0b;error:0b)),.hb.hb}
+addprocs:{[proctypes;procnames] .hb.hb:(2!([]sym:proctypes,();procname:procnames,();time:.proc.ft[];counter:0Nj;warning:0b;error:0b)),.hb.hb}
 
 // store an incoming heartbeat
 storeheartbeat:{[hb]
@@ -48,7 +48,7 @@ storeheartbeat:{[hb]
 
 // check if any of the heartbeats are in error or warning
 checkheartbeat:{
- now:.z.p;
+ now:.proc.ft[];
  // calculate which processes haven't heartbeated recently enough
  stats:update status+`short$2*now>time+.hb.errorperiod[sym] from 
    update status:`short$now>time+.hb.warningperiod[sym] from .hb.hb;
@@ -88,6 +88,6 @@ if[.hb.enabled;
  // add the checkheartbeat function to the timer
  $[@[value;`.timer.enabled;0b] and `publish in key `.ps;
   [.lg.o[`init;"adding heartbeat functions to the timer"];
-   .timer.repeat[.z.p;0Wp;.hb.publishinterval;(`.hb.publishheartbeat;`);"publish heartbeats"];
-   .timer.repeat[.z.p;0Wp;.hb.checkinterval;(`.hb.checkheartbeat;`);"check the heartbeats have been received in a timely manner"]];
+   .timer.repeat[.proc.ft[];0Wp;.hb.publishinterval;(`.hb.publishheartbeat;`);"publish heartbeats"];
+   .timer.repeat[.proc.ft[];0Wp;.hb.checkinterval;(`.hb.checkheartbeat;`);"check the heartbeats have been received in a timely manner"]];
   .lg.e[`init;"heartbeating is enabled, but the timer and/or pubsub code is not enabled"]]];
