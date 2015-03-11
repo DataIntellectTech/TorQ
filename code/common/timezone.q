@@ -8,10 +8,10 @@ default:@[value;`default;`$"Europe/London"]
 t:@[get;hsym`$tzfile;{.lg.e[`init;"failed to load timezone table from ",x," ",y]}[tzfile:getenv[`KDBCONFIG],"/tzinfo"]]
 
 // local from GMT
-lg:{[tz;z] $[0>type z;first;(::)]@exec gmtDateTime+adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:tz;gmtDateTime:z,());t]};
+lg:{[tz;z] $[0>type z;first;(::)]@exec gmtDateTime+adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:tz;gmtDateTime:z,());select timezoneID,gmtDateTime,adjustment from t]};
 
 // GMT from local
-gl:{[tz;z] $[0>type z;first;(::)]@exec localDateTime-adjustment from aj[`timezoneID`localDateTime;([]timezoneID:tz;localDateTime:z,());t]};
+gl:{[tz;z] $[0>type z;first;(::)]@exec localDateTime-adjustment from aj[`timezoneID`localDateTime;([]timezoneID:tz;localDateTime:z,());select timezoneID,localDateTime,adjustment from t]};
 
 // timezone switch
 // d = destination time zone
