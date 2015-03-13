@@ -38,11 +38,11 @@ check:{[fp;dupcheck]
 // add a repeatingtimer
 rep:{[start;end;period;funcparam;nextsch;descrip;dupcheck] 
 	if[not nextsch in `short$til 3; '"nextsch mode can only be one of ",-3!`short$til 3];
-	`.timer.timer upsert (getID[];.proc.ft[];start:.proc.ft[]^start;0Wp^end;period;check[funcparam;dupcheck];0Np;start+period;1b;nextsch;descrip);}
+	`.timer.timer upsert (getID[];.proc.cp[];start:.proc.cp[]^start;0Wp^end;period;check[funcparam;dupcheck];0Np;start+period;1b;nextsch;descrip);}
 
 // add a one off timer
 one:{[runtime;funcparam;descrip;dupcheck] 
-        `.timer.timer upsert (getID[];.proc.ft[];.proc.ft[];0Np;0Nn;check[funcparam;dupcheck];0Np;runtime;1b;0h;descrip);}
+        `.timer.timer upsert (getID[];.proc.cp[];.proc.cp[];0Np;0Nn;check[funcparam;dupcheck];0Np;runtime;1b;0h;descrip);}
 
 // projection to add a default repeating timer.  Scheduling mode 2 is the safest - least likely to back up
 repeat:rep[;;;;nextscheduledefault;;1b]
@@ -64,10 +64,10 @@ run:{
 runandreschedule:{
 	// if debug mode, print out what we are doing 	
 	if[debug; .lg.o[`timer;"running timer ID ",(string x`id),". Function is ",-3!x`funcparam]];
-	start:.proc.ft[];
+	start:.proc.cp[];
 	@[$[logcall;0;value];x`funcparam;{update active:0b from `.timer.timer where id=x`id; .lg.e[`timer;"timer ID ",(string x`id)," failed with error ",y,".  The function will not be rescheduled"]}[x]];
 	// work out the next run time
-	n:x[`period]+(x[`nextrun];start;.proc.ft[]) x`nextschedule;
+	n:x[`period]+(x[`nextrun];start;.proc.cp[]) x`nextschedule;
 	// check if the next run time falls within the sceduled period
 	// either up the nextrun info, or switch off the timer
 	$[n within x`periodstart`periodend;
@@ -76,11 +76,11 @@ runandreschedule:{
 		 update lastrun:start,active:0b from `.timer.timer where id=x`id]];
 	}
 
-// Set .z.ts
+//Set .z.ts
 if[.timer.enabled;
  $[@[{value x;1b};`.z.ts;0b];
-   .z.ts:{.timer.run[y]; x@y}[.z.ts];
-   .z.ts:{.timer.run[x]}];
+   .z.ts:{[x;y] .timer.run now:.proc.cp[]; x@y}[.z.ts];
+   .z.ts:{.timer.run[.proc.cp[]]}];
 
  // Set the timer to 200ms if not set already
  if[not system"t"; system"t 200"]];
@@ -88,10 +88,10 @@ if[.timer.enabled;
 \
 f:{0N!`firing;x+1}
 f1:{0N!`firing;system"sleep ",string x}
-repeat[.proc.ft[];.proc.ft[]+0D00:01;0D00:00:15;(f1;2);"test timer"]
-rep[.proc.ft[];.proc.ft[]+0D00:01;0D00:00:15;(f1;3);0h;"test timer";1b]
-rep[.proc.ft[];.proc.ft[]+0D00:01;0D00:00:15;(f1;4);1h;"test timer";1b]
+repeat[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:15;(f1;2);"test timer"]
+rep[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:15;(f1;3);0h;"test timer";1b]
+rep[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:15;(f1;4);1h;"test timer";1b]
 
-once[.proc.ft[]+0D00:00:10;(`.timer.f;2);"test once"]  
+once[.proc.cp[]+0D00:00:10;(`.timer.f;2);"test once"]  
 .z.ts:run
 \t 500

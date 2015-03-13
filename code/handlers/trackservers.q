@@ -103,22 +103,22 @@ gethandlebytype:getserverbytype[;`w;]
 gethpbytype:getserverbytype[;`hpup;] 
 
 // Update the server stats
-updatestats:{[W] update lastp:.z.p,hits:1+hits from`.servers.SERVERS where w=W}
+updatestats:{[W] update lastp:.proc.cp[],hits:1+hits from`.servers.SERVERS where w=W}
 
 names:{asc distinct exec procname from`.servers.SERVERS where .dotz.liveh w}
 types:{asc distinct exec proctypes from`.servers.SERVERS where .dotz.liveh w}
 unregistered:{except[key .z.W;exec w from`.servers.SERVERS]}
 
 cleanup:{if[count w0:exec w from`.servers.SERVERS where not .dotz.livehn w;
-        update lastp:.z.p,w:0Ni from`.servers.SERVERS where w in w0];
-    if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,lastp<.z.p-.servers.RETAIN];}
+        update lastp:.proc.cp[],w:0Ni from`.servers.SERVERS where w in w0];
+    if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,lastp<.proc.cp[]-.servers.RETAIN];}
 
 / add a new server for current session
 addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
     $[not hpup in (exec hpup from .servers.SERVERS) inter (exec hpup from .servers.nontorqprocesstab);
-	    `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.z.p;0Np];.z.p;0Np;attributes);
+	    `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes);
 	    .lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
     W
     }
@@ -170,8 +170,8 @@ autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
-	update lastp:.z.p,w:.servers.opencon each hpup from`.servers.SERVERS where i in rows;
-        update attributes:{$[null x;()!();@[x;(`.proc.getattributes;`);()!()]]} each w,startp:?[null w;0Np;.z.p] from `.servers.SERVERS where i in rows;
+	update lastp:.proc.cp[],w:.servers.opencon each hpup from`.servers.SERVERS where i in rows;
+        update attributes:{$[null x;()!();@[x;(`.proc.getattributes;`);()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
         if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w; 
 	connectcustom[connectedrows]]}
 
@@ -265,9 +265,9 @@ startup:{
 	retry[]}
 
 			
-pc:{[result;W] update w:0Ni,endp:.z.p from`.servers.SERVERS where w=W;cleanup[];result}
+pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 
 if[enabled;
 	.z.pc:{.servers.pc[x y;y]}.z.pc;
-	if[DISCOVERYRETRY > 0; .timer.repeat[.z.p;0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
-	if[RETRY > 0; .timer.repeat[.z.p;0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];
+	if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
+	if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];

@@ -1,4 +1,4 @@
-/ log external (.z.p* & .z.exit) usage of a kdb+ session
+/ log external (.proc.cp[]* & .z.exit) usage of a kdb+ session
 
 // based on logusage.q from code.kx
 // http://code.kx.com/wsvn/code/contrib/simon/dotz/
@@ -23,7 +23,7 @@ ignore:@[value;`ignore;1b]				// check the ignore list for functions to ignore
 ignorelist:@[value;`ignorelist;(`upd;"upd")]		// the list of functions to ignore
 flushtime:@[value;`flushtime;0D03]			// default value for how long to persist the in-memory logs
 suppressalias:@[value;`suppressalias;0b]		// whether to suppress the log file alias creation
-logtimestamp:@[value;`logtimestamp;{[x] {[].z.d}}]	// function to generate the log file timestamp suffix
+logtimestamp:@[value;`logtimestamp;{[x] {[].proc.cd[]}}]	// function to generate the log file timestamp suffix
 logroll:@[value;`logroll;1b]				// whether to automatically roll the log file
 LEVEL:@[value;`LEVEL;3]					// Log level
 
@@ -46,7 +46,7 @@ ext:{[x]}
 format:{"|" sv -3!'x}
 
 // flush out some of the in-memory stats
-flushusage:{[flushtime] delete from `.usage.usage where time<.z.p - flushtime;}
+flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}
 
 createlog:{[logdir;logname;timestamp;suppressalias]
 	basename:"usage_",(string logname),"_",(string timestamp),".log";
@@ -87,9 +87,9 @@ logAfter:{[id;zcmd;endp;result;arg;startp] / fill in time info after execution
 logError:{[id;zcmd;endp;arg;startp;error] / fill in error info
     if[LEVEL>0;write(endp;id;`long$.001*endp-startp;zcmd;.proc.proctype;.proc.procname;"e";.z.a;.z.u;.z.w;.dotz.txtC[zcmd;arg];meminfo[];0Nj;error)];'error}
 	
-p0:{[x;y;z;a]logDirect[nextid[];`pw;.z.p;y[z;a];(z;"***");.z.p]}
-p1:{logDirect[nextid[];x;.z.p;y z;z;.z.p]}
-p2:{id:nextid[];logBefore[id;x;z;.z.p];logAfter[id;x;.z.p;@[y;z;logError[id;x;.z.p;z;start;]];z;start:.z.p]}
+p0:{[x;y;z;a]logDirect[nextid[];`pw;.proc.cp[];y[z;a];(z;"***");.proc.cp[]]}
+p1:{logDirect[nextid[];x;.proc.cp[];y z;z;.proc.cp[]]}
+p2:{id:nextid[];logBefore[id;x;z;.proc.cp[]];logAfter[id;x;.proc.cp[];@[y;z;logError[id;x;.proc.cp[];z;start;]];z;start:.proc.cp[]]}
 // Added to allow certain functions to be excluded from logging
 p3:{if[ignore; if[0h=type z;if[any first[z]~/:ignorelist; :y@z]]]; p2[x;y;z]}
 
@@ -100,14 +100,14 @@ if[enabled;
 	// If the timer is enabled, and logrolling is set to true, try to log the roll file on a daily basis
 	if[logroll;
         	$[@[value;`.timer.enabled;0b];
-                	[.lg.o[`init;"adding timer function to roll usage logs on a daily schedule starting at ",string `timestamp$(.z.d+1)+00:00];
-                 	.timer.rep[`timestamp$.z.d+00:00;0Wp;1D;(`.usage.rolllogauto;`);0h;"roll query logs";1b]];
+                	[.lg.o[`init;"adding timer function to roll usage logs on a daily schedule starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
+                 	.timer.rep[`timestamp$.proc.cd[]+00:00;0Wp;1D;(`.usage.rolllogauto;`);0h;"roll query logs";1b]];
                 	.lg.e[`init;".usage.logroll is set to true, but timer functionality is not loaded - cannot roll usage logs"]]];
 
 	if[flushtime>0;
 		$[@[value;`.timer.enabled;0b];
                 	[.lg.o[`init;"adding timer function to flush in-memory usage logs on 30 minute schedule"];
-                 	.timer.repeat[.z.p;0Wp;0D00:30;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
+                 	.timer.repeat[.proc.cp[];0Wp;0D00:30;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
 
 	.z.pw:p0[`pw;.z.pw;;];

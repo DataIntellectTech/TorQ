@@ -23,7 +23,7 @@ reporterprocessresults:([] queryid:();time:`timestamp$();sym:`$();result:());
 timerids:([id:()] periodend:())
 
 /- returns a table of reports currently active
-activereports:{select from reports where (.proc.dt[] mod 7) in/: daysofweek, end>.proc.tt[]};
+activereports:{select from reports where (.proc.cd[] mod 7) in/: daysofweek, end>.proc.ct[]};
 
 /- queryid used as an unique identifier
 nextqueryid:{queryid+:1;queryid};
@@ -31,7 +31,7 @@ nextqueryid:{queryid+:1;queryid};
 /- puts process information into a dictionary [nm: name of report;qu: function to be evaluated;qid: query id]
 wrappercols: `queryid`time`name`procname`proctype`result;
 wrapper:{[name;query;qid] 
-	`queryid`time`name`procname`proctype`result!(qid;.proc.ft[];name;@[value;".proc.procname";`nontorq];@[value;".proc.proctype";`nontorq];@[value;query;{"error: ",x}])};
+	`queryid`time`name`procname`proctype`result!(qid;.proc.cp[];name;@[value;".proc.procname";`nontorq];@[value;".proc.proctype";`nontorq];@[value;query;{"error: ",x}])};
 
 csvloader:{[CSV]
 
@@ -63,30 +63,30 @@ datecheck:{
 
 /- returns next nearest period timestamp, if period is 00:00:00 it will return start time and only runs once.
 nextperiod:{[start;end;period;curr] 
-	`timestamp$ .proc.dt[] + $[0i=`int$period;
+	`timestamp$ .proc.cd[] + $[0i=`int$period;
 				start;
 				first d where (d:s + sums 0,(`int$((`time$end)-s:`time$start)%p)#p:`time$period) >= `time$curr]}
 
 /- checks if any queries have timed out
 checktimeout:{
 	/- select back any queries that have not completed and have ran past their timeout period
-	timedout:select queryid,timeout from querystatus where not timeout=0Wn,.proc.ft[]>time+timeout,null returntime,status=0b;
+	timedout:select queryid,timeout from querystatus where not timeout=0Wn,.proc.cp[]>time+timeout,null returntime,status=0b;
 	/- if nothing returned, then escape
 	if[not count timedout;:()];
 	/ - end each query and that has exceeded their time out value and write a log value
 	qid:timedout`queryid;
 	finishquery[0b;qid];
-	updatestage[qid;`T;.proc.ft[]];
+	updatestage[qid;`T;.proc.cp[]];
 	{[qid] write[qid`queryid;"Exceeded specified timeout value: ",string[`time$qid`timeout];0b]} each timedout};
 
 /- updates status of query in querystatus [st:boolean status of query; qids:int query id]
 /- update status of both cases, but not returntime
 finishquery:{[st;qids]
   $[st;
-    update time:.proc.ft[],returntime:.proc.ft[],status:st from `..querystatus where queryid in qids;
-    update time:.proc.ft[],status:1b from `..querystatus where queryid in qids]};
+    update time:.proc.cp[],returntime:.proc.cp[],status:st from `..querystatus where queryid in qids;
+    update time:.proc.cp[],status:1b from `..querystatus where queryid in qids]};
 
-/- updates stage column of query in the querystatus file [qid: long;stage:symbol `R`C`E`T;timestamp: .proc.ft[]]
+/- updates stage column of query in the querystatus file [qid: long;stage:symbol `R`C`E`T;timestamp: .proc.cp[]]
 /- `R - Running, `C - complete, `E - Error, `T - Timed out
 updatestage:{[qid;Stage;timestamp]
   $[Stage ~ `R;
@@ -105,10 +105,10 @@ runreport:{[tab]
 	/- define list of function and paramters for the timer to call
 	fp:(`send;tab`name;tab`query;tab`proctype;tab`procname;tab`timeoutinterval;tab`gateway);
 	/ - cast the start and end times as timestamps
-	endts: `timestamp $ .proc.dt[]+tab[`end]; 
-	startts: `timestamp $ .proc.dt[]+tab[`start];
+	endts: `timestamp $ .proc.cd[]+tab[`end]; 
+	startts: `timestamp $ .proc.cd[]+tab[`start];
 	/ - if the end time stamp is less than the current time, then the report cannot be scheduled for today
-	if[endts < .proc.ft[]; write[`long$0;"Cannot schedule report.  Report end time (",string[endts],") has already passed";0b]; :()];
+	if[endts < .proc.cp[]; write[`long$0;"Cannot schedule report.  Report end time (",string[endts],") has already passed";0b]; :()];
 	/- return if start=end (one time query, onetime queries don't have periodend) and the report hasn't already been set on the timer
 	if[(startts = endts) and not count select from .timer.timer where fp~/:funcparam,nextrun=startts;
 		.timer.once[startts;fp;"Reporter - ",string tab`name];
@@ -117,7 +117,7 @@ runreport:{[tab]
 	/ - if the current time is within the start and end timestamps, use current time as start time, else use the startts
 	/ - work out the start time for the timer. For example a report could run every day from 10am to 6pm every 5 mins, if the reporter
 	/ - is started at 1:11pm, we need to know that the report should start 1:15pm and then run every 5 mins there after
-	startts: nextperiod[tab`start;tab`end;tab`period;] $[.proc.ft[] within startts,endts;.proc.ft[];startts];
+	startts: nextperiod[tab`start;tab`end;tab`period;] $[.proc.cp[] within startts,endts;.proc.cp[];startts];
 	/ - escape if the report havs already been registered on the timer
 	if[count select from .timer.timer where fp~/:funcparam;:()];
 	/ - register the report on the timer
@@ -138,7 +138,7 @@ sendinner:{[Name;query;proct;procn;timeout;qid;gateway]
 	typetoquery:(first proct)^gateway;
 	
 	/ - set the query status as running (R)
-        `..querystatus upsert (qid;Name;.proc.ft[];typetoquery;timeout;0Np;0Np;0b;`R);	
+        `..querystatus upsert (qid;Name;.proc.cp[];typetoquery;timeout;0Np;0Np;0b;`R);	
 
  	/ - the process does not have a registered server connection, then signal an error
 	if[not count select from .servers.SERVERS where proctype in typetoquery,{$[null x;(count y)#1b;x=y]}[procn;procname];
@@ -164,7 +164,7 @@ sendinner:{[Name;query;proct;procn;timeout;qid;gateway]
 		 .[.async.postback;(hd;wrappedquery;`postback);{'x}]]
 	];
 	/ - update the query submittime for the query id
-	update submittime:.proc.ft[] from `..querystatus where queryid in qid; 
+	update submittime:.proc.cp[] from `..querystatus where queryid in qid; 
 	};
 	
 /- postback used for async queries [result: dictionary result of query on process]
@@ -192,14 +192,14 @@ postbackinner:{[result]
 		write[queryid;"Running resulthandler";0b];
 		.[{[x;y] (value x) @ y;};(resulthandler;result);{.lg.e[`postbackinner;e:"Resulthandler failed: ",x];'e}]];
   / - set the report status as complete (C)
-  updatestage[queryid;`C;.proc.ft[]];
+  updatestage[queryid;`C;.proc.cp[]];
   write[queryid;"Finished report";0b];
   };
 
 /- GATEWAY FUNCTIONALITY
 /- wrapper function used for sending asynchronous queries to the gateway
 gwwrapper:{[name;query;qid;procs;join;postback] 
-  .gw.asyncexecjpt[query; procs; join; (postback;`queryid`time`name`procname`proctype!(qid;.proc.ft[];name;.proc.procname;.proc.proctype)); 0Wn]}
+  .gw.asyncexecjpt[query; procs; join; (postback;`queryid`time`name`procname`proctype!(qid;.proc.cp[];name;.proc.procname;.proc.proctype)); 0Wn]}
 
 /- when the result from the gateway is recieved it is formatted before being 
 /- passed onto the postback function as is normal with the non gateway queries
@@ -210,10 +210,10 @@ gwpostback:{[queryinfo; query; result] postback queryinfo,(enlist `result)!enlis
 write:{[qid;msg;err]
 
   /- special case for queries which have timedout, queries timedout even if they failed to run
-  if[err~1b;updatestage[qid;`E;.proc.ft[]];.lg.e[`reporter;msg]];
+  if[err~1b;updatestage[qid;`E;.proc.cp[]];.lg.e[`reporter;msg]];
   stage:$[qid=0;`S;first exec stage from querystatus where queryid in qid];
   if[writetostdout;.lg.o[`reporter;format[qid;string[stage],"|",msg]]];
-  `..querylogs upsert ([] time:.proc.ft[];queryid:qid;stage:stage;message:enlist raze msg);
+  `..querylogs upsert ([] time:.proc.cp[];queryid:qid;stage:stage;message:enlist raze msg);
 
   /- custom handler
   writecustom[qid;msg;err]}
@@ -223,7 +223,7 @@ writecustom:@[value;`writecustom;{{[qid;msg;err]}}]
 
 /- flushing function to clear querylogs, only allow 1 day of logs
 flushquerylogs:{[flushtime] 
-  cutofftime:.proc.ft[]-flushtime;
+  cutofftime:.proc.cp[]-flushtime;
   flushing: string fcnt:count select from `..querylogs where time <= cutofftime;
   remaining: string count[value `..querylogs] - fcnt;
   write[`long$0;"Flushing ",flushing," records. ",remaining," remaining.";0b];
@@ -231,7 +231,7 @@ flushquerylogs:{[flushtime]
 
 /- flushing any stale timers from the .timer.timer table 
 flushtimer:{
-  currenttime:.proc.ft[];
+  currenttime:.proc.cp[];
   flushing:exec id from `..timerids where periodend<currenttime;
   remaining: string count select from `..timerids where periodend>=currenttime;
   if[count flushing; write[`long$0;"Flushing ",string[count flushing]," timers. ",remaining," still active.";0b]];
@@ -239,11 +239,11 @@ flushtimer:{
   delete from `..timerids where id in flushing;}
 
 /- format log message
-format:{[qid;msg] raze string[.proc.ft[]],"|",string[qid],"|",msg}
+format:{[qid;msg] raze string[.proc.cp[]],"|",string[qid],"|",msg}
 
 /- RESULT HANDLERS
 /- returns string current date time YYYY_MM_DD_HH_MM_SS_mmm
-dtsuffix:{ssr[;;"_"]/["_" sv string .proc.dt[],.proc.tt[];".:"]};
+dtsuffix:{ssr[;;"_"]/["_" sv string .proc.cd[],.proc.ct[];".:"]};
 
 emailstats:([procname:(); alertname:()] lastsent:`timestamp$());
 
@@ -251,9 +251,9 @@ emailalert:{[period; recipients; data]
     lasttime:0p^exec first lastsent from emailstats where procname=(data`procname),alertname=(data`name);
     result:data`result;
     if[not count result; write[data`queryid;"emailalert: nothing to email";0b]; :()];
-    if[period > .proc.ft[] - lasttime; write[data`queryid;"emailalert: data available to email but previous email was too soon";0b]; :()];
+    if[period > .proc.cp[] - lasttime; write[data`queryid;"emailalert: data available to email but previous email was too soon";0b]; :()];
     
-    upsert[`emailstats](data`procname; data`name; .proc.ft[]);
+    upsert[`emailstats](data`procname; data`name; .proc.cp[]);
     subject:"Process [",(string data`procname),"] has triggered an alert [",(string data`name),"]";
     write[data`queryid;"emailalert: sending warning email";0b];
     res:.email.senddefault[`to`subject`body!(`$recipients;subject;enlist result`messages)];
@@ -265,7 +265,7 @@ emailalert:{[period; recipients; data]
 emailreport:{[temppath;recipients;filename;filetype;data]
     filepath:writetofile[temppath;filename;filetype;data;""];
 
-    subject:"Report '",(string data`name),"' has been generated by TorQ [",(string .proc.dt[]),"]";
+    subject:"Report '",(string data`name),"' has been generated by TorQ [",(string .proc.cd[]),"]";
     body:"A report has been generated by TorQ. Please see the attached file for the results.";
  
     write[data`queryid;"emailreport: sending email with attached report";0b];	
@@ -303,7 +303,7 @@ writetosplayed:{[path;file;data]
 /- publishes results data using the reporterprocessresults table schema
 publishresult:{[result]
   tablename:`reporterprocessresults;
-  data:([] queryid:enlist result`queryid;time:.proc.ft[];sym:result`name;result:enlist result);
+  data:([] queryid:enlist result`queryid;time:.proc.cp[];sym:result`name;result:enlist result);
   .[.ps.publish;(tablename;data);{'"Failed to publish: ", x}]}
   
 /- INITIALISE REPORTER
@@ -311,9 +311,9 @@ publishresult:{[result]
 @[csvloader;inputcsv;{write[`long$0;x;1b];exit 0}];
 
 /- Add to timer and run datecheck
-.timer.repeat[.proc.ft[];0Wp;0D00:00:20;(`datecheck;`);"Reporter - datecheck runs each day at midnight and schedules timers if they are needed on the current day"];
-.timer.repeat[.proc.ft[];0Wp;0D00:00:05;(`checktimeout;`);"Reporter - cancel queries which have timed out"];
-.timer.repeat[.proc.ft[];0Wp;0D00:02:00;(`flushquerylogs;flushqueryloginterval);"Reporter - flush querylogs table of data that is older than the parameter"];
+.timer.repeat[.proc.cp[];0Wp;0D00:00:20;(`datecheck;`);"Reporter - datecheck runs each day at midnight and schedules timers if they are needed on the current day"];
+.timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`checktimeout;`);"Reporter - cancel queries which have timed out"];
+.timer.repeat[.proc.cp[];0Wp;0D00:02:00;(`flushquerylogs;flushqueryloginterval);"Reporter - flush querylogs table of data that is older than the parameter"];
 
 write[`long$0;"Reporter Process Initialised";0b];
 datecheck[];

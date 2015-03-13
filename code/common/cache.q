@@ -33,7 +33,7 @@ add:{[function;id;status]
 	res:value function;
 	$[(maxindividual*MB)>size:-22!res;
 		// check if we need more space to store this item
-		[now:.proc.ft[];
+		[now:.proc.cp[];
 		if[0>requiredsize:(maxsize*MB) - size+sum exec size from cache; evict[neg requiredsize;now]];
 		// Insert to the cache table
 		`.cache.cache upsert (id;now;now;size);
@@ -43,7 +43,7 @@ add:{[function;id;status]
 		// Update the performance
 		trackperf[id;status;now]];
 		// Otherwise just log it as an addfail - the result set is too big
-		trackperf[id;`fail;.proc.ft[]]];
+		trackperf[id;`fail;.proc.cp[]]];
 	// Return the result	
 	res}
 
@@ -75,7 +75,7 @@ execute:{[func;age]
 		[r:first r;
 		// We need to check the age - if the specified age is greater than the actual age, return it
 		// else delete it
-  		$[age > (now:.proc.ft[]) - r`lastrun;
+  		$[age > (now:.proc.cp[]) - r`lastrun;
 			// update the cache stats, return the cached result
 		 	[update lastaccess:now from `.cache.cache where id=r`id;
 			 trackperf[r`id;`hit;now];

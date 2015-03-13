@@ -16,7 +16,7 @@ updatesubscriptions:{[proc;tab;instrs]
 	/-delete any inactive subscriptions
 	delete from `.sub.SUBSCRIPTIONS where not active;
 	if[instrs~`;instrs,:()];
-	.sub.SUBSCRIPTIONS::0!(4!SUBSCRIPTIONS)upsert enlist proc,`table`instruments`createdtime`active!(tab;instrs;.proc.ft[];1b);
+	.sub.SUBSCRIPTIONS::0!(4!SUBSCRIPTIONS)upsert enlist proc,`table`instruments`createdtime`active!(tab;instrs;.proc.cp[];1b);
 	}	
 
 reconnectinit:0b;		//has the reconnect custom function been initialised
@@ -118,7 +118,7 @@ pc:{[result;W] update active:0b from `.sub.SUBSCRIPTIONS where w=W;result}
 
 /- if timer is set, trigger reconnections
 $[.timer.enabled and checksubscriptionperiod > 0;
-    .timer.rep[.proc.ft[];0Wp;checksubscriptionperiod;(`.sub.checksubscriptions`);0h;"check all subscriptions are still active";1b];
+    .timer.rep[.proc.cp[];0Wp;checksubscriptionperiod;(`.sub.checksubscriptions`);0h;"check all subscriptions are still active";1b];
   checksubscriptionperiod > 0;
     .lg.e[`subscribe;"checksubscriptionperiod is set but timer is not enabled"];
   ()]

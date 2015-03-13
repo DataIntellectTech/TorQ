@@ -19,20 +19,20 @@ clients:@[value;`clients;([w:`int$()]ipa:`symbol$();u:`symbol$();a:`int$();k:`da
 unregistered:{except[key .z.W;exec w from`CLIENTS]} / .clients.addw each unregistered[]
 cleanup:{ / cleanup closed or idle entries
     if[count w0:exec w from`.clients.clients where not .dotz.livehn w;
-        update endp:.z.p,w:0Ni from`.clients.clients where w in w0];
+        update endp:.proc.cp[],w:0Ni from`.clients.clients where w in w0];
     if[.clients.MAXIDLE>0;
-        hclose each exec w from`.clients.clients where .dotz.liveh w,lastp<.z.p-.clients.MAXIDLE];
-    delete from`.clients.clients where not .dotz.liveh w,endp<.z.p-.clients.RETAIN;}
-hit:{update lastp:.z.p,hits:hits+1i,sz:sz+-22!x from`.clients.clients where w=.z.w;x}
-hite:{update lastp:.z.p,hits:hits+1i,errs:errs+1i from`.clients.clients where w=.z.w;'x}
+        hclose each exec w from`.clients.clients where .dotz.liveh w,lastp<.proc.cp[]-.clients.MAXIDLE];
+    delete from`.clients.clients where not .dotz.liveh w,endp<.proc.cp[]-.clients.RETAIN;}
+hit:{update lastp:.proc.cp[],hits:hits+1i,sz:sz+-22!x from`.clients.clients where w=.z.w;x}
+hite:{update lastp:.proc.cp[],hits:hits+1i,errs:errs+1i from`.clients.clients where w=.z.w;'x}
 po:{[result;W]
     cleanup[];
-    `.clients.clients upsert(W;.dotz.ipa .z.a;.z.u;.z.a;0Nd;0n;0Ni;0Ni;(`);(`);0Ni;0Ni;zp;0Np;zp:.z.p;0i;0i;0j);
+    `.clients.clients upsert(W;.dotz.ipa .z.a;.z.u;.z.a;0Nd;0n;0Ni;0Ni;(`);(`);0Ni;0Ni;zp;0Np;zp:.proc.cp[];0i;0i;0j);
     if[INTRUSIVE;
         neg[W]"neg[.z.w]\"update k:\",(string .z.k),\",K:\",(-3!.z.K),\",c:\",(-3!.z.c),\",s:\",(-3!system\"s\"),\",o:\",(-3!.z.o),\",f:\",(-3!.z.f),\",pid:\",(-3!.z.i),\",port:\",(-3!system\"p\"),\" from`.clients.clients where w=.z.w\""];
     result}
 addw:{po[x;x]} / manually add a client
-pc:{[result;W] update w:0Ni,endp:.z.p from`.clients.clients where w=W;cleanup[];result}
+pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;cleanup[];result}
 
 if[enabled;
 	.z.po:{.clients.po[x y;y]}.z.po;

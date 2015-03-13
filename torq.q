@@ -109,13 +109,13 @@ getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBCONFIG],"/application
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.ft[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
+format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
   // check the publish function exists
   if[@[value;`.ps.initialised;0b];
-   .ps.publish[`logmsg;enlist`time`sym`proctype`host`loglevel`id`message!(.proc.ft[];proc;proctype;.z.h;loglevel;id;message)]]]}
+   .ps.publish[`logmsg;enlist`time`sym`proctype`host`loglevel`id`message!(.proc.cp[];proc;proctype;.z.h;loglevel;id;message)]]]}
 
 // Dictionary of log levels mapped to standard out/err
 // Set to 0 if you don't want the log type to print
@@ -208,10 +208,7 @@ params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
-ft:$[`localtime in key .proc.params;{.z.P};{.z.p}]
-dt:$[`localtime in key .proc.params;{.z.D};{.z.d}]
-tt:$[`localtime in key .proc.params;{.z.T};{.z.t}]
-
+$[`localtime in key .proc.params;(cp:{.z.P};cd:{.z.D};ct:{.z.T});(cp:{.z.p};cd:{.z.d};ct:{.z.t})]
 
 // Check if we are in fail fast mode
 trap:`trap in key params
@@ -414,8 +411,8 @@ if[.proc.loadhandlers;.proc.loaddir getenv[`KDBCODE],"/handlers"]
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
 	$[@[value;`.timer.enabled;0b];
-		[.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$.proc.dt[]+1+00:00];
-		 .timer.rep[`timestamp$.proc.dt[]+00:00;0Wp;1D;(`.proc.rolllogauto;`);0h;"roll standard out/standard error logs";1b]];
+		[.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$.proc.cd[]+1+00:00];
+		 .timer.rep[`timestamp$.proc.cd[]+00:00;0Wp;1D;(`.proc.rolllogauto;`);0h;"roll standard out/standard error logs";1b]];
 		.lg.e[`init;".proc.logroll is set to true, but timer functionality is not loaded - cannot roll logs"]]];
 	
 // Load the file specified on the command line

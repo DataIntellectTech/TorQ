@@ -87,7 +87,7 @@ find:{[path;match;age]
 	//searches for files and refines return to usable format
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
 		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
-		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.dt[]-age; system "z 0";
+		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);
 	//error and info for find function 
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];$[(count files)=0;
@@ -114,6 +114,6 @@ $[runnow=1b;[hkrun[];exit 0];]
 //-sets timers occording to csv
 $[(count runtimes)=0;
 	.lg.e[`housekeeping;"No runtimes provided in config file"];
-	[{[runtime].timer.rep[$[.proc.ft[]>.proc.dt[]+runtime;1D+`timestamp$.proc.dt[]+runtime;`timestamp$.proc.dt[]+runtime];0Wp;1D;(`hkrun`);0h;"run housekeeping";0b]} each runtimes;.lg.o[`housekeeping;"Housekeeping scheduled for: ", (" " sv string raze runtimes)]]]
+	[{[runtime].timer.rep[$[.proc.cp[]>.proc.cd[]+runtime;1D+`timestamp$.proc.cd[]+runtime;`timestamp$.proc.cd[]+runtime];0Wp;1D;(`hkrun`);0h;"run housekeeping";0b]} each runtimes;.lg.o[`housekeeping;"Housekeeping scheduled for: ", (" " sv string raze runtimes)]]]
 
 

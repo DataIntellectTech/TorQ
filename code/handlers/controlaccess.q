@@ -3,7 +3,7 @@
 // main change is that the set up (users, hosts and functions) are loaded from csv files
 // also want to throw an error and have it as an error in the io log rather than a separate log file
 
-/ control external (.z.p*) access to  a kdb+ session, log access errors to file
+/ control external (.proc.cp[]*) access to  a kdb+ session, log access errors to file
 / use <loadinvalidaccess.q> to load and display table INVALIDACCESS
 / setting .access.HOSTPATTERNS - list of allowed hoststring patterns (";"vs ...)
 / setting .access.USERTOKENS/POWERUSERTOKENS - list of allowed k tokens (use -5!)
@@ -83,7 +83,7 @@ readpermissions:{[dir]
 
 likeany:{0b{$[x;x;y like z]}[;x;]/y}
 
-loginvalid:{[ok;zcmd;cmd] if[not ok;H enlist(`LOADINVALIDACCESS;`INVALIDACCESS;(.z.i;.z.p;zcmd;.z.a;.z.w;.z.u;.dotz.txtC[zcmd;cmd]))];ok}
+loginvalid:{[ok;zcmd;cmd] if[not ok;H enlist(`LOADINVALIDACCESS;`INVALIDACCESS;(.z.i;.proc.cp[];zcmd;.z.a;.z.w;.z.u;.dotz.txtC[zcmd;cmd]))];ok}
 validuser:{[zu;pu;su]$[su;exec any(`,zu)in u from USERS where superuser;$[pu;exec any(`,zu)in u from USERS where poweruser or superuser;exec any(`,zu)in u from USERS]]}
 superuser:validuser[;0b;1b];poweruser:validuser[;1b;0b];defaultuser:validuser[;0b;0b]
 validhost:{[za] $[likeany[.dotz.ipa za;HOSTPATTERNS];1b;likeany["."sv string"i"$0x0 vs za;HOSTPATTERNS]]}

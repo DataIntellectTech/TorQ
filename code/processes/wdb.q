@@ -178,7 +178,7 @@ starttimer:{[]
 	$[@[value;`.timer.enabled;0b];
 		[.lg.o[`init;"adding the wdb save to disk function to the timer"];
 		/-add .wdb.savetodisk function to TorQ timer 
-		.timer.repeat[.proc.ft[];0Wp;settimer;(`.wdb.savetodisk;`);"save wdb data to disk"];
+		.timer.repeat[.proc.cp[];0Wp;settimer;(`.wdb.savetodisk;`);"save wdb data to disk"];
 		.lg.o[`init;"the timer has been set to ", string settimer]];
 		/-if timer not enabled, prompt user to enable it
 		.lg.e[`init;"the timer has not been enabled - please enable the timer to run the wdb"]];
