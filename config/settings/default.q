@@ -21,7 +21,7 @@ ignore:1b			// check the ignore list for functions to ignore
 ignorelist:(`upd;"upd")		// the list of functions to ignore in async calls
 flushtime:1D00                  // default value for how long to persist the in-memory logs. Set to 0D for no flushing
 suppressalias:0b                // whether to suppress the log file alias creation
-logtimestamp:{[].z.d}      	// function to generate the log file timestamp suffix
+logtimestamp:{[].proc.cd[]}      	// function to generate the log file timestamp suffix
 LEVEL:3				// log level. 0=none;1=errors;2=errors+complete queries;3=errors+before a query+after
 logroll:1b			// Whether or not to roll the log file automatically (on a daily schedule)
 
@@ -95,7 +95,7 @@ enabled:.z.o in `w32`l32`l64`m32`m64    	// whether emails are enabled
 url:`                               		// url of email server e.g. `$"smtp://smtpout.secureserver.net:80"
 user:`                               		// user account to use to send emails e.g. torq@aquaq.co.uk
 password:`                           		// password for user account
-from:`$"torq@localhost"                		// address for return emails e.g. torq@aquaq.co.uk
+from:`$"torq@localhost"               		// address for return emails e.g. torq@aquaq.co.uk
 usessl:0b                              		// connect using SSL/TLS
 debug:0i                               		// debug level for email library: 0i = none, 1i=normal, 2i=verbose
 img:`$getenv[`KDBHTML],"/img/logo-email.png"	// default image for bottom of email
