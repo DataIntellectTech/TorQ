@@ -411,7 +411,7 @@ if[.proc.loadhandlers;.proc.loaddir getenv[`KDBCODE],"/handlers"]
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
 	$[@[value;`.timer.enabled;0b];
-		[.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$.proc.cd[]+1+00:00];
+		[.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
 		 .timer.rep[`timestamp$.proc.cd[]+00:00;0Wp;1D;(`.proc.rolllogauto;`);0h;"roll standard out/standard error logs";1b]];
 		.lg.e[`init;".proc.logroll is set to true, but timer functionality is not loaded - cannot roll logs"]]];
 	
