@@ -210,6 +210,8 @@ if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
 $[`localtime in key .proc.params;(cp:{.z.P};cd:{.z.D};ct:{.z.T});(cp:{.z.p};cd:{.z.d};ct:{.z.t})]
 
+localtime:$[`localtime in key .proc.params;1b;0b]
+
 // Check if we are in fail fast mode
 trap:`trap in key params
 .lg.o[`init;"trap mode (initialisation errors will be caught and thrown, rather than causing an exit) is set to ",string trap]
