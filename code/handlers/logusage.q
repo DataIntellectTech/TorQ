@@ -1,4 +1,4 @@
-/ log external (.proc.cp[]* & .z.exit) usage of a kdb+ session
+/ log external (.z.p* & .z.exit) usage of a kdb+ session
 
 // based on logusage.q from code.kx
 // http://code.kx.com/wsvn/code/contrib/simon/dotz/
