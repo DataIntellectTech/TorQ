@@ -1,7 +1,7 @@
 // Default configuration for the gateway process
 
 \d .gw
-synccallsallowed:0b		// whether synchronous calls are allowed
+synccallsallowed:1b		// whether synchronous calls are allowed
 querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
 

@@ -1,2 +1,4 @@
 function,path,match,exclude,age
-rm,{KDBLOG}/,*.log,,10
+zip,{KDBLOG}/,*.log,,10
+rm,{KDBLOG}/,*.gz,,30
+zip,{KDBHDB}/,database20*,,1
