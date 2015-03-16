@@ -1,16 +1,1 @@
 host,port,proctype,procname
-homer,310000,discovery,discovery1
-homer,311000,tickerplant,tickerplant1
-homer,312000,rdb,rdb1
-homer,313000,hdb,hdb1
-homer,313010,hdb,hdb2
-homer,314000,wdb,wdb1
-homer,314500,sort,sort1
-homer,300000,gateway,gateway1
-homer,301000,kill,killtick
-homer,302000,monitor,monitor1
-homer,303000,tickerlogreplay,tpreplay1
-homer,304000,housekeeping,housekeeping1
-homer,305000,reporter,reporter1
-homer,306000,compression,compression1
-homer,307000,feed,feed1

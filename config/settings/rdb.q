@@ -18,7 +18,7 @@ schema:1b			//retrieve the schema from the tickerplant
 tpconnsleepintv:10		//number of seconds between attempts to connect to the tp                                                                 
 gc:1b				//if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
 sortcsv:`:config/sort.csv	//location of csv file
-reloadenabled:1b		//if true, the RDB will not save when .u.end is called but
+reloadenabled:0b		//if true, the RDB will not save when .u.end is called but
                			//will clear it's data using reload function (called by the WDB)
 parvaluesrc:`log		//where to source the rdb partition value, can be log (from tp log file name),
 				//tab (from the the first value in the time column of the table that is subscribed for)
