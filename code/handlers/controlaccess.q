@@ -3,7 +3,7 @@
 // main change is that the set up (users, hosts and functions) are loaded from csv files
 // also want to throw an error and have it as an error in the io log rather than a separate log file
 
-/ control external (.proc.cp[]*) access to  a kdb+ session, log access errors to file
+/ control external (.z.p*) access to  a kdb+ session, log access errors to file
 / use <loadinvalidaccess.q> to load and display table INVALIDACCESS
 / setting .access.HOSTPATTERNS - list of allowed hoststring patterns (";"vs ...)
 / setting .access.USERTOKENS/POWERUSERTOKENS - list of allowed k tokens (use -5!)
