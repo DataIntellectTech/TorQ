@@ -47,7 +47,7 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-noconfig]:\t\t\tdo not load configuration
  [-nopi]:\t\t\treset the definition of .z.pi to the initial value (useful for debugging)
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
- [-localtime]:\t\t\tapply local time instead of GMT
+ [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info"]
  
 // extra info - used to extend the usage info 
@@ -208,9 +208,11 @@ params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
-$[`localtime in key .proc.params;(cp:{.z.P};cd:{.z.D};ct:{.z.T});(cp:{.z.p};cd:{.z.d};ct:{.z.t})]
+$[`localtime in key .proc.params;
+	[cp:{.z.P};cd:{.z.D};ct:{.z.T}];
+	[cp:{.z.p};cd:{.z.d};ct:{.z.t}]];
 
-localtime:$[`localtime in key .proc.params;1b;0b]
+localtime:`localtime in key .proc.params
 
 // Check if we are in fail fast mode
 trap:`trap in key params
