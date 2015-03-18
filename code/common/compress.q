@@ -101,6 +101,7 @@ hdbstructure:{
 showcomp:{[hdbpath;csvpath;maxage]
     /-load csv
     loadcsv[$[10h = type csvpath;hsym `$csvpath;hsym csvpath]];
+    .lg.o[`compression;"scanning hdb directory structure"];
     /-build paths table and fill age
     $[count key (` sv hdbpath,`$"par.txt");
 	pathstab:update 0W^age from (,/) hdbstructure'[hsym each `$(read0 ` sv hdbpath,`$"par.txt")];
@@ -123,7 +124,8 @@ showcomp:{[hdbpath;csvpath;maxage]
     t: t lj a;
     /- in case of no default specified, delete from the table where no data is joined on
     t: delete from t where calgo=0Nj,cblocksize=0Nj,clevel=0Nj;
-    select from (update currentsize:hcount each fullpath from t) where age within (compressage;maxage) }
+    .lg.o[`compression;"getting current size of each file up to a maximum age of ",string maxage];
+    update currentsize:hcount each fullpath from select from t where age within (compressage;maxage) }
 
 compressfromtable:{[table]
     statstab::([] file:`$(); algo:`int$(); compressedLength:`long$();uncompressedLength:`long$());
