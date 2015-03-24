@@ -70,7 +70,7 @@ if[`.replay.usage in key .proc.params; -1 .proc.getusage[]; exit 0];
 // some must be set
 .err.exitifnull each `.replay.schemafile`.replay.hdbdir, $[all null (tplogdir;tplogfile); `.replay.tplogfile; ()];
 
-if[basicmode and (messagechunks within (0;0W));
+if[basicmode and (messagechunks within (0;-1 + 0W));
  .err.ex[`replayinit; "if using basic mode, messagechunks must not be used (it should be set to 0W). basicmode will use .Q.hdpf to overwrite tables at the end of the replay";1]];
 if[not partitiontype in `date`month`year; .err.ex[`replayinit;"partitiontype must be one of `date`month`year";1]];
 
@@ -186,7 +186,8 @@ replaylog:{[logfile]
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
  $[basicmode; 
-  .Q.hdpf[`::;hdbdir;partitiontype$.replay.replaydate;`sym];
+  [.lg.o[`replay;"basicmode set to true, saving down tables with .Q.hdpf"];
+   .Q.hdpf[`::;hdbdir;partitiontype$.replay.replaydate;`sym]];
   // if not in basic mode, then we need to finish off the replay
   finishreplay[hdbdir;.replay.replaydate]];
   if[gc;.gc.run[]];}
