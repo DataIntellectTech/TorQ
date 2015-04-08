@@ -98,7 +98,7 @@ password:`                           		// password for user account
 from:`$"torq@localhost"               		// address for return emails e.g. torq@aquaq.co.uk
 usessl:0b                              		// connect using SSL/TLS
 debug:0i                               		// debug level for email library: 0i = none, 1i=normal, 2i=verbose
-img:`$getenv[`KDBHTML],"/img/logo-email.png"	// default image for bottom of email
+img:`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"	// default image for bottom of email
 
 // heartbeating
 \d .hb
