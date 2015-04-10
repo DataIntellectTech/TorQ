@@ -50,6 +50,8 @@ compression:@[value;`compression;()];                           /-specify the co
 
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000000000]		/- length of time to wait for async callbacks to complete at eod
+
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`postreplay;{{[d;p] }}]			    /-post EOD function, invoked after all the tables have been written down
@@ -113,7 +115,11 @@ endofdaysave:{[dir;pt]
 	savetables[dir;pt;1b;] each tl;
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
-	
+
+handler:{d[.z.w]:x}
+evaluate:{(neg x) d[x]}
+d:()!()
+
 endofdaysort:{[dir;pt;tablist]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
@@ -130,6 +136,11 @@ endofdaysort:{[dir;pt;tablist]
 		/-inform gateway of reload start
 		informgateway["reloadstart[]"];
 		getprocs[;pt] each reloadorder;
+		if[eodwaittime>0;
+			timeouttime:.z.n+eodwaittime;
+			while[(.z.n<timeouttime) and (count[d]<count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder]);system "sleep 1"];
+			evaluate each key d
+		];
 		/-inform gateway of reload end
 		informgateway["reloadend[]"]];
 
@@ -138,7 +149,10 @@ endofdaysort:{[dir;pt;tablist]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-	@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e][ptype]}];
+	$[eodwaittime>0;
+		neg[h]"neg[.z.w](`.wdb.handler;\"reload[.z.d]\");value .z.w[]";
+		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e][ptype]}];
+	];
 	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
 	}
 
