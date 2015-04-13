@@ -51,6 +51,7 @@ compression:@[value;`compression;()];                           /-specify the co
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000000000]		/- length of time to wait for async callbacks to complete at eod
+releaseprocs:@[value;`releaseprocs;0b]				/- boolean to check if processes should be released immediately on calling back to the sort process at eod
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
@@ -116,8 +117,18 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-handler:{d[.z.w]:x}
+/- add entries to dictionary of callbacks. if releaseprocs is set to true it releases processes right away and clears the dictionary
+handler:{d[.z.w]:x;
+	if[releaseprocs;
+		evaluate each key d;
+		.wdb.d:()!()
+		]
+	}
+
+/- evaluate contents of d dictionary asynchronously
 evaluate:{(neg x) d[x]}
+
+/- initialise d
 d:()!()
 
 endofdaysort:{[dir;pt;tablist]
@@ -139,7 +150,9 @@ endofdaysort:{[dir;pt;tablist]
 		if[eodwaittime>0;
 			timeouttime:.z.n+eodwaittime;
 			while[(.z.n<timeouttime) and (count[d]<count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder]);system "sleep 1"];
-			evaluate each key d
+			evaluate each key d;
+			.wdb.d:()!();
+			releaseprocs:1b
 		];
 		/-inform gateway of reload end
 		informgateway["reloadend[]"]];
@@ -150,7 +163,8 @@ endofdaysort:{[dir;pt;tablist]
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
 	$[eodwaittime>0;
-		neg[h]"neg[.z.w](`.wdb.handler;\"reload[.z.d]\");value .z.w[]";
+		[releaseprocs:0b;
+		neg[h]"neg[.z.w](`.wdb.handler;\"reload[.z.d]\");value .z.w[]"];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e][ptype]}];
 	];
 	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
