@@ -119,7 +119,7 @@ endofdaysave:{[dir;pt]
 
 /- add entries to dictionary of callbacks. if releaseprocs is set to true it releases processes right away and clears the dictionary
 handler:{d[.z.w]:x;
-	if[releaseprocs;
+	if[(.z.n>.wdb.timeouttime) or (count[d]=count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder]);
 		evaluate each key d;
 		.wdb.d:()!()
 		]
@@ -146,14 +146,10 @@ endofdaysort:{[dir;pt;tablist]
 	if[permitreload; 
 		/-inform gateway of reload start
 		informgateway["reloadstart[]"];
-		getprocs[;pt] each reloadorder;
 		if[eodwaittime>0;
-			timeouttime:.z.n+eodwaittime;
-			while[(.z.n<timeouttime) and (count[d]<count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder]);system "sleep 1"];
-			evaluate each key d;
-			.wdb.d:()!();
-			releaseprocs:1b
-		];
+			.wdb.timeouttime:.z.n+eodwaittime;
+			];
+		getprocs[;pt] each reloadorder;
 		/-inform gateway of reload end
 		informgateway["reloadend[]"]];
 
