@@ -126,7 +126,7 @@ handler:{d[.z.w]:x;
 	}
 
 /- evaluate contents of d dictionary asynchronously
-evaluate:{(neg x) d[x]}
+evaluate:{[q] @[neg q;@[{[q] d[q]};q;{.lg.e[`evaluate;"failed to evaluate d dictionary: ",x]}];()]}
 
 /- initialise d
 d:()!()
@@ -160,7 +160,7 @@ endofdaysort:{[dir;pt;tablist]
 reloadproc:{[h;d;ptype]
 	$[eodwaittime>0;
 		[releaseprocs:0b;
-		neg[h]"neg[.z.w](`.wdb.handler;\"reload[.z.d]\");value .z.w[]"];
+		{.[{neg[y]@x;neg[y][]};(x;y);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype]];'e}]}["neg[.z.w](`.wdb.handler;\"reload[",string[d],"]\")";h]];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e][ptype]}];
 	];
 	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
