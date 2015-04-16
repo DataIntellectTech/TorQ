@@ -38,7 +38,6 @@ check:{[fp;dupcheck]
 // add a repeatingtimer
 rep:{[start;end;period;funcparam;nextsch;descrip;dupcheck] 
 	if[not nextsch in `short$til 3; '"nextsch mode can only be one of ",-3!`short$til 3];
-	`.timer.timer upsert (getID[];.proc.cp[];start:.proc.cp[]^start;0Wp^end;period;check[funcparam;dupcheck];0Np;start+period;1b;nextsch;descrip);}
 
 // add a one off timer
 one:{[runtime;funcparam;descrip;dupcheck] 
