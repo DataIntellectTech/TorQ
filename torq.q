@@ -263,13 +263,29 @@ readprocs:{[file] @["SISS"$/:@[;`port;string value each](.rmvr.removeenvvar each
 // Read in the processfile
 // Pull out the applicable rows
 readprocfile:{[file]
+	//order of preference for hostnames
+	preference_dictionary:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost)!0 1 2;
 	res:@[{t:readprocs file;
-         // allow host=localhost for ease of startup 
-	 select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
+	// allow host=localhost for ease of startup
+	$[0=system"p";
+		select from t where proctype=proctype,procname=procname;
+		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
+		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
 	if[0=count res;
 		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
-	// if more than one result, take the first non-localhost one
-	$[1<count res; first select from res where not host=`localhost; first res]}	
+	// if more than one result, take the most preferred one
+	output:$[1<count res;
+		// map hostnames in res to order of preference
+		[res:update preference:preference_dictionary host from res;
+		first delete preference from select from res where preference=min[preference]];
+		first res];
+	show output;
+	show output[`port];
+	if[0=system"p";
+		system "p ",string[output[`port]]
+		];
+	output
+	}	
 
 // The required values aren't set - so read them from the file
 if[not reqset;
