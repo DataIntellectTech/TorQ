@@ -200,6 +200,22 @@ exitifnull:{[variable]
 		.lg.e[`init;"Variable ",(string variable)," is null but must be set"];
 		usage[]]}
 
+// Function for replacing environment variables with the associated full path
+
+\d .rmvr
+
+removeenvvar:{
+ 	// positions of {}
+	pos:ss[x]each"{}";
+	// check the formatting is ok
+	$[0=count first pos; :x;
+	1<count distinct count each pos; '"environment variable contains unmatched brackets: ",x;
+	(any pos[0]>pos[1]) or any pos[0]<prev pos[1]; '"failed to match environment variable brackets on supplied string: ",x;
+	()];
+
+	// cut out each environment variable, and retrieve the meaning
+	raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}		
+		
 // Process initialisation
 \d .proc
 
@@ -258,7 +274,7 @@ file:$[`procfile in key params;
 	first `$params `procfile;
  	`$getenv[`KDBCONFIG],"/process.csv"];
 
-readprocs:{[file] @["SISS"$/:@[;`port;string value each](.rmvr.removeenvvar each)each("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
+readprocs:{[file]@[@/[;(`port;`host`proctype`procname);("I"$string value each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
 
 // Read in the processfile
 // Pull out the applicable rows
