@@ -295,8 +295,6 @@ readprocfile:{[file]
 		[res:update preference:preference_dictionary host from res;
 		first delete preference from select from res where preference=min[preference]];
 		first res];
-	show output;
-	show output[`port];
 	if[0=system"p";
 		system "p ",string[output[`port]]
 		];
