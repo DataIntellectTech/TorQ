@@ -284,7 +284,7 @@ readprocfile:{[file]
 	res:@[{t:readprocs file;
 	// allow host=localhost for ease of startup
 	$[0=system"p";
-		select from t where proctype=proctype,procname=procname;
+		select from t where proctype=.proc.proctype,procname=.proc.procname;
 		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
 		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
 	if[0=count res;
