@@ -50,7 +50,7 @@ compression:@[value;`compression;()];                           /-specify the co
 
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000000000]		/- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for async callbacks to complete at eod
 releaseprocs:@[value;`releaseprocs;0b]				/- boolean to check if processes should be released immediately on calling back to the sort process at eod
 
 / - settings for the common save code (see code/common/save.q)
@@ -119,14 +119,14 @@ endofdaysave:{[dir;pt]
 
 /- add entries to dictionary of callbacks. if releaseprocs is set to true it releases processes right away and clears the dictionary
 handler:{d[.z.w]:x;
-	if[(.z.n>.wdb.timeouttime) or (count[d]=count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder]);
+	if[(.z.p>.wdb.timeouttime) or (count[d]=.wdb.countreload);
 		evaluate each key d;
 		.wdb.d:()!()
 		]
 	}
 
 /- evaluate contents of d dictionary asynchronously
-evaluate:{[q] @[neg q;@[{[q] d[q]};q;{.lg.e[`evaluate;"failed to evaluate d dictionary: ",x]}];()]}
+evaluate:{(neg key d)@\:""}
 
 /- initialise d
 d:()!()
@@ -147,7 +147,7 @@ endofdaysort:{[dir;pt;tablist]
 		/-inform gateway of reload start
 		informgateway["reloadstart[]"];
 		if[eodwaittime>0;
-			.wdb.timeouttime:.z.n+eodwaittime;
+			.timer.one[.wdb.timeouttime:.z.p+eodwaittime;`$"{.wdb.evaluate each exec w from raze .servers.getservers[`proctype;;()!();1b;0b]each .wdb.reloadorder}";"release all hdbs and rdbs as timer has expired";0b];
 			];
 		getprocs[;pt] each reloadorder;
 		/-inform gateway of reload end
@@ -158,9 +158,9 @@ endofdaysort:{[dir;pt;tablist]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
+	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
 	$[eodwaittime>0;
-		[releaseprocs:0b;
-		{.[{neg[y]@x;neg[y][]};(x;y);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype]];'e}]}["neg[.z.w](`.wdb.handler;\"reload[",string[d],"]\")";h]];
+		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); .z.w[]};d);h;ptype];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e][ptype]}];
 	];
 	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
