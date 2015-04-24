@@ -280,10 +280,10 @@ readprocs:{[file]@[@/[;(`port;`host`proctype`procname);("I"$string value each .r
 // Pull out the applicable rows
 readprocfile:{[file]
 	//order of preference for hostnames
-	preference_dictionary:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost)!0 1 2;
-	res:@[{t:readprocs file;
+	prefs:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost);
+	res:@[{t:select from readprocs[file] where not null host;
 	// allow host=localhost for ease of startup
-	$[0=system"p";
+	$[all req in key `.proc;
 		select from t where proctype=.proc.proctype,procname=.proc.procname;
 		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
 		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
@@ -291,12 +291,11 @@ readprocfile:{[file]
 		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
 	// if more than one result, take the most preferred one
 	output:$[1<count res;
-		// map hostnames in res to order of preference
-		[res:update preference:preference_dictionary host from res;
-		first delete preference from select from res where preference=min[preference]];
+		// map hostnames in res to order of preference, select most preferred
+		first res iasc prefs?res[`host];
 		first res];
-	if[0=system"p";
-		system "p ",string[output[`port]]
+	if[all req in key `.proc;
+		@[system;"p ",string[output[`port]];"failed to set port to ",string[output[`port]]]
 		];
 	output
 	}	

@@ -6,9 +6,6 @@ export KDBLOG=${PWD}/logs
 export KDBHTML=${PWD}/html
 export KDBLIB=${PWD}/lib
 
-# sets the base port for a default TorQ installation
-export KDBBASEPORT=5000
-
 # if using the email facility, modify the library path for the email lib depending on OS
 # e.g. linux:
 # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l[32|64]

@@ -1,16 +1,1 @@
 host,port,proctype,procname
-localhost,{KDBBASEPORT}+1000,discovery,discovery1
-localhost,{KDBBASEPORT}+1100,tickerplant,tickerplant1
-localhost,{KDBBASEPORT}+1200,rdb,rdb1
-localhost,{KDBBASEPORT}+1300,hdb,hdb1
-localhost,{KDBBASEPORT}+1301,hdb,hdb2
-localhost,{KDBBASEPORT}+1400,wdb,wdb1
-localhost,{KDBBASEPORT}+1450,sort,sort1
-localhost,{KDBBASEPORT},gateway,gateway1
-localhost,{KDBBASEPORT}+100,kill,killtick
-localhost,{KDBBASEPORT}+200,monitor,monitor1
-localhost,{KDBBASEPORT}+300,tickerlogreplay,tpreplay1
-localhost,{KDBBASEPORT}+400,housekeeping,housekeeping1
-localhost,{KDBBASEPORT}+500,reporter,reporter1
-localhost,{KDBBASEPORT}+600,compression,compression1
-localhost,{KDBBASEPORT}+700,feed,feed1
