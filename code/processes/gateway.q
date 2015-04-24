@@ -79,7 +79,7 @@ errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to l
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
-checkeod:{[IDS].gw.eod&1<count distinct exec servertype from .gw.servers where any serverid in/:IDS}    // check if eod reload affects query
+checkeod:{[IDS].gw.eod&1<count distinct$[11h=type ids:raze IDS;ids;exec servertype from .gw.servers where any serverid in/:ids]}    // check if eod reload affects query
 
 
 // Track query IDs
@@ -127,11 +127,12 @@ canberun:{
  if[0=count avail:distinct exec servertype from availServers;
 	:update required:(),available:(),handles:() from 0#0!queryqueue];
   availIDs:exec serverid from availServers;
+ queue:$[eod;select from queryqueue where 1=count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}servertype;queryqueue];
  select from 
   (update available:{$[11h=type z; z inter x; z where 0<count each z inter\: y]}[avail;availIDs] each required from
    (update required:(where each null each .gw.results[;1;;0])[queryid] from 
      (update required:servertype from 
-      select from 0!queryqueue where null returntime)
+      select from 0!queue where null returntime)
     where queryid in key .gw.results))
  where 0<count each raze each available}
 
@@ -406,17 +407,30 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- /- determine query attributes first - as servertype is overwritten later
- queryattributes:$[99h=type servertype;servertype;()!()];
- /- extract serverids of avialable hosts
- res:@[getserverids;servertype;,[.gw.errorprefix;]];
- /-  assign result to applicable definition
- $[10h=type res;errStr:res;servertype:res];
- /- propagate any error to client
- if[count errStr;@[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];:()];
- /- add query to the queue and run
+ errStr:"";
+ if[99h<>type servertype;
+	// its a list of servertypes e.g. `rdb`hdb
+	servertype,:();
+	missing:(servertype,()) except exec distinct servertype from .gw.servers where active;
+	if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
+	queryattributes:()!();
+ ];
+ if[99h=type servertype;
+	// its a dictionary of attributes
+	queryattributes:servertype;
+	res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
+	if[10h=type res; errStr:res];
+	if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
+	servertype:res;
+ ];
+
+ if[count errStr;
+  @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];
+  :()];
+
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout];
- runnextquery[];}
+ runnextquery[];
+ }
 
 asyncexec:asyncexecjpt[;;raze;();0Wn]
 
@@ -454,7 +468,7 @@ syncexec:syncexecj[;;raze]
 runquery:{[]
  // check if there is something to run
  if[count torun:getnextquery[];
- if[not checkeod raze torun`servertype;
+ if[not checkeod torun`servertype;
   torun:first torun;
   // if it isn't already in the result dict, add it
   if[not torun[`queryid] in key results;
@@ -470,7 +484,7 @@ runquery:{[]
   addservertoquery[torun`queryid;torun`available;IDs]; 
   // send off the queries
   sendquerytoserver[torun`queryid;torun`query;handles]]];
- } 
+ }
 
 runnextquery:runquery
 
@@ -512,20 +526,20 @@ addserversfromconnectiontable[.servers.CONNECTIONS]
 // functions called by end-of-day processes
 
 reloadstart:{
- .lg.o[`reload;"reload start called"]
+ .lg.o[`reload;"reload start called"];
  /- set eod variable to active/true
- seteod[1b];
+ .gw.seteod[1b];
  /- extract ids of queries not yet returned
- qids:exec queryid from .gw.queryqueue where 1<count each distinct each(exec serverid!servertype from .gw.servers)servertype,null returntime;
+ qids:exec queryid from .gw.queryqueue where 1<count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}each servertype,null returntime;
  /- propagate a timeout error to each client
- if[count qids;sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload"]each qids;finishquery[qids;1b;0Ni]];}
+ if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload"]each qids;.gw.finishquery[qids;1b;0Ni]];}
 
 reloadend:{
- .lg.o[`reload;"reload end called"]
+ .lg.o[`reload;"reload end called"];
  /- set eod variable to false
- seteod[0b];
+ .gw.seteod[0b];
  /- flush any async queries held during reload phase
- runnextquery[];}
+ .gw.runnextquery[];}
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
