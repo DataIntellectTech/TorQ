@@ -283,7 +283,7 @@ readprocfile:{[file]
 	prefs:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost);
 	res:@[{t:select from readprocs[file] where not null host;
 	// allow host=localhost for ease of startup
-	$[all req in key `.proc;
+	$[not any null `.proc req;
 		select from t where proctype=.proc.proctype,procname=.proc.procname;
 		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
 		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
@@ -294,15 +294,17 @@ readprocfile:{[file]
 		// map hostnames in res to order of preference, select most preferred
 		first res iasc prefs?res[`host];
 		first res];
-	if[all req in key `.proc;
-		@[system;"p ",string[output[`port]];"failed to set port to ",string[output[`port]]]
+	if[not output[`port] = system"p";
+		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
+		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
 		];
 	output
 	}	
 
+// The required values aren't set - so read them from the file
 .lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
 // Read in the file, pull out the rows which are applicable and set the local variables
-{@[`.proc;y;:;x y]}[readprocfile[file];req]];
+{@[`.proc;y;:;x y]}[readprocfile[file];req];
 
 // Check if all the required variables have now been set properly
 $[any null `.proc req;
