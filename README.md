@@ -37,9 +37,9 @@ This will launch the a process running within the framework with all the default
 - **2.0, Apr 2015**:  
   * Added RDB process which extends r.q from kdb+ tick.
   * Added WDB to write down data periodically throughout the day.  Extends w.q.
-  * RDB and WDB allow seemless end-of-day event (no data outage, no tickerplant back pressure)
+  * RDB and WDB allow seamless end-of-day event (no data outage, no tickerplant back pressure)
   * Added Reporting Process to run reports periodically and process the results
-  * Added -localtime flag to allow process to run in localtime rather than GMT (log message, timer calls etc.).  The change is backwardly compatible- without -localtime flag the process will print logs etc. in GMT but can also have a different .z.P
+  * Added -localtime flag to allow process to run in localtime rather than GMT (log message, timer calls etc.).  The change is backwardly compatible - without -localtime flag the process will print logs etc. in GMT but can also have a different .z.P
   * Added Subscription code to manage multiple subscriptions to different data sources
   * Added email library which uses libcurl.  Used to send emails from TorQ processes
   * Added standard monitoring checks to the database code
