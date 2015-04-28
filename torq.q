@@ -287,9 +287,10 @@ readprocfile:{[file]
 		select from t where proctype=.proc.proctype,procname=.proc.procname;
 		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
 		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
-	if[0=count res;
-		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
-	// if more than one result, take the most preferred one
+		if[0=count res;
+		.lg.o[`readprocfile;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p"];
+		:`host`port`proctype`procname!(`;0;proctype;procname)];
+		// if more than one result, take the most preferred one
 	output:$[1<count res;
 		// map hostnames in res to order of preference, select most preferred
 		first res iasc prefs?res[`host];
