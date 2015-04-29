@@ -538,6 +538,9 @@ reloadend:{
  .lg.o[`reload;"reload end called"];
  /- set eod variable to false
  .gw.seteod[0b];
+ /- retry connections - get updated attributes from servers and refresh servers tables
+ update attributes:@[;(`.proc.getattributes;`);()!()]each w from`.servers.SERVERS;
+ update attributes:attributes^(exec w!attributes from .servers.SERVERS)handle from`.gw.servers;
  /- flush any async queries held during reload phase
  .gw.runnextquery[];}
 
