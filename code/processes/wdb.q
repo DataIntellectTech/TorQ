@@ -118,8 +118,9 @@ endofdaysave:{[dir;pt]
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{d[.z.w]:x;
-	if[(.proc.cp[]>.wdb.timeouttime) or (count[d]=.wdb.countreload);
-		evaluate each key d;
+	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
+		.lg.o[`handler;"releasing processes"];
+		.wdb.evaluate[];
 		.wdb.d:()!()
 		]
 	}
@@ -147,8 +148,8 @@ endofdaysort:{[dir;pt;tablist]
 		informgateway["reloadstart[]"];
 		getprocs[;pt] each reloadorder;
 		if[eodwaittime>0;
-			.timer.one[.wdb.timeouttime:.proc.cp[]+eodwaittime;`$"{.wdb.evaluate each exec w from raze .servers.getservers[`proctype;;()!();1b;0b]each .wdb.reloadorder}";"release all hdbs and rdbs as timer has expired";0b];
-			];
+		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.evaluate[]");"release all hdbs and rdbs as timer has expired";0b];
+		];
 		/-inform gateway of reload end
 		informgateway["reloadend[]"]];
 
