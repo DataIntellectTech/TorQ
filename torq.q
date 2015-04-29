@@ -302,7 +302,6 @@ readprocfile:{[file]
 	output
 	}	
 
-// The required values aren't set - so read them from the file
 .lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
 // Read in the file, pull out the rows which are applicable and set the local variables
 {@[`.proc;y;:;x y]}[readprocfile[file];req];
