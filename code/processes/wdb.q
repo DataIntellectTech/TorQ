@@ -51,7 +51,6 @@ compression:@[value;`compression;()];                           /-specify the co
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for async callbacks to complete at eod
-releaseprocs:@[value;`releaseprocs;0b]				/- boolean to check if processes should be released immediately on calling back to the sort process at eod
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
@@ -117,9 +116,9 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to dictionary of callbacks. if releaseprocs is set to true it releases processes right away and clears the dictionary
+/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{d[.z.w]:x;
-	if[(.z.p>.wdb.timeouttime) or (count[d]=.wdb.countreload);
+	if[(.proc.cp[]>.wdb.timeouttime) or (count[d]=.wdb.countreload);
 		evaluate each key d;
 		.wdb.d:()!()
 		]
@@ -146,10 +145,10 @@ endofdaysort:{[dir;pt;tablist]
 	if[permitreload; 
 		/-inform gateway of reload start
 		informgateway["reloadstart[]"];
-		if[eodwaittime>0;
-			.timer.one[.wdb.timeouttime:.z.p+eodwaittime;`$"{.wdb.evaluate each exec w from raze .servers.getservers[`proctype;;()!();1b;0b]each .wdb.reloadorder}";"release all hdbs and rdbs as timer has expired";0b];
-			];
 		getprocs[;pt] each reloadorder;
+		if[eodwaittime>0;
+			.timer.one[.wdb.timeouttime:.proc.cp[]+eodwaittime;`$"{.wdb.evaluate each exec w from raze .servers.getservers[`proctype;;()!();1b;0b]each .wdb.reloadorder}";"release all hdbs and rdbs as timer has expired";0b];
+			];
 		/-inform gateway of reload end
 		informgateway["reloadend[]"]];
 
