@@ -407,7 +407,9 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- errStr:"";
+ /- if sync calls are allowed disable async calls to avoid query conflicts
+ $[.gw.synccallsallowed;errStr:.gw.errorprefix,"synchronous calls are only allowed";
+ [errStr:"";
  if[99h<>type servertype;
 	// its a list of servertypes e.g. `rdb`hdb
 	servertype,:();
@@ -422,8 +424,7 @@ asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
 	if[10h=type res; errStr:res];
 	if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
 	servertype:res;
- ];
-
+ ]]];
  if[count errStr;
   @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];
   :()];
@@ -436,7 +437,7 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 
 // execute a synchronous query
 syncexecj:{[query;servertype;joinfunction]
- if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"]
+ if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
