@@ -200,6 +200,22 @@ exitifnull:{[variable]
 		.lg.e[`init;"Variable ",(string variable)," is null but must be set"];
 		usage[]]}
 
+// Function for replacing environment variables with the associated full path
+
+\d .rmvr
+
+removeenvvar:{
+ 	// positions of {}
+	pos:ss[x]each"{}";
+	// check the formatting is ok
+	$[0=count first pos; :x;
+	1<count distinct count each pos; '"environment variable contains unmatched brackets: ",x;
+	(any pos[0]>pos[1]) or any pos[0]<prev pos[1]; '"failed to match environment variable brackets on supplied string: ",x;
+	()];
+
+	// cut out each environment variable, and retrieve the meaning
+	raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}		
+		
 // Process initialisation
 \d .proc
 
@@ -258,24 +274,37 @@ file:$[`procfile in key params;
 	first `$params `procfile;
  	`$getenv[`KDBCONFIG],"/process.csv"];
 
-readprocs:{[file] @[("SISS";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
+readprocs:{[file]@[@/[;(`port;`host`proctype`procname);("I"$string value each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
 
 // Read in the processfile
 // Pull out the applicable rows
 readprocfile:{[file]
-	res:@[{t:readprocs file;
-         // allow host=localhost for ease of startup 
-	 select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
-	if[0=count res;
-		.err.ex[`init;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p";2]];
-	// if more than one result, take the first non-localhost one
-	$[1<count res; first select from res where not host=`localhost; first res]}	
+	//order of preference for hostnames
+	prefs:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost);
+	res:@[{t:select from readprocs[file] where not null host;
+	// allow host=localhost for ease of startup
+	$[not any null `.proc req;
+		select from t where proctype=.proc.proctype,procname=.proc.procname;
+		select from t where abs[port]=abs system"p",(lower[host]=lower .z.h) or (host=`localhost) or host=`$"." sv string "i"$0x0 vs .z.a]
+		};file;{.err.ex[`init;"failed to read process file ",(string x)," : ",y;2]}[file]];
+		if[0=count res;
+		.lg.o[`readprocfile;"failed to read any rows from ",(string file)," which relate to this process; Host=",(string .z.h),", IP=",("." sv string "i"$0x0 vs .z.a),", port=",string system"p"];
+		:`host`port`proctype`procname!(`;0;proctype;procname)];
+		// if more than one result, take the most preferred one
+	output:$[1<count res;
+		// map hostnames in res to order of preference, select most preferred
+		first res iasc prefs?res[`host];
+		first res];
+	if[not output[`port] = system"p";
+		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
+		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
+		];
+	output
+	}	
 
-// The required values aren't set - so read them from the file
-if[not reqset;
-	.lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
-	// Read in the file, pull out the rows which are applicable and set the local variables
-	{@[`.proc;y;:;x y]}[readprocfile[file];req]];
+.lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
+// Read in the file, pull out the rows which are applicable and set the local variables
+{@[`.proc;y;:;x y]}[readprocfile[file];req];
 
 // Check if all the required variables have now been set properly
 $[any null `.proc req;
