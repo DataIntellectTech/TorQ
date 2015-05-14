@@ -117,16 +117,22 @@ endofdaysave:{[dir;pt]
 	};
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
-handler:{d[.z.w]:x;
+handler:{
+	.wdb.d[.z.w]:x;
 	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
 		.lg.o[`handler;"releasing processes"];
-		.wdb.evaluate[];
-		.wdb.d:()!()
+		.wdb.flushend[];
+		.wdb.d:()!();
 		]
 	}
 
 /- evaluate contents of d dictionary asynchronously
-evaluate:{(neg key d)@\:""}
+/- notify the gateway that we are done
+flushend:{
+	@[{neg[x]"";neg[x][]};;()] each key d;
+	informgateway"reloadend[]";
+	.lg.o[`sort;"end of day sort is now complete"];
+	}
 
 /- initialise d
 d:()!()
@@ -138,8 +144,8 @@ endofdaysort:{[dir;pt;tablist]
 	{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist;
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb directory to the hdb directory"];
-	.[.os.ren;(-1 _ string .Q.par[dir;pt;`];-1 _ string .Q.par[hdbdir;pt;`]);{.lg.e[`mvtohdb;"Failed to move data from wdb to hdb directory"]}];
+	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:-1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:-1 _ string .Q.par[hdbdir;`;`]];
+	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 
@@ -148,12 +154,8 @@ endofdaysort:{[dir;pt;tablist]
 		informgateway["reloadstart[]"];
 		getprocs[;pt] each reloadorder;
 		if[eodwaittime>0;
-		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.evaluate[]");"release all hdbs and rdbs as timer has expired";0b];
-		];
-		/-inform gateway of reload end
-		informgateway["reloadend[]"]];
-
-	.lg.o[`sort;"end of day sort is now complete"];
+		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
+		]];
 	};
 
 /-function to send reload message to rdbs/hdbs
