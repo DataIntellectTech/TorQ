@@ -241,9 +241,9 @@ refreshattributes:{
 // either load in 	
 startup:{
 	// read in the table of processes, both TorQ processes and external processes
-  	procs:update hpup:lower `$(((":",'string host),'":"),'string port) from .proc.readprocs .proc.file;
+  	procs:update hpup:lower `$(((":",'string ?[host=`localhost;.z.h;host]),'":"),'string port) from .proc.readprocs .proc.file;
   	nontorqprocesstab::$[count key NONTORQPROCESSFILE;
-				update hpup:lower `$(((":",'string host),'":"),'string port) from .proc.readprocs NONTORQPROCESSFILE;
+				update hpup:lower `$(((":",'string ?[host=`localhost;.z.h;host]),'":"),'string port) from .proc.readprocs NONTORQPROCESSFILE;
 				0#procs];
 	// If DISCOVERY servers have been explicity defined
        if[count .servers.DISCOVERY;
