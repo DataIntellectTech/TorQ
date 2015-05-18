@@ -122,16 +122,17 @@ handler:{
 	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
 		.lg.o[`handler;"releasing processes"];
 		.wdb.flushend[];
-		.wdb.d:()!();
-		]
+		.wdb.d:()!()];
 	}
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
 flushend:{
-	@[{neg[x]"";neg[x][]};;()] each key d;
-	informgateway"reloadend[]";
-	.lg.o[`sort;"end of day sort is now complete"];
+	if[not @[value;`.wdb.reloadcomplete;0b];
+	 @[{neg[x]"";neg[x][]};;()] each key d;
+	 informgateway"reloadend[]";
+	 .lg.o[`sort;"end of day sort is now complete"];
+	 .wdb.reloadcomplete:1b];
 	}
 
 /- initialise d
@@ -150,6 +151,7 @@ endofdaysort:{[dir;pt;tablist]
 	.save.postreplay[hdbdir;pt];
 
 	if[permitreload; 
+		.wdb.reloadcomplete:0b;
 		/-inform gateway of reload start
 		informgateway["reloadstart[]"];
 		getprocs[;pt] each reloadorder;
