@@ -91,7 +91,7 @@ default:`$"Europe/London"	// default local timezone
 
 // configuration for default mail server
 \d .email
-enabled:.z.o in `w32`l32`l64`m32`m64    	// whether emails are enabled
+enabled:0b				    	// whether emails are enabled
 url:`                               		// url of email server e.g. `$"smtp://smtpout.secureserver.net:80"
 user:`                               		// user account to use to send emails e.g. torq@aquaq.co.uk
 password:`                           		// password for user account
