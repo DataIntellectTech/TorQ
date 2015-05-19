@@ -54,8 +54,9 @@ csvloader:{[CSV]
 
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
-	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
-	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age]])]}
+	$[not DICT[`function] in key `.;
+		.lg.e[`housekeeping;"Could not find function: ",string DICT`function];
+		(value DICT`function) each (find[.rmvr.removeenvvar DICT`path;DICT`match;DICT`age] except $[count DICT`exclude;find[.rmvr.removeenvvar DICT`path;DICT`exclude;DICT`age];()])]}
 
 //FUNCTIONS FOR LINUX
 
@@ -86,8 +87,8 @@ find:{[path;match;age]
 	PATH:ssr[path;"/";"\\"];
 	//searches for files and refines return to usable format
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
-		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
+		fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; 
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);
 	//error and info for find function 
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];$[(count files)=0;
