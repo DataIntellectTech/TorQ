@@ -7,7 +7,7 @@ rdbtypes:`rdb                           // list of rdb types to look for and cal
 tickerplanttypes:`tickerplant           // list of tickerplant types to try and make a connection to
 subtabs:`                               // list of tables to subscribe for (` for all)
 subsyms:`                               // list of syms to subscribe for (` for all)
-savedir:`:wdbhdb                        // location to save wdb data
+savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                        // location to save wdb data
 numrows:100000                          // default number of rows
 numtab:`quote`trade!10000 50000         // specify number of rows per table
 mode:`sort                              // the wdb process can operate in three modes
