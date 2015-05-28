@@ -42,10 +42,11 @@ if[`hkusage in key .proc.params; -1 .hk.extrausage; exit 0]
 //-defines housekeeping
 csvloader:{[CSV]
 //-rethrows error if file doesn't exist, checks to see if correct columns exist in file
-	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***I"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
-	check:(all `function`path`match`exclude`age in (cols housekeepingcsv));
+	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***IB"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
+	housekeepingcsv::(`agemin^cols[housekeepingcsv]) xcol housekeepingcsv;
+	check:(all `function`path`match`exclude`age`agemin in (cols housekeepingcsv));
 	//-if check shows incorrect columns, report error
-	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'housekeepingcsv[`function`path`match`exclude`age]}[CSV]];
+	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'housekeepingcsv[`function`path`match`exclude`age`agemin]}[CSV]];
 		//-if correctly columned csv has nulls, report error and skip lines 
 		[if[(any nullcheck:any null (housekeepingcsv.function;housekeepingcsv.age))>0; .lg.o[`housekeeping;"Null values found in file, skipping line(s)  ", ("," sv (string where nullcheck))]];
 		housekeepingcsv2:(housekeepingcsv[where not nullcheck]);
@@ -54,18 +55,20 @@ csvloader:{[CSV]
 
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
-	$[not DICT[`function] in key `.;
-		.lg.e[`housekeeping;"Could not find function: ",string DICT`function];
-		(value DICT`function) each (find[.rmvr.removeenvvar DICT`path;DICT`match;DICT`age] except $[count DICT`exclude;find[.rmvr.removeenvvar DICT`path;DICT`exclude;DICT`age];()])]}
+	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
+	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
 
 //FUNCTIONS FOR LINUX
 
 \d .unix
 
 //-locates files with path, matching string and age
-find:{[path;match;age]
-	files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mtime +",raze string z};(path;match;age); 
+find:{[path;match;age;agemin]
+	$[0=agemin;
+	files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mtime +",raze string z};(path;match;age);
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
+	 files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mmin +",raze string z};(path;match;age);
+	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}]];
 	$[(count files)=0;[.lg.o[`housekeeping;"No matching files located"];files]; files]}
 
 
@@ -82,16 +85,22 @@ zip:{[FILE]
 \d .win
 
 //-locates files with path, matching string and age
-find:{[path;match;age]
+find:{[path;match;age;agemin]
 	//renames the path to a windows readable format
 	PATH:ssr[path;"/";"\\"];
 	//searches for files and refines return to usable format
+	$[0=agemin;
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		fulllist:-5_(5_system "dir ",PATH,match, " /s");
-		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; 
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);
+		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)];
+	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
+		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)]];
 	//error and info for find function 
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];$[(count files)=0;
+	{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
+	$[(count files)=0;
 	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
 
 //removes files
