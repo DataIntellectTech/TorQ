@@ -51,3 +51,7 @@ This will launch the a process running within the framework with all the default
   * Modified compression code and housekeeping process to run with kdb+ 2.*
   * Modified std out/err logging and usage logging to include process name and process type (the logmsg table had changed along with some of the functions in the .lg namespace so you might need to check in case you have overridden any of them)
   * Removed launchtick scripts and some default configuration: to create a test system, install a starter pack
+- **2.1.0, July 2015**:
+  * Added a chained tickerplant process
+  * Updated housekeeping.csv to take in an extra column agemin which represents whether to use minutes or days in find function
+  * Updated email libraries
