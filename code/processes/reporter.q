@@ -2,10 +2,12 @@
 /- Glen Smith. glen.smith@aquaq.co.uk
 
 / - defining default process parameters
-inputcsv:@[value;`.rp.inputcsv;getenv[`KDBCONFIG],"/reporter.csv"];		/ - location of the reporter process configuration file
+inputcsv:@[value;`.rp.inputcsv;`$getenv[`KDBCONFIG],"/reporter.csv"];		/ - location of the reporter process configuration file
 writetostdout:@[value;`.rp.writetostdout;0b];							/ - determine if the process should write to stdout
 flushqueryloginterval:@[value;`.rp.flushqueryloginterval;0D00:02:00]	/ - how often the query logs are flushed
 queryid:`long$0;														/ - initial query id value
+
+inputcsv:string inputcsv
 
 /- stores report information
 reports:([] name:`$(); query:(); resulthandler:(); gateway:(); joinfunction:(); proctype:(); procname:(); start:`minute$(); end:`minute$(); period:`minute$(); timeoutinterval:`timespan$(); daysofweek:());
