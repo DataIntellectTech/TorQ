@@ -103,7 +103,7 @@ replayupd:{[f;tabs;syms;t;x]
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
 retrysubscription:{[row] 
-	subscribe[row`table;row`instruments;0b;0b;3#row];
+	subscribe[row`table;$[((),`) ~ insts:row`instruments;`;insts];0b;0b;3#row];
 	}
 //-if something becomes available again try to reconnect to any previously subscribed tables/instruments
 autoreconnect:{[rows]
