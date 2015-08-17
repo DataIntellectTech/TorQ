@@ -7,7 +7,7 @@ tickerplantname:@[value;`tickerplantname;`tickerplant1];        /- list of ticke
 pubinterval:@[value;`pubinterval;0D00:00:00];                   /- publish batch updates at this interval
 tpconnsleep:@[value;`tpconnsleep;10];                           /- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:@[value;`createlogfile;0b];                       /- create a log file
-logdir:@[value;`logdir;`:/kdb/data/tplogs];                     /- hdb directory containing tp logs 
+logdir:@[value;`logdir;`:tplogs];                     		/- hdb directory containing tp logs 
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file

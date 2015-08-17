@@ -5,7 +5,7 @@ tickerplantname:`tickerplant1;	/- list of tickerplant types to try and make a co
 pubinterval:0D00:00:00;       	/- publish batch updates at this interval, 0D00:00:00 for tick by tick
 tpconnsleep:10;			/- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:0b;             	/- create a log file
-logdir:`:hdb; 			/- hdb directory containing tp logs
+logdir:`:tplogs;		/- hdb directory containing tp logs
 subscribeto:`;                	/- list of tables to subscribe for
 subscribesyms:`;              	/- list of syms to subscription to
 replay:0b;                    	/- replay the tickerplant log file
