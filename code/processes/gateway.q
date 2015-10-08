@@ -260,10 +260,10 @@ syncexecj:{[query;servertype;joinfunction]
   '`$"not all of the requested server types are available; missing "," " sv string missing]; 
  // get the list of handles
  handles:(servers:availableservers[0b])?servertype;
- start:.proc.cp[];
  setserverstate[handles;1b];
+ start:.z.p;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
- (neg handles)@\:({@[neg .z.w;@[{(1b;.proc.cp[];value x)};x;{(0b;.proc.cp[];x)}];()]};query);
+ (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];()]};query);
  // flush
  (neg handles)@\:(::);
  // block and wait for the results
