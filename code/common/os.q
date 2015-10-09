@@ -2,7 +2,7 @@
 \d .os
 NT:.z.o in`w32`w64
 Fex:{not 0h~type key hsym$[10=type x;`$x;x]}
-pth:{v:$[NT;@[x;where"/"=$[10h=type x;x;x:string x];:;"\\"];x];$[":"=first v;1_v;v]}
+pth:{if[10h<>type x;x:string x]; if[NT;x:@[x;where"/"=x;:;"\\"]];$[":"=first x;1_x;x]}
 ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
