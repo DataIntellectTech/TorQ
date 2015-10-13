@@ -19,7 +19,12 @@ errortolerance:@[value;`errortolerance;2f]			// and to an error state when it ha
 
 // table for publishing heartbeats
 // sym = proctype
-heartbeat:([]time:`timestamp$(); sym:`symbol$(); procname:`symbol$(); counter:`long$())
+heartbeat:([]time:`timestamp$(); sym:`symbol$(); procname:`symbol$(); counter:`long$(); pid:`int$(); host:`$(); port:`int$())
+
+// process ID, hostname and port 
+pid:.z.i
+host:.z.h
+port:system"p"
 
 // create a keyed version of the heartbeat table to store the incoming heartbeats
 hb:update warning:0b, error:0b from `sym`procname xkey heartbeat
@@ -35,11 +40,11 @@ hbcounter:@[value;`hbcounter;0j]
 // publish a heartbeat
 publishheartbeat:{
  if[@[value;`.ps.initialised;0b];
-  .ps.publish[`heartbeat;enlist `time`sym`procname`counter!(.proc.cp[];.proc.proctype;.proc.procname;hbcounter)];
+  .ps.publish[`heartbeat;enlist `time`sym`procname`counter`pid`host`port!(.proc.cp[];.proc.proctype;.proc.procname;hbcounter;pid;host;port)];
   hbcounter+::1]}
 
 // add a set of process names and types to seed the heartbeat table
-addprocs:{[proctypes;procnames] .hb.hb:(2!([]sym:proctypes,();procname:procnames,();time:.proc.cp[];counter:0Nj;warning:0b;error:0b)),.hb.hb}
+addprocs:{[proctypes;procnames] .hb.hb:(2!([]sym:proctypes,();procname:procnames,();time:.proc.cp[];counter:0Nj;pid:0Nj;host:`;port:0Nj;warning:0b;error:0b)),.hb.hb}
 
 // store an incoming heartbeat
 storeheartbeat:{[hb]
