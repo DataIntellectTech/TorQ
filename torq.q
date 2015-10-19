@@ -33,6 +33,9 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
  KDBLIB:\t\t\tcontains supporting library files"]
+ 
+envoptusage:@[value;`envoptusage;"Optional environment variables:
+ KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
 
 // the standard options
 stdoptionusage:@[value;`stdoptionusage;"Standard options:
@@ -54,16 +57,22 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
 extrausage:@[value;`extrausage;""]
 
 configusage:@[value;`configusage;"Config management: 
- More options are available in the configuration scripts.
- All configuration is stored in $KDBCONFIG (in the settings directory).  Unless the -noconfig flag is set, the process will attempt to read config from this directory.
- The config is stored in q scripts.  Firstly, default.q will be read, followed by {proctype}.q, then {procname}.q.
+ More options are available in the configuration scripts.  
+ All default TorQ configuration is stored in $KDBCONFIG (in the settings directory). The config is stored in q scripts.
+ Unless the -noconfig flag is set, the process will attempt to read the default config module from this directory.
+ Within the module, default.q will be read, followed by {proctype}.q, then {procname}.q.
  Neither {proctype}.q nor {procname}.q have to be present or fully populated.
  Values in {procname}.q will override those in {proctype}.q which will override default.q.
  The idea is to allow processes to live in different process groups, and have the configuration shared between them.
  So for example by default all processes log all messages to disk.  You can create a process type called \"tickerplant\"
  and switch off logging for all tickerplants by setting .usage.logtodisk:0b in $KDBCONFIG/tickerplant.q.  
  However, perhaps for one specific tickerplant in the group you want to switch logging on either temporarily or permanently.  
- You can do this in $KDBCONFIG/tickerplantname.q"]
+ You can do this in $KDBCONFIG/tickerplantname.q 
+ Application specific configuration may be stored in a user defined directory and read after the TorQ default module.
+ If the environment variable $KDBAPPCONFIG is set, then TorQ will attempt to load app specific config from $KDBAPPCONFIG (in the settings subdirectory).
+ Within the app specific module, config is read in the same order as the default module (default.q, then {proctype}.q, then {procname}.q).
+ The app specific config will not be read if the $KDBAPPCONFIG is not set or does not match the user defined directory. No app specific config will be read if the -noconfig flag is set.
+ default.q, {proctype}.q and {procname}.q do not have to be present or fully populated."]
 
 helpusage:@[value;`helpusage;"Help: 
  if help.q from code.kx is loaded, use help` for more information.
@@ -73,12 +82,15 @@ helpusage:@[value;`helpusage;"Help:
 	.api.u[symbol or string pattern] e.g. .api.u[`] to find a publically marked, user defined function (i.e. don't show .q functions)"] 
 
 // If the usage value has been overridden, use that.  Else concat the req environment, with the stdoptions, with the extra usage info
-getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",stdoptionusage,"\n\n",extrausage,"\n\n",configusage,"\n\n",helpusage,"\n\n"]}
+getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"\n\n",stdoptionusage,"\n\n",extrausage,"\n\n",configusage,"\n\n",helpusage,"\n\n"]}
 
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
 envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
+// The script may have optional environment variables
+// KDBAPPCONFIG may be defined for loading app specific config
+{if[not ""~getenv[x]; envvars::distinct x,envvars]}`KDBAPPCONFIG
 
 // set the torq environment variables if not already set
 qhome:{q:getenv[`QHOME]; if[q~""; q:$[.z.o like "w*"; "c:/q"; getenv[`HOME],"/q"]]; q}
@@ -376,7 +388,7 @@ loaddir:{
 
 // load a config file
 loadconfig:{
-	file:getenv[`KDBCONFIG],"/settings/",(string x),".q";
+	file:x,(string y),".q";
 	$[()~key hsym`$file;
 		.lg.o[`fileload;"config file ",file," not found"];
 		[.lg.o[`fileload;"config file ",file," found"];
@@ -412,9 +424,17 @@ reloadnamecode:{loaddir getenv[`KDBCODE],"/",string procname;}
 
 \d . 
 // Load configuration
-// Load default configuration, then process type specific, then process specific
+// TorQ loads configuration modules in the order: TorQ Default, then Application Specific
+// Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
-	.proc.loadconfig each `default,.proc.proctype,.proc.procname;
+	// load TorQ Default configuration module
+	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.proctype,.proc.procname;
+	// check if KDBAPPCONFIG is set and load Appliation specific configuration module
+	$[""~getenv(`KDBAPPCONFIG);	
+	.lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
+	[.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
+	.lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
+	.proc.loadconfig[.proc.appconfig;] each `default,.proc.proctype,.proc.procname]];
 	// Override config from the command line
 	.proc.override[]]
 
