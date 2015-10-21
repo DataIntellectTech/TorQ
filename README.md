@@ -55,3 +55,9 @@ This will launch the a process running within the framework with all the default
   * Added a chained tickerplant process
   * Updated housekeeping.csv to take in an extra column agemin which represents whether to use minutes or days in find function
   * Updated email libraries
+- **2.2.0, October 2015**:
+  * Added application configuration management using $KDBAPPCONFIG environmnet variable
+  * Added pid, host and port to heartbeat table
+  * Changed gateway to be non intrusive
+  * Bug fixes
+
