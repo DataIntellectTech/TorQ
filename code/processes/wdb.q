@@ -102,51 +102,76 @@ savetables:{[dir;pt;forcesave;tabname]
 	if[gc;.gc.run[]];
 	]};
 	
+/- function to get additional partition(s) defined by parted attribute in sort.csv		
+getextrapartitiontype:{[tablename]
+	/- check that that each table is defined or the default attributes are defined in sort.csv
+	/- exits with error if a table cannot find parted attributes in tablename or default
+	/- only checks tables that have sort enabled
+	tabparts:$[count tabparts:distinct exec column from .sort.params where tabname=tablename,sort=1,att=`p;
+			[.lg.o[`getextraparttype;"parted attribute p found in sort.csv for ",(string tablename)," table"];
+			tabparts];
+			count defaultparts:distinct exec column from .sort.params where tabname=`default,sort=1,att=`p;
+			[.lg.o[`getextraparttype;"parted attribute p not found in sort.csv for ",(string tablename)," table, using default instead"];
+			defaultparts];
+			[.lg.e[`getextraparttype;"parted attribute p not found in sort.csv for ", (string tablename)," table and default not defined"]]
+		];
+	tabparts
+	};
+	
+/- function to check each partiton type specified in sort.csv is actually present in specified table
+checkpartitiontype:{[tablename;extrapartitiontype]
+	$[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
+		.lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
+		.lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
+	};	
+	
+/- function to get list of distinct combiniations for partition directories
+getextrapartitions:{[tablename;extrapartitiontype] 
+	value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
+	};	
+	
+/- function to upsert to specified directory
+upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
+	.lg.o[`save;"saving ",(string tablename)," data to partition ",
+		/- create directory location for selected partiton
+		string directory:` sv .Q.par[dir;pt;tablename],
+		/- replace random chracters in symbols with _
+		(`$"_"^.Q.an .Q.an?"_" sv string 
+		/- convert to symbols and replace any null values with `NONE
+		`NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];	
+	/- upsert selected data matched on partition to specific directory 	
+	.[
+		upsert;
+		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
+		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
+	];		
+	};
+	
 savetablesbypart:{[dir;pt;forcesave;tablename]
 	/- check row count and save if maxrows exceeded
 	/- forcesave will write flush the data to disk irrespective of counts	
-	if[forcesave or .wdb.maxrows[tablename] < arows: count value tablename;		
-		/- get additional partition(s) defined by parted attribute in sort.csv
-		/- check that that each table is defined or the default attributes are defined
-		/- exits with error if a table cannot find parted attributes in tablename or default
-		extrapartitiontype:$[count tabparts:distinct exec column from .sort.params where tabname=tablename,sort=1,att=`p;
-			[.lg.o[`savetablesbypart;"parted attribute p found in sort.csv for ",(string tablename)," table"];
-			tabparts];
-			count defaultparts:distinct exec column from .sort.params where tabname=`default,sort=1,att=`p;
-			[.lg.o[`savetablesbypart;"parted attribute p not found in sort.csv for ",(string tablename)," table, using default instead"];
-			defaultparts];
-			[.lg.e[`savetablesbypart;"parted attribute p not found in sort.csv for ", (string tablename)," table and default not defined"]]];			
-		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];	  	  	  
-		/- get list of distinct combiniations for extra partition directories
-		extrapartitions:(value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]);
+	if[forcesave or maxrows[tablename] < arows: count value tablename;	
+		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
+		/- get additional partition(s) defined by parted attribute in sort.csv		
+		extrapartitiontype:getextrapartitiontype[tablename];		
+		/- check each partition type actually is a column in the selected table
+		checkpartitiontype[tablename;extrapartitiontype];		
+		/- get list of distinct combiniations for partition directories
+		extrapartitions:getextrapartitions[tablename;extrapartitiontype];		
 		/- upsert data to specific partition directory 
-		{[dir;tablename;tabdata;pt;expttype;expt]	    		
-			.lg.o[`save;"saving ",(string tablename)," data to partition ",
-				/- create directory location for selected partiton
-				string directory:` sv .Q.par[dir;pt;tablename],
-				/- replace random chracters in symbols with _
-				(`$"_"^.Q.an .Q.an?"_" sv string 
-				/- convert any characters/character arrays to symbols and replace any null values with `NONE
-				`NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];	
-			/- upsert selected data matched on partition to specific directory 	
-			.[
-				upsert;
-				(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
-				{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
-			];		
-		    }[dir;tablename;.Q.en[.wdb.hdbdir;value tablename];pt;extrapartitiontype] each extrapartitions;	
+		upserttopartition[dir;tablename;.Q.en[hdbdir;value tablename];pt;extrapartitiontype] each extrapartitions;				
 		/- empty the table
 		.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
 		@[`.;tablename;0#];
 		/- run a garbage collection (if enabled)
-		if[.wdb.gc;.gc.run[]];
+		if[gc;.gc.run[]];
 	];
 	};
 	
 /- modify savetable if parbyattr writedown option selected
 savetables:$[writedownmode~`partbyattr;savetablesbypart;savetables];
 
-savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]}
+savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
 endofday:{[pt]
@@ -155,13 +180,13 @@ endofday:{[pt]
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[])];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode)];
 	.lg.o[`eod;"end of day is now complete"];
-	}
+	};
 	
 endofdaysave:{[dir;pt]
 	/- save remaining table rows to disk
-	.lg.o[`save;"saving the ",(raze (string tl:tablelist[]),'" "),"table(s) to disk"];
+	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
 	savetables[dir;pt;1b;] each tl;
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
@@ -173,7 +198,7 @@ handler:{
 		.lg.o[`handler;"releasing processes"];
 		.wdb.flushend[];
 		.wdb.d:()!()];
-	}
+	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
@@ -183,12 +208,13 @@ flushend:{
 	 informgateway"reloadend[]";
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
-	}
+	};
 
 /- initialise d
 d:()!()
 
-endofdaysort:{[dir;pt;tablist]
+endofdaysortdate:{[dir;pt;tablist]	
+
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
@@ -210,10 +236,46 @@ endofdaysort:{[dir;pt;tablist]
 		]];
 	};
 
-endofdaymerge:{[dir;pt;tablist]
-	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:-1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:-1 _ string .Q.par[hdbdir;`;`]];
-	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+merge:{[dir;pt;tablename]
+    
+    /- get list of partition directories for specified table 
+    partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tablename];
+    /- exit function if no subdirectories are found
+    if[0=count partdirs; :()];
+	
+    /- merge the data in chunks depending on max rows for table 	
+	/- destination for data to be userted to [backslashes corrected for windows]
+	dest:`$ ssr [string (` sv .Q.par[hdbdir;pt;tablename],`);"\\";"/"];
+	
+    {[tablename;dest;maxrows;curr;segment;islast]
+	.lg.o[`merge;"reading partition ", string segment];	
+	curr[0]:curr[0],select from get segment;
+	curr[1]:curr[1],segment;	
+	
+	$[islast or maxrows < count curr[0];
+	    [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+	    dest upsert curr[0];
+	    .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+	    .os.deldir each string curr[1];
+	    (();())];
+	    curr]
+	}[tablename;dest;.wdb.maxrows[tablename]]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];
+		
+	/- set the attributes
+	.lg.o[`merge;"setting attributes"];
+	@[dest;;`p#] each getextrapartitiontype[tablename];
+	.lg.o[`merge;"merge complete"];
+	};	
+	
+	
+endofdaymerge:{[dir;pt;tablist]	
+	
+	/- merge data from partitons
+	merge[dir;pt;] each tablist;
+	
+	/- delete the empty date directory
+	.os.deldir ssr [string .Q.par[savedir;pt;`];"\\";"/"];
+	
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 
@@ -226,9 +288,24 @@ endofdaymerge:{[dir;pt;tablist]
 		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
 		]];
 	};
+
+/- remove only for testing
+eodtestmerge:{[dir;pt;tablist]		
+	/- merge data from partitons
+	merge[dir;pt;] each tablist;	
+	/- delete the empty date directory
+	.os.deldir ssr [string .Q.par[savedir;pt;`];"\\";"/"];	
+	};
 	
-/- modify endofdaysort if parbyattr writedown optionn selected
-endofdaysort:$[writedownmode~`partbyattr;endofdaymerge;endofdaysort];
+/- end of day sort [depends on writedown mode]
+endofdaysort:{[dir;pt;tablist;writedownmode]
+	$[writedownmode~`partbyattr;
+	endofdaymerge;
+	endofdaysortdate
+	].(dir;pt;tablist);
+	};
+
+
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
@@ -262,13 +339,13 @@ informgateway:{[message]
 	}
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
-informsortandreload:{[dir;pt;tablist]
+informsortandreload:{[dir;pt;tablist;writedownmode]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;`sort;()!();1b;0b];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist);] each exec w from sortprocs;
+		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
-		 endofdaysort[dir;pt;tablist]]];
+		 endofdaysort[dir;pt;tablist;writedownmode]]];
 	};
 
 /-function to set the timer for the save to disk function	
@@ -294,7 +371,7 @@ replayupd:{[f;t;d]
 	/- execute the supplied function        
         f . (t;d);
 
-	/- if the data count is great than the threshold, then flush data to disk
+	/- if the data count is greater than the threshold, then flush data to disk
 	/if[(rpc:count[value t]) > lmt:maxrows[t];
 	/	.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
 	/	savetables[savedir;getpartition[];0b;t]]
@@ -306,9 +383,9 @@ startup:{[]
 	.lg.o[`init;"searching for servers"];
 	.servers.startup[];
 	if[writedownmode~`partbyattr;
-		.lg.o[`init;"writedown mode set to: ",(string .wdb.writedownmode)]
+		.lg.o[`init;"writedown mode set to ",(string .wdb.writedownmode)]
 		];
-	.lg.o[`init;"the partition has been set to type: [hdbdir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted attribute column(s)]/";""]];
+	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
 		/- subscribe to tickerplant
 		subscribe[];

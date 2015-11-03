@@ -27,7 +27,7 @@ mode:`save			        					// the wdb process can operate in three modes
 writedownmode:`default							// the wdb process can periodically write data to disc and sort at EOD in two ways:
 												// 1. default 		- 	the data is partitioned by date
 												//						at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
-												// 2. partbyattr	-	the data is partitioned by date and the column(s) assigned the parted attributed in sort.csv
+												// 2. partbyattr 	-	the data is partitioned by date and the column(s)assigned the parted attributed in sort.csv
 												//						at EOD the data will be merged from each partiton before being moved to hdb
 
 tpconnsleepintv:10								// number of seconds between attempts to connect to the tp
