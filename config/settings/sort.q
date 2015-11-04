@@ -23,6 +23,9 @@ mode:`sort                              // the wdb process can operate in three 
                                         //                      save mode process.  When this is triggered it will sort the
                                         //                      data on disk, apply attributes and the trigger a reload on the
                                         //                      rdb and hdb processes
+										
+mergenumrows:100000						// default number of rows for merge process
+mergenumtab:`quote`trade!10000 50000	// specify number of rows per table
 
 tpconnsleepintv:10                      // number of seconds between attempts to connect to the tp
 upd:insert                              // value of the upd function

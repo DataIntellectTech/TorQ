@@ -25,10 +25,13 @@ mode:`save			        					// the wdb process can operate in three modes
 												//			rdb and hdb processes
 												
 writedownmode:`default							// the wdb process can periodically write data to disc and sort at EOD in two ways:
-												// 1. default 		- 	the data is partitioned by date
+												// 1. default 		- 	the data is partitioned by [ partitontype ]
 												//						at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
-												// 2. partbyattr 	-	the data is partitioned by date and the column(s)assigned the parted attributed in sort.csv
+												// 2. partbyattr 	-	the data is partitioned by [ partitiontype ] and the column(s)assigned the parted attributed in sort.csv
 												//						at EOD the data will be merged from each partiton before being moved to hdb
+												
+mergenumrows:100000								// default number of rows for merge process
+mergenumtab:`quote`trade!50000 50000			// specify number of rows per table
 
 tpconnsleepintv:10								// number of seconds between attempts to connect to the tp
 upd:insert										// value of the upd function

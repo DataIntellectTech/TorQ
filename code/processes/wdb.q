@@ -21,15 +21,18 @@ mode:@[value;`mode;`saveandsort];	/- the wdb process can operate in three modes
 									/-						rdb and hdb processes
 
 writedownmode:@[value;`writedownmode;`default];			/- the wdb process can periodically write data to disc and sort at EOD in two ways:
-														/- 1. default 		- 	the data is partitioned by date
+														/- 1. default 		- 	the data is partitioned by [ partitiontype ]
 														/-						at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
-														/- 2. partbyattr	-	the data is partitioned by date and the column(s) assigned the parted attributed in sort.csv
+														/- 2. partbyattr	-	the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
 														/-						at EOD the data will be merged from each partiton before being moved to hdb									
-									
+
+mergenumrows:@[value;`mergenumrows;1000];                       /-default number of rows for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!1000 500];        /-specify number of rows per table for merge process
+														
 hdbtypes:@[value;`hdbtypes;`hdb];                               /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                               /-list of rdb types to look for and call in rdb reload
-gatewaytypes:@[value;`gatewaytypes;`gateway]			/-list of gateway types to inform at reload
-tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];       /-list of tickerplant types to try and make a connection to
+gatewaytypes:@[value;`gatewaytypes;`gateway]					/-list of gateway types to inform at reload
+tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];      	/-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp											
 										
 subtabs:@[value;`subtabs;`]                                     /-list of tables to subscribe for
@@ -82,6 +85,9 @@ tablelist:{[] tables[`.] except ignorelist};
 /- extract user defined row counts	
 maxrows:{[tabname] numrows^numtab[tabname]}
 
+/- extract user defined row counts for merge process
+mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
+
 /- if row count satisfied, save data to disk, then delete from memory
 savetables:{[dir;pt;forcesave;tabname]
 	/- check row count
@@ -126,6 +132,7 @@ checkpartitiontype:{[tablename;extrapartitiontype]
 	};	
 	
 /- function to get list of distinct combiniations for partition directories
+/- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
 getextrapartitions:{[tablename;extrapartitiontype] 
 	value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
 	};	
@@ -157,9 +164,12 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 		/- check each partition type actually is a column in the selected table
 		checkpartitiontype[tablename;extrapartitiontype];		
 		/- get list of distinct combiniations for partition directories
-		extrapartitions:getextrapartitions[tablename;extrapartitiontype];		
+		extrapartitions:getextrapartitions[tablename;extrapartitiontype];
+		/- enumerate data to be upserted
+		enumdata:.Q.en[hdbdir;value tablename];
+		.lg.o[`save;"enumerated ",(string tablename)," table"];		
 		/- upsert data to specific partition directory 
-		upserttopartition[dir;tablename;.Q.en[hdbdir;value tablename];pt;extrapartitiontype] each extrapartitions;				
+		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
 		/- empty the table
 		.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
 		@[`.;tablename;0#];
@@ -213,88 +223,70 @@ flushend:{
 /- initialise d
 d:()!()
 
-endofdaysortdate:{[dir;pt;tablist]	
+doreload:{[pt]
+	.wdb.reloadcomplete:0b;
+	/-inform gateway of reload start
+	informgateway["reloadstart[]"];
+	getprocs[;pt] each reloadorder;
+	if[eodwaittime>0;
+		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
+	];
+	};
 
+endofdaysortdate:{[dir;pt;tablist]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
 	{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist;
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:-1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:-1 _ string .Q.par[hdbdir;`;`]];
+	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth-1 _ string .Q.par[hdbdir;`;`]];
 	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
-
 	if[permitreload; 
-		.wdb.reloadcomplete:0b;
-		/-inform gateway of reload start
-		informgateway["reloadstart[]"];
-		getprocs[;pt] each reloadorder;
-		if[eodwaittime>0;
-		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
-		]];
+		doreload;
+		];
 	};
 
-merge:{[dir;pt;tablename]
-    
+merge:{[dir;pt;tablename]    
     /- get list of partition directories for specified table 
     partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tablename];
     /- exit function if no subdirectories are found
-    if[0=count partdirs; :()];
-	
+    if[0=count partdirs; :()];	
     /- merge the data in chunks depending on max rows for table 	
 	/- destination for data to be userted to [backslashes corrected for windows]
-	dest:`$ ssr [string (` sv .Q.par[hdbdir;pt;tablename],`);"\\";"/"];
-	
-    {[tablename;dest;maxrows;curr;segment;islast]
+	dest:`$ ssr [string (` sv .Q.par[hdbdir;pt;tablename],`);"\\";"/"];	
+    {[tablename;dest;mergemaxrows;curr;segment;islast]
 	.lg.o[`merge;"reading partition ", string segment];	
 	curr[0]:curr[0],select from get segment;
-	curr[1]:curr[1],segment;	
-	
-	$[islast or maxrows < count curr[0];
+	curr[1]:curr[1],segment;		
+	$[islast or mergemaxrows < count curr[0];
 	    [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
 	    dest upsert curr[0];
 	    .lg.o[`merge;"removing segments", (", " sv string curr[1])];
 	    .os.deldir each string curr[1];
 	    (();())];
 	    curr]
-	}[tablename;dest;.wdb.maxrows[tablename]]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];
-		
+	}[tablename;dest;(.wdb.mergemaxrows[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
 	/- set the attributes
 	.lg.o[`merge;"setting attributes"];
 	@[dest;;`p#] each getextrapartitiontype[tablename];
 	.lg.o[`merge;"merge complete"];
+	/- run a garbage collection (if enabled)
+	if[gc;.gc.run[]];	
 	};	
 	
-	
-endofdaymerge:{[dir;pt;tablist]	
-	
-	/- merge data from partitons
-	merge[dir;pt;] each tablist;
-	
-	/- delete the empty date directory
-	.os.deldir ssr [string .Q.par[savedir;pt;`];"\\";"/"];
-	
-	/-call the posteod function
-	.save.postreplay[hdbdir;pt];
-
-	if[permitreload; 
-		.wdb.reloadcomplete:0b;
-		/-inform gateway of reload start
-		informgateway["reloadstart[]"];
-		getprocs[;pt] each reloadorder;
-		if[eodwaittime>0;
-		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
-		]];
-	};
-
-/- remove only for testing
-eodtestmerge:{[dir;pt;tablist]		
+endofdaymerge:{[dir;pt;tablist]		
 	/- merge data from partitons
 	merge[dir;pt;] each tablist;	
 	/- delete the empty date directory
-	.os.deldir ssr [string .Q.par[savedir;pt;`];"\\";"/"];	
+	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
+	/-call the posteod function
+	.save.postreplay[hdbdir;pt];
+	if[permitreload; 
+		doreload[pt];
+		];
 	};
 	
 /- end of day sort [depends on writedown mode]
@@ -304,8 +296,6 @@ endofdaysort:{[dir;pt;tablist;writedownmode]
 	endofdaysortdate
 	].(dir;pt;tablist);
 	};
-
-
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
@@ -372,9 +362,9 @@ replayupd:{[f;t;d]
         f . (t;d);
 
 	/- if the data count is greater than the threshold, then flush data to disk
-	/if[(rpc:count[value t]) > lmt:maxrows[t];
-	/	.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-	/	savetables[savedir;getpartition[];0b;t]]
+	if[(rpc:count[value t]) > lmt:maxrows[t];
+		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+		savetables[savedir;getpartition[];0b;t]]
 	
 	}[upd];
 
@@ -427,9 +417,17 @@ getsortparams:{[]
 	/- check the sort.csv for parted attributes `p if the writedownmode `partbyattr is selected
 	/- if each table does not have at least one `p attribute the process will exit
 	if[writedownmode~`partbyattr;
+	
+		/- check that default table is defined
+		if[not count exec distinct tabname from .sort.params where tabname=`default,att=`p,sort=1b;
+			.lg.e[`init;"default table not defined in sort.csv with at least one `p attribute and sort=1b"];
+		];
+		.lg.o[`init;"default table defined in sort.csv and with at least one `p attribute and sort=1b"];	
+	
+		/- check for `p attributes
 		if[count notparted:distinct .sort.params[`tabname] except distinct exec tabname from .sort.params where att in `p;
 			.lg.e[`init;"parted attribute p not set at least once in sort.csv for table(s): ", ", " sv string notparted];
-		]
+		];
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
