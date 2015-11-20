@@ -132,7 +132,7 @@ canberun:{
 addquerytimeout:{[query;servertype;join;postback;timeout] `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype,();join;postback;timeout;0Np;0Np;0b)}
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
- deleteresult exec queryid from .gw.queryqueue;}
+ deleteresult exec queryid from .gw.queryqueue where clienth=x;}
 addclientdetails:{`.gw.clients insert (.proc.cp[];x;.z.u;.z.a;.z.h)}
 removequeries:{[age] 
  .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where .proc.cp[] > returntime+age}
