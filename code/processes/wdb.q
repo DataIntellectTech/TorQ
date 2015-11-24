@@ -244,7 +244,7 @@ endofdaysortdate:{[dir;pt;tablist]
 	{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist;
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbdir;`;`]];
+	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbdir;pt;`]];
 	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];

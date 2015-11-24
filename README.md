@@ -60,4 +60,6 @@ This will launch the a process running within the framework with all the default
   * Added pid, host and port to heartbeat table
   * Changed gateway to be non intrusive
   * Bug fixes
-
+- **2.2.1, November 2015**:
+  * Bug fix - fixed endofdaysort to not throw type error when par.txt is available
+  * Bug fix - fixed gateway so results are not dropped when a client loses connection and another is querying multiple servers
