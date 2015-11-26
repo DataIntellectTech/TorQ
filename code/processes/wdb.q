@@ -249,7 +249,7 @@ endofdaysortdate:{[dir;pt;tablist]
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 	if[permitreload; 
-		doreload;
+		doreload[pt];
 		];
 	};
 
