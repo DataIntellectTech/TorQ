@@ -43,13 +43,15 @@ ignorelist:@[value;`ignorelist;`heartbeat`logmsg]               /-list of tables
 replay:@[value;`replay;1b]                                      /-replay the tickerplant log file
 schema:@[value;`schema;1b]                                      /-retrieve schema from tickerplant
 numrows:@[value;`numrows;1000]                                  /-default number of rows 
-savedir:@[value;`savedir;`:temphdb]                             /-location to save wdb data
+savedir: .os.pthq @[value;`savedir;`:temphdb]                   /-location to save wdb data
 numtab:@[value;`numtab;`quote`trade!1000 500]                   /-specify number of rows per table
 settimer:@[value;`settimer;0D00:00:10]                          /-set timer interval for row check 
 
-partitiontype:@[value;`partitiontype;`date]                                         /-set type of partition (defaults to `date)
-gmttime:@[value;`gmttime;1b];                                                       /-define whether the process is on gmttime or not
-getpartition:@[value;`getpartition;{{(`date^partitiontype)$(.z.d;.z.D)gmttime}}];	/-function to determine the partition value
+partitiontype:@[value;`partitiontype;`date]                     /-set type of partition (defaults to `date)
+gmttime:@[value;`gmttime;1b]	                                /-define whether the process is on gmttime or not
+getpartition:@[value;`getpartition;
+	{{@[value;`.wdb.currentpartition;
+		(`date^partitiontype)$(.z.d,.z.D)gmttime]}}]            /-function to determine the partition value
 
 reloadorder:@[value;`reloadorder;`hdb`rdb]                      /-order to reload hdbs and rdbs
 hdbdir:@[value;`hdbdir;`:hdb]                                   /-move wdb database to different location
@@ -185,11 +187,9 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
 endofday:{[pt]
-	.lg.o[`eod;"end of day message received - ",spt:string pt];
-	
+	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
-	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();
-	
+	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
@@ -358,18 +358,36 @@ subscribe:{[]
 	s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];
 	if[count s;
 		.lg.o[`subscribe;"tickerplant found - subscribing to ", string (subproc: first s)`procname];
-		.sub.subscribe[subtabs;subsyms;schema;replay;subproc]];}
+		/- return the tables subscribed to and the tickerplant log date
+		subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
+		/- check the tp logdate against the current date and correct if necessary 
+		fixpartition[subto];];}
+		
+/- function to rectify data written to wrong partition
+fixpartition:{[subto] 
+	/- check if the tp logdate matches current date
+	if[not (tplogdate:subto[`tplogdate])~orig:.wdb.currentpartition;
+		.lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
+		/- set the current partiton date to the log date
+		.wdb.currentpartition:tplogdate;
+		/- delete any data in the current partiton directory
+		clearwdbdata[];
+		/- move the data that has been written to correct partition
+		pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
+		pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
+		.lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
+		.[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]];
+		];
+	}
 
 /- will check on each upd to determine where data should be flushed to disk (if max row limit has been exceeded)
 replayupd:{[f;t;d]
 	/- execute the supplied function        
         f . (t;d);
-
 	/- if the data count is greater than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:maxrows[t];
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-		savetables[savedir;getpartition[];0b;t]]
-	
+		savetables[savedir;getpartition[];0b;t]]	
 	}[upd];
 
 /-function to initialise the wdb	
@@ -440,13 +458,19 @@ getsortparams:{[]
 \d .
 
 /- get the sort attributes for each table
-.wdb.getsortparams[]
+.wdb.getsortparams[];
+
+/- Initialise current partiton
+.wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes) except `
 
 /- setting the upd and .u.end functions as the .wdb versions
-.u.end:.wdb.endofday;
+.u.end:{[pt] 
+	.wdb.endofday[.wdb.getpartition[]];
+	.wdb.currentpartition:pt;}
+	
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];
 upd:.wdb.replayupd;
