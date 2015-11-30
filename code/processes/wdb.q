@@ -43,7 +43,7 @@ ignorelist:@[value;`ignorelist;`heartbeat`logmsg]               /-list of tables
 replay:@[value;`replay;1b]                                      /-replay the tickerplant log file
 schema:@[value;`schema;1b]                                      /-retrieve schema from tickerplant
 numrows:@[value;`numrows;1000]                                  /-default number of rows 
-savedir: .os.pthq @[value;`savedir;`:temphdb]                   /-location to save wdb data
+savedir:@[value;`savedir;`:temphdb]                   			/-location to save wdb data
 numtab:@[value;`numtab;`quote`trade!1000 500]                   /-specify number of rows per table
 settimer:@[value;`settimer;0D00:00:10]                          /-set timer interval for row check 
 
@@ -51,7 +51,7 @@ partitiontype:@[value;`partitiontype;`date]                     /-set type of pa
 gmttime:@[value;`gmttime;1b]	                                /-define whether the process is on gmttime or not
 getpartition:@[value;`getpartition;
 	{{@[value;`.wdb.currentpartition;
-		(`date^partitiontype)$(.z.d,.z.D)gmttime]}}]            /-function to determine the partition value
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}]            /-function to determine the partition value
 
 reloadorder:@[value;`reloadorder;`hdb`rdb]                      /-order to reload hdbs and rdbs
 hdbdir:@[value;`hdbdir;`:hdb]                                   /-move wdb database to different location
@@ -68,6 +68,10 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 .save.postreplay:@[value;`postreplay;{{[d;p] }}]			    /-post EOD function, invoked after all the tables have been written down
 
 / - end of default parameters
+
+/- fix any backslashes on windows
+savedir:.os.pthq savedir;
+hdbdir:.os.pthq hdbdir;
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
