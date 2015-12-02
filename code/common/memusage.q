@@ -10,8 +10,6 @@ attrsize:{version*
 	  $[`u=a:attr x;32*count distinct x;
 	  // `p#2 2 1 parted (8*u;32*u;8*u+1)
 	    `p=a;8+48*count distinct x;
-	  // `g#2 1 2 grouped (8*u;32*u;8*u+1;8*n)
-	    `g=a;(8*count x)+8+48*count distinct x;
 	    0]
 	};
 
@@ -29,8 +27,8 @@ objsize:{
 	    99h=type x;(key x;value x);
 	    x];
 	// special case to handle `g# attr
-	// raw list + key of hash + value of hash
-	if[`g=attr x;x:(`#x;key group x;value group x)];
+	// raw list + hash
+	if[`g=attr x;x:(`#x;group x)];
 	// atom is fixed at 16 bytes, GUID is 32 bytes
 	$[0h>t:type x;$[-2h=t;32;16];
 	// complex = pointers + size of each objects
