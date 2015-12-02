@@ -134,8 +134,8 @@ removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue where clienth=x;}
 addclientdetails:{`.gw.clients insert (.proc.cp[];x;.z.u;.z.a;.z.h)}
-removequeries:{[age] 
- .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where .proc.cp[] > returntime+age}
+removequeries:{[age]
+ .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where not null returntime, .proc.cp[] > returntime+age}
 
 // scheduling function to get the next query to execute. Need to ensure we avoid starvation
 // possibilities : 

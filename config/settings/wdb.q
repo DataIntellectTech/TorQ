@@ -53,3 +53,7 @@ gc:1b											// garbage collect at appropriate points (after each table save 
 \d .servers
 CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort	// list of connections to make at start up
 STARTUP:1b										// create connections
+
+// Read only mode for client access
+\d .readonly
+enabled:0b										// prevent writeaccess to clients
