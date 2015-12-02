@@ -30,7 +30,7 @@ writedownmode:`default							// the wdb process can periodically write data to d
 												//						at EOD the data will be merged from each partiton before being moved to hdb
 												
 mergenumrows:100000								// default number of rows for merge process
-mergenumtab:`quote`trade!50000 50000			// specify number of rows per table
+mergenumtab:`quote`trade!10000 50000			// specify number of rows per table
 
 tpconnsleepintv:10								// number of seconds between attempts to connect to the tp
 upd:insert										// value of the upd function
