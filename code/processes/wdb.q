@@ -473,7 +473,7 @@ getsortparams:{[]
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt] 
 	.wdb.endofday[.wdb.getpartition[]];
-	.wdb.currentpartition:pt;}
+	.wdb.currentpartition:pt+1;}
 	
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];
