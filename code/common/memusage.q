@@ -22,6 +22,8 @@ vectorsize:{calcsize[count x;typesize x;attrsize x]};
 typesize:{4^0N 1 16 0N 1 2 4 8 4 8 1 8 8 4 4 8 8 4 4 4 abs type x};
 
 objsize:{
+	// count 0
+	if[not count x;:0];
 	// flatten table/dict into list of objects
 	x:$[.Q.qt x;(key x;value x:flip 0!x);
 	    99h=type x;(key x;value x);
@@ -31,12 +33,17 @@ objsize:{
 	if[`g=attr x;x:(`#x;group x)];
 	// atom is fixed at 16 bytes, GUID is 32 bytes
 	$[0h>t:type x;$[-2h=t;32;16];
-	// complex = pointers + size of each objects
-	  0h=t;calcsize[count x;8;0]+sum .z.s each x;
-	// list & enum list
-	  t within 1 77h;vectorsize x;
-	// ignore others
-	  0]
+        // list & enum list
+          t within 1 76h;vectorsize x;
+	// exit early for anything above 76h
+	  76h<t;0;
+	// complex = complex type in list, pointers + size of each objects
+	  0h in t:type each x;calcsize[count x;8;0]+sum .z.s each x;
+	// complex = if only 1 type and simple list, pointers + sum count each*first type
+	// assume count>1000 has no attrbutes (i.e. table unlikely to have 1000 columns, list of strings unlikely to have attr for some objects only
+	  (d[0] within 1 76h)&1=count d:distinct t;calcsize[c;8;0]+sum calcsize[count each x;typesize x 0;$[1000<c:count x;0;attrsize each x]];
+	// other complex, pointers + size of each objects
+	  calcsize[count x;8;0]+sum .z.s each x]
 	};
 
 \d .
