@@ -63,3 +63,10 @@ This will launch the a process running within the framework with all the default
 - **2.2.1, November 2015**:
   * Bug fix - fixed endofdaysort to not throw type error when par.txt is available
   * Bug fix - fixed gateway so results are not dropped when a client loses connection and another is querying multiple servers
+- **2.3.0, December 2015**:
+  * Added optional write down method to wdb process, which allows data to be written to custom partition schemes during the day. 
+	At the end of day before being moved to the hdb, data is merged instead of sorted, which will allow the data to be accessed sooner. 
+	The optional method may present a significant saving in time for datasets with a low cardinality (small distinct number of elements), i.e. FX market data
+  * Added write access control to message handlers (using reval), which restricts the ability of querying clients to modify data in place
+  * Added functionality to return approximate memory size of kdb+ objects
+  * Bug fixes
