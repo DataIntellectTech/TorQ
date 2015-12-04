@@ -23,6 +23,9 @@ mode:`sort                              // the wdb process can operate in three 
                                         //                      save mode process.  When this is triggered it will sort the
                                         //                      data on disk, apply attributes and the trigger a reload on the
                                         //                      rdb and hdb processes
+										
+mergenumrows:100000						// default number of rows for merge process
+mergenumtab:`quote`trade!10000 50000	// specify number of rows per table
 
 tpconnsleepintv:10                      // number of seconds between attempts to connect to the tp
 upd:insert                              // value of the upd function
@@ -31,7 +34,9 @@ schema:1b                               // retrieve schema from tickerplant
 settimer:0D00:00:10                     // timer to check if data needs written to disk
 partitiontype:`date                     // set type of partition (defaults to `date, can be `date, `month or `year)
 gmttime:1b                              // define whether the process is on gmttime or not
-getpartition:{(`date^partitiontype)$(.z.d;.z.D)gmttime}       // function to determine the partition value
+getpartition:{@[value;
+	`.wdb.currentpartition;
+	(`date^partitiontype)$(.z.D,.z.d)gmttime]}  //function to determine the partition value
 reloadorder:`hdb`rdb                    // order to reload hdbs and rdbs
 hdbdir:`:hdb                            // move wdb database to different location
 sortcsv:hsym`$getenv[`KDBCONFIG],"/sort.csv"              // location of csv file

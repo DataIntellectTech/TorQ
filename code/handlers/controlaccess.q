@@ -90,7 +90,22 @@ validhost:{[za] $[likeany[.dotz.ipa za;HOSTPATTERNS];1b;likeany["."sv string"i"$
 validsize:{[x;y;z] $[superuser .z.u;x;MAXSIZE>s:-22!x;x;'"result size of ",(string s)," exceeds MAXSIZE value of ",string MAXSIZE]}
 
 cmdpt:{$[10h=type x;.q.parse x;x]}
-cmdtokens:{raze(raze each)over{$[0h=type x;$[(not 0h=type fx)&1=count fx:first x;fx;()],.z.s each x where 0h=type each x;()]}x}
+cmdtokens:{
+	// return a list from nested lists
+	raze(raze each)over{
+		// check if the argument is a list or mixed list
+		$[(0h<=type x) & 1<count x;
+			// check if the first element of the argument is a string or
+			// has one element but is not a mixed list
+			$[(10h = type fx) | (not 0h=type fx) & 1=count fx:first x;
+				// return the first element and convert any character types to sym type
+				{[x] $[(type x) in -10 10h;`$x;x]} fx;
+				// apply this function interatively into nested lists where the type is a mixed list or list of symbols
+				],.z.s each x where (type each x) in 0 11h;
+			]
+		}x
+	}
+	
 usertokens:{$[superuser x;0#`;$[poweruser x;POWERUSERTOKENS;$[defaultuser x;USERTOKENS;'`access]]],BESPOKETOKENS[x]}
 validpt:{all(cmdtokens x)in y}
 validcmd:{[u;cmd] $[superuser u;1b;validpt[cmdpt cmd;usertokens u]]}

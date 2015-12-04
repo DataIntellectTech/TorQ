@@ -45,6 +45,10 @@ enabled:0b			// whether the access controls are enabled
 openonly:0b		        // only check permissions when the connection is made, not on every call
 MAXSIZE:2000000000		// the maximimum size in bytes for any result set
 
+// Write access controls
+\d .readonly
+enabled:0b			// prevent write access to clients if enabled
+
 // Server connection details
 \d .servers
 enabled:1b											// whether server tracking is enabled
