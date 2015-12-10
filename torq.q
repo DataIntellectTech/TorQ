@@ -51,7 +51,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-nopi]:\t\t\treset the definition of .z.pi to the initial value (useful for debugging)
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
- [-usage]:\t\t\tprint usage info"]
+ [-usage]:\t\t\tprint usage info
+ [-test]:\t\t\tset to run unit tests"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -484,3 +485,9 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
 // set the initialised flag
 .proc.initialised:1b
+
+if[`test in key .proc.params;
+        $[0<count[getenv[`KDBTESTS]];
+                .proc.loaddir getenv[`KDBTESTS];
+                .lg.e[`init;"environment variable KDBTESTS undefined"]]
+        ]
