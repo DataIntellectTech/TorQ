@@ -95,15 +95,15 @@ replayupd:{[f;tabs;syms;t;x]
 	/-assuming the the log is storing messages (x) as arrays as opposed to tables
 	c:cols[`. t];
 	/-convert x into a table
-	x:select from $[0>type first x;enlist c!x;flip c!x] where sym in syms;
-	/-call upd on the data
+	x:select from $[type[x] in 98 99h; x; 0>type first x;enlist c!x;flip c!x] where sym in syms;
+ 	/-call upd on the data
 	f[t;x]
 	}
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
 retrysubscription:{[row] 
-	subscribe[row`table;row`instruments;0b;0b;3#row];
+	subscribe[row`table;$[((),`) ~ insts:row`instruments;`;insts];0b;0b;3#row];
 	}
 //-if something becomes available again try to reconnect to any previously subscribed tables/instruments
 autoreconnect:{[rows]

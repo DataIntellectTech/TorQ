@@ -45,6 +45,10 @@ enabled:0b			// whether the access controls are enabled
 openonly:0b		        // only check permissions when the connection is made, not on every call
 MAXSIZE:2000000000		// the maximimum size in bytes for any result set
 
+// Write access controls
+\d .readonly
+enabled:0b			// prevent write access to clients if enabled
+
 // Server connection details
 \d .servers
 enabled:1b											// whether server tracking is enabled
@@ -91,7 +95,7 @@ default:`$"Europe/London"	// default local timezone
 
 // configuration for default mail server
 \d .email
-enabled:.z.o in `w32`l32`l64`m32`m64    	// whether emails are enabled
+enabled:0b				    	// whether emails are enabled
 url:`                               		// url of email server e.g. `$"smtp://smtpout.secureserver.net:80"
 user:`                               		// user account to use to send emails e.g. torq@aquaq.co.uk
 password:`                           		// password for user account

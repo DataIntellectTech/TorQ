@@ -2,14 +2,15 @@
 //Andrew Steele. andrew.steele@aquaq.co.uk
 //AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
-inputcsv:@[value;`.fa.inputcsv;getenv[`KDBCONFIG],"/filealerter.csv"]				// The name of the input csv to drive what gets done
+inputcsv:@[value;`.fa.inputcsv;`$getenv[`KDBCONFIG],"/filealerter.csv"]				// The name of the input csv to drive what gets done
 polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
-alreadyprocessed:@[value;`.fa.alreadyprocessed;getenv[`KDBCONFIG],"/filealerterprocessed"]	// The location of the table on disk to store the information about files which have already been processed
+alreadyprocessed:@[value;`.fa.alreadyprocessed;`$getenv[`KDBCONFIG],"/filealerterprocessed"]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 os:$[like[string .z.o;"w*"];`win;`lin]
 
-
+inputcsv:string inputcsv
+alreadyprocessed:string alreadyprocessed
 
 //-function to load the config csv file
 csvloader:{[CSV]  
@@ -27,15 +28,14 @@ csvloader:{[CSV]
 		update path:ssr'[path;"/";"\\"],movetodirectory:ssr'[movetodirectory;"/";"\\"] from `filealertercsv];
 	}
 
-
-
 //-function to load the alreadyprocessed table or initialise a processed table if skipallonstart is enabled
 loadprocessed:{[BIN] 
 	.lg.o[`alerter;"loading alreadyprocessed table from ",alreadyprocessed];
 	test:key hsym `$alreadyprocessed;
 	$[0=count test;
-		[.lg.o[`alerter;"no table found, creating new table"];processed::([] filename:();md5hash:`$(); filesize:`long$()); (hsym `$alreadyprocessed) set processed];
-		[@[{processed::get hsym `$x};BIN; {.lg.e[`alerter;"alreadyprocessed table was found but could not be loaded: ",x]}]]];
+		[.lg.o[`alerter;"no table found, creating new table"];processed::([] filename:();md5hash:(); filesize:`long$()); (hsym `$alreadyprocessed) set processed];
+		// this is for backward compatibility - convert the md5hash column to a string type
+		[@[{processed:get h:hsym `$x; if[11h=type processed`md5hash; processed:update string md5hash from processed; .[set;(h;processed);()]]; @[`.;`processed;:;processed]};BIN; {.lg.e[`alerter;"alreadyprocessed table was found but could not be loaded: ",x]}]]];
 	if[skipallonstart;.lg.o[`alerter;"variable skipallonstart set to true"];skipall[]]}
 
 //-searches for files on a given path matching the search string
@@ -48,7 +48,7 @@ find:{[path;match]
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
 skipall:{matches:raze find'[filealertercsv.path;filealertercsv.match];
-	.lg.o[`alerter;"found ",(string count matches)," files, but ignoring them"]; complete each chktable[matches]}
+	.lg.o[`alerter;"found ",(string count matches)," files, but ignoring them"]; complete chktable[matches]}
 
 
 
@@ -61,23 +61,31 @@ action:{[function;file]
 			{.lg.e[`alerter;"failed to execute ", (string x)," on ",y,": ", z]; ();:0b}[function;file]]]}
 					
 
-//-adds the processed file, along with md5 hash and file size to the already processed table and saves it down to memory
-complete:{[DICT] 
-	.lg.o[`alerter;"adding ",DICT[`filename]," to alreadyprocessed table"];
-	if[not (-1 _DICT) in processed;
-		.[insert;(`processed;(enlist DICT[`filename];DICT[`md5hash];DICT[`filesize]));
-		{.lg.e[`alerter;"could not save alreadyprocessed table: "x];()}]];
-	temp:get hsym `$alreadyprocessed;
-	if[not (-1 _DICT) in temp;
-		.[{.lg.o[`alerter;"saving alreadyprocessed table to disk"];insert[hsym `$x;y]};(alreadyprocessed;(enlist DICT[`filename];DICT[`md5hash];DICT[`filesize]));
-		{.lg.e[`alerter;"failed to save to disk: ",x];()}]]}
-
+//-adds the processed file, along with md5 hash and file size to the already processed table and saves it to disk
+complete:{[TAB]
+ // read the alreadprocessed table from disk
+ ap:@[get;h:hsym`$alreadyprocessed;([]filename:(); md5hash:(); filesize:`long$())];
+ 
+ // drop out anything we have already seen
+ TAB:(select filename, md5hash, filesize from TAB) except ap;
+ 
+ if[count TAB;
+  .lg.o[`alerter;"adding ",(" " sv TAB`filename)," to alreadyprocessed table"];
+  
+  // add the new files onto the end
+  ap,:TAB;
+ 
+  // set it in memory and write it to disk
+  @[`.;`processed;:;ap];
+  .lg.o[`alerter;"saving alreadyprocessed table to disk"];
+  .[set;(h;ap);{.lg.e[`alerter;"failed to save alreadyprocessed table to disk: ",x]}]];
+ }
 
 //-Some utility functions 		
 getsize:{hcount hsym `$x}
 gethash:{[file] $[os=`lin;
-	md5hash:@[{`$first " " vs raze system "md5sum ",x," 2>/dev/null"};file;{.lg.e[`alerter;"could not compute md5 on ",x,": ",y];`}[file]];
-	`]}		
+	md5hash:@[{first " " vs raze system "md5sum ",x," 2>/dev/null"};file;{.lg.e[`alerter;"could not compute md5 on ",x,": ",y];""}[file]];
+	""]}		
 chktable:{[files] table:([]filename:files;md5hash:gethash'[files]; filesize:getsize'[files])}
 getfile:{[filestring] $[os=`lin;last "/" vs filestring;last "\\" vs filestring]}
 getpath:{[filestring] (neg count getfile[filestring]) _filestring}
@@ -128,7 +136,7 @@ FArun:{.lg.o[`alerter;"running filealerter process"];
                       $[moveonfail;
 				successful:newproc;
 				successful:select filename,md5hash,filesize,moveto from lastproc where (all;funcpassed=1b) fby filename];
-			complete each newproc;
+			complete newproc;
 			moveall[successful]]];
 	}
 

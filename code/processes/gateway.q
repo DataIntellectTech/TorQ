@@ -447,6 +447,7 @@ syncexecj:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  start:.z.p;
  setserverstate[handles;1b];
+ start:.z.p;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];()]};query);
  // flush
