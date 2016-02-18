@@ -126,7 +126,7 @@ vws:{defaultuser .z.u} / not clear what/how to restrict yet
 .lg.o[`access;"access controls are ",("disabled";"enabled").access.enabled]
 if[.access.enabled;
 	// Read in the permissions
-	.access.readpermissions each string enlist .proc.getconfig["permissions";1b];
+	.access.readpermissions each string {$[1=count x;enlist x;reverse x]}.proc.getconfig["permissions";1b];
 	.z.pw:{$[.access.vpw[y;z];x[y;z];0b]}.z.pw;
 	/ .z.po - untouched, .z.pw does the checking
 	/ .z.pc - untouched, close is always allowed

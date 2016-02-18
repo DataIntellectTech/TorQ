@@ -397,24 +397,20 @@ loadconfig:{
 
 getconfig:{[path;both]
         /-check if KDBAPPCONFIG exists
-        keyappconf:$[count kac:getenv[`KDBAPPCONFIG];
+        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
                 key hsym appconf:`$kac,"/",path;
                 ()];
 
-        appconfigfile:not ()~keyappconf;
-
-        if[()~keyappconf;appconfig:()];
+        if[()~keyappconf;appconf:()];
 
         /-get KDBCONFIG path
         keyconf:key hsym conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
         /-if both is set to true return appconfig and config files
         /-result is reversed if rev is true
-        res:$[both & appconfigfile;
+        res:$[both;
                 appconf,conf;
-                $[count keyappconf;
-                        appconf;
-                        conf]];
+                first appconf,conf];
 
         /-if only one result then return an atom
         $[1=count res;first res;res]}
