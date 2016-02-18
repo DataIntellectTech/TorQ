@@ -395,6 +395,32 @@ loadconfig:{
 		[.lg.o[`fileload;"config file ",file," found"];
 		 loadf file]]}
 
+getconfig:{[path;both]
+        /-check if KDBAPPCONFIG exists
+        keyappconf:$[count kac:getenv[`KDBAPPCONFIG];
+                key hsym appconf:`$kac,"/",path;
+                ()];
+
+        appconfigfile:not ()~keyappconf;
+
+        if[()~keyappconf;appconfig:()];
+
+        /-get KDBCONFIG path
+        keyconf:key hsym conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
+
+        /-if both is set to true return appconfig and config files
+        /-result is reversed if rev is true
+        res:$[both & appconfigfile;
+                appconf,conf;
+                $[count keyappconf;
+                        appconf;
+                        conf]];
+
+        /-if only one result then return an atom
+        $[1=count res;first res;res]}
+
+getconfigfile:getconfig[;0b]
+
 // Get the attributes of this process.  This should be overridden for each process
 getattributes:{()!()}
 
