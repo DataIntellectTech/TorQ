@@ -2,6 +2,7 @@
 # some of the kdb+tick processes will change directory, and these will no longer be valid
 export TORQHOME=${PWD}
 export KDBCONFIG=${TORQHOME}/config
+export KDBAPPCONFIG=${TORQHOME}/appconfig
 export KDBCODE=${TORQHOME}/code
 export KDBLOG=${TORQHOME}/logs
 export KDBHTML=${TORQHOME}/html
