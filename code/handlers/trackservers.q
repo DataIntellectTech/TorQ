@@ -33,12 +33,11 @@ DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to co
 loadpassword:{
 	.lg.o[`conn;"attempting to load external connection username:password from file"];
    	// load a password file
-	loadpassfile:{
-         file:string x;
-         $[()~key hsym`$file;
-           .lg.o[`conn;"password file ",file," not found"];
-           [.lg.o[`conn;"password file ",file," found"];
-            .servers.USERPASS:first`$read0 hsym`$file]]};
+	loadpassfile:{[file]
+         $[()~key hsym file;
+           .lg.o[`conn;"password file ",(string file)," not found"];
+           [.lg.o[`conn;"password file ",(string file)," found"];
+            .servers.USERPASS:first`$read0 hsym file]]};
 	files:{.proc.getconfig["passwords/",(string x),".txt";1b]} each `default,.proc.proctype,.proc.procname;
 	loadpassfile each distinct raze (last each files),'(first each files);
 	}

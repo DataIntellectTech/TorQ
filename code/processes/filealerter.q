@@ -12,7 +12,7 @@ os:$[like[string .z.o;"w*"];`win;`lin]
 inputcsv:string inputcsv
 alreadyprocessed:string alreadyprocessed
 
-//-function to load the.proc.csv file
+//-function to load the config csv file
 csvloader:{[CSV]  
 	fullcsv:@[{.lg.o[`alerter;"opening ",x];("**SB*"; enlist ",") 0: hsym `$x};CSV;{.lg.e[`alerter;"failed to open",x," : ", y];'y}[CSV]];
 	check:all `path`match`function`newonly`movetodirectory in cols fullcsv;
