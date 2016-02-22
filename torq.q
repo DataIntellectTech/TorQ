@@ -395,25 +395,25 @@ loadconfig:{
 		[.lg.o[`fileload;"config file ",file," found"];
 		 loadf file]]}
 
-getconfig:{[path;both]
+getconfig:{[path;level]
         /-check if KDBAPPCONFIG exists
         keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
-                key hsym appconf:`$kac,"/",path;
-                ()];
+          key hsym appconf:`$kac,"/",path;
+          ()];
 
-        if[()~keyappconf;appconf:()];
+	/-if level=2 then all files are returned regardless
+        if[level<2;
+	  if[()~keyappconf;
+	    appconf:()]];
 
         /-get KDBCONFIG path
         keyconf:key hsym conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
         /-if both is set to true return appconfig and config files
         /-result is reversed if rev is true
-        res:$[both;
-                appconf,conf;
-                first appconf,conf];
-
-        /-if only one result then return an atom
-        $[1=count res;first res;res]}
+        res:(),$[level;
+          appconf,conf;
+	  first appconf,conf]}
 
 getconfigfile:getconfig[;0b]
 
