@@ -16,7 +16,7 @@ CONNECTIONSFROMDISCOVERY:@[value;`CONNECTIONSFROMDISCOVERY;1b]     				// whethe
 SUBSCRIBETODISCOVERY:@[value;`SUBSCRIBETODISCOVERY;1b]						// whether to subscribe to the discovery service for new processes becoming available
 DISCOVERYRETRY:@[value;`DISCOVERYRETRY;0D00:05]         					// how often to retry the connection to the discovery service.  If 0, no connection is made
 TRACKNONTORQPROCESS:@[value;`TRACKNONTORQPROCESS;0b]						// whether to track and register non torQ processes 
-NONTORQPROCESSFILE:@[value;`NONTORQPROCESSFILE;hsym .proc.getconfig["nontorqprocess.csv";1b]]	// non torQ processes file
+NONTORQPROCESSFILE:@[value;`NONTORQPROCESSFILE;hsym .proc.getconfigfile["nontorqprocess.csv"]]	// non torQ processes file
 HOPENTIMEOUT:@[value;`HOPENTIMEOUT;2000]							// new connection time out value in milliseconds
 RETRY:@[value;`RETRY;0D00:05]									// period on which to retry dead connections. If 0 no connection is made
 RETAIN:@[value;`RETAIN;`long$0D00:30]								// length of time to retain server records
