@@ -407,7 +407,7 @@ getconfig:{[path;level]
 	    appconf:()]];
 
         /-get KDBCONFIG path
-        keyconf:key hsym conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
+        conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
         /-if level is non-zero return appconfig and config files
         (),$[level;
