@@ -409,13 +409,12 @@ getconfig:{[path;level]
         /-get KDBCONFIG path
         keyconf:key hsym conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
-        /-if both is set to true return appconfig and config files
-        /-result is reversed if rev is true
-        res:(),$[level;
+        /-if level is non-zero return appconfig and config files
+        (),$[level;
           appconf,conf;
 	  first appconf,conf]}
 
-getconfigfile:getconfig[;0b]
+getconfigfile:getconfig[;0]
 
 // Get the attributes of this process.  This should be overridden for each process
 getattributes:{()!()}
