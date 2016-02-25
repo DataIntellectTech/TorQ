@@ -70,3 +70,7 @@ This will launch the a process running within the framework with all the default
   * Added write access control to message handlers (using reval), which restricts the ability of querying clients to modify data in place
   * Added functionality to return approximate memory size of kdb+ objects
   * Bug fixes
+- **2.4.0, February 2016**:
+  * Added k4unit to allow tests to be automatically run via the -test parameter
+  * Extended application config handling so all default config can be found in $KDBAPPCONFIG
+  * Bug Fixes
