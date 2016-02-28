@@ -21,6 +21,18 @@ vectorsize:{calcsize[count x;typesize x;attrsize x]};
 // raw size of atoms according to type, type 20h->76h have 4 bytes pointer size
 typesize:{4^0N 1 16 0N 1 2 4 8 4 8 1 8 8 4 4 8 8 4 4 4 abs type x};
 
+threshold:100000;
+
+// pick samples randomly accoding to threshold and apply function
+sampling:{[f;x]
+        $[threshold<c:count x;f@threshold?x;f x]
+        };
+
+// scale sampling result back to total population
+scaleSampling:{[f;x]
+	sampling[f;x]*max(1;count[x]%threshold)
+	};
+
 objsize:{
 	// count 0
 	if[not count x;:0];
@@ -38,12 +50,12 @@ objsize:{
 	// exit early for anything above 76h
 	  76h<t;0;
 	// complex = complex type in list, pointers + size of each objects
-	  0h in t:type each x;calcsize[count x;8;0]+sum .z.s each x;
+	  0h in t:sampling[type each;x];calcsize[count x;8;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x];
 	// complex = if only 1 type and simple list, pointers + sum count each*first type
 	// assume count>1000 has no attrbutes (i.e. table unlikely to have 1000 columns, list of strings unlikely to have attr for some objects only
-	  (d[0] within 1 76h)&1=count d:distinct t;calcsize[c;8;0]+sum calcsize[count each x;typesize x 0;$[1000<c:count x;0;attrsize each x]];
+	  (d[0] within 1 76h)&1=count d:distinct t;calcsize[count x;8;0]+"j"$scaleSampling[{sum .Q.fu[{calcsize[x;typesize x 0;$[1000<count x;0;attrsize each x]]}]count each x};x];
 	// other complex, pointers + size of each objects
-	  calcsize[count x;8;0]+sum .z.s each x]
+	  calcsize[count x;8;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x]]
 	};
 
 \d .
