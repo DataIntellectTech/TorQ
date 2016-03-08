@@ -2,9 +2,9 @@
 //Andrew Steele. andrew.steele@aquaq.co.uk
 //AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
-inputcsv:@[value;`.fa.inputcsv;`$getenv[`KDBCONFIG],"/filealerter.csv"]				// The name of the input csv to drive what gets done
+inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]				// The name of the input csv to drive what gets done
 polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
-alreadyprocessed:@[value;`.fa.alreadyprocessed;`$getenv[`KDBCONFIG],"/filealerterprocessed"]	// The location of the table on disk to store the information about files which have already been processed
+alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 os:$[like[string .z.o;"w*"];`win;`lin]

@@ -62,12 +62,16 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 		if[setschema;
 			.lg.o[`subscribe;"setting the schema definition"];
 			/-the first element of details is a list of pairs (tablename; schema)
-			/-this is the same as (tablename set schema)each table subscribed to 
-			(@[`.;;:;].)each details 0;];
+			/-this is the same as (tablename set schema)each table subscribed to
+			(@[`.;;:;].)each details[0] where not nulldetail:0=count each details 0;];
 		if[replaylog;
 			.lg.o[`subscribe;"replaying the log file"];
 			/-store the orig version of upd
 			origupd:@[value;`..upd;{{[x;y]}}];
+			/-only use tables user has access to
+			if[count where nulldetail;
+				tabs:(details[0] where not nulldetail)[;0];
+				subtabs:tabs inter subtabs];
 			/-set the replayupd function to be upd globally 
 			if[not (tabs;instrs)~(`;`);
 				.lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];

@@ -51,7 +51,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-nopi]:\t\t\treset the definition of .z.pi to the initial value (useful for debugging)
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
- [-usage]:\t\t\tprint usage info"]
+ [-usage]:\t\t\tprint usage info
+ [-test]:\t\t\tset to run unit tests"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -280,11 +281,32 @@ $[count[req] = count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
 
+getconfig:{[path;level]
+        /-check if KDBAPPCONFIG exists
+        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
+          key hsym appconf:`$kac,"/",path;
+          ()];
+
+        /-if level=2 then all files are returned regardless
+        if[level<2;
+          if[()~keyappconf;
+            appconf:()]];
+
+        /-get KDBCONFIG path
+        conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
+
+        /-if level is non-zero return appconfig and config files
+        (),$[level;
+          appconf,conf;
+          first appconf,conf]}
+
+getconfigfile:getconfig[;0]
+
 // If any of the required parameters are null, try to read them from a file
 // The file can come from the command line, or from the environment path
 file:$[`procfile in key params; 
 	first `$params `procfile;
- 	`$getenv[`KDBCONFIG],"/process.csv"];
+ 	first getconfigfile["process.csv"]];
 
 readprocs:{[file]@[@/[;(`port;`host`proctype`procname);("I"$string value each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
 
@@ -484,3 +506,9 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
 // set the initialised flag
 .proc.initialised:1b
+
+if[`test in key .proc.params;
+        $[0<count[getenv[`KDBTESTS]];
+                .proc.loaddir getenv[`KDBTESTS];
+                .lg.e[`init;"environment variable KDBTESTS undefined"]]
+        ]

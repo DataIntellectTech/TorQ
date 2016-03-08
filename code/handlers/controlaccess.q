@@ -126,7 +126,7 @@ vws:{defaultuser .z.u} / not clear what/how to restrict yet
 .lg.o[`access;"access controls are ",("disabled";"enabled").access.enabled]
 if[.access.enabled;
 	// Read in the permissions
-	.access.readpermissions getenv[`KDBCONFIG],"/permissions";
+	.access.readpermissions each string reverse .proc.getconfig["permissions";1];
 	.z.pw:{$[.access.vpw[y;z];x[y;z];0b]}.z.pw;
 	/ .z.po - untouched, .z.pw does the checking
 	/ .z.pc - untouched, close is always allowed
