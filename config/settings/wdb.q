@@ -48,6 +48,7 @@ sortcsv:hsym`$getenv[`KDBCONFIG],"/sort.csv"    // location of csv file
 permitreload:1b									// enable reload of hdbs/rdbs
 compression:()									// specify the compress level, empty list if no required
 gc:1b											// garbage collect at appropriate points (after each table save and after sorting data)
+eodwaittime:0D00:00:10.000							// time to wait for async calls to complete at eod
 
 // Server connection details
 \d .servers
