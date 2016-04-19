@@ -8,7 +8,7 @@ params:([] tabname:`symbol$(); att:`symbol$(); column:`symbol$(); sort:`boolean$
 
 / - setting default location for the sort csv file
 / - will be used if there is a null parameter passed to the getsortcsv function
-defaultfile: `$getenv[`KDBCONFIG],"/sort.csv";
+defaultfile:first .proc.getconfigfile["sort.csv"];
 
 / - this function is used to retrieve and parse the contents of the sort.csv file
 / - some validation is performed and the sort parameters are sorted in a global variable called

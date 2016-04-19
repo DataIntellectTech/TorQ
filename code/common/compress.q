@@ -54,7 +54,7 @@ The minimum block size for compression on windows is 16.
 
 \d .cmp
 
-inputcsv:@[value;`inputcsv;`$getenv[`KDBCONFIG],"/compressionconfig.csv"];
+inputcsv:@[value;`inputcsv;first .proc.getconfigfile["compressionconfig.csv"]];
 
 inputcsv:string inputcsv
 

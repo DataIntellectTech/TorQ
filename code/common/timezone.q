@@ -5,7 +5,7 @@
 default:@[value;`default;`$"Europe/London"]
 
 // Load the timezone info from the config directory
-t:@[get;hsym`$tzfile;{.lg.e[`init;"failed to load timezone table from ",x," ",y]}[tzfile:getenv[`KDBCONFIG],"/tzinfo"]]
+t:@[get;hsym`$tzfile;{.lg.e[`init;"failed to load timezone table from ",x," ",y]}[tzfile:string first .proc.getconfigfile["tzinfo"]]]
 
 // local from GMT
 lg:{[tz;z] $[0>type z;first;(::)]@exec gmtDateTime+adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:tz;gmtDateTime:z,());select timezoneID,gmtDateTime,adjustment from t]};
