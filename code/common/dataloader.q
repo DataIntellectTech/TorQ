@@ -48,13 +48,13 @@ loaddata:{[loadparams;rawdata]
  
  .lg.o[`dataloader;"Read ",(string count data)," rows"];
 
- // enumerate the table - best to do this once
- .lg.o[`dataloader;"Enumerating"];
- data:.Q.en[loadparams[`dbdir];data]; 
-
  // do some optional extra processing
  .lg.o[`dataloader;"processing data"];
  data:0!loadparams[`dataprocessfunc] . (loadparams;data);
+
+ // enumerate the table - best to do this once
+ .lg.o[`dataloader;"Enumerating"];
+ data:.Q.en[loadparams[`dbdir];data]; 
 
  writedatapartition[loadparams[`dbdir];;loadparams[`partitiontype];loadparams[`partitioncol];loadparams[`tablename];data] each distinct loadparams[`partitiontype]$data[loadparams`partitioncol];
  

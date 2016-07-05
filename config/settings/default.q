@@ -56,7 +56,7 @@ CONNECTIONS:`rdb`hdb										// list of connections to make at start up
 DISCOVERYREGISTER:1b										// whether to register with the discovery service
 CONNECTIONSFROMDISCOVERY:1b									// whether to get connection details from the discovery service (as opposed to the static file).
 TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes 
-NONTORQPROCESSFILE:hsym`$getenv[`KDBCONFIG],"/nontorqprocess.csv"   				// non torQ processes file
+NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   				// non torQ processes file
 SUBSCRIBETODISCOVERY:1b										// whether to subscribe to the discovery service for new processes becoming available
 DISCOVERYRETRY:0D00:05										// how often to retry the connection to the discovery service.  If 0, no connection is made. This also dictates if the discovery service can connect it and cause it to re-register itself (val > 0)
 HOPENTIMEOUT:2000 										// new connection time out value in milliseconds

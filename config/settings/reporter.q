@@ -2,7 +2,7 @@
 
 \d .rp
 
-inputcsv:`$getenv[`KDBCONFIG],"/reporter.csv";	/- Location of report configuration csv file
+inputcsv:first .proc.getconfigfile["reporter.csv"];	/- Location of report configuration csv file
 flushqueryloginterval:1D00:00:00;		/- How often to flush the report query log data
 writetostdout:1b;			  	/- whether to write query log info to standard out as well	
 

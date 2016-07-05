@@ -74,3 +74,8 @@ This will launch the a process running within the framework with all the default
   * Added k4unit to allow tests to be automatically run via the -test parameter
   * Extended application config handling so all default config can be found in $KDBAPPCONFIG
   * Bug Fixes
+- **2.5.0, April 2016**:
+  * Added u.q - publish/subscribe code from KDB+ Tick
+  * Improved memusage.q to do sampling
+  * Updated dataloader.q
+  * Make sure all config can be read from KDBAPPCONFIG
