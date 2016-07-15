@@ -542,7 +542,7 @@ reloadend:{
  .gw.seteod[0b];
  /- retry connections - get updated attributes from servers and refresh servers tables
  update attributes:@[;(`.proc.getattributes;`);()!()]each w from`.servers.SERVERS;
- update attributes:attributes^(exec w!attributes from .servers.SERVERS)handle from`.gw.servers;
+ update attributes:(exec w!attributes from .servers.SERVERS)handle from `.gw.servers;
  /- flush any async queries held during reload phase
  .gw.runnextquery[];}
 
@@ -557,6 +557,12 @@ if[@[value;`.timer.enabled;0b];
 .api.add[`.gw.syncexecj;1b;"Execute a function asynchronously, join the results with the specified join function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data]";"The result of the query"];
 .api.add[`.gw.syncexec;1b;"Execute a function asynchronously, use raze to join the results";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"];
 .api.add[`.gw.getqueue;1b;"Return the current queryqueue with status";"[]";"table: the current queryqueue with either pending or running status"];
+
+// make connections to processes as they appear in the .servers.SERVERS table
+.servers.connectcustom:{[f;connectiontab]
+  .gw.addserversfromconnectiontable[.servers.CONNECTIONS];
+  f@connectiontab
+ }@[value;`.servers.connectcustom;{{[x]}}]
 
 
 /
