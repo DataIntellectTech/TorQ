@@ -16,6 +16,8 @@ publishinterval:@[value;`publishinterval;0D00:00:30]		// how often heartbeats ar
 checkinterval:@[value;`checkinterval;0D00:00:10]		// how often heartbeats are checked
 warningtolerance:@[value;`warningtolerance;1.5f]		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:@[value;`errortolerance;2f]			// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
+CONNECTIONS:@[value;`CONNECTIONS;()];
+subscribedhandles:0 0Ni
 
 // table for publishing heartbeats
 // sym = proctype
@@ -85,6 +87,25 @@ processerror:{[processtab]
   if[1<=count processtab;
      .html.pub[`heartbeat;0!select from .hb.hb where procname in exec procname from processtab]]} 
 
+// subscribe to heartbeats and log messages on a handle
+subscribe:{[handle]
+ @[{x(`.ps.subscribe;`heartbeat;`); subscribedhandles,::x};handle;{.lg.e[`hbsub;"failed to subscribe to heartbeat on handle ",(string x),": ",y]}[handle]];
+ }
+
+hbsubscriptions:{[]
+  getheartbeats .hb.CONNECTIONS
+ }
+
+getheartbeats:{[proctype]
+  if[`ALL in proctype; proctype:`];
+  // only get handles that have not been subscribed to
+  handles:(.servers.getservers[`proctype;proctype;()!();0b;0b]`w) except subscribedhandles;
+  if[count handles;
+    .lg.o[`hbsub;"subscribing to new handle(s) ",", " sv string handles];
+    subscribe each handles]
+ }
+
+
 \d .
 
 if[.hb.enabled;
@@ -96,3 +117,23 @@ if[.hb.enabled;
    .timer.repeat[.proc.cp[];0Wp;.hb.publishinterval;(`.hb.publishheartbeat;`);"publish heartbeats"];
    .timer.repeat[.proc.cp[];0Wp;.hb.checkinterval;(`.hb.checkheartbeat;`);"check the heartbeats have been received in a timely manner"]];
   .lg.e[`init;"heartbeating is enabled, but the timer and/or pubsub code is not enabled"]]];
+
+// only set if enables
+if[.hb.enabled;
+  upd:{[f;t;x] if[t=`heartbeat; .hb.storeheartbeat[x]]; f . (t;x)}@[value;`upd;{{[t;x]}}];
+
+  .z.pc:{if[y;.hb.subscribedhandles::.hb.subscribedhandles except y]; x@y}@[value;`.z.pc;{{[x]}}];
+
+  .timer.rep[.z.p;0wp;0D00:01:00;(`.hb.hbsubscriptions;`);0h;"subscribe to heartbeats";0b]
+ ]
+
+.servers.connectcustom:{[func;connectiontab] 
+  connectiontab:$[`ALL in .hb.CONNECTIONS;
+    connectiontab;
+    select from connectiontab where proctype in .hb.CONNECTIONS];
+  connectiontab:select from connectiontab where not w in .hb.subscribedhandles;
+  if[count connectiontab;
+    .hb.subscribe each connectiontab`w];
+  func@connectiontab
+ }@[value;`.servers.connectcustom;{{[x]}}]
+

@@ -477,6 +477,7 @@ getsortparams:{[]
 	
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];
+updold:@[value;`upd;{{x;y}}];
 upd:.wdb.replayupd;
 / - clear any wdb data in the current partition
 .wdb.clearwdbdata[];
@@ -486,4 +487,4 @@ upd:.wdb.replayupd;
 if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
-upd:.wdb.upd
+upd:{[f;t;x] .[.wdb.upd;(t;x); f . (t;x)]}@[value;`updold;{{x;y}}]
