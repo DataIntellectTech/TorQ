@@ -26,6 +26,7 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
+DOMAINSOCKETS:@[value;`DOMAINSOCKETS;enlist`]							// list of proctypes that will use domain sockets for ipc instead of normal tcp
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -49,9 +50,19 @@ opencon:{
 	// If the supplied connection string doesn't contain a user:password,
 	// and USERPASS is not null, append it
    	connection:hsym $[(2 >= sum ":"=string x) and not null USERPASS; `$(string x),":",string USERPASS;x];
+
 	h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
+
 	// just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
 	if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
+
+	// fallback from socket to tcp, if socket connection failed
+	// potential loop, if tables aren't updated
+	if[(null first h) and `socket = getipcproctype x;
+		if[DEBUG;.lg.o[`conn;"socket connection to ",(string x)," failed. Falling back to tcp and retrying opencon"]];
+	 	.z.s fallbackipc x
+	];
+
 	first h}
 
 // req = required set of attribute
@@ -170,7 +181,9 @@ autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
-	update lastp:.proc.cp[],w:.servers.opencon each hpup from`.servers.SERVERS where i in rows;
+	// opencon, amends global tables, cannot be used inside of a select statement
+	handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
+	update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
         update attributes:{$[null x;()!();@[x;(`.proc.getattributes;`);()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
         if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w; 
 	connectcustom[connectedrows]]}
@@ -237,16 +250,98 @@ refreshattributes:{
 	(neg exec w from .servers.getservers[`proctype;`discovery;()!();0b;0b])@\:(`..register;`);
 	}
 
+
+// return true if domain sockets can be used with this version of kdb
+domainsocketsenabled:{[]
+	// v3.4 brought in the first version of unix sockets, assume it will stay.
+	:3.4>=.z.K;
+	}
+
+// format hpup from procs table, take into account ipc type
+// IPCTYPE (`tcp;`socket;`tcps);
+formathpup:{[HOST;PORT;IPCTYPE]
+	ipctype:IPCTYPE;
+	issocket:ipctype = `socket;
+	notsamebox:not any HOST in `localhost,.z.h; 
+
+	host:string $[HOST=`localhost;.z.h;HOST];
+	port:string PORT;
+
+	// revert socket to tcp;
+	if[issocket and notsamebox;
+		.lg.w[`formathpup;"Expects to connect via domain sockets, but host is not on same machine. Reverting to tcp IPC"];
+		ipctype:`tcp;	
+	];
+
+	if[issocket and not domainsocketsenabled[];
+		.lg.w[`formathpup;"Domain sockets are not enabled for this system. Reverting to tcp IPC"];
+		ipctype:`tcp;	
+	];
+
+	if[ipctype = `tcp; 
+		hpup:lower `$":",host,":",port;
+ 	];
+
+	if[ipctype = `tcps; 
+		hpup:lower `$":tcps://",host,":",port;
+ 	];
+
+	if[ipctype = `socket;
+		hpup:lower `$":unix://",port;
+	];
+
+	:hpup;
+	}
+
+// do full formatting of proc table
+formatprocs:{[PROCS]
+	procs:update ipctype:`tcp from PROCS;
+	procs:update ipctype:`socket from procs where proctype in .servers.DOMAINSOCKETS;
+	procs:update hpup:.servers.formathpup'[host;port;ipctype] from procs;
+	:procs;
+	}
+
+// given a hpup, return its proctype
+getipcproctype:{[HPUP]
+	tab:(select ipctype,hpup from procstab),select ipctype,hpup from nontorqprocesstab;
+	:first exec ipctype from tab where hpup=HPUP;
+	}
+
+// check if HPUP is still a socket, fallback to tcp
+// used in opencon. As opencon is given a hpup, must search for the original proc if it exists in two tables procstab nontorqprocesstab.
+// tables ipctype field must be updated, otherwise a loop will occur in .servers.opencon
+fallbackipc:{[HPUP]
+	Hpup:HPUP;
+	deftabs:`.servers.procstab`.servers.nontorqprocesstab;
+
+	// get the table that holds the proc with corresponding hpup
+	tab:first deftabs where 1=.[{[t;hp] count select from t where hpup=hp};;0] @' (;HPUP) each deftabs;
+
+	// if we can find the proc that owns hpup, query original tabs for host,port
+	if[cntres:count tab;
+		update ipctype:`tcp from tab where hpup=HPUP; 
+		Hpup:.servers.formathpup[;;`tcp] . first[value tab]`host`port;
+		update hpup:Hpup from tab;
+		update hpup:Hpup from `.servers.SERVERS;
+	];
+
+	if[not cntres;	
+		.lg.e[`fallbackipc;"Cannot find hpup in ",-3!deftabs]
+	];
+
+	:Hpup;
+	}
+
 // called at start up
 // either load in 	
 startup:{
-	// read in the table of processes, both TorQ processes and external processes
-  	procs:update hpup:lower `$(((":",'string ?[host=`localhost;.z.h;host]),'":"),'string port) from .proc.readprocs .proc.file;
-  	nontorqprocesstab::$[count key NONTORQPROCESSFILE;
-				update hpup:lower `$(((":",'string ?[host=`localhost;.z.h;host]),'":"),'string port) from .proc.readprocs NONTORQPROCESSFILE;
-				0#procs];
+
+	// correctly format procs and hpup
+	procstab::procs:formatprocs .proc.readprocs .proc.file;
+  	nontorqprocesstab::formatprocs $[count key NONTORQPROCESSFILE;.proc.readprocs NONTORQPROCESSFILE;0#procs];
+	
 	// If DISCOVERY servers have been explicity defined
-       if[count .servers.DISCOVERY;
+	if[count .servers.DISCOVERY;
                 if[not null first .servers.DISCOVERY;
                         if[count select from procs where hpup in .servers.DISCOVERY; .lg.e[`startup; "host:port in .servers.DISCOVERY list is already present in data read from ",string .proc.file]];
                         procs,:([]host:`;port:0Ni;proctype:`discovery;procname:`;hpup:.servers.DISCOVERY)]];
