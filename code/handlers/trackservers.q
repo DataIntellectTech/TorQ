@@ -255,7 +255,7 @@ startup:{
 	procs: delete from procs where ([] procname; proctype; hpup) in connectedprocs;
 	nontorqprocs: delete from nontorqprocesstab where ([] procname; proctype; hpup) in connectedprocs;
 	// if there aren't any processes left to connect to, then escape
-	if[ not any count each (procs;nontorqprocs); .lg.o[`conn;"No new processes to connect to.  Escaping..."];:()];
+	if[not any count each (procs;nontorqprocs); .lg.o[`conn;"No new processes to connect to.  Escaping..."];:()];
 	if[CONNECTIONSFROMDISCOVERY or DISCOVERYREGISTER; 
 		register[procs;`discovery;0b];
 		retrydiscovery[]];
