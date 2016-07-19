@@ -26,7 +26,7 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
-DOMAINSOCKETS:@[value;`DOMAINSOCKETS;enlist`]							// list of proctypes that will use domain sockets for ipc instead of normal tcp
+SOCKETTYPE:@[value;`SOCKETTYPE;()!()]                                                           // dict of proctype -> sockettype
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -59,7 +59,7 @@ opencon:{
 
 	// fallback from socket to tcp, if socket connection failed
 	// potential loop, if tables aren't updated
-	if[(null first h) and `socket = getipcproctype x;
+	if[(null first h) and `unix = getipcproctype x;
 		if[DEBUG;.lg.o[`conn;"socket connection to ",(string x)," failed. Falling back to tcp and retrying opencon"]];
 	 	.z.s fallbackipc x
 	];
@@ -153,7 +153,7 @@ addhw:{[hpuP;W]
 	if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
 	if[0=count name;name:`default];
 	// FIX - what happens if its tcps???
-	if[null hpuP;hpuP:.servers.formathp[info`h;info`port;(`tcp`socket) info[`proctype] in .servers.DOMAINSOCKETS]];
+	if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype]];
 	// If this handle already has an entry, delete the old entry
 	delete from `.servers.SERVERS where w=W;
 	addnthawc[name;info`proctype;hpuP;info`attributes;W;0b]}
@@ -255,18 +255,20 @@ refreshattributes:{
 	(neg exec w from .servers.getservers[`proctype;`discovery;()!();0b;0b])@\:(`..register;`);
 	}
 
-
-// return true if domain sockets can be used with this version of kdb
+// return true if unix domain sockets can be used
 domainsocketsenabled:{[]
-	// v3.4 brought in the first version of unix sockets, assume it will stay.
-	:3.4>=.z.K;
+        // unix domain sockets only works on unix and not windows
+        notwin:not .z.o like "w*";
+	// v3.4 brought in the first version of unix domain sockets ipc
+        iskdbv:3.4>=.z.K;
+        :notwin and iskdbv;
 	}
 
 // format hpup from procs table, take into account ipc type
-// IPCTYPE [-11h] (`tcp;`socket;`tcps);
+// IPCTYPE [-11h] (`tcp;`tcps;`unix);
 formathp:{[HOST;PORT;IPCTYPE]
 	ipctype:IPCTYPE;
-	issocket:ipctype = `socket;
+	isunixsocket:ipctype = `unix;
 	notsamebox:not any HOST in `localhost,.z.h;
 
 	host:string $[HOST=`localhost;.z.h;HOST];
@@ -274,11 +276,11 @@ formathp:{[HOST;PORT;IPCTYPE]
 
 	/// Determine whether socket connection is valid
 	// revert socket to tcp;
-	if[issocket and notsamebox;
+	if[isunixsocket and notsamebox;
 		.lg.w[`formathp;"Expects to connect via domain sockets, but host is not on same machine. Reverting IPC connection to TCP"];
 		ipctype:`tcp;
 	];
-	if[issocket and not domainsocketsenabled[];
+	if[isunixsocket and not domainsocketsenabled[];
 		.lg.w[`formathp;"Domain sockets are not enabled for this system. Reverting IPC connection to TCP"];
 		ipctype:`tcp;
 	];
@@ -290,7 +292,7 @@ formathp:{[HOST;PORT;IPCTYPE]
 	if[ipctype = `tcps;
 		hpup:lower `$":tcps://",host,":",port;
  	];
-	if[ipctype = `socket;
+	if[ipctype = `unix;
 		hpup:lower `$":unix://",port;
 	];
 
@@ -299,8 +301,8 @@ formathp:{[HOST;PORT;IPCTYPE]
 
 // do full formatting of proc table
 formatprocs:{[PROCS]
-	procs:update ipctype:`tcp from PROCS;
-	procs:update ipctype:`socket from procs where proctype in .servers.DOMAINSOCKETS;
+	procs:update ipctype:`tcp  from PROCS;
+	procs:update ipctype:`unix from procs where proctype in key .servers.SOCKETTYPE;
 	procs:update hpup:.servers.formathp'[host;port;ipctype] from procs;
 	:procs;
 	}
@@ -312,11 +314,12 @@ getipcproctype:{[HPUP]
 	}
 
 // check if HPUP is still a socket, fallback to tcp
-// used in opencon. As opencon is given a hpup, must search for the original proc if it exists in two tables procstab nontorqprocesstab.
+// used in opencon. As opencon is given a hpup, must search for the original proc if it exists in two tables `procstab`nontorqprocesstab
 // tables ipctype field must be updated, otherwise a loop will occur in .servers.opencon
 fallbackipc:{[HPUP]
 	Hpup:HPUP;
 	deftabs:`.servers.procstab`.servers.nontorqprocesstab;
+        fallbacktype:`tcp;
 
 	// get the table that holds the proc with corresponding hpup
 	tab:first deftabs where 1=.[{[t;hp] count select from t where hpup=hp};;0] @' (;HPUP) each deftabs;
@@ -324,7 +327,7 @@ fallbackipc:{[HPUP]
 	// if we can find the proc that owns hpup, query original tabs for host,port
 	if[cntres:count tab;
 		procsvals:first select from tab where hpup=HPUP;
-		Hpup:.servers.formathp[;;`tcp] . procsvals`host`port;
+		Hpup:.servers.formathp[;;fallbacktype] . procsvals`host`port;
 		// update using old hpup
 		update ipctype:`tcp from tab where hpup=HPUP;
 		update hpup:Hpup from tab where hpup=HPUP;
@@ -340,7 +343,6 @@ fallbackipc:{[HPUP]
 	}
 
 // called at start up
-// either load in
 startup:{
 	// correctly format procs and hpup
 	procstab::procs:formatprocs .proc.readprocs .proc.file;
