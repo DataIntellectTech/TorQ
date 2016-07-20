@@ -26,7 +26,7 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
-SOCKETTYPE:@[value;`SOCKETTYPE;()!()]                                                           // dict of proctype -> sockettype
+SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist[`]]                                             // dict of proctype -> sockettype
 SOCKETTYPE:`hdb`discovery`unix!`tcp`tcps`unix
 
 // If required, change this method to something more secure!
