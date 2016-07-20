@@ -120,7 +120,8 @@ initialise:{
   /- subscribe to the tickerplant
   .ctp.subscribe[]; 
   /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
-  .ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto]
+  if[not notpconnected[]; 
+    .ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto]]
   }
 
 /- returns true if tickerplant is not connected
