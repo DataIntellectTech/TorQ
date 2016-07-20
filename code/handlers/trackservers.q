@@ -27,6 +27,7 @@ USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:@[value;`SOCKETTYPE;()!()]                                                           // dict of proctype -> sockettype
+SOCKETTYPE:`hdb`discovery`unix!`tcp`tcps`unix
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -301,8 +302,7 @@ formathp:{[HOST;PORT;IPCTYPE]
 
 // do full formatting of proc table
 formatprocs:{[PROCS]
-	procs:update ipctype:`tcp  from PROCS;
-	procs:update ipctype:`unix from procs where proctype in key .servers.SOCKETTYPE;
+	procs:update ipctype:`tcp^.servers.SOCKETTYPE[proctype] from PROCS;
 	procs:update hpup:.servers.formathp'[host;port;ipctype] from procs;
 	:procs;
 	}
