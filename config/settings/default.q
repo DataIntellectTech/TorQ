@@ -107,6 +107,8 @@ img:`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"	// default image for b
 // heartbeating
 \d .hb
 enabled:1b			// whether the heartbeating is enabled
+subenabled:0b                   // whether subscriptions to other hearbeats are made
+CONNECTIONS:`ALL                // processes that heartbeat subscriptions are recieved from (as a subset of .servers.CONNECTIONS)
 debug:1b			// whether to print debug information
 publishinterval:0D00:00:30	// how often heartbeats are published
 checkinterval:0D00:00:10	// how often heartbeats are checked
