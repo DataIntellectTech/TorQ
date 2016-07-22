@@ -26,7 +26,7 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
-SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype -> sockettype
+SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype!sockettype. sockettype options : `tcp`tcps`unix. e.g. `rdb`tickerplant!`tcp`unix
 SOCKETFALLBACK:@[value;`SOCKETFALLBACK;1b]                                                      // if unix domain connection fails, fallback to tcp
 
 // If required, change this method to something more secure!
@@ -61,7 +61,7 @@ opencon:{
 	// fallback from socket to tcp, if socket connection failed
 	// potential loop, if tables aren't updated
 	if[SOCKETFALLBACK and (null first h) and `unix = getipcproctype x;
-		if[DEBUG;.lg.o[`conn;"socket connection to ",(string x)," failed. Falling back to tcp and retrying opencon"]];
+		if[DEBUG;.lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to tcp and retrying to open connection."]];
 	 	.z.s fallbackipc x
 	];
 
@@ -228,16 +228,16 @@ registerfromdiscovery:{[procs;connect]
 
 addprocs:{[connectiontab;procs;connect]
 	// filter out any we already have - same name,type and hpup
-	//res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
-	res:select from connectiontab where not ([]procname;proctype) in select procname,proctype from .servers.SERVERS;
+	res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
+	//res:select from connectiontab where not ([]procname;proctype) in select procname,proctype from .servers.SERVERS;
 	// we've dropped some items - maybe there are updated attributes
 	if[not count[res]=count connectiontab;
 		if[`attributes in cols connectiontab;
-			//.servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab]];
-			.servers.SERVERS:.servers.SERVERS lj 2!select procname,proctype,attributes from connectiontab]];
+			.servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab]];
+			//.servers.SERVERS:.servers.SERVERS lj 2!select procname,proctype,attributes from connectiontab]];
 	// if we have a match where the hpup is the same, but different name/type, then remove the old details
-	//removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
-	removerows exec i from `.servers.SERVERS where ([]procname;proctype) in select procname,proctype from res;
+	removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
+	//removerows exec i from `.servers.SERVERS where ([]procname;proctype) in select procname,proctype from res;
 	register[res;;connect] each $[procs~`ALL;exec distinct proctype from res;procs,()];
 	addprocscustom[res;procs]}
 
@@ -325,13 +325,15 @@ fallbackipc:{[HPUP]
 
 	// if we can find the proc that owns hpup, query original tabs for host,port
 	if[cntres:count tab;
-		procsvals:first select from tab where hpup=HPUP;
-		Hpup:.servers.formathp[;;fallbacktype] . procsvals`host`port;
+		procvals:first select from tab where hpup=HPUP;
+		Hpup:.servers.formathp[;;fallbacktype] . procvals`host`port;
 		// update using old hpup
 		update ipctype:`tcp from tab where hpup=HPUP;
 		update hpup:Hpup from tab where hpup=HPUP;
-		// update using new hpup
-		update hpup:Hpup from `.servers.SERVERS where hpup=Hpup;
+		// remove old proc
+                removerows exec i from `.servers.SERVERS where hpup=HPUP;
+		// add proc with updated hpup
+                addprocs[select from tab where hpup=Hpup;procvals`proctype;0b];
 	];
 
 	if[not cntres;
