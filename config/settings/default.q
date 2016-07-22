@@ -67,7 +67,8 @@ DEBUG:1b											// log messages when opening new connections
 LOADPASSWORD:1b											// load the external username:password from ${KDBCONFIG}/passwords
 STARTUP:0b    											// whether to automatically make connections on startup
 DISCOVERY:enlist`										// list of discovery services to connect to (if not using process.csv)
-SOCKETTYPE:()!();                                                                               // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
+SOCKETTYPE:enlist[`]!enlist `                                                                   // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
+SOCKETFALLBACK:1b                                                                               // if unix domain connection fails, fallback to tcp
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore

@@ -26,8 +26,8 @@ LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the externa
 USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
-SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist[`]]                                             // dict of proctype -> sockettype
-SOCKETTYPE:`hdb`discovery`unix!`tcp`tcps`unix
+SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype -> sockettype
+SOCKETFALLBACK:@[value;`SOCKETFALLBACK;1b]                                                      // if unix domain connection fails, fallback to tcp
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -60,7 +60,7 @@ opencon:{
 
 	// fallback from socket to tcp, if socket connection failed
 	// potential loop, if tables aren't updated
-	if[(null first h) and `unix = getipcproctype x;
+	if[SOCKETFALLBACK and (null first h) and `unix = getipcproctype x;
 		if[DEBUG;.lg.o[`conn;"socket connection to ",(string x)," failed. Falling back to tcp and retrying opencon"]];
 	 	.z.s fallbackipc x
 	];
