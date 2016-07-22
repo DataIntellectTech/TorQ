@@ -321,7 +321,7 @@ fallbackipc:{[HPUP]
         fallbacktype:`tcp;
 
 	// get the table that holds the proc with corresponding hpup
-	tab:first deftabs where 1=.[{[t;hp] count select from t where hpup=hp};;0] @' (;HPUP) each deftabs;
+	tab:first deftabs where .[{[t;hp] count select from t where hpup=hp};;0] @' (;HPUP) each deftabs;
 
 	// if we can find the proc that owns hpup, query original tabs for host,port
 	if[cntres:count tab;
