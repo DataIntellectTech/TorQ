@@ -229,15 +229,12 @@ registerfromdiscovery:{[procs;connect]
 addprocs:{[connectiontab;procs;connect]
 	// filter out any we already have - same name,type and hpup
 	res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
-	//res:select from connectiontab where not ([]procname;proctype) in select procname,proctype from .servers.SERVERS;
 	// we've dropped some items - maybe there are updated attributes
 	if[not count[res]=count connectiontab;
 		if[`attributes in cols connectiontab;
 			.servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab]];
-			//.servers.SERVERS:.servers.SERVERS lj 2!select procname,proctype,attributes from connectiontab]];
 	// if we have a match where the hpup is the same, but different name/type, then remove the old details
 	removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
-	//removerows exec i from `.servers.SERVERS where ([]procname;proctype) in select procname,proctype from res;
 	register[res;;connect] each $[procs~`ALL;exec distinct proctype from res;procs,()];
 	addprocscustom[res;procs]}
 
