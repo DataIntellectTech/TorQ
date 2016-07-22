@@ -3,7 +3,7 @@
 // Process initialisation
 \d .proc
 loadcommoncode:1b		// whether to load the common code defined at ${KDBCODE}/common
-loadprocesscode:0b		// whether to load the process specific code defined at ${KDBCODE}/{process type} 
+loadprocesscode:0b		// whether to load the process specific code defined at ${KDBCODE}/{process type}
 loadnamecode:0b			// whether to load the name specific code defined at ${KDBCODE}/{name of process}
 loadhandlers:1b			// whether to load the message handler code defined at ${KDBCODE}/handlers
 logroll:1b			// whether to roll the std out/err logs on a daily basis
@@ -31,7 +31,7 @@ enabled:1b			// whether client tracking is enabled
 opencloseonly:0b	        // whether we only log opening and closing of connections
 INTRUSIVE:0b			// interrogate clients for more information upon connection.  Do not use if there are any non-kdb+ clients
 AUTOCLEAN:1b			// clean out old records when handling a close
-RETAIN:`long$0D02		// length of time to retain client information 
+RETAIN:`long$0D02		// length of time to retain client information
 MAXIDLE:`long$0D		// handles which haven't been used in this length of time will be closed. 0 means no clean up
 
 //subscription configuration
@@ -55,7 +55,7 @@ enabled:1b											// whether server tracking is enabled
 CONNECTIONS:`rdb`hdb										// list of connections to make at start up
 DISCOVERYREGISTER:1b										// whether to register with the discovery service
 CONNECTIONSFROMDISCOVERY:1b									// whether to get connection details from the discovery service (as opposed to the static file).
-TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes 
+TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes
 NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   				// non torQ processes file
 SUBSCRIBETODISCOVERY:1b										// whether to subscribe to the discovery service for new processes becoming available
 DISCOVERYRETRY:0D00:05										// how often to retry the connection to the discovery service.  If 0, no connection is made. This also dictates if the discovery service can connect it and cause it to re-register itself (val > 0)
@@ -70,11 +70,11 @@ DISCOVERY:enlist`										// list of discovery services to connect to (if not u
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore
-enabled:1b					// whether its enabled 
+enabled:1b					// whether its enabled
 ignorelist:(`upd;"upd";`.u.upd;".u.upd")	// list of functions to ignore
 
 // timer functions
-\d .timer 
+\d .timer
 enabled:1b			// whether the timer is enabled
 debug:0b                    	// print when the timer runs any function
 logcall:1b                  	// log each timer call by passing it through the 0 handle
@@ -112,3 +112,7 @@ publishinterval:0D00:00:30	// how often heartbeats are published
 checkinterval:0D00:00:10	// how often heartbeats are checked
 warningtolerance:2f		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:3f		// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
+
+// broadcast publishing
+\d .u
+broadcast:1b;                   // broadcast publishing is on by default. Availble in kdb version 3.4 or later.
