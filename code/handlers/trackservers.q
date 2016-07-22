@@ -153,7 +153,6 @@ addhw:{[hpuP;W]
 	if[0Ni~info`port;'"remote call failed on handle ",string W];
 	if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
 	if[0=count name;name:`default];
-	// FIX - what happens if its tcps???
 	if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype]];
 	// If this handle already has an entry, delete the old entry
 	delete from `.servers.SERVERS where w=W;
