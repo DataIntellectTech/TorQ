@@ -278,11 +278,11 @@ formathp:{[HOST;PORT;IPCTYPE]
 	/// Determine whether socket connection is valid
 	// revert socket to tcp;
 	if[isunixsocket and notsamebox;
-		.lg.w[`formathp;"Expects to connect via domain sockets, but host is not on same machine. Reverting IPC connection to TCP"];
+		.lg.w[`formathp;"Expects to connect via domain sockets, but host is not on same machine. Reverting IPC mechanism to TCP"];
 		ipctype:`tcp;
 	];
 	if[isunixsocket and not domainsocketsenabled[];
-		.lg.w[`formathp;"Domain sockets are not enabled for this system. Reverting IPC connection to TCP"];
+		.lg.w[`formathp;"Domain sockets are not enabled for this system. Reverting IPC mechanism from to TCP"];
 		ipctype:`tcp;
 	];
 
