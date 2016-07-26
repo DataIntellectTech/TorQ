@@ -46,7 +46,7 @@ loadpassword:{
 loadpassword[]
 
 // open a connection
-// amends global tables, so cannot be used in a update amend, gives error 'noamend
+// fallbackipc amends global tables, so opencon cannot be used in a update amend query, results in error 'noamend
 opencon:{
 	if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
 	// If the supplied connection string doesn't contain a user:password,
@@ -59,8 +59,8 @@ opencon:{
 	if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
 
 	// fallback from socket to tcp, if socket connection failed
-	// potential loop, if tables aren't updated
-	if[SOCKETFALLBACK and (null first h) and `unix = getipcproctype x;
+	// potential loop, if tables using in fallbackipc aren't updated
+	if[SOCKETFALLBACK and (null first h) and (checkconerr last h) and (`unix = getipcproctype x);
 		if[DEBUG;.lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to tcp and retrying to open connection."]];
 	 	.z.s fallbackipc x
 	];
@@ -274,7 +274,7 @@ formathp:{[HOST;PORT;IPCTYPE]
 	/// Determine whether socket connection is valid
 	// revert socket to tcp;
 	if[isunixsocket and notsamebox;
-		.lg.w[`formathp;"Expects to connect via domain sockets, but host is not on same machine. Reverting IPC mechanism to TCP"];
+		.lg.w[`formathp;"Expects to connect via domain sockets, but host is not on the same machine. Reverting IPC mechanism to TCP"];
 		ipctype:`tcp;
 	];
 	if[isunixsocket and not domainsocketsenabled[];
@@ -308,6 +308,14 @@ getipcproctype:{[HPUP]
 	tab:(select ipctype,hpup from procstab),select ipctype,hpup from nontorqprocesstab;
 	:first exec ipctype from tab where hpup=HPUP;
 	}
+
+// check the error message returned by a failed connection attempt
+checkconerr:{[ERR]
+        // this is the error that is returned if the target does not have unix sockets enabled .i.e v<3.4
+        token:"No such file or directory";
+        // return true if it's in the connection error msg
+        :count[ss[ERR;token]]>0;
+        }
 
 // check if HPUP is still a socket, fallback to tcp
 // used in opencon. As opencon is given a hpup, must search for the original proc if it exists in two tables `procstab`nontorqprocesstab
