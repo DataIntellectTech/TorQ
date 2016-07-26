@@ -64,8 +64,8 @@ opencon:{
 	if[isunixfallback and null first h;
                 res:checkunixconerr last h;
                 $[res and DEBUG;
-                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to tcp and retrying to open connection."];
-                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Not falling back to tcp due to connection error message : ",last h]];
+                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to TCP and retrying to open connection."];
+                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Not falling back to TCP due to connection error message : ",last h]];
                 if[res;.z.s fallbackipc x];
 	];
 
