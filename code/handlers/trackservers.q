@@ -60,9 +60,13 @@ opencon:{
 
 	// fallback from socket to tcp, if socket connection failed
 	// potential loop, if tables using in fallbackipc aren't updated
-	if[SOCKETFALLBACK and (null first h) and (checkconerr last h) and (`unix = getipcproctype x);
-		if[DEBUG;.lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to tcp and retrying to open connection."]];
-	 	.z.s fallbackipc x
+	isunixfallback:SOCKETFALLBACK and `unix = getipcproctype x;
+	if[isunixfallback and null first h;
+                res:checkunixconerr last h;
+                $[res and DEBUG;
+                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to tcp and retrying to open connection."];
+                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Not falling back to tcp due to connection error message : ",last h]];
+                if[res;.z.s fallbackipc x];
 	];
 
 	first h}
@@ -309,11 +313,12 @@ getipcproctype:{[HPUP]
 	:first exec ipctype from tab where hpup=HPUP;
 	}
 
-// check the error message returned by a failed connection attempt
-checkconerr:{[ERR]
+// check the error message returned by a failed connection attempt via unix sockets
+// return true if connection error qualifies for fallback
+// timeout and access are examples of connection error msgs that do not qualify
+checkunixconerr:{[ERR]
         // this is the error that is returned if the target does not have unix sockets enabled .i.e v<3.4
         token:"No such file or directory";
-        // return true if it's in the connection error msg
         :count[ss[ERR;token]]>0;
         }
 
