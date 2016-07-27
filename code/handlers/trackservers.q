@@ -60,7 +60,7 @@ opencon:{
 
 	// fallback from socket to tcp, if socket connection failed
 	// potential loop, if tables using in fallbackipc aren't updated
-	isunixfallback:SOCKETFALLBACK and `unix = getipcproctype x;
+	isunixfallback:SOCKETFALLBACK and `unix = getipctype x;
 	if[isunixfallback and null first h;
                 res:checkunixconerr last h;
                 $[res and DEBUG;
@@ -307,10 +307,10 @@ formatprocs:{[PROCS]
 	:procs;
 	}
 
-// given a hpup, return its proctype
-getipcproctype:{[HPUP]
-	tab:(select ipctype,hpup from procstab),select ipctype,hpup from nontorqprocesstab;
-	:first exec ipctype from tab where hpup=HPUP;
+// given a hpup, return its ipc type (`tcp;`tcps;`unix)
+getipctype:{[HPUP]
+        tokens:`unix`tcps!(":unix://*";":tcps://*");
+        :`tcp^first where string[HPUP] like/: tokens;
 	}
 
 // check the error message returned by a failed connection attempt via unix sockets
