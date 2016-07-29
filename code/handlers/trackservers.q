@@ -314,12 +314,11 @@ getipctype:{[HPUP]
 	}
 
 // check the error message returned by a failed connection attempt via unix sockets
-// return true if connection error qualifies for fallback
-// timeout and access are examples of connection error msgs that do not qualify
+// if none of the tokens are found in ERR, return true indicating a fallback
+// examples of fallback: "No such file or directory", "Connection refused"
 checkunixconerr:{[ERR]
-        // this is the error that is returned if the target does not have unix sockets enabled .i.e v<3.4
-        token:"No such file or directory";
-        :count[ss[ERR;token]]>0;
+        tokens:("access";"timeout");
+        :all 0=count each ss[ERR] each tokens;
         }
 
 // check if HPUP is still a socket, fallback to tcp
