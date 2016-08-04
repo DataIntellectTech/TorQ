@@ -79,3 +79,12 @@ This will launch the a process running within the framework with all the default
   * Improved memusage.q to do sampling
   * Updated dataloader.q
   * Make sure all config can be read from KDBAPPCONFIG
+- **2.6.0, August 2016**:
+  * Added broadcast publishing
+  * Added domain sockets and tcps as ipc connection mechanisms
+  * Added fallback from domain sockets to tcp functionality
+  * New gateway (which allows attributes to be sent rather than specifying the processes to hit)
+  * Heartbeat subscriptions are easier
+  * Supports snappy compression
+  * Tested with kdb+ 3.4
+  * Bug fixes
