@@ -62,7 +62,7 @@ DISCOVERYRETRY:0D00:05										// how often to retry the connection to the disc
 HOPENTIMEOUT:2000 										// new connection time out value in milliseconds
 RETRY:0D00:05											// period on which to retry dead connections.  If 0, no reconnection attempts
 RETAIN:`long$0D00:30 										// length of time to retain server records
-AUTOCLEAN:1b											// clean out old records when handling a close
+AUTOCLEAN:0b											// clean out old records when handling a close
 DEBUG:1b											// log messages when opening new connections
 LOADPASSWORD:1b											// load the external username:password from ${KDBCONFIG}/passwords
 STARTUP:0b    											// whether to automatically make connections on startup

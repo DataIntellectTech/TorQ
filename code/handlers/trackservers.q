@@ -20,7 +20,7 @@ NONTORQPROCESSFILE:@[value;`NONTORQPROCESSFILE;hsym .proc.getconfigfile["nontorq
 HOPENTIMEOUT:@[value;`HOPENTIMEOUT;2000]							// new connection time out value in milliseconds
 RETRY:@[value;`RETRY;0D00:05]									// period on which to retry dead connections. If 0 no connection is made
 RETAIN:@[value;`RETAIN;`long$0D00:30]								// length of time to retain server records
-AUTOCLEAN:@[value;`AUTOCLEAN;1b]								// clean out old records when handling a close
+AUTOCLEAN:@[value;`AUTOCLEAN;0b]								// clean out old records when handling a close
 DEBUG:@[value;`DEBUG;1b]									// whether to print debug output
 LOADPASSWORD:@[value;`LOADPASSWORD;1b]                 						// load the external username:password from ${KDBCONFIG}/passwords
 USERPASS:`											// the username and password used to make connections
