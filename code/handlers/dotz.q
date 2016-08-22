@@ -29,6 +29,8 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
     .dotz.pw.ORIG:.z.pw:@[.:;`.z.pw;{{[x;y]1b}}];
     .dotz.po.ORIG:.z.po:@[.:;`.z.po;{;}];
     .dotz.pc.ORIG:.z.pc:@[.:;`.z.pc;{;}];
+    .dotz.wo.ORIG:.z.wo:@[.:;`.z.wo;{;}];
+    .dotz.wc.ORIG:.z.wc:@[.:;`.z.wc;{;}];
     .dotz.exit.ORIG:.z.exit:@[.:;`.z.exit;{;}];
     .dotz.pg.ORIG:.z.pg:@[.:;`.z.pg;{.:}];
     .dotz.ps.ORIG:.z.ps:@[.:;`.z.ps;{.:}];

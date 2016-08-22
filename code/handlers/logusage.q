@@ -112,6 +112,7 @@ if[enabled;
 
 	.z.pw:p0[`pw;.z.pw;;];
 	.z.po:p1[`po;.z.po;];.z.pc:p1[`pc;.z.pc;];
+	.z.wo:p1[`wo;.z.wo;];.z.wc:p1[`wc;.z.wc;];
 	.z.ws:p2[`ws;.z.ws;];.z.exit:p2[`exit;.z.exit;];
 	.z.pg:p2[`pg;.z.pg;];.z.pi:p2[`pi;.z.pi;];
 	.z.ph:p2[`ph;.z.ph;];.z.pp:p2[`pp;.z.pp;];
