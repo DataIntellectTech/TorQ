@@ -27,7 +27,6 @@ USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype!sockettype. sockettype options : `tcp`tcps`unix. e.g. `rdb`tickerplant!`tcp`unix
-SOCKETFALLBACK:@[value;`SOCKETFALLBACK;1b]                                                      // if unix domain connection fails, fallback to tcp
 
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
@@ -46,7 +45,6 @@ loadpassword:{
 loadpassword[]
 
 // open a connection
-// fallbackipc amends global tables, so opencon cannot be used in a update amend query, results in error 'noamend
 opencon:{
 	if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
 	// If the supplied connection string doesn't contain a user:password,
@@ -57,17 +55,6 @@ opencon:{
 
 	// just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
 	if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
-
-	// fallback from socket to tcp, if socket connection failed
-	// potential loop, if tables using in fallbackipc aren't updated
-	isunixfallback:SOCKETFALLBACK and `unix = getipctype x;
-	if[isunixfallback and null first h;
-                res:checkunixconerr last h;
-                $[res and DEBUG;
-                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Falling back to TCP and retrying to open connection."];
-                        .lg.o[`conn;"unix socket connection to ",(string x)," failed. Not falling back to TCP due to connection error message : ",last h]];
-                if[res;.z.s fallbackipc x];
-	];
 
 	first h}
 
@@ -231,7 +218,8 @@ registerfromdiscovery:{[procs;connect]
 	addprocs[res;procs;connect];}
 
 addprocs:{[connectiontab;procs;connect]
-	// filter out any we already have - same name,type and hpup
+	connectiontab:formatprocs[delete split from update host:`$last each -1 _' split, port:"I"$last each split from update split:{":" vs string x}each hpup from connectiontab];
+ 	// filter out any we already have - same name,type and hpup
 	res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
 	// we've dropped some items - maybe there are updated attributes
 	if[not count[res]=count connectiontab;
@@ -311,45 +299,6 @@ formatprocs:{[PROCS]
 getipctype:{[HPUP]
         tokens:`unix`tcps!(":unix://*";":tcps://*");
         :`tcp^first where string[HPUP] like/: tokens;
-	}
-
-// check the error message returned by a failed connection attempt via unix sockets
-// if none of the tokens are found in ERR, return true indicating a fallback
-// examples of fallback: "No such file or directory", "Connection refused"
-checkunixconerr:{[ERR]
-        tokens:("access";"timeout");
-        :all 0=count each ss[ERR] each tokens;
-        }
-
-// check if HPUP is still a socket, fallback to tcp
-// used in opencon. As opencon is given a hpup, must search for the original proc if it exists in two tables `procstab`nontorqprocesstab
-// tables ipctype field must be updated, otherwise a loop will occur in .servers.opencon
-fallbackipc:{[HPUP]
-	Hpup:HPUP;
-	deftabs:`.servers.procstab`.servers.nontorqprocesstab;
-        fallbacktype:`tcp;
-
-	// get the table that holds the proc with corresponding hpup
-	tab:first deftabs where .[{[t;hp] count select from t where hpup=hp};;0] @' (;HPUP) each deftabs;
-
-	// if we can find the proc that owns hpup, query original tabs for host,port
-	if[cntres:count tab;
-		procvals:first select from tab where hpup=HPUP;
-		Hpup:.servers.formathp[;;fallbacktype] . procvals`host`port;
-		// update using old hpup
-		update ipctype:`tcp from tab where hpup=HPUP;
-		update hpup:Hpup from tab where hpup=HPUP;
-		// remove old proc
-                removerows exec i from `.servers.SERVERS where hpup=HPUP;
-		// add proc with updated hpup
-                addprocs[select from tab where hpup=Hpup;procvals`proctype;0b];
-	];
-
-	if[not cntres;
-		.lg.e[`fallbackipc;"Cannot find hpup in ",-3!deftabs]
-	];
-
-	:Hpup;
 	}
 
 // called at start up

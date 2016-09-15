@@ -105,8 +105,8 @@ addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[
 addserver:addserverattr[;;()!()]
 setserverstate:{[serverh;use] 
  $[use;
-   update inuse:use,lastquery:.z.p,querycount+1i from `.gw.servers where handle in serverh;
-   update inuse:use,usage:usage+.z.p - lastquery from `.gw.servers where handle in serverh]}
+   update inuse:use,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
+   update inuse:use,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
 
 // return a list of available servers
 // override this function for different routing algorithms e.g. maybe only send to servers in the same datacentre, country etc.
@@ -138,13 +138,13 @@ canberun:{
 
 // Manage client queries
 addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout] 
-   `.gw.queryqueue upsert (nextqueryid[];.z.p;.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes)}
+   `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes)}
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
- deleteresult exec queryid from .gw.queryqueue;}
-addclientdetails:{`.gw.clients insert (.z.p;x;.z.u;.z.a;.z.h)}
+ deleteresult exec queryid from .gw.queryqueue where clienth=x;}
+addclientdetails:{`.gw.clients insert (.proc.cp[];x;.z.u;.z.a;.z.h)}
 removequeries:{[age] 
- .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where .z.p > returntime+age}
+ .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where not null returntime, .proc.cp[] > returntime+age}
 
 // scheduling function to get the next query to execute. Need to ensure we avoid starvation
 // possibilities : 
@@ -159,7 +159,7 @@ getnextqueryid:fifo
 getnextquery:{
  qid:getnextqueryid[];
  if[0=count qid; :()];
- update submittime:.z.p^submittime from `.gw.queryqueue where queryid in qid`queryid;
+ update submittime:.proc.cp[]^submittime from `.gw.queryqueue where queryid in qid`queryid;
  qid}
 
 // finish a query
@@ -168,7 +168,7 @@ getnextquery:{
 // reset the serverhandle
 finishquery:{[qid;err;serverh] 
  deleteresult[qid];
- update error:err,returntime:.z.p from `.gw.queryqueue where queryid in qid;
+ update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
  setserverstate[serverh;0b];
  }  
 
@@ -266,7 +266,7 @@ removeserverhandle:{[serverh]
 
 // timeout queries
 checktimeout:{
- qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.z.p > time+timeout,null returntime;
+ qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.proc.cp[] > time+timeout,null returntime;
  // propagate a timeout error to each client
  if[count qids;
   sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value"] each qids;
@@ -445,7 +445,6 @@ syncexecj:{[query;servertype;joinfunction]
  // get the list of handles
  tab:availableserverstable[0b];
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
- start:.z.p;
  setserverstate[handles;1b];
  start:.z.p;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
@@ -510,7 +509,7 @@ pc:{
 
 // add servers from the standard connections table
 addserversfromconnectiontable:{
- {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where proctype in x,not w in ((0;0Ni),exec handle from .gw.servers where active)];}
+ {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
 
 // When new connections come in from the discovery service, try to reconnect
 .servers.addprocscustom:{[connectiontab;procs]
@@ -548,8 +547,8 @@ reloadend:{
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
- .timer.repeat[.z.p;0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
- .timer.repeat[.z.p;0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
+ .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
+ .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
 
 // add in some api details 
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]

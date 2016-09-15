@@ -4,6 +4,9 @@
 // Discovery service only gives out information on registered services - it doesn't really need to have connected to them
 // The reason for having a connection is just to get the attributes.
 
+// Make sure all connections are created as standard sockets
+.servers.SOCKETTYPE:enlist[`]!enlist `
+
 // initialise connections
 .servers.startup[]
 
