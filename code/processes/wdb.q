@@ -33,7 +33,9 @@ hdbtypes:@[value;`hdbtypes;`hdb];                               /-list of hdb ty
 rdbtypes:@[value;`rdbtypes;`rdb];                               /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway]					/-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];      	/-list of tickerplant types to try and make a connection to
-tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp											
+tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp								
+sorttypes:@[value;`sorttypes;`sort];                   		/-list of sort types to look for upon a sort		
+sortslavetypes:@[value;`sortslavetypes;`sortslave];             /-list of sort types to look for upon a sort being called with slave process		
 										
 subtabs:@[value;`subtabs;`]                                     /-list of tables to subscribe for
 subsyms:@[value;`subsyms;`]                                     /-list of syms to subscription to
@@ -69,6 +71,9 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 
 / - end of default parameters
 
+/ - define .z.pd in order to connect to any slave processes
+.z.pd:{`u#exec w from .servers.getservers[`proctype;sortslavetypes;()!();1b;0b]}
+
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
@@ -85,14 +90,18 @@ switch: string `off`on;
 / - check to ensure that the process can do one of save or sort
 if[not any saveenabled,sortenabled; .lg.e[`init;"process mode not configured correctly.  Mode should be one of the following: save, sort or saveandsort"]];
 
-/- function to return a list of tables that the wdb process has been configured to deal within
-tablelist:{[] tables[`.] except ignorelist};
-
 /- extract user defined row counts	
 maxrows:{[tabname] numrows^numtab[tabname]}
 
 /- extract user defined row counts for merge process
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
+
+/- keyed table to track the size of tables on disk
+tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
+
+/- function to return a list of tables that the wdb process has been configured to deal within
+tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
+	(sortedlist union tables[`.]) except ignorelist}
 
 /- if row count satisfied, save data to disk, then delete from memory
 savetables:{[dir;pt;forcesave;tabname]
@@ -104,9 +113,12 @@ savetables:{[dir;pt;forcesave;tabname]
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
 	.[
 		upsert;
-		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbdir;0!.save.manipulate[tabname;`. tabname]]);
+		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbdir;r:0!.save.manipulate[tabname;`. tabname]]);
 		{[e] .lg.e[`savetables;"Failed to save table to disk : ",e];'e}
 	];
+	/- make addition to tabsizes
+	.lg.o[`track;"appending table details to tabsizes"];
+	.wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
 	/- empty the table
 	.lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];
 	@[`.;tabname;0#];
@@ -199,6 +211,8 @@ endofday:{[pt]
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode;mergelimits)];
+	.lg.o[`eod;"deleting data from tabsizes"];
+	@[`.;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
 	};
 	
@@ -245,7 +259,13 @@ endofdaysortdate:{[dir;pt;tablist]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
-	{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist;
+	
+	$[(0 < count .z.pd[]) and ((system "s")<0);
+		[.lg.o[`sort;"sorting on slave sort", string .z.p];
+		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} peach tablist,'.Q.par[dir;pt;] each tablist;
+		];
+		[.lg.o[`sort;"sorting on master sort"];
+		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbdir;pt;`]];
@@ -287,7 +307,11 @@ merge:{[dir;pt;tablename;mergelimits]
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits]		
 	/- merge data from partitons
-	merge[dir;pt;;mergelimits] each tablist;	
+	$[(0 < count .z.pd[]) and ((system "s")<0);
+		[.lg.o[`merge;"merging on slave"];
+		merge[dir;pt;;mergelimits] peach tablist;];	
+		[.lg.o[`merge;"merging on master"];
+		merge[dir;pt;;mergelimits] each tablist]];
 	/- delete the empty date directory
 	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
 	/-call the posteod function
@@ -339,7 +363,7 @@ informgateway:{[message]
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
-	$[count sortprocs:.servers.getservers[`proctype;`sort;()!();1b;0b];
+	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
@@ -468,7 +492,7 @@ getsortparams:{[]
 .wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortslavetypes) except `
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt] 
