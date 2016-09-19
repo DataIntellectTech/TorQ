@@ -88,3 +88,7 @@ This will launch the a process running within the framework with all the default
   * Supports snappy compression
   * Tested with kdb+ 3.4
   * Bug fixes
+- **2.6.2, September 2016**:
+  * .z.pd and peach logic added to wdb.q
+  * Bug fixes
+  
