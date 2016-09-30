@@ -2,8 +2,8 @@
 //Andrew Steele. andrew.steele@aquaq.co.uk
 //AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
-inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]				// The name of the input csv to drive what gets done
-polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
+inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]						// The name of the input csv to drive what gets done
+polltime:@[value;`.fa.polltime;0D00:00:10]										// The period to poll the file system
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
@@ -37,7 +37,7 @@ loadprocessed:{[BIN]
 //-searches for files on a given path matching the search string
 find:{[path;match]
 	findstring:$[os=`lin;"/usr/bin/find ", path," -maxdepth 1 -type f -name \"",match,"\"";"dir ",path,"\\",match, " /B 2>nul"];
-	.lg.o[`alerter;"searching for ",path,"/",match];
+	.lg.o[`alerter;"searching for ",path,"/",match];loading alreadyprocessed table fro
 	files:@[system;findstring;()];
 	if[os=`win;files:,/:[path,"\\"; files]]; files};
 	
@@ -60,7 +60,7 @@ action:{[function;file]
 //-adds the processed file, along with md5 hash and file size to the already processed table and saves it to disk
 complete:{[TAB]
  // drop out anything we have already seen
- TAB:(select filename, md5hash, filesize from TAB) except (get hsym`$alreadyprocessed);
+ TAB:(select filename, md5hash, filesize from TAB) except (select from get hsym`$alreadyprocessed where filesize in (exec filesize from TAB));
  
  if[count TAB;
   .lg.o[`alerter;"adding ",(" " sv TAB`filename)," to alreadyprocessed table"];
@@ -130,37 +130,34 @@ FArun:{.lg.o[`alerter;"running filealerter process"];
 	}
 
 splaytables:{[BIN]
+    FILE_PATH: hsym `$BIN;			 				//create file path symbol
 
-        FILE_PATH: hsym `$BIN;			 		//create file path symbol
-        FILE_PATH_BK: `$(string FILE_PATH),"_bk"; 		//create backup file path symbol
-	test:count key FILE_PATH;       			//get the number of files at the filepath
+	// table doesnt exist
+	// create a splayed table on disk
+	if[0 = count key FILE_PATH;.lg.o[`alerter;"no table found, creating new table"];
+	.Q.dd[FILE_PATH;`] set ([] filename:();md5hash:(); filesize:`long$())];
 
-        // table doesnt exist
-        // create a splayed table on disk
-        if[0 = test;.lg.o[`alerter;"no table found, creating new table"];.Q.dd[FILE_PATH;`] set ([] filename:();md5hash:(); filesize:`long$())];
-
-        //table does exist
-        //if it is flat (1)- cast md5hash symbols to string (where applicable) and splay it
-        $[1 = test;
-        [.lg.o[`alerter;"flat table found: ",string FILE_PATH];
-        .lg.o[`alerter;"creating backup of flatfile : ", string FILE_PATH_BK];
-        os.cpy[FILE_PATH;FILE_PATH_BK];											//create _bk of file
-        .lg.o[`alerter;"removing original flatfile: ", string FILE_PATH];
-        hdel FILE_PATH;													//delete original file
-        .lg.o[`alerter;"creating new splayed tabele: ", string .Q.dd[FILE_PATH;`]];
-		
-	//splay table
-	//if md5hash is symbol set it to string else just splay
-        $[11h=type exec md5hash from get h;
-	.[set;(.Q.dd[`:FILE_PATH;`];update string md5hash from (get FILE_PATH_BK));()];
-	.[set;(.Q.dd[`:FILE_PATH;`];get FILE_PATH_BK);()]]];
-		
-	//splayed table found
-	[.lg.o[`alerter;"splayed table found: ",string FILE_PATH];@[{if[11h=type exec md5hash from get FILE_PATH;.[set;(.Q.dd[`:FILE_PATH;`];update string md5hash from get FILE_PATH);()]]};FILE_PATH;{.lg.e[`alerter;"alreadyprocessed table was found but could not be loaded: ",x]}]]]
-        }
+	//table does exist
+	//if it is flat (1)- cast md5hash symbols to string (where applicable) and splay it
+	$[-11h ~ type key FILE_PATH;
+		[FILE_PATH_BK: `$(string FILE_PATH),"_bk"; 										//create backup file path symbol
+		.lg.o[`alerter;"flat table found: ",string FILE_PATH];
+		.lg.o[`alerter;"creating backup of flatfile : ", string FILE_PATH_BK];
+		.os.cpy[FILE_PATH;FILE_PATH_BK];												//create _bk of file
+		.lg.o[`alerter;"removing original flatfile: ", string FILE_PATH];
+		hdel FILE_PATH;																	//delete original file
+		.lg.o[`alerter;"creating new splayed table: ", string .Q.dd[FILE_PATH;`]];
+			
+		//if md5hash is symbol set it to string else just splay
+		$[11h=type exec md5hash from get FILE_PATH_BK;
+		.[set;(.Q.dd[FILE_PATH;`];update string md5hash from (get FILE_PATH_BK));()];
+		.[set;(.Q.dd[FILE_PATH;`];get FILE_PATH_BK);()]]];
+			
+		//else splayed table found
+		[.lg.o[`alerter;"splayed table found: ",string FILE_PATH];]];
+	}
 
 loadcsv[];
 loadprocessed[alreadyprocessed];
 
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
-
