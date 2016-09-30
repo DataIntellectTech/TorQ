@@ -149,10 +149,8 @@ splaytables:{[BIN]
 		.lg.o[`alerter;"creating new splayed table: ", string .Q.dd[FILE_PATH;`]];
 			
 		//if md5hash is symbol set it to string else just splay
-		$[11h=type exec md5hash from get FILE_PATH_BK;
-		.[set;(.Q.dd[FILE_PATH;`];update string md5hash from (get FILE_PATH_BK));()];	//cast md5 to string and splay table
-		.[set;(.Q.dd[FILE_PATH;`];get FILE_PATH_BK);()]]];								//else just splay table
-			
+		.[set;(.Q.dd[FILE_PATH;`];$[11h=type exec md5hash from get FILE_PATH_BK; update string md5hash from (get FILE_PATH_BK); get FILE_PATH_BK]);{.lg.e[`alerter;"failed to write",x]}];	//cast md5 to string and splay table
+		];					
 		//else splayed table found
 		[.lg.o[`alerter;"splayed table found: ",string FILE_PATH];]
 		];
