@@ -222,7 +222,9 @@ sendclientreply:{[queryid;result]
 serverexecute:{[queryid;query] 
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
- @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; ()];}
+ @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
+	// if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
+	{@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
 // send a query to a server 
 sendquerytoserver:{[queryid;query;serverh]
  (neg serverh,:())@\:(serverexecute;queryid;query);
@@ -448,7 +450,7 @@ syncexecj:{[query;servertype;joinfunction]
  setserverstate[handles;1b];
  start:.z.p;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
- (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];()]};query);
+ (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
  (neg handles)@\:(::);
  // block and wait for the results
