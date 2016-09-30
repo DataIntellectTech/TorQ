@@ -460,7 +460,7 @@ syncexecj:{[query;servertype;joinfunction]
   // no errors - join the results
   @[joinfunction;res[;2];{'`$"failed to apply supplied join function to results: ",x}];
   [failed:where not res[;0];
-   '`$"queries failed on server(s) ",(", " sv string servers[handles failed]),".  Error(s) were ","; " sv res[failed][;2]]] 
+   '`$"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
  }
 
 syncexec:syncexecj[;;raze]
