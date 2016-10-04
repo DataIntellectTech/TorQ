@@ -11,6 +11,7 @@
 \d .hb
 
 enabled:@[value;`enabled;1b]					// whether the heartbeating is enabled
+subenabled:@[value;`enabled;0b]                                 // whether subcriptions to heartbeats are enabled
 debug:@[value;`debug;1b]					// whether to print debug information
 publishinterval:@[value;`publishinterval;0D00:00:30]		// how often heartbeats are published	
 checkinterval:@[value;`checkinterval;0D00:00:10]		// how often heartbeats are checked
