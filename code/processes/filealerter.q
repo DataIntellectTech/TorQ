@@ -2,8 +2,8 @@
 //Andrew Steele. andrew.steele@aquaq.co.uk
 //AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
-inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]						// The name of the input csv to drive what gets done
-polltime:@[value;`.fa.polltime;0D00:00:10]										// The period to poll the file system
+inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]		// The name of the input csv to drive what gets done
+polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
@@ -149,7 +149,7 @@ splaytables:{[BIN]
 		.lg.o[`alerter;"creating new splayed table: ", string .Q.dd[FILE_PATH;`]];
 			
 		//if md5hash is symbol set it to string else just splay
-		.[set;(.Q.dd[FILE_PATH;`];$[11h=type exec md5hash from get FILE_PATH_BK; update string md5hash from (get FILE_PATH_BK); get FILE_PATH_BK]);{.lg.e[`alerter;"failed to write",x]}];	//cast md5 to string and splay table
+		.[set;(.Q.dd[FILE_PATH;`];$[11h ~ type exec md5hash from get FILE_PATH_BK; update string md5hash from (get FILE_PATH_BK); get FILE_PATH_BK]);{.lg.e[`alerter;"failed to write",x]}];	//cast md5 to string and splay table
 		];					
 		//else splayed table found
 		[.lg.o[`alerter;"splayed table found: ",string FILE_PATH];]
