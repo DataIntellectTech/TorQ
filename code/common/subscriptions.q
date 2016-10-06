@@ -59,7 +59,6 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L);(.u `icounts))};{(.u.sub\:[x;y];(.u.i;`);(.u `icounts))}];
 	details:@[proc`w;(df;subtabs;instrs);
 		{.lg.e[`subscribe;"failed to get the required details from server : ",x];()}];
-	/dfgagwre;
 	/-to be returned at end of function (null if there is no log)
 	logdate: 0Nd;
 	if[count details;
