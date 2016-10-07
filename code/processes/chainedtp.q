@@ -157,6 +157,18 @@ upd:$[createlogfile;
       $[pubinterval;{[t;x] writetolog[t;x];batchpub[t;x];};{[t;x] writetolog[t;x];tickpub[t;x];}];
       $[pubinterval;batchpub;tickpub]];
 
+/- ctp sub method, returns logfile, i and icounts as well as schema
+sub:{[subtabs;subsyms]
+  r:(`schema`icounts`i`logfile)!();
+  /- get schema & subscribe
+  r[`schema]:.u.sub[subtabs;subsyms];
+  /- add icounts if subscribing to all syms
+  if[subscribesyms~`;r[`icounts]:.u.icounts];
+  /- if logfile, add logfile & i
+  if[createlogfile;r[`i]:.u.i;r[`logfile]:.u.L];
+  r
+  }
+
 \d .u
 
 /- publishes all tables then clears them, pass on .u.end to subscribers
