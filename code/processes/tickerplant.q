@@ -19,16 +19,24 @@
 /2005.10.10 zero latency
 "kdb+tick 2.8 2014.03.12"
 
-params:.Q.opt .z.x
-
 /q tick.q SRC [DST] [-p 5010] [-o h]
 
 /load schema from params, default to "sym.q"
-system"l ",(src:$[`schema in key params;raze params`schema;"sym"]),".q"
+system"l ",(src:$[`schema in key .proc.params;raze .proc.params`schema;"sym"]),".q"
 
 / if[not system"p";system"p 5010"]
 
 .proc.loadf[getenv[`KDBCODE],"/common/u.q"];
+
+/ ========================================================================
+/ - CUSTOM EOD TIME CHANGES
+.proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
+/ - parameters to configure EOD (to replace the use of the offset)
+.proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
+
+/ - function to convert from GMT to the .eodtime.tz
+.u.tfg:{x + .eodtime.dailyadj}
+/ ========================================================================
 
 \d .
 upd:{[tab;x] .u.icounts[tab]+::count first x;`break;}
@@ -37,10 +45,10 @@ upd:{[tab;x] .u.icounts[tab]+::count first x;`break;}
 jcounts:()!() 
 icounts:()!()  / set up dictionary for per table counts
 ld:{if[not type key L::`$(-10_string L),string x;.[L;();:;()]];i::j::@[-11!;L;i::-11!(-2;L)];jcounts::icounts;if[0 < type i;-2 (string L)," is a corrupt log. Truncate to length ",(string last i)," and restart";exit 1];hopen L};
-tick:{init[];if[not min(`time`sym~2#key flip value@)each t;'`timesym];@[;`sym;`g#]each t;d::.z.D;if[l::count y;L::`$":",y,"/",x,10#".";l::ld d]};
+tick:{init[];if[not min(`time`sym~2#key flip value@)each t;'`timesym];@[;`sym;`g#]each t;d::.z.D+.eodtime.dayoffset-1;if[l::count y;L::`$":",y,"/",x,10#".";l::ld d]};
 
-endofday:{end d;d+:1;if[l;hclose l;l::0(`.u.ld;d)]};
-ts:{if[d<x;if[d<x-1;system"t 0";'"more than one day?"];endofday[]]};
+endofday:{end d;d+:1;.eodtime.nextroll:.eodtime.getroll[d];.eodtime.dailyadj:.eodtime.getdailyadjustment[];if[l;hclose l;l::0(`.u.ld;d)]};
+ts:{if[(.eodtime.nextroll < .z.p);if[d<x-1;system"t 0";'"more than one day?"];endofday[]]};
 
 
 if[system"t";
@@ -48,7 +56,7 @@ if[system"t";
 
  upd:{[t;x]
  if[not -12=type first first x;
-     if[d<"d"$a:.z.P;.z.ts[]
+     if[d<"d"$a:d+.z.t+.eodtime.dailyadj;.z.ts[]
          ];
      /a:"n"$a;
      x:$[0>type first x;
@@ -66,7 +74,7 @@ if[system"t";
 
 if[not system"t";system"t 1000";
  .z.ts:{ts .z.D};
- upd:{[t;x]ts"d"$a:.z.P;
+ upd:{[t;x]ts"d"$a:d+.z.t+.eodtime.dailyadj;
  if[not -12=type first first x;
      /a:"n"$a;
      x:$[0>type first x;
@@ -78,7 +86,7 @@ if[not system"t";system"t 1000";
 
 \d .
 src:$["/" in src;(1 + last src ss "/") _ src; src];  / if src contains directory path, remove it
-.u.tick[src;ssr[$[`logdir in key params;raze params`logdir;"hdb"];"\\";"/"]];
+.u.tick[src;ssr[$[`logdir in key .proc.params;raze .proc.params`logdir;"hdb"];"\\";"/"]];
 
 \
  globals used
