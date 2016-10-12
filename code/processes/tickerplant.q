@@ -27,16 +27,8 @@ system"l ",(src:$[`schema in key .proc.params;raze .proc.params`schema;"sym"]),"
 / if[not system"p";system"p 5010"]
 
 .proc.loadf[getenv[`KDBCODE],"/common/u.q"];
-
-/ ========================================================================
-/ - CUSTOM EOD TIME CHANGES
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
-/ - parameters to configure EOD (to replace the use of the offset)
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
-
-/ - function to convert from GMT to the .eodtime.tz
-.u.tfg:{x + .eodtime.dailyadj}
-/ ========================================================================
 
 \d .
 upd:{[tab;x] .u.icounts[tab]+::count first x;`break;}
