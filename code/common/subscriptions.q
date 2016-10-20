@@ -53,7 +53,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-if replaylog is false,dont try to get the log file details - they may not exist
 	/-set the function to send to the server based on this
 	.lg.o[`subscribe;"getting details from the server"];
-	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L);(.u `icounts))};{(.u.sub\:[x;y];(.u.i;`);(.u `icounts))}];
+	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L);(.u `icounts))};{(.u.sub\:[x;y];(.u `i;`);(.u `icounts))}];
 	details:@[proc`w;(df;subtabs;instrs);
 		{.lg.e[`subscribe;"failed to get the required details from server : ",x];()}];
 	/-to be returned at end of function (null if there is no log)

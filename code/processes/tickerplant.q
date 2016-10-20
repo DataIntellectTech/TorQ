@@ -22,7 +22,7 @@
 /q tick.q SRC [DST] [-p 5010] [-o h]
 
 /load schema from params, default to "sym.q"
-system"l ",(src:$[`schema in key .proc.params;raze .proc.params`schema;"sym"]),".q"
+system"l tick/",(src:$[`schemafile in key .proc.params;raze .proc.params`schemafile;"sym"]),".q"
 
 / if[not system"p";system"p 5010"]
 
@@ -78,7 +78,7 @@ if[not system"t";system"t 1000";
 
 \d .
 src:$["/" in src;(1 + last src ss "/") _ src; src];  / if src contains directory path, remove it
-.u.tick[src;ssr[$[`logdir in key .proc.params;raze .proc.params`logdir;"hdb"];"\\";"/"]];
+.u.tick[src;ssr[raze .proc.params`tplogdir;"\\";"/"]];
 
 \
  globals used
