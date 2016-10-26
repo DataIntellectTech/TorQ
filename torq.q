@@ -308,7 +308,27 @@ file:$[`procfile in key params;
 	first `$params `procfile;
  	first getconfigfile["process.csv"]];
 
-readprocs:{[file]@[@/[;(`port;`host`proctype`procname);({@[{"I"$string value x};x;0N]} each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
+// read the process file and convert port field to integer list and all other fields
+// to symbol lists
+readprocs:{[file]
+	// Updates the process table to convert strings to integer and symbols
+	updateprocs:{
+		// Gets the value of the expression and returns it as an integer list
+		// if the expression cannot be evaluated instead return null
+		errcheckport:{@[{"I"$string value x};x;0N]};
+		
+		// begin updating process file table
+		t:update port:errcheckport each .rmvr.removeenvvar each port from x;
+		t:update host:"S"$.rmvr.removeenvvar each host from t;
+		t:update procname:"S"$.rmvr.removeenvvar each procname from t;
+		t:update proctype:"S"$.rmvr.removeenvvar each proctype from t;
+		// return updated process file table
+		t
+		};
+	// error trap loading and processing of process file and returns finished table
+	@[updateprocs ("****";enlist",")0:;file;
+	{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]
+	}
 
 // Read in the processfile
 // Pull out the applicable rows
