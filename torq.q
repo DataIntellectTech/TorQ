@@ -313,8 +313,8 @@ file:$[`procfile in key params;
 readprocs:{[file]
 	// Updates the process table to convert strings to integer and symbols
 	updateprocs:{
-		// Gets the value of the expression and returns it as an integer list
-		// if the expression cannot be evaluated instead return null
+		// Gets the value of the input expression and returns it as an integer
+		// list if the expression can be evaluated, else return null
 		errcheckport:{@[{"I"$string value x};x;0N]};
 		
 		// begin updating process file table
