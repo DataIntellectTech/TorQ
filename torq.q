@@ -308,7 +308,7 @@ file:$[`procfile in key params;
 	first `$params `procfile;
  	first getconfigfile["process.csv"]];
 
-readprocs:{[file]@[@/[;(`port;`host`proctype`procname);("I"$string value each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
+readprocs:{[file]@[@/[;(`port;`host`proctype`procname);({@[{"I"$string value x};x;0N]} each .rmvr.removeenvvar each;"S"$.rmvr.removeenvvar each)]("****";enlist",")0:;file;{.lg.e[`procfile;"failed to read process file ",(string x)," : ",y]}[file]]}
 
 // Read in the processfile
 // Pull out the applicable rows
