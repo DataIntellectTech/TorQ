@@ -23,7 +23,7 @@ init:{
  modifier,::new!(count new)#{-8!.j.j updformat["upd";`tablename`tabledata!(x 1;x 2)]}}
 
 del:{w[x]_:w[x;;0]?y};
-if[.z.K >= 3.3;.z.wc:{.html.del[;y] each .html.t; x@y}@[value;`.z.pc;{{[x]}}];.z.pc:{.html.del[;y] each .html.t; x@y}@[value;`.z.wc;{{[x]}}]]
+if[.z.K >= 3.3;.z.wc:{.html.del[;y] each .html.t; x@y}@[value;`.z.wc;{{[x]}}];.z.pc:{.html.del[;y] each .html.t; x@y}@[value;`.z.pc;{{[x]}}]]
 
 // Create a new version of sel - for the time being, all pages get all data
 / sel:{$[`~y;x;select from x where sym in y]}
