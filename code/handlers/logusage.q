@@ -61,8 +61,12 @@ createlog:{[logdir;logname;timestamp;suppressalias]
 	}
 
 // read in a log file 
-readlog:{[file]
-	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSCISI**JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
+readlog:{[file] 
+	// Remove leading backtick from symbol columns, convert a and w columns back to integers 
+	update zcmd:`$1 _' string zcmd, procname:`$1 _' string procname, proctype:`$1 _' string proctype, u:`$1 _' string u, 
+		a:"I"$-1 _' string a, w:"I"$-1 _' string w from  
+	// Read in file
+	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSCSSS**JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
 
 // roll the logs
 // inmemorypersist = the number 
