@@ -509,6 +509,14 @@ pc:{
 // initialise connections
 .servers.startup[]
 
+ /-check if the gateway  has connected to discovery process, block the process until a connection is established
+while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
+ /-while no connected make the process sleep for X seconds and then run the subscribe function again
+ .os.sleep[5];
+ /-run the servers startup code again (to make connection to discovery)
+ .servers.startup[];
+ .servers.retrydiscovery[]]
+
 // add servers from the standard connections table
 addserversfromconnectiontable:{
  {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
