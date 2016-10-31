@@ -46,6 +46,7 @@
 // 	c) the join function fails
 // 	d) a back end server fails
 // 	e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
+//	f) the query is executed successfully but the result is too big to serialize and send back ('limit)
 // If postback functions are used, the error string will be posted back within the postback function 
 // (i.e. it will be packed the same way as a valid result)
 
@@ -213,6 +214,8 @@ checkresults:{[queryid]
 // if the postback function is defined, then wrap the result in that, and also send back the original query
 sendclientreply:{[queryid;result]
  querydetails:queryqueue[queryid];
+ // if query has already been sent an error, don't send another one
+ if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
 	result;
 	(querydetails`postback),(enlist querydetails`query),enlist result];
@@ -222,7 +225,9 @@ sendclientreply:{[queryid;result]
 serverexecute:{[queryid;query] 
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
- @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; ()];}
+ @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
+	// if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
+	{@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
 // send a query to a server 
 sendquerytoserver:{[queryid;query;serverh]
  (neg serverh,:())@\:(serverexecute;queryid;query);
@@ -448,7 +453,7 @@ syncexecj:{[query;servertype;joinfunction]
  setserverstate[handles;1b];
  start:.z.p;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
- (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];()]};query);
+ (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
  (neg handles)@\:(::);
  // block and wait for the results
@@ -460,7 +465,7 @@ syncexecj:{[query;servertype;joinfunction]
   // no errors - join the results
   @[joinfunction;res[;2];{'`$"failed to apply supplied join function to results: ",x}];
   [failed:where not res[;0];
-   '`$"queries failed on server(s) ",(", " sv string servers[handles failed]),".  Error(s) were ","; " sv res[failed][;2]]] 
+   '`$"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
  }
 
 syncexec:syncexecj[;;raze]
@@ -506,6 +511,14 @@ pc:{
 // START UP
 // initialise connections
 .servers.startup[]
+
+ /-check if the gateway  has connected to discovery process, block the process until a connection is established
+while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
+ /-while no connected make the process sleep for X seconds and then run the subscribe function again
+ .os.sleep[5];
+ /-run the servers startup code again (to make connection to discovery)
+ .servers.startup[];
+ .servers.retrydiscovery[]]
 
 // add servers from the standard connections table
 addserversfromconnectiontable:{

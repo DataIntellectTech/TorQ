@@ -114,8 +114,8 @@ types:{asc distinct exec proctypes from`.servers.SERVERS where .dotz.liveh w}
 unregistered:{except[key .z.W;exec w from`.servers.SERVERS]}
 
 cleanup:{if[count w0:exec w from`.servers.SERVERS where not .dotz.livehn w;
-        update lastp:.proc.cp[],w:0Ni from`.servers.SERVERS where w in w0];
-    if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,lastp<.proc.cp[]-.servers.RETAIN];}
+        update endp:.proc.cp[],lastp:.proc.cp[],w:0Ni from`.servers.SERVERS where w in w0];
+    if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,(.proc.cp[]^endp)<.proc.cp[]-.servers.RETAIN];}
 
 / add a new server for current session
 addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]

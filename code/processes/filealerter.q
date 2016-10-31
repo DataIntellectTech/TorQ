@@ -2,7 +2,7 @@
 //Andrew Steele. andrew.steele@aquaq.co.uk
 //AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
-inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]				// The name of the input csv to drive what gets done
+inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]		// The name of the input csv to drive what gets done
 polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
@@ -31,11 +31,7 @@ csvloader:{[CSV]
 //-function to load the alreadyprocessed table or initialise a processed table if skipallonstart is enabled
 loadprocessed:{[BIN] 
 	.lg.o[`alerter;"loading alreadyprocessed table from ",alreadyprocessed];
-	test:key hsym `$alreadyprocessed;
-	$[0=count test;
-		[.lg.o[`alerter;"no table found, creating new table"];processed::([] filename:();md5hash:(); filesize:`long$()); (hsym `$alreadyprocessed) set processed];
-		// this is for backward compatibility - convert the md5hash column to a string type
-		[@[{processed:get h:hsym `$x; if[11h=type processed`md5hash; processed:update string md5hash from processed; .[set;(h;processed);()]]; @[`.;`processed;:;processed]};BIN; {.lg.e[`alerter;"alreadyprocessed table was found but could not be loaded: ",x]}]]];
+	splaytables[BIN];
 	if[skipallonstart;.lg.o[`alerter;"variable skipallonstart set to true"];skipall[]]}
 
 //-searches for files on a given path matching the search string
@@ -63,22 +59,15 @@ action:{[function;file]
 
 //-adds the processed file, along with md5 hash and file size to the already processed table and saves it to disk
 complete:{[TAB]
- // read the alreadprocessed table from disk
- ap:@[get;h:hsym`$alreadyprocessed;([]filename:(); md5hash:(); filesize:`long$())];
- 
  // drop out anything we have already seen
- TAB:(select filename, md5hash, filesize from TAB) except ap;
+ TAB:(select filename, md5hash, filesize from TAB) except (select from get hsym`$alreadyprocessed where filesize in (exec filesize from TAB));
  
  if[count TAB;
   .lg.o[`alerter;"adding ",(" " sv TAB`filename)," to alreadyprocessed table"];
   
-  // add the new files onto the end
-  ap,:TAB;
- 
-  // set it in memory and write it to disk
-  @[`.;`processed;:;ap];
+  // write it to disk
   .lg.o[`alerter;"saving alreadyprocessed table to disk"];
-  .[set;(h;ap);{.lg.e[`alerter;"failed to save alreadyprocessed table to disk: ",x]}]];
+  .[insert;(hsym`$alreadyprocessed;TAB);{.lg.e[`alerter;"failed to save alreadyprocessed table to disk: ",x]}]];
  }
 
 //-Some utility functions 		
@@ -96,7 +85,7 @@ processfiles:{[DICT]
 	/-find all matches to the file search string
 	matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];	
 	/-get all the different filenames from the directory except those that have been processed already
-	files:$[DICT[`newonly]; matches except processed.filename; exec filename from chktable[matches] except processed];
+	files:$[DICT[`newonly]; matches except exec filename from get hsym`$alreadyprocessed; exec filename from chktable[matches] except (get hsym`$alreadyprocessed)];
 	toprocess:chktable[files];
 	/-If there are files to process
 	$[0<count files;
@@ -138,6 +127,33 @@ FArun:{.lg.o[`alerter;"running filealerter process"];
 				successful:select filename,md5hash,filesize,moveto from lastproc where (all;funcpassed=1b) fby filename];
 			complete newproc;
 			moveall[successful]]];
+	}
+
+splaytables:{[BIN]
+    FILE_PATH: hsym `$BIN;			 				//create file path symbol
+
+	// table doesnt exist
+	// create a splayed table on disk
+	if[0 = count key FILE_PATH;.lg.o[`alerter;"no table found, creating new table"];
+	.Q.dd[FILE_PATH;`] set ([] filename:();md5hash:(); filesize:`long$())];
+
+	//table does exist
+	//if it is flat (1)- cast md5hash symbols to string (where applicable) and splay it
+	$[-11h ~ type key FILE_PATH;
+		[FILE_PATH_BK: `$(string FILE_PATH),"_bk"; 										//create backup file path symbol
+		.lg.o[`alerter;"flat table found: ",string FILE_PATH];
+		.lg.o[`alerter;"creating backup of flatfile : ", string FILE_PATH_BK];
+		.os.cpy[FILE_PATH;FILE_PATH_BK];												//create _bk of file
+		.lg.o[`alerter;"removing original flatfile: ", string FILE_PATH];
+		hdel FILE_PATH;																	//delete original file
+		.lg.o[`alerter;"creating new splayed table: ", string .Q.dd[FILE_PATH;`]];
+			
+		//if md5hash is symbol set it to string else just splay
+		.[set;(.Q.dd[FILE_PATH;`];$[11h ~ type exec md5hash from get FILE_PATH_BK; update string md5hash from (get FILE_PATH_BK); get FILE_PATH_BK]);{.lg.e[`alerter;"failed to write",x]}];	//cast md5 to string and splay table
+		];					
+		//else splayed table found
+		[.lg.o[`alerter;"splayed table found: ",string FILE_PATH];]
+		];
 	}
 
 loadcsv[];

@@ -72,7 +72,10 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 / - end of default parameters
 
 / - define .z.pd in order to connect to any slave processes
-.z.pd:{`u#exec w from .servers.getservers[`proctype;sortslavetypes;()!();1b;0b]}
+.z.pd:{$[.z.K<3.3;
+        `u#`int$();
+	`u#exec w from .servers.getservers[`proctype;sortslavetypes;()!();1b;0b]]
+        }
 
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
