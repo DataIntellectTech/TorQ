@@ -46,6 +46,7 @@
 // 	c) the join function fails
 // 	d) a back end server fails
 // 	e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
+//	f) the query is executed successfully but the result is too big to serialize and send back ('limit)
 // If postback functions are used, the error string will be posted back within the postback function 
 // (i.e. it will be packed the same way as a valid result)
 
@@ -213,6 +214,8 @@ checkresults:{[queryid]
 // if the postback function is defined, then wrap the result in that, and also send back the original query
 sendclientreply:{[queryid;result]
  querydetails:queryqueue[queryid];
+ // if query has already been sent an error, don't send another one
+ if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
 	result;
 	(querydetails`postback),(enlist querydetails`query),enlist result];
