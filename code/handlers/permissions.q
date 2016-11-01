@@ -1,10 +1,10 @@
 
 \d .pm
-if[not @[value; `.access.loaded;0b]; {'"controlaccess.q already active";exit 1} ]
-if[not @[value;`.proc.enabled;0b]; '"environment is not initialised correctly to load this script"]
+if[not @[value; `.access.enabled;0b]; {'"controlaccess.q already active";exit 1} ]
+if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
 
 MAXSIZE:@[value;`MAXSIZE;200000000]     // the maximum size of any returned result set
-enabled:@[value;`enabled;0b]            // whether permissions are enabled
+enabled:@[value;`enabled;1b]            // whether permissions are enabled
 openonly:@[value;`openonly;0b]          // only check permissions when the connection is made, not on every call
 
 if[not enabled;{"permissions.q has not been enabled";exit 1}]
