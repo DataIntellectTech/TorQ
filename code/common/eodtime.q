@@ -1,15 +1,23 @@
 / - system eodtime configuartion
 / - loaded into and used in the tp and pdb processes
 \d .eodtime
-rolltime:0D17:00:00.000000000;
-datatimezone:`$"America/Chicago";
+rolltime:0D02:00:00.000000000;
+datatimezone:`$"America/New_York";
 rolltimezone:`$"Europe/London";
 dayoffset:1;
 getdailyadjustment:{first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.datatimezone;gmtDateTime:enlist .z.p); .tz.t]};
 dailyadj:getdailyadjustment[];
-getroll:{[d] 
-     z:rolltime - first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.rolltimezone;gmtDateTime:enlist .z.p); .tz.t];
-     z:$[z >= 1D;z - 1D;z];		
-     d + $[z <= .z.p;z+1D;z]			// if past time already today, make it tomorros
+adjrolltime:{[p] 
+     z:rolltime - first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.rolltimezone;gmtDateTime:enlist p); .tz.t];  
+     z:$[z >= 1D;z - 1D;z]			// don't let it go past one day
      }
-nextroll:getroll[.z.D];
+getroll:{[p;d] 
+     z:adjrolltime[p];
+     d + $[z <= p;z+1D;z]			// if past time already today, make it tomorrow
+     }
+getday:{[p;d] 
+     z:adjrolltime[p];
+     d+dayoffset+$[z > p;-1;0]			// if not past roll time, subtract one day
+     }
+d:getday[.z.p;.z.d];
+nextroll:getroll[.z.p;.z.d];

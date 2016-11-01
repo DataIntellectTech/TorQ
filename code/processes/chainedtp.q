@@ -61,7 +61,8 @@ subscribe:{[]
       refreshtp @[tph;".u.d";.z.D];
       .lg.o[`subscribe;"subscribing to ", string subproc`procname];
       r:.sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
-      if[(4 = count r) & (not createlogfile); /- dict r contains icounts & not using own logfile
+      if[`d in key r;.u.d::r[`d]]; 
+      if[(`icounts in key r) & (not createlogfile); /- dict r contains icounts & not using own logfile
 	subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
       	.u.jcounts::.u.icounts::subtabs!enlist [r`icounts]subtabs;
       ]
@@ -159,13 +160,15 @@ upd:$[createlogfile;
 
 /- ctp sub method, returns logfile, i and icounts as well as schema
 sub:{[subtabs;subsyms]
-  r:(`schema`icounts`i`logfile)!();
+  r:(`schema`icounts`i`logfile`d)!();
   /- get schema & subscribe
   r[`schema]:.u.sub[subtabs;subsyms];
   /- add icounts if subscribing to all syms
   if[subscribesyms~`;r[`icounts]:.u.icounts];
   /- if logfile, add logfile & i
   if[createlogfile;r[`i]:.u.i;r[`logfile]:.u.L];
+  /- add date
+  r[`d]:.u.d;
   r
   }
 
