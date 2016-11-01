@@ -15,6 +15,10 @@ schema:@[value;`schema;1b];                                     /- retrieve sche
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on subscription
 
 tph:0N								/- setting tickerplant handle to null
+
+if[.pm.enabled;{.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
+	if[not ""~getenv[`KDBAPPCONFIG]; .proc.loadconfig[getenv[`KDBAPPCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname]}]
+
 /- clears log
 clearlog:{[lgfile]
   if[not type key lgfile;:()];
