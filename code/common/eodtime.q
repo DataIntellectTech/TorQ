@@ -1,10 +1,10 @@
 / - system eodtime configuartion
 / - loaded into and used in the tp and pdb processes
 \d .eodtime
-rolltime:0D02:00:00.000000000;
-datatimezone:`$"America/New_York";
-rolltimezone:`$"Europe/London";
-dayoffset:1;
+rolltime:@[value;`rolltime;0D18:00:00.000];
+datatimezone:@[value;`datatimezone;`$"America/New_York"];
+rolltimezone:@[value;`rolltimezone;`$"Europe/London"];
+dayoffset:@[value;`dayoffset;1];
 getdailyadjustment:{first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.datatimezone;gmtDateTime:enlist .z.p); .tz.t]};
 dailyadj:getdailyadjustment[];
 adjrolltime:{[p] 

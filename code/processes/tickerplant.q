@@ -44,11 +44,11 @@ ts:{if[.eodtime.nextroll < .z.p;if[d<x-1;system"t 0";'"more than one day?"];endo
 
 
 if[system"t";
- .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.D};
+ .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.d};
 
  upd:{[t;x]
  if[not -12=type first first x;
-     if[d<"d"$a:d+.z.t+.eodtime.dailyadj;.z.ts[]
+     if[d<"d"$a:d+.z.t+.eodtime.dailyadj;.z.ts[];a:d+.z.t+.eodtime.dailyadj / recalc a after as d will have changed
          ];
      /a:"n"$a;
      x:$[0>type first x;
@@ -65,8 +65,9 @@ if[system"t";
  ];
 
 if[not system"t";system"t 1000";
- .z.ts:{ts .z.D};
+ .z.ts:{ts .z.d};
  upd:{[t;x]ts"d"$a:d+.z.t+.eodtime.dailyadj;
+ a:d+.z.t+.eodtime.dailyadj; / recalc a incase d changed on ts call
  if[not -12=type first first x;
      /a:"n"$a;
      x:$[0>type first x;
