@@ -10,6 +10,7 @@ openonly:@[value;`openonly;0b]          // only check permissions when the conne
 
 if[not enabled;{"permissions.q has not been enabled";exit 1}]
 
+
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
 err.:(::);
@@ -19,6 +20,8 @@ err[`selx]:{"pm: unsupported select statement, superuser only"}
 err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
+ 
+
 
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
@@ -30,7 +33,7 @@ functiongroup:([]function:`symbol$();fgroup:`symbol$())
 access:([]object:`symbol$();entity:`symbol$();level:`symbol$())
 function:([]object:`symbol$();role:`symbol$();paramcheck:())
 virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
-publictrack:([name:`symbol$()]handle:`int$())
+publictrack:([name:`symbol$()] handle:`int$())
 
 / api
 adduser:{[u;a;h;p]user,:(u;a;h;p)}
@@ -51,14 +54,13 @@ grantfunction:{[o;r;p]if[not (o;r;p) in function;function,:(o;r;p)]}
 revokefunction:{[o;r]if[(o;r) in t:`object`role#function;function::.[function;();_;t?(o;r)]]}
 createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
-addpublic:{[u;h]if[not (u;h) in publictrack;publictrack,:(u;h)]}
-
+addpublic:{[u;h]if[not u in key publictrack;publictrack,:(u;h)]}
+removepublic:{[u]publictrack::.[publictrack;();_;u]}
 
 / clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
 cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p];
   addtogroup[unew;` sv value(1!usergroup)[u]];
   assignrole[unew;` sv value(1!userrole)[u]]}
-
 
 / permissions check functions
 
@@ -83,12 +85,11 @@ achk:{[u;t;rw]
 xqu:{(first[x] in (?;!)) and (count[x]>=5)} / QUery
 xdq:{first[x] in .q} / Dot Q
 
-
 isq:{(first[x] in (?;!)) and (count[x]>=5)}
 query:{[u;q;b]
   if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
-  if[((!)~q[0])and(11h=type q[1]);
+  if[((!)~q[0])and(11h=type q[1]);  
     if[not achk[u;first q[1];`write]; $[b;'err[`updt][first q 1]; :0b]];
     $[b; :eval q; :1b];
   ];
@@ -97,11 +98,11 @@ query:{[u;q;b]
   / select on named table
   if[11h=abs type q 1;
      t:first q 1;
-     / virtual select
+     / virtual select 
      if[t in key virtualtable;
        vt:virtualtable[t];
        q:@[q;1;:;vt`table];
-       q:@[q;2;:;enlist first[q 2],vt`whereclause];
+       q:@[q;2;:;enlist first[q 2],vt`whereclause]; 
      ];
      if[not achk[u;t;`read]; $[b; 'err[`selt][t]; :0b]];
      $[b; :eval q; :1b];
@@ -110,7 +111,7 @@ query:{[u;q;b]
   if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
   $[b; :eval q; :1b]}
 
-
+     
 dotqd:enlist[`]!enlist{[u;e;b]if[not fchk[u;ALL;()];$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
 dotqd[`lj`ij`pj`uj]:{[u;e;b] $[b;eval @[e;1 2;expr[u]];1b]}
 dotqd[`aj`ej]:{[u;e;b] $[b;eval @[e;2 3;expr[u]];1b]}
@@ -122,7 +123,6 @@ dotqf:{[u;q;b]
   p[u;q;b]}
 
 exe:{value x}
-
 
 mainexpr:{[u;e;b]
   / variable reference
@@ -151,7 +151,7 @@ destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 req:{requ[.z.u;x]}   / entry point - replace .z.pg/.zps
-
+  
 / authentication
 
 / methods - must have function for each authtype - e.g. local,ldap
@@ -161,28 +161,37 @@ auth.local:{[u;p]
     md5[p]~ud`password;
     0b];  / unknown hashtype
   r}
-
-/ entry point - replace .z.pw
+ 
+/ entry point - replace .z.pw 
 login:{[u;p]
   if[not u in key user;
-    if["B"$(.Q.opt .z.x)[`public][0;0];
-      if[""~p; adduser[u;`local;`md5;(md5 p)]; assignrole[u;`publicuser]; addtogroup[u;`public]]];
+    if["B"$(.Q.opt .z.x)[`public][0;0]; 
+      if[""~p; 
+        adduser[u;`local;`md5;(md5 p)]; 
+        assignrole[u;`publicuser]; 
+        addtogroup[u;`public];
+        addpublic[u;.z.w];
+      ]];
   :0b]; / todo print log to TorQ?
   ud:user[u];
   if[not ud[`authtype] in key auth;:0b];
   auth[ud`authtype][u;p]}
 
-//login:{[u;p]
-//  if[not u in key user;:0b]; / todo print log to TorQ?
-//  ud:user[u];
-//  if[not ud[`authtype] in key auth;:0b];
-//  auth[ud`authtype][u;p]}
-
+droppublic:{[w] 
+  if["B"$(.Q.opt .z.x)[`public][0;0]; 
+    if[0<count publictrack?w;
+      u:(value publictrack?w)[0];
+      removeuser[u];
+      unassignrole[u;`publicuser];
+      removefromgroup[u;`public];
+      removepublic[u];
+      ]]
+  }
 
 init:{
   .z.pg:.z.ps:req;
   .z.pw:login;
+  .z.pc:droppublic;
   }
-
-
+  
 
