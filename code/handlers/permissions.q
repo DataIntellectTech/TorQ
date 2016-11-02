@@ -1,6 +1,17 @@
 
 \d .pm
 
+
+if[not @[value; `.access.enabled;0b]; {'"controlaccess.q already active";exit 1} ]
+if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
+
+MAXSIZE:@[value;`MAXSIZE;200000000]     // the maximum size of any returned result set
+enabled:@[value;`enabled;1b]            // whether permissions are enabled
+openonly:@[value;`openonly;0b]          // only check permissions when the connection is made, not on every call
+
+if[not enabled;{"permissions.q has not been enabled";exit 1}]
+
+
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
 err.:(::);
@@ -44,10 +55,13 @@ revokefunction:{[o;r]if[(o;r) in t:`object`role#function;function::.[function;()
 createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
 
+
 / clone user looks for an original user u1, and adds a new user with a new password
 cloneuser:{[u1;unew;p] `user upsert (unew;ul[0];(ul:raze exec authtype,hashtype from user where id=u1)[1];md5 p);
   `usergroup upsert (unew;` sv value(1!usergroup)[u1]);
   `userrole upsert (unew;` sv value(1!userrole)[u1])}
+
+
 
 / permissions check functions
 
@@ -98,6 +112,7 @@ query:{[u;q]
   if[not fchk[u;ALL;()];'err[`selx][]];
   :eval q}
 
+
 allowquery:{[u;q]
   if[not fchk[u;`select;()]; :eval $[0b;1b;0b]];  / must have 'select' access to run free form queries
   / update or delete in place
@@ -123,22 +138,24 @@ allowquery:{[u;q]
   if[not fchk[u;ALL;()];:eval $[0b;1b;0b]];
   :eval $[1b;1b;0b]}
 
-
      
 dotqd:enlist[`]!enlist{[u;e]if[not fchk[u;ALL;()];'err[`expr][]];exe e};
 dotqd[`lj`ij`pj`uj]:{[u;e]eval @[e;1 2;expr[u]]}
 dotqd[`aj`ej]:{[u;e]eval @[e;2 3;expr[u]]}
 dotqd[`wj`wj1]:{[u;e]eval @[e;2;expr[u]]}
 
+
 allowdotqd:enlist[`]!enlist{[u;e]if[not fchk[u;ALL;()]; :eval $[0b;1b;0b]]; :eval $[1b;1b;0b]};
 allowdotqd[`lj`ij`pj`uj]:{[u;e]eval @[e;1 2;allowed[u]]}
 allowdotqd[`aj`ej]:{[u;e]eval @[e;2 3;allowed[u]]}
 allowdotqd[`wj`wj1]:{[u;e]eval @[e;2;allowed[u]]}
 
+
 dotqf:{[u;q]
   qf:.q?(q[0]);
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q]}
+
 
 allowdotqf:{[u;q]
   qf:.q?(q[0]);
@@ -219,5 +236,4 @@ init:{
   .z.pw:login;
  }
   
-
 
