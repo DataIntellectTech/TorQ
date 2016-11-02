@@ -19,7 +19,7 @@ err[`selx]:{"pm: unsupported select statement, superuser only"}
 err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
- 
+
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
 groupinfo:([name:`symbol$()]description:())
@@ -30,6 +30,7 @@ functiongroup:([]function:`symbol$();fgroup:`symbol$())
 access:([]object:`symbol$();entity:`symbol$();level:`symbol$())
 function:([]object:`symbol$();role:`symbol$();paramcheck:())
 virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
+publictrack:([name:`symbol$()]handle:`int$())
 
 / api
 adduser:{[u;a;h;p]user,:(u;a;h;p)}
@@ -50,12 +51,14 @@ grantfunction:{[o;r;p]if[not (o;r;p) in function;function,:(o;r;p)]}
 revokefunction:{[o;r]if[(o;r) in t:`object`role#function;function::.[function;();_;t?(o;r)]]}
 createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
+addpublic:{[u;h]if[not (u;h) in publictrack;publictrack,:(u;h)]}
 
 
-/ clone user looks for an original user u1, and adds a new user with a new password
-cloneuser:{[u1;unew;p] `user upsert (unew;ul[0];(ul:raze exec authtype,hashtype from user where id=u1)[1];md5 p);
-  `usergroup upsert (unew;` sv value(1!usergroup)[u1]);
-  `userrole upsert (unew;` sv value(1!userrole)[u1])}
+/ clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
+cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p];
+  addtogroup[unew;` sv value(1!usergroup)[u]];
+  assignrole[unew;` sv value(1!userrole)[u]]}
+
 
 / permissions check functions
 
@@ -80,42 +83,17 @@ achk:{[u;t;rw]
 xqu:{(first[x] in (?;!)) and (count[x]>=5)} / QUery
 xdq:{first[x] in .q} / Dot Q
 
+
 isq:{(first[x] in (?;!)) and (count[x]>=5)}
-query:{[u;q]
-  if[not fchk[u;`select;()];'err[`quer][]];  / must have 'select' access to run free form queries
-  / update or delete in place
-  if[((!)~q[0])and(11h=type q[1]);  
-    if[not achk[u;first q[1];`write];'err[`updt][first q 1]];
-    :eval q;
-  ];
-  / nested query
-  if[isq q 1;:eval @[q;1;.z.s[u]]];
-  / select on named table
-  if[11h=abs type q 1;
-     t:first q 1;
-     / virtual select 
-     if[t in key virtualtable;
-       vt:virtualtable[t];
-       q:@[q;1;:;vt`table];
-       q:@[q;2;:;enlist first[q 2],vt`whereclause]; 
-     ];
-     if[not achk[u;t;`read];'err[`selt][t]];
-     :eval q;
-  ];
-  / default - not specifally handled, require superuser
-  if[not fchk[u;ALL;()];'err[`selx][]];
-  :eval q}
-
-
-allowquery:{[u;q]
-  if[not fchk[u;`select;()]; :eval $[0b;1b;0b]];  / must have 'select' access to run free form queries
+query:{[u;q;b]
+  if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
   if[((!)~q[0])and(11h=type q[1]);
-    if[not achk[u;first q[1];`write]; :eval $[0b;1b;0b]];
-    :eval $[1b;1b;0b];
+    if[not achk[u;first q[1];`write]; $[b;'err[`updt][first q 1]; :0b]];
+    $[b; :eval q; :1b];
   ];
   / nested query
-  if[isq q 1;:eval $[1b;1b;0b]];
+  if[isq q 1; $[b; :eval @[q;1;.z.s[u]]; :1b]];
   / select on named table
   if[11h=abs type q 1;
      t:first q 1;
@@ -125,86 +103,55 @@ allowquery:{[u;q]
        q:@[q;1;:;vt`table];
        q:@[q;2;:;enlist first[q 2],vt`whereclause];
      ];
-     if[not achk[u;t;`read];:eval $[0b;1b;0b]];
-     :eval $[1b;1b;0b];
+     if[not achk[u;t;`read]; $[b; 'err[`selt][t]; :0b]];
+     $[b; :eval q; :1b];
   ];
   / default - not specifally handled, require superuser
-  if[not fchk[u;ALL;()];:eval $[0b;1b;0b]];
-  :eval $[1b;1b;0b]}
-
-     
-dotqd:enlist[`]!enlist{[u;e]if[not fchk[u;ALL;()];'err[`expr][]];exe e};
-dotqd[`lj`ij`pj`uj]:{[u;e]eval @[e;1 2;expr[u]]}
-dotqd[`aj`ej]:{[u;e]eval @[e;2 3;expr[u]]}
-dotqd[`wj`wj1]:{[u;e]eval @[e;2;expr[u]]}
+  if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
+  $[b; :eval q; :1b]}
 
 
-allowdotqd:enlist[`]!enlist{[u;e]if[not fchk[u;ALL;()]; :eval $[0b;1b;0b]]; :eval $[1b;1b;0b]};
-allowdotqd[`lj`ij`pj`uj]:{[u;e]eval @[e;1 2;allowed[u]]}
-allowdotqd[`aj`ej]:{[u;e]eval @[e;2 3;allowed[u]]}
-allowdotqd[`wj`wj1]:{[u;e]eval @[e;2;allowed[u]]}
+dotqd:enlist[`]!enlist{[u;e;b]if[not fchk[u;ALL;()];$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
+dotqd[`lj`ij`pj`uj]:{[u;e;b] $[b;eval @[e;1 2;expr[u]];1b]}
+dotqd[`aj`ej]:{[u;e;b] $[b;eval @[e;2 3;expr[u]];1b]}
+dotqd[`wj`wj1]:{[u;e;b] $[b;eval @[e;2;expr[u]];1b]}
 
-
-dotqf:{[u;q]
+dotqf:{[u;q;b]
   qf:.q?(q[0]);
   p:$[null p:dotqd qf;dotqd`;p];
-  p[u;q]}
-
-
-allowdotqf:{[u;q]
-  qf:.q?(q[0]);
-  p:$[null p:allowdotqd qf;allowdotqd`;p];
-  p[u;q]}
-
+  p[u;q;b]}
 
 exe:{value x}
 
-expr:{[u;e]
+
+mainexpr:{[u;e;b]
   / variable reference
   if[-11h=type e;
-    if[not achk[u;e;`read];'err[`selt][e]];
-    :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e];
+    if[not achk[u;e;`read]; $[b;'err[`selt][e]; :0b]];
+    $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
   / named function calls
   if[-11h=type f:first e;
-    if[not fchk[u;f;1_ e];'err[`func][f]];
-    :exe e;
+    if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
+    $[b; :exe e; :1b];
   ];
   / queries - select/update/delete
-  if[isq e;:query[u;e]];
+  if[isq e; :query[u;e;b]];
   / .q keywords
-  if[xdq e;:dotqf[u;e]];
+  if[xdq e;:dotqf[u;e;b]];
   / if we get down this far we don't have specific handling for the expression - require superuser
-  if[not fchk[u;ALL;()];'err[`expr][f]];
-  exe e}
+  if[not fchk[u;ALL;()]; $[b;'err[`expr][f]; :0b]];
+  $[b; exe e; 1b]}
 
-/ allowed is the expr check returning bools instead of execution, error
-allowed:{[u;e]
-  / variable reference
-  if[-11h=type e;
-    if[not achk[u;e;`read]; :eval $[0b;1b;0b]];
-    :eval $[1b;1b;0b];
-  ];
-  / named function calls
-  if[-11h=type f:first e;
-    if[not fchk[u;f;1_ e]; :eval $[0b;1b;0b]];
-    :eval $[1b;1b;0b];
-  ];
-  / queries - select/update/delete
-  if[isq e; :allowquery[u;e]];
-  / .q keywords
-  if[xdq e; :11b~allowdotqf[u;e]];
-  / if we get down this far we don't have specific handling for the expression - require superuser
-  if[not fchk[u;ALL;()];:eval $[0b;1b;0b]];
-  1b} 
-
-
+/ projection to determine if function will check and execute or return bool
+expr:mainexpr[;;1b]
+allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-////requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
+requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
+////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 req:{requ[.z.u;x]}   / entry point - replace .z.pg/.zps
-  
+
 / authentication
 
 / methods - must have function for each authtype - e.g. local,ldap
@@ -214,20 +161,28 @@ auth.local:{[u;p]
     md5[p]~ud`password;
     0b];  / unknown hashtype
   r}
- 
-/ entry point - replace .z.pw 
+
+/ entry point - replace .z.pw
 login:{[u;p]
-  if[not u in key user;:0b]; / todo print log to TorQ?
+  if[not u in key user;
+    if["B"$(.Q.opt .z.x)[`public][0;0];
+      if[""~p; adduser[u;`local;`md5;(md5 p)]; assignrole[u;`publicuser]; addtogroup[u;`public]]];
+  :0b]; / todo print log to TorQ?
   ud:user[u];
   if[not ud[`authtype] in key auth;:0b];
   auth[ud`authtype][u;p]}
 
-//"b"$(.Q.opt .z.x)[`public][0;0]
+//login:{[u;p]
+//  if[not u in key user;:0b]; / todo print log to TorQ?
+//  ud:user[u];
+//  if[not ud[`authtype] in key auth;:0b];
+//  auth[ud`authtype][u;p]}
 
 
 init:{
   .z.pg:.z.ps:req;
   .z.pw:login;
- }
-  
+  }
+
+
 
