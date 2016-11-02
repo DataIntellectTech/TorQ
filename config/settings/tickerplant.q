@@ -1,4 +1,4 @@
-// Bespoke Tickerplant config : Finance Starter Pack
+// Tickerplant config
 
 \d .proc
 loadcommoncode:0b		// do not load common code

@@ -22,16 +22,14 @@
 /q tick.q SRC [DST] [-p 5010] [-o h]
 
 /load schema from params, default to "sym.q"
-system"l tick/",(src:$[`schemafile in key .proc.params;raze .proc.params`schemafile;"sym"]),".q"
-
-/ if[not system"p";system"p 5010"]
+.proc.loadf[(src:$[`schemafile in key .proc.params;raze .proc.params`schemafile;"sym"]),".q"];
 
 .proc.loadf[getenv[`KDBCODE],"/common/u.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
 \d .
-upd:{[tab;x] .u.icounts[tab]+::count first x;`break;}
+upd:{[tab;x] .u.icounts[tab]+::count first x;}
 
 \d .u
 jcounts:()!() 
@@ -39,16 +37,16 @@ icounts:()!()  / set up dictionary for per table counts
 ld:{if[not type key L::`$(-10_string L),string x;.[L;();:;()]];i::j::@[-11!;L;i::-11!(-2;L)];jcounts::icounts;if[0 < type i;-2 (string L)," is a corrupt log. Truncate to length ",(string last i)," and restart";exit 1];hopen L};
 tick:{init[];if[not min(`time`sym~2#key flip value@)each t;'`timesym];@[;`sym;`g#]each t;d::.eodtime.d;if[l::count y;L::`$":",y,"/",x,10#".";l::ld d]};
 
-endofday:{end d;d+:1;icounts::()!();.eodtime.nextroll:.eodtime.getroll[.z.p;.z.d];.eodtime.dailyadj:.eodtime.getdailyadjustment[];if[l;hclose l;l::0(`.u.ld;d)]};
-ts:{if[.eodtime.nextroll < .z.p;if[d<x-1;system"t 0";'"more than one day?"];endofday[]]};
+endofday:{end d;d+:1;icounts::()!();.eodtime.nextroll:.eodtime.getroll[.z.p];.eodtime.dailyadj:.eodtime.getdailyadjustment[];if[l;hclose l;l::0(`.u.ld;d)]};
+ts:{if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]]};
 
 
 if[system"t";
- .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.d};
+ .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.p};
 
  upd:{[t;x]
  if[not -12=type first first x;
-     if[d<"d"$a:d+.z.t+.eodtime.dailyadj;.z.ts[];a:d+.z.t+.eodtime.dailyadj / recalc a after as d will have changed
+     if[d<"d"$a:z.p+.eodtime.dailyadj;.z.ts[]
          ];
      /a:"n"$a;
      x:$[0>type first x;
@@ -65,9 +63,8 @@ if[system"t";
  ];
 
 if[not system"t";system"t 1000";
- .z.ts:{ts .z.d};
- upd:{[t;x]ts"d"$a:d+.z.t+.eodtime.dailyadj;
- a:d+.z.t+.eodtime.dailyadj; / recalc a incase d changed on ts call
+ .z.ts:{ts .z.p};
+ upd:{[t;x]ts a:.z.p+.eodtime.dailyadj; 
  if[not -12=type first first x;
      /a:"n"$a;
      x:$[0>type first x;
@@ -80,6 +77,7 @@ if[not system"t";system"t 1000";
 \d .
 src:$["/" in src;(1 + last src ss "/") _ src; src];  / if src contains directory path, remove it
 .u.tick[src;ssr[raze .proc.params`tplogdir;"\\";"/"]];
+
 
 \
  globals used
