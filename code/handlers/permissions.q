@@ -1,8 +1,7 @@
 
 \d .pm
 
-
-if[not @[value; `.access.enabled;0b]; {'"controlaccess.q already active";exit 1} ]
+if[@[1b; `.access.enabled;0b]; {'"controlaccess.q already active";exit 1} ]
 if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
 
 MAXSIZE:@[value;`MAXSIZE;200000000]     // the maximum size of any returned result set
@@ -10,7 +9,6 @@ enabled:@[value;`enabled;1b]            // whether permissions are enabled
 openonly:@[value;`openonly;0b]          // only check permissions when the connection is made, not on every call
 
 if[not enabled;{"permissions.q has not been enabled";exit 1}]
-
 
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
@@ -22,8 +20,6 @@ err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
  
-
-
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
 groupinfo:([name:`symbol$()]description:())
@@ -60,8 +56,6 @@ removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();
 cloneuser:{[u1;unew;p] `user upsert (unew;ul[0];(ul:raze exec authtype,hashtype from user where id=u1)[1];md5 p);
   `usergroup upsert (unew;` sv value(1!usergroup)[u1]);
   `userrole upsert (unew;` sv value(1!userrole)[u1])}
-
-
 
 / permissions check functions
 
