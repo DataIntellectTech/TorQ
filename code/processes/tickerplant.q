@@ -49,6 +49,7 @@ if[system"t";
      if[.z.p>.eodtime.nextroll;.z.ts[]
          ];
      /a:"n"$a;
+     a:.z.p+.eodtime.dailyadj;
      x:$[0>type first x;
          a,x;
          (enlist(count first x)#a),x
