@@ -46,7 +46,7 @@ if[system"t";
 
  upd:{[t;x]
  if[not -12=type first first x;
-     if[d<"d"$a:z.p+.eodtime.dailyadj;.z.ts[]
+     if[.z.p>.eodtime.nextroll;.z.ts[]
          ];
      /a:"n"$a;
      x:$[0>type first x;
