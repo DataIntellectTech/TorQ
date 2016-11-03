@@ -2,8 +2,8 @@
 / - loaded into and used in the tp and pdb processes
 \d .eodtime
 rolltime:@[value;`rolltime;0D00:00:00.000];
-datatimezone:@[value;`datatimezone;`$"Europe/London"];
-rolltimezone:@[value;`rolltimezone;`$"Europe/London"];
+datatimezone:@[value;`datatimezone;`$"GMT"];
+rolltimezone:@[value;`rolltimezone;`$"GMT"];
 dayoffset:@[value;`dayoffset;0];
 getdailyadjustment:{first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.datatimezone;gmtDateTime:enlist .z.p); .tz.t]};
 dailyadj:getdailyadjustment[];

@@ -64,7 +64,8 @@ if[system"t";
 
 if[not system"t";system"t 1000";
  .z.ts:{ts .z.p};
- upd:{[t;x]ts a:.z.p+.eodtime.dailyadj; 
+ upd:{[t;x]ts .z.p;
+ a:.z.p+.eodtime.dailyadj; 
  if[not -12=type first first x;
      /a:"n"$a;
      x:$[0>type first x;
