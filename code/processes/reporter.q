@@ -1,8 +1,8 @@
 /- Reporter Process for TorQ
 /- Glen Smith. glen.smith@aquaq.co.uk
 
-if[.pm.enabled;{.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
-        if[not ""~getenv[`KDBAPPCONFIG]; .proc.loadconfig[getenv[`KDBAPPCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname]}]
+if[.pm.enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
+        if[not ""~getenv[`KDBAPPCONFIG]; .proc.loadconfig[getenv[`KDBAPPCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname])]
 
 / - defining default process parameters
 inputcsv:@[value;`.rp.inputcsv;.proc.getconfigfile["reporter.csv"]];		/ - location of the reporter process configuration file
