@@ -1,4 +1,3 @@
-\l ../code/handlers/permissions.q
 
 .pm.addrole[`systemuser;"communicates between processes]
 .pm.grantfunction[`exit;`systemuser;{1b}]
