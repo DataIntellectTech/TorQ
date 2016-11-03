@@ -54,7 +54,7 @@ grantfunction:{[o;r;p]if[not (o;r;p) in function;function,:(o;r;p)]}
 revokefunction:{[o;r]if[(o;r) in t:`object`role#function;function::.[function;();_;t?(o;r)]]}
 createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
-addpublic:{[u;h]if[not u in key publictrack;publictrack,:(u;h)]}
+addpublic:{[u;h]publictrack::publictrack upsert (u;h)}
 removepublic:{[u]publictrack::.[publictrack;();_;u]}
 
 / clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
@@ -82,7 +82,7 @@ achk:{[u;t;rw]
   exec 0<count i from access where object=t, entity in g, level in (`read`write!(`read`write;`write))[rw]}
 
 / expression identification
-xqu:{(first[x] in (?;!)) and (count[x]>=5)} / QUery
+xqu:{(first[x] in (?;!)) and (count[x]>=5)} / Query
 xdq:{first[x] in .q} / Dot Q
 
 isq:{(first[x] in (?;!)) and (count[x]>=5)}
@@ -164,13 +164,14 @@ auth.local:{[u;p]
  
 / entry point - replace .z.pw 
 login:{[u;p]
-  if[not u in key user;
+  if[(not u in key user) or (`public=(1!usergroup)[u][`groupname]);
     if["B"$(.Q.opt .z.x)[`public][0;0]; 
       if[""~p; 
         adduser[u;`local;`md5;(md5 p)]; 
         assignrole[u;`publicuser]; 
         addtogroup[u;`public];
         addpublic[u;.z.w];
+        :1b;
       ]];
   :0b]; / todo print log to TorQ?
   ud:user[u];
