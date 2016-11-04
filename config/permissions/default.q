@@ -1,5 +1,5 @@
 
-.pm.addrole[`systemuser;"communicates between processes]
+.pm.addrole[`systemuser;"communicates between processes"]
 .pm.grantfunction[`exit;`systemuser;{1b}]
 .pm.grantfunction[`reload;`systemuser;{1b}]
 .pm.grantfunction[`..register;`systemuser;{1b}]
