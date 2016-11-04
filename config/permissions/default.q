@@ -1,5 +1,5 @@
 
-.pm.addrole[`systemuser;"communicates between processes]
+.pm.addrole[`systemuser;"communicates between processes"]
 .pm.grantfunction[`exit;`systemuser;{1b}]
 .pm.grantfunction[`reload;`systemuser;{1b}]
 .pm.grantfunction[`..register;`systemuser;{1b}]
@@ -12,6 +12,15 @@
 .pm.grantfunction[`.u.end;`systemuser;{1b}]
 .pm.grantfunction[`.getservices;`systemuser;{1b}]
 .pm.grantfunction[`upd;`systemuser;{1b}]
+.pm.grantfunction[`.sub.checksubscriptions;`systemuser;{1b}]
+.pm.grantfunction[`.hb.checkheartbeat;`systemuser;{1b}]
+.pm.grantfunction[`.hb.publishheartbeat;`systemuser;{1b}]
+.pm.grantfunction[`.servers.retrydiscovery;`systemuser;{1b}]
+.pm.grantfunction[`.servers.retry;`systemuser;{1b}]
+.pm.grantfunction[`checktimeout;`systemuser;{1b}]
+.pm.grantfunction[`datecheck;`systemuser;{1b}]
+.pm.grantfunction[`send;`systemuser;{1b}]
+.pm.grantfunction[`flushquerylogs;`systemuser;{1b}]
 
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]
