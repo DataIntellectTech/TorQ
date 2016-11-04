@@ -86,7 +86,8 @@ isq:{(first[x] in (?;!)) and (count[x]>=5)}
 query:{[u;q;b]
   if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
-  if[((!)~q[0])and(11h=type q[1]);  
+  if[((!)~q[0])and(11h=type q[1]); 
+    if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first 
     if[not achk[u;first q[1];`write]; $[b;'err[`updt][first q 1]; :0b]];
     $[b; :eval q; :1b];
   ];
@@ -101,6 +102,7 @@ query:{[u;q;b]
        q:@[q;1;:;vt`table];
        q:@[q;2;:;enlist first[q 2],vt`whereclause]; 
      ];
+     if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table 
      if[not achk[u;t;`read]; $[b; 'err[`selt][t]; :0b]];
      $[b; :eval q; :1b];
   ];
@@ -119,17 +121,20 @@ dotqf:{[u;q;b]
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b]}
 
-exe:{value x}
+exe:{if[99<abs type first x; :eval x]; value x} /account for complex calls, e.g. "in"
 
 mainexpr:{[u;e;b]
   / variable reference
   if[-11h=type e;
+    if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first 
     if[not achk[u;e;`read]; $[b;'err[`selt][e]; :0b]];
     $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
   / named function calls
   if[-11h=type f:first e;
     if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
+    if[not all type'[e]; e:raze e]; /some methods of passing args enlist in parse
+    if[any count'[e]=signum type'[e]; e:raze e]; /catch single enlisted and raze
     $[b; :exe e; :1b];
   ];
   / queries - select/update/delete
@@ -145,7 +150,7 @@ expr:mainexpr[;;1b]
 allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
+requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 req:{requ[.z.u;x]}   / entry point - replace .z.pg/.zps
   
