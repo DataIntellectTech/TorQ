@@ -192,4 +192,4 @@ init:{
   .z.pc:droppublic;
   }
   
-if[enabled;init[]]
+
