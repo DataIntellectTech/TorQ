@@ -92,7 +92,7 @@ query:{[u;q;b]
     $[b; :eval q; :1b];
   ];
   / nested query
-  if[isq q 1; $[b; :eval @[q;1;.z.s[u]]; :1b]];
+  if[isq q 1; $[b; :eval @[q;1;.z.s[u;;b]]; :1b]];
   / select on named table
   if[11h=abs type q 1;
      t:first q 1;
@@ -193,6 +193,7 @@ droppublic:{[w]
 
 init:{
   .z.pg:.z.ps:req;
+  .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
   .z.pw:login;
   .z.pc:droppublic;
   }
