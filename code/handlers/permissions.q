@@ -81,6 +81,7 @@ fchk:{[u;f;a]
   if[prmtrlss[r;f]; :1b];
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
+  if[1 = count c; if[ 1b = c[0;0]; :1b]];
   k:@[;pdict[f;a];::] each c;  / try param check functions matched for roles
   k:`boolean$@[k;where not -1h=type each k;:;0b];  / errors or non-boolean results treated as false
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
