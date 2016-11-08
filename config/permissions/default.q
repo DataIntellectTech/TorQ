@@ -23,6 +23,8 @@
 .pm.grantfunction[`flushquerylogs;`systemuser;{1b}]
 .pm.grantfunction[`.ps.subscribe;`systemuser;{1b}]
 
+.pm.addsuperrole[`systemuser]
+
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]
 .pm.grantaccess[`trade;`systemuser;`write]
@@ -32,6 +34,8 @@
 .pm.grantaccess[`logmsg;`systemuser;`write]
 .pm.grantaccess[`heartbeat;`systemuser;`read]
 .pm.grantaccess[`heartbeat;`systemuser;`write]
+
+.pm.addignoredfunction[`upd]
 
 .pm.adduser[`admin;`local;`md5;md5"admin"]
 .pm.assignrole[`admin;`systemuser]

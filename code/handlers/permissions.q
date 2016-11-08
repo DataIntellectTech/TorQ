@@ -5,7 +5,7 @@ if[@[1b; `.access.enabled;0b]; ('"controlaccess.q already active";exit 1) ]
 if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
 
 MAXSIZE:@[value;`MAXSIZE;200000000]     // the maximum size of any returned result set
-enabled:@[value;`enabled;0b]            // whether permissions are enabled
+enabled:@[value;`enabled;1b]            // whether permissions are enabled
 openonly:@[value;`openonly;0b]          // only check permissions when the connection is made, not on every call
 
 / constants
@@ -31,6 +31,8 @@ access:([]object:`symbol$();entity:`symbol$();level:`symbol$())
 function:([]object:`symbol$();role:`symbol$();paramcheck:())
 virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
 publictrack:([name:`symbol$()] handle:`int$())
+superroles: `symbol$(); // roles where parameter should not be checked													
+ignoredfunctions: `symbol$();  //functions where parameters should not be checked	
 
 / api
 adduser:{[u;a;h;p]user,:(u;a;h;p)}
@@ -53,6 +55,10 @@ createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
 addpublic:{[u;h]publictrack::publictrack upsert (u;h)}
 removepublic:{[u]publictrack::.[publictrack;();_;u]}
+addsuperrole:{[r]if[(superroles?r) = count superroles; superroles,:r] }
+removesuperrole:{[r]if[not (superroles?r) = count superroles; superroles:: superroles except r] }
+addignoredfunction:{[o]if[(ignoredfunctions?o) = count ignoredfunctions; ignoredfunctions,:o]}
+removeignoredfunction:{[r]if[not (ignoredfunctions?o) = count ignoredfunctions; ignoredfunctions:: ignoredfunctions except o] }
 
 / clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
 cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p];
@@ -60,7 +66,11 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
   assignrole[unew;` sv value(1!userrole)[u]]}
 
 / permissions check functions
-
+ 
+prmtrlss:{[r;f]
+  uf:select from function where (object = f) and (role = r);
+  if[not 0 = count uf; $[not (superroles?r)= count superroles; :1b; if[not (ignoredfunctions?o) = count ignoredfunctions;:1b]]];
+  0b}
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
   d:d,$[not count a;();f~`select;();(1=count a) and (99h=type first a);first a;get[get[f]][1]!a];
@@ -68,6 +78,7 @@ pdict:{[f;a]
 
 fchk:{[u;f;a]
   r:exec role from userrole where user=u;  / list of roles this user has
+  if[prmtrlss[r;f]; :1b];
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
   k:@[;pdict[f;a];::] each c;  / try param check functions matched for roles
