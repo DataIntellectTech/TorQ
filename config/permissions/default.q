@@ -21,6 +21,7 @@
 .pm.grantfunction[`datecheck;`systemuser;{1b}]
 .pm.grantfunction[`send;`systemuser;{1b}]
 .pm.grantfunction[`flushquerylogs;`systemuser;{1b}]
+.pm.grantfunction[`.ps.subscribe;`systemuser;{1b}]
 
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]

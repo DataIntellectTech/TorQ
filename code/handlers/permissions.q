@@ -152,7 +152,7 @@ allowed:mainexpr[;;0b]
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-req:{requ[.z.u;x]}   / entry point - replace .z.pg/.zps
+req:{$[.z.w = 0 ; :1b ; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
   
 / authentication
 
