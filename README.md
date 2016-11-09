@@ -91,4 +91,8 @@ This will launch the a process running within the framework with all the default
 - **2.6.2, September 2016**:
   * .z.pd and peach logic added to wdb.q
   * Bug fixes
-  
+- **2.7.0, November 2016**:
+  * Tickerplant incorporated.  Tickerplant has faster recovery for real time subscribers, and better timezone handling
+  * Filealerter uses a splayed table to store the table of already processed data.  If it finds a table in current format (flat) it will change it to a splay
+  * Gateway bug fixes
+  * Small improvements

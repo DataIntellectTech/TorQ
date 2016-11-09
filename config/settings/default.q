@@ -119,3 +119,10 @@ errortolerance:3f		// and to an error state when it hasn't heartbeated in errort
 // broadcast publishing
 \d .u
 broadcast:1b;                   // broadcast publishing is on by default. Availble in kdb version 3.4 or later.
+
+// timezone
+\d .eodtime
+rolltime:0D00:00:00.000000000;		// time to roll in rolltimezone
+datatimezone:`$"GMT";			// timezone for TP to timestamp data in
+rolltimezone:`$"GMT";			// timezone to perform rollover in
+dayoffset:0;				// 0 = on rollover, day becomes today; 1 = on rollover, day becomes tomorrow
