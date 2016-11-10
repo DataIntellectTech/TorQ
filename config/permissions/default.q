@@ -22,7 +22,7 @@
 .pm.grantfunction[`send;`systemuser;{1b}]
 .pm.grantfunction[`flushquerylogs;`systemuser;{1b}]
 .pm.grantfunction[`.ps.subscribe;`systemuser;{1b}]
-
+.pm.grantfunction[`.u.upd;`systemuser;{1b}]
 .pm.addsuperrole[`systemuser]
 
 .pm.addgroup[`systemuser;"full access to data"]

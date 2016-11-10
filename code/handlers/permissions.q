@@ -67,9 +67,10 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 
 / permissions check functions
  
-prmtrlss:{[r;f]
-  uf:select from function where (object = f) and (role = r);
-  if[not 0 = count uf; $[not (superroles?r)= count superroles; :1b; if[not (ignoredfunctions?o) = count ignoredfunctions;:1b]]];
+prmtrlss:{[u;f]
+  r:exec role from userrole where user=u;
+  uf:select from function where (object = f) and (role in r);
+  if[not 0 = count uf; $[not (first superroles?r)= count superroles; :1b; if[not (first ignoredfunctions?o) = count ignoredfunctions;:1b]]];
   0b}
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
@@ -78,7 +79,6 @@ pdict:{[f;a]
 
 fchk:{[u;f;a]
   r:exec role from userrole where user=u;  / list of roles this user has
-  if[prmtrlss[r;f]; :1b];
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
   if[1 = count c; if[ 1b = c[0;0]; :1b]];
@@ -162,9 +162,9 @@ expr:mainexpr[;;1b]
 allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-requ:{[u;q]expr[u] q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]]};
+requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; .Q.s value x]; expr[u;q]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-req:{$[.z.w = 0 ; :1b ; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
+req:{$[.z.w = 0 ; .Q.s value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
   
 / authentication
 
