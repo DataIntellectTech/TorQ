@@ -133,6 +133,13 @@ dotqf:{[u;q;b]
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b]}
 
+lamq:{[u;e;l]
+    rt:(distinct exec object from access where entity<>`public);
+    rqt:rt where rt in (raze `$distinct {-4!x} each string raze/[{any (type each x) within (0;99)};e]);
+    prohibited: rqt where not achk[u;;`read] each rqt;
+    if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
+  :exe e}
+
 exe:{if[99<abs type first x; :eval x]; value x} /account for complex calls, e.g. "in"
 
 mainexpr:{[u;e;b]
@@ -153,6 +160,8 @@ mainexpr:{[u;e;b]
   if[isq e; :query[u;e;b]];
   / .q keywords
   if[xdq e;:dotqf[u;e;b]];
+  /lambdas
+  if[any lam:100=type each raze e; :lamq[u;e;lam]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not fchk[u;ALL;()]; $[b;'err[`expr][f]; :0b]];
   $[b; exe e; 1b]}
@@ -209,5 +218,5 @@ init:{
   .z.pw:login;
   .z.pc:droppublic;
   }
-  
+
 
