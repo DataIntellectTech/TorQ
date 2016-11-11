@@ -83,4 +83,4 @@
 .pm.assignrole[`discovery;`systemuser]
 .pm.addtogroup[`discovery;`systemuser]
 
-.pm.init[]
+
