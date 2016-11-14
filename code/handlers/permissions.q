@@ -66,7 +66,8 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
   assignrole[unew;` sv value(1!userrole)[u]]}
 
 / permissions check functions
- 
+
+/ Can the function be called without the parameters being checked 
 prmtrlss:{[u;f]
   r:exec role from userrole where user=u;
   uf:select from function where (object = f) and (role in r);
