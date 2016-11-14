@@ -23,6 +23,9 @@
 .pm.grantfunction[`flushquerylogs;`systemuser;{1b}]
 .pm.grantfunction[`.ps.subscribe;`systemuser;{1b}]
 .pm.grantfunction[`.u.upd;`systemuser;{1b}]
+.pm.grantfunction[`.proc.paramcheck;`systemuser;{1b}]
+.pm.grantfunction[`.proc.getattributes;`systemuser;{1b}]
+.pm.grantfunction[.pm.ALL;`systemuser;{1b}]
 .pm.addsuperrole[`systemuser]
 
 .pm.addgroup[`systemuser;"full access to data"]
@@ -34,6 +37,8 @@
 .pm.grantaccess[`logmsg;`systemuser;`write]
 .pm.grantaccess[`heartbeat;`systemuser;`read]
 .pm.grantaccess[`heartbeat;`systemuser;`write]
+.pm.grantaccess[`..register;`systemuser;`read]
+.pm.grantaccess[`..register;`systemuser;`write]
 
 .pm.addignoredfunction[`upd]
 
@@ -82,5 +87,8 @@
 .pm.adduser[`discovery;`local;`md5;md5"pass"]
 .pm.assignrole[`discovery;`systemuser]
 .pm.addtogroup[`discovery;`systemuser]
+.pm.adduser[`;`local;`md5;md5"pass"]
+.pm.assignrole[`;`systemuser]
+.pm.addtogroup[`;`systemuser]
 
 

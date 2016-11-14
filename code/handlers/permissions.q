@@ -70,7 +70,7 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 / Can the function be called without the parameters being checked 
 prmtrlss:{[u;f]
   r:exec role from userrole where user=u;
-  uf:select from function where (object = f) and (role in r);
+  uf:select from function where (object in f) and (role in r);
   if[not 0 = count uf; $[not (first superroles?r)= count superroles; :1b; if[not (first ignoredfunctions?o) = count ignoredfunctions;:1b]]];
   0b}
 pdict:{[f;a]
@@ -141,7 +141,7 @@ lamq:{[u;e;l]
     if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   :exe e}
 
-exe:{if[99<abs type first x; :eval x]; value x} /account for complex calls, e.g. "in"
+exe:{if[100<abs type first x; :eval x]; value x} /account for complex calls, e.g. "in"
 
 mainexpr:{[u;e;b]
   / variable reference
@@ -172,7 +172,7 @@ expr:mainexpr[;;1b]
 allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; .Q.s value x]; expr[u;q]};
+requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; .Q.s value q]; expr[u;q]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 req:{$[.z.w = 0 ; .Q.s value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
   
