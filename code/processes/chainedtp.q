@@ -15,10 +15,6 @@ schema:@[value;`schema;1b];                                     /- retrieve sche
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on subscription
 
 
-if[.pm.enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
-	if[not ""~getenv[`KDBAPPCONFIG]; .proc.loadconfig[getenv[`KDBAPPCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname])]
-
-
 tph:0N;								/- setting tickerplant handle to null
 .u.icounts:.u.jcounts:()!();.u.i:.u.j:0;			/- initialise icounts & jcounts dict
 /- clears log

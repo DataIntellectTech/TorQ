@@ -74,9 +74,6 @@
 
 \d .gw
 
-if[.pm.enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
-        if[not ""~getenv[`KDBAPPCONFIG]; .proc.loadconfig[getenv[`KDBAPPCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname])]
-
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
