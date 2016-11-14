@@ -153,8 +153,8 @@ mainexpr:{[u;e;b]
   / named function calls
   if[-11h=type f:first e;
     if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
-    if[not all type'[e]; e:raze e]; /some methods of passing args enlist in parse
-    if[any count'[e]=signum type'[e]; e:raze e]; /catch single enlisted and raze
+    //if[not all type'[e]; e:raze e]; /some methods of passing args enlist in parse
+    //if[any count'[e]=signum type'[e]; e:raze e]; /catch single enlisted and raze
     $[b; :exe e; :1b];
   ];
   / queries - select/update/delete
@@ -172,10 +172,11 @@ expr:mainexpr[;;1b]
 allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; .Q.s value q]; expr[u;q]};
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-req:{$[.z.w = 0 ; .Q.s value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
-  
+//requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; value q]; expr[u;q]};
+requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; :exe q]; expr[u;q]};
+req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
+
 / authentication
 
 / methods - must have function for each authtype - e.g. local,ldap
