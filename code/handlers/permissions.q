@@ -68,7 +68,7 @@ fchk:{[u;f;a]
   r:exec role from userrole where user=u;  / list of roles this user has
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
-  //if[1 = count c; if[ 1b = c[0;0]; :1b]];
+  if[1 = count c; if[ 1b = c[0;0]; :1b]];
   k:@[;pdict[f;a];::] each c;  / try param check functions matched for roles
   k:`boolean$@[k;where not -1h=type each k;:;0b];  / errors or non-boolean results treated as false
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
@@ -116,6 +116,7 @@ dotqd[`aj`ej]:{[u;e;b] $[b;eval @[e;2 3;expr[u]];1b]}
 dotqd[`wj`wj1]:{[u;e;b] $[b;eval @[e;2;expr[u]];1b]}
 
 dotqf:{[u;q;b]
+  if[((![-6])~q[0]) or (.:)~q[0];:{[u;e;b] $[b;eval @[e;1;expr[u]];1b]}[u;q;b]]
   qf:.q?(q[0]);
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b]}
