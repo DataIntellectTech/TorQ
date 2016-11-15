@@ -26,7 +26,6 @@
 .pm.grantfunction[`.proc.paramcheck;`systemuser;{1b}]
 .pm.grantfunction[`.proc.getattributes;`systemuser;{1b}]
 .pm.grantfunction[.pm.ALL;`systemuser;{1b}]
-.pm.addsuperrole[`systemuser]
 
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]
@@ -39,8 +38,6 @@
 .pm.grantaccess[`heartbeat;`systemuser;`write]
 .pm.grantaccess[`..register;`systemuser;`read]
 .pm.grantaccess[`..register;`systemuser;`write]
-
-.pm.addignoredfunction[`upd]
 
 .pm.adduser[`admin;`local;`md5;md5"admin"]
 .pm.assignrole[`admin;`systemuser]
