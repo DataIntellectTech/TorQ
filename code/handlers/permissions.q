@@ -136,7 +136,8 @@ dotqf:{[u;q;b]
 
 lamq:{[u;e;l]
     rt:(distinct exec object from access where entity<>`public);
-    rqt:rt where rt in (raze `$distinct {-4!x} each string raze/[{any (type each x) within (0;99)};e]);
+    //rqt:rt where rt in (raze `$distinct {-4!x} each string raze/[{any (type each x) within (0;99)};e]);
+    rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
     prohibited: rqt where not achk[u;;`read] each rqt;
     if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   :exe e}
@@ -174,7 +175,7 @@ allowed:mainexpr[;;0b]
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
 //requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; value q]; expr[u;q]};
-requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; :exe q]; expr[u;q]};
+requ:{[u;q]q:$[10=type q;parse q;10h=abs type f:first q;destringf[f],1_ q;q];if[prmtrlss[u; first q]; :exe q]; expr[u;q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
