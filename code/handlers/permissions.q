@@ -17,8 +17,6 @@ err[`selx]:{"pm: unsupported select statement, superuser only"}
 err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
- 
-
 
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
@@ -31,8 +29,6 @@ access:([]object:`symbol$();entity:`symbol$();level:`symbol$())
 function:([]object:`symbol$();role:`symbol$();paramcheck:())
 virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
 publictrack:([name:`symbol$()] handle:`int$())
-superroles: `symbol$(); // roles where parameter should not be checked													
-ignoredfunctions: `symbol$();  //functions where parameters should not be checked	
 
 / api
 adduser:{[u;a;h;p]user,:(u;a;h;p)}
@@ -55,10 +51,6 @@ createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
 addpublic:{[u;h]publictrack::publictrack upsert (u;h)}
 removepublic:{[u]publictrack::.[publictrack;();_;u]}
-addsuperrole:{[r]if[(superroles?r) = count superroles; superroles,:r] }
-removesuperrole:{[r]if[not (superroles?r) = count superroles; superroles:: superroles except r] }
-addignoredfunction:{[o]if[(ignoredfunctions?o) = count ignoredfunctions; ignoredfunctions,:o]}
-removeignoredfunction:{[r]if[not (ignoredfunctions?o) = count ignoredfunctions; ignoredfunctions:: ignoredfunctions except o] }
 
 / clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
 cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p];
@@ -67,12 +59,6 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 
 / permissions check functions
 
-/ Can the function be called without the parameters being checked 
-prmtrlss:{[u;f]
-  r:exec role from userrole where user=u;
-  uf:select from function where (object in f) and (role in r);
-  if[not 0 = count uf; $[not (first superroles?r)= count superroles; :1b; if[not (first ignoredfunctions?o) = count ignoredfunctions;:1b]]];
-  0b}
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
   d:d,$[not count a;();f~`select;();(1=count a) and (99h=type first a);first a;get[get[f]][1]!a];
@@ -82,7 +68,7 @@ fchk:{[u;f;a]
   r:exec role from userrole where user=u;  / list of roles this user has
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
-  if[1 = count c; if[ 1b = c[0;0]; :1b]];
+  //if[1 = count c; if[ 1b = c[0;0]; :1b]];
   k:@[;pdict[f;a];::] each c;  / try param check functions matched for roles
   k:`boolean$@[k;where not -1h=type each k;:;0b];  / errors or non-boolean results treated as false
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
@@ -100,7 +86,7 @@ query:{[u;q;b]
   if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
   if[((!)~q[0])and(11h=type q[1]); 
-    if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first 
+    //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first 
     if[not achk[u;first q[1];`write]; $[b;'err[`updt][first q 1]; :0b]];
     $[b; :eval q; :1b];
   ];
@@ -115,7 +101,7 @@ query:{[u;q;b]
        q:@[q;1;:;vt`table];
        q:@[q;2;:;enlist first[q 2],vt`whereclause]; 
      ];
-     if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table 
+     //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table 
      if[not achk[u;t;`read]; $[b; 'err[`selt][t]; :0b]];
      $[b; :eval q; :1b];
   ];
@@ -147,7 +133,7 @@ exe:{if[100<abs type first x; :eval x]; value x} /account for complex calls, e.g
 mainexpr:{[u;e;b]
   / variable reference
   if[-11h=type e;
-    if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first 
+    //if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first 
     if[not achk[u;e;`read]; $[b;'err[`selt][e]; :0b]];
     $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
@@ -174,8 +160,7 @@ allowed:mainexpr[;;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-//requ:{[u;q]q:$[10=type q;parse q;$[10h=abs type f:first q;destringf[f],1_ q;q]];if[prmtrlss[u; first q]; value q]; expr[u;q]};
-requ:{[u;q]q:$[10=type q;parse q;10h=abs type f:first q;destringf[f],1_ q;q];if[prmtrlss[u; first q]; :exe q]; expr[u;q]};
+requ:{[u;q]q:$[10=type q;parse q;10h=abs type f:first q;destringf[f],1_ q;q]; expr[u;q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
@@ -191,7 +176,7 @@ auth.local:{[u;p]
 / entry point - replace .z.pw 
 login:{[u;p]
   if[(not u in key user) or (`public=(1!usergroup)[u][`groupname]);
-    if["B"$(.Q.opt .z.x)[`public][0;0]; 
+    if[any "B"$(.Q.opt .z.x)[`public][0;0]; 
       if[""~p; 
         adduser[u;`local;`md5;(md5 p)]; 
         assignrole[u;`publicuser]; 
