@@ -205,7 +205,7 @@ login:{[u;p]
   auth[ud`authtype][u;p]}
 
 droppublic:{[w] 
-  if["B"$(.Q.opt .z.x)[`public][0;0]; 
+  if[any "B"$(.Q.opt .z.x)[`public][0;0]; 
     if[0<count publictrack?w;
       u:(value publictrack?w)[0];
       removeuser[u];
