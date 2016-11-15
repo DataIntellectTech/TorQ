@@ -454,7 +454,6 @@ syncexecj:{[query;servertype;joinfunction]
  setserverstate[handles;1b];
  start:.z.p;
  query:$[.pm.enabled; (`execas; query; .z.u); query];
- show query;
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
