@@ -18,6 +18,9 @@ err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
 
+runmode:1b
+permissivemode:0b
+
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
 groupinfo:([name:`symbol$()]description:())
@@ -73,7 +76,8 @@ fchk:{[u;f;a]
   k:`boolean$@[k;where not -1h=type each k;:;0b];  / errors or non-boolean results treated as false
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
 
-achk:{[u;t;rw]
+achk:{[u;t;rw;pr]
+  if[pr and not t in key 1!access; :1b];
   g:raze over (exec groupname by user from usergroup)\[u]; / groups can contain groups - chase all
   exec 0<count i from access where object=t, entity in g, level in (`read`write!(`read`write;`write))[rw]}
 
@@ -82,60 +86,57 @@ xqu:{(first[x] in (?;!)) and (count[x]>=5)} / Query
 xdq:{first[x] in .q} / Dot Q
 
 isq:{(first[x] in (?;!)) and (count[x]>=5)}
-query:{[u;q;b]
+query:{[u;q;b;pr]
   if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
-  if[((!)~q[0])and(11h=type q[1]); 
-    //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first 
-    if[not achk[u;first q[1];`write]; $[b;'err[`updt][first q 1]; :0b]];
+  if[((!)~q[0])and(11h=type q[1]);
+    //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first
+    if[not achk[u;first q[1];`write;pr]; $[b;'err[`updt][first q 1]; :0b]];
     $[b; :eval q; :1b];
   ];
   / nested query
-  if[isq q 1; $[b; :eval @[q;1;.z.s[u;;b]]; :1b]];
+  if[isq q 1; $[b; :eval @[q;1;.z.s[u;;b;pr]]; :1b]];
   / select on named table
   if[11h=abs type q 1;
      t:first q 1;
-     / virtual select 
+     / virtual select
      if[t in key virtualtable;
        vt:virtualtable[t];
        q:@[q;1;:;vt`table];
-       q:@[q;2;:;enlist first[q 2],vt`whereclause]; 
+       q:@[q;2;:;enlist first[q 2],vt`whereclause];
      ];
-     //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table 
-     if[not achk[u;t;`read]; $[b; 'err[`selt][t]; :0b]];
+     //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table
+     if[not achk[u;t;`read;pr]; $[b; 'err[`selt][t]; :0b]];
      $[b; :eval q; :1b];
   ];
   / default - not specifally handled, require superuser
   if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
   $[b; :eval q; :1b]}
 
-     
-dotqd:enlist[`]!enlist{[u;e;b]if[not fchk[u;ALL;()];$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
-dotqd[`lj`ij`pj`uj]:{[u;e;b] $[b;eval @[e;1 2;expr[u]];1b]}
-dotqd[`aj`ej]:{[u;e;b] $[b;eval @[e;2 3;expr[u]];1b]}
-dotqd[`wj`wj1]:{[u;e;b] $[b;eval @[e;2;expr[u]];1b]}
+dotqd:enlist[`]!enlist{[u;e;b;pr]if[not fchk[u;ALL;()];$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
+dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;eval @[e;1 2;expr[u]];1b]}
+dotqd[`aj`ej]:{[u;e;b;pr] $[b;eval @[e;2 3;expr[u]];1b]}
+dotqd[`wj`wj1]:{[u;e;b;pr] $[b;eval @[e;2;expr[u]];1b]}
 
-dotqf:{[u;q;b]
-  if[((![-6])~q[0]) or (.:)~q[0];:{[u;e;b] $[b;eval @[e;1;expr[u]];1b]}[u;q;b]]
+dotqf:{[u;q;b;pr]
   qf:.q?(q[0]);
   p:$[null p:dotqd qf;dotqd`;p];
-  p[u;q;b]}
+  p[u;q;b;pr]}
 
-lamq:{[u;e;l]
-    rt:(distinct exec object from access where entity<>`public);
-    //rqt:rt where rt in (raze `$distinct {-4!x} each string raze/[{any (type each x) within (0;99)};e]);
+lamq:{[u;e;l;pr]
+    rt:(distinct exec object from access where entity<>`public); / allow public tables 
     rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
-    prohibited: rqt where not achk[u;;`read] each rqt;
+    prohibited: rqt where not achk[u;;`read;pr] each rqt;
     if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   :exe e}
 
 exe:{if[100<abs type first x; :eval x]; value x} /account for complex calls, e.g. "in"
 
-mainexpr:{[u;e;b]
+mainexpr:{[u;e;b;pr]
   / variable reference
   if[-11h=type e;
-    //if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first 
-    if[not achk[u;e;`read]; $[b;'err[`selt][e]; :0b]];
+    /if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first
+    if[not achk[u;e;`read;pr]; $[b;'err[`selt][e]; :0b]];
     $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
   / named function calls
@@ -146,18 +147,18 @@ mainexpr:{[u;e;b]
     $[b; :exe e; :1b];
   ];
   / queries - select/update/delete
-  if[isq e; :query[u;e;b]];
+  if[isq e; :query[u;e;b;pr]];
   / .q keywords
-  if[xdq e;:dotqf[u;e;b]];
-  /lambdas
-  if[any lam:100=type each raze e; :lamq[u;e;lam]];
+  if[xdq e;:dotqf[u;e;b;pr]];
+  / lambdas
+  if[any lam:100=type each raze e; :lamq[u;e;lam;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not fchk[u;ALL;()]; $[b;'err[`expr][f]; :0b]];
   $[b; exe e; 1b]}
 
-/ projection to determine if function will check and execute or return bool
-expr:mainexpr[;;1b]
-allowed:mainexpr[;;0b]
+/ projection to determine if function will check and execute or return bool, and in second case run in permissive mode
+expr:mainexpr[;;runmode;permissivemode]
+allowed:mainexpr[;;0b;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 ////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
