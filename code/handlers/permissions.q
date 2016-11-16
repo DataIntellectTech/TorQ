@@ -18,7 +18,10 @@ err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
 
+/ determine whether the system outputs booleans (permission check only) or evaluates query
 runmode:1b
+
+/ determine whether unlisted variables are auto-whitelisted
 permissivemode:0b
 
 / schema
@@ -64,7 +67,8 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
-  d:d,$[not count a;();f~`select;();(1=count a) and (99h=type first a);first a;get[get[f]][1]!a];
+  /checking for parameters,projection
+  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(ca#`))!a];
   d}
 
 fchk:{[u;f;a]
