@@ -57,11 +57,7 @@ createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
 addpublic:{[u;h]publictrack::publictrack upsert (u;h)}
 removepublic:{[u]publictrack::.[publictrack;();_;u]}
-
-/ clone user looks for an original user u, and adds a new user with a new password and everything else the same as user u.
-cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p];
-  addtogroup[unew;` sv value(1!usergroup)[u]];
-  assignrole[unew;` sv value(1!userrole)[u]]}
+cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p]; addtogroup[unew;` sv value(1!usergroup)[u]]; assignrole[unew;` sv value(1!userrole)[u]]}
 
 / permissions check functions
 
@@ -75,7 +71,6 @@ fchk:{[u;f;a]
   r:exec role from userrole where user=u;  / list of roles this user has
   o:ALL,f,exec fgroup from functiongroup where function=f; / the func and any groups that contain it
   c:exec paramcheck from function where (object in o) and (role in r);
-  //if[1 = count c; if[ 1b = c[0;0]; :1b]];
   k:@[;pdict[f;a];::] each c;  / try param check functions matched for roles
   k:`boolean$@[k;where not -1h=type each k;:;0b];  / errors or non-boolean results treated as false
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
@@ -94,7 +89,6 @@ query:{[u;q;b;pr]
   if[not fchk[u;`select;()]; $[b;'err[`quer][]; :0b]];  / must have 'select' access to run free form queries
   / update or delete in place
   if[((!)~q[0])and(11h=type q[1]);
-    //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can modify any table first
     if[not achk[u;first q[1];`write;pr]; $[b;'err[`updt][first q 1]; :0b]];
     $[b; :eval q; :1b];
   ];
@@ -109,7 +103,6 @@ query:{[u;q;b;pr]
        q:@[q;1;:;vt`table];
        q:@[q;2;:;enlist first[q 2],vt`whereclause];
      ];
-     //if[fchk[u;ALL;()]; $[b; :eval q; :1b]]; / admin can look at any table
      if[not achk[u;t;`read;pr]; $[b; 'err[`selt][t]; :0b]];
      $[b; :eval q; :1b];
   ];
@@ -134,7 +127,7 @@ lamq:{[u;e;l;pr]
     if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   :exe e}
 
-exe:{if[(100<abs type first x); :eval x]; value x} /account for complex calls, e.g. "in"
+exe:{if[(100<abs type first x); :eval x]; value x} 
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -142,15 +135,12 @@ mainexpr:{[u;e;b;pr]
   e:$[10=type e;parse e;e];
   / variable reference
   if[-11h=type e;
-    /if[fchk[u;ALL;()]; $[b; :eval e; :1b]]; / admin can modify any table first
     if[not achk[u;e;`read;pr]; $[b;'err[`selt][e]; :0b]];
     $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
   / named function calls
   if[-11h=type f:first e;
     if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
-    //if[not all type'[e]; e:raze e]; /some methods of passing args enlist in parse
-    //if[any count'[e]=signum type'[e]; e:raze e]; /catch single enlisted and raze
     $[b; :exe ie; :1b];
   ];
   / queries - select/update/delete
@@ -163,13 +153,11 @@ mainexpr:{[u;e;b;pr]
   if[not fchk[u;ALL;()]; $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
 
-/ projection to determine if function will check and execute or return bool, and in second case run in permissive mode
+/ projection to determine if function will check and execute or return bool, and in second arg run in permissive mode
 expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-////requ:{[u;q]allowed[u] q:$[10=type q;parse q;$[10h=type f:first q;destringf[f],1_ q;q]]};
-////requ:{[u;q]q:$[10=type q;parse q;10h=abs type f:first q;destringf[f],1_ q;q]; expr[u;q]};
 requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; expr[u;q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
@@ -199,6 +187,7 @@ login:{[u;p]
   if[not ud[`authtype] in key auth;:0b];
   auth[ud`authtype][u;p]}
 
+/ drop public users on logout
 droppublic:{[w] 
   if[any "B"$(.Q.opt .z.x)[`public][0;0]; 
     if[0<count publictrack?w;
