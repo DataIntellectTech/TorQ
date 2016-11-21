@@ -25,7 +25,10 @@
 .pm.grantfunction[`.u.upd;`systemuser;{1b}]
 .pm.grantfunction[`.proc.paramcheck;`systemuser;{1b}]
 .pm.grantfunction[`.proc.getattributes;`systemuser;{1b}]
-.pm.grantfunction[.pm.ALL;`systemuser;{1b}]
+.pm.grantfunction[`postback;`systemuser;{1b}]
+.pm.grantfunction[`killhandle;`systemuser;{1b}]
+.pm.grantfunction[`$string(!:);`systemuser;{1b}]
+
 
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]
@@ -88,4 +91,9 @@
 .pm.assignrole[`;`systemuser]
 .pm.addtogroup[`;`systemuser]
 
-
+.pm.adduser[`john;`local;`md5;md5"john1"]
+.pm.assignrole[`john;`quant]
+.pm.addtogroup[`john;`headtraders]
+.pm.grantaccess[`trade;`headtraders;`read]
+.pm.grantfunction[`.gw.syncexec;`quant;{1b}]
+.pm.grantfunction[`.gw.asyncexec;`quant;{1b}]

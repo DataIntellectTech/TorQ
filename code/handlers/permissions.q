@@ -110,7 +110,7 @@ query:{[u;q;b;pr]
   if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
   $[b; :eval q; :1b]}
 
-dotqd:enlist[`]!enlist{[u;e;b;pr]if[not fchk[u;ALL;()];$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
+dotqd:enlist[`]!enlist{[u;e;b;pr]if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]);$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
 dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;eval @[e;1 2;expr[u]];1b]}
 dotqd[`aj`ej]:{[u;e;b;pr] $[b;eval @[e;2 3;expr[u]];1b]}
 dotqd[`wj`wj1]:{[u;e;b;pr] $[b;eval @[e;2;expr[u]];1b]}
