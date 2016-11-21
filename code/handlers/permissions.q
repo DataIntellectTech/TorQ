@@ -150,7 +150,7 @@ mainexpr:{[u;e;b;pr]
   / lambdas
   if[any lam:100=type each raze e; :lamq[u;e;lam;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
-  if[not fchk[u;ALL;()]; $[b;'err[`expr][f]; :0b]];
+  if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
 
 / projection to determine if function will check and execute or return bool, and in second arg run in permissive mode
