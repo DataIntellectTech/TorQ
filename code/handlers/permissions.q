@@ -197,12 +197,15 @@ droppublic:{[w]
   }
 
 init:{
-  .z.pg:.z.ps:req;
+  //.z.pg:req:.z.ps:req;
+  .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
+  .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
   .z.pw:login;
   .z.pc:droppublic;
   }
 
+enabled:1b
 if[enabled;init[]]
 
 if[enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
