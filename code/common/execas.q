@@ -1,4 +1,4 @@
-\d .ea
+\d .pm
 
 execas:{[f;u]
- $[.pm.enabled;.pm.requ[u;f]; value f]}
+ $[@[value;`.pm.enabled;0b];.pm.requ[u;f]; value f]}

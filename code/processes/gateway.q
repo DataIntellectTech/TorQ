@@ -412,9 +412,9 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- query:$[.pm.enabled; (`.ea.execas; query; .z.u); query];
+ query:$[@[value;.pm.enabled;0b];{$[.proc.loadcommoncode;value (`.pm.execas; query; .z.u);value query]};query];
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed;errStr:.gw.errorprefix,"synchronous calls are only allowed";
+ $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
  [errStr:"";
  if[99h<>type servertype;
 	// its a list of servertypes e.g. `rdb`hdb
@@ -453,7 +453,7 @@ syncexecj:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
- query:$[.pm.enabled; (`.ea.execas; query; .z.u); query];
+ query:$[@[value;.pm.enabled;0b];{$[.proc.loadcommoncode;value (`.pm.execas; query; .z.u);value query]};query];
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
