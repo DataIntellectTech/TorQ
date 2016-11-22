@@ -205,7 +205,6 @@ init:{
   .z.pc:droppublic;
   }
 
-enabled:1b
 if[enabled;init[]]
 
 if[enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
