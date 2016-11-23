@@ -416,17 +416,21 @@ loadf:{
 loaddir:{
 	.lg.o[`fileload;"loading q and k files from directory ",x];
 	// Check the directory exists
-	if[()~files:key hsym `$x; .lg.e[`fileload;"specified directory ",x," doesn't exist"]; :()];
+	$[()~files:key hsym `$x; .lg.o[`fileload;"specified directory ",x," doesn't exist"];
 	// Try to read in a load order file
-	$[`order.txt in files:key hsym `$x;
-		[.lg.o[`fileload;"found load order file order.txt"];
-		 order:(`$read0 `$x,"/order.txt") inter files;
-		 .lg.o[`fileload;"loading files in order "," " sv string order]];
-		order:`symbol$()];
-	files:files where any files like/: ("*.q";"*.k");
-	// rearrange the ordering
-	files:order,files except order;
-	loadf each (x,"/"),/:string files}
+		[
+        	$[`order.txt in files:key hsym `$x;
+                	[.lg.o[`fileload;"found load order file order.txt"];
+                 	order:(`$read0 `$x,"/order.txt") inter files;
+                 	.lg.o[`fileload;"loading files in order "," " sv string order]];
+                	order:`symbol$()];
+        	files:files where any files like/: ("*.q";"*.k");
+        	// rearrange the ordering
+        	files:order,files except order;
+        	loadf each (x,"/"),/:string files
+		]
+	];
+	}
 
 // load a config file
 loadconfig:{
@@ -460,9 +464,30 @@ overrideconfig:{[params]
 
 override:{overrideconfig[.proc.params]}
 
-reloadcommoncode:{loaddir getenv[`KDBCODE],"/common";}
-reloadprocesscode:{loaddir getenv[`KDBCODE],"/",string proctype;}
-reloadnamecode:{loaddir getenv[`KDBCODE],"/",string procname;}
+reloadcommoncode:{
+	loaddir getenv[`KDBCODE],"/common";
+	// Optionally load common code from seperate directory
+	$[""~getenv(`KDBAPPCODE);
+		lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific common code"];
+		loaddir getenv[`KDBAPPCODE],"/common"
+	];
+	}
+reloadprocesscode:{
+	loaddir getenv[`KDBCODE],"/",string proctype;
+	// Optionally load proctype code from seperate directory
+	$[""~getenv(`KDBAPPCODE);
+                lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific proctype code"];
+                loaddir getenv[`KDBAPPCODE],"/",string proctype
+        ];
+	}
+reloadnamecode:{
+	loaddir getenv[`KDBCODE],"/",string procname;
+	// Optionally load procname code from seperate directory
+	$[""~getenv(`KDBAPPCODE);
+                lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific procname code"];
+                loaddir getenv[`KDBAPPCODE],"/",string procname
+        ];
+	}
 
 \d . 
 // Load configuration
