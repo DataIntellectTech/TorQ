@@ -111,7 +111,7 @@ req:distinct `proctype`procname,req
 version:"1.0"
 application:""
 getversion:{$[0 = count v:@[{first read0 x};hsym`$getenv[`KDBCONFIG],"/version.txt";version];version;v]}
-getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBCONFIG],"/application.txt";application];application;a]}
+getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBAPPCONFIG],"/application.txt";application];application;a]}
 
 \d .lg
 
