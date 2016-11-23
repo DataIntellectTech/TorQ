@@ -117,12 +117,12 @@ dotqf:{[u;q;b;pr]
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b;pr]}
 
-lamq:{[u;e;l;pr]
+lamq:{[u;e;l;b;pr]
     rt:(distinct exec object from access where entity<>`public); / allow public tables 
     rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
     prohibited: rqt where not achk[u;;`read;pr] each rqt;
     if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
-  :exe e}
+    $[b; exe e; 1b]}
 
 exe:{if[(100<abs type first x); :eval x]; value x} 
 
@@ -145,7 +145,7 @@ mainexpr:{[u;e;b;pr]
   / .q keywords
   if[xdq e;:dotqf[u;e;b;pr]];
   / lambdas
-  if[any lam:100=type each raze e; :lamq[u;e;lam;pr]];
+  if[any lam:100=type each raze e; :lamq[u;e;lam;b;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
@@ -155,7 +155,8 @@ expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; expr[u;q]};
+cando:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled;allowed[u;q];1b]};
+requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled; expr[u;q]; value q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
