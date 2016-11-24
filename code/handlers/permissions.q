@@ -129,8 +129,6 @@ lamq:{[u;e;l;b;pr]
 exe:{if[(100<abs type first x); :eval x]; value x} 
 
 mainexpr:{[u;e;b;pr]
-  show u;
-  show e;
   / store initial expression to use with value
   ie:e;
   e:$[10=type e;parse e;e];
@@ -207,8 +205,10 @@ init:{
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
+  .z.pp:.z.ph:{'"HTTP requests not permitted"};		
+  .z.ws:{'"websocket access not permitted"};
   .z.pw:login;
-  .z.pc:droppublic;
+  .z.pc:{droppublic[y];@[x;y]}.z.pc;
   }
 
 if[enabled;init[]]
