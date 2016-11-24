@@ -118,16 +118,19 @@ dotqf:{[u;q;b;pr]
   p[u;q;b;pr]}
 
 lamq:{[u;e;l;b;pr]
-  rt:(distinct exec object from access where entity<>`public); / allow public tables 
-  rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
-  prohibited: rqt where not achk[u;;`read;pr] each rqt;
-  if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
-  $[b; :exe e; :1b]}
-
+    rt:(distinct exec object from access where entity<>`public); / allow public tables
+    pq:(raze `$distinct {-4!x} (raze/)(s:string raze e) ,' " "); 
+    rqt:rt where rt in pq;
+    au: exec from user where id in pq;
+    prohibited: rqt where not achk[u;;`read;pr] each rqt;
+    if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
+    $[b; exe e; 1b]}
 
 exe:{if[(100<abs type first x); :eval x]; value x} 
 
 mainexpr:{[u;e;b;pr]
+  show u;
+  show e;
   / store initial expression to use with value
   ie:e;
   e:$[10=type e;parse e;e];
@@ -155,9 +158,10 @@ mainexpr:{[u;e;b;pr]
 expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
+parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]}
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-cando:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled;allowed[u;q];1b]};
-requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled; expr[u;q]; value q]};
+cando:{[u;q]q:parsequery[q]; $[enabled;allowed[u;q];1b]};
+requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; value q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
@@ -199,18 +203,14 @@ droppublic:{[w]
   }
 
 init:{
-  //.z.pg:req;
-  //.z.ps:req;
+  //.z.pg:req:.z.ps:req;
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
-  .z.pp:.z.ph:{'"HTTP requests not permitted"};
-  .z.ws:{'"websocket access not permitted"};
   .z.pw:login;
-  //.z.pc:droppublic;
-  .z.pc:{droppublic[y];@[x;y]}.z.pc;
+  .z.pc:droppublic;
   }
-enabled:1b
+
 if[enabled;init[]]
 
 if[enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
