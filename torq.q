@@ -108,10 +108,31 @@ if[.z.o like "w*"; {if["\\" in v:getenv[x]; setenv[x;ssr[v;"\\";"/"]]]} each dis
 req:@[value;`req;`symbol$()]
 req:distinct `proctype`procname,req
 
+getconfig:{[path;level]
+        /-check if KDBAPPCONFIG exists
+        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
+          key hsym appconf:`$kac,"/",path;
+          ()];
+
+        /-if level=2 then all files are returned regardless
+        if[level<2;
+          if[()~keyappconf;
+            appconf:()]];
+
+        /-get KDBCONFIG path
+        conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
+
+        /-if level is non-zero return appconfig and config files
+        (),$[level;
+          appconf,conf;
+          first appconf,conf]}
+
+getconfigfile:getconfig[;0]
+
 version:"1.0"
 application:""
 getversion:{$[0 = count v:@[{first read0 x};hsym`$getenv[`KDBCONFIG],"/version.txt";version];version;v]}
-getapplication:{$[0 = count a:@[{read0 x};hsym`$getenv[`KDBAPPCONFIG],"/application.txt";application];application;a]}
+getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
 \d .lg
 
@@ -280,27 +301,6 @@ $[count[req] = count req inter key params;
   0<count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
-
-getconfig:{[path;level]
-        /-check if KDBAPPCONFIG exists
-        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
-          key hsym appconf:`$kac,"/",path;
-          ()];
-
-        /-if level=2 then all files are returned regardless
-        if[level<2;
-          if[()~keyappconf;
-            appconf:()]];
-
-        /-get KDBCONFIG path
-        conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
-
-        /-if level is non-zero return appconfig and config files
-        (),$[level;
-          appconf,conf;
-          first appconf,conf]}
-
-getconfigfile:getconfig[;0]
 
 // If any of the required parameters are null, try to read them from a file
 // The file can come from the command line, or from the environment path
