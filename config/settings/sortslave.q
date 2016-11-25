@@ -21,6 +21,7 @@ mergenumtab:`quote`trade!10000 50000    // specify number of rows per table
 hdbdir:`:hdb                            // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile["sort.csv"]              // location of csv file
 gc:1b                                   // garbage collect at appropriate points (after each table save and after sorting data)
+tickerplanttypes:rdbtypes:hdbtypes:gatewaytypes:sorttypes:sortslavetypes:()     // sortslaves don't need these connections
 
 // Server connection details
 \d .servers
