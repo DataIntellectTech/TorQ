@@ -2,8 +2,8 @@
 \d .pm
 
 if[@[1b; `.access.enabled;0b]; ('"controlaccess.q already active";exit 1) ]
-
 enabled:@[value;`enabled;1b]            // whether permissions are enabled
+maxsize:@[value;`maxsize;200000000]     // the maximum size of any returned result set
 
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
@@ -54,14 +54,16 @@ createvirtualtable:{[n;t;w]if[not n in key virtualtable;virtualtable,:(n;t;w)]}
 removevirtualtable:{[n]if[n in key virtualtable;virtualtable::.[virtualtable;();_;n]]}
 addpublic:{[u;h]publictrack::publictrack upsert (u;h)}
 removepublic:{[u]publictrack::.[publictrack;();_;u]}
-cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p]; addtogroup[unew;` sv value(1!usergroup)[u]]; assignrole[unew;` sv value(1!userrole)[u]]}
+cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec authtype,hashtype from user where id=u)[1]), " string `", p]; 
+ addtogroup[unew;` sv value(1!usergroup)[u]]; 
+ assignrole[unew;` sv value(1!userrole)[u]]}
 
 / permissions check functions
 
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
   /checking for parameters,projection
-  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(ca#`))!a];
+  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(`$string til ca))!a];
   d}
 
 fchk:{[u;f;a]
@@ -119,15 +121,15 @@ dotqf:{[u;q;b;pr]
   p[u;q;b;pr]}
 
 lamq:{[u;e;l;b;pr]
-    rt:(distinct exec object from access where entity<>`public); / allow public tables
-    pq:(raze `$distinct {-4!x} (raze/)(s:string raze e) ,' " "); 
-    rqt:rt where rt in pq;
-    au: exec from user where id in pq;
-    prohibited: rqt where not achk[u;;`read;pr] each rqt;
-    if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
-    $[b; exe e; 1b]}
+  rt:(distinct exec object from access where entity<>`public); / allow public tables 
+  rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
+  prohibited: rqt where not achk[u;;`read;pr] each rqt;
+  if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
+  $[b; :exe e; :1b]}
 
-exe:{if[(100<abs type first x); :eval x]; value x} 
+exe:{if[(100<abs type first x); v:eval x]; v:value x;
+  if[maxsize<-22!v; '"pm: returned value exceeds maximum permitted size"];
+  v}  /////////////////////NEEDS FINISED IN QUERY AND VAR REF IN MAINEXPR 
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -157,10 +159,9 @@ mainexpr:{[u;e;b;pr]
 expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
-parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]}
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-cando:{[u;q]q:parsequery[q]; $[enabled;allowed[u;q];1b]};
-requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; value q]};
+cando:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled;allowed[u;q];1b]};
+requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled; expr[u;q]; value q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
@@ -202,14 +203,19 @@ droppublic:{[w]
   }
 
 init:{
-  //.z.pg:req:.z.ps:req;
+  //.z.pg:req;
+  //.z.ps:req;
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
+  .z.pp:.z.ph:{'"pm: HTTP requests not permitted"};
+  .z.ws:{'"pm: websocket access not permitted"};
   .z.pw:login;
-  .z.pc:droppublic;
+  //.z.pc:droppublic;
+  .z.pc:{droppublic[y];@[x;y]}.z.pc;
   }
 
+enabled:1b
 if[enabled;init[]]
 
 if[enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
