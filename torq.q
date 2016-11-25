@@ -468,7 +468,7 @@ reloadcommoncode:{
 	loaddir getenv[`KDBCODE],"/common";
 	// Optionally load common code from seperate directory
 	$[""~getenv(`KDBAPPCODE);
-		lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific common code"];
+		.lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific common code"];
 		loaddir getenv[`KDBAPPCODE],"/common"
 	];
 	}
@@ -476,7 +476,7 @@ reloadprocesscode:{
 	loaddir getenv[`KDBCODE],"/",string proctype;
 	// Optionally load proctype code from seperate directory
 	$[""~getenv(`KDBAPPCODE);
-                lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific proctype code"];
+                .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific proctype code"];
                 loaddir getenv[`KDBAPPCODE],"/",string proctype
         ];
 	}
@@ -484,7 +484,7 @@ reloadnamecode:{
 	loaddir getenv[`KDBCODE],"/",string procname;
 	// Optionally load procname code from seperate directory
 	$[""~getenv(`KDBAPPCODE);
-                lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific procname code"];
+                .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific procname code"];
                 loaddir getenv[`KDBAPPCODE],"/",string procname
         ];
 	}
