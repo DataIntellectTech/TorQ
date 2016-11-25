@@ -2,8 +2,8 @@
 \d .pm
 
 if[@[1b; `.access.enabled;0b]; ('"controlaccess.q already active";exit 1) ]
-
 enabled:@[value;`enabled;1b]            // whether permissions are enabled
+maxsize:@[value;`maxsize;200000000]     // the maximum size of any returned result set
 
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
@@ -61,7 +61,7 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
   /checking for parameters,projection
-  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(ca#`))!a];
+  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(til ca))!a];
   d}
 
 fchk:{[u;f;a]
@@ -124,8 +124,9 @@ lamq:{[u;e;l;b;pr]
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
 
-
-exe:{if[(100<abs type first x); :eval x]; value x} 
+exe:{if[(100<abs type first x); v:eval x]; v:value x;
+  if[maxsize<-22!v; '"pm: returned value exceeds maximum permitted size"];
+  v}  /////////////////////NEEDS FINISED IN QUERY AND VAR REF IN MAINEXPR 
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -204,8 +205,8 @@ init:{
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
-  .z.pp:.z.ph:{'"HTTP requests not permitted"};
-  .z.ws:{'"websocket access not permitted"};
+  .z.pp:.z.ph:{'"pm: HTTP requests not permitted"};
+  .z.ws:{'"pm: websocket access not permitted"};
   .z.pw:login;
   //.z.pc:droppublic;
   .z.pc:{droppublic[y];@[x;y]}.z.pc;
