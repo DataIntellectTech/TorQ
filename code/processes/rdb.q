@@ -167,7 +167,7 @@ notpconnected:{[]
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.tickerplanttypes
 
 /-set the upd function in the top level namespace
-upd:{[f;t;x] .[.rdb.upd;(t;x); f . (t;x)]}@[value;`upd;{{x;y}}]
+upd:.rdb.upd
 
 /-set u.end for the tickerplant to call at end of day
 .u.end:.rdb.endofday
