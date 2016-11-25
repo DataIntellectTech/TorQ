@@ -93,9 +93,9 @@
 .pm.assignrole[`;`systemuser]
 .pm.addtogroup[`;`systemuser]
 
-.pm.adduser[`john;`local;`md5;md5"john1"]
-.pm.assignrole[`john;`quant]
-.pm.addtogroup[`john;`headtraders]
-.pm.grantaccess[`trade;`headtraders;`read]
-.pm.grantfunction[`.gw.syncexec;`quant;{1b}]
-.pm.grantfunction[`.gw.asyncexec;`quant;{1b}]
+.pm.addrole[`administrator;"can do anything"]
+.pm.grantfunction[.pm.ALL;`administrator;{1b}] / all functions, no argument validation
+.pm.assignrole[`gateway;`administrator]
+.pm.addgroup[`administrator;"can do anything"]
+.pm.grantaccess[.pm.ALL;`administrator;`read] / all functions, no argument validation
+.pm.addtogroup[`gateway;`administrator]

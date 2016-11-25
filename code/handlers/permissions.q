@@ -74,8 +74,9 @@ fchk:{[u;f;a]
 
 achk:{[u;t;rw;pr]
   if[pr and not t in key 1!access; :1b];
+  t: ALL,t;
   g:raze over (exec groupname by user from usergroup)\[u]; / groups can contain groups - chase all
-  exec 0<count i from access where object=t, entity in g, level in (`read`write!(`read`write;`write))[rw]}
+  exec 0<count i from access where object in t, entity in g, level in (`read`write!(`read`write;`write))[rw]}
 
 / expression identification
 xqu:{(first[x] in (?;!)) and (count[x]>=5)} / Query
@@ -205,10 +206,8 @@ init:{
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
-  .z.pp:.z.ph:{'"HTTP requests not permitted"};		
-  .z.ws:{'"websocket access not permitted"};
   .z.pw:login;
-  .z.pc:{droppublic[y];@[x;y]}.z.pc;
+  .z.pc:droppublic;
   }
 
 if[enabled;init[]]
