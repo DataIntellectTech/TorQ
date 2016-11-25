@@ -16,10 +16,10 @@ err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
 
 / determine whether the system outputs booleans (permission check only) or evaluates query
-runmode:1b
+runmode:@[value;`runmode;1b]
 
 / determine whether unlisted variables are auto-whitelisted
-permissivemode:0b
+permissivemode:@[value; `permissivemode; 0b]
 
 / schema
 user:([id:`symbol$()]authtype:`symbol$();hashtype:`symbol$();password:())
@@ -159,9 +159,10 @@ mainexpr:{[u;e;b;pr]
 expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
+parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]}
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
-cando:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled;allowed[u;q];1b]};
-requ:{[u;q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]; $[enabled; expr[u;q]; value q]};
+cando:{[u;q]q:parsequery[q]; $[enabled;allowed[u;q];1b]};
+requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; value q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
@@ -215,7 +216,7 @@ init:{
   .z.pc:{droppublic[y];@[x;y]}.z.pc;
   }
 
-enabled:1b
+
 if[enabled;init[]]
 
 if[enabled;(.proc.loadconfig[getenv[`KDBCONFIG],"/permissions/";] each `default,.proc.proctype,.proc.procname;
