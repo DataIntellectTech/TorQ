@@ -14,6 +14,7 @@ err[`selx]:{"pm: unsupported select statement, superuser only"}
 err[`updt]:{"pm: no write permission on [",string[x],"]"}
 err[`expr]:{"pm: unsupported expression, superuser only"}
 err[`quer]:{"pm: free text queries not permissioned for this user"}
+err[`size]:{"pm: returned value exceeds maximum permitted size"}
 
 / determine whether the system outputs booleans (permission check only) or evaluates query
 runmode:@[value;`runmode;1b]
@@ -90,10 +91,10 @@ query:{[u;q;b;pr]
   / update or delete in place
   if[((!)~q[0])and(11h=type q[1]);
     if[not achk[u;first q[1];`write;pr]; $[b;'err[`updt][first q 1]; :0b]];
-    $[b; :eval q; :1b];
+    $[b; :qexe q; :1b];
   ];
   / nested query
-  if[isq q 1; $[b; :eval @[q;1;.z.s[u;;b;pr]]; :1b]];
+  if[isq q 1; $[b; :qexe @[q;1;.z.s[u;;b;pr]]; :1b]];
   / select on named table
   if[11h=abs type q 1;
      t:first q 1;
@@ -104,11 +105,11 @@ query:{[u;q;b;pr]
        q:@[q;2;:;enlist first[q 2],vt`whereclause];
      ];
      if[not achk[u;t;`read;pr]; $[b; 'err[`selt][t]; :0b]];
-     $[b; :eval q; :1b];
+     $[b; :qexe q; :1b];
   ];
   / default - not specifally handled, require superuser
   if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
-  $[b; :eval q; :1b]}
+  $[b; :qexe q; :1b]}
 
 dotqd:enlist[`]!enlist{[u;e;b;pr]if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]);$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
 dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;eval @[e;1 2;expr[u]];1b]}
@@ -128,8 +129,9 @@ lamq:{[u;e;l;b;pr]
   $[b; :exe e; :1b]}
 
 exe:{if[(100<abs type first x); v:eval x]; v:value x;
-  if[maxsize<-22!v; '"pm: returned value exceeds maximum permitted size"];
-  v}  /////////////////////NEEDS FINISED IN QUERY AND VAR REF IN MAINEXPR 
+  if[maxsize<-22!v; 'err[`size][]]; v} 
+
+qexe:{v:eval x; if[maxsize<-22!v; 'err[`size][]]; v}
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -138,7 +140,7 @@ mainexpr:{[u;e;b;pr]
   / variable reference
   if[-11h=type e;
     if[not achk[u;e;`read;pr]; $[b;'err[`selt][e]; :0b]];
-    $[b; :eval $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
+    $[b; :qexe $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
   ];
   / named function calls
   if[-11h=type f:first e;
@@ -204,18 +206,14 @@ droppublic:{[w]
   }
 
 init:{
-  //.z.pg:req;
-  //.z.ps:req;
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
   .z.pp:.z.ph:{'"pm: HTTP requests not permitted"};
   .z.ws:{'"pm: websocket access not permitted"};
   .z.pw:login;
-  //.z.pc:droppublic;
   .z.pc:{droppublic[y];@[x;y]}.z.pc;
   }
-
 
 if[enabled;init[]]
 
