@@ -77,6 +77,7 @@
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
+permissioned:@[value;`.gw.permissioned; 0b]               // should the gateway permission queries without the handlers being overwritten
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
@@ -412,7 +413,7 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- $[@[value;`.pm.enabled;0b];$[.pm.cando[.z.u; query];;'"Gateway not permissioned for this function"];];
+ $[.gw.permissioned;$[.pm.allowed[.z.u; query];;'"Gateway not permissioned for this function"];];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -446,7 +447,7 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 syncexecj:{[query;servertype;joinfunction]
  if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
  // check if the gateway allows the query to be called
- $[@[value;`.pm.enabled;0b];$[.pm.cando[.z.u;query];;'"Gateway not permissioned for this function"];];
+ if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"Gateway not permissioned for this function"]];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase

@@ -1,6 +1,10 @@
+//admin role that has full access to the system
 .pm.addrole[`admin;"full system access"]
 .pm.grantfunction[.pm.ALL;`admin;{1b}]
 .pm.assignrole[`admin;`admin]
+
+// systemuser, role used by each TorQ process, has access to all functions
+// TorQ processes need to communicate with each other
 
 .pm.addrole[`systemuser;"communicates between processes"]
 .pm.grantfunction[`exit;`systemuser;{1b}]
@@ -44,6 +48,7 @@
 .pm.grantaccess[`..register;`systemuser;`read]
 .pm.grantaccess[`..register;`systemuser;`write]
 
+// users for every TorQ process plus an admin user
 .pm.adduser[`admin;`local;`md5;md5"admin"]
 .pm.assignrole[`admin;`systemuser]
 .pm.addtogroup[`admin;`systemuser]
@@ -92,6 +97,9 @@
 .pm.adduser[`;`local;`md5;md5"pass"]
 .pm.assignrole[`;`systemuser]
 .pm.addtogroup[`;`systemuser]
+
+//The gateway is made an administrator as it cannot properly permission without total access,
+//the user used to login to the gateway will still be permissioned.
 
 .pm.addrole[`administrator;"can do anything"]
 .pm.grantfunction[.pm.ALL;`administrator;{1b}] / all functions, no argument validation
