@@ -5,6 +5,9 @@
 // half size for 2.x
 version:.5*1+3.0<=.z.K;
 
+// set the pointer size based on architecture
+ptrsize:$["32"~1_string .z.o;4;8];
+
 attrsize:{version*
 	  // `u#2 4 5 unique 32*u
 	  $[`u=a:attr x;32*count distinct x;
@@ -50,12 +53,12 @@ objsize:{
 	// exit early for anything above 76h
 	  76h<t;0;
 	// complex = complex type in list, pointers + size of each objects
-	  0h in t:sampling[type each;x];calcsize[count x;8;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x];
+	  0h in t:sampling[type each;x];calcsize[count x;ptrsize;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x];
 	// complex = if only 1 type and simple list, pointers + sum count each*first type
 	// assume count>1000 has no attrbutes (i.e. table unlikely to have 1000 columns, list of strings unlikely to have attr for some objects only
-	  (d[0] within 1 76h)&1=count d:distinct t;calcsize[count x;8;0]+"j"$scaleSampling[{sum calcsize[count each x;typesize x 0;$[1000<count x;0;attrsize each x]]};x];
+	  (d[0] within 1 76h)&1=count d:distinct t;calcsize[count x;ptrsize;0]+"j"$scaleSampling[{sum calcsize[count each x;typesize x 0;$[1000<count x;0;attrsize each x]]};x];
 	// other complex, pointers + size of each objects
-	  calcsize[count x;8;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x]]
+	  calcsize[count x;ptrsize;0]+"j"$scaleSampling[{[f;x]sum f each x}[.z.s];x]]
 	};
 
 \d .
