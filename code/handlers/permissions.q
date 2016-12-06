@@ -123,7 +123,8 @@ dotqf:{[u;q;b;pr]
 
 lamq:{[u;e;l;b;pr]
   rt:(distinct exec object from access where entity<>`public); / allow public tables 
-  rqt:rt where rt in (raze `$distinct {-4!x} raze/[string e]);
+  pq:(raze `$distinct {-4!x} (raze/)(s:raze each string e) ,' " ");
+  rqt:rt where rt in pq;
   prohibited: rqt where not achk[u;;`read;pr] each rqt;
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
