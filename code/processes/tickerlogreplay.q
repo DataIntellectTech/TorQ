@@ -24,7 +24,7 @@ sortcsv:@[value;`sortcsv;`:config/sort.csv]		//location of  sort csv file
 
 compression:@[value;`compression;()]                      	//specify the compress level, empty list if no required
 partandmerge:@[value;`partandmerge;0b]				//setting to do a replay where the data is partitioned and then merged on disk
-tempdir:@[value;`savedir;hdbdir]		                //location to save data for partandmerge replay
+tempdir:@[value;`tempdir;hdbdir]		                //location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                   //default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number of rows per table for merge process
 
@@ -91,6 +91,7 @@ if[trackonly;.lg.o[`replayinit;"messagechunks value is negative - log replay pro
 messagechunks:abs messagechunks;
 
 if[partandmerge and hdbdir = tempdir;.err.ex[`replayinit;"if using partandmerge replay, tempdir must be set to a different directory than the hdb";1]];
+if[partandmerge and sortafterreplay;.err.ex[`replayinit;"if using partandmerge replay, sortafterreplay must be set to 0b";1]];
 
 // load the schema 
 \d . 
@@ -121,18 +122,20 @@ pathtotable:{[h;p;t] `$(string .Q.par[h;partitiontype$p;t]),"/"}
 // create empty tables - we need to make sure we only create them once
 emptytabs:`symbol$()
 createemptytable:{[h;p;t]
+ temppath:pathtotable[tempdir;p;t];
  if[(not (path:pathtotable[h;p;t]) in .replay.emptytabs) and .replay.emptytables;
-  .lg.o[`replay;"creating empty table ",(string t)," at ",string path];
+  $[partandmerge;.lg.o[`replay;"creating empty table ",(string t)," at ",string temppath];
+	.lg.o[`replay;"creating empty table ",(string t)," at ",string path]];
   .replay.emptytabs,:path;
   savetabdatatrapped[h;p;t;0#value t;0b]]}
 
 savetabdata:{[h;p;t;data;UPSERT]
  path:pathtotable[h;p;t];
- .lg.o[`replay;"saving table ",(string t)," to ",string path];
+ temppath:pathtotable[tempdir;p;t];
+ $[partandmerge;.lg.o[`replay;"saving partitioned table ",(string t)," to ",string temppath];
+	.lg.o[`replay;"saving table ",(string t)," to ",string path]];
  .replay.pathlist[t],:path;
-/*******************
  $[partandmerge;savetablesbypart[tempdir;p;t];$[UPSERT;upsert;set] . (path;.Q.en[h;0!.save.manipulate[t;data]])]
-/******************
   }
 
 savetabdatatrapped:{[h;p;t;data;UPSERT] .[savetabdata;(h;p;t;data;UPSERT);{.lg.e[`replay;"failed to save table : ",x]}]}
@@ -179,9 +182,7 @@ finishreplay:{[h;p]
  savetab[h;p] each tabsincountorder[.replay.tablestoreplay];
  // sort data and apply the attributes
  if[sortafterreplay;applysortandattr[.replay.pathlist]];
-/**********
  if[partandmerge;postreplaymerge[h;p]];
-/**********
  // invoke any user defined post replay function
  .save.postreplay[h;p];
  }
@@ -204,12 +205,10 @@ replaylog:{[logfile]
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
-/****************** 
  if[(`$(string .replay.replaydate)) in key hdbdir;
     .lg.o[`replay;"HDB directory already contains ",(string .replay.replaydate)," partition. Deleting from the HDB directory"];
     .os.deldir .os.pth[string .Q.par[hdbdir;.replay.replaydate;`]]; / delete the the current dates HDB directory before performing replay
  ];
-/*****************
  $[basicmode; 
   [.lg.o[`replay;"basicmode set to true, saving down tables with .Q.hdpf"];
    .Q.hdpf[`::;hdbdir;partitiontype$.replay.replaydate;`sym]];
@@ -219,11 +218,11 @@ replaylog:{[logfile]
 
 // upd functions down here
 realupd:{[f;t;x] 
- // increment the tablecounts
- tablecounts[t]+::count first x;
- // run the supplied function in the error trap
- .[f;(t;x);{[t;x;e] errorcounts[t]+::count first x}[t;x]];
- }[.replay.upd]
+	// increment the tablecounts
+	tablecounts[t]+::count first x;
+	// run the supplied function in the error trap
+	.[f;(t;x);{[t;x;e] errorcounts[t]+::count first x}[t;x]];
+	}[.replay.upd]
 
 // amend the upd function to filter based on the table list
 if[not tablelist~enlist `all; realupd:{[f;t;x] if[t in .replay.tablestoreplay; f[t;x]]}[realupd]]
@@ -232,78 +231,37 @@ if[not tablelist~enlist `all; realupd:{[f;t;x] if[t in .replay.tablestoreplay; f
 if[messagechunks < 0W; realupd:{[f;t;x] f[t;x]; checkcount[hdbdir;replaydate;1]}[realupd]]
 
 initialupd:{[t;x] 
- // spin through the first X messages
- $[msgcount < (firstmessage - 1);
-    msgcount+::1;
-    // Once we reach the correct message, reset the upd function
-    @[`.;`upd;:;.replay.realupd]]}
+	 // spin through the first X messages
+	 $[msgcount < (firstmessage - 1);
+	msgcount+::1;
+	// Once we reach the correct message, reset the upd function
+	@[`.;`upd;:;.replay.realupd]]
+	}
 
-/*************
 
-/- extract user defined row counts	
+// extract user defined row counts	
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 
-/ post replay function for merge replay, invoked after all the tables have been written down for a given log file
+// post replay function for merge replay, invoked after all the tables have been written down for a given log file
 postreplaymerge:{[d;p] 
-    /- set compression level
-                if[ 3= count compression;
-                        .lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
-                        .z.zd:compression;
-                        .lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]; 
-   buildsummarytables[p;tempdir;hdbdir;tables[`.]]; 
-   mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();
-    /merge the tables from each partition in the tempdir together
-   merge[tempdir;p;;mergelimits] each tabsincountorder[.replay.tablestoreplay];
-   .os.deldir .os.pth[string .Q.par[tempdir;p;`]]; / delete the contents of tempdir after merge completion
-  }
+	// set compression level
+	if[ 3= count compression;
+	  .lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
+	  .z.zd:compression;
+	  .lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]; 
+	
+	mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();
+	// merge the tables from each partition in the tempdir together
+	merge[tempdir;p;;mergelimits] each tabsincountorder[.replay.tablestoreplay];
+	.os.deldir .os.pth[string .Q.par[tempdir;p;`]]; // delete the contents of tempdir after merge completion
+  	}
 
 
-buildsummarytables:{[pt;tempdir;hdbdir;tablist]
- if[`testquote in tablist;
-   writesummary[`tquote_summary;(get_tquote_summary_temp;tempdir;pt);hdbdir;pt] ];
- if[`pp_prices in tablist;
-   writesummary[`pp_price_update_summary;(get_pp_price_update_summary_temp;tempdir;pt);hdbdir;pt] ];
- if[`ecn_marketdata_ladder in tablist;
-   writesummary[`ecn_vwap_avg;(get_ecn_vwap_avg_temp;tempdir;pt);hdbdir;pt] ];
-  }
-
-
-
-get_tquote_summary_temp:{[tempdir;pt]
- // build list of partitions
- p:partitionlist[tempdir;pt;`testquote];
- raze get_tquote_summary[;0Np;0Np] each p}
-
-
-get_pp_price_update_summary_temp:{[tempdir;pt]
- // build list of partitions
- p:partitionlist[tempdir;pt;`pp_prices];
- raze get_pp_price_update_summary[;0Np;0Np] each p}
-
-
-get_ecn_vwap_avg_temp:{[tempdir;pt]
- // build list of partitions
- p:partitionlist[tempdir;pt;`ecn_marketdata_ladder];
- raze get_ecn_vwap_avg[;0Np;0Np] each p}
-
-
-writesummary:{[summaryname;summaryfunc;hdb;pt]
- .lg.o[`summarytables;"loading sym file"];
- load ` sv (hsym hdb),`sym;
- .lg.o[`summarytables;"building ",(string summaryname)," lookup table"];
- t:@[value;summaryfunc;{.lg.e[`summarytables;"failed to execute summary function for ",(string x),": ",y];-1}[summaryname]];
- if[not t~-1;
-   .lg.o[`summarytables;"writing summary table"];
-   .[set;(` sv .Q.par[hdb;pt;summaryname],`;.Q.en[hdb;delete date from t:0!t]);{.lg.e[`summarytables;"failed to write summary table for ",(string x),": ",y]}[summaryname]];
-   .lg.o[`summarytables;"summary table successfully written"]];
-  }
-
-
-/- function to get additional partition(s) defined by parted attribute in sort.csv		
+// function to get additional partition(s) defined by parted attribute in sort.csv		
 getextrapartitiontype:{[tablename]
-	/- check that that each table is defined or the default attributes are defined in sort.csv
-	/- exits with error if a table cannot find parted attributes in tablename or default
-	/- only checks tables that have sort enabled
+	// check that each table is defined or the default attributes are defined in sort.csv
+	// exits with error if a table cannot find parted attributes in tablename or default
+	// only checks tables that have sort enabled
 	tabparts:$[count tabparts:distinct exec column from .sort.params where tabname=tablename,sort=1,att=`p;
 			[.lg.o[`getextraparttype;"parted attribute p found in sort.csv for ",(string tablename)," table"];
 			tabparts];
@@ -315,24 +273,24 @@ getextrapartitiontype:{[tablename]
 	tabparts
 	};
 	
-/- function to check each partiton type specified in sort.csv is actually present in specified table
+// function to check each partiton type specified in sort.csv is actually present in specified table
 checkpartitiontype:{[tablename;extrapartitiontype]
 	$[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
 		.lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
 		.lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
 	};	
 	
-/- function to get list of distinct combiniations for partition directories
-/- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablename ]
-getextrapartitions:{[tablename;extrapartitiontype] 
+	// function to get list of distinct combiniations for partition directories
+	// functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablename ]
+	getextrapartitions:{[tablename;extrapartitiontype] 
 	value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
 	};	
 	
-/- function to upsert to specified directory
+// function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
         dirpar:.Q.par[dir;pt;`$string first expt];
         directory:` sv dirpar,tablename,`;
-        /- make directories for tables if they don't exist
+        // make directories for tables if they don't exist
         if[count tabpar:tabsincountorder[.replay.tablestoreplay] except key dirpar;
                 .lg.o[`dir;"creating directories under ",1_string dirpar];
                 .[{(` sv x,y,`) set .Q.en[hdbdir;0#value y]};] each dirpar,'tabpar];
@@ -341,49 +299,48 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
         .[
                 upsert;
                 (directory;r:update `sym!sym from ?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
-                {[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
-        ];
+                {[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
         };
 
 savetablesbypart:{[dir;pt;tablename]
-		arows: count value tablename;	
-		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
-		/- get additional partition(s) defined by parted attribute in sort.csv		
-		extrapartitiontype:getextrapartitiontype[tablename];
-		
-		/- check each partition type actually is a column in the selected table
-		checkpartitiontype[tablename;extrapartitiontype];		
-		/- enumerate data to be upserted
-		enumdata:update (`. `sym)?sym from .Q.en[hdbdir;value tablename];
-		/- get list of distinct combiniations for partition directories
-		extrapartitions:(`. `sym)?getextrapartitions[tablename;extrapartitiontype];
+	arows: count value tablename;	
+	.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
+	// get additional partition(s) defined by parted attribute in sort.csv		
+	extrapartitiontype:getextrapartitiontype[tablename];
+	
+	// check each partition type actually is a column in the selected table
+	checkpartitiontype[tablename;extrapartitiontype];		
+	// enumerate data to be upserted
+	enumdata:update (`. `sym)?sym from .Q.en[hdbdir;value tablename];
+	// get list of distinct combiniations for partition directories
+	extrapartitions:(`. `sym)?getextrapartitions[tablename;extrapartitiontype];
 
-		.lg.o[`save;"enumerated ",(string tablename)," table"];		
-		/- upsert data to specific partition directory 
-		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
-		/- empty the table
-		.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
-		@[`.;tablename;0#];
-		/- run a garbage collection (if enabled)
-		if[gc;.gc.run[]];
+	.lg.o[`save;"enumerated ",(string tablename)," table"];		
+	// upsert data to specific partition directory 
+	upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
+	// empty the table
+	.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
+	@[`.;tablename;0#];
+	// run a garbage collection (if enabled)
+	if[gc;.gc.run[]];
 	};
 
 
 merge:{[dir;pt;tablename;mergelimits]
-    /- get int partitions
-    intpars:asc key ` sv dir,`$string pt; / list of enumerated partitions 0 1 2 3...
-    k:key each intdir:.Q.par[hsym dir;pt] each intpars; / list of table names
-    if[0=count raze k inter\: tablename; :()]; 
-    /- get list of partition directories containing specified table
-    partdirs:` sv' (intdir,'parts) where not ()~/:parts:k inter\: tablename; / get each of the directories that hold the table
+	// get int partitions
+	intpars:asc key ` sv dir,`$string pt; // list of enumerated partitions 0 1 2 3...
+	k:key each intdir:.Q.par[hsym dir;pt] each intpars; // list of table names
+	if[0=count raze k inter\: tablename; :()]; 
+	// get list of partition directories containing specified table
+	partdirs:` sv' (intdir,'parts) where not ()~/:parts:k inter\: tablename; // get each of the directories that hold the table
  
-    /- exit function if no subdirectories are found
-    if[0=count partdirs; :()];
-    /- merge the data in chunks depending on max rows for table
-        /- destination for data to be userted to [backslashes corrected for windows]
+	// exit function if no subdirectories are found
+	if[0=count partdirs; :()];
+	// merge the data in chunks depending on max rows for table
+        // destination for data to be userted to [backslashes corrected for windows]
         
-      dest:` sv .Q.par[hdbdir;pt;tablename],`; / provides path to where to move data to
-     {[tablename;dest;mergemaxrows;curr;segment;islast]
+	dest:` sv .Q.par[hdbdir;pt;tablename],`; // provides path to where to move data to	
+	{[tablename;dest;mergemaxrows;curr;segment;islast]
         .lg.o[`merge;"reading partition ", string segment];
         curr[0]:curr[0],select from get segment;
         curr[1]:curr[1],segment;
@@ -395,21 +352,18 @@ merge:{[dir;pt;tablename;mergelimits]
             (();())];
             curr]
         }[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];   
-        /- set the attributes
+        // set the attributes
         .lg.o[`merge;"setting attributes"];
     
         @[dest;;`p#] each getextrapartitiontype[tablename]; 
         .lg.o[`merge;"merge complete"];
-        /- run a garbage collection (if enabled)
+        // run a garbage collection (if enabled)
         if[gc;.gc.run[]];
       };
 
-/*************
-
-
 
 \d .
-/-load the sort csv
+//load the sort csv
 .sort.getsortcsv[.replay.sortcsv]
 
 .replay.replaylog each .replay.logstoreplay;
