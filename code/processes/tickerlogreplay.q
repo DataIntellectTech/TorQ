@@ -130,7 +130,7 @@ createemptytable:{[h;p;t;td]
 
 savetabdata:{[h;p;t;data;UPSERT;td]
  $[partandmerge;path:pathtotable[td;p;t];path:pathtotable[h;p;t]];
- .lg.o[`replay;"saving table ",(string t)," to ",string path];
+ if[not partandmerge;.lg.o[`replay;"saving table ",(string t)," to ",string path]];
  .replay.pathlist[t],:path;
  $[partandmerge;savetablesbypart[td;p;t;h];$[UPSERT;upsert;set] . (path;.Q.en[h;0!.save.manipulate[t;data]])]
   }
@@ -139,7 +139,7 @@ savetabdatatrapped:{[h;p;t;data;UPSERT;td] .[savetabdata;(h;p;t;data;UPSERT;td);
 
 // this function should be invoked for saving tables
 savetab:{[td;h;p;t]
- createemptytable[h;p;t;td];
+ if[not partandmerge;createemptytable[h;p;t;td]];
  if[count value t;
   .lg.o[`replay;"saving ",(string t)," which has row count ",string count value t];
   savetabdatatrapped[h;p;t;value t;1b;td];
@@ -150,7 +150,7 @@ savetab:{[td;h;p;t]
 // input is a dictionary of tablename!(list of paths)
 // should be the same as .replay.pathlist
 applysortandattr:{[pathlist]
-	/ - convert pathlist dictionary into a keys and values then transpose before passing into .sort.sorttab
+	// convert pathlist dictionary into a keys and values then transpose before passing into .sort.sorttab
 	.sort.sorttab each flip (key;value) @\: distinct each pathlist
 	};
  
@@ -204,7 +204,7 @@ replaylog:{[logfile]
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
  if[(`$(string .replay.replaydate)) in key hdbdir;
     .lg.o[`replay;"HDB directory already contains ",(string .replay.replaydate)," partition. Deleting from the HDB directory"];
-    .os.deldir .os.pth[string .Q.par[hdbdir;.replay.replaydate;`]]; / delete the the current dates HDB directory before performing replay
+    .os.deldir .os.pth[string .Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
  ];
  $[basicmode; 
   [.lg.o[`replay;"basicmode set to true, saving down tables with .Q.hdpf"];
@@ -290,6 +290,7 @@ upserttopartition:{[h;dir;tablename;tabdata;pt;expttype;expt]
  // make directories for tables if they don't exist
  if[count tabpar:tabsincountorder[.replay.tablestoreplay] except key dirpar;
   .lg.o[`dir;"creating directories under ",1_string dirpar];
+  tabpar:tabpar except `heartbeat`logmsg;
   .[{[d;h;t](` sv d,t,`) set .Q.en[h;0#value t]};] each dirpar,'h,'tabpar];
   .lg.o[`save;"saving ",(string tablename)," data to partition ",string directory];
   .[
