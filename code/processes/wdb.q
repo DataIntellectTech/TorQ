@@ -20,7 +20,7 @@ mode:@[value;`mode;`saveandsort];	/- the wdb process can operate in three modes
 									/- 						data on disk, apply attributes and the trigger a reload on the
 									/-						rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];			/- the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`partbyattr];			/- the wdb process can periodically write data to disc and sort at EOD in two ways:
 														/- 1. default 		- 	the data is partitioned by [ partitiontype ]
 														/-						at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
 														/- 2. partbyattr	-	the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
@@ -129,34 +129,6 @@ savetables:{[dir;pt;forcesave;tabname]
 	if[gc;.gc.run[]];
 	]};
 	
-/- function to get additional partition(s) defined by parted attribute in sort.csv		
-getextrapartitiontype:{[tablename]
-	/- check that that each table is defined or the default attributes are defined in sort.csv
-	/- exits with error if a table cannot find parted attributes in tablename or default
-	/- only checks tables that have sort enabled
-	tabparts:$[count tabparts:distinct exec column from .sort.params where tabname=tablename,sort=1,att=`p;
-			[.lg.o[`getextraparttype;"parted attribute p found in sort.csv for ",(string tablename)," table"];
-			tabparts];
-			count defaultparts:distinct exec column from .sort.params where tabname=`default,sort=1,att=`p;
-			[.lg.o[`getextraparttype;"parted attribute p not found in sort.csv for ",(string tablename)," table, using default instead"];
-			defaultparts];
-			[.lg.e[`getextraparttype;"parted attribute p not found in sort.csv for ", (string tablename)," table and default not defined"]]
-		];
-	tabparts
-	};
-	
-/- function to check each partiton type specified in sort.csv is actually present in specified table
-checkpartitiontype:{[tablename;extrapartitiontype]
-	$[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
-		.lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
-		.lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
-	};	
-	
-/- function to get list of distinct combiniations for partition directories
-/- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
-getextrapartitions:{[tablename;extrapartitiontype] 
-	value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
-	};	
 	
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
@@ -181,11 +153,11 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 	if[forcesave or maxrows[tablename] < arows: count value tablename;	
 		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
 		/- get additional partition(s) defined by parted attribute in sort.csv		
-		extrapartitiontype:getextrapartitiontype[tablename];		
+		extrapartitiontype:.merge.getextrapartitiontype[tablename];		
 		/- check each partition type actually is a column in the selected table
-		checkpartitiontype[tablename;extrapartitiontype];		
+		.merge.checkpartitiontype[tablename;extrapartitiontype];		
 		/- get list of distinct combiniations for partition directories
-		extrapartitions:getextrapartitions[tablename;extrapartitiontype];
+		extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
 		/- enumerate data to be upserted
 		enumdata:.Q.en[hdbdir;value tablename];
 		.lg.o[`save;"enumerated ",(string tablename)," table"];		
@@ -302,7 +274,7 @@ merge:{[dir;pt;tablename;mergelimits]
 	}[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
 	/- set the attributes
 	.lg.o[`merge;"setting attributes"];
-	@[dest;;`p#] each getextrapartitiontype[tablename];
+	@[dest;;`p#] each .merge.getextrapartitiontype[tablename];
 	.lg.o[`merge;"merge complete"];
 	/- run a garbage collection (if enabled)
 	if[gc;.gc.run[]];	
