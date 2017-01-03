@@ -76,6 +76,7 @@ fchk:{[u;f;a]
   max k} / any successful check is sufficient - e.g. superuser trumps failed paramcheck from another role
 
 achk:{[u;t;rw;pr]
+  if[fchk[u;ALL;()]; :1b];
   if[pr and not t in key 1!access; :1b];
   t: ALL,t;
   g:raze over (exec groupname by user from usergroup)\[u]; / groups can contain groups - chase all
