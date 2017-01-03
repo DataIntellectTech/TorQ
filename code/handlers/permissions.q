@@ -2,7 +2,7 @@
 \d .pm
 
 if[@[1b; `.access.enabled;0b]; ('"controlaccess.q already active";exit 1) ]
-enabled:@[value;`enabled;1b]            // whether permissions are enabled
+enabled:@[value;`enabled;0b]            // whether permissions are enabled
 maxsize:@[value;`maxsize;200000000]     // the maximum size of any returned result set
 
 / constants
