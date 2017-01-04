@@ -24,7 +24,7 @@ sortcsv:@[value;`sortcsv;`:config/sort.csv]		//location of  sort csv file
 
 compression:@[value;`compression;()]                      	//specify the compress level, empty list if no required
 partandmerge:@[value;`partandmerge;0b]				//setting to do a replay where the data is partitioned and then merged on disk
-tempdir:@[value;`tempdir;hdbdir]		                //location to save data for partandmerge replay
+tempdir:@[value;`tempdir;`:tempmergedir]		        //location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                   //default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number of rows per table for merge process
 
@@ -91,7 +91,7 @@ if[trackonly;.lg.o[`replayinit;"messagechunks value is negative - log replay pro
 messagechunks:abs messagechunks;
 
 if[partandmerge and hdbdir = tempdir;.err.ex[`replayinit;"if using partandmerge replay, tempdir must be set to a different directory than the hdb";1]];
-if[partandmerge and sortafterreplay;.err.ex[`replayinit;"if using partandmerge replay, sortafterreplay must be set to 0b";1]];
+if[partandmerge and sortafterreplay;(sortafterreplay:0b; .lg.o[`replayinit;"Setting sortafterreplay to 0b"])];
 
 // load the schema 
 \d . 
