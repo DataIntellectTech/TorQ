@@ -411,7 +411,9 @@ if[not any `debug`noredirect in key params; rolllogauto[]];
 // this should then be enough to bootstrap
 loadf:{
 	.lg.o[`fileload;"loading ",x];
-	@[{system"l ",x; .lg.o[`fileload;"successfully loaded ",x]};x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]}
+	
+	$[`debug in key .proc.params; system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]]];
+	.lg.o[`fileload;"successfully loaded ",x]}
 
 loaddir:{
 	.lg.o[`fileload;"loading q and k files from directory ",x];
