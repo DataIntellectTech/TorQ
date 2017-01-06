@@ -413,8 +413,7 @@ loadf:{
 	.lg.o[`fileload;"loading ",x];
 	
 	debug:`debug in key .proc.params;
-	if[debug;system"l ",x];
-	if[not debug;@[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]]];
+	$[debug;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]]];
 	.lg.o[`fileload;"successfully loaded ",x]}
 
 loaddir:{
