@@ -5,6 +5,7 @@
 /-at eod the on-disk data may be sorted and attributes applied as specified in the sort.csv file
 
 \d .wdb
+
 /- define default parameters
 mode:@[value;`mode;`saveandsort];	/- the wdb process can operate in three modes
 									/- 1. saveandsort 	- 	the process will subscribe for data,

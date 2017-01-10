@@ -1,3 +1,4 @@
+
 / q tick.q sym . -p 5001 </dev/null >foo 2>&1 &
 /2014.03.12 remove license check
 /2013.09.05 warn on corrupt log

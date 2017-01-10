@@ -77,6 +77,8 @@
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
+permissioned:@[value;`.gw.permissioned; 0b]               // should the gateway permission queries before the permissions script does 
+
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
@@ -412,8 +414,10 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
+ if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed;errStr:.gw.errorprefix,"synchronous calls are only allowed";
+ $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
  [errStr:"";
  if[99h<>type servertype;
 	// its a list of servertypes e.g. `rdb`hdb
@@ -443,6 +447,8 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 // execute a synchronous query
 syncexecj:{[query;servertype;joinfunction]
  if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
+ // check if the gateway allows the query to be called
+ if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
@@ -452,6 +458,7 @@ syncexecj:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush

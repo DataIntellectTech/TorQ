@@ -39,6 +39,10 @@ MAXIDLE:`long$0D		// handles which haven't been used in this length of time will
 AUTORECONNECT:0b			// whether to reconnect to processes previously subscribed to
 checksubscriptionperiod:0D00:00:10	// how frequently to check subscriptions are still connected - 0D means don't check
 
+// Permissions configuration
+\d .pm
+enabled:0b
+
 // Access controls
 \d .access
 enabled:0b			// whether the access controls are enabled
