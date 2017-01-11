@@ -39,10 +39,6 @@ MAXIDLE:`long$0D		// handles which haven't been used in this length of time will
 AUTORECONNECT:0b			// whether to reconnect to processes previously subscribed to
 checksubscriptionperiod:0D00:00:10	// how frequently to check subscriptions are still connected - 0D means don't check
 
-// Permissions configuration
-\d .pm
-enabled:0b
-
 // Access controls
 \d .access
 enabled:0b			// whether the access controls are enabled
@@ -119,6 +115,17 @@ publishinterval:0D00:00:30	// how often heartbeats are published
 checkinterval:0D00:00:10	// how often heartbeats are checked
 warningtolerance:2f		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:3f		// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
+
+\d .ldap
+
+enabled:0b                                  // whether ldap authentication is enabled
+debug:0i					                // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+server:"localhost";                         // name of ldap server
+port:0i;                                    // port for ldap server
+version:3;                                  // ldap version number
+blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
+checklimit:3;                               // number of attempts before user is temporarily blocked
+checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
 
 // broadcast publishing
 \d .u
