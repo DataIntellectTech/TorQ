@@ -14,7 +14,7 @@ tplogdir:@[value;`tplogdir;`]				// the tp log directory to read the log files f
 partitiontype:@[value;`partitiontype;`date]		// the partitioning of the database.  Can be date, month or year (int would have to be handled bespokely)
 emptytables:@[value;`emptytables;1b]			// whether to overwrite any tables at start up
 sortafterreplay:@[value;`sortafterreplay;1b]		// whether to re-sort the data and apply attributes at the end of the replay.  Sort order is determined by the sortcsv (:config/sort.csv)
-basicmode:@[value;`basicmode;1b]			// do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
+basicmode:@[value;`basicmode;0b]			// do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
 exitwhencomplete:@[value;`exitwhencomplete;1b]		// exit when the replay is complete
 checklogfiles:@[value;`checklogfiles;0b] 		// check if the log file is corrupt, if it is then write a new "good" file and replay it instead
 gc:@[value;`gc;1b]					// garbage collect at appropriate points (after each table save and after the full log replay)
@@ -22,7 +22,7 @@ upd:@[value;`upd;{{[t;x] insert[t;x]}}]			// default upd function used for repla
 
 sortcsv:@[value;`sortcsv;`:config/sort.csv]		//location of  sort csv file
 
-compression:@[value;`compression;(17 2 4)]                      	//specify the compress level, empty list if no required
+compression:@[value;`compression;()]                      	//specify the compress level, empty list if no required
 partandmerge:@[value;`partandmerge;0b]				//setting to do a replay where the data is partitioned and then merged on disk
 tempdir:@[value;`tempdir;`:tempmergedir]		        //location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                   //default number of rows for merge process
