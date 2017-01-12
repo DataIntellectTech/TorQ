@@ -22,3 +22,7 @@ extra:
    author:
       github: 'AquaQAnalytics'
       twitter: 'AquaQAnalytics'
+
+google_analytics:
+   - 'UA-51911331-4'
+   - 'auto'
