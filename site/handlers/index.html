@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Handlers - TorQ</title>
+      
+      
+      
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="TorQ">
+    <meta property="og:image" content="None/../graphics/TorQ-logo.png">
+    <meta name="apple-mobile-web-app-title" content="TorQ">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../graphics/TorQ-logo.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-teal">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Handlers
+      </div>
+    </div>
+    
+      
+      <div class="button button-twitter" role="button" aria-label="Twitter">
+        <a href="https://twitter.com/AquaQAnalytics" title="@AquaQAnalytics on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+      </div>
+    
+    
+      
+      <div class="button button-github" role="button" aria-label="GitHub">
+        <a href="https://github.com/AquaQAnalytics" title="@AquaQAnalytics on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+      </div>
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/AquaQAnalytics/TorQ" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../graphics/TorQ-logo.png">
+        </div>
+      
+      <div class="name">
+        <strong>
+          TorQ
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          AquaQAnalytics/TorQ
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/AquaQAnalytics/TorQ/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/AquaQAnalytics/TorQ/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="About" href="../Overview/">
+      About
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Getting Started" href="../gettingstarted/">
+      Getting Started
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Utilities" href="../utilities/">
+      Utilities
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Handlers" href="./">
+      Handlers
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="logusage.q" href="#logusageq">
+                logusage.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="controlaccess.q" href="#controlaccessq">
+                controlaccess.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="trackclients.q" href="#trackclientsq">
+                trackclients.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="trackservers.q" href="#trackserversq">
+                trackservers.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="zpsignore.q" href="#zpsignoreq">
+                zpsignore.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="writeaccess.q" href="#writeaccessq">
+                writeaccess.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="permissions.q" href="#permissionsq">
+                permissions.q
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Diagnostic Reporting" href="#diagnostic-reporting">
+                Diagnostic Reporting
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Connection Management" href="../conn/">
+      Connection Management
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Processes" href="../Processes/">
+      Processes
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Visualisation" href="../visualisation/">
+      Visualisation
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+              
+              <li>
+                <a href="https://twitter.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on Twitter">
+                  @AquaQAnalytics on Twitter
+                </a>
+              </li>
+            
+            
+              
+              <li>
+                <a href="https://github.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on GitHub">
+                  @AquaQAnalytics on GitHub
+                </a>
+              </li>
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="message-handlers">Message Handlers</h1>
+<p>There is a separate code directory containing message handler
+customizations. This is found at $KDBCODE/handlers. Much of the code is
+derived from Simon Garland’s contributions to
+<a href="http://code.kx.com/wiki/Contrib/UsingDotz">code.kx</a>.</p>
+<p>Every external interaction with a process goes through a message
+handler, and these can be modified to, for example, log or restrict
+access. Passing through a bespoke function defined in a message handler
+will add extra processing time and therefore latency to the message. All
+the customizations we have provided aim to minimise additional latency,
+but if a bespoke process is latency sensitive then some or all of the
+customizations could be switched off. We would argue though that
+generally it is better to switch on all the message handler functions
+which provide diagnostic information, as for most non-latency sensitive
+processes (HDBs, Gateways, some RDBs etc.) the extra information upon
+failure is worth the cost. The message handlers can be globally switched
+off by setting .proc.loadhandlers to 0b in the configuration file.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Script</th>
+<th align="center">NS</th>
+<th align="center">Diag</th>
+<th align="center">Function</th>
+<th align="center">Modifies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">logusage.q</td>
+<td align="center">.usage</td>
+<td align="center">Y</td>
+<td align="center">Log all client interaction to an ascii log file and/or in-memory table. Messages can be logged before and after they are processed. Timer calls are also logged. Exclusion function list can be applied to .z.ps to disable logging of asynchronous real time updates</td>
+<td align="center">pw, po, pg, ps, pc, ws, ph, pp, pi, exit, timer</td>
+</tr>
+<tr>
+<td align="center">controlaccess.q</td>
+<td align="center">.access</td>
+<td align="center">N</td>
+<td align="center">Restrict access for set of users/user groups to a list of functions, and from a defined set of servers</td>
+<td align="center">pw, pg, ps, ws, ph, pp, pi</td>
+</tr>
+<tr>
+<td align="center">trackclients.q</td>
+<td align="center">.clients</td>
+<td align="center">Y</td>
+<td align="center">Track client process details including then number of requests and cumulative data size returned</td>
+<td align="center">po, pg, ps, ws, pc</td>
+</tr>
+<tr>
+<td align="center">trackservers.q</td>
+<td align="center">.servers</td>
+<td align="center">Y</td>
+<td align="center">Discover and track server processes including name, type and attribute information. This also contains the core of the code which can be used in conjunction with the discovery service.</td>
+<td align="center">pc, timer</td>
+</tr>
+<tr>
+<td align="center">zpsignore.q</td>
+<td align="center">.zpsignore</td>
+<td align="center">N</td>
+<td align="center">Override async message handler based on certain message patterns</td>
+<td align="center">ps</td>
+</tr>
+<tr>
+<td align="center">writeaccess.q</td>
+<td align="center">.readonly</td>
+<td align="center">N</td>
+<td align="center">Restrict client write access to prevent any modification to data in place. Also disables all HTTP access.</td>
+<td align="center">pg, ps, ws, ph, pp</td>
+</tr>
+</tbody>
+</table>
+<p>Each customization can be turned on or off individually from the
+configuration file(s). Each script can be extensively customised using
+the configuration file. Example customization for logusage.q, taken from
+$KDBCONFIG/settings/default.q is below. Please see default.q for the
+remaining configuration of the other message handler files.</p>
+<pre><code>/- Configuration used by the usage functions - logging of client interaction
+\d .usage
+enabled:1b      /- whether the usage logging is enabled
+logtodisk:1b        /- whether to log to disk or not
+logtomemory:1b      /- write query logs to memory
+ignore:1b       /- check the ignore list for functions to ignore
+ignorelist:(`upd;"upd") /- the list of functions to ignore in async calls
+flushtime:1D00      /- default value for how long to persist the
+            /- in-memory logs. Set to 0D for no flushing
+suppressalias:0b    /- whether to suppress the log file alias creation
+logtimestamp:{[].z.d}   /- function to generate the log file timestamp suffix
+LEVEL:3         /- log level. 0=none;1=errors;2=errors+complete
+            /- queries;3=errors+before a query+after
+logroll:1b      /- Whether or not to roll the log file
+            /- automatically (on a daily schedule)
+</code></pre>
+<p><a name="logu"></a></p>
+<h2 id="logusageq">logusage.q</h2>
+<p>logusage.q is probably the most important of the scripts from a
+diagnostic perspective. It is a modified version of the logusage.q
+script on code.kx.</p>
+<p>In its most verbose mode it will log information to an in-memory table
+(.usage.usage) and an on-disk ASCII file, both before and after every
+client interaction and function executed on the timer. These choices
+were made because:</p>
+<ul>
+<li>
+<p>logging to memory enables easy interrogation of client interaction;</p>
+</li>
+<li>
+<p>logging to disk allows persistence if the process fails or locks up.
+      ASCII text files allow interrogation using OS tools such as vi, grep
+      or tail;</p>
+</li>
+<li>
+<p>logging before a query ensures any query that adversely effects the
+      process is definitely captured, as well as capturing some state
+      information before the query execution;</p>
+</li>
+<li>
+<p>logging after a query captures the time taken, result set size and
+      resulting state;</p>
+</li>
+<li>
+<p>logging timer calls ensures a full history of what the process is
+      actually doing. Also, timer call performance degradation over time
+      is a common source of problems in kdb+ systems.</p>
+</li>
+</ul>
+<p>The following fields are logged in .usage.usage:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Field</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">time</td>
+<td align="center">Time the row was added to the table</td>
+</tr>
+<tr>
+<td align="center">id</td>
+<td align="center">ID of the query. Normally before and complete rows will be consecutive but it might not be the case if the incoming call invokes further external communication</td>
+</tr>
+<tr>
+<td align="center">timer</td>
+<td align="center">Execution time. Null for rows with status=b (before)</td>
+</tr>
+<tr>
+<td align="center">zcmd</td>
+<td align="center">.z handler the query arrived through</td>
+</tr>
+<tr>
+<td align="center">status</td>
+<td align="center">Query status. One of b, c or e (before, complete, error)</td>
+</tr>
+<tr>
+<td align="center">a</td>
+<td align="center">Address of sender. .dotz.ipa can be used to convert from the integer format to a hostname</td>
+</tr>
+<tr>
+<td align="center">u</td>
+<td align="center">Username of sender</td>
+</tr>
+<tr>
+<td align="center">w</td>
+<td align="center">Handle of sender</td>
+</tr>
+<tr>
+<td align="center">cmd</td>
+<td align="center">Command sent</td>
+</tr>
+<tr>
+<td align="center">mem</td>
+<td align="center">Memory statistics</td>
+</tr>
+<tr>
+<td align="center">sz</td>
+<td align="center">Size of result. Null for rows with status of b or e</td>
+</tr>
+<tr>
+<td align="center">error</td>
+<td align="center">Error message</td>
+</tr>
+</tbody>
+</table>
+<p><a name="control"></a></p>
+<h2 id="controlaccessq">controlaccess.q</h2>
+<p>controlaccess.q is used to restrict client access to the process. It is
+modified version of controlaccess.q from code.kx. The script allows
+control of several aspects:</p>
+<ul>
+<li>
+<p>the host/ip address of the servers which are allowed to access the
+    process;</p>
+</li>
+<li>
+<p>definition of three user groups (default, poweruser and superuser)
+      and the actions each group is allowed to do;</p>
+</li>
+<li>
+<p>the group(s) each user is a member of, and any additional actions an
+      individual user is allowed/disallowed outside of the group
+      permissions;</p>
+</li>
+<li>
+<p>the maximum size of the result set returned to a client.</p>
+</li>
+</ul>
+<p>The access restrictions are loaded from csv files. The permissions files
+are stored in $KDBCONFIG/permissions.</p>
+<table>
+<thead>
+<tr>
+<th align="center">File</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">*_hosts.csv</td>
+<td align="center">Contains hostname and ip address (patterns) for servers which are allowed or disallowed access. If a server is not found in the list, it is disallowed</td>
+</tr>
+<tr>
+<td align="center">*_users.csv</td>
+<td align="center">Contains individual users and the user groups they are are a member of</td>
+</tr>
+<tr>
+<td align="center">*_functions.csv</td>
+<td align="center">Contains individual functions and whether each user group is allowed to execute them. ; separated user list enables functions to be allowed by individual users</td>
+</tr>
+</tbody>
+</table>
+<p>The permissions files are loaded using a similar hierarchical approach
+as for the configuration and code loading. Three files can be provided-
+default_.csv, [proctype]_.csv, and [procname]_.csv. All of the
+files will be loaded, but permissions for the same entity (hostpattern,
+user, or function) defined in [procname]_.csv will override those in
+[proctype]_.csv which will in turn override [procname]_.csv.</p>
+<p>When a client makes a query which is refused by the permissioning layer,
+an error will be raised and logged in .usuage.usage if it is enabled.</p>
+<p><a name="track"></a></p>
+<h2 id="trackclientsq">trackclients.q</h2>
+<p>trackclients.q is used to track client interaction. It is a slightly
+modified version of trackclients.q from code.kx, and extends the
+functionality to handle interaction with the discovery service.</p>
+<p>Whenever a client opens a connection to the q process, it will be
+registered in the .clients.clients table. Various details are logged,
+but from a diagnostic perspective the most important information are the
+client details, the number of queries it has run, the last time it ran a
+query, the number of failed queries and the cumulative size of results
+returned to it.</p>
+<p><a name="tracks"></a></p>
+<h2 id="trackserversq">trackservers.q</h2>
+<p>trackservers.q is used to register and maintain handles to external
+servers. It is a heavily modified version of trackservers.q from
+code.kx. It is explained more in section connectionmanagement.</p>
+<p><a name="zps"></a></p>
+<h2 id="zpsignoreq">zpsignore.q</h2>
+<p>zpsignore.q is used to check incoming async calls for certain patterns
+and to bypass all further message handler checks for messages matching
+the pattern. This is useful for handling update messages published to a
+process from a data source.</p>
+<p><a name="write"></a></p>
+<h2 id="writeaccessq">writeaccess.q</h2>
+<p>writeaccess.q is used to restrict client write access to data within a
+process. The script uses the reval function, released in KDB+ 3.3, to
+prevent client queries from modifying any data in place. At present only
+queries in the form of strings are passed through the reval function.
+Additonally the script disables any form of HTTP access. If using
+versions of KDB+ prior to 3.3, this feature must be disabled. An attempt
+to use this feature on previous KDB+ versions will result in an error
+and the relevant process exiting.</p>
+<h2 id="permissionsq">permissions.q</h2>
+<p>permissions.q is used to control client access to a server process. It
+allows:</p>
+<ul>
+<li>
+<p>Access control via username/password access, either in combination
+    with the -u/U process flags or in place of them.</p>
+</li>
+<li>
+<p>Definition of user groups, which control variable access.</p>
+</li>
+<li>
+<p>Definition of user roles, which allow control over function
+    execution.</p>
+</li>
+<li>
+<p>Deeper control over table subsetting through the use of “virtual
+    tables”, using enforced where clauses.</p>
+</li>
+</ul>
+<p>Access restriction in TorQ can be enabled on all processes, each of
+which can then load the default.q in $KDBCONFIG/permissions/, which
+adds users, groups and roles allowing standard operation of TorQ. The
+admin user and role by default can access all functions, and each of the
+system processes has access only to the required system functions.</p>
+<p>Permissions are enabled or disabled on a per-process basis through
+setting .pm.enabled as 1b or 0b at process load (set to 0b by default).
+A permissioned process can safely interact with a non-permissioned
+process while still controlling access to itself.</p>
+<p>The access schema consists of 7 control tables:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Descriptions</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td>Username, locality, encryption type and password hash</td>
+</tr>
+<tr>
+<td>Usergroup</td>
+<td>User and their group.</td>
+</tr>
+<tr>
+<td>Userrole</td>
+<td>User and role.</td>
+</tr>
+<tr>
+<td>Functiongroup</td>
+<td>Functions and their group</td>
+</tr>
+<tr>
+<td>Function</td>
+<td>Function names, the roles which can access them, and a lambda checking the parameters those roles can use.</td>
+</tr>
+<tr>
+<td>Access</td>
+<td>Variable names, the groups which can access them, and the read or write access level.</td>
+</tr>
+<tr>
+<td>Virtualtable</td>
+<td>Virtual table name, main table name, and the where clause it enforces on access to that table.</td>
+</tr>
+</tbody>
+</table>
+<p>In addition to groupinfo and roleinfo tables, which contain the
+group/role name and a string describing each group and role. A user can
+belong to multiple groups, and have multiple roles. In particular the
+schema supports group hierarchy, where a user group can be listed as a
+user in the group table, and inherit all the permissions from another
+other group, effectively inheriting the second group itself.</p>
+<p>A user belonging to a group listed in the access table will have the
+specified level of access (read or write) to that group’s variables,
+e.g.</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Group</th>
+<th>Level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>quote</td>
+<td>headtrader</td>
+<td>write</td>
+</tr>
+<tr>
+<td>trade</td>
+<td>juniortrader</td>
+<td>read</td>
+</tr>
+</tbody>
+</table>
+<p>Here, users in headtrader will have write access to the quote table,
+while juniortrader group has read access to the trade table. If
+headtraders have been set to inherit the juniortrader group, they will
+also have read access to trade. Note that read access is distinct from
+write access. Headtraders in this circumstance do not have implicit read
+access to the quote table. This control is for direct name access only.
+Selects, execs and updates are controlled via the function table, as
+below.</p>
+<p>The permissions script can be set to have permissive mode enabled with
+permissivemode:1b (disabled by default). When enabled at script loading,
+this bypasses access checks on variables which are not listed in the
+access table, effectively auto-whitelisting any variables not listed in
+the access table for all users, which may be useful in partly restricted
+development environments.</p>
+<p>Function access is controlled through non-hierarchical roles. A user
+attempting to run a named function will have their access checked
+against the function table through their role, for example, trying to
+run a function timedata[syms;bkttype], which selects from a table by a
+time bucket type bkttype on xbar:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Function</strong></th>
+<th><strong>Role</strong></th>
+<th><strong>Param. Check</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>timedata</td>
+<td>quant</td>
+<td>{1b}</td>
+</tr>
+<tr>
+<td>timedata</td>
+<td>normal user</td>
+<td>{x[`bkttype] in `hh}</td>
+</tr>
+<tr>
+<td>select</td>
+<td>quant</td>
+<td>{1b}</td>
+</tr>
+</tbody>
+</table>
+<p>The parameter check in the third column must be a lambda accepting a
+dictionary of parameters and their values, which can then return a
+boolean if some parameter condition is met. Here, any normal user must
+have their bucket type as an hour. If they try anything else, the
+function is not permitted. This could be extended to restriction to
+certain syms as well, in this example, the quant can run this function
+with any parameters. Anything passed to the param. check function
+returns 1b. A quant having general select access is listed as having
+1b in the param. check.</p>
+<p>Further restriction of data can be achieved with virtual tables, via
+which users can be restricted to having a certain subset of data from a
+main table available. To avoid the need to replicate a potentially large
+subset of a table into a separately-controlled variable, this is done
+through pointing to the table under a different name via a where clause,
+e.g.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Virtual Table</strong></th>
+<th><strong>Table</strong></th>
+<th><strong>Where Clause</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>trade_lse</td>
+<td>trade</td>
+<td>,(in;`src;“L”)</td>
+</tr>
+<tr>
+<td>quote_new</td>
+<td>quote</td>
+<td>,(&gt;;`time;(-;`.z.p;01:00))</td>
+</tr>
+</tbody>
+</table>
+<p>When a select from trade_lse is performed, a select on trade is
+modified to contain the where clause above. Access to virtual tables can
+be controlled identically to access to real tables through the access
+table.</p>
+<p>If the process is given the flag “-public 1”, it will run in public
+access mode. This allows a user to log in without a password and be
+given the publicuser role and membership of the public group, which can
+be configured as any other group or role.</p>
+<p>The permissions control has a default size restriction of 2GB, set (as
+bytes) on .pm.maxsize. This is a global restriction and is not affected
+by user permissions.</p>
+<p>Adding to the groups and roles is handled by the functions:</p>
+<pre><code>adduser[`user;`locality;`hash type; md5"password"]
+removeuser[`user]
+addgroup[`groupname; "description"]
+removegroup[`groupname]
+addrole[`rolename; "description"]
+removerole[`rolename]
+addtogroup[`user;`groupname]
+removefromgroup[`user; `groupname]
+assignrole[`user; `rolename]
+unassignrole[`user; `rolename]
+addfunction[`function; `functiongroup]
+removefunction[`function; `functiongroup]
+grantaccess[`variable; `groupname; `level]
+revokeaccess[`variable; `groupname; `level]
+grantfunction[`function; `rolename; {paramCheckFn}]
+revokefunction[`function; `rolename]
+createvirtualtable[`vtablename; `table; ,(whereclause)]
+removevirtualtable[`vtablename]
+cloneuser[`user;`newuser;"password"]
+</code></pre>
+<p>which are further explained in the script API.</p>
+<p>Permission control operates identically on the gateway. A user connected
+to the gateway must have access to the gateway, and their roles must
+have access to the .gw.syncexec or .gw.asyncexec functions.</p>
+<h3 id="usage-example">Usage Example</h3>
+<p>To connect to a permissioned RDB in the TorQ system, a group and role
+for the user must be established. If the RDB contains the tables trade,
+quote, and depth, and the process contains the functions getdata[syms,
+bkttype,bktsize] and hloc[table], restricted access would be
+configured like so:</p>
+<pre><code>.pm.adduser[`adam;`local;`md5;md5"pass"]
+.pm.adduser[`bob;`local;`md5;md5"pass"]
+
+.pm.addtogroup[`adam;`fulluser]
+.pm.addtogroup[`bob;`partuser]
+.pm.addtogroup[`fulluser;`partuser]
+.pm.grantaccess[`quote;`fulluser;`read]
+.pm.grantaccess[`trade;`partuser;`read]
+
+.pm.createvirtualtable[`quotenew;`quote;enlist(&gt;;`time;(-;`.z.p;01:00))]
+.pm.grantaccess[`quotenew;`partuser;`read]
+
+.pm.assignrole[`adam;`toplevel]
+.pm.assignrole[`bob;`lowlevel]
+.pm.grantfunction[`getdata;`toplevel;{1b}]
+.pm.grantfunction[`getdata;`lowlevel;{x[`syms] in `GOOG}]
+.pm.grantfunction[`hloc;`toplevel;{1b}]
+.pm.grantfunction[`hloc;`lowlevel;{x[`table] in `trade}]
+</code></pre>
+<p>This provides a system in which Bob can access only the trade table,
+while Adam has access to the trade table and quote table (through
+inheritance from Bob’s group). Through a virtual table, if Bob runs
+“select from quotenew”, he is able to get a table of the last hour of
+quotes. When the system is started in normal mode, there is no IPC
+access to the depth table, however if the system was started in
+permissive mode, in this case any user who could log in could access
+depth.</p>
+<p>Adam can run the getdata function however he wants, and Bob can only run
+it against sym GOOG. Similarly Adam can run hloc against any table, but
+Bob can only look at trade with it.</p>
+<p>Additionally, any system calls would need to be actively permissioned in
+the same way, after defining a systemuser role (or expanding the default
+role in TorQ). The superuser is given global function access by
+assigning them .pm.ALL in the function table, for example a tickerplant
+pushing to the RDB would need to have a user and role defined:</p>
+<pre><code>.pm.adduser[`ticker;`local;`md5;md5"plant"]
+.pm.assignrole[`ticker;`tp]
+</code></pre>
+<p>And then grant that role access to the .u.upd function:</p>
+<pre><code>.pm.grantfunction[`.u.upd;`tp;{1b}]
+</code></pre>
+<p>Although the .u.upd function updates to a table, there is no need to
+grant direct access to that table.</p>
+<h3 id="gateway-example">Gateway Example</h3>
+<p>The gateway user will have superuser role by default. The execution of a
+function passed through the gateway is checked against the user who sent
+the call. This should not be modified.</p>
+<p>Within the gateway itself, access to target processes can be controlled
+via the function table. For example, if Adam in the previous example was
+allowed to access only the RDB with .gw.syncexec, you could use:</p>
+<pre><code>.pm.grantfunction[`.gw.syncexec;`toplevel;{x[`1] in `rdb}]
+</code></pre>
+<p>Since .gw.syncexec is a projection, the arguments supplied are checked
+in order, with dictionary keys `0`1`2... etc. This could be further
+extended to restrict access to queries with the
+.pm.allowed[user;query] function, which checks permissions of the
+current user as listed on the gateway permission tables:</p>
+<pre><code>.pm.grantfunction[`.gw.syncexec;`toplevel;
+    {.pm.allowed[.z.u;x[`0]] and x[`1] in `rdb}]
+</code></pre>
+<p><a name="dia"></a></p>
+<h2 id="diagnostic-reporting">Diagnostic Reporting</h2>
+<p>The message handler modifications provide a wealth of diagnostic
+information including:</p>
+<ul>
+<li>
+<p>the timings and memory usage for every query run on a process;</p>
+</li>
+<li>
+<p>failed queries;</p>
+</li>
+<li>
+<p>clients trying to do things they are not permissioned for;</p>
+</li>
+<li>
+<p>the clients which are querying often and/or regularly extracting
+      large datasets;</p>
+</li>
+<li>
+<p>the number of clients currently connected;</p>
+</li>
+<li>
+<p>timer calls and how long they take.</p>
+</li>
+</ul>
+<p>Although not currently implemented, it would be straightforward to use
+this information to implement reports on the behaviour of each process
+and the overall health of the system. Similarly it would be
+straightforward to set up periodic publication to a central repository
+to have a single point for system diagnostic statistics.</p>
+          <aside class="copyright" role="note">
+            
+              Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc. &ndash;
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../utilities/" title="Utilities">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Utilities
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../conn/" title="Connection Management">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Connection Management
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'AquaQAnalytics/TorQ';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

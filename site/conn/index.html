@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Connection Management - TorQ</title>
+      
+      
+      
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="TorQ">
+    <meta property="og:image" content="None/../graphics/TorQ-logo.png">
+    <meta name="apple-mobile-web-app-title" content="TorQ">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../graphics/TorQ-logo.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-teal">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Connection Management
+      </div>
+    </div>
+    
+      
+      <div class="button button-twitter" role="button" aria-label="Twitter">
+        <a href="https://twitter.com/AquaQAnalytics" title="@AquaQAnalytics on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+      </div>
+    
+    
+      
+      <div class="button button-github" role="button" aria-label="GitHub">
+        <a href="https://github.com/AquaQAnalytics" title="@AquaQAnalytics on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+      </div>
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/AquaQAnalytics/TorQ" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../graphics/TorQ-logo.png">
+        </div>
+      
+      <div class="name">
+        <strong>
+          TorQ
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          AquaQAnalytics/TorQ
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/AquaQAnalytics/TorQ/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/AquaQAnalytics/TorQ/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="About" href="../Overview/">
+      About
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Getting Started" href="../gettingstarted/">
+      Getting Started
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Utilities" href="../utilities/">
+      Utilities
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Handlers" href="../handlers/">
+      Handlers
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Connection Management" href="./">
+      Connection Management
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Connections" href="#connections">
+                Connections
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Process Attributes" href="#process-attributes">
+                Process Attributes
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Connection Passwords" href="#connection-passwords">
+                Connection Passwords
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Retrieving and Using Handles" href="#retrieving-and-using-handles">
+                Retrieving and Using Handles
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Connecting To Non-TorQ Processes" href="#connecting-to-non-torq-processes">
+                Connecting To Non-TorQ Processes
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Manually Adding And Using Connections" href="#manually-adding-and-using-connections">
+                Manually Adding And Using Connections
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="IPC types" href="#ipc-types">
+                IPC types
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Processes" href="../Processes/">
+      Processes
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Visualisation" href="../visualisation/">
+      Visualisation
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+              
+              <li>
+                <a href="https://twitter.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on Twitter">
+                  @AquaQAnalytics on Twitter
+                </a>
+              </li>
+            
+            
+              
+              <li>
+                <a href="https://github.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on GitHub">
+                  @AquaQAnalytics on GitHub
+                </a>
+              </li>
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="connection-management">Connection Management</h1>
+<p>trackservers.q is used to register and maintain handles to external
+servers. It is a heavily modified version of trackservers.q from
+code.kx. All the options are described in the default config file. All
+connections are tracked in the .servers.SERVERS table. When the handle
+is used the count and last query time are updated.</p>
+<pre><code>q).servers.SERVERS 
+procname     proctype  hpup                            w  hits startp                        lastp                         endp                          attributes                   
+---------------------------------------------------------------------------------
+discovery1   discovery :aquaq:9996    0                                  2014.01.08D11:13:10.583056000                               ()!()                        
+discovery2   discovery :aquaq:9995 6  0    2014.01.07D16:44:47.175757000 2014.01.07D16:44:47.174408000                               ()!()                        
+rdb_europe_1 rdb       :aquaq:9998 12 0    2014.01.07D16:46:47.897910000 2014.01.07D16:46:47.892901000 2014.01.07D16:46:44.626293000 `datacentre`country!`essex`uk
+rdb1         rdb       :aquaq:5011 7  0    2014.01.07D16:44:47.180684000 2014.01.07D16:44:47.176994000                               `datacentre`country!`essex`uk
+rdb_europe_1 hdb       :aquaq:9997    0                                  2014.01.08D11:13:10.757801000                               ()!()                        
+hdb1         hdb       :aquaq:9999    0                                  2014.01.08D11:13:10.757801000                               ()!()                        
+hdb2         hdb       :aquaq:5013 8  0    2014.01.07D16:44:47.180684000 2014.01.07D16:44:47.176994000                               `datacentre`country!`essex`uk
+hdb1         hdb       :aquaq:5012 9  0    2014.01.07D16:44:47.180684000 2014.01.07D16:44:47.176994000                               `datacentre`country!`essex`uk
+
+q)last .servers.SERVERS 
+procname  | `hdb2
+proctype  | `hdb
+hpup      | `:aquaq:5013
+w         | 8i
+hits      | 0i
+startp    | 2014.01.08D11:51:01.928045000
+lastp     | 2014.01.08D11:51:01.925078000
+endp      | 0Np
+attributes| `datacentre`country!`essex`uk
+</code></pre>
+<h2 id="connections">Connections</h2>
+<p>Processes locate other processes based on their process type. The
+location is done either statically using the process.csv file or
+dynamically using a discovery service. It is recommended to use the
+discovery service as it allows the process to be notified as new
+processes become available.</p>
+<p>The main configuration variable is .servers.CONNECTIONS, which dictates
+which process type(s) to create connections to. .servers.startup[]
+must be called to initialise the connections. When connections are
+closed, the connection table is automatically updated. The process can
+be set to periodically retry connections.</p>
+<h2 id="process-attributes">Process Attributes</h2>
+<p>Each process can report a set of attributes. When process A connects to
+process B, process A will try to retrieve the attributes of process B.
+The attributes are defined by the result of the .proc.getattributes
+function, which is by default an empty dictionary. Attributes are used
+to retrieve more detail about the capabilities of each process, rather
+than relying on the broad brush process type and process name
+categorization. Attributes can be used for intelligent query routing.
+Potential fields for attributes include:</p>
+<ul>
+<li>
+<p>range of data contained in the process;</p>
+</li>
+<li>
+<p>available tables;</p>
+</li>
+<li>
+<p>instrument universe;</p>
+</li>
+<li>
+<p>physical location;</p>
+</li>
+<li>
+<p>any other fields of relevance.</p>
+</li>
+</ul>
+<h2 id="connection-passwords">Connection Passwords</h2>
+<p>The password used by a process to connect to external processes is
+retrieved using the .servers.loadpassword function call. By default,
+this will read the password from a txt file contained in
+$KDBCONFIG/passwords. A default password can be used, which is
+overridden by one for the process type, which is itself overridden by
+one for the process name. For greater security, the
+.servers.loadpassword function should be modified.</p>
+<h2 id="retrieving-and-using-handles">Retrieving and Using Handles</h2>
+<p>A function .servers.getservers is supplied to return a table of handle
+information. .servers.getservers takes five parameters:</p>
+<ul>
+<li>
+<p>type-or-name: whether the lookup is to be done by type or name (can
+    be either proctype or procname);</p>
+</li>
+<li>
+<p>types-or-names: the types or names to retrieve e.g. hdb;</p>
+</li>
+<li>
+<p>required-attributes: the dictionary of attributes to match on;</p>
+</li>
+<li>
+<p>open-dead-connections: whether to re-open dead connections;</p>
+</li>
+<li>
+<p>only-one: whether we only require one handle. So for example if 3
+      services of the supplied type are registered, and we have an open
+      handle to 1 of them, the open handle will be returned and the others
+      left closed irrespective of the open-dead-connections parameter.</p>
+</li>
+</ul>
+<p>.servers.getservers will compare the required parameters with the
+available parameters for each handle. The resulting table will have an
+extra column called attribmatch which can be used to determine how good
+a match the service is with the required attributes. attribmatch is a
+dictionary of (required attribute key) ! (Boolean full match;
+intersection of attributes).</p>
+<pre><code>q).servers.SERVERS 
+procname     proctype  hpup                            w hits startp                        lastp                         endp attributes                   
+---------------------------------------------------------------------------------
+discovery1   discovery :aquaq:9996   0                                  2014.01.08D11:51:01.922390000      ()!()                        
+discovery2   discovery :aquaq:9995 6 0    2014.01.08D11:51:01.923812000 2014.01.08D11:51:01.922390000      ()!()                        
+rdb_europe_1 rdb       :aquaq:9998   0                                  2014.01.08D11:51:38.347598000      ()!()                        
+rdb_europe_2 rdb       :aquaq:9997   0                                  2014.01.08D11:51:38.347598000      ()!()                        
+rdb1         rdb       :aquaq:5011 7 0    2014.01.08D11:51:01.928045000 2014.01.08D11:51:01.925078000      `datacentre`country!`essex`uk
+hdb3         hdb       :aquaq:5012 9 0    2014.01.08D11:51:38.349472000 2014.01.08D11:51:38.347598000      `datacentre`country!`essex`uk
+hdb2         hdb       :aquaq:5013 8 0    2014.01.08D11:51:01.928045000 2014.01.08D11:51:01.925078000      `datacentre`country!`essex`uk
+
+/- pull back hdbs.  Leave the attributes empty
+q).servers.getservers[`proctype;`hdb;()!();1b;f0b] 
+procname proctype lastp                         w hpup        attributes                    attribmatch
+-------------------------------------------------------------------------------
+hdb3     hdb      2014.01.08D11:51:38.347598000 9 :aquaq:5012 `datacentre`country!`essex`uk ()!()      
+hdb2     hdb      2014.01.08D11:51:01.925078000 8 :aquaq:5013 `datacentre`country!`essex`uk ()!()
+
+/- supply some attributes
+q).servers.getservers[`proctype;`hdb;(enlist`country)!enlist`uk;1b;0b] 
+procname proctype lastp                         w hpup        attributes                    attribmatch           
+-------------------------------------------------------------------------------
+hdb3     hdb      2014.01.08D11:51:38.347598000 9 :aquaq:5012 `datacentre`country!`essex`uk (,`country)!,(1b;,`uk)
+hdb2     hdb      2014.01.08D11:51:01.925078000 8 :aquaq:5013 `datacentre`country!`essex`uk (,`country)!,(1b;,`uk)
+q).servers.getservers[`proctype;`hdb;`country`datacentre!`uk`slough;1b;0b]                                                                                                                                                                                                    
+procname proctype lastp                         w hpup        attributes                    attribmatch                                    
+-------------------------------------------------------------------------------
+hdb3     hdb      2014.01.08D11:51:38.347598000 9 :aquaq:5012 `datacentre`country!`essex`uk `country`datacentre!((1b;,`uk);(0b;`symbol$()))
+hdb2     hdb      2014.01.08D11:51:01.925078000 8 :aquaq:5013 `datacentre`country!`essex`uk `country`datacentre!((1b;,`uk);(0b;`symbol$()))
+</code></pre>
+<p>.servers.getservers will try to automatically re-open connections if
+required.</p>
+<pre><code>q).servers.getservers[`proctype;`rdb;()!();1b;0b] 
+2014.01.08D12:01:06.023146000|aquaq|gateway1|INF|conn|attempting to open handle to :aquaq:9998
+2014.01.08D12:01:06.023581000|aquaq|gateway1|INF|conn|connection to :aquaq:9998 failed: hop: Connection refused
+2014.01.08D12:01:06.023597000|aquaq|gateway1|INF|conn|attempting to open handle to :aquaq:9997
+2014.01.08D12:01:06.023872000|aquaq|gateway1|INF|conn|connection to :aquaq:9997 failed: hop: Connection refused
+procname proctype lastp                         w hpup         attributes                    attribmatch
+-------------------------------------------------------------------------------
+rdb1     rdb      2014.01.08D11:51:01.925078000 7 :aquaq:5011 `datacentre`country!`essex`uk ()!()
+
+/- If we only require one connection, and we have one open,then it doesn't retry connections
+q).servers.getservers[`proctype;`rdb;()!();1b;1b] 
+procname proctype lastp                         w hpup        attributes                    attribmatch
+-------------------------------------------------------------------------------
+rdb1     rdb      2014.01.08D11:51:01.925078000 7 :aquaq:5011 `datacentre`country!`essex`uk ()!()
+</code></pre>
+<p>There are two other functions supplied for retrieving server details,
+both of which are based on .servers.getservers. .servers.gethandlebytype
+returns a single handle value, .servers.gethpupbytype returns a single
+host:port value. Both will re-open connections if there are not any
+valid connections. Both take two parameters:</p>
+<ul>
+<li>
+<p>types: the type to retrieve e.g. hdb;</p>
+</li>
+<li>
+<p>selection-algorithm: can be one of any, last or roundrobin.</p>
+</li>
+</ul>
+<h2 id="connecting-to-non-torq-processes">Connecting To Non-TorQ Processes</h2>
+<p>Connections to non-torq (external) processes can also be established.
+This is useful if you wish to integrate TorQ with an existing
+infrastructure. Any process can connect to external processes, or it can
+be managed by the discovery service only. Every external process should
+have a type and name in the same way as TorQ processes, to enable them
+to be located and used as required.</p>
+<p>Non-TorQ processes need to be listed by default in
+$KDBCONFIG/settings/nontorqprocess.csv. This file has the same format
+as the standard process.csv file. The location of the non-TorQ process
+file can be adjusted using the .servers.NONTORQPROCESSFILE variable. To
+enable connections, set .servers.TRACKNONTORQPROCESS to 1b.</p>
+<p>Example of nontorqprocess.csv file:</p>
+<pre><code>host,port,proctype,procname
+aquaq,5533,hdb,extproc01
+aquaq,5577,hdb,extproc02
+</code></pre>
+<h2 id="manually-adding-and-using-connections">Manually Adding And Using Connections</h2>
+<p>Connections can also be manually added and used. See .api.p“.servers.*”
+for details.</p>
+<h2 id="ipc-types">IPC types</h2>
+<p>In version kdb+ v3.4, two new IPC connection types were added. These new
+types are unix domain sockets and SSL/TLS (tcps). The incoming
+connections to a proctype can be set by updating .servers.SOCKETTYPE.</p>
+<p>In the settings example below, everything that connects to the
+tickerplant will use unix domain sockets.</p>
+<pre><code>\d .servers 
+SOCKETTYPE:enlist[`tickerplant]!enlist `unix
+</code></pre>
+<p>Attempting to open a unix domain socket connection to a process which
+has an older kdb+ version will fail. We allow for processes to fallback
+to tcp if this happens by setting .servers.SOCKETFALLBACK to true. It
+will not fallback if the connection error message returned is one of the
+following : timeout, access. It will also not fallback for SSL/TLS
+(tcps) due to security concerns.</p>
+<p>At the time of writing, using unix domain sockets syntax on windows will
+appear to work whilst it’s actually falling back to tcp in the
+background. This can be misleading so we disabled using them on windows.</p>
+          <aside class="copyright" role="note">
+            
+              Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc. &ndash;
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../handlers/" title="Handlers">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Handlers
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../Processes/" title="Processes">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Processes
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'AquaQAnalytics/TorQ';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

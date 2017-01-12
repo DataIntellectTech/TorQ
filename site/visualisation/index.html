@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Visualisation - TorQ</title>
+      
+      
+      
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="TorQ">
+    <meta property="og:image" content="None/../graphics/TorQ-logo.png">
+    <meta name="apple-mobile-web-app-title" content="TorQ">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../graphics/TorQ-logo.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../graphics/favicon.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-teal">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Visualisation
+      </div>
+    </div>
+    
+      
+      <div class="button button-twitter" role="button" aria-label="Twitter">
+        <a href="https://twitter.com/AquaQAnalytics" title="@AquaQAnalytics on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+      </div>
+    
+    
+      
+      <div class="button button-github" role="button" aria-label="GitHub">
+        <a href="https://github.com/AquaQAnalytics" title="@AquaQAnalytics on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+      </div>
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/AquaQAnalytics/TorQ" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../graphics/TorQ-logo.png">
+        </div>
+      
+      <div class="name">
+        <strong>
+          TorQ
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          AquaQAnalytics/TorQ
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/AquaQAnalytics/TorQ/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/AquaQAnalytics/TorQ/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="About" href="../Overview/">
+      About
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Getting Started" href="../gettingstarted/">
+      Getting Started
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Utilities" href="../utilities/">
+      Utilities
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Handlers" href="../handlers/">
+      Handlers
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Connection Management" href="../conn/">
+      Connection Management
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Processes" href="../Processes/">
+      Processes
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Visualisation" href="./">
+      Visualisation
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="kdb+ Utilities" href="#kdb-utilities">
+                kdb+ Utilities
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="JavaScript Utilities" href="#javascript-utilities">
+                JavaScript Utilities
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Outline" href="#outline">
+                Outline
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Example" href="#example">
+                Example
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Further Work" href="#further-work">
+                Further Work
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+              
+              <li>
+                <a href="https://twitter.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on Twitter">
+                  @AquaQAnalytics on Twitter
+                </a>
+              </li>
+            
+            
+              
+              <li>
+                <a href="https://github.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on GitHub">
+                  @AquaQAnalytics on GitHub
+                </a>
+              </li>
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="visualisation">Visualisation</h1>
+<p>kdb+ supports websockets and so HTML5 GUIs can be built. We have
+incorporated a set of server side and client side utilities to ease HTML
+GUI development.</p>
+<p><a name="ut"></a></p>
+<h2 id="kdb-utilities">kdb+ Utilities</h2>
+<p>The server side utilities are contained in html.q. These utilise some
+community code, specifically json.k and a modified version of u.q, both
+from Kx Systems. The supplied functionality includes:</p>
+<ul>
+<li>
+<p>json.k provides two way conversion between kdb+ data structures and
+    JSON;</p>
+</li>
+<li>
+<p>u.q is the standard pub/sub functionality provided with kdb+tick,
+    and a modified version is incorporated to publish data structures
+    which can be easily interpreted in JavaScript;</p>
+</li>
+<li>
+<p>functions for reformatting temporal types to be JSON compliant;</p>
+</li>
+<li>
+<p>page serving to utilise the inbuilt kdb+ webserver to serve custom
+    web pages. An example would be instead of having to serve a page
+    with a hardcoded websocket connection host and port, the kdb+
+    process can serve a page connecting back to itself no matter which
+    host or port it is running on.</p>
+</li>
+</ul>
+<p><a name="java"></a></p>
+<h2 id="javascript-utilities">JavaScript Utilities</h2>
+<p>The JavaScript utilities are contained in kdbconnect.js. The library
+allows you to:</p>
+<ul>
+<li>
+<p>create a connection to the kdb+ process;</p>
+</li>
+<li>
+<p>display the socket status;</p>
+</li>
+<li>
+<p>sending queries;</p>
+</li>
+<li>
+<p>binding results returned from kdb+ to updates in the webpage.</p>
+</li>
+</ul>
+<p><a name="out"></a></p>
+<h2 id="outline">Outline</h2>
+<p>All communication between websockets and kdb+ is asynchronous. The
+approach we have adopted is to ensure that all data sent to the web
+browser is encoded as a JSON object containing a tag to enable the web
+page to decipher what the data relates to. The format we have chosen is
+for kdb+ to send dictionaries of the form:</p>
+<pre><code>`name`data!("dataID";dataObject)
+</code></pre>
+<p>All the packing can be done by .html.dataformat. Please note that the
+temporal types are converted to longs which can easily be converted to
+JavaScript Date types. This formatting can be modified in the formating
+dictionary .html.typemap.</p>
+<pre><code>q)a:flip `minute`time`date`month`timestamp`timespan`datetime`float`sym!enlist each (09:00; 09:00:00.0;.z.d; `month$.z.d; .z.p; .z.n;.z.z;20f;`a)
+q).html.dataformat["start";(enlist `tradegraph)!enlist a]
+name| "start"
+data| (,`tradegraph)!,+`minute`time`date`month`timestamp`timespan`datetime`float`sym!(,32400000;,32400000;,1396828800000;,1396310400000;,"2014-04-07T13:23:01Z";,48181023;,"2014-04-07T13:23:01Z";,20f;,`a)
+q)first (.html.dataformat["start";(enlist `tradegraph)!enlist a])[`data;`tradegraph]                                                                                     
+minute   | 32400000
+time     | 32400000
+date     | 1396828800000
+month    | 1396310400000
+timestamp| "2014-04-07T13:23:01Z"
+timespan | 48181023
+datetime | "2014-04-07T13:23:01Z"
+float    | 20f
+sym      | `a
+</code></pre>
+<p>We have also extended this structure to allow web pages to receive data
+in a way similar to the standard kdb+tick pub/sub format. In this case,
+the data object looks like:</p>
+<pre><code>`name`data!("upd";`tablename`tabledata!(`trade;([]time:09:00 09:05 09:10; price:12 13 14)))
+</code></pre>
+<p>This can be packed with .html.updformat:</p>
+<pre><code>q).html.updformat["upd";`tablename`tabledata!(`trade;a)]                                                                                                                 
+name| "upd"
+data| `tablename`tabledata!(`trade;+`minute`time`date`month`timestamp`timespan`datetime`float`sym!(,32400000;,32400000;,1396828800000;,1396310400000;,"2014-04-07T13:23:01Z";,48181023;,"2014-04-07T13:23:01Z";,20f;,`a))
+q)first(.html.updformat["upd";`tablename`tabledata!(`trade;a)])[`data;`tabledata]                                                                                        
+minute   | 32400000
+time     | 32400000
+date     | 1396828800000
+month    | 1396310400000
+timestamp| "2014-04-07T13:23:01Z"
+timespan | 48181023
+datetime | "2014-04-07T13:23:01Z"
+float    | 20f
+sym      | `a
+</code></pre>
+<p>To utilise the pub/sub functionality, the web page must connect to the
+kdb+ process and subscribe for updates. Subscriptions are done using</p>
+<pre><code>.html.wssub[`tablename]
+</code></pre>
+<p>Publications from the kdb+ side are done with</p>
+<pre><code>.html.pub[`tablename;tabledata]
+</code></pre>
+<p>On the JavaScript side the incoming messages (data events) must be bound
+to page updates. For example, there might be an initialisation event
+called “start” which allows the web page to retrieve all the initial
+data from the process. The code below redraws the areas of the page with
+the received data.</p>
+<pre><code>/* Bind data - Data type "start" will execute the callback function */
+KDBCONNECT.bind("data","start",function(data){
+  // Check that data is not empty
+  if(data.hbtable.length !== 0)
+   // Write HTML table to div element with id heartbeat-table
+   { $("#heartbeat-table").html(MONITOR.jsonTable(data.hbtable));}
+  if(data.lmtable.length !== 0)
+   // Write HTML table to div element with id logmsg-table
+   { $("#logmsg-table").html(MONITOR.jsonTable(data.lmtable));}  
+  if(data.lmchart.length !== 0)
+   // Log message error chart
+   { MONITOR.barChart(data.lmchart,"logmsg-chart","Error Count","myTab"); }
+  });
+</code></pre>
+<p>Similarly the upd messages must be bound to page updates. In this case,
+the structure is slightly different:</p>
+<pre><code>KDBCONNECT.bind("data","upd",function(data){
+  if(data.tabledata.length===0) return;
+  if(data.tablename === "heartbeat")
+    { $("#heartbeat-table").html(MONITOR.jsonTable(data.tabledata));}
+  if(data.tablename === "logmsg")
+    { $("#logmsg-table").html(MONITOR.jsonTable(data.tabledata));}
+  if(data.tablename === "lmchart")
+    { MONITOR.barChart(data.tabledata,"logmsg-chart","Error Count","myTab"); }
+ });
+</code></pre>
+<p>To display the WebSocket connection status the event “ws_event” must be
+bound and it will output one of these default messages: “Connecting...”,
+“Connected” and “Disconnected” depending on the connection state of the
+WebSocket. Alternatively the value of the readyState attribute will
+determine the WebSocket status.</p>
+<pre><code>// Select html element using jQuery
+var $statusMsg = $("#status-msg");  
+KDBCONNECT.bind("ws_event",function(data){
+  // Data is the default message string
+  $statusMsg.html(data);
+});
+KDBCONNECT.core.websocket.readyState // Returns 1 if connected.
+</code></pre>
+<p>Errors can be displayed by binding the event called “error”.</p>
+<pre><code>KDBCONNECT.bind("error",function(data){
+  $statusMsg.html("Error - " + data);
+});
+</code></pre>
+<p><a name="eg"></a></p>
+<h2 id="example">Example</h2>
+<p>A basic example is provided with the Monitor process. To get this to
+work, u.q from kdb+tick should be placed in the code/common directory to
+allow all processes to publish updates. It should be noted that this is
+not intended as a production monitoring visualisation screen, moreso a
+demonstration of functionality. See section monitorgui for more
+details.</p>
+<p><a name="work"></a></p>
+<h2 id="further-work">Further Work</h2>
+<p>Further work planned includes:</p>
+<ul>
+<li>
+<p>allow subscriptions on a key basis- currently all subscribers
+    receive all updates;</p>
+</li>
+<li>
+<p>add JavaScript controls to allow in-place updates based on key
+    pairs, and scrolling window updates e.g. add N new rows to
+    top/bottom of the specified table;</p>
+</li>
+<li>
+<p>allow multiple websocket connections to be maintained at the same
+    time.</p>
+</li>
+</ul>
+          <aside class="copyright" role="note">
+            
+              Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc. &ndash;
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../Processes/" title="Processes">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Processes
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'AquaQAnalytics/TorQ';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>
