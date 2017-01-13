@@ -35,6 +35,7 @@ You will be prompted to enter a username and password, after this the site shoul
 Then:
 
 `mkdocs serve -a YourIp:Port`
+
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
