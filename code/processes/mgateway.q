@@ -77,6 +77,7 @@
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
+permissioned:@[value;`.gw.permissioned; 0b]
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
@@ -138,9 +139,10 @@ canberun:{
  where 0<count each raze each available}
 
 // Manage client queries
-addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout] 
+addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;target] 
  qi:nextqueryid[];
- query: (`.gw.asyncexecjpt;query;`rdb;raze;{.gw.addserverresult[z;y]}[;;qi];0Wn);
+ /query:(`.gw.asyncexecjpt;query;target;raze;{.[.gw.addserverresult;[z;y];.gw.addservererror[z]]}[;;qi];0Wn);
+ query: (`.gw.asyncexecjpt;query;target;raze;{.gw.addserverresult[z;y]}[;;qi];0Wn);
  `.gw.queryqueue upsert (qi;.proc.cp[];.z.w; query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes)}
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
@@ -413,9 +415,11 @@ getserveridstype:{[att;typ]
  }
 
 // execute an asynchronous query
-asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
+asyncexecjpt:{[query;servertype;joinfunction;postback;timeout;target]
+ /if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+ /query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed;errStr:.gw.errorprefix,"synchronous calls are only allowed";
+ $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
  [errStr:"";
  if[99h<>type servertype;
 	// its a list of servertypes e.g. `rdb`hdb
@@ -436,7 +440,7 @@ asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
   @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];
   :()];
 
- addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout];
+ addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;target];
  runnextquery[];
  }
 
@@ -448,6 +452,7 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 syncexecj:{[query;servertype;joinfunction]
  if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
  // check if we have all the servers active
+ if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
  if[checkeod[serverids]; '"unable to query multiple servers during eod reload"];
@@ -456,6 +461,7 @@ syncexecj:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
