@@ -4,27 +4,26 @@
 
 \d .ldap
 
-enabled:@[value;`enabled;.z.o~`l64]      		    // whether authentication is enabled
-lib:`$getenv[`KDBLIB],"/",string[.z.o],"/kxldap";   // ldap library location
-debug:@[value;`debug;0i]					        // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
-server:@[value;`server;"localhost"];                // name of ldap server
-port:@[value;`port;0i];                             // port for ldap server
-blocktime:@[value;`blocktime; 0D00:30:00];          // time before blocked user can attempt authentication
-checklimit:@[value;`checklimit;3];                  // number of attempts before user is temporarily blocked
-checktime:@[value;`checktime;0D00:05];              // period for user to reauthenticate without rechecking LDAP server
-buildDNsuf:@[value;`buildDNsuf;""];                 // suffix used for building bind DN
-buildDN:@[value;`buildDN;{x; {"uid=",string[x],",",buildDNsuf}}];  // function to build bind DN
+enabled:@[value;`enabled;.z.o~`l64]                             / whether authentication is enabled
+lib:`$getenv[`KDBLIB],"/",string[.z.o],"/kxldap";               / ldap library location
+debug:@[value;`debug;0i]                                        / debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+server:@[value;`server;"localhost"];                            / name of ldap server
+port:@[value;`port;0i];                                         / port for ldap server
+blocktime:@[value;`blocktime; 0D00:30:00];                      / time before blocked user can attempt authentication
+checklimit:@[value;`checklimit;3];                              / number of attempts before user is temporarily blocked
+checktime:@[value;`checktime;0D00:05];                          / period for user to reauthenticate without rechecking LDAP server
+buildDNsuf:@[value;`buildDNsuf;""];                             / suffix used for building bind DN
+buildDN:@[value;`buildDN;{{"uid=",string[x],",",buildDNsuf}}];  / function to build bind DN
 
 out:{if[debug;:.lg.o[`ldap] x]};
 err:{if[debug;:.lg.e[`ldap] x]};
 
-init:{[lib]
+init:{[lib]                                                     / initialise ldap library
   .ldap.print_auth_usage:lib 2:(`print_auth_usage;1);
   .ldap.authenticate:lib 2:(`authenticate;1);
  };
 
-/-create table to store login attempts
-cache:([user:`$()]; pass:(); server:`$(); port:`int$(); time:`timestamp$(); attempts:`long$(); success:`boolean$(); blocked:`boolean$());
+cache:([user:`$()]; pass:(); server:`$(); port:`int$(); time:`timestamp$(); attempts:`long$(); success:`boolean$(); blocked:`boolean$());  / create table to store login attempts
 
 login:{[user;pass]                                              / validate login attempt
 
@@ -51,13 +50,13 @@ login:{[user;pass]                                              / validate login
  
   `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised;authorised;0b);  / upsert details of current attempt
 
-  $[authorised;                                    / display authentication status message
-    .ldap.out "successfully authenticated user ",;
-    .ldap.err "failed to authenticate user ",] dict`bind_dn;
+  $[authorised;                                                 / display authentication status message
+    .ldap.out"successfully authenticated user ",;
+    .ldap.err"failed to authenticate user ",] dict`bind_dn;
  
-  if[.ldap.checklimit<=.ldap.cache[user]`attempts;              / if attempt limit reached then block users
+  if[.ldap.checklimit<=.ldap.cache[user]`attempts;              / if attempt limit reached then block user
     .[`.ldap.cache;(user;`blocked);:;1b];
-    .ldap.out "limit reached, user ",dict[`bind_dn]," has been locked out"];
+    .ldap.out"limit reached, user ",dict[`bind_dn]," has been locked out"];
 
   :authorised;
  };
@@ -66,7 +65,7 @@ login:{[user;pass]                                              / validate login
 if[enabled;
   libfile:hsym ` sv lib,`so;                                    / file containing ldap library
   if[()~key libfile;                                            / check ldap library file exists
-    :.ldap.err[`ldap;"cannot find library file: ",1_string libfile]]; 
-  init hsym .ldap.lib;                                          / initialise if library is found
-  .z.pw:{all(.ldap.login[y;z];x[y;z])}@[value;`.z.pw;{[x;y] 1b}]
+    :.ldap.err"cannot find library file: ",1_string libfile]; 
+  init hsym .ldap.lib;                                          / initialise ldap library
+  .z.pw:{all(.ldap.login[y;z];x[y;z])}@[value;`.z.pw;{[x;y] 1b}];  / redefine .z.pw
  ];
