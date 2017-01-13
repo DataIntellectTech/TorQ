@@ -1,5 +1,7 @@
 ![TorQ Logo](../master/html/img/AquaQ-TorQ-symbol-small.png)
 
+[Read our documentation](https://AquaQAnalytics.github.io/TorQ/)
+
 The framework forms the basis of a production kdb+ system by implementing some core functionality and utilities on top of kdb+, allowing developers to concentrate on the application business logic. It incorporates as many best practices as possible, with particular focus on performance, process management, diagnostic information, maintainability and extensibility. Wherever possible, we have tried to avoid re-inventing the wheel and instead have used contributed code from code.kx.com (either directly or modified). This framework will be suitable for those looking to create a new kdb+ system from scratch or those looking to add additional functionality to their existing kdb+ systems.
 
 [Have a skim through our brochure](../master/aquaq-torq-brochure.pdf?raw=true) for a bit more information.  The easiest way to get a production capture started is to download and install one of the [Starter Packs](https://github.com/AquaQAnalytics), or [read the manual](../master/AquaQTorQ.pdf?raw=true).  We also have a [Google Group for questions/discussions](https://groups.google.com/forum/#!forum/kdbtorq). 
@@ -19,6 +21,22 @@ To load a file, use -load
 q torq.q -load mytest.q -proctype test -procname mytest -debug
 ```
 This will launch the a process running within the framework with all the default values.  For the rest, read the document!
+
+## Updating the Documentation with Mkdocs
+
+To make changes to the documentation website you must simply use this command while in the branch you have made the changes on:
+
+`mkdocs gh-deploy`
+
+You will be prompted to enter a username and password, after this the site should have been updated. You can test the site locally if you want using mkdocs. First use the command:
+
+`mkdocs build`
+
+Then:
+
+`mkdocs serve -a YourIp:Port`
+
+Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
 
