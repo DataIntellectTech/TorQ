@@ -17,8 +17,8 @@ repo_url: 'https://github.com/AquaQAnalytics/TorQ'
 extra:
    logo: 'graphics/TorQ-logo.png' 
    palette:
-      primary: 'indigo'
-      accent: 'teal'
+      primary: 'teal'
+      accent: 'indigo'
    author:
       github: 'AquaQAnalytics'
       twitter: 'AquaQAnalytics'
