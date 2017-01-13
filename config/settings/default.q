@@ -126,6 +126,8 @@ version:3;                                  // ldap version number
 blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
 checklimit:3;                               // number of attempts before user is temporarily blocked
 checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
+buildDNsuf:"";                              // suffix used for building bind DN
+buildDN:{"uid=",string[x],",",buildDNsuf};  // function to build bind DN
 
 // broadcast publishing
 \d .u

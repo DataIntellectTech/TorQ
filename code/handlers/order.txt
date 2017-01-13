@@ -1,5 +1,5 @@
-ldap.q
 dotz.q
+ldap.q
 writeaccess.q
 controlaccess.q
 permissions.q
