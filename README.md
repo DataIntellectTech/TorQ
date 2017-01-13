@@ -24,7 +24,7 @@ This will launch the a process running within the framework with all the default
 
 ## Updating the Documentation with Mkdocs
 
-To make changes to the documentation website you must simply use this command while in the cranch you have made the changes on:
+To make changes to the documentation website you must simply use this command while in the branch you have made the changes on:
 
 `mkdocs gh-deploy`
 
@@ -35,8 +35,7 @@ You will be prompted to enter a username and password, after this the site shoul
 Then:
 
 `mkdocs serve -a YourIp:Port`
-
-Simply head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
+Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
 
