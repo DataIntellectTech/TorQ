@@ -772,6 +772,39 @@ Monitoring process. It includes functions to format dates, tables to csv
 to configure the HTML file to work on the correct process. It is
 accessible from the `.html` namespace.
 
+<a name="eodtime"></a>
+
+eodtime.q
+---------
+
+This script provides functionality for managing timezones. TorQ can be 
+configured to timestamp data in a specific timezone, while also being
+configured to perform the end of day rollover in another timezone, at a
+configurable time.
+
+These options are handled by three settings:
+
+| Setting | Req  |  Type   |               Description                |
+| :-----: | :--: | :-----: | :--------------------------------------: |
+| .eodtime.rolltimeoffset |  Y   | timespan  | Offset from default midnight roll time |
+| .eodtime.rolltimezone |  Y   | symbol  | Time zone in which to rollover |
+| .eodtime.datatimezone |  Y   | symbol  | Time zone in which to timestamp data in TP |
+
+The default configuration sets both timezones to GMT and has the rollover
+performed at midnight.
+
+An example configuration where data is stamped in GMT, but the rollover
+occurs at 5PM New York time would be:
+
+    .eodtime.rolltimeoffset:-0D07:00:00.000000000; // 5 PM i.e. 7 hours before midnight
+    .eodtime.rolltimezone:`$"America/New_YorK";    // roll in NYC time
+    .eodtime.datatimezone:`$"GMT";                 // timestamp in GMT
+
+Note that the rolltimeoffset can be negative - this will cause the rollover to happen 
+"yesterday", meaning that at the rolltime, the trading date will become the day *after*
+the calendar date. Where this is positive, the rollover occurs "today" and so the trading
+date will become the current calendar date.
+
 <a name="addu"></a>
 
 Additional Utilities

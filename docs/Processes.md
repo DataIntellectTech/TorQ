@@ -455,6 +455,24 @@ Viewer](http://code.kx.com/wiki/Cookbook/InterfacingWithJava):
 Some of the unofficially supported APIs may only allow synchronous calls
 to be made.
 
+<a name="tickerplant"></a>
+
+Tickerplant
+-----------
+
+The tickerplant is a modified version of the standard kdb+tick tickerplant.
+The modifications from the standard tick.q include:
+
+-   Applies timestamps as timestamp rather than timespan;
+
+-   Tracks per table record counts in .u.icounts dictionary for faster recovery
+    of real time subscribers;
+
+-   Allows configuration of timezones for timestamping data and performing
+    end of day rollover (see [eodtime.q](utilities/#eodtimeq));
+
+The tickerplant log file will be written to hdb/database.
+
 <a name="rdb"></a>
 
 Real Time Database (RDB) 
@@ -506,7 +524,9 @@ number of modifications and enhancements over w.q:
 5.  Informs other RDB, HDB and GW processes that end of day save and
      sort has completed;
 
-6.  More log information supplied.
+6.  More log information supplied;
+
+7.  End of day timezone can be configured (see [eodtime.q](utilities/#eodtimeq)).
 
 The WDB process can broken down into two main functions:
 
