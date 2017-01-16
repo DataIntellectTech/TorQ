@@ -25,8 +25,15 @@ init:{[lib]                                                     / initialise lda
 
 cache:([user:`$()]; pass:(); server:`$(); port:`int$(); time:`timestamp$(); attempts:`long$(); success:`boolean$(); blocked:`boolean$());  / create table to store login attempts
 
-login:{[user;pass]                                              / validate login attempt
+unblock:{[usr]
+  if[-11h<>type usr; :.ldap.out"username must be passed as a symbol"];
+  if[.ldap.cache[usr;`blocked];
+    update attempts:0, success:0b, blocked:0b from `.ldap.cache where user=usr;
+    :.ldap.out "unblocked user ",string usr;
+  ];
+ };
 
+login:{[user;pass]                                              / validate login attempt
   incache:.ldap.cache user;                                     / get user from inputs
   dict:`version`server`port`bind_dn`pass!(.ldap.version;.ldap.server;.ldap.port;.ldap.buildDN user;pass);
   
