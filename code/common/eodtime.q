@@ -8,13 +8,13 @@ datatimezone:@[value;`datatimezone;`$"GMT"];                // timezone for stam
 rolltimezone:@[value;`rolltimezone;`$"GMT"];                // timezone for EOD roll
 
 // function to determine offset from UTC for timestamping data
-getdailyadjustment:{first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.datatimezone;gmtDateTime:enlist .z.p); .tz.t]};
+getdailyadjustment:{exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(.eodtime.datatimezone;.z.p)};
 
 dailyadj:getdailyadjustment[];                              // get offset when loading process and store it in dailyadj
 
 // function to determine offset from UTC for EOD roll
 adjtime:{[p]
-     :first exec adjustment from aj[`timezoneID`gmtDateTime;([]timezoneID:enlist .eodtime.rolltimezone;gmtDateTime:enlist p); .tz.t];
+     :exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(.eodtime.rolltimezone;.z.p);
      };
 
 // function to get time (in UTC) of next roll after UTC timestamp, p
