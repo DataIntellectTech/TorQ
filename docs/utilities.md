@@ -807,11 +807,6 @@ Note that the rolltimeoffset can be negative - this will cause the rollover to h
 the calendar date. Where this is positive, the rollover occurs "today" and so the trading
 date will become the current calendar date.
 
-<a name="addu"></a>
-
-Additional Utilities
---------------------
-
 Modified u.q
 ------------
 
