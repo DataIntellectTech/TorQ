@@ -793,6 +793,8 @@ These options are handled by three settings:
 The default configuration sets both timezones to GMT and has the rollover
 performed at midnight.
 
+A table containing the valid timezones is loaded into TorQ processes as .tz.t
+
 An example configuration where data is stamped in GMT, but the rollover
 occurs at 5PM New York time would be:
 
