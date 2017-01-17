@@ -19,7 +19,6 @@ out:{if[debug;:.lg.o[`ldap] x]};
 err:{if[debug;:.lg.e[`ldap] x]};
 
 init:{[lib]                                                     / initialise ldap library
-  .ldap.print_auth_usage:lib 2:(`print_auth_usage;1);
   .ldap.authenticate:lib 2:(`authenticate;1);
  };
 
