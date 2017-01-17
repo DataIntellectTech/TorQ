@@ -828,6 +828,26 @@ namespaces is below- run .api.u namespace\*to list the functions.
 |  .tplog   |       Tickerplant Log Replay API       |
 |   .api    |           API management API           |
 
+<!--
+
+Updating the API Table
+---------------------------
+
+For a start you will need to load up the api table. Launch TorQ and connect to any process then call the function .api.p[`]. This will produce a table with the full API. Next you need to define the follwing function. 
+
+    convertAPI:{
+     x: select name,vartype,namespace,descrip,params,return from x where not namespace = `.`.q`;
+     header:"|",("|" sv string cols x),"|\n";
+     break: raze {x;"|-"} each til count cols x;
+     break:break,"|\n";
+     c:(raze/)(header; break;{"|",("|" sv {raze x} each string value x[y]),"|\n"}[x;] each til count x);
+     c:ssr[c;"`";"\\`"];a:"\n" vs c; `:markdown.md 0:.h.tx[`md;a]}
+
+When called on the API table this will convert it into a markdown readable format and then save it to a file called markdown.md. This file should be good to go. Simply replace the API Table in docs/utilities.md with this table, update the site with mkdocs gh-deploy and your changes should be registered.
+
+--->
+
+
 API Table
 --------------------
 
