@@ -12,3 +12,4 @@ For recent updates to TorQ please check out our [blog](http://www.aquaq.co.uk/bl
 For email support contact <support@aquaq.co.uk>
 
 <center><img src="graphics/TorQ-Structure.png" width="600"></center>
+
