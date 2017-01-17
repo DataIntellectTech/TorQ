@@ -1,408 +1,670 @@
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="shortcut icon" href="../graphics/favicon.ico">
+      
+      <meta name="generator" content="mkdocs+mkdocs-material#1.0.2">
+    
     
       
         <title>Utilities - TorQ</title>
       
-      
-      
-      
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="TorQ">
-    <meta property="og:image" content="None/../graphics/TorQ-logo.png">
-    <meta name="apple-mobile-web-app-title" content="TorQ">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-      <link rel="apple-touch-icon" href="../graphics/TorQ-logo.png">
     
     
-    <link rel="shortcut icon" type="image/x-icon" href="../graphics/favicon.ico">
-    <link rel="icon" type="image/x-icon" href="../graphics/favicon.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../assets/fonts/icon.eot?52m981');
-      	src: url('../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+      <script src="../assets/javascripts/modernizr-facb31f4a3.js"></script>
     
     
       
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
-      
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
-        body, input {
-          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+      <link rel="stylesheet" href="../assets/stylesheets/application-1b8b9fdf68.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
+      
+      
+    
     
   </head>
   
   
   
-  <body class="palette-primary-indigo palette-accent-green">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
-            
-          </span>
-        
-        Utilities
-      </div>
-    </div>
-    
-      
-      <div class="button button-twitter" role="button" aria-label="Twitter">
-        <a href="https://twitter.com/AquaQAnalytics" title="@AquaQAnalytics on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
-      </div>
-    
-    
-      
-      <div class="button button-github" role="button" aria-label="GitHub">
-        <a href="https://github.com/AquaQAnalytics" title="@AquaQAnalytics on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
-      </div>
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
   
-  <a href="https://github.com/AquaQAnalytics/TorQ" class="project">
-    <div class="banner">
-      
-        <div class="logo">
-          <img src="../graphics/TorQ-logo.png">
-        </div>
-      
-      <div class="name">
-        <strong>
-          TorQ
-          <span class="version">
-            
-          </span>
-        </strong>
+    <body data-md-color-primary="indigo" data-md-color-accent="green">
+  
+    <svg class="md-svg">
+      <defs>
         
-          <br>
-          AquaQAnalytics/TorQ
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class=" md-logo  md-header-nav__button">
+          
+            <img src="../graphics/TorQ-logo.png" width="24" height="24">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Utilities
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+      <label class="md-icon md-search__icon" for="search"></label>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
         
       </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+              
+
+
+  
+
+
+  <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+            
+          </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <i class=" md-logo  md-nav__button">
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/AquaQAnalytics/TorQ/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/AquaQAnalytics/TorQ/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+        <img src="../graphics/TorQ-logo.png">
       
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="..">
-      Home
-    </a>
+    </i>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href=".." title="Home" class="md-nav__link">
+        Home
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="About" href="../Overview/">
-      About
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../Overview/" title="About" class="md-nav__link">
+        About
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Getting Started" href="../gettingstarted/">
-      Getting Started
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+        Getting Started
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="current" title="Utilities" href="./">
+    
+      
+      
+  <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Utilities
+      </label>
+    
+    <a href="./" title="Utilities" class="md-nav__link md-nav__link--active">
       Utilities
     </a>
     
       
-        
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
       
+        <li class="md-nav__item">
+  <a href="#apiq" title="api.q" class="md-nav__link">
+    api.q
+  </a>
+  
+</li>
       
-        <ul>
-          
-            <li class="anchor">
-              <a title="api.q" href="#apiq">
-                api.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="timer.q" href="#timerq">
-                timer.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="async.q" href="#asyncq">
-                async.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="cache.q" href="#cacheq">
-                cache.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="email.q" href="#emailq">
-                email.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="timezone.q" href="#timezoneq">
-                timezone.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="compress.q" href="#compressq">
-                compress.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="dataloader.q" href="#dataloaderq">
-                dataloader.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="subscriptions.q" href="#subscriptionsq">
-                subscriptions.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="pubsub.q" href="#pubsubq">
-                pubsub.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="tplogutils.q" href="#tplogutilsq">
-                tplogutils.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="monitoringchecks.q" href="#monitoringchecksq">
-                monitoringchecks.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="heartbeat.q" href="#heartbeatq">
-                heartbeat.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="dbwriteutils.q" href="#dbwriteutilsq">
-                dbwriteutils.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="help.q" href="#helpq">
-                help.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="html.q" href="#htmlq">
-                html.q
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Additional Utilities" href="#additional-utilities">
-                Additional Utilities
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Full API" href="#full-api">
-                Full API
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Modified u.q" href="#modified-uq">
-                Modified u.q
-              </a>
-            </li>
-          
-        </ul>
+        <li class="md-nav__item">
+  <a href="#timerq" title="timer.q" class="md-nav__link">
+    timer.q
+  </a>
+  
+</li>
       
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Handlers" href="../handlers/">
-      Handlers
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Connection Management" href="../conn/">
-      Connection Management
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Processes" href="../Processes/">
-      Processes
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Visualisation" href="../visualisation/">
-      Visualisation
-    </a>
-    
-  </li>
-
-          
-        </ul>
+        <li class="md-nav__item">
+  <a href="#asyncq" title="async.q" class="md-nav__link">
+    async.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cacheq" title="cache.q" class="md-nav__link">
+    cache.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emailq" title="email.q" class="md-nav__link">
+    email.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
         
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-              
-              <li>
-                <a href="https://twitter.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on Twitter">
-                  @AquaQAnalytics on Twitter
-                </a>
-              </li>
-            
-            
-              
-              <li>
-                <a href="https://github.com/AquaQAnalytics" target="_blank" title="@AquaQAnalytics on GitHub">
-                  @AquaQAnalytics on GitHub
-                </a>
-              </li>
-            
-          </ul>
+          <li class="md-nav__item">
+  <a href="#emails-with-ssl-certificates-from-windows" title="Emails with SSL certificates from Windows" class="md-nav__link">
+    Emails with SSL certificates from Windows
+  </a>
+  
+</li>
         
-      </div>
-    </div>
-  </div>
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timezoneq" title="timezone.q" class="md-nav__link">
+    timezone.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compressq" title="compress.q" class="md-nav__link">
+    compress.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataloaderq" title="dataloader.q" class="md-nav__link">
+    dataloader.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscriptionsq" title="subscriptions.q" class="md-nav__link">
+    subscriptions.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pubsubq" title="pubsub.q" class="md-nav__link">
+    pubsub.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tplogutilsq" title="tplogutils.q" class="md-nav__link">
+    tplogutils.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoringchecksq" title="monitoringchecks.q" class="md-nav__link">
+    monitoringchecks.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heartbeatq" title="heartbeat.q" class="md-nav__link">
+    heartbeat.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbwriteutilsq" title="dbwriteutils.q" class="md-nav__link">
+    dbwriteutils.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-and-attributes" title="Sorting and Attributes" class="md-nav__link">
+    Sorting and Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" title="Garbage Collection" class="md-nav__link">
+    Garbage Collection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-manipulation" title="Table Manipulation" class="md-nav__link">
+    Table Manipulation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helpq" title="help.q" class="md-nav__link">
+    help.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#htmlq" title="html.q" class="md-nav__link">
+    html.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modified-uq" title="Modified u.q" class="md-nav__link">
+    Modified u.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-api" title="Full API" class="md-nav__link">
+    Full API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-table" title="API Table" class="md-nav__link">
+    API Table
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../handlers/" title="Handlers" class="md-nav__link">
+        Handlers
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../conn/" title="Connection Management" class="md-nav__link">
+        Connection Management
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../Processes/" title="Processes" class="md-nav__link">
+        Processes
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+        Visualisation
+      </a>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#apiq" title="api.q" class="md-nav__link">
+    api.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timerq" title="timer.q" class="md-nav__link">
+    timer.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asyncq" title="async.q" class="md-nav__link">
+    async.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cacheq" title="cache.q" class="md-nav__link">
+    cache.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emailq" title="email.q" class="md-nav__link">
+    email.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#emails-with-ssl-certificates-from-windows" title="Emails with SSL certificates from Windows" class="md-nav__link">
+    Emails with SSL certificates from Windows
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timezoneq" title="timezone.q" class="md-nav__link">
+    timezone.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compressq" title="compress.q" class="md-nav__link">
+    compress.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataloaderq" title="dataloader.q" class="md-nav__link">
+    dataloader.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscriptionsq" title="subscriptions.q" class="md-nav__link">
+    subscriptions.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pubsubq" title="pubsub.q" class="md-nav__link">
+    pubsub.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tplogutilsq" title="tplogutils.q" class="md-nav__link">
+    tplogutils.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoringchecksq" title="monitoringchecks.q" class="md-nav__link">
+    monitoringchecks.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heartbeatq" title="heartbeat.q" class="md-nav__link">
+    heartbeat.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbwriteutilsq" title="dbwriteutils.q" class="md-nav__link">
+    dbwriteutils.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-and-attributes" title="Sorting and Attributes" class="md-nav__link">
+    Sorting and Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" title="Garbage Collection" class="md-nav__link">
+    Garbage Collection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-manipulation" title="Table Manipulation" class="md-nav__link">
+    Table Manipulation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helpq" title="help.q" class="md-nav__link">
+    help.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#htmlq" title="html.q" class="md-nav__link">
+    html.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modified-uq" title="Modified u.q" class="md-nav__link">
+    Modified u.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-api" title="Full API" class="md-nav__link">
+    Full API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-table" title="API Table" class="md-nav__link">
+    API Table
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
-          <p><a name="ut"></a></p>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+               
+                 <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/utilities.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+               
+              
+                
+                <p><a name="ut"></a></p>
 <h1 id="utilities">Utilities</h1>
 <p>We have provided several utility scripts, which either implement
 developer aids or standard operations which are useful across processes.</p>
@@ -1216,14 +1478,14 @@ verbs     | verbs/functions
 Monitoring process. It includes functions to format dates, tables to csv
 to configure the HTML file to work on the correct process. It is
 accessible from the <code>.html</code> namespace.</p>
-<p><a name="addu"></a></p>
-<h2 id="additional-utilities">Additional Utilities</h2>
-<p>There are some additional user contributed utility scripts available on
-code.kx which are good candidates for inclusion. These could either be
-dropped into the common code directory, or if not globally applicable
-then in the code directory for either the process type or name. The full
-set of user contributed code is documented
-<a href="http://code.kx.com/wiki/Contrib">here</a>.</p>
+<h2 id="modified-uq">Modified u.q</h2>
+<p>Starting in kdb+ v3.4, the new broadcast feature has some performance
+benefits. It works by serialising a message once before sending it
+asynchronously to a list of subscribers whereas the previous method
+would serialise it separately for each subscriber. To take advantage of
+this, we’ve modified u.q. This can be turned off by setting .u.broadcast
+to false. It is enabled by default, but will only override default
+publishing if the kdb+ version being used is 3.4 or after.</p>
 <p><a name="api"></a></p>
 <h2 id="full-api">Full API</h2>
 <p>The full public api can be found by running</p>
@@ -1334,122 +1596,940 @@ namespaces is below- run .api.u namespace*to list the functions.</p>
 </tr>
 </tbody>
 </table>
-<p><a name="u.q"></a></p>
-<h2 id="modified-uq">Modified u.q</h2>
-<p>Starting in kdb+ v3.4, the new broadcast feature has some performance
-benefits. It works by serialising a message once before sending it
-asynchronously to a list of subscribers whereas the previous method
-would serialise it separately for each subscriber. To take advantage of
-this, we’ve modified u.q. This can be turned off by setting .u.broadcast
-to false. It is enabled by default, but will only override default
-publishing if the kdb+ version being used is 3.4 or after.</p>
-          <aside class="copyright" role="note">
-            
-              Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc. &ndash;
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
+<h2 id="api-table">API Table</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>vartype</th>
+<th>namespace</th>
+<th>descrip</th>
+<th>params</th>
+<th>return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.proc.createlog</td>
+<td>function</td>
+<td>.proc</td>
+<td>Create the standard out and standard err log files. Redirect to them</td>
+<td>[string: log directory; string: name of the log file;mixed: timestamp suffix for the file (can be null); boolean: suppress the generation of an alias link]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.rolllogauto</td>
+<td>function</td>
+<td>.proc</td>
+<td>Roll the standard out/err log files</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.loadf</td>
+<td>function</td>
+<td>.proc</td>
+<td>Load the specified file</td>
+<td>[string: filename]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.loaddir</td>
+<td>function</td>
+<td>.proc</td>
+<td>Load all the .q and .k files in the specified directory. If order.txt is found in the directory, use the ordering found in that file</td>
+<td>[string: name of directory]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.getattributes</td>
+<td>function</td>
+<td>.proc</td>
+<td>Called by external processes to retrieve the attributes (advertised functionality) of this process</td>
+<td>[]</td>
+<td>dictionary of attributes</td>
+</tr>
+<tr>
+<td>.proc.override</td>
+<td>function</td>
+<td>.proc</td>
+<td>Override configuration varibles with command line parameters.  For example, if you set -.servers.HOPENTIMEOUT 5000 on the command line and call this function, then the command line value will be used</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.overrideconfig</td>
+<td>function</td>
+<td>.proc</td>
+<td>Override configuration varibles with values in supplied parameter dictionary. Generic version of .proc.override</td>
+<td>[dictionary: command line parameters.  .proc.params should be used]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.o</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard out</td>
+<td>[symbol: id of log message; string: message]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.e</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard err</td>
+<td>[symbol: id of log message; string: message]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.l</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to either standard error or standard out, depending on the log level</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.err</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard err</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.ext</td>
+<td>function</td>
+<td>.lg</td>
+<td>Extra function invoked in standard logging function .lg.l.  Can be used to do more with the log message, e.g. publish externally</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.ex</td>
+<td>function</td>
+<td>.err</td>
+<td>Log to standard err, exit</td>
+<td>[symbol: id of log message; string: message; int: exit code]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.usage</td>
+<td>function</td>
+<td>.err</td>
+<td>Throw a usage error and exit</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.param</td>
+<td>function</td>
+<td>.err</td>
+<td>Check a dictionary for a set of required parameters. Print an error and exit if not all required are supplied</td>
+<td>[dict: parameters; symbol list: the required param values]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.env</td>
+<td>function</td>
+<td>.err</td>
+<td>Check if a list of required environment variables are set.  If not, print an error and exit</td>
+<td>[symbol list: list of required environment variables]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.rolllogauto</td>
+<td>function</td>
+<td>.usage</td>
+<td>Roll the .usage txt files</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.readlog</td>
+<td>function</td>
+<td>.usage</td>
+<td>Read and return a usage log file as a table</td>
+<td>[string: name of log file]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.logtodisk</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to log to disk</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.logtomemory</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to log to .usage.usage</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.ignore</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to check the ignore list for functions to ignore</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.ignorelist</td>
+<td>variable</td>
+<td>.usage</td>
+<td>the list of functions to ignore</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.logroll</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to automatically roll the log file</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.usage</td>
+<td>table</td>
+<td>.usage</td>
+<td>log of messages through the message handlers</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.clients.clients</td>
+<td>table</td>
+<td>.clients</td>
+<td>table containing client handles and session values</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.sub.getsubscriptionhandles</td>
+<td>function</td>
+<td>.sub</td>
+<td>Connect to a list of processes of a specified type</td>
+<td>[symbol: process type to match; symbol: process name to match; dictionary:attributes of process]</td>
+<td>table of process names, types and the handle connected on</td>
+</tr>
+<tr>
+<td>.sub.subscribe</td>
+<td>function</td>
+<td>.sub</td>
+<td>Subscribe to a table or list of tables and specified instruments</td>
+<td>[symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle</td>
+<td></td>
+</tr>
+<tr>
+<td>.pm.adduser</td>
+<td>function</td>
+<td>.pm</td>
+<td>Adds a user to be permissioned as well as setting their password and the method used to hash it.</td>
+<td>[symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addgroup</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a group which will have access to certain tables and variables</td>
+<td>[symbol: the name of the group; string: a description of the group]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addrole</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a role which will have access to certain functions</td>
+<td>[symbol: the name of the role; string: a description of the role]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addtogroup</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a user to a group, giving them access to all of its variables</td>
+<td>[symbol: the name of the user to add; symbol: group the user is to be added to]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.assignrole</td>
+<td>function</td>
+<td>.pm</td>
+<td>Assign a user a role, giving them access to all of its functions</td>
+<td>[symbol: the name of the user to add; symbol: role the user is to be assigned to]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.grantaccess</td>
+<td>function</td>
+<td>.pm</td>
+<td>Give a group access to a variable</td>
+<td>[symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.grantfunction</td>
+<td>function</td>
+<td>.pm</td>
+<td>Give a role access to a function</td>
+<td>symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.createvirtualtable</td>
+<td>function</td>
+<td>.pm</td>
+<td>Create a virtual table that a group might be able to access instead of the full table</td>
+<td>[symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.cloneuser</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a new user that is identical to another user</td>
+<td>[symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.addsuperuser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a super user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.addpoweruser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a power user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.adddefaultuser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a default user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.readpermissions</td>
+<td>function</td>
+<td>.access</td>
+<td>Read the permissions from a directory</td>
+<td>[string: directory containing the permissions files]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.USERS</td>
+<td>table</td>
+<td>.access</td>
+<td>Table of users and their types</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.servers.opencon</td>
+<td>function</td>
+<td>.servers</td>
+<td>open a connection to a process using the default timeout. If no user:pass supplied, the default one will be added if set</td>
+<td>[symbol: the host:port[:user:pass]]</td>
+<td>int: the process handle, null if the connection failed</td>
+</tr>
+<tr>
+<td>.servers.addh</td>
+<td>function</td>
+<td>.servers</td>
+<td>open a connection to a server, store the connection details</td>
+<td>[symbol: the host:port:user:pass connection symbol]</td>
+<td>int: the server handle</td>
+</tr>
+<tr>
+<td>.servers.addw</td>
+<td>function</td>
+<td>.servers</td>
+<td>add the connection details of a process behind the handle</td>
+<td>[int: server handle]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.addnthawc</td>
+<td>function</td>
+<td>.servers</td>
+<td>add the details of a connection to the table</td>
+<td>[symbol: process name; symbol: process type; hpup: host:port:user:pass connection symbol; dict: attributes of the process; int: handle to the process;boolean: whether to check the handle is valid on insert</td>
+<td>int: the handle of the process</td>
+</tr>
+<tr>
+<td>.servers.getservers</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a table of servers which match the given criteria</td>
+<td>[symbol: pick the server based on the name value or the type value.  Can be either `procname`proctype; symbol(list): lookup values. ` for any; dict: requirements dictionary; boolean: whether to automatically open dead connections for the specified lookup values; boolean: if only one of each of the specified lookup values is required (means dead connections aren't opened if there is one available)]</td>
+<td>table: processes details and requirements matches</td>
+</tr>
+<tr>
+<td>.servers.gethandlebytype</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a server handle for the supplied type</td>
+<td>[symbol: process type; symbol: selection criteria. One of `roundrobin`any`last]</td>
+<td>int: handle of server</td>
+</tr>
+<tr>
+<td>.servers.gethpbytype</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a server hpup connection symbol for the supplied type</td>
+<td>[symbol: process type; symbol: selection criteria. One of `roundrobin`any`last]</td>
+<td>symbol: h:p:u:p connection symbol of server</td>
+</tr>
+<tr>
+<td>.servers.startup</td>
+<td>function</td>
+<td>.servers</td>
+<td>initialise all the connections.  Must processes should call this during initialisation</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.refreshattributes</td>
+<td>function</td>
+<td>.servers</td>
+<td>refresh the attributes registered with the discovery service.  Should be called whenever they change e.g. end of day for an HDB</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.SERVERS</td>
+<td>table</td>
+<td>.servers</td>
+<td>table containing server handles and session values</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.timer.repeat</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a repeating timer with default next schedule</td>
+<td>[timestamp: start time; timestamp: end time; timespan: period; mixedlist: (function and argument list); string: description string]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.once</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a one-off timer to fire at a specific time</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); string: description string]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.remove</td>
+<td>function</td>
+<td>.timer</td>
+<td>Delete a row from the timer schedule</td>
+<td>[int: timer id to delete]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.removefunc</td>
+<td>function</td>
+<td>.timer</td>
+<td>Delete a specific function from the timer schedule</td>
+<td>[mixedlist: (function and argument list)]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.rep</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a repeating timer - more flexibility than .timer.repeat</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); short: scheduling algorithm for next timer; string: description string; boolean: whether to check if this new function is already present on the schedule]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.one</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a one-off timer to fire at a specific time - more flexibility than .timer.once</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); string: description string; boolean: whether to check if this new function is already present on the schedule]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.timer</td>
+<td>table</td>
+<td>.timer</td>
+<td>The table containing the timer information</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.cache.execute</td>
+<td>function</td>
+<td>.cache</td>
+<td>Check the cache for a valid result set, return the results if found, execute the function, cache it and return if not</td>
+<td>[mixed: function or string to execute;timespan: maximum allowable age of cache item if found in cache]</td>
+<td>mixed: result of function</td>
+</tr>
+<tr>
+<td>.cache.getperf</td>
+<td>function</td>
+<td>.cache</td>
+<td>Return the performance statistics of the cache</td>
+<td>[]</td>
+<td>table: cache performance</td>
+</tr>
+<tr>
+<td>.cache.maxsize</td>
+<td>variable</td>
+<td>.cache</td>
+<td>The maximum size in MB of the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.cache.maxindividual</td>
+<td>variable</td>
+<td>.cache</td>
+<td>The maximum size in MB of an individual item in the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.tz.dg</td>
+<td>function</td>
+<td>.tz</td>
+<td>default from GMT. Convert a timestamp from GMT to the default timezone</td>
+<td>[timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.lg</td>
+<td>function</td>
+<td>.tz</td>
+<td>local from GMT. Convert a timestamp from GMT to the specified local timezone</td>
+<td>[symbol (list): timezone ids;timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.gd</td>
+<td>function</td>
+<td>.tz</td>
+<td>GMT from default. Convert a timestamp from the default timezone to GMT</td>
+<td>[timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.gl</td>
+<td>function</td>
+<td>.tz</td>
+<td>GMT from local. Convert a timestamp from the specified local timezone to GMT</td>
+<td>[symbol (list): timezone ids; timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.ttz</td>
+<td>function</td>
+<td>.tz</td>
+<td>Convert a timestamp from a specified timezone to a specified destination timezone</td>
+<td>[symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.default</td>
+<td>variable</td>
+<td>.tz</td>
+<td>Default timezone</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.tz.t</td>
+<td>table</td>
+<td>.tz</td>
+<td>Table of timestamp information</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.email.connectdefault</td>
+<td>function</td>
+<td>.email</td>
+<td>connect to the default mail server specified in configuration</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>.email.senddefault</td>
+<td>function</td>
+<td>.email</td>
+<td>connect to email server if not connected. Send email using default settings</td>
+<td>[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be `html, default is `text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. `none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]</td>
+<td>size in bytes of sent email. -1 if failure</td>
+</tr>
+<tr>
+<td>.email.test</td>
+<td>function</td>
+<td>.email</td>
+<td>send a test email</td>
+<td>[symbol(list):email address to send test email to]</td>
+<td>size in bytes of sent email. -1 if failure</td>
+</tr>
+<tr>
+<td>.hb.addprocs</td>
+<td>function</td>
+<td>.hb</td>
+<td>Add a set of process types and names to the heartbeat table to actively monitor for heartbeats.  Processes will be automatically added and monitored when the heartbeats are subscribed to, but this is to allow for the case where a process might already be dead and so can't be subscribed to</td>
+<td>[symbol(list): process types; symbol(list): process names]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.processwarning</td>
+<td>function</td>
+<td>.hb</td>
+<td>Callback invoked if any process goes into a warning state.  Default implementation is to do nothing - modify as required</td>
+<td>[table: processes currently in warning state]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.processerror</td>
+<td>function</td>
+<td>.hb</td>
+<td>Callback invoked if any process goes into an error state. Default implementation is to do nothing - modify as required</td>
+<td>[table: processes currently in error state]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.storeheartbeat</td>
+<td>function</td>
+<td>.hb</td>
+<td>Store a heartbeat update.  This function should be added to you update callback when a heartbeat is received</td>
+<td>[table: the heartbeat table data to store]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.warningperiod</td>
+<td>function</td>
+<td>.hb</td>
+<td>Return the warning period for a particular process type.  Default is to return warningtolerance * publishinterval. Can be overridden as required</td>
+<td>[symbollist: the process types to return the warning period for]</td>
+<td>timespan list of warning period</td>
+</tr>
+<tr>
+<td>.hb.errorperiod</td>
+<td>function</td>
+<td>.hb</td>
+<td>Return the error period for a particular process type.  Default is to return errortolerance * publishinterval. Can be overridden as required</td>
+<td>[symbollist: the process types to return the error period for]</td>
+<td>timespan list of error period</td>
+</tr>
+<tr>
+<td>.rdb.moveandclear</td>
+<td>function</td>
+<td>.rdb</td>
+<td>Move a variable (table) from one namespace to another, deleting its contents.  Useful during the end-of-day roll down for tables you do not want to save to the HDB</td>
+<td>[symbol: the namespace to move the table from; symbol:the namespace to move the variable to; symbol: the name of the variable]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.api.f</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a function/variable/table/view in the current process</td>
+<td>[string:search string]</td>
+<td>table of matching elements</td>
+</tr>
+<tr>
+<td>.api.p</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a public function/variable/table/view in the current process</td>
+<td>[string:search string]</td>
+<td>table of matching public elements</td>
+</tr>
+<tr>
+<td>.api.u</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a non-standard q public function/variable/table/view in the current process.  This excludes the .q, .Q, .h, .o namespaces</td>
+<td>[string:search string]</td>
+<td>table of matching public elements</td>
+</tr>
+<tr>
+<td>.api.s</td>
+<td>function</td>
+<td>.api</td>
+<td>Search all function definitions for a specific string</td>
+<td>[string: search string]</td>
+<td>table of matching functions and definitions</td>
+</tr>
+<tr>
+<td>.api.find</td>
+<td>function</td>
+<td>.api</td>
+<td>Generic method for finding functions/variables/tables/views. f,p and u are based on this</td>
+<td>[string: search string; boolean (list): public flags to include; boolean: whether the search is context senstive</td>
+<td>table of matching elements</td>
+</tr>
+<tr>
+<td>.api.search</td>
+<td>function</td>
+<td>.api</td>
+<td>Generic method for searching all function definitions for a specific string. s is based on this</td>
+<td>[string: search string; boolean: whether the search is context senstive</td>
+<td>table of matching functions and definitions</td>
+</tr>
+<tr>
+<td>.api.add</td>
+<td>function</td>
+<td>.api</td>
+<td>Add a function to the api description table</td>
+<td>[symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.api.fullapi</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the full function api table</td>
+<td>[]</td>
+<td>api table</td>
+</tr>
+<tr>
+<td>.api.m</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required</td>
+<td>[]</td>
+<td>memory usage table</td>
+</tr>
+<tr>
+<td>.api.mem</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required</td>
+<td>[boolean:return views]</td>
+<td>memory usage table</td>
+</tr>
+<tr>
+<td>.api.whereami</td>
+<td>function</td>
+<td>.api</td>
+<td>Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]</td>
+<td>function definition</td>
+<td>symbol: the name of the current function</td>
+</tr>
+<tr>
+<td>.ps.publish</td>
+<td>function</td>
+<td>.ps</td>
+<td>Publish a table of data</td>
+<td>[symbol: name of table; table: table of data]</td>
+<td></td>
+</tr>
+<tr>
+<td>.ps.subscribe</td>
+<td>function</td>
+<td>.ps</td>
+<td>Subscribe to a table and list of instruments</td>
+<td>[symbol(list): table name. ` for all; symbol(list): symbols to subscribe to. ` for all]</td>
+<td>mixed type list of table names and schemas</td>
+</tr>
+<tr>
+<td>.ps.initialise</td>
+<td>function</td>
+<td>.ps</td>
+<td>Initialise the pubsub routines.  Any tables that exist in the top level can be published</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>.async.deferred</td>
+<td>function</td>
+<td>.async</td>
+<td>Use async messaging to simulate sync communication</td>
+<td>[int(list): handles to query; query]</td>
+<td>(boolean list:success status; result list)</td>
+</tr>
+<tr>
+<td>.async.postback</td>
+<td>function</td>
+<td>.async</td>
+<td>Send an async message to a process and the results will be posted back within the postback function call</td>
+<td>[int(list): handles to query; query; postback function]</td>
+<td>boolean list: successful send status</td>
+</tr>
+<tr>
+<td>.cmp.showcomp</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Show which files will be compressed and how; driven from csv file</td>
+<td>[`:/path/to/database; `:/path/to/configcsv; maxagefilestocompress]</td>
+<td>table of files to be compressed</td>
+</tr>
+<tr>
+<td>.cmp.compressmaxage</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress</td>
+<td>[`:/path/to/database; `:/path/to/configcsv; maxagefilestocompress]</td>
+<td></td>
+</tr>
+<tr>
+<td>.cmp.docompression</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Run compression on files using parameters specified in configuration csv file</td>
+<td>[`:/path/to/database; `:/path/to/configcsv]</td>
+<td></td>
+</tr>
+<tr>
+<td>.loader.loadallfiles</td>
+<td>function</td>
+<td>.loader</td>
+<td>Generic loader function to read a directory of files in chunks and write them out to disk</td>
+<td>[dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol).  Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)]</td>
+<td></td>
+</tr>
+<tr>
+<td>.sort.sorttab</td>
+<td>function</td>
+<td>.sort</td>
+<td>Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)</td>
+<td>[2 item list of (tablename e.g. `trade; partitions to sort and apply attributes to e.g. `:/hdb/2000.01.01/trade`:hdb/2000.01.02/trade)]</td>
+<td></td>
+</tr>
+<tr>
+<td>.sort.getsortcsv</td>
+<td>function</td>
+<td>.sort</td>
+<td>Read in the sort csv from the specified location</td>
+<td>[symbol: the location of the file e.g. `:config/sort.csv]</td>
+<td></td>
+</tr>
+<tr>
+<td>.gc.run</td>
+<td>function</td>
+<td>.gc</td>
+<td>Run garbage collection, print debug info before and after</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.mem.objsize</td>
+<td>function</td>
+<td>.mem</td>
+<td>Returns the calculated memory size in bytes used by an object.  It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)</td>
+<td>[q object]</td>
+<td>size of the object in bytes</td>
+</tr>
+<tr>
+<td>.tplog.check</td>
+<td>function</td>
+<td>.tplog</td>
+<td>Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle</td>
+<td>[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]</td>
+<td>handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt</td>
+</tr>
+</tbody>
+</table>
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../gettingstarted/" title="Getting Started">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../gettingstarted/" title="Getting Started" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Getting Started
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../handlers/" title="Handlers">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../handlers/" title="Handlers" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Handlers
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
           </div>
-        </a>
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+  <div class="md-footer-social">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '..';
-      var repo_id  = 'AquaQAnalytics/TorQ';
-    </script>
-    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application-16f434a21a.js"></script>
+      <script>var config={url:{base:".."}},app=new Application(config);app.initialize()</script>
+      
     
     
-      <script>
-        (function(i,s,o,g,r,a,m){
-          i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||
-          []).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;
-          m.parentNode.insertBefore(a,m)
-        })(window, document,
-          'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-        /* General initialization */
-        ga('create', 'UA-51911331-4', 'auto');
-        ga('set', 'anonymizeIp', true);
-        ga('send', 'pageview');
-        /* Track outbound links */
-        var buttons = document.querySelectorAll('a');
-        Array.prototype.map.call(buttons, function(item) {
-          if (item.host != document.location.host) {
-            item.addEventListener('click', function() {
-              var action = item.getAttribute('data-action') || 'follow';
-              ga('send', 'event', 'outbound', action, item.href);
-            });
-          }
-        });
-        /* Register handler to log search on blur */
-        var query = document.querySelector('.query');
-        query.addEventListener('blur', function() {
-          if (this.value) {
-            var path = document.location.pathname;
-            ga('send', 'pageview', path + '?q=' + this.value);
-          }
-        });
-      </script>
+      
+      <script>!function(e,t,a,n,o,c,i){e.GoogleAnalyticsObject=o,e[o]=e[o]||function(){(e[o].q=e[o].q||[]).push(arguments)},e[o].l=1*new Date,c=t.createElement(a),i=t.getElementsByTagName(a)[0],c.async=1,c.src=n,i.parentNode.insertBefore(c,i)}(window,document,"script","https://www.google-analytics.com/analytics.js","ga"),ga("create","UA-51911331-4","auto"),ga("set","anonymizeIp",!0),ga("send","pageview");var links=document.getElementsByTagName("a");Array.prototype.map.call(links,function(e){e.host!=document.location.host&&e.addEventListener("click",function(){var t=e.getAttribute("data-md-action")||"follow";ga("send","event","outbound",t,e.href)})});var query=document.forms.search.query;query.addEventListener("blur",function(){if(this.value){var e=document.location.pathname;ga("send","pageview",e+"?q="+this.value)}})</script>
+      
     
   </body>
 </html>

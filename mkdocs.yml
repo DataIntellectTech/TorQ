@@ -19,9 +19,13 @@ extra:
    palette:
       primary: 'indigo'
       accent: 'green'
-   author:
-      github: 'AquaQAnalytics'
-      twitter: 'AquaQAnalytics'
+   social:
+      - type: 'github'
+        link: 'https://github.com/AquaQAnalytics'
+      - type: 'twitter'
+        link: 'https://twitter.com/AquaQAnalytics'
+      - type: 'linkedin'
+        link: 'https://www.linkedin.com/company/aquaq-analytics'
 
 google_analytics:
    - 'UA-51911331-4'
