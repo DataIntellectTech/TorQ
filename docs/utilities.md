@@ -812,12 +812,16 @@ date will become the current calendar date.
 Additional Utilities
 --------------------
 
-There are some additional user contributed utility scripts available on
-code.kx which are good candidates for inclusion. These could either be
-dropped into the common code directory, or if not globally applicable
-then in the code directory for either the process type or name. The full
-set of user contributed code is documented
-[here](http://code.kx.com/wiki/Contrib).
+Modified u.q
+------------
+
+Starting in kdb+ v3.4, the new broadcast feature has some performance
+benefits. It works by serialising a message once before sending it
+asynchronously to a list of subscribers whereas the previous method
+would serialise it separately for each subscriber. To take advantage of
+this, we’ve modified u.q. This can be turned off by setting .u.broadcast
+to false. It is enabled by default, but will only override default
+publishing if the kdb+ version being used is 3.4 or after.
 
 <a name="api"></a>
 
@@ -864,16 +868,113 @@ namespaces is below- run .api.u namespace\*to list the functions.
 |  .tplog   |       Tickerplant Log Replay API       |
 |   .api    |           API management API           |
 
-  
-<a name="u.q"></a>
+API Table
+--------------------
 
-Modified u.q
-------------
+|name|vartype|namespace|descrip|params|return|
+|-|-|-|-|-|-|
+|.proc.createlog|function|.proc|Create the standard out and standard err log files. Redirect to them|[string: log directory; string: name of the log file;mixed: timestamp suffix for the file (can be null); boolean: suppress the generation of an alias link]|null|
+|.proc.rolllogauto|function|.proc|Roll the standard out/err log files|[]|null|
+|.proc.loadf|function|.proc|Load the specified file|[string: filename]|null|
+|.proc.loaddir|function|.proc|Load all the .q and .k files in the specified directory. If order.txt is found in the directory, use the ordering found in that file|[string: name of directory]|null|
+|.proc.getattributes|function|.proc|Called by external processes to retrieve the attributes (advertised functionality) of this process|[]|dictionary of attributes|
+|.proc.override|function|.proc|Override configuration varibles with command line parameters.  For example, if you set -.servers.HOPENTIMEOUT 5000 on the command line and call this function, then the command line value will be used|[]|null|
+|.proc.overrideconfig|function|.proc|Override configuration varibles with values in supplied parameter dictionary. Generic version of .proc.override|[dictionary: command line parameters.  .proc.params should be used]|null|
+|.lg.o|function|.lg|Log to standard out|[symbol: id of log message; string: message]|null|
+|.lg.e|function|.lg|Log to standard err|[symbol: id of log message; string: message]|null|
+|.lg.l|function|.lg|Log to either standard error or standard out, depending on the log level|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]|null|
+|.lg.err|function|.lg|Log to standard err|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]|null|
+|.lg.ext|function|.lg|Extra function invoked in standard logging function .lg.l.  Can be used to do more with the log message, e.g. publish externally|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters]|null|
+|.err.ex|function|.err|Log to standard err, exit|[symbol: id of log message; string: message; int: exit code]|null|
+|.err.usage|function|.err|Throw a usage error and exit|[]|null|
+|.err.param|function|.err|Check a dictionary for a set of required parameters. Print an error and exit if not all required are supplied|[dict: parameters; symbol list: the required param values]|null|
+|.err.env|function|.err|Check if a list of required environment variables are set.  If not, print an error and exit|[symbol list: list of required environment variables]|null|
+|.usage.rolllogauto|function|.usage|Roll the .usage txt files|[]|null|
+|.usage.readlog|function|.usage|Read and return a usage log file as a table|[string: name of log file]|null|
+|.usage.logtodisk|variable|.usage|whether to log to disk|||
+|.usage.logtomemory|variable|.usage|whether to log to .usage.usage|||
+|.usage.ignore|variable|.usage|whether to check the ignore list for functions to ignore|||
+|.usage.ignorelist|variable|.usage|the list of functions to ignore|||
+|.usage.logroll|variable|.usage|whether to automatically roll the log file|||
+|.usage.usage|table|.usage|log of messages through the message handlers|||
+|.clients.clients|table|.clients|table containing client handles and session values|||
+|.sub.getsubscriptionhandles|function|.sub|Connect to a list of processes of a specified type|[symbol: process type to match; symbol: process name to match; dictionary:attributes of process]|table of process names, types and the handle connected on|
+|.sub.subscribe|function|.sub|Subscribe to a table or list of tables and specified instruments|[symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle||
+|.pm.adduser|function|.pm|Adds a user to be permissioned as well as setting their password and the method used to hash it.|[symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]|null|
+|.pm.addgroup|function|.pm|Add a group which will have access to certain tables and variables|[symbol: the name of the group; string: a description of the group]|null|
+|.pm.addrole|function|.pm|Add a role which will have access to certain functions|[symbol: the name of the role; string: a description of the role]|null|
+|.pm.addtogroup|function|.pm|Add a user to a group, giving them access to all of its variables|[symbol: the name of the user to add; symbol: group the user is to be added to]|null|
+|.pm.assignrole|function|.pm|Assign a user a role, giving them access to all of its functions|[symbol: the name of the user to add; symbol: role the user is to be assigned to]|null|
+|.pm.grantaccess|function|.pm|Give a group access to a variable|[symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]|null|
+|.pm.grantfunction|function|.pm|Give a role access to a function|symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY|null|
+|.pm.createvirtualtable|function|.pm|Create a virtual table that a group might be able to access instead of the full table|[symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]|null|
+|.pm.cloneuser|function|.pm|Add a new user that is identical to another user|[symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]|null|
+|.access.addsuperuser|function|.access|Add a super user|[symbol: user]|null|
+|.access.addpoweruser|function|.access|Add a power user|[symbol: user]|null|
+|.access.adddefaultuser|function|.access|Add a default user|[symbol: user]|null|
+|.access.readpermissions|function|.access|Read the permissions from a directory|[string: directory containing the permissions files]|null|
+|.access.USERS|table|.access|Table of users and their types|||
+|.servers.opencon|function|.servers|open a connection to a process using the default timeout. If no user:pass supplied, the default one will be added if set|[symbol: the host:port[:user:pass]]|int: the process handle, null if the connection failed|
+|.servers.addh|function|.servers|open a connection to a server, store the connection details|[symbol: the host:port:user:pass connection symbol]|int: the server handle|
+|.servers.addw|function|.servers|add the connection details of a process behind the handle|[int: server handle]|null|
+|.servers.addnthawc|function|.servers|add the details of a connection to the table|[symbol: process name; symbol: process type; hpup: host:port:user:pass connection symbol; dict: attributes of the process; int: handle to the process;boolean: whether to check the handle is valid on insert|int: the handle of the process|
+|.servers.getservers|function|.servers|get a table of servers which match the given criteria|[symbol: pick the server based on the name value or the type value.  Can be either \`procname\`proctype; symbol(list): lookup values. \` for any; dict: requirements dictionary; boolean: whether to automatically open dead connections for the specified lookup values; boolean: if only one of each of the specified lookup values is required (means dead connections aren't opened if there is one available)]|table: processes details and requirements matches|
+|.servers.gethandlebytype|function|.servers|get a server handle for the supplied type|[symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]|int: handle of server|
+|.servers.gethpbytype|function|.servers|get a server hpup connection symbol for the supplied type|[symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]|symbol: h:p:u:p connection symbol of server|
+|.servers.startup|function|.servers|initialise all the connections.  Must processes should call this during initialisation|[]|null|
+|.servers.refreshattributes|function|.servers|refresh the attributes registered with the discovery service.  Should be called whenever they change e.g. end of day for an HDB|[]|null|
+|.servers.SERVERS|table|.servers|table containing server handles and session values|||
+|.timer.repeat|function|.timer|Add a repeating timer with default next schedule|[timestamp: start time; timestamp: end time; timespan: period; mixedlist: (function and argument list); string: description string]|null|
+|.timer.once|function|.timer|Add a one-off timer to fire at a specific time|[timestamp: execute time; mixedlist: (function and argument list); string: description string]|null|
+|.timer.remove|function|.timer|Delete a row from the timer schedule|[int: timer id to delete]|null|
+|.timer.removefunc|function|.timer|Delete a specific function from the timer schedule|[mixedlist: (function and argument list)]|null|
+|.timer.rep|function|.timer|Add a repeating timer - more flexibility than .timer.repeat|[timestamp: execute time; mixedlist: (function and argument list); short: scheduling algorithm for next timer; string: description string; boolean: whether to check if this new function is already present on the schedule]|null|
+|.timer.one|function|.timer|Add a one-off timer to fire at a specific time - more flexibility than .timer.once|[timestamp: execute time; mixedlist: (function and argument list); string: description string; boolean: whether to check if this new function is already present on the schedule]|null|
+|.timer.timer|table|.timer|The table containing the timer information|||
+|.cache.execute|function|.cache|Check the cache for a valid result set, return the results if found, execute the function, cache it and return if not|[mixed: function or string to execute;timespan: maximum allowable age of cache item if found in cache]|mixed: result of function|
+|.cache.getperf|function|.cache|Return the performance statistics of the cache|[]|table: cache performance|
+|.cache.maxsize|variable|.cache|The maximum size in MB of the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want|||
+|.cache.maxindividual|variable|.cache|The maximum size in MB of an individual item in the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want|||
+|.tz.dg|function|.tz|default from GMT. Convert a timestamp from GMT to the default timezone|[timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.lg|function|.tz|local from GMT. Convert a timestamp from GMT to the specified local timezone|[symbol (list): timezone ids;timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.gd|function|.tz|GMT from default. Convert a timestamp from the default timezone to GMT|[timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.gl|function|.tz|GMT from local. Convert a timestamp from the specified local timezone to GMT|[symbol (list): timezone ids; timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.ttz|function|.tz|Convert a timestamp from a specified timezone to a specified destination timezone|[symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.default|variable|.tz|Default timezone|||
+|.tz.t|table|.tz|Table of timestamp information|||
+|.email.connectdefault|function|.email|connect to the default mail server specified in configuration|[]||
+|.email.senddefault|function|.email|connect to email server if not connected. Send email using default settings|[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be \`html, default is \`text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. \`none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]|size in bytes of sent email. -1 if failure|
+|.email.test|function|.email|send a test email|[symbol(list):email address to send test email to]|size in bytes of sent email. -1 if failure|
+|.hb.addprocs|function|.hb|Add a set of process types and names to the heartbeat table to actively monitor for heartbeats.  Processes will be automatically added and monitored when the heartbeats are subscribed to, but this is to allow for the case where a process might already be dead and so can't be subscribed to|[symbol(list): process types; symbol(list): process names]||
+|.hb.processwarning|function|.hb|Callback invoked if any process goes into a warning state.  Default implementation is to do nothing - modify as required|[table: processes currently in warning state]||
+|.hb.processerror|function|.hb|Callback invoked if any process goes into an error state. Default implementation is to do nothing - modify as required|[table: processes currently in error state]||
+|.hb.storeheartbeat|function|.hb|Store a heartbeat update.  This function should be added to you update callback when a heartbeat is received|[table: the heartbeat table data to store]||
+|.hb.warningperiod|function|.hb|Return the warning period for a particular process type.  Default is to return warningtolerance * publishinterval. Can be overridden as required|[symbollist: the process types to return the warning period for]|timespan list of warning period|
+|.hb.errorperiod|function|.hb|Return the error period for a particular process type.  Default is to return errortolerance * publishinterval. Can be overridden as required|[symbollist: the process types to return the error period for]|timespan list of error period|
+|.rdb.moveandclear|function|.rdb|Move a variable (table) from one namespace to another, deleting its contents.  Useful during the end-of-day roll down for tables you do not want to save to the HDB|[symbol: the namespace to move the table from; symbol:the namespace to move the variable to; symbol: the name of the variable]|null|
+|.api.f|function|.api|Find a function/variable/table/view in the current process|[string:search string]|table of matching elements|
+|.api.p|function|.api|Find a public function/variable/table/view in the current process|[string:search string]|table of matching public elements|
+|.api.u|function|.api|Find a non-standard q public function/variable/table/view in the current process.  This excludes the .q, .Q, .h, .o namespaces|[string:search string]|table of matching public elements|
+|.api.s|function|.api|Search all function definitions for a specific string|[string: search string]|table of matching functions and definitions|
+|.api.find|function|.api|Generic method for finding functions/variables/tables/views. f,p and u are based on this|[string: search string; boolean (list): public flags to include; boolean: whether the search is context senstive|table of matching elements|
+|.api.search|function|.api|Generic method for searching all function definitions for a specific string. s is based on this|[string: search string; boolean: whether the search is context senstive|table of matching functions and definitions|
+|.api.add|function|.api|Add a function to the api description table|[symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]|null|
+|.api.fullapi|function|.api|Return the full function api table|[]|api table|
+|.api.m|function|.api|Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required|[]|memory usage table|
+|.api.mem|function|.api|Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required|[boolean:return views]|memory usage table|
+|.api.whereami|function|.api|Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]|function definition|symbol: the name of the current function|
+|.ps.publish|function|.ps|Publish a table of data|[symbol: name of table; table: table of data]||
+|.ps.subscribe|function|.ps|Subscribe to a table and list of instruments|[symbol(list): table name. \` for all; symbol(list): symbols to subscribe to. \` for all]|mixed type list of table names and schemas|
+|.ps.initialise|function|.ps|Initialise the pubsub routines.  Any tables that exist in the top level can be published|[]||
+|.async.deferred|function|.async|Use async messaging to simulate sync communication|[int(list): handles to query; query]|(boolean list:success status; result list)|
+|.async.postback|function|.async|Send an async message to a process and the results will be posted back within the postback function call|[int(list): handles to query; query; postback function]|boolean list: successful send status|
+|.cmp.showcomp|function|.cmp|Show which files will be compressed and how; driven from csv file|[\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]|table of files to be compressed|
+|.cmp.compressmaxage|function|.cmp|Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress|[\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]||
+|.cmp.docompression|function|.cmp|Run compression on files using parameters specified in configuration csv file|[\`:/path/to/database; \`:/path/to/configcsv]||
+|.loader.loadallfiles|function|.loader|Generic loader function to read a directory of files in chunks and write them out to disk|[dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol).  Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)]||
+|.sort.sorttab|function|.sort|Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)|[2 item list of (tablename e.g. \`trade; partitions to sort and apply attributes to e.g. \`:/hdb/2000.01.01/trade\`:hdb/2000.01.02/trade)]||
+|.sort.getsortcsv|function|.sort|Read in the sort csv from the specified location|[symbol: the location of the file e.g. \`:config/sort.csv]||
+|.gc.run|function|.gc|Run garbage collection, print debug info before and after|||
+|.mem.objsize|function|.mem|Returns the calculated memory size in bytes used by an object.  It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)|[q object]|size of the object in bytes|
+|.tplog.check|function|.tplog|Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle |[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]|handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt|
 
-Starting in kdb+ v3.4, the new broadcast feature has some performance
-benefits. It works by serialising a message once before sending it
-asynchronously to a list of subscribers whereas the previous method
-would serialise it separately for each subscriber. To take advantage of
-this, we’ve modified u.q. This can be turned off by setting .u.broadcast
-to false. It is enabled by default, but will only override default
-publishing if the kdb+ version being used is 3.4 or after.
