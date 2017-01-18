@@ -126,7 +126,6 @@ broadcast:1b;                   // broadcast publishing is on by default. Availb
 
 // timezone
 \d .eodtime
-rolltime:0D00:00:00.000000000;		// time to roll in rolltimezone
+rolltimeoffset:0D00:00:00.000000000;	// offset from default midnight roll
 datatimezone:`$"GMT";			// timezone for TP to timestamp data in
 rolltimezone:`$"GMT";			// timezone to perform rollover in
-dayoffset:0;				// 0 = on rollover, day becomes today; 1 = on rollover, day becomes tomorrow
