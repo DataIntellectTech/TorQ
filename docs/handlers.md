@@ -28,6 +28,7 @@ off by setting .proc.loadhandlers to 0b in the configuration file.
 | trackservers.q  |  .servers  |  Y   | Discover and track server processes including name, type and attribute information. This also contains the core of the code which can be used in conjunction with the discovery service. |                pc, timer                 |
 |   zpsignore.q   | .zpsignore |  N   | Override async message handler based on certain message patterns |                    ps                    |
 |  writeaccess.q  | .readonly  |  N   | Restrict client write access to prevent any modification to data in place. Also disables all HTTP access. |            pg, ps, ws, ph, pp            |
+|     ldap.q      |   .ldap    |  N   | Restrict client access to process using ldap authentication. | pw |
 
 
 
@@ -425,6 +426,54 @@ current user as listed on the gateway permission tables:
 
     .pm.grantfunction[`.gw.syncexec;`toplevel;
         {.pm.allowed[.z.u;x[`0]] and x[`1] in `rdb}]
+
+
+<a name="ldap"></a>
+
+ldap.q
+------
+
+Authentication with an ldap server is managed with ldap.q. It allows:
+
+- A user to authenticate against an ldap server;
+
+- Caching of user attempts to allow reauthentication without server if within checktime period;
+
+- Users to be blocked if too many failed authentication attempts are made.
+
+Default parameters in the ldap namespace are set in {TORQHOME}/config/settings/default.q.
+
+|      parameter     |     description     |
+| :----------------: | :-----------------: |
+|      enabled       |  Whether ldap authentication is enabled  |
+|       debug        |  Whether logging message are written to console  |
+|       server       |  Host for ldap server.   |
+|        port        |  Port number for ldap server.  |
+|      version       |  Ldap version number.    |
+|     blocktime      |  Time that must elapse before a blocked user can attempt to authenticate. If set to 0Np then the user is permanently blocked until an admin unblocks them. |
+|     checklimit     |  Login attempts before user is blocked.  |
+|     checktime      |  Period of time that allows user to reauthenticate without confirming with ldap server. |
+|     buildDNsuf     |  Suffix for building distinguished name. |
+|      buildDN       |  Function to build distiniguished name.  |
+
+To get started the following will need altered from their default values: enabled, port, server, buildDNsuf.
+
+The value buildDNsuf is required to build a users bind_dn from the supplied username and is called by the function buildDN. An example definition is:
+
+    .ldap.buildDNsuf:"ou=users,dc=website,dc=com";
+
+Authentication is handled by .ldap.authenticate which is wrapped by .ldap.login, which is in turn wrapped by .z.pw when ldap authentication is enabled. When invoked .ldap.login retrieves the users latest authentication attempt from the cache, if it exists, and performs several checks before authenticating the user.
+
+To authenticate the function first checks whether the user has been blocked by reaching the checklimit and blocktime has not passed, immediately returning false if this is the case. If the user has previously successfully authenticated within the period defined by checktime and is using the same credentials authentication will be permitted. For all other cases an authentication attempt will be made against the ldap server. 
+
+Example authentication attempt:
+
+    .ldap.login[`user;pass]
+    0b
+
+To manually unblock a user the function .ldap.unblock must be passed their userame as a symbol. The function checks the cache to see whether a user is blocked and will reset the blocked status if necessary. An example usage of this function is:
+
+    .ldap.unblock[`user]
 
 
 <a name="dia"></a>

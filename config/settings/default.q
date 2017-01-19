@@ -120,6 +120,19 @@ checkinterval:0D00:00:10	// how often heartbeats are checked
 warningtolerance:2f		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:3f		// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
 
+\d .ldap
+
+enabled:0b                                  // whether ldap authentication is enabled
+debug:0i					                // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+server:"localhost";                         // name of ldap server
+port:0i;                                    // port for ldap server
+version:3;                                  // ldap version number
+blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
+checklimit:3;                               // number of attempts before user is temporarily blocked
+checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
+buildDNsuf:"";                              // suffix used for building bind DN
+buildDN:{"uid=",string[x],",",buildDNsuf};  // function to build bind DN
+
 // broadcast publishing
 \d .u
 broadcast:1b;                   // broadcast publishing is on by default. Availble in kdb version 3.4 or later.
