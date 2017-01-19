@@ -5,7 +5,7 @@
 \d .ldap
 
 enabled:@[value;`enabled;.z.o~`l64]                             / whether authentication is enabled
-lib:`$getenv[`KDBLIB],"/",string[.z.o],"/kxldap";               / ldap library location
+lib:`$getenv[`KDBLIB],"/",string[.z.o],"/torqldap";             / ldap library location
 debug:@[value;`debug;0i]                                        / debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
 server:@[value;`server;"localhost"];                            / name of ldap server
 port:@[value;`port;0i];                                         / port for ldap server
@@ -73,5 +73,6 @@ if[enabled;
   if[()~key libfile;                                            / check ldap library file exists
     :.ldap.err"cannot find library file: ",1_string libfile]; 
   init hsym .ldap.lib;                                          / initialise ldap library
-  .z.pw:{all(.ldap.login[y;z];x[y;z])}@[value;`.z.pw;{[x;y] 1b}];  / redefine .z.pw
+  .z.pw:{all(.ldap.login;x).\:(y;z)}@[value;`.z.pw;{[x;y]1b}];  / redefine .z.pw
  ];
+
