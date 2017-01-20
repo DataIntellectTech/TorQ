@@ -178,6 +178,13 @@ auth.local:{[u;p]
     md5[p]~ud`password;
     0b];  / unknown hashtype
   r}
+
+/ ldap autentication relies on ldap code
+auth.ldap:{[u;p]
+  / check if ldap has been set up
+  $[@[value;`.ldap.enabled;0b];
+   .ldap.login[u;p];
+   0b]}
  
 / entry point - replace .z.pw 
 login:{[u;p]
