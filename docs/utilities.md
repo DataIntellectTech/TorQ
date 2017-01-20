@@ -101,6 +101,11 @@ given its definition. This can be useful in debugging.
     q)).api.whereami[.z.s]                                                                                                                                                                                                                                                        
     `..g
 
+apidetails.q
+----------------
+
+This file in both the common and the handler directories is used to add to the api using the functions defined in api.q
+
 <a name="tim"></a>
 
 timer.q
@@ -662,6 +667,16 @@ allowing downstream processes to detect the availability of upstream
 components. The heartbeat table contains a heartbeat time and counter.
 The heartbeat script contains functions to handle and process heartbeats
 and manage upstream process failures. See .api.p.hb.\*for details.
+
+rmvr.q
+-----------
+
+This file contains a function which can be used to convert environment variable paths into a full path from the root directory.
+
+os.q
+-----------
+
+A file with various q functions to perform system operations. This will detect your operating system and will perform the correct commands depending on what you are using.
 
 <a name="wu"></a>
 

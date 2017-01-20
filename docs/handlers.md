@@ -53,6 +53,12 @@ remaining configuration of the other message handler files.
     logroll:1b		/- Whether or not to roll the log file
     			/- automatically (on a daily schedule)
 
+
+dotz.q
+---------
+
+Stores all the default values for the message handlers and can be used to revert back to the default if necessary.
+
 <a name="logu"></a>
 
 logusage.q

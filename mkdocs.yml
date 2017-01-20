@@ -9,6 +9,7 @@ pages:
     - Connection Management: conn.md
     - Processes: Processes.md 
     - Visualisation: visualisation.md
+    - TorQ Blog Posts: blog.md
 copyright: 'Copyright &copy 2016 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.'
 
 theme: 'material'
