@@ -265,8 +265,8 @@ order.txt to the directory. order.txt dictates the order that files in
 the directory are loaded. If a file is not in order.txt, it will still
 be loaded but after all the files listed in order.txt have been loaded.
 
-In additin to loading code form $KDBCODE, application specific code can be 
-saved in a user defined folder with the same structure as above, and made
+In addition to loading code form $KDBCODE, application specific code can be 
+saved in a user defined directory with the same structure as above, and made
 visible to TorQ by setting the $KDBAPPCODE environment variable.
 
 If this environment variable is set, TorQ will load codebase in the following order.
