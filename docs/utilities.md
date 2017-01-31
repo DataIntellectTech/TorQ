@@ -678,6 +678,8 @@ os.q
 
 A file with various q functions to perform system operations. This will detect your operating system and will perform the correct commands depending on what you are using.
 
+This is a modification of a script developed by Simon Garland.
+
 <a name="wu"></a>
 
 dbwriteutils.q
