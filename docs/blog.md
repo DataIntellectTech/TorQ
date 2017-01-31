@@ -26,10 +26,6 @@ Corrupt tickerplant logs are a curse that no one deserves but that doesn’t sto
 
 The advantages and methods of using a gateway in a kdb+ tick system.
 
-[ End-of-Day Parallel Sorting ]( http://www.aquaq.co.uk/q/end-of-day-parallel-sorting-in-torq/ )
-
-Detailing how parallel sorting works in TorQ and why it is advantageous.
-
 [ Faster Recovery With kdb+ tick ]( http://www.aquaq.co.uk/q/faster-recovery-with-kdb-tick/ )
 
 How to effectively recover a process to its previous state after a crash using the RDB instead of the tickerplant log.
