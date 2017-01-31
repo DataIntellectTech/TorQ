@@ -265,6 +265,26 @@ order.txt to the directory. order.txt dictates the order that files in
 the directory are loaded. If a file is not in order.txt, it will still
 be loaded but after all the files listed in order.txt have been loaded.
 
+In addition to loading code form $KDBCODE, application specific code can be 
+saved in a user defined directory with the same structure as above, and made
+visible to TorQ by setting the $KDBAPPCODE environment variable.
+
+If this environment variable is set, TorQ will load codebase in the following order.
+
+-   $KDBCODE/common: shared codebase loaded by all processes;
+
+-   $KDBAPPCODE/common: application specific code shared by all processes;
+
+-   $KDBCODE/\[proctype\]: code for a specific process type;
+
+-   $KDBAPPCODE/\[proctype\]: application specific code for a specific process type;
+
+-   $KDBCODE/\[procname\]: code for a specific process name;
+
+-   $KDBAPPCODE/\[procname\]: application specific code for a specific process name;
+
+
+
 Additional directories can be loaded using the -loaddir command line
 parameter.
 
