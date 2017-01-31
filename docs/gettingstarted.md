@@ -211,9 +211,9 @@ files in the below order:-
     standard installation this should contain the superset of
     customisable configuration, including comments;
 
--   [\[proctype\]]{}.q: configuration for a specific process type;
+-   [proctype].q: configuration for a specific process type;
 
--   [\[procname\]]{}.q: configuration for a specific named process.
+-   [procname].q: configuration for a specific named process.
 
 The only one which should always be present is default.q. Each of the
 other scripts can contain a subset of the configuration variables, which

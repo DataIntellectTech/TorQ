@@ -1143,6 +1143,8 @@ monitor process in the kdb+ side. The features of the front end include:
 
 It is accessible by going to the url `http://HOST:PORT/.non?monitorui`
 
+![HTML5 front end](graphics/monitor_ui_running.png)
+
 <a name="compress"></a>
 
 Compression 
@@ -1243,13 +1245,3 @@ and are under the `.ctp` namespace.
  | schema               |    retrieve schema from tickerplant    |                                                                   `1b`|
  | clearlogonsubscription  | clear log on subscription, only called if createlogfile is also enabled  |                              `0b`|
 
-
-
-<a name="kdb"></a>
-
-Integration with kdb+tick
-=========================
-
-AquaQ TorQ can be fully integrated with kdb+tick. For further details,
-use one of the AquaQ TorQ Starter packs to set up a production kdb+ data
-capture system.

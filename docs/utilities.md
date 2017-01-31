@@ -101,6 +101,11 @@ given its definition. This can be useful in debugging.
     q)).api.whereami[.z.s]                                                                                                                                                                                                                                                        
     `..g
 
+apidetails.q
+----------------
+
+This file in both the common and the handler directories is used to add to the api using the functions defined in api.q
+
 <a name="tim"></a>
 
 timer.q
@@ -663,6 +668,18 @@ components. The heartbeat table contains a heartbeat time and counter.
 The heartbeat script contains functions to handle and process heartbeats
 and manage upstream process failures. See .api.p.hb.\*for details.
 
+rmvr.q
+-----------
+
+This file contains a function which can be used to convert environment variable paths into a full path from the root directory.
+
+os.q
+-----------
+
+A file with various q functions to perform system operations. This will detect your operating system and will perform the correct commands depending on what you are using.
+
+This is a modification of a script developed by Simon Garland.
+
 <a name="wu"></a>
 
 dbwriteutils.q
@@ -862,25 +879,6 @@ namespaces is below- run .api.u namespace\*to list the functions.
 |    .gc    |         Garbage Collection API         |
 |  .tplog   |       Tickerplant Log Replay API       |
 |   .api    |           API management API           |
-
-<!--
-
-Updating the API Table
----------------------------
-
-For a start you will need to load up the api table. Launch TorQ and connect to any process then call the function .api.p[`]. This will produce a table with the full API. Next you need to define the follwing function. 
-
-    convertAPI:{
-     x: select name,vartype,namespace,descrip,params,return from x where not namespace = `.`.q`;
-     header:"|",("|" sv string cols x),"|\n";
-     break: raze {x;"|-"} each til count cols x;
-     break:break,"|\n";
-     c:(raze/)(header; break;{"|",("|" sv {raze x} each string value x[y]),"|\n"}[x;] each til count x);
-     c:ssr[c;"`";"\\`"];a:"\n" vs c; `:markdown.md 0:.h.tx[`md;a]}
-
-When called on the API table this will convert it into a markdown readable format and then save it to a file called markdown.md. This file should be good to go. Simply replace the API Table in docs/utilities.md with this table, update the site with mkdocs gh-deploy and your changes should be registered.
-
---->
 
 
 API Table

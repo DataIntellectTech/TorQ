@@ -31,7 +31,6 @@ off by setting .proc.loadhandlers to 0b in the configuration file.
 |     ldap.q      |   .ldap    |  N   | Restrict client access to process using ldap authentication. | pw |
 
 
-
 Each customization can be turned on or off individually from the
 configuration file(s). Each script can be extensively customised using
 the configuration file. Example customization for logusage.q, taken from
@@ -53,6 +52,12 @@ remaining configuration of the other message handler files.
     			/- queries;3=errors+before a query+after
     logroll:1b		/- Whether or not to roll the log file
     			/- automatically (on a daily schedule)
+
+
+dotz.q
+---------
+
+Stores all the default values for the message handlers and can be used to revert back to the default if necessary.
 
 <a name="logu"></a>
 
