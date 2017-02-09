@@ -50,10 +50,9 @@ loadpassword[]
 opencon:{
 	if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
 
-	// If the supplied connection string doesnt contain a user:pass and the last PASSWORDS id not null, lookup PASSWORDS dict and append on corresponding user:pass
-	// else if the supplied connection string doesn't contain a user:pass and USERPASS is not null, append it
-	
-	connection:$[(2>=sum ":"=string x) and not null last PASSWORDS;`$(string x),string PASSWORDS[x];$[(2 >= sum ":"=string x) and not null USERPASS;`$(string x),":",string USERPASS;x]];
+	// If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
+        // else return connection string passed in
+        connection:$[2 >= sum ":"=string x; `$(string x),string USERPASS^PASSWORDS[x];x];
 
 	h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
 
