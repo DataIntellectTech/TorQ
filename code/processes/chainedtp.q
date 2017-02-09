@@ -151,6 +151,7 @@ notpconnected:{[]
 .z.pc:{[x;y]  
   if[.ctp.tph=y;
     .lg.e[`.z.pc;"lost connection to tickerplant : ",string .ctp.tickerplantname];exit 0];
+  .u.del[;y] each .u.t;
   x@y
   }[@[value;`.z.pc;{{;}}]] 
 
