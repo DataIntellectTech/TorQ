@@ -142,3 +142,10 @@ broadcast:1b;                   // broadcast publishing is on by default. Availb
 rolltimeoffset:0D00:00:00.000000000;	// offset from default midnight roll
 datatimezone:`$"GMT";			// timezone for TP to timestamp data in
 rolltimezone:`$"GMT";			// timezone to perform rollover in
+
+//Subscriber cut-off
+\d .subcut
+cutenabled:0b;
+maxsize:1000000;
+procsize:(enlist `chainedtp)!(enlist 100000000j);
+checkfreq:0D00:01;

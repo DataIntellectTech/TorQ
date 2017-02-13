@@ -1,32 +1,26 @@
 //This script will cut off any slow subscibers if they exceed a memory limit
 
 \d .subcut
-cutenabled:@[value;`cutenabled;0b]		//flag for enabling subscriber cutoff. true means slow subscribers will be cut off
-maxsize:@[value;`maxsize;1000]			//a global value for the max queue size of a subscriber
-procsize:@[value;`procsize;()!()]			//a dictionary of process type and that processes queue size. This value will take precedence over maxsize
-checkfreq:@[value;`checkfreq;0D00:01]		//the frequency for running the queue size check on subscribers
-
-
-.proc.extrausage:"Subscriber Cutt-off:\n
- [-.subcut.cutenabled [0|1]]\t\t\tBoolean variable to switch subscribercutoff.q on or off. Default is 0b
- [-.subcut.maxsize x]\t\t\tThe default queue size for when a subscriber will be cut off if exceeded. Default is ***
- [-.subcut.procsize x]\t\t\tA dictionary that can be populated with process type and a queue size limit for that process. eg.`rdb!1000. This value overwrites maxsize for that process type. Default is ()!()
- [-.subcut.checkfreq x]\t\t\tThe period of time to check the queue length of subscribers. Default is 0D00:01" 
+cutenabled:@[value;`cutenabled;0b]			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off
+maxsize:@[value;`maxsize;100000]			//a global value for the max queue size of a subscriber
+procsize:@[value;`procsize;(enlist `)!(enlist 0Nj)]	//a dictionary of process type and that processes queue size. This value will take precedence over maxsize
+checkfreq:@[value;`checkfreq;0D00:01]			//the frequency for running the queue size check on subscribers
 
 
 checksubs:{
 
-	.lg.o[`subscribercutoff;"Subscriber cut-off enabled.Checking handle sizes"];
-	
 	{[handle]
-	//Get process type for input handle from ,clients.clients
+	//Get process type for input handle from .clients.clients
 	proctype:first exec u from .clients.clients where w=handle;
 	
-	//if this process type is in dictionary procsize check the handle size against the procsize limit, else check the handle size against the maxsize limit
-        $[proctype in key procsize;
-                {[handle;proctype]if[(sum .z.W[handle]) > first procsize[proctype];(hclose handle;.u.del[;handle] each .u.t;.lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle])]}[handle;proctype];
-                {[handle]if[(sum .z.W[handle]) > maxsize;(hclose handle;.u.del[;handle] each .u.t;.lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle])]}handle]} each key .z.W
-	 }
+	//if handle size is greater than maxsize or specified size in procsize, close the handle, call .z.pc and log the handle being cut.
+	{[handle;proctype]if[(sum .z.W[handle]) >  (maxsize^procsize[proctype]);(hclose handle;.z.pc handle;.lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle])]}[handle;proctype]} each key .z.W
+	
+	}
 
-
-if[cutenabled;.timer.rep[.proc.cp[];0Wp;checkfreq;(`.subcut.checksubs`);0h;"run subscribercutoff";1b]];
+//if cut is enabled and timer code has been loaded, start timer for subscriber cut-off. Else output error.
+if[cutenabled;
+	$[@[value;`.timer.enabled;0b];
+        	[.lg.o[`subscribercutoff;"adding timer function to periodically check subscriber queue sizes starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
+        	.timer.rep[.proc.cp[];0Wp;checkfreq;(`.subcut.checksubs`);0h;"run subscribercutoff";1b]];
+		.lg.e[`subscribercutoff;".subcut.cutenabled is set to true, but timer functionality is not loaded - cannot cut-off slow subscribers"]]];

@@ -24,9 +24,9 @@ init:{
 
 del:{w[x]_:w[x;;0]?y};
 
-//Version checking code. .z.pc is only used in versions prior to 3.3
+//Version checking code. .z.pc is used in versions other than 3.3
 close:{{.html.del[;y] each .html.t; x@y}@[value;z;{{[x]}}]}
-if[.z.K >= 3.3;.z.wc:close[;;`.z.wc]; .z.pc:close[;;`.z.pc]]
+if[.z.K = 3.3;.z.wc:close[;;`.z.wc]; .z.pc:close[;;`.z.pc]]
 
 // Create a new version of sel - for the time being, all pages get all data
 / sel:{$[`~y;x;select from x where sym in y]}
