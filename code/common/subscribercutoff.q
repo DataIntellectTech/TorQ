@@ -2,25 +2,24 @@
 
 \d .subcut
 cutenabled:@[value;`cutenabled;0b]			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off
-maxsize:@[value;`maxsize;100000]			//a global value for the max queue size of a subscriber
-procsize:@[value;`procsize;(enlist `)!(enlist 0Nj)]	//a dictionary of process type and that processes queue size. This value will take precedence over maxsize
+maxsize:@[value;`maxsize;100000]			//a global value for the max byte size of a subscriber
+state:@[value;`state;()!()]				//a dictionary to track how many times a handle breachs the size limit
+breachlimit:@[value;`breachlimit;3]			//the number of times a handle can exceed the size limit check in a row before it is closed
 checkfreq:@[value;`checkfreq;0D00:01]			//the frequency for running the queue size check on subscribers
 
 
 checksubs:{
 
-	{[handle]
-	//Get process type for input handle from .clients.clients
-	proctype:first exec u from .clients.clients where w=handle;
-	
-	//if handle size is greater than maxsize or specified size in procsize, close the handle, call .z.pc and log the handle being cut.
-	{[handle;proctype]if[(sum .z.W[handle]) >  (maxsize^procsize[proctype]);(hclose handle;.z.pc handle;.lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle])]}[handle;proctype]} each key .z.W
-	
+	//maintain a state of how many times a handle has breached the size limit
+	.subcut.state:current[key .subcut.state]*.subcut.state+:current:(sum each .z.W)>maxsize;
+
+	//if a handle exceeds the breachlimit, close the handle, call .z.pc and log the handle being closed.
+	{[handle]@[hclose;handle;{.lg.e[`subscribercutoff;"Failed to close handle ",string handle]}]; .z.pc handle; .lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle]} each where .subcut.state >= breachlimit;
 	}
 
-//if cut is enabled and timer code has been loaded, start timer for subscriber cut-off. Else output error.
+//if cut is enabled and timer code has been loaded, start timer for subscriber cut-off, else output error.
 if[cutenabled;
 	$[@[value;`.timer.enabled;0b];
-        	[.lg.o[`subscribercutoff;"adding timer function to periodically check subscriber queue sizes starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
+        	[.lg.o[`subscribercutoff;"adding timer function to periodically check subscriber queue sizes"];
         	.timer.rep[.proc.cp[];0Wp;checkfreq;(`.subcut.checksubs`);0h;"run subscribercutoff";1b]];
 		.lg.e[`subscribercutoff;".subcut.cutenabled is set to true, but timer functionality is not loaded - cannot cut-off slow subscribers"]]];

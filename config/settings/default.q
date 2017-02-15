@@ -145,7 +145,8 @@ rolltimezone:`$"GMT";			// timezone to perform rollover in
 
 //Subscriber cut-off
 \d .subcut
-cutenabled:0b;
-maxsize:1000000;
-procsize:(enlist `chainedtp)!(enlist 100000000j);
-checkfreq:0D00:01;
+cutenabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off
+maxsize:1000000;		//a global value for the max byte size of a subscriber
+state:()!();			//a dictionary to track how many times a handle breachs the size limit
+breachlimit:3;			//the number of times a handle can exceed the size limit check in a row before it is closed
+checkfreq:0D00:01;		//the frequency for running the queue size check on subscribers
