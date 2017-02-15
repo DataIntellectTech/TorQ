@@ -14,7 +14,7 @@ checksubs:{
 	.subcut.state:current[key .subcut.state]*.subcut.state+:current:(sum each .z.W)>maxsize;
 
 	//if a handle exceeds the breachlimit, close the handle, call .z.pc and log the handle being closed.
-	{[handle]@[hclose;handle;{.lg.e[`subscribercutoff;"Failed to close handle ",string handle]}]; .z.pc handle; .lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle]} each where .subcut.state >= breachlimit;
+	{[handle].lg.o[`subscribercutoff;"Cutting off subscriber on handle ",string handle]; @[hclose;handle;{.lg.e[`subscribercutoff;"Failed to close handle ",string handle]}]; .z.pc handle} each where .subcut.state >= breachlimit;
 	}
 
 //if cut is enabled and timer code has been loaded, start timer for subscriber cut-off, else output error.
