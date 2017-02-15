@@ -27,7 +27,7 @@ USERPASS:`											// the username and password used to make connections
 STARTUP:@[value;`STARTUP;0b]									// whether to automatically make connections on startup
 DISCOVERY:@[value;`DISCOVERY;enlist`]								// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype!sockettype. sockettype options : `tcp`tcps`unix. e.g. `rdb`tickerplant!`tcp`unix
-PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]						// dict of host:port!user:pass e.g. `:host:1234!`:user:pass
+PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]						// dict of host:port!user:pass e.g. `:host:1234!`user:pass
 
 
 // If required, change this method to something more secure!
@@ -52,7 +52,7 @@ opencon:{
 
 	// If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
         // else return connection string passed in
-        connection:$[2 >= sum ":"=string x; `$(string x),string USERPASS^PASSWORDS[x];x];
+        connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
 
 	h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
 
