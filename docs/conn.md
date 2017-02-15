@@ -82,6 +82,12 @@ overridden by one for the process type, which is itself overridden by
 one for the process name. For greater security, the
 .servers.loadpassword function should be modified.
 
+Some non-torq processes require a username and password to allow connection. 
+These will be stored in a passwords dictionary. 
+Passing the host and port of a process into this dictionary will return the full connection string 
+if it is present within the dictionary. 
+If however it is not present in the dictionary then the default username and password will be returned.
+
 
 Retrieving and Using Handles
 ----------------------------

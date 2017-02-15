@@ -72,6 +72,7 @@ LOADPASSWORD:1b											// load the external username:password from ${KDBCONFI
 STARTUP:0b    											// whether to automatically make connections on startup
 DISCOVERY:enlist`										// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:enlist[`]!enlist `                                                                   // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
+PASSWORDS:enlist[`]!enlist `        // dict of host:port!user:pass
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore
