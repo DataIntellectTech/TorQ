@@ -22,6 +22,3 @@ enabled:0b                    	/- disable heartbeating
 /- Configuration used by the usage functions - logging of client interaction
 \d .usage
 enabled:0b                    	/- switch off the usage logging
-
-\d .subcut
-cutenabled:1b			/- switch on subscribercutoff
