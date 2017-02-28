@@ -145,7 +145,7 @@ rolltimezone:`$"GMT";			// timezone to perform rollover in
 
 //Subscriber cut-off
 \d .subcut
-cutenabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off. Default is 0b 
+enabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off. Default is 0b 
 maxsize:100000000;		//a global value for the max byte size of a subscriber. Default is 100000000
 breachlimit:3;			//the number of times a handle can exceed the size limit check in a row before it is closed. Default is 3
 checkfreq:0D00:01;		//the frequency for running the queue size check on subscribers. Default is 0D00:01

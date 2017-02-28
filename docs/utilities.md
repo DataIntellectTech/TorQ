@@ -836,7 +836,7 @@ behavior and will avoid cutting off clients if they happened to have a spike jus
 check was performed. The .subcut.state variable is used to keep track of the handles and the 
 number of times they have exceeded the size limit in a row. 
 
-To enable this functionality the .subcut.cutenabled flag must be set to true and 
+To enable this functionality the .subcut.enabled flag must be set to true and 
 the timer.q script must be loaded on the desired processes. By default the chained 
 tickerplant is the only processes with the functionality enabled. 
 
