@@ -564,8 +564,7 @@ dictionary should/can have the following fields:
 |    separator    |  Y   | char\[list\] | Delimiting character. Enlist it if first line of file is header data |
 |    tablename    |  Y   |    symbol    |      Name of table to write data to      |
 |      dbdir      |  Y   |    symbol    |        Directory to write data to        |
-|  partitiontype  |  N   |    symbol    | Partitioning to use. Must be one of 
-\`date\`month\`year\`int. Default is \`date |
+|  partitiontype  |  N   |    symbol    | Partitioning to use. Must be one of \`date\`month\`year\`int. Default is \`date |
 |  partitioncol   |  N   |    symbol    | Column to use to extract partition information.Default is `time |
 | dataprocessfunc |  N   |   function   | Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y} |
 |    chunksize    |  N   |     int      | Data size in bytes to read in one chunk. Default is 100 MB |
@@ -823,6 +822,23 @@ Note that the rolltimeoffset can be negative - this will cause the rollover to h
 "yesterday", meaning that at the rolltime, the trading date will become the day *after*
 the calendar date. Where this is positive, the rollover occurs "today" and so the trading
 date will become the current calendar date.
+
+subscribercutoff.q
+------------------
+
+This script is used to provide functionality for cutting off any slow subscribers on any
+TorQ processes. The script will periodically check (time between checks set in .subcut.checkfreq.
+Default is 1 minute) the byte size of the queue for all the handles on the process to see if
+they have exceeded a set cut-off point (set in the variable .subcut.maxsize) and will only
+cut-off the handle if it exceeds this limit a set number of times in a row (default is 3
+and set in the .subcut.breachlimit variable). This gives clients a chance to tidy up their
+behavior and will avoid cutting off clients if they happened to have a spike just before the
+check was performed. The .subcut.state variable is used to keep track of the handles and the 
+number of times they have exceeded the size limit in a row. 
+
+To enable this functionality the .subcut.enabled flag must be set to true and 
+the timer.q script must be loaded on the desired processes. By default the chained 
+tickerplant is the only processes with the functionality enabled. 
 
 Modified u.q
 ------------
