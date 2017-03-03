@@ -216,7 +216,7 @@ endofday:{[pt]
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode;mergelimits)];
 	.lg.o[`eod;"deleting data from tabsizes"];
-	@[`.;`tabsizes;0#];
+	@[`.wdb;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
 	};
 	
