@@ -182,12 +182,12 @@ endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
-  tabledefs:{0#value x} each tablelist[];
+  tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode;mergelimits;tabledefs)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
@@ -293,13 +293,13 @@ merge:{[dir;pt;tableinfo;mergelimits]
   ]
  };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits;tabledefs]		
+endofdaymerge:{[dir;pt;tablist;mergelimits]		
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`merge;"merging on slave"];
-		merge[dir;pt;;mergelimits] peach {(x;y)}'[tablist;tabledefs];];	
+		merge[dir;pt;;mergelimits] peach {(x;y)}'[key tablist;value tablelist];];	
 		[.lg.o[`merge;"merging on master"];
-		merge[dir;pt;;mergelimits] each {(x;y)}'[tablist;tabledefs]]];
+		merge[dir;pt;;mergelimits] each {(x;y)}'[key tablist;value tablelist]]];
 	/- delete the empty date directory
 	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
 	/-call the posteod function
@@ -310,10 +310,10 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;tabledefs]
 	};
 	
 /- end of day sort [depends on writedown mode]
-endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;tabledefs]
+endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits]
 	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits;tabledefs];
-	endofdaysortdate[dir;pt;tablist]
+	endofdaymerge[dir;pt;tablist;mergelimits];
+	endofdaysortdate[dir;pt;key tablist]
 	];
 	};
 
@@ -349,10 +349,10 @@ informgateway:{[message]
 	}
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
-informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;tabledefs]
+informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;tabledefs);] each exec w from sortprocs;
+		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
 		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits]]];
