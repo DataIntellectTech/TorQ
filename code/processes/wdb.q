@@ -288,8 +288,8 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 		merge[dir;pt;;mergelimits] peach tablist;];	
 		[.lg.o[`merge;"merging on master"];
 		merge[dir;pt;;mergelimits] each tablist]];
-	/- delete the empty date directory
-	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
+	/- if directory exists delete it
+	$[`error ~ @[get; (hsym `$.os.pth[string .Q.par[savedir;pt;`]]); {`error}]; (); .os.deldir .os.pth[string .Q.par[savedir;pt;`]]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 	if[permitreload; 
