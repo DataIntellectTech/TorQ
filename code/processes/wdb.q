@@ -182,11 +182,12 @@ endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
+  tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode;mergelimits)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
@@ -253,41 +254,52 @@ endofdaysortdate:{[dir;pt;tablist]
 		];
 	};
 
-merge:{[dir;pt;tablename;mergelimits]    
-    /- get list of partition directories for specified table 
-    partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tablename];
-    /- exit function if no subdirectories are found
-    if[0=count partdirs; :()];	
-    /- merge the data in chunks depending on max rows for table 	
-	/- destination for data to be userted to [backslashes corrected for windows]
-	dest:` sv .Q.par[hdbdir;pt;tablename],`;	
-    {[tablename;dest;mergemaxrows;curr;segment;islast]
-	.lg.o[`merge;"reading partition ", string segment];	
-	curr[0]:curr[0],select from get segment;
-	curr[1]:curr[1],segment;		
-	$[islast or mergemaxrows < count curr[0];
-	    [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-	    dest upsert curr[0];
-	    .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-	    .os.deldir each string curr[1];
-	    (();())];
-	    curr]
-	}[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
-	/- set the attributes
-	.lg.o[`merge;"setting attributes"];
-	@[dest;;`p#] each .merge.getextrapartitiontype[tablename];
-	.lg.o[`merge;"merge complete"];
-	/- run a garbage collection (if enabled)
-	if[gc;.gc.run[]];	
-	};	
+merge:{[dir;pt;tableinfo;mergelimits]    
+  /- get list of partition directories for specified table 
+  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tableinfo[0]];
+  /- exit function if no subdirectories are found
+
+  dest:` sv .Q.par[hdbdir;pt;tableinfo[0]],`;
+  .lg.o[`merge;"merging ",(string tableinfo[0])," to ",string dest];
+
+  $[0=count partdirs;
+    [
+      .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
+      dest set @[.Q.en[hdbdir;tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
+      //.lg.o[`merge;"setting attributes"];
+      //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+      //.lg.o[`merge;"merge complete"];
+    ];
+    [  
+      {[tablename;dest;mergemaxrows;curr;segment;islast]
+	      .lg.o[`merge;"reading partition ", string segment];	
+	      curr[0]:curr[0],select from get segment;
+	      curr[1]:curr[1],segment;		
+      	$[islast or mergemaxrows < count curr[0];
+	        [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+	        dest upsert curr[0];
+	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+	        .os.deldir each string curr[1];
+	        (();())];
+	        curr]
+	    }[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
+	    /- set the attributes
+	    .lg.o[`merge;"setting attributes"];
+      @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+	    .lg.o[`merge;"merge complete"];
+	    /- run a garbage collection (if enabled)
+	    if[gc;.gc.run[]];	
+    ]
+  ]
+ };	
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits]		
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`merge;"merging on slave"];
-		merge[dir;pt;;mergelimits] peach tablist;];	
+		merge[dir;pt;;mergelimits] peach flip (key tablist;value tablist);];	
 		[.lg.o[`merge;"merging on master"];
-		merge[dir;pt;;mergelimits] each tablist]];
+		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
 	/- delete the empty date directory
 	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
 	/-call the posteod function
@@ -301,7 +313,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits]
 	$[writedownmode~`partbyattr;
 	endofdaymerge[dir;pt;tablist;mergelimits];
-	endofdaysortdate[dir;pt;tablist]
+	endofdaysortdate[dir;pt;key tablist]
 	];
 	};
 
