@@ -265,10 +265,10 @@ merge:{[dir;pt;tableinfo;mergelimits]
   $[0=count partdirs;
     [
       .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
-      dest set .Q.en[hdbdir;tableinfo[1]];
-      .lg.o[`merge;"setting attributes"];
-      @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
-      .lg.o[`merge;"merge complete"];
+      dest set @[.Q.en[hdbdir;tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
+      //.lg.o[`merge;"setting attributes"];
+      //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+      //.lg.o[`merge;"merge complete"];
     ];
     [  
       {[tablename;dest;mergemaxrows;curr;segment;islast]
@@ -297,9 +297,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`merge;"merging on slave"];
-		merge[dir;pt;;mergelimits] peach {(x;y)}'[key tablist;value tablelist];];	
+		merge[dir;pt;;mergelimits] peach flip (key tablist;value tablist);];	
 		[.lg.o[`merge;"merging on master"];
-		merge[dir;pt;;mergelimits] each {(x;y)}'[key tablist;value tablelist]]];
+		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
 	/- delete the empty date directory
 	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
 	/-call the posteod function
