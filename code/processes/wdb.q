@@ -300,8 +300,8 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 		merge[dir;pt;;mergelimits] peach flip (key tablist;value tablist);];	
 		[.lg.o[`merge;"merging on master"];
 		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
-	/- delete the empty date directory
-	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
+	/- if path exists, delete it
+        if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 	if[permitreload; 
