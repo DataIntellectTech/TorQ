@@ -301,7 +301,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 		[.lg.o[`merge;"merging on master"];
 		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
 	/- if directory exists delete it
-        $[`error ~ @[get; (hsym `$.os.pth[string .Q.par[savedir;pt;`]]); {`error}]; (); .os.deldir .os.pth[string .Q.par[savedir;pt;`]]];
+        if[0 < count key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
 	/-call the posteod function
 	.save.postreplay[hdbdir;pt];
 	if[permitreload; 
