@@ -8,6 +8,7 @@ alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterp
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 os:$[like[string .z.o;"w*"];`win;`lin]
+usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
 
 inputcsv:string inputcsv
 alreadyprocessed:string alreadyprocessed
@@ -44,7 +45,7 @@ find:{[path;match]
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
 skipall:{matches:raze find'[filealertercsv.path;filealertercsv.match];
-	.lg.o[`alerter;"found ",(string count matches)," files, but ignoring them"]; complete chktable[matches]}
+	.lg.o[`alerter;"found ",(string count matches)," files, but ignoring them"]; complete removeprocessed[matches]}
 
 
 
@@ -59,42 +60,52 @@ action:{[function;file]
 
 //-adds the processed file, along with md5 hash and file size to the already processed table and saves it to disk
 complete:{[TAB]
- // drop out anything we have already seen
- TAB:(select filename, md5hash, filesize from TAB) except (select from get hsym`$alreadyprocessed where filesize in (exec filesize from TAB));
- 
- if[count TAB;
-  .lg.o[`alerter;"adding ",(" " sv TAB`filename)," to alreadyprocessed table"];
-  
+  TAB:select filename, md5hash, filesize from TAB;
+  if[count TAB;
+        .lg.o[`alerter;"adding ",(" " sv TAB`filename)," to alreadyprocessed table"];
+
   // write it to disk
   .lg.o[`alerter;"saving alreadyprocessed table to disk"];
   .[insert;(hsym`$alreadyprocessed;TAB);{.lg.e[`alerter;"failed to save alreadyprocessed table to disk: ",x]}]];
  }
 
-//-Some utility functions 		
+//-check files against alreadyprocessed, remove those which have been processed (called in getunprocessed)
+removeprocessed:{[files] x:chktable[files];
+        y:select from (get hsym`$alreadyprocessed) where filesize in (exec filesize from x);
+        $[usemd5;x except y;x where not (select filename,filesize from x) in select filename,filesize from y]}
+
+//-discard processed files: if newonly is False match only on filename
+getunprocessed:{[matches;newonly] $[newonly;chktable[matches except exec filename from get hsym`$alreadyprocessed];removeprocessed[matches]]}
+
+
+
+
+//-Some utility functions
 getsize:{hcount hsym `$x}
 gethash:{[file] $[os=`lin;
-	md5hash:@[{first " " vs raze system "md5sum ",x," 2>/dev/null"};file;{.lg.e[`alerter;"could not compute md5 on ",x,": ",y];""}[file]];
-	""]}		
-chktable:{[files] table:([]filename:files;md5hash:gethash'[files]; filesize:getsize'[files])}
+        md5hash:@[{first " " vs raze system "md5sum ",x," 2>/dev/null"};file;{.lg.e[`alerter;"could not compute md5 on ",x,": ",y];""}[file]];
+        ""]}
 getfile:{[filestring] $[os=`lin;last "/" vs filestring;last "\\" vs filestring]}
 getpath:{[filestring] (neg count getfile[filestring]) _filestring}
-
+//-Create table of filename,md5hash,filesize (only compute md5hash if usemd5 is True)
+chktable:{[files] table:([]filename:files;md5hash:$[usemd5;gethash'[files];(count files)#enlist ""];filesize:getsize'[files])}
+	
 
 //-The main function that brings everything together
 processfiles:{[DICT]
-	/-find all matches to the file search string
-	matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];	
-	/-get all the different filenames from the directory except those that have been processed already
-	files:$[DICT[`newonly]; matches except exec filename from get hsym`$alreadyprocessed; exec filename from chktable[matches] except (get hsym`$alreadyprocessed)];
-	toprocess:chktable[files];
-	/-If there are files to process
-	$[0<count files;
-	[{.lg.o[`alerter;"found file ", x]}'[files];
-	/-perform the function on the file
-	pf:action/:[DICT[`function];files];];
-	.lg.o[`alerter;"no new files found"]];
-	t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
-	
+        /-find all matches to the file search string
+        matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];
+        toprocess:getunprocessed[matches;DICT[`newonly]];
+        files:exec filename from toprocess;
+        /-If there are files to process
+        $[0<count files;
+        [{.lg.o[`alerter;"found file ", x]}'[files];
+        /-perform the function on the file
+        pf:action/:[DICT[`function];files];];
+        .lg.o[`alerter;"no new files found"]];
+        t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
+
+
 
 //-function to move files in a table, first col is files second col is destination	
 moveall:{[TAB]
