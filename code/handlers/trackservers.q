@@ -234,7 +234,7 @@ addprocs:{[connectiontab;procs;connect]
 	addprocscustom[res;procs]}
 
 // addprocscustom is to allow bespoke extensions when adding processes
-addprocscustom:{[connectiontab;procs]}
+addprocscustom:@[value;`.servers.addprocscustom;{{[connectiontab;procs]}}]
 
 // used to handle updates from the discovery service
 // procupdatecustom is used to extend the functionality - do something when the service has been updated
