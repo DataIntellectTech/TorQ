@@ -386,13 +386,14 @@ fixpartition:{[subto]
 		.lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
 		/- set the current partiton date to the log date
 		.wdb.currentpartition:tplogdate;
-		/- delete any data in the current partiton directory
-		clearwdbdata[];
 		/- move the data that has been written to correct partition
 		pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
 		pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
-		.lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
-		.[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]];
+		if[not ()~key hsym `$.os.pthq pth1;
+		  /- delete any data in the current partiton directory
+	          clearwdbdata[];
+		  .lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
+		  .[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]]];
 		];
 	}
 
