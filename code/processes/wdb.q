@@ -232,6 +232,18 @@ doreload:{[pt]
 	];
 	};
 
+// set .z.zd to control how data gets compressed
+setcompression:{[compression] if[ 3= count compression;
+							.lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
+                        				.z.zd:compression;
+                        				.lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]}
+//reset .z.zd to 16 0 0 (i.e no compression)
+removecompression:{[compression] if[ 3= count compression;
+					    		.z.zd:16 0 0;
+                                            		.lg.o[`compression;"resetting compression level to (",(";" sv string 16 0 0),")"]]}
+
+
+
 endofdaysortdate:{[dir;pt;tablist]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
@@ -239,7 +251,7 @@ endofdaysortdate:{[dir;pt;tablist]
 	
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} peach tablist,'.Q.par[dir;pt;] each tablist;
+		{[x] setcompression[compression];.sort.sorttab[x];removecompression[compression];if[gc;.gc.run[]]} peach tablist,'.Q.par[dir;pt;] each tablist;
 		];
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
@@ -296,8 +308,10 @@ merge:{[dir;pt;tableinfo;mergelimits]
 endofdaymerge:{[dir;pt;tablist;mergelimits]		
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
-		[.lg.o[`merge;"merging on slave"];
+		[.lg.o[`merge;"merging on slave"];		
+		setcompression[compression];
 		merge[dir;pt;;mergelimits] peach flip (key tablist;value tablist);];	
+		removecompression[compression];
 		[.lg.o[`merge;"merging on master"];
 		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
 	/- if path exists, delete it
@@ -311,10 +325,13 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 	
 /- end of day sort [depends on writedown mode]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits]
+	 /- set compression level
+	setcompression[compression];
 	$[writedownmode~`partbyattr;
 	endofdaymerge[dir;pt;tablist;mergelimits];
 	endofdaysortdate[dir;pt;key tablist]
 	];
+	removecompression[compression];
 	};
 
 /-function to send reload message to rdbs/hdbs
@@ -424,12 +441,7 @@ startup:{[]
 			.os.sleep[tpconnsleepintv];
 			/-run the servers startup code again (to make connection to discovery)
 			.servers.startup[];
-			subscribe[]];		
-		/- set compression level
-		if[ 3= count compression;
-			.lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
-			.z.zd:compression;
-			.lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]];
+			subscribe[]]];		
 	}
 	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
