@@ -187,7 +187,7 @@ endofday:{[pt]
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;compression)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
@@ -233,25 +233,17 @@ doreload:{[pt]
 	};
 
 // set .z.zd to control how data gets compressed
-setcompression:{[compression] if[ 3= count compression;
-							.lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
-                        				.z.zd:compression;
-                        				.lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]}
-//reset .z.zd to 16 0 0 (i.e no compression)
-removecompression:{[compression] if[ 3= count compression;
-					    		.z.zd:16 0 0;
-                                            		.lg.o[`compression;"resetting compression level to (",(";" sv string 16 0 0),")"]]}
+setcompression:{[compression] if[3=count compression;.lg.o[`compression;$[compression~16 0 0;"resetting";"setting"]," compression level to (",(";" sv string compression),")"];.z.zd:compression]}
 
 
-
-endofdaysortdate:{[dir;pt;tablist]
+endofdaysortdate:{[dir;pt;tablist;compression]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
 	
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x] setcompression[compression];.sort.sorttab[x];removecompression[compression];if[gc;.gc.run[]]} peach tablist,'.Q.par[dir;pt;] each tablist;
+		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;compression] peach tablist,'.Q.par[dir;pt;] each tablist;
 		];
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
@@ -305,13 +297,11 @@ merge:{[dir;pt;tableinfo;mergelimits]
   ]
  };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits]		
+endofdaymerge:{[dir;pt;tablist;mergelimits;compression]		
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`merge;"merging on slave"];		
-		setcompression[compression];
-		merge[dir;pt;;mergelimits] peach flip (key tablist;value tablist);];	
-		removecompression[compression];
+		{[x;compression;dir;pt;mergelimits] setcompression[compression];merge[dir;pt;x;mergelimits]}[;compression;dir;pt;mergelimits] peach flip (key tablist;value tablist);];	
 		[.lg.o[`merge;"merging on master"];
 		merge[dir;pt;;mergelimits] each flip (key tablist;value tablist)]];
 	/- if path exists, delete it
@@ -324,14 +314,15 @@ endofdaymerge:{[dir;pt;tablist;mergelimits]
 	};
 	
 /- end of day sort [depends on writedown mode]
-endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits]
-	 /- set compression level
+endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;compression]
+	/- set compression level (.z.zd)
 	setcompression[compression];
 	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits];
-	endofdaysortdate[dir;pt;key tablist]
+	endofdaymerge[dir;pt;tablist;mergelimits;compression];
+	endofdaysortdate[dir;pt;key tablist;compression]
 	];
-	removecompression[compression];
+	/- reset compression level (.z.zd)  
+	setcompression[$[compression~();();16 0 0]]
 	};
 
 /-function to send reload message to rdbs/hdbs
@@ -366,13 +357,13 @@ informgateway:{[message]
 	}
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
-informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits]
+informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;compression]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits);] each exec w from sortprocs;
+		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;compression);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
-		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits]]];
+		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;compression]]];
 	};
 
 /-function to set the timer for the save to disk function	
