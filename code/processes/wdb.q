@@ -233,8 +233,11 @@ doreload:{[pt]
 	};
 
 // set .z.zd to control how data gets compressed
-setcompression:{[compression] if[3=count compression;.lg.o[`compression;$[compression~16 0 0;"resetting";"setting"]," compression level to (",(";" sv string compression),")"];.z.zd:compression]}
-
+setcompression:{[compression] if[3=count compression;
+				 .lg.o[`compression;$[compression~16 0 0;"resetting";"setting"]," compression level to (",(";" sv string compression),")"];
+				 .z.zd:compression
+				]}
+resetcompression:{setcompression 16 0 0 }
 
 endofdaysortdate:{[dir;pt;tablist;compression]
 	/-sort permitted tables in database
@@ -322,7 +325,7 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;compression]
 	endofdaysortdate[dir;pt;key tablist;compression]
 	];
 	/- reset compression level (.z.zd)  
-	setcompression[$[compression~();();16 0 0]]
+	resetcompression[16 0 0]
 	};
 
 /-function to send reload message to rdbs/hdbs
