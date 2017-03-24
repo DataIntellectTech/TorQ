@@ -840,6 +840,60 @@ To enable this functionality the .subcut.enabled flag must be set to true and
 the timer.q script must be loaded on the desired processes. By default the chained 
 tickerplant is the only processes with the functionality enabled. 
 
+datareplay.q
+------------
+
+The datareplay utility provides functionality for generating tickerplant function calls from historcial
+data which can be executed by subscriber functions.This can be used to test a known data-set against a 
+subscriber for testing or debugging purposes.
+
+It can load this data frm the current TorQ session, or from a remote hdb if given it's connection handle.
+
+It can also chunk the data by time increments (as if the tickerplant was in batch mode), and can also generate
+calls to a custom timer function for the same time increments (defaults to .z.ts).
+
+The functions provided by this utility are made available in the .datareplay namespace.
+
+The utility is mainly used via the tabesToDataStreamFunction, which accepts a dictonary parameter with the folowing
+fields:
+
+| Key     | Example Value           | Description                            | Required | Default  |
+|:-------:|:-----------------------:|:--------------------------------------:|:--------:|:--------:|
+|tabs     | `` `trade`quote or `trade ``  | List of tables to include              | Yes      | N/A      |
+|sts      | 2014.04.04D07:00:00.000 | Start timestamp for data               | Yes      | N/A      |
+|ets      | 2014.04.04D16:30:00.000 | End of timestamp for data              | Yes      | N/A      |
+|syms     | `` `AAPL`IBM ``               | List of symbols to include             | No       | All syms |
+|where    | `` ,(=;`src;,`L) ``           | Custom where clause in functuonal form | No       | none     |
+|timer    | 1b                      | Generate timer function flag           | No       | 0b       |
+|h        | 5i                      | Hanlde to hdb process                  | No       | 0i (self)|
+|interval | 0D00:00:01.00           | Time interval used to chunk data       | No       | None     |
+|tc       | `` `data_time ``              | Name of time column to cut on          | No       | `` `time ``    |
+|timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts | 
+
+
+## Examples:
+
+Extract all data between sts,ets from the trades table from a remote hdb handle=3i.
+
+        q)input
+        tabs| `trades
+        sts | 2014.04.21D07:00:00.000000000
+        ets | 2014.05.02D17:00:00.000000000
+        h   | 3i
+        q).datareplay.tablesToDataStream input
+        time                          msg                                            ..
+        -----------------------------------------------------------------------------..
+        2014.04.21D08:00:07.769000000 `upd `trades `sym`time`src`price`size!(`IBM;201..
+        2014.04.21D08:00:13.250000000 `upd `trades `sym`time`src`price`size!(`NOK;201..
+        2014.04.21D08:00:19.070000000 `upd `trades `sym`time`src`price`size!(`MSFT;20..
+        2014.04.21D08:00:23.678000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+        ..
+        q)first .datareplay.tablesToDataStream input
+        time| 2014.04.21D08:00:07.769000000
+        msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
+
+
+
 Modified u.q
 ------------
 
