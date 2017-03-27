@@ -844,17 +844,17 @@ datareplay.q
 ------------
 
 The datareplay utility provides functionality for generating tickerplant function calls from historcial
-data which can be executed by subscriber functions.This can be used to test a known data-set against a 
+data which can be executed by subscriber functions. This can be used to test a known data-set against a 
 subscriber for testing or debugging purposes.
 
-It can load this data from the current TorQ session, or from a remote hdb if given it's connection handle.
+It can load this data from the current TorQ session, or from a remote hdb if given its connection handle.
 
 It can also chunk the data by time increments (as if the tickerplant was in batch mode), and can also generate
 calls to a custom timer function for the same time increments (defaults to .z.ts).
 
 The functions provided by this utility are made available in the .datareplay namespace.
 
-The utility is mainly used via the tabesToDataStreamFunction, which accepts a dictonary parameter with the folowing
+The utility is mainly used via the tabesToDataStreamFunction, which accepts a dictionary parameter with the following
 fields:
 
 | Key     | Example Value           | Description                            | Required | Default  |
@@ -863,20 +863,20 @@ fields:
 |sts      | 2014.04.04D07:00:00.000 | Start timestamp for data               | Yes      | N/A      |
 |ets      | 2014.04.04D16:30:00.000 | End of timestamp for data              | Yes      | N/A      |
 |syms     | `` `AAPL`IBM ``               | List of symbols to include             | No       | All syms |
-|where    | `` ,(=;`src;,`L) ``           | Custom where clause in functuonal form | No       | none     |
+|where    | `` ,(=;`src;,`L) ``           | Custom where clause in functional form | No       | none     |
 |timer    | 1b                      | Generate timer function flag           | No       | 0b       |
-|h        | 5i                      | Hanlde to hdb process                  | No       | 0i (self)|
-|interval | 0D00:00:01.00           | Time interval used to chunk data, bucketed by timestamp if no time inerval set       | No       | None     |
+|h        | 5i                      | Handle to hdb process                  | No       | 0i (self)|
+|interval | 0D00:00:01.00           | Time interval used to chunk data, bucketed by timestamp if no time interval set       | No       | None     |
 |tc       | `` `data_time ``              | Name of time column to cut on          | No       | `` `time ``    |
 |timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts | 
 
-When the timer flag is set, the utility will interleave timer function calls in the message column at inervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requries a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.
+When the timer flag is set, the utility will interleave timer function calls in the message column at intervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requires a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.
 
-If the interval is set the messages will be aggregated into chunks based on the interval value, if no inverval is specified, the data will be bucketed by timestamp (one message chunk per distinct timestamp per table).
+If the interval is set the messages will be aggregated into chunks based on the interval value, if no interval is specified, the data will be bucketed by timestamp (one message chunk per distinct timestamp per table).
 
-If no connection hanlde is specified (h parameter), the utility will retrieve the data from the process the utility is running on, using handle 0.
+If no connection handle is specified (h parameter), the utility will retrieve the data from the process the utility is running on, using handle 0.
 
-The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where `` src=`L `` is required. The where clause(s) are required to be in functional form, for example `` enlist (=;`src;,`L) `` or `` ((=;`src;enlist `L);(>;`size;100)) `` (note, that if only one custom where clause is included it is required to be enlised).
+The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where `` src=`L `` is required. The where clause(s) are required to be in functional form, for example `` enlist (=;`src;,`L) `` or `` ((=;`src;enlist `L);(>;`size;100)) `` (note, that if only one custom where clause is included it is required to be enlisted).
 
 It is possible to get the functional form of a where clause by running parse on a mock select string like below:
 
