@@ -873,7 +873,7 @@ fields:
 
 ## Examples:
 
-Extract all data between sts,ets from the trades table from a remote hdb handle=3i.
+Extract all data between stsandets from the trades table from a remote hdb handle=3i.
 
         q)input
         tabs| `trades
@@ -891,6 +891,32 @@ Extract all data between sts,ets from the trades table from a remote hdb handle=
         q)first .datareplay.tablesToDataStream input
         time| 2014.04.21D08:00:07.769000000
         msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
+
+
+Same as above but including quote table and with interval of 10 minutes:
+
+
+		q)input
+		tabs    | `quotes`trades
+		sts     | 2014.04.21D07:00:00.000000000
+		ets     | 2014.05.02D17:00:00.000000000
+		h       | 3i
+		interval| 0D00:10:00.000000000
+		q).datareplay.tablesToDataStream input
+		time                          msg                                            ..
+		-----------------------------------------------------------------------------..
+		2014.04.21D08:09:47.600000000 `upd `trades +`sym`time`src`price`size!(`YHOO`A..
+		2014.04.21D08:09:55.210000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+		2014.04.21D08:19:39.467000000 `upd `trades +`sym`time`src`price`size!(`CSCO`N..
+		2014.04.21D08:19:49.068000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+		2014.04.21D08:29:42.622000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+		2014.04.21D08:29:49.218000000 `upd `trades +`sym`time`src`price`size!(`AAPL`I..
+		2014.04.21D08:39:41.257000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+		2014.04.21D08:39:59.609000000 `upd `trades +`sym`time`src`price`size!(`NOK`DE..
+		..
+		q)first .datareplay.tablesToDataStream input
+		time| 2014.04.21D08:09:47.600000000
+		msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
 
 
 
