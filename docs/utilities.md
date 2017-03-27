@@ -847,7 +847,7 @@ The datareplay utility provides functionality for generating tickerplant functio
 data which can be executed by subscriber functions.This can be used to test a known data-set against a 
 subscriber for testing or debugging purposes.
 
-It can load this data frm the current TorQ session, or from a remote hdb if given it's connection handle.
+It can load this data from the current TorQ session, or from a remote hdb if given it's connection handle.
 
 It can also chunk the data by time increments (as if the tickerplant was in batch mode), and can also generate
 calls to a custom timer function for the same time increments (defaults to .z.ts).
@@ -866,12 +866,50 @@ fields:
 |where    | `` ,(=;`src;,`L) ``           | Custom where clause in functuonal form | No       | none     |
 |timer    | 1b                      | Generate timer function flag           | No       | 0b       |
 |h        | 5i                      | Hanlde to hdb process                  | No       | 0i (self)|
-|interval | 0D00:00:01.00           | Time interval used to chunk data       | No       | None     |
+|interval | 0D00:00:01.00           | Time interval used to chunk data, bucketed by timestamp if no time inerval set       | No       | None     |
 |tc       | `` `data_time ``              | Name of time column to cut on          | No       | `` `time ``    |
 |timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts | 
 
+When the timer flag is set, the utility will interleave timer function calls in the message column at inervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requries a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.
+
+If the interval is set the messages will be aggregated into chunks based on the interval value, if no inverval is specified, the data will be bucketed by timestamp (one message chunk per distinct timestamp per table).
+
+If no connection hanlde is specified (h parameter), the utility will retrieve the data from the process the utility is running on, using handle 0.
+
+The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where src=`L is required. The where clause(s) are required to be in functional form, for example `` enlist (=;`src;,`L) `` or `` ((=;`src;enlist `L);(>;`size;100)) `` (note, that if only one custom where clause is included it is required to be enlised).
+It is possible to get the functional form of a where clause by running parse on a mock select string like below:
+
+    q)parse "select from t where src=`L,size>100"
+    ?
+    `t
+    ,((=;`src;,`L);(>;`size;100))
+    0b
+    ()
+    
+The where clause is then the 3rd item returned in the parse list.
+
 
 ## Examples:
+
+Extract all data between sts and ets from the trades table in the current process.
+
+    q)input
+    tabs| `trades
+    sts | 2014.04.21D07:00:00.000000000
+    ets | 2014.05.02D17:00:00.000000000
+    q).datareplay.tablesToDataStream input
+    time                          msg                                            ..
+    -----------------------------------------------------------------------------..
+    2014.04.21D08:00:23.478000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+    2014.04.21D08:00:49.511000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+    2014.04.21D08:01:45.623000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+    2014.04.21D08:02:41.346000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+    2014.04.21D08:02:42.394000000 `upd `trades `sym`time`src`price`size!(`DELL;20..
+    2014.04.21D08:03:44.991000000 `upd `trades `sym`time`src`price`size!(`CSCO;20..
+    ..
+    q)first .datareplay.tablesToDataStream input
+    time| 2014.04.21D08:00:23.478000000
+    msg | (`upd;`trades;`sym`time`src`price`size!(`YHOO;2014.04.21D08:00:23.47800..
 
 Extract all data between sts and ets from the trades table from a remote hdb handle=3i.
 
