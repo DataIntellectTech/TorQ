@@ -876,7 +876,8 @@ If the interval is set the messages will be aggregated into chunks based on the 
 
 If no connection hanlde is specified (h parameter), the utility will retrieve the data from the process the utility is running on, using handle 0.
 
-The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where src=`L is required. The where clause(s) are required to be in functional form, for example `` enlist (=;`src;,`L) `` or `` ((=;`src;enlist `L);(>;`size;100)) `` (note, that if only one custom where clause is included it is required to be enlised).
+The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where `` src=`L `` is required. The where clause(s) are required to be in functional form, for example `` enlist (=;`src;,`L) `` or `` ((=;`src;enlist `L);(>;`size;100)) `` (note, that if only one custom where clause is included it is required to be enlised).
+
 It is possible to get the functional form of a where clause by running parse on a mock select string like below:
 
     q)parse "select from t where src=`L,size>100"
@@ -886,7 +887,7 @@ It is possible to get the functional form of a where clause by running parse on 
     0b
     ()
     
-The where clause is then the 3rd item returned in the parse list.
+The where clause is then the 3rd item returned in the parse tree.
 
 
 ## Examples:
@@ -904,8 +905,6 @@ Extract all data between sts and ets from the trades table in the current proces
     2014.04.21D08:00:49.511000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
     2014.04.21D08:01:45.623000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
     2014.04.21D08:02:41.346000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
-    2014.04.21D08:02:42.394000000 `upd `trades `sym`time`src`price`size!(`DELL;20..
-    2014.04.21D08:03:44.991000000 `upd `trades `sym`time`src`price`size!(`CSCO;20..
     ..
     q)first .datareplay.tablesToDataStream input
     time| 2014.04.21D08:00:23.478000000
@@ -913,48 +912,66 @@ Extract all data between sts and ets from the trades table in the current proces
 
 Extract all data between sts and ets from the trades table from a remote hdb handle=3i.
 
-        q)input
-        tabs| `trades
-        sts | 2014.04.21D07:00:00.000000000
-        ets | 2014.05.02D17:00:00.000000000
-        h   | 3i
-        q).datareplay.tablesToDataStream input
-        time                          msg                                            ..
-        -----------------------------------------------------------------------------..
-        2014.04.21D08:00:07.769000000 `upd `trades `sym`time`src`price`size!(`IBM;201..
-        2014.04.21D08:00:13.250000000 `upd `trades `sym`time`src`price`size!(`NOK;201..
-        2014.04.21D08:00:19.070000000 `upd `trades `sym`time`src`price`size!(`MSFT;20..
-        2014.04.21D08:00:23.678000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
-        ..
-        q)first .datareplay.tablesToDataStream input
-        time| 2014.04.21D08:00:07.769000000
-        msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
+    q)input
+    tabs| `trades
+    sts | 2014.04.21D07:00:00.000000000
+    ets | 2014.05.02D17:00:00.000000000
+    h   | 3i
+    q).datareplay.tablesToDataStream input
+    time                          msg                                            ..
+    -----------------------------------------------------------------------------..
+    2014.04.21D08:00:07.769000000 `upd `trades `sym`time`src`price`size!(`IBM;201..
+    2014.04.21D08:00:13.250000000 `upd `trades `sym`time`src`price`size!(`NOK;201..
+    2014.04.21D08:00:19.070000000 `upd `trades `sym`time`src`price`size!(`MSFT;20..
+    2014.04.21D08:00:23.678000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+    ..
+    q)first .datareplay.tablesToDataStream input
+    time| 2014.04.21D08:00:07.769000000
+    msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
 
 
 Same as above but including quote table and with interval of 10 minutes:
 
 
-        q)input
-        tabs    | `quotes`trades
-        sts     | 2014.04.21D07:00:00.000000000
-        ets     | 2014.05.02D17:00:00.000000000
-        h       | 3i
-        interval| 0D00:10:00.000000000
-        q).datareplay.tablesToDataStream input
-        time                          msg                                            ..
-        -----------------------------------------------------------------------------..
-        2014.04.21D08:09:47.600000000 `upd `trades +`sym`time`src`price`size!(`YHOO`A..
-        2014.04.21D08:09:55.210000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
-        2014.04.21D08:19:39.467000000 `upd `trades +`sym`time`src`price`size!(`CSCO`N..
-        2014.04.21D08:19:49.068000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
-        2014.04.21D08:29:42.622000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
-        2014.04.21D08:29:49.218000000 `upd `trades +`sym`time`src`price`size!(`AAPL`I..
-        2014.04.21D08:39:41.257000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
-        2014.04.21D08:39:59.609000000 `upd `trades +`sym`time`src`price`size!(`NOK`DE..
-        ..
-        q)first .datareplay.tablesToDataStream input
-        time| 2014.04.21D08:09:47.600000000
-        msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
+    q)input
+    tabs    | `quotes`trades
+    sts     | 2014.04.21D07:00:00.000000000
+    ets     | 2014.05.02D17:00:00.000000000
+    h       | 3i
+    interval| 0D00:10:00.000000000
+    q).datareplay.tablesToDataStream input
+    time                          msg                                            ..
+    -----------------------------------------------------------------------------..
+    2014.04.21D08:09:47.600000000 `upd `trades +`sym`time`src`price`size!(`YHOO`A..
+    2014.04.21D08:09:55.210000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+    2014.04.21D08:19:39.467000000 `upd `trades +`sym`time`src`price`size!(`CSCO`N..
+    2014.04.21D08:19:49.068000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+    ..
+    q)first .datareplay.tablesToDataStream input
+    time| 2014.04.21D08:09:47.600000000
+    msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
+    
+    
+All messages from trades where `` src=`L `` bucketed in 10 minute intervals interleaved with calls to the function `` `vwap ``.
+
+    q)input
+    tabs     | `trades
+    h        | 3i
+    sts      | 2014.04.21D08:00:00.000000000
+    ets      | 2014.05.02D17:00:00.000000000
+    where    | ,(=;`src;,`L)
+    timer    | 1b
+    timerfunc| `vwap
+    interval | 0D00:10:00.000000000
+    q).datareplay.tablesToDataStream input
+    time                          msg                                            ..
+    -----------------------------------------------------------------------------..
+    2014.04.21D08:00:00.000000000 (`vwap;2014.04.21D08:00:00.000000000)          ..
+    2014.04.21D08:09:46.258000000 (`upd;`trades;+`sym`time`src`price`size!(`AAPL`..
+    2014.04.21D08:10:00.000000000 (`vwap;2014.04.21D08:10:00.000000000)          ..
+    2014.04.21D08:18:17.188000000 (`upd;`trades;+`sym`time`src`price`size!(`AAPL`..
+    ..
+
 
 
 Modified u.q
