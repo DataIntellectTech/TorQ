@@ -58,16 +58,13 @@ tableToDataStream:{[params]
             ,enlist (within;params[`tc];(enlist;params[`sts];params[`ets])); // time within (sts;ets)
   
   // Have hdb evaluate select statement.
-  t:params[`h](eval;(?;
-            params[`tn];
-            enlist wherec;
-            0b;
-            ())
-      );
+  t:@[params[`h];
+      (eval;(?;params[`tn];enlist wherec;0b;()));
+      {.lg.e[`dataloader;"Failed to evauluate query on hdb: ",x]}
+     ];
 
   tableDataToDataStream[params,enlist[`t]!enlist t]
  };
-
 
 // params[`sts] is start of time window to get
 // params[`ets] is end of time window to get
