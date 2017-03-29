@@ -18,19 +18,25 @@ tableDataToDataStream:{[params]
     [ // if there is an interval, bucket messages into this interval
       // make bukets of ten second intervals
       times:getBuckets[params[`sts];params[`ets];params[`interval]];
+       
+      // put start time in fornt of t_times
+      t_times:params[`sts],t_times;
 
       //Get places to cut
       cuts:distinct t_times bin times;
       cuts:cuts where cuts>-1;
       
+      // fill first cut
+      if[0<>first cuts;cuts:0,cuts];
+     
       //cut table by time interval
       msgs:cuts cut params[`t];
-
-      //get first time in each chunk
-      time:t_times cuts;
+ 
+      // get times that match data
+      time:{first x[y]}[;params[`tc]] each msgs;
 
       // Return table of times and message chunks
-      ([]time:time;msg:{(`upd;x;y)}[params[`tn]] each msgs)
+      -1_([]time:time;msg:{(`upd;x;y)}[params[`tn]] each msgs)
     ];
     // if there is no intevral, cut by distinct time.
     ([]
