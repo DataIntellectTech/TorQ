@@ -142,8 +142,13 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 
 // Logging functions live in here
 
+colours:(`ERROR`ERR`WRN`WARN`INF!("\033[1;31m";"\033[1;31m";"\033[0;33m";"\033[0;33m";"\033[0m"));
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
+if[.z.o like "w*";
+ format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)}];
+
+if[not .z.o like "w*";
+ format:{[loglevel;proctype;proc;id;message]((colours loglevel), "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)),"\033[0m"}];
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
