@@ -2,6 +2,7 @@
 
 // configuration
 enabled:@[value;`enabled;.z.o in `l32`l64]		// whether kafka is enabled
+kupd:@[value;`kupd;{[k;x] -1 `char$x;}]			// default definition for kupd
 
 lib:`$getenv[`KDBLIB],"/",string[.z.o],"/kafkaq";
 
@@ -36,17 +37,13 @@ if[.kafka.enabled;
 	/ publish 'message' byte vector to topic, partition. symbol key can be null
 	/ e.g. publish[`test;0;`;`byte$"hello world"]
 	publish: lib 2: (`publish;4);
+
+        / default entry point - if subscription is active this will be called with any messages
+        / k (symbol) - key
+        / x (bytes) - message content
+	if[not `kupd in key `.; @[`.;`kupd;:;.kafka.kupd]];
+	.lg.o[`kafka;"kupd is set to ",-3!kupd];
   ];
  ];
 
 \d .
-if[.kafka.enabled;
-  if[.kafka.libexists;
-        / default entry point - if subscription is active this will be called with any messages
-        / k (symbol) - key
-        / x (bytes) - message content
-        kupd:{[k;x] -1 `char$x;};
-  ];
- ];
-
-
