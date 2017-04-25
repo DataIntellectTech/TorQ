@@ -113,7 +113,7 @@ img:`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"	// default image for b
 
 // configuration for kafka
 \d .kafka
-enabled:1b                                      // whether kafka is enabled
+enabled:.z.o in `l64                            // whether kafka is enabled
 kupd:{[k;x] -1 `char$x;}			// default definition of kupd
 
 

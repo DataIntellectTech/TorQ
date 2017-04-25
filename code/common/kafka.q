@@ -1,7 +1,7 @@
 \d .kafka
 
 // configuration
-enabled:@[value;`enabled;.z.o in `l32`l64]		// whether kafka is enabled
+enabled:@[value;`enabled;.z.o in `l64]			// whether kafka is enabled
 kupd:@[value;`kupd;{[k;x] -1 `char$x;}]			// default definition for kupd
 
 lib:`$getenv[`KDBLIB],"/",string[.z.o],"/kafkaq";
