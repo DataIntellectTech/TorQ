@@ -620,6 +620,55 @@ pubsub.q (make sure u.\[k|q\] is listed before pubsub.q in order.txt)
 then publish and subscribe will be implemented. You can also build out
 this file to add your own publish and subscribe routines as required.
 
+<a name="kafka"></a>
+
+kafka.q
+-------
+
+kafka.q provides q language bindings for Apache Kafka, a 'distributed streaming
+platform', a real time messaging system with persistent storage in message logs.
+
+The core functionality of Kafka – pub/sub messaging with persisted logs, will be
+familiar to most readers as the functionality offered by the kdb+ tick
+tickerplant. The tickerplant log allows the real time database and other
+consumers to replay a day’s events to recover state. An application architecture
+built around Kafka could dispense with a tickerplant component, and have RDBs
+and other real time clients query Kafka on startup for offsets, and play back
+the data they need. While not suitable for very low latency access to streaming
+data, it would carry some advantages for very high throughput applications,
+particularly those in the cloud:
+
+* Kafka’s distributed nature should allow it to scale more transparently than
+splitting tickerplants by instrument universe or message type
+* Replaying from offsets is the same interface as live pub/sub and doesn’t require
+filesystem access to the tickerplant log, so RDB’s and other consumer could be
+on a different server
+
+By default, the Kafka bindings will be loaded into all TorQ processes running on
+l64 systems (the only platform currently supported). An example of usage is
+shown here (this assumes a local running instance of kafka - instructions for
+this are available on the [kafkaq](https://github.com/AquaQAnalytics/kafkaq) github 
+repo):
+
+```
+q).kafka.initconsumer[`localhost:9092;()]
+q).kafka.initproducer[`localhost:9092;()]
+q)kupd / print default definition for incoming data - ignore key, print message
+as ascii
+{[k;x] -1 `char$x;}
+q).kafka.subscribe[`test;0] / subscribe to topic test, partition 0
+q)pub:{.kafka.publish[`test;0;`;`byte$x]} / define pub to publish text input to topic
+test on partition 0 with no key defined
+q)pub"hello world"
+q)hello world
+
+```
+
+Limitations of the current implementation:
+
+* Only l64 supported
+* Single consumer thread subscribed to one topic at a time
+
 <a name="tp"></a>
 
 tplogutils.q
