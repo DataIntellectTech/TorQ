@@ -110,6 +110,14 @@ usessl:0b                              		// connect using SSL/TLS
 debug:0i                               		// debug level for email library: 0i = none, 1i=normal, 2i=verbose
 img:`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"	// default image for bottom of email
 
+
+// configuration for kafka
+\d .kafka
+enabled:.z.o in `l64                            // whether kafka is enabled
+kupd:{[k;x] -1 `char$x;}			// default definition of kupd
+
+
+
 // heartbeating
 \d .hb
 enabled:1b			// whether the heartbeating is enabled
