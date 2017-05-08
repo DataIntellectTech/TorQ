@@ -114,3 +114,15 @@ Head to the address it gives you to check if your changes have worked. More info
   * Filealerter uses a splayed table to store the table of already processed data.  If it finds a table in current format (flat) it will change it to a splay
   * Gateway bug fixes
   * Small improvements
+- **3.0.0, January 2017**:
+  * Added a permissioning system, allowing granular control of access to users & groups
+  * Added LDAP support, allowing a user to authenticate against an LDAP server
+  * Improved documentation now available at http://aquaqanalytics.github.io/TorQ/
+- **3.1.0, May 2017**:
+  * added kafka which is a real time messaging system with persistent storage in message logs
+  * added datareplay.q with functionality for generating tickerplant function calls from historical data which can be executed by subscriber functions
+  * added subscribercutoff.q with functionality that can be used to cut off slow subscribers from processes
+  * added new write down method for tickerlogreplay so match the writedown methods in the WDB
+
+
+
