@@ -71,7 +71,7 @@ login:{[user;pass]                                              / validate login
 if[enabled;
   libfile:hsym ` sv lib,`so;                                    / file containing ldap library
   if[()~key libfile;                                            / check ldap library file exists
-    :.ldap.err"cannot find library file: ",1_string libfile]; 
+    .lg.e[`ldap;"cannot find library file: ",1_string libfile]]; 
   init hsym .ldap.lib;                                          / initialise ldap library
   .z.pw:{all(.ldap.login;x).\:(y;z)}@[value;`.z.pw;{[x;y]1b}];  / redefine .z.pw
  ];
