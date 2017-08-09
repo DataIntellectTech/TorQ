@@ -78,7 +78,7 @@ synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous call
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
 permissioned:@[value;`.gw.permissioned; 0b]               // should the gateway permission queries before the permissions script does 
-
+clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]  // the time to store data on inactive handles
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
@@ -103,8 +103,8 @@ clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); 
 results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;::))  
 
 // server handles - whether the server is currently running a query
-servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:())
-addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[];handle;servertype;0b;1b;0i;0Np;0D;attributes)}
+servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
+addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[];handle;servertype;0b;1b;0i;0Np;0D;attributes;0Np)}
 addserver:addserverattr[;;()!()]
 setserverstate:{[serverh;use] 
  $[use;
@@ -266,10 +266,14 @@ removeserverhandle:{[serverh]
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
- update handle:0Ni, active:0b from `.gw.servers where handle=serverh;
+ update handle:0Ni, active:0b, disconnecttime:.proc.cp[] from `.gw.servers where handle=serverh;
 
  runnextquery[];
  }
+
+// clear out long time inactive servers
+removeinactive:{[inactivity]
+	delete from `.gw.servers where not active,disconnecttime<.proc.cp[]-inactivity}
 
 // timeout queries
 checktimeout:{
@@ -542,6 +546,9 @@ addserversfromconnectiontable:{
  
 addserversfromconnectiontable[.servers.CONNECTIONS]
 
+// Join active .gw.servers to .servers.SERVERS table
+activeservers:{lj[select from .gw.servers where active;`handle xcol `w xkey .servers.SERVERS]}
+
 \d .
 
 // functions called by end-of-day processes
@@ -568,7 +575,8 @@ reloadend:{
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
  .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
- .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
+ .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"];
+ .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removeinactive;.gw.clearinactivetime);"Remove data for inactive handles"]];
 
 // add in some api details 
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]
