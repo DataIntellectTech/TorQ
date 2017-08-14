@@ -1,7 +1,7 @@
 \d .checks
 
 numformat:{reverse "," sv 3 cut reverse string `long$x}
-timeformat:{(" " sv string `date`time$.proc.cp[]," ", $[.proc.localtime=1b;"local time";"GMT"])}
+timeformat:{(" " sv string `date`time$.proc.cp[])," ", $[.proc.localtime=1b;"local time";"GMT"]}
 formatdict:{"<table>",(raze {"<tr><td><b>",(string x),"</b></td><td> | ",(string y),"</td></tr>"}'[key x;value x]),"</table>"}
 
 tablecount:{[tablelist; period; currenttime; timecol; required]
