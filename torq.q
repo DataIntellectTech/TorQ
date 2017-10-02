@@ -273,7 +273,7 @@ initialised:0b
 stop:`stop in key params
 .lg.o[`init;"stop mode (initialisation errors cause the process loading to stop) is set to ",string stop]
 
-if[trap and stop; .log.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
+if[trap and stop; .lg.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
 settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
