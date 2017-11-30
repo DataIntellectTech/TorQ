@@ -244,6 +244,24 @@ directory.
 
 All configuration is loaded before code.
 
+### Application Dependency
+
+TorQ will automatically check application version and dependency
+information. TorQ will check the $KDBAPPCONFIG directory for a config.csv
+file. This file should contain information in the format:
+
+|app  |version |dependency           |
+|-----|--------|---------------------|
+|app0 |1.0.0   |app1 1.1.1;app2 2.1.0|
+
+TorQ will also search the $KDBCONFIG directory for the TorQ config.csv file.
+If any of the dependency versions exceed application versions, TorQ will exit
+and log the error. 
+
+If no config files are supplied, TorQ will run as normal. However, if only an 
+application config file is supplied, TorQ will exit and log the error.
+
+
 <a name="code"></a>
 
 Code Loading
