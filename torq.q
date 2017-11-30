@@ -131,7 +131,7 @@ checkdependency:{[path]
         /-load config csv files
         a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
         /- check for kdb verion
-        if[not `kdb in a[`app];a,:(app:`kdb; version:`$(string .z.K),".",string .z.k;dependency:`)];
+        if[not `kdb in a[`app];a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
         /- get current app versions
         dict:exec version by app from a;
         /- update table to contain string dependencies
