@@ -158,7 +158,7 @@ getconfig:{[path;level]
           appconf,conf;
           first appconf,conf]}
 
-getdepfile:getconfig["config5.csv";1]
+getdepfile:getconfig["config.csv";1]
 
 getconfigfile:getconfig[;0]
 
