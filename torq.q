@@ -152,12 +152,11 @@ getconfig:{[path;level]
 
         /-get KDBCONFIG path
         conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
+
         /-if level is non-zero return appconfig and config files
         (),$[level;
           appconf,conf;
           first appconf,conf]}
-
-/getdepfile:getconfig["config.csv";1]
 
 getconfigfile:getconfig[;0]
 
