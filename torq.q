@@ -123,7 +123,7 @@ runchk:{[dict;t;x]
       if[not d in key dict;[.lg.e[`config;(raze/) string t[`app]," ", string t[`version] ," requires ",string d," ",sv[".";i],". Current version not supplied"]]];
       checkvers[i;;d;t]'[j]};
 
-checkdependency:{[path]
+checkdependency:{[path]break;
       /- check config files are supplied
       if[2<=count path;
         /- check TorQ config file is supplied
@@ -158,13 +158,13 @@ getconfig:{[path;level]
           appconf,conf;
           first appconf,conf]}
 
-getdepfile:getconfig["config.csv";1]
+/getdepfile:getconfig["config.csv";1]
 
 getconfigfile:getconfig[;0]
 
 version:"1.0"
 application:""
-getversion:{$[0 = count v:@[{raze string ((" S ";enlist ",")0: x)[`version]};hsym`$getenv[`KDBCONFIG],"/config.csv";version];version;v]}
+getversion:{$[0 = count v:@[{raze string ((" S ";enlist ",")0: x)[`version]};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
 \d .lg
@@ -335,7 +335,9 @@ $[count[req] = count req inter key params;
   0<count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
-checkdependency[getdepfile]
+
+checkdependency[getconfig["dependency.csv";1]]
+
 // If any of the required parameters are null, try to read them from a file
 // The file can come from the command line, or from the environment path
 file:$[`procfile in key params; 
