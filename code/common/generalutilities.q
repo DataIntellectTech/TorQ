@@ -1,6 +1,6 @@
 \d .gu
 
-/ - Forward fill function with error checking on the inputs
+/ - Forward fill function 
 ffill:{[args]
     
 	/ - Generate dictionary for checkargs[]
@@ -77,6 +77,7 @@ pivot:{[args]
 	}
  
 / - general argument checking function
+/ - Checks for dictionary,keys,types and exisitance
 checkargs:{[dict]
 	/ - dictionary check
 	if[not 99h~type dict`d;'`$"Input parameter must be of type 99h"];
