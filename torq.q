@@ -123,7 +123,7 @@ runchk:{[dict;t;x]
       if[not d in key dict;[.lg.e[`config;(raze/) string t[`app]," ", string t[`version] ," requires ",string d," ",sv[".";i],". Current version not supplied"]]];
       checkvers[i;;d;t]'[j]};
 
-checkdependency:{[path]break;
+checkdependency:{[path]
       /- check config files are supplied
       if[2<=count path;
         /- check TorQ config file is supplied
@@ -140,7 +140,7 @@ checkdependency:{[path]break;
         {[t;dict] runchk[dict;t;]'[t[`dependency]]}[;dict]'[t]]}
 
 getconfig:{[path;level]
-				/-check if KDBAPPCONFIG exists
+        /-check if KDBAPPCONFIG exists
         keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
           key hsym appconf:`$kac,"/",path;
           ()];
@@ -152,7 +152,6 @@ getconfig:{[path;level]
 
         /-get KDBCONFIG path
         conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
-				
         /-if level is non-zero return appconfig and config files
         (),$[level;
           appconf,conf;
@@ -164,7 +163,7 @@ getconfigfile:getconfig[;0]
 
 version:"1.0"
 application:""
-getversion:{$[0 = count v:@[{raze string ((" S ";enlist ",")0: x)[`version]};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
+getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
 \d .lg
