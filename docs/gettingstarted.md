@@ -259,7 +259,7 @@ If any of the dependency versions exceed application versions, TorQ will exit
 and log the error. 
 
 If no dependency files are supplied, TorQ will run as normal. However, if only an 
-application config file is supplied, TorQ will exit and log the error.
+application dependency file is supplied, TorQ will exit and log the error.
 
 Each verision number can be up to 5 digits in length, separated by '.' and 
 the current kdb+ version will be automatically added with the format
