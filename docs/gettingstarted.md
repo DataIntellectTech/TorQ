@@ -261,7 +261,7 @@ and log the error.
 If no dependency files are supplied, TorQ will run as normal. However, if only an 
 application dependency file is supplied, TorQ will exit and log the error.
 
-Each verision number can be up to 5 digits in length, separated by '.' and 
+Each version number can be up to 5 digits in length, separated by '.' and 
 the current kdb+ version will be automatically added with the format
 major.minor.yyyy.mm.dd
 
