@@ -1,5 +1,4 @@
-// define a utils namespace
-
+\d .gu // define a namespace
 intervals:{[args]
    if[args[`intervals.start]>args[`intervals.end];'`$"start time should be less than end time"];
    if[not `intervals.round in key args;args:args,(enlist `base)!enlist 1b]; //if round isn't provided create  a default 1b boolean
