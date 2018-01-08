@@ -123,7 +123,7 @@ loadallfiles:{[loadparams;dir]
  if[c:count loadparams[`compression]; if[not (3=c) and type[loadparams[`compression]] in 6 7h; .lg.e[`dataloader;"compression parameters must be a 3 item list of type int or long"]]];
  
  // get the contents of the directory
- filelist:key dir:hsym dir;
+ filelist:$[`filext in key loadparams;$[0h<type loadparams[`filext];(key dir:hsym dir) where like[key dir;loadparams[`filext]];(key dir:hsym dir) where max like[key dir;] each loadparams[`filext]];key dir:hsym dir]
  
  // create the full path
  filelist:` sv' dir,'filelist;
