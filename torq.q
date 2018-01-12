@@ -426,9 +426,9 @@ createalias:{[logdir;filename;alias]
 // makealias = if true, will create alias files without the timestamp value
 createlog:{[logdir;logname;timestamp;suppressalias]
 	basename:(string logname),"_",(string timestamp),".log";
-	alias:$[suppressalias;"";(string logname),".log"];
+	alias:$[suppressalias;"";(string logname),".log"];$[onelog;fileredirect[logdir;"err_out_",basename;"err_out_",alias;2];[
 	fileredirect[logdir;"err_",basename;"err_",alias;2];
-	fileredirect[logdir;"out_",basename;"out_",alias;1];
+	fileredirect[logdir;"out_",basename;"out_",alias;1];]]
 	.lg.banner[]}
 
 // function to produce the timestamp value for the log file
@@ -436,7 +436,7 @@ logtimestamp:@[value;`logtimestamp;{[x] {[]`$ssr[;;"_"]/[string .z.z;".:T"]}}]
 
 rolllogauto:{[] 
 	.lg.o[`logging;"creating standard out and standard err logs"];
-	createlog[getenv`KDBLOG;procname;logtimestamp[];`suppressalias in key params]}
+	createlog[getenv`KDBLOG;procname;logtimestamp[];`suppressalias in key params;`onelog in key params]}
 
 // Create log files as long as they haven't been switched off 
 if[not any `debug`noredirect in key params; rolllogauto[]];
