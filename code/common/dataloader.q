@@ -16,6 +16,7 @@
 // partitioncol [optional] = the name of the column to cast to the partition type to work out which partition the data should go in.  default is `time
 // chunksize [optional] = size of data chunks in bytes to read at a time.  default is 100MB
 // compression [optional] = compression parameters to use. list of 3 integers e.g. 17 2 6.
+// filepattern [optional] = specficy pattern used to filter files
 // These are only set when the data is sorted on disk (in the finish function) to save on writing the data compressed, reading in and uncompressing, sorting, and writing out compressed again
 // gc [optional] = boolean flag to turn garbage collection on and off.  Default is 0b
 
