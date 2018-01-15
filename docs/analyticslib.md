@@ -285,135 +285,9 @@ AUDUSD BARX| 4         2         817      716
 AUDUSD UBS | 3         0         744      217
 
 ```
-### rack[]
-The rack utility gives the user the ability to create a rack table
-(the cross product of distinct values at the input).
-
-#### Input parameters:
-* table (required) - keyed or unkeyed in-memory table
-* keycols (required) - the columns of the table you want to create the rack from.
-* base (optional) - this is an additional table, against which the rack can be created
-* intervals.start (optional) - start time to create a timeseries rack
-* intervals.end (optional) - end time to create a time series rack
-* intervals.interval (optional) - the interval for the time racking
-* intervals.round (optional) - should rounding be carried out when creating the timeseries
-* fullexpansion (optional, default is 0b) - determines whether the required columns of
-                                             input table will be expanded against themselves
-                                             or not.
-#### Usage
-- All the above arguments must be provided in dictionary form.
-- A timeseries is optional but if it is required then start, end, and
-  interval must be specified (round remains optional with a default value
-  of 1b).
-- Keyed tables can be provided, these will be unkeyed by the function and
-  crossed as standard unkeyed tables.
 
 
-Should full expansion be required the function we use is:
-
-    racktable:args[`base] cross (((0#args[`keycols]#args[`table]) upsert distinct (cross/)value flip args[`keycols]#args[`table]) cross timeseries);
-
-    Essentially the keycolumns are speperated from the table and a cross-over is used on their values, this operation means
-        seperating the values from the table headers so as a final step the distinct crossed values are upserted into an empty
-        table made up of the key column names of the original table. The result is then crossed against a base and timeseries. If
-        these aren't provided explicitly by the user they are simple null lists which have no effect on the output.
-
-If full expansion isn't required the process is similar to the above but there's no expansion carried out on the initial table columns.
-
-     racktable:args[`base] cross ((args[`keycols]#args[`table]) cross timeseries)]
-
-
-#### Examples
--- no fullexpansion, only table and keycols specified--
-
-q)t
-sym exch price
---------------
-a   nyse 1
-b   nyse 2
-a   cme  3
-
-q)k
-`sym`exch
-
-create a dictionary
-q)dic:`table`keycols!(t;k)
-
-q)rack[dic]
-sym exch
---------
-a   nyse
-b   nyse
-a   cme
-
-(simplest case, only returns unaltered keycols)
-
-
--- timeseries,fullexpansion specified, table is a keyed table --
-
-q)dic
-table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
-keycols      | `sym`exch
-timeseries   | `start`end`interval!09:00 12:00 01:00
-fullexpansion| 1b
-
-q)rack[dic]
-sym exch interval
------------------
-a   nyse 09:00
-a   nyse 10:00
-a   nyse 11:00
-a   nyse 12:00
-a   cme  09:00
-a   cme  10:00
-a   cme  11:00
-a   cme  12:00
-b   nyse 09:00
-b   nyse 10:00
-b   nyse 11:00
-b   nyse 12:00
-b   cme  09:00
-b   cme  10:00
-b   cme  11:00
-b   cme  12:00
-
-
--- timeseries,fullexpansion specified,base specified, table is keyed --
-
-q)dic
-table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
-keycols      | `sym`exch
-timeseries   | `start`end`interval!00:00:00 02:00:00 00:30:00
-base         | +(,`base)!,`buy`sell`buy`sell
-fullexpansion| 1b
-
-q)rack[dic]
-base sym exch interval
-----------------------
-buy  a   nyse 00:00:00
-buy  a   nyse 00:30:00
-buy  a   nyse 01:00:00
-buy  a   nyse 01:30:00
-buy  a   nyse 02:00:00
-buy  a   cme  00:00:00
-buy  a   cme  00:30:00
-buy  a   cme  01:00:00
-buy  a   cme  01:30:00
-buy  a   cme  02:00:00
-buy  b   nyse 00:00:00
-buy  b   nyse 00:30:00
-buy  b   nyse 01:00:00
-buy  b   nyse 01:30:00
-buy  b   nyse 02:00:00
-buy  b   cme  00:00:00
-buy  b   cme  00:30:00
-buy  b   cme  01:00:00
-buy  b   cme  01:30:00
-buy  b   cme  02:00:00
-
-
-
-### intervals.q
+## intervals[]
 
 parameters:start,end,interval,round (optional)
 
@@ -452,31 +326,153 @@ q)params:`start`end`interval!(09:32;12:00;00:30)
 q)intervals[params]
 09:30 10:00 10:30 11:00 11:30 12:00
 
-##### Some other examples using other datatypes:
-date
-----
+#### Some examples using other datatypes:
+##### Date
+```
 q)params:`start`end`interval!(2001.04.07;2001.05.01;5)
 q)intervals[params]
 2001.04.05 2001.04.10 2001.04.15 2001.04.20 2001.04.25 2001.04.30
-
+```
 and without rounding
+```
 q)params:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
 q)intervals[params]
 2001.04.07 2001.04.12 2001.04.17 2001.04.22 2001.04.27
-
-second
-------
+```
+##### Second
+```
 q)params:`start`end`interval!(00:20:30 01:00:00 00:10:00)
 q)intervals[params]
 00:20:00 00:30:00 00:40:00 00:50:00 01:00:00
-
+```
 and without rounding
+```
 q)params:`start`end`interval`round!(00:20:30 01:00:00 00:10:00)
 q)intervals[params]
 00:20:30 00:30:30 00:40:30 00:50:30
-
-timespan
-------
+```
+##### timespan
+```
 q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
 q)interval[params]
 0D00:00:50.000000000 0D00:01:40.000000000 0D00:02:30.000000000 0D00:03:20.000000000 0D00:04:10.000000000 0D00:05:00.000000000
+```
+## rack[]
+The rack utility gives the user the ability to create a rack table
+(the cross product of distinct values at the input).
+
+#### Input parameters:
+* table (required) - keyed or unkeyed in-memory table
+* keycols (required) - the columns of the table you want to create the rack from.
+* base (optional) - this is an additional table, against which the rack can be created
+* intervals.start (optional) - start time to create a timeseries rack
+* intervals.end (optional) - end time to create a time series rack
+* intervals.interval (optional) - the interval for the time racking
+* intervals.round (optional) - should rounding be carried out when creating the timeseries
+* fullexpansion (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
+#### Usage
+- All the above arguments must be provided in dictionary form.
+- A timeseries is optional but if it is required then start, end, and interval must be specified (round remains optional with a default value of 1b).
+- Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
+
+
+Should full expansion be required the function we use is:
+```
+racktable:args[`base] cross (((0#args[`keycols]#args[`table]) upsert distinct (cross/)value flip args[`keycols]#args[`table]) cross timeseries);
+```
+Essentially the keycolumns are separated from the table and a cross-over is used on their values, this operation means
+seperating the values from the table headers so as a final step the distinct crossed values are upserted into an empty table made up of the key column names of the original table. The result is then crossed against a base and timeseries. If these aren't provided explicitly by the user they are simple null lists which have no effect on the output.
+
+If full expansion isn't required the process is similar to the above but there's no expansion carried out on the initial table columns.
+```
+     racktable:args[`base] cross ((args[`keycols]#args[`table]) cross timeseries)]
+```
+
+#### Examples
+- no fullexpansion, only table and keycols specified
+```
+q)t
+sym exch price
+--------------
+a   nyse 1
+b   nyse 2
+a   cme  3
+
+q)k
+`sym`exch
+
+create a dictionary
+q)dic:`table`keycols!(t;k)
+
+q)rack[dic]
+sym exch
+--------
+a   nyse
+b   nyse
+a   cme
+```
+(simplest case, only returns unaltered keycols)
+
+
+- timeseries,fullexpansion specified, table is a keyed table
+```
+q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!09:00 12:00 01:00
+fullexpansion| 1b
+
+q)rack[dic]
+sym exch interval
+-----------------
+a   nyse 09:00
+a   nyse 10:00
+a   nyse 11:00
+a   nyse 12:00
+a   cme  09:00
+a   cme  10:00
+a   cme  11:00
+a   cme  12:00
+b   nyse 09:00
+b   nyse 10:00
+b   nyse 11:00
+b   nyse 12:00
+b   cme  09:00
+b   cme  10:00
+b   cme  11:00
+b   cme  12:00
+```
+
+- timeseries,fullexpansion specified,base specified, table is keyed
+```
+q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!00:00:00 02:00:00 00:30:00
+base         | +(,`base)!,`buy`sell`buy`sell
+fullexpansion| 1b
+
+q)rack[dic]
+base sym exch interval
+----------------------
+buy  a   nyse 00:00:00
+buy  a   nyse 00:30:00
+buy  a   nyse 01:00:00
+buy  a   nyse 01:30:00
+buy  a   nyse 02:00:00
+buy  a   cme  00:00:00
+buy  a   cme  00:30:00
+buy  a   cme  01:00:00
+buy  a   cme  01:30:00
+buy  a   cme  02:00:00
+buy  b   nyse 00:00:00
+buy  b   nyse 00:30:00
+buy  b   nyse 01:00:00
+buy  b   nyse 01:30:00
+buy  b   nyse 02:00:00
+buy  b   cme  00:00:00
+buy  b   cme  00:30:00
+buy  b   cme  01:00:00
+buy  b   cme  01:30:00
+buy  b   cme  02:00:00
+```
