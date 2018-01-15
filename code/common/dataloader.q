@@ -123,8 +123,11 @@ loadallfiles:{[loadparams;dir]
  if[not count[loadparams`headers]=count loadparams[`types] except " "; .lg.e[`dataloader;"headers and non-null separators must be the same length"]]; 
  if[c:count loadparams[`compression]; if[not (3=c) and type[loadparams[`compression]] in 6 7h; .lg.e[`dataloader;"compression parameters must be a 3 item list of type int or long"]]];
  
- // get the contents of the directory based on optional filepattern
- filelist:$[`filepattern in key loadparams;$[0h<type loadparams[`filepattern];(key dir:hsym dir) where like[key dir;loadparams[`filepattern]];(key dir:hsym dir) where max like[key dir;] each loadparams[`filepattern]];key dir:hsym dir]
+// if a filepattern was specified ensure that it's a list
+if[10h=type loadparams[`filepattern];loadparams[`filepattern]:enlist loadparams[`filepattern]] 
+
+// get the contents of the directory based on optional filepattern
+ filelist:$[`filepattern in key loadparams;(key dir:hsym dir) where max like[key dir;] each loadparams[`filepattern]];key dir:hsym dir]
  
  // create the full path
  filelist:` sv' dir,'filelist;

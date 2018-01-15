@@ -424,10 +424,11 @@ createalias:{[logdir;filename;alias]
 // logname = base of log file
 // timestamp = optional timestamp value (e.g. .z.d, .z.p)
 // makealias = if true, will create alias files without the timestamp value
-createlog:{[logdir;logname;timestamp;suppressalias]
+createlog:{[logdir;logname;timestamp;suppressalias;onelog]
 	basename:(string logname),"_",(string timestamp),".log";
-	alias:$[suppressalias;"";(string logname),".log"];$[onelog;fileredirect[logdir;"err_out_",basename;"err_out_",alias;2];[
-	fileredirect[logdir;"err_",basename;"err_",alias;2];
+	alias:$[suppressalias;"";(string logname),".log"];
+	$[onelog;fileredirect[logdir;basename;alias;1 2];
+	[fileredirect[logdir;"err_",basename;"err_",alias;2];
 	fileredirect[logdir;"out_",basename;"out_",alias;1];]]
 	.lg.banner[]}
 
