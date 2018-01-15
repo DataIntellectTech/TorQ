@@ -307,25 +307,25 @@ date, month, time, minute, second, timestamp, timespan, integer, short, long
 #### Examples
 
 ##### Using minute datatype:
-
+```
 q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)
 q)intervals[params]
 09:32 10:02 10:32 11:02 11:32
-
+```
 
 or with round applied.
-
+```
 q)params:`start`end`interval`round!(09:32;12:00;00:30;1b)
 q)intervals[params]
 09:30 10:00 10:30 11:00 11:30 12:00
-
+```
 by default round is set to 1b, hence the result above can be
 obtained without inputting a value for round via:
-
+```
 q)params:`start`end`interval!(09:32;12:00;00:30)
 q)intervals[params]
 09:30 10:00 10:30 11:00 11:30 12:00
-
+```
 #### Some examples using other datatypes:
 ##### Date
 ```
