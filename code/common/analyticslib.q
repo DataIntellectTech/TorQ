@@ -106,7 +106,6 @@ rack:{[args]
               args[`base]:enlist () ];
     / if arguments for a timeseries are provided create intervals column
     if[`interval in key args;
-   /     args[`interval]:("S"$ssr[;"intervals.";""] each (string key args[`interval]))!value args[`interval];
         timeseries:([]interval:intervals[args[`interval]])];
     / if full expansion isn't provided, default it to 0b
     $[`fullexpansion  in key args;if[not -1 = type args[`fullexpansion];'`$"fullexpansion must be provided as a boolean value"];
