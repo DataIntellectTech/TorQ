@@ -1,3 +1,13 @@
+The following documentation describes the use of the forward fills, pivot, racking, and intervals
+functionality for TorQ. 
+The purpose of these functions is to simplify certain common operations so as to give the user the
+tools necessary to build out and tailor the system for the functionality they require.
+The functions all take dictionaries containing their arguments as parameters, and these are then
+checked with a central checkargs[] function to ensure the correct arguments, and types of arguments,
+are supplied.  
+All functions contain usage examples, as well as an explanation on the type and form of the arguments 
+they accept.
+
 ## ffills[]
 
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
