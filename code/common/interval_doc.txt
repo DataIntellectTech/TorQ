@@ -1,0 +1,79 @@
+intervals.q
+---------------------------------------------------------------------------------------------
+parameters:start,end,interval,round (optional)
+
+The intervals.q utility in the .utils namespace is used to output a 
+list of equally spaced intervals between given start and end points.
+
+Usage
+--------------------------------------------------------------------------------------------
+Parameters should be passed in the form of a dictionary, where start
+and end must be of the same type and interval can be either a long int
+or of the same type as start and end (i.e if start:09:00 and end:12:00,
+and intervals of 5 mins were required interval could equal 05:00 or 5)
+
+Allowed data types are:
+date, month, time, minute, second, timestamp, timespan, integer, short, long 
+
+Examples
+-------------------------------------------------------------------------------------------- 
+using minute datatype:
+----------------------
+q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)
+q)intervals[params]
+09:32 10:02 10:32 11:02 11:32
+
+
+or with round applied.
+
+q)params:`start`end`interval`round!(09:32;12:00;00:30;1b)
+q)intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+
+by default round is set to 1b, hence the result above can be 
+obtained without inputting a value for round via:
+
+q)params:`start`end`interval!(09:32;12:00;00:30)
+q)intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+
+Some other examples using other datatypes:
+date
+----
+q)params:`start`end`interval!(2001.04.07;2001.05.01;5)
+q)intervals[params]
+2001.04.05 2001.04.10 2001.04.15 2001.04.20 2001.04.25 2001.04.30
+
+and without rounding
+q)params:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
+q)intervals[params]
+2001.04.07 2001.04.12 2001.04.17 2001.04.22 2001.04.27
+
+second
+------
+q)params:`start`end`interval!(00:20:30 01:00:00 00:10:00)
+q)intervals[params]
+00:20:00 00:30:00 00:40:00 00:50:00 01:00:00
+
+and without rounding
+q)params:`start`end`interval`round!(00:20:30 01:00:00 00:10:00)
+q)intervals[params]
+00:20:30 00:30:30 00:40:30 00:50:30
+
+timespan
+--------
+q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
+q)interval[params]
+0D00:00:50.000000000 0D00:01:40.000000000 0D00:02:30.000000000 0D00:03:20.000000000 0D00:04:10.000000000 0D00:05:00.000000000
+
+
+ 
+
+
+
+
+
+
+
+
+
