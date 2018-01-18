@@ -1,10 +1,10 @@
 rack[]
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 The rack utility gives the user the ability to create a rack table 
 (the cross product of distinct values at the input).
 
 Input parameters:
----------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 -> table (required) - keyed or unkeyed in-memory table 
 
 -> keycols (required) - the columns of the table you want to 
@@ -29,8 +29,9 @@ Input parameters:
 					     columns of input table will be 
 					     expanded against themselves or not. 
 Usage
--------------------------------------------------------------------------
-- All the above arguments must be provided in dictionary form.
+--------------------------------------------------------------------------------------------
+- All the above arguments must be provided in the form of a dictionary.
+- arguments for intervals should be provided as a sub dictionary (as inidicated by the ".")
 - A timeseries is optional but if it is required then start, end, and 
   interval must be specified (round remains optional with a default value 
   of 1b).
@@ -53,7 +54,7 @@ If full expansion isn't required the process is similar to the above but there's
 
 
 Examples	
--------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 -- no fullexpansion, only table and keycols specified--
 
 q)t
@@ -84,7 +85,7 @@ a   cme
 q)dic
 table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
 keycols      | `sym`exch
-timeseries   | `start`end`interval!09:00 12:00 01:00
+intervals    | `start`end`interval!09:00 12:00 01:00
 fullexpansion| 1b
 
 q)rack[dic]

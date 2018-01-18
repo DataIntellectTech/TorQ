@@ -1,12 +1,12 @@
 intervals.q
---------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
 parameters:start,end,interval,round (optional)
 
 The intervals.q utility in the .utils namespace is used to output a 
 list of equally spaced intervals between given start and end points.
 
 Usage
---------------------------------------------------------------------
+--------------------------------------------------------------------------------------------
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
 or of the same type as start and end (i.e if start:09:00 and end:12:00,
@@ -16,7 +16,7 @@ Allowed data types are:
 date, month, time, minute, second, timestamp, timespan, integer, short, long 
 
 Examples
--------------------------------------------------------------------- 
+-------------------------------------------------------------------------------------------- 
 using minute datatype:
 ----------------------
 q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)

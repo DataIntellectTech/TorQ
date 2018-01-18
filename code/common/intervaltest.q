@@ -28,8 +28,9 @@ intdic7r:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
 intdic8:`start`end`interval!(2001.01 2001.07 2001.02m)
 intdic8r:`start`end`interval`round!(2001.01m;2002.02m;3;0b)
 
-//datetime test
+//timestamp test
 intdic9:`start`end`interval!(x;x+5000000000;500000000)
 intdic9r:`start`end`interval`round!(x;x+5000000000;0D00:00:01.000000000;1b)
 
-
+//Timestamp test
+//intdic10:`start`end`interval!(x)

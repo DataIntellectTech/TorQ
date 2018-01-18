@@ -1,6 +1,6 @@
 checkargs:{[fname;args;klist]
 	if[not 99h=type args;'`$"Supplied arguments must be in the form of a dictionary"];
-	if[not all klist in key args;'`$"arguments provided do not match expected inputs of ",string fname];
+	if[not all klist in key args;'`$"arguments provided do not match expected inputs of ",string klist];
 	if[fname in `rack`ffills`pivot;
           	$[not .Q.qt args[`table];'`$"The datatype assigned to the argument:`table should be given as a table";
 		  not all -11h  = type each args[`keycols];'`$"Keycols must be supplied as symbols";
@@ -21,7 +21,7 @@ intervals:{[args]
 		if[not -1 = type args[`round];'`$"round should be specified as a boolean value"];
 		args:args,(enlist `round)!enlist 1b]]
 	$[args[`round];
-		[x:(neg type args[`start])$args[`interval]*`long$(args[`start] + args[`interval]*til 1+ `int$(args[`end]-args[`start])%args[`interval])%args[`interval];
+		[x:(neg type args[`start])$(`long$args[`interval])*`long$(args[`start] + args[`interval]*til 1+ `int$(args[`end]-args[`start])%args[`interval])%args[`interval];
 		$[args[`end] < last x;x:-1 _x;x]];
 	// this is the same as the above but we don't divide by interval and convert to long again so rounding doesn't take place
 		[x: (args[`start] + args[`interval]*til 1+`long$(args[`end]-args[`start])%args[`interval]);
