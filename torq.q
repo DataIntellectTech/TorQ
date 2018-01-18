@@ -184,7 +184,7 @@ publish:{[loglevel;proctype;proc;id;message]
 
 // Dictionary of log levels mapped to standard out/err
 // Set to 0 if you don't want the log type to print
-outmap:@[value;`outmap;`ERROR`ERR`INF`WARN!2 2 1 1]
+outmap:@[{[x]value[x]&1};`outmap;`ERROR`ERR`INF`WARN!2 2 1 1]
 // whether each message type should be published
 pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
@@ -425,11 +425,12 @@ createalias:{[logdir;filename;alias]
 // timestamp = optional timestamp value (e.g. .z.d, .z.p)
 // makealias = if true, will create alias files without the timestamp value
 createlog:{[logdir;logname;timestamp;suppressalias;onelog]
+        out_prefix:"out_";err_prefix:"err_";
 	basename:(string logname),"_",(string timestamp),".log";
-	alias:$[suppressalias;"";(string logname),".log"];
-	$[onelog;fileredirect[logdir;basename;alias;1 2];
-	[fileredirect[logdir;"err_",basename;"err_",alias;2];
-	fileredirect[logdir;"out_",basename;"out_",alias;1];]]
+        alias:$[suppressalias;"";(string logname),".log"];
+	fileredirect[logdir;out_prefix,basename;out_prefix,alias;1];
+        fileredirect[logdir;err_prefix,basename;err_prefix,alias;2];
+        if[onelog;.lg.outmap[key .lg.outmap]:1];
 	.lg.banner[]}
 
 // function to produce the timestamp value for the log file
