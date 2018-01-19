@@ -129,7 +129,7 @@ time         sym  ask bid asize bsize a id
 ```
 
 
-#### Example Unkeyed Table:
+#### Example:
 We have the following table:
 ```
 q)table
@@ -152,10 +152,10 @@ time         sym  ask bid asize bsize a id
 ```
 Create the dictionary:
 ```
-q)args:(`t`k)!(table;`sym)
+q)args:(`table`by)!(table;`sym)
 q)args
-t| `s#+`time`sym`ask`bid`asize`bsize`a`id!(`p#00:00:00.482 00:00:00.803 00:00..
-k| `sym
+table| `s#+`time`sym`ask`bid`asize`bsize`a`id!(`p#00:00:00.482 00:00:00.803 00:00..
+by| `sym
 
 ```
 Pass the dictionary to the function:
@@ -176,90 +176,6 @@ time         sym  ask bid asize bsize a id
 00:48:08.048 MSFT 63  3   4     40    c 3
 00:48:39.290 IBM  63  3   12    40    b 2
 00:57:47.067 AAPL 121 24  3     30    a 2
-..
-```
-
-#### Example Keyed Table:
-We have the following table:
-```
-q)ktable
-time        | sym  ask bid asize bsize a
-------------| --------------------------
-00:00:00.000| AAPL 73  90  3     30    a
-00:00:00.000| MSFT 100 200 43    40    c
-00:00:00.000| AMD  123 210 67    30    b
-00:00:00.000| IBM  34  64  87    43    b
-00:00:22.178| IBM  4   65        30
-00:01:20.951| AAPL 35  130 3           a
-00:06:06.973| MSFT 93  144 3     20
-00:08:15.333| AAPL 98  167 3     20
-00:08:23.291| IBM  69  84  12    30    b
-00:10:27.142| IBM  92  85              c
-..
-```
-Create the dictionary:
-```
-q)dict:(`t`k)!(ktable;`sym)
-```
-Pass the dictionary to the function:
-```
-q)ffill[dict]
-time        | sym  ask bid asize bsize a
-------------| --------------------------
-00:00:00.000| AAPL 73  90  3     30    a
-00:00:00.000| MSFT 100 200 43    40    c
-00:00:00.000| AMD  123 210 67    30    b
-00:00:00.000| IBM  34  64  87    43    b
-00:00:22.178| IBM  4   65  87    30    b
-00:01:20.951| AAPL 35  130 3     30    a
-00:06:06.973| MSFT 93  144 3     20    c
-00:08:15.333| AAPL 98  167 3     20    a
-00:08:23.291| IBM  69  84  12    30    b
-00:10:27.142| IBM  92  85  12    30    c
-..
-```
-
-#### Example Mixed List:
-Creating a dictionary:
-```
-q)margs:(`table`by)!(mtable;`sym)
-```
-Viewing the table where sym=`MSFT
-```
-q)select from mtable where sym=`MSFT
-time         sym  price size mode logs env
-------------------------------------------
-00:08:15.126 MSFT 5     40   "B"  "AA" "I"
-00:08:21.954 MSFT 5     20   ""   "AA" "I"
-00:18:04.172 MSFT 2     40   "B"  "AA" "J"
-00:37:26.653 MSFT 5     40   "B"  "GG" "H"
-00:39:09.922 MSFT 5     20   ""   "FF" "J"
-00:40:54.256 MSFT       30   ""   "GG" "J"
-00:43:35.434 MSFT 5          ""   "GG" ""
-00:44:03.381 MSFT 2     20   "B"  "GG" ""
-00:45:26.982 MSFT 2     20   ""   "AA" "I"
-01:06:32.281 MSFT 5          "B"  "AA" "H"
-01:08:17.819 MSFT       40   ""   "AA" "J"
-01:15:46.842 MSFT       20   ""   "GG" "J"
-..
-```
-Passing the dictionary into the function and then into the same statement:
-```
-q)select from ffill[margs] where sym=`MSFT
-time         sym  price size mode logs env
-------------------------------------------
-00:08:15.126 MSFT 5     40   B    "AA" "I"
-00:08:21.954 MSFT 5     20   B    "AA" "I"
-00:18:04.172 MSFT 2     40   B    "AA" "J"
-00:37:26.653 MSFT 5     40   B    "GG" "H"
-00:39:09.922 MSFT 5     20   B    "FF" "J"
-00:40:54.256 MSFT 5     30   B    "GG" "J"
-00:43:35.434 MSFT 5     30   B    "GG" "J"
-00:44:03.381 MSFT 2     20   B    "GG" "J"
-00:45:26.982 MSFT 2     20   B    "AA" "I"
-01:06:32.281 MSFT 5     20   B    "AA" "H"
-01:08:17.819 MSFT 5     40   B    "AA" "J"
-01:15:46.842 MSFT 5     20   B    "GG" "J"
 ..
 ```
 
@@ -307,7 +223,7 @@ and size at each time. The input dictionary is created in the following way:
 args:(`table`by`piv`v`f`g)!(q;`date`sym`time;`side`level;`price`size);
 ```
 
-Here we are specificying the arguments for f and g as the default functions:
+Here we are specifying the arguments for f and g as the default functions:
 ```
 // create _ separated column headers
 f:{[v;P] `$"_" sv' string (v,()) cross P}
@@ -380,3 +296,193 @@ AUDUSD UBS | 3         0         744      217
 
 ```
 
+
+## intervals[]
+
+parameters:start,end,interval,round (optional)
+
+The intervals.q utility in the .utils namespace is used to output a
+list of equally spaced intervals between given start and end points.
+
+#### Usage
+
+Parameters should be passed in the form of a dictionary, where start
+and end must be of the same type and interval can be either a long int
+or of the same type as start and end (i.e if start:09:00 and end:12:00,
+and intervals of 5 mins were required interval could equal 05:00 or 5)
+
+Allowed data types are:
+date, month, time, minute, second, timestamp, timespan, integer, short, long
+
+#### Examples
+
+##### Using minute datatype:
+```
+q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)
+q)intervals[params]
+09:32 10:02 10:32 11:02 11:32
+```
+
+or with round applied.
+```
+q)params:`start`end`interval`round!(09:32;12:00;00:30;1b)
+q)intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+```
+by default round is set to 1b, hence the result above can be
+obtained without inputting a value for round via:
+```
+q)params:`start`end`interval!(09:32;12:00;00:30)
+q)intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+```
+#### Some examples using other datatypes:
+##### Date
+```
+q)params:`start`end`interval!(2001.04.07;2001.05.01;5)
+q)intervals[params]
+2001.04.05 2001.04.10 2001.04.15 2001.04.20 2001.04.25 2001.04.30
+```
+and without rounding
+```
+q)params:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
+q)intervals[params]
+2001.04.07 2001.04.12 2001.04.17 2001.04.22 2001.04.27
+```
+##### Second
+```
+q)params:`start`end`interval!(00:20:30 01:00:00 00:10:00)
+q)intervals[params]
+00:20:00 00:30:00 00:40:00 00:50:00 01:00:00
+```
+and without rounding
+```
+q)params:`start`end`interval`round!(00:20:30 01:00:00 00:10:00)
+q)intervals[params]
+00:20:30 00:30:30 00:40:30 00:50:30
+```
+##### timespan
+```
+q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
+q)interval[params]
+0D00:00:50.000000000 0D00:01:40.000000000 0D00:02:30.000000000 0D00:03:20.000000000 0D00:04:10.000000000 0D00:05:00.000000000
+```
+## rack[]
+The rack utility gives the user the ability to create a rack table
+(the cross product of distinct values at the input).
+
+#### Input parameters:
+* table (required) - keyed or unkeyed in-memory table
+* keycols (required) - the columns of the table you want to create the rack from.
+* base (optional) - this is an additional table, against which the rack can be created
+* intervals.start (optional) - start time to create a timeseries rack
+* intervals.end (optional) - end time to create a time series rack
+* intervals.interval (optional) - the interval for the time racking
+* intervals.round (optional) - should rounding be carried out when creating the timeseries
+* fullexpansion (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
+#### Usage
+- All the above arguments must be provided in dictionary form.
+- A timeseries is optional but if it is required then start, end, and interval must be specified (round remains optional with a default value of 1b).
+- Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
+
+
+Should full expansion be required the function we use is:
+```
+racktable:args[`base] cross (((0#args[`keycols]#args[`table]) upsert distinct (cross/)value flip args[`keycols]#args[`table]) cross timeseries);
+```
+Essentially the keycolumns are separated from the table and a cross-over is used on their values, this operation means
+seperating the values from the table headers so as a final step the distinct crossed values are upserted into an empty table made up of the key column names of the original table. The result is then crossed against a base and timeseries. If these aren't provided explicitly by the user they are simple null lists which have no effect on the output.
+
+If full expansion isn't required the process is similar to the above but there's no expansion carried out on the initial table columns.
+```
+     racktable:args[`base] cross ((args[`keycols]#args[`table]) cross timeseries)]
+```
+
+#### Examples
+- no fullexpansion, only table and keycols specified
+```
+q)t
+sym exch price
+--------------
+a   nyse 1
+b   nyse 2
+a   cme  3
+
+q)k
+`sym`exch
+
+create a dictionary
+q)dic:`table`keycols!(t;k)
+
+q)rack[dic]
+sym exch
+--------
+a   nyse
+b   nyse
+a   cme
+```
+(simplest case, only returns unaltered keycols)
+
+
+- timeseries,fullexpansion specified, table is a keyed table
+```
+q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!09:00 12:00 01:00
+fullexpansion| 1b
+
+q)rack[dic]
+sym exch interval
+-----------------
+a   nyse 09:00
+a   nyse 10:00
+a   nyse 11:00
+a   nyse 12:00
+a   cme  09:00
+a   cme  10:00
+a   cme  11:00
+a   cme  12:00
+b   nyse 09:00
+b   nyse 10:00
+b   nyse 11:00
+b   nyse 12:00
+b   cme  09:00
+b   cme  10:00
+b   cme  11:00
+b   cme  12:00
+```
+
+- timeseries,fullexpansion specified,base specified, table is keyed
+```
+q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!00:00:00 02:00:00 00:30:00
+base         | +(,`base)!,`buy`sell`buy`sell
+fullexpansion| 1b
+
+q)rack[dic]
+base sym exch interval
+----------------------
+buy  a   nyse 00:00:00
+buy  a   nyse 00:30:00
+buy  a   nyse 01:00:00
+buy  a   nyse 01:30:00
+buy  a   nyse 02:00:00
+buy  a   cme  00:00:00
+buy  a   cme  00:30:00
+buy  a   cme  01:00:00
+buy  a   cme  01:30:00
+buy  a   cme  02:00:00
+buy  b   nyse 00:00:00
+buy  b   nyse 00:30:00
+buy  b   nyse 01:00:00
+buy  b   nyse 01:30:00
+buy  b   nyse 02:00:00
+buy  b   cme  00:00:00
+buy  b   cme  00:30:00
+buy  b   cme  01:00:00
+buy  b   cme  01:30:00
+buy  b   cme  02:00:00
+```
