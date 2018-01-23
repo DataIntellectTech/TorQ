@@ -570,6 +570,7 @@ dictionary should/can have the following fields:
 |    chunksize    |  N   |     int      | Data size in bytes to read in one chunk. Default is 100 MB |
 |   compression   |  N   |   int list   | Compression parameters to use e.g. 17 2 6. Default is empty list for no compression |
 |       gc        |  N   |   boolean    | Whether to run garbage collection at appropriate points. Default is 0b (false) |
+|  filepattern    |  N   | char\[list\] | Pattern used to only load certain files e.g. "*.csv"|
 
 Example usage:
 
