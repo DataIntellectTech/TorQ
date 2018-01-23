@@ -84,11 +84,10 @@ intervals:{[args]
         args:args,(enlist `round)!enlist 1b];
     / need the `long on the multiplying interval because of timestamp issues
     $[args[`round];
-        [x:(neg type args[`start])$(`long$args[`interval])*`long$(args[`start] + args[`interval]*til 1+ `long$(args[`end]-args[`start])%args[`interval])%args[`interval];
-        $[args[`end] < last x;x:-1 _x;x]];
+       x:(neg type args[`start])$(`long$args[`interval])*`long$(args[`start] + args[`interval]*til 1+ `long$(args[`end]-args[`start])%args[`interval])%args[`interval];
     / this is the same as the above but we don't divide by interval and convert to long again so rounding doesn't take place
-        [x: (args[`start] + args[`interval]*til 1+`long$(args[`end]-args[`start])%args[`interval]);
-        $[args[`end] < last x;x:-1 _x;x]]]
+       x:args[`start] + args[`interval]*til 1+`long$(args[`end]-args[`start])%args[`interval]];
+    $[args[`end] < last x;x:-1 _x;x] 
     };
 
 /rack function
