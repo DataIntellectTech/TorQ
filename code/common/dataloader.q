@@ -127,7 +127,7 @@ loadallfiles:{[loadparams;dir]
 if[(`filepattern in key loadparams) & 10h=type loadparams[`filepattern];loadparams[`filepattern]:enlist loadparams[`filepattern]] 
 
 // get the contents of the directory based on optional filepattern
- filelist:$[`filepattern in key loadparams;(key dir:hsym dir) where max like[key dir;] each loadparams[`filepattern]];key dir:hsym dir]
+ filelist:$[`filepattern in key loadparams;(key dir:hsym dir) where max like[key dir;] each loadparams[`filepattern];key dir:hsym dir]
  
  // create the full path
  filelist:` sv' dir,'filelist;
