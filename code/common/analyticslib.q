@@ -2,23 +2,22 @@
 / - General argument checking funciton
 
 checkargs:{[args;k;t]
-    $[  / - check for dictionary
-        not 99h~type args;'`$"Input parameter must be a dictionary with keys:\n\t-",sv["\n\t-";string k] ;
+ 	$[not 99h~type args;'`$"Input parameter must be a dictionary with keys:\n\t-",sv["\n\t-";string k];  / - check for dictionary
         / - check for keys
-        not all (key args) in k;'`$"Dictionary keys are incorrect. Keys should be:\n\t-", sv["\n\t-";string k], "\nYou have input keys:\n\t-", sv["\n\t-";string key args];
+        not all key[args] in k;'`$"Dictionary keys are incorrect. Keys should be:\n\t-", sv["\n\t-";string k], "\nYou have input keys:\n\t-", sv["\n\t-";string key args];
         / - check for types
 		/ any not in'[string .Q.ty'[args k];t]
         any not .Q.ty'[args k] in t;'`$("One or more of your inputs are of an invalid type.");
         `table in key args;
         / - check if columns are in table provided
-        (if[any not (args[`keycols]) in cols args`table;'`$("The columns (", raze string args[`keycols],") you are attempting to use does not exist in the table provided.")]);
+        (if[any not args[`keycols] in cols args`table;'`$("The columns (", raze string args[`keycols],") you are attempting to use does not exist in the table provided.")]);
         :()]
     }
 
 
 / - Forward fill function 
 ffill:{[args]
-	if[not all (key args) in `table`by`keycols;'`$"Dictionary keys are incorrect. Keys should be:"]
+	if[not all key[args] in `table`by`keycols;'`$"Dictionary keys are incorrect. Keys should be:"]
 	 / - Checks type of each column and fills accordingly
     forwardfill:{
         $[0h=type x;
@@ -28,7 +27,7 @@ ffill:{[args]
 		/ - If the input is just a table
 	if[.Q.qt args;
 		/ - update fills col1,fills col2,fills col3... from table                            
-        :(![args;();0b;(cols args)!(`forwardfill),/:cols args])];
+        :(![args;();0b;cols[args]!(`forwardfill),/:cols args])];
 		/ - Check which columns are being filled
 	if[`~args[`keycols];args[`keycols]:cols args`table];
 		/ - Call checkargs function  
@@ -55,9 +54,9 @@ pivot:{[args]
     	args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
     	args[`g]:{[k;P;c] k,asc c}];
 	/ - Call check function on input
-	(args`var):(),args`var;
-	G:group flip (args`by)!((args[`table]):0!.Q.v (args[`table]))(args`by),:();
-	F:group flip (args`piv)!(args`table) (args`piv),:();
+	(args`var):(),args[`var];
+	G:group flip (args[`by])!((args[`table]):0!.Q.v (args[`table]))(args`by),:();
+	F:group flip (args[`piv])!(args[`table]) (args`piv),:();
 	count[args`by]!(args`g)[args`by;P;C]xcols 0!key[G]!flip(C:(args`f)[args`var]P:flip value flip key F)!raze
 	{[i;j;k;x;y]
 	 	a:count[x]#x 0N;

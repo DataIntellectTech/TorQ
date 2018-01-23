@@ -5,6 +5,7 @@ pages:
     - About: Overview.md
     - Getting Started: gettingstarted.md
     - Utilities: utilities.md
+    - Analytics Library: analyticslib.md
     - Handlers: handlers.md
     - Connection Management: conn.md
     - Processes: Processes.md 

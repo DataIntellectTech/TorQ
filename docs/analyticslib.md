@@ -1,32 +1,29 @@
-The following documentation describes the use of the forward fills, pivot, racking, and intervals
-functionality for TorQ. 
-The purpose of these functions is to simplify certain common operations so as to give the user the
-tools necessary to build out and tailor the system for the functionality they require.
-The functions all take dictionaries containing their arguments as parameters, and these are then
-checked with a central checkargs[] function to ensure the correct arguments, and types of arguments,
-are supplied.  
-All functions contain usage examples, as well as an explanation on the type and form of the arguments 
-they accept.
+# Analytics Library
+
+A set of analytical functions is provided for the simplification of common operations. This set of tools is targeted at new kdb+ developers or business users. Data visualization would be an example application of this library, as an effective visualization of data incurs various manipulations of data sets. For example, a user wishes to produce a 15 minute bucketed sample of a time series, and forward fill it, then pivot it. All of the above can be achieved with the functions defined below. 
+
+All functions contain usage examples, as well as an explanation on the type and form of the arguments they accept.
+
 
 ## ffills[]
 
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
 Input parameters:
 * Dictionary containing:
-	* `table - Table to be forward filled
-	* `by - list of column names to key the table (optional)
-	* `col - list of coummns names to be forward filled (optional)
+	* `table` - Table to be forward filled
+	* `by` - list of column names to key the table (optional)
+	* `keycols` - list of columns names to be forward filled (optional)
 
 OR 
 
 * Table
 	
 This utility is equivalent to:
-* update fills a, fills b .... by keycols from table
+* `update fills col1, fills col2 ... by col2 from table`
 
 
 If you have a large data set or just a table with multiple columns typing this statement out can be quite laborious.
-With this utility you simply specifiy the table or parameter dictionary and pass it to the function.
+With this utility you simply specify the table or parameter dictionary and pass it to the function.
 This utility also has the added functionality of being able to forward fill mixed list columns, i.e. strings.
  
 To achieve this functionality a function to forward fill mixed list columns was required. This function can be seen here:
@@ -41,7 +38,7 @@ input to the maxs function, thereby forward filling the column.
 
 #### Options
 
-By specifying the `by condition in the input dictionary the function can forward fill keyed by specific column, for example:
+By specifying the `by` condition in the input dictionary the function can forward fill keyed by specific column, for example:
 
 Using the following table:
 ```
@@ -61,7 +58,7 @@ time         sym  ask bid asize bsize a id
 
 ```
 
-We can create the input dictionary in the following way to specifiy the by clause of the `ffill` utility:
+We can create the input dictionary in the following way to specify the by clause of the `ffill` utility:
 
 ```
 q)args:(`table`by)!(table;`sym)
@@ -86,12 +83,12 @@ time         sym  ask bid asize bsize a id
 ```
 
 
-By specifying the `col condition in the input dictionary the function can forward fill only specific columns, for example:
+By specifying the `keycols` condition in the input dictionary the function can forward fill only specific columns, for example:
 
 Using the same data set as before we can create a new input specifying which column we want to forward fill:
 
 ```
-q)args:(`table`col)!(table;`asize)
+q)args:(`table`keycols)!(table;`asize)
 q)ffill args
 time         sym  ask bid asize bsize a id
 ------------------------------------------
@@ -301,7 +298,7 @@ AUDUSD UBS | 3         0         744      217
 
 parameters:start,end,interval,round (optional)
 
-The intervals.q utility in the .utils namespace is used to output a
+The intervals.q utility in the .al namespace is used to output a
 list of equally spaced intervals between given start and end points.
 
 #### Usage
@@ -309,7 +306,7 @@ list of equally spaced intervals between given start and end points.
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
 or of the same type as start and end (i.e if start:09:00 and end:12:00,
-and intervals of 5 mins were required interval could equal 05:00 or 5)
+and intervals of 5 minutes were required interval could equal 05:00 or 5)
 
 Allowed data types are:
 date, month, time, minute, second, timestamp, timespan, integer, short, long
@@ -391,7 +388,7 @@ Should full expansion be required the function we use is:
 racktable:args[`base] cross (((0#args[`keycols]#args[`table]) upsert distinct (cross/)value flip args[`keycols]#args[`table]) cross timeseries);
 ```
 Essentially the keycolumns are separated from the table and a cross-over is used on their values, this operation means
-seperating the values from the table headers so as a final step the distinct crossed values are upserted into an empty table made up of the key column names of the original table. The result is then crossed against a base and timeseries. If these aren't provided explicitly by the user they are simple null lists which have no effect on the output.
+separating the values from the table headers so as a final step the distinct crossed values are upserted into an empty table made up of the key column names of the original table. The result is then crossed against a base and timeseries. If these aren't provided explicitly by the user they are simple null lists which have no effect on the output.
 
 If full expansion isn't required the process is similar to the above but there's no expansion carried out on the initial table columns.
 ```
