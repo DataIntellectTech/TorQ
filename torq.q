@@ -185,14 +185,13 @@ publish:{[loglevel;proctype;proc;id;message]
 // Dictionary of log levels mapped to standard out/err
 // Set to 0 if you don't want the log type to print
 outmap:@[value;`outmap;`ERROR`ERR`INF`WARN!2 2 1 1]
-// check if onelog was flagged
-if[`onelog in key params;outmap:1&outmap]
 
 // whether each message type should be published
 pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
 l:{[loglevel;proctype;proc;id;message;dict]
+	if[`onelog in key .proc.params;outmap::1&outmap];
 	$[0 < redir:0^outmap[loglevel];
 		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
 		ext[loglevel;proctype;proc;id;message;dict]];
@@ -428,12 +427,10 @@ createalias:{[logdir;filename;alias]
 // timestamp = optional timestamp value (e.g. .z.d, .z.p)
 // makealias = if true, will create alias files without the timestamp value
 createlog:{[logdir;logname;timestamp;suppressalias;onelog]
-        out_prefix:"out_";
-	err_prefix:$[onelog;out_prefix;"err_"];
 	basename:string[logname],"_",string[timestamp],".log";
         alias:$[suppressalias;"";string[logname],".log"];
-	fileredirect[logdir;out_prefix,basename;out_prefix,alias;1];
-        fileredirect[logdir;err_prefix,basename;err_prefix,alias;2];
+        fileredirect[logdir;"err_",basename;"err_",alias;2];
+	fileredirect[logfir;"out_",basename;"out_",alias;1];
 	.lg.banner[]}
 
 // function to produce the timestamp value for the log file
@@ -441,7 +438,7 @@ logtimestamp:@[value;`logtimestamp;{[x] {[]`$ssr[;;"_"]/[string .z.z;".:T"]}}]
 
 rolllogauto:{[] 
 	.lg.o[`logging;"creating standard out and standard err logs"];
-	createlog[getenv`KDBLOG;procname;logtimestamp[];`suppressalias in key params;`onelog in key params]}
+	createlog[getenv`KDBLOG;procname;logtimestamp[];`suppressalias in key params]}
 
 // Create log files as long as they haven't been switched off 
 if[not any `debug`noredirect in key params; rolllogauto[]];
