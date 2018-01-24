@@ -191,8 +191,7 @@ pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
 l:{[loglevel;proctype;proc;id;message;dict]
-	if[`onelog in key .proc.params;outmap::1&outmap];
-	$[0 < redir:0^outmap[loglevel];
+	$[0 < redir:(0w 1 `onelog in key .proc.prams)&0^outmap[loglevel];
 		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
 		ext[loglevel;proctype;proc;id;message;dict]];
         publish[loglevel;proctype;proc;id;message];	
@@ -430,7 +429,7 @@ createlog:{[logdir;logname;timestamp;suppressalias;onelog]
 	basename:string[logname],"_",string[timestamp],".log";
         alias:$[suppressalias;"";string[logname],".log"];
         fileredirect[logdir;"err_",basename;"err_",alias;2];
-	fileredirect[logfir;"out_",basename;"out_",alias;1];
+	fileredirect[logdir;"out_",basename;"out_",alias;1];
 	.lg.banner[]}
 
 // function to produce the timestamp value for the log file
