@@ -372,14 +372,14 @@ The rack utility gives the user the ability to create a rack table
 * table (required) - keyed or unkeyed in-memory table
 * keycols (required) - the columns of the table you want to create the rack from.
 * base (optional) - this is an additional table, against which the rack can be created
-* interval.start (optional) - start time to create a timeseries rack
-* interval.end (optional) - end time to create a time series rack
-* interval.interval (optional) - the interval for the time racking
-* interval.round (optional) - should rounding be carried out when creating the timeseries
+* timeseries.start (optional) - start time to create a timeseries rack
+* timeseries.end (optional) - end time to create a time series rack
+* timeseries.interval (optional) - the interval for the time racking
+* timeseries.round (optional) - should rounding be carried out when creating the timeseries
 * fullexpansion (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
 #### Usage
 - All the above arguments must be provided in dictionary form.
-- A timeseries is optional but if it is required then start, end, and interval must be specified as a dictionary called 'interval' (round remains optional with a default value of 1b).
+- A timeseries is optional but if it is required then start, end, and timeseries  must be specified as a dictionary called 'timseries' (round remains optional with a default value of 1b).
 - Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
 
 
