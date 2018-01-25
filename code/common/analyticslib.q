@@ -93,22 +93,23 @@ intervals:{[args]
 /rack function
 rack:{[args]
     / Call general check args function
-    checkargs[args;`table`keycols`base`fullexpansion`interval`round`timeseries;" sSB"]; 
+    checkargs[args;`table`keycols`base`fullexpansion`timeseries`round;" sSB"]; 
     / Check Optional arguments and assign defaults where appropriate
-    / Set a variable 'timeseries' to a empty list
+    / Set a variable 'timeseries' to an empty list
         timeseries:enlist ();
     if[.Q.qt args[`table]; args[`table]:0!args[`table]];
-         / if base is given in the function call make sure that it's a table or else assign it to a null list
+        / if base is given in the function call make sure that it's a table or else assign it to a null list
         $[`base in key args;
-      if[not .Q.qt args[`base];'`$"if base is specified it must be as a table"];
+        if[not .Q.qt args[`base];'`$"if base is specified it must be as a table"];
               args[`base]:enlist () ];
     / if arguments for a timeseries are provided create intervals column
-    if[`interval in key args;
-        timeseries:([]interval:intervals[args[`interval]])];
+    if[`timeseries in key args;
+        timeseries:([]interval:intervals[args[`timeseries]])];
     / if full expansion isn't provided, default it to 0b
     $[`fullexpansion  in key args;if[not -1 = type args[`fullexpansion];'`$"fullexpansion must be provided as a boolean value"];
         args[`fullexpansion]:0b];
-
+	if[1=count args[`keycols];
+	   args[`keycols]:enlist args[`keycols]];
     / This is where actual racking is done
     $[args[`fullexpansion];
         / If fullexpansion is true we cross each column of the table with the others.
