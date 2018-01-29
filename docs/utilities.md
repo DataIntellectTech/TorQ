@@ -570,11 +570,12 @@ dictionary should/can have the following fields:
 |    chunksize    |  N   |     int      | Data size in bytes to read in one chunk. Default is 100 MB |
 |   compression   |  N   |   int list   | Compression parameters to use e.g. 17 2 6. Default is empty list for no compression |
 |       gc        |  N   |   boolean    | Whether to run garbage collection at appropriate points. Default is 0b (false) |
+|  filepattern    |  N   | char\[list\] | Pattern used to only load certain files e.g. "*.csv",("*.csv","*.txt")|
 
 Example usage:
 
     .loader.loadallfiles[`headers`types`separator`tablename`dbdir!(`sym`time`price`volume;"SP  FI";",";`trade;`:hdb); `:TDC/toload]
-    .loader.loadallfiles[`headers`types`separator`tablename`dbdir`dataprocessfunc`chunksize`partitiontype`partitioncol`compression`gc!(`sym`time`price`volume;"SP  FI";enlist",";`tradesummary;`:hdb;{[p;t] select sum size, max price by date:time.date from t};`int$500*2 xexp 20;`month;`date;16 1 0;1b); `:TDC/toload]
+    .loader.loadallfiles[`headers`types`separator`tablename`dbdir`dataprocessfunc`chunksize`partitiontype`partitioncol`compression`gc`filepattern!(`sym`time`price`volume;"SP  FI";enlist",";`tradesummary;`:hdb;{[p;t] select sum size, max price by date:time.date from t};`int$500*2 xexp 20;`month;`date;16 1 0;1b;("*.csv";"*.txt")); `:TDC/toload]
 
 <a name="sub"></a>
 
