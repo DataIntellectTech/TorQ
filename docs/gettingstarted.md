@@ -82,7 +82,7 @@ The available command line parameters are:
   |-nopi                     |Reset the definition of .z.pi to the initial value (useful for debugging)|
   |-debug                    |Equivalent to \[-nopi -noredirect\]|
   |-usage                    |Print usage info and exit|
-
+  |-onelog                   |Writes all messages to stdout log file, note non-trapped errors will still be written to stderr log file|
   
 
 In addition any process variable in a namespace (.\*.\*) can be
