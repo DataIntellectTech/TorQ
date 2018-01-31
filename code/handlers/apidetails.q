@@ -33,4 +33,12 @@ add[`.servers.gethandlebytype;1b;"get a server handle for the supplied type";"[s
 add[`.servers.gethpbytype;1b;"get a server hpup connection symbol for the supplied type";"[symbol: process type; symbol: selection criteria. One of `roundrobin`any`last]";"symbol: h:p:u:p connection symbol of server"]
 add[`.servers.startup;1b;"initialise all the connections.  Must processes should call this during initialisation";"[]";"null"]
 add[`.servers.refreshattributes;1b;"refresh the attributes registered with the discovery service.  Should be called whenever they change e.g. end of day for an HDB";"[]";"null"]
-
+add[`.pm.adduser; 1b; "Adds a user to be permissioned as well as setting their password and the method used to hash it."; "[symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]"; "null"]
+add[`.pm.addgroup; 1b; "Add a group which will have access to certain tables and variables"; "[symbol: the name of the group; string: a description of the group]"; "null"]
+add[`.pm.addrole; 1b; "Add a role which will have access to certain functions"; "[symbol: the name of the role; string: a description of the role]"; "null"]
+add[`.pm.addtogroup; 1b; "Add a user to a group, giving them access to all of its variables"; "[symbol: the name of the user to add; symbol: group the user is to be added to]"; "null"]
+add[`.pm.assignrole; 1b; "Assign a user a role, giving them access to all of its functions"; "[symbol: the name of the user to add; symbol: role the user is to be assigned to]"; "null"]
+add[`.pm.grantaccess; 1b; "Give a group access to a variable"; "[symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]"; "null"]
+add[`.pm.grantfunction; 1b; "Give a role access to a function"; "symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY"; "null"]
+add[`.pm.createvirtualtable; 1b; "Create a virtual table that a group might be able to access instead of the full table"; "[symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]"; "null"]
+add[`.pm.cloneuser; 1b; "Add a new user that is identical to another user"; "[symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]"; "null"]

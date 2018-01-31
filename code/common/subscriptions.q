@@ -53,7 +53,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-if replaylog is false,dont try to get the log file details - they may not exist
 	/-set the function to send to the server based on this
 	.lg.o[`subscribe;"getting details from the server"];
-	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L))};{(.u.sub\:[x;y];(`;`))}];
+	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L);(.u `icounts);(.u `d))};{(.u.sub\:[x;y];(.u `i;`);(.u `icounts);(.u `d))}];
 	details:@[proc`w;(df;subtabs;instrs);
 		{.lg.e[`subscribe;"failed to get the required details from server : ",x];()}];
 	/-to be returned at end of function (null if there is no log)
@@ -85,7 +85,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 		updatesubscriptions[proc;;instrs]each subtabs];
 		/-return the names of the tables that have been subscribed for and
 		/-the date from the name of thr tickerplant log file (assuming the tp log has a name like `: sym2014.01.01
-		`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)
+		/-plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
+		(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])
 	}
 
 /-wrapper function around upd which is used to only replay syms and tables from the log file that

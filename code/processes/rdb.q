@@ -5,6 +5,7 @@
 
 /-default parameters
 \d .rdb
+
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
@@ -167,7 +168,7 @@ notpconnected:{[]
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.tickerplanttypes
 
 /-set the upd function in the top level namespace
-upd:{[f;t;x] .[.rdb.upd;(t;x); f . (t;x)]}@[value;`upd;{{x;y}}]
+upd:.rdb.upd
 
 /-set u.end for the tickerplant to call at end of day
 .u.end:.rdb.endofday

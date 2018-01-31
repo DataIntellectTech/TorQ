@@ -23,7 +23,10 @@ init:{
  modifier,::new!(count new)#{-8!.j.j updformat["upd";`tablename`tabledata!(x 1;x 2)]}}
 
 del:{w[x]_:w[x;;0]?y};
-.z.pc:{.html.del[;y] each .html.t; x@y}@[value;`.z.pc;{{[x]}}]
+
+//Version checking code. .z.pc is only used in versions prior to 3.3
+close:{{.html.del[;y] each .html.t; x@y}@[value;x;{{[x]}}]}
+if[.z.K >= 3.3;.z.wc:close[`.z.wc]; .z.pc:close[`.z.pc]]
 
 // Create a new version of sel - for the time being, all pages get all data
 / sel:{$[`~y;x;select from x where sym in y]}
