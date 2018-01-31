@@ -197,9 +197,11 @@ example, change the suffixing to a full timestamp.
 
 In the case where -onelog is flagged TorQ will attempt to redirect
 all output to the out log file, unfortunately this is not perfect.
+
 TorQ uses \1 and \2 to redirect stderr and stdout, onelog only
 overrides handled errors to the \1 redirect. Any errors that are
-raised by KDB+ and unhandled are still directed to the err log file.
+raised by KDB+ and unhandled are still directed to the err log file
+because \1 and \2 cannot be redirected to the same file.
 
 <a name="config"></a>
 
