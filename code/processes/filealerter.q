@@ -84,6 +84,8 @@ getpath:{[filestring] (neg count getfile[filestring]) _filestring}
 processfiles:{[DICT]
 	/-find all matches to the file search string
 	matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];	
+    /-process duplicate files, either remove, move or leave depending on duplicateaction variable
+    processdups[;DICT] each matches;
 	/-get all the different filenames from the directory except those that have been processed already
 	files:$[DICT[`newonly]; matches except exec filename from get hsym`$alreadyprocessed; exec filename from chktable[matches] except (get hsym`$alreadyprocessed)];
 	toprocess:chktable[files];
@@ -94,7 +96,22 @@ processfiles:{[DICT]
 	pf:action/:[DICT[`function];files];];
 	.lg.o[`alerter;"no new files found"]];
 	t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
-	
+
+//-process duplicates (comparison to filealerterprocessed)
+duplicateaction:`delete;
+
+processdups:{
+    $[duplicateaction=`delete;
+        [.lg.o[`duplicates;"checking duplicates for ",x];
+        //check files against filealerterprocessed
+        if[exec count i from .cache.execute[({get hsym `$getenv[`KDBCONFIG],"/filealerterprocessed"};`);0D01] where filename like x;
+
+        //file exists so delete it
+        .lg.o[`duplicates;"deleting duplicate file ",x];
+        @[hdel;hsym`$x;{.lg.e[`duplicates;"failed to delete ",x," : ",y]}[x]]]];
+    duplicateaction=`move and 0<count[y[`movetodirectory]];
+        movefile y]
+        }	
 
 //-function to move files in a table, first col is files second col is destination	
 moveall:{[TAB]
@@ -118,6 +135,7 @@ movefile:{[DICT]
 
 loadcsv:{csvloader inputcsv}
 FArun:{.lg.o[`alerter;"running filealerter process"];
+        loadcsv[];
 		$[0=count filealertercsv;
 		.lg.o[`alerter;"csv file is empty"];
 		[lastproc:raze processfiles each filealertercsv;
