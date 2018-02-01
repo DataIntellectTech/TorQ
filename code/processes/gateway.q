@@ -46,6 +46,7 @@
 // 	c) the join function fails
 // 	d) a back end server fails
 // 	e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
+//	f) the query is executed successfully but the result is too big to serialize and send back ('limit)
 // If postback functions are used, the error string will be posted back within the postback function 
 // (i.e. it will be packed the same way as a valid result)
 
@@ -76,6 +77,8 @@
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
+permissioned:@[value;`.gw.permissioned; 0b]               // should the gateway permission queries before the permissions script does 
+clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]  // the time to store data on inactive handles
 
 eod:0b		
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
@@ -100,8 +103,8 @@ clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); 
 results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;::))  
 
 // server handles - whether the server is currently running a query
-servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:())
-addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[];handle;servertype;0b;1b;0i;0Np;0D;attributes)}
+servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
+addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[];handle;servertype;0b;1b;0i;0Np;0D;attributes;0Np)}
 addserver:addserverattr[;;()!()]
 setserverstate:{[serverh;use] 
  $[use;
@@ -213,6 +216,8 @@ checkresults:{[queryid]
 // if the postback function is defined, then wrap the result in that, and also send back the original query
 sendclientreply:{[queryid;result]
  querydetails:queryqueue[queryid];
+ // if query has already been sent an error, don't send another one
+ if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
 	result;
 	(querydetails`postback),(enlist querydetails`query),enlist result];
@@ -261,10 +266,14 @@ removeserverhandle:{[serverh]
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
- update handle:0Ni, active:0b from `.gw.servers where handle=serverh;
+ update handle:0Ni, active:0b, disconnecttime:.proc.cp[] from `.gw.servers where handle=serverh;
 
  runnextquery[];
  }
+
+// clear out long time inactive servers
+removeinactive:{[inactivity]
+	delete from `.gw.servers where not active,disconnecttime<.proc.cp[]-inactivity}
 
 // timeout queries
 checktimeout:{
@@ -409,8 +418,10 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
+ if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed;errStr:.gw.errorprefix,"synchronous calls are only allowed";
+ $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
  [errStr:"";
  if[99h<>type servertype;
 	// its a list of servertypes e.g. `rdb`hdb
@@ -440,6 +451,8 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 // execute a synchronous query
 syncexecj:{[query;servertype;joinfunction]
  if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
+ // check if the gateway allows the query to be called
+ if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
@@ -449,6 +462,7 @@ syncexecj:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
@@ -509,6 +523,14 @@ pc:{
 // initialise connections
 .servers.startup[]
 
+ /-check if the gateway  has connected to discovery process, block the process until a connection is established
+while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
+ /-while no connected make the process sleep for X seconds and then run the subscribe function again
+ .os.sleep[5];
+ /-run the servers startup code again (to make connection to discovery)
+ .servers.startup[];
+ .servers.retrydiscovery[]]
+
 // add servers from the standard connections table
 addserversfromconnectiontable:{
  {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
@@ -523,6 +545,9 @@ addserversfromconnectiontable:{
  runnextquery[]}
  
 addserversfromconnectiontable[.servers.CONNECTIONS]
+
+// Join active .gw.servers to .servers.SERVERS table
+activeservers:{lj[select from .gw.servers where active;`handle xcol `w xkey .servers.SERVERS]}
 
 \d .
 
@@ -550,7 +575,8 @@ reloadend:{
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
  .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removequeries;.gw.querykeeptime);"Remove old queries from the query queue"];
- .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"]];
+ .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"];
+ .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removeinactive;.gw.clearinactivetime);"Remove data for inactive handles"]];
 
 // add in some api details 
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]

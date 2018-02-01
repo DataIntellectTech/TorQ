@@ -16,6 +16,7 @@
 // partitioncol [optional] = the name of the column to cast to the partition type to work out which partition the data should go in.  default is `time
 // chunksize [optional] = size of data chunks in bytes to read at a time.  default is 100MB
 // compression [optional] = compression parameters to use. list of 3 integers e.g. 17 2 6.
+// filepattern [optional] = specify pattern used to filter files
 // These are only set when the data is sorted on disk (in the finish function) to save on writing the data compressed, reading in and uncompressing, sorting, and writing out compressed again
 // gc [optional] = boolean flag to turn garbage collection on and off.  Default is 0b
 
@@ -122,8 +123,11 @@ loadallfiles:{[loadparams;dir]
  if[not count[loadparams`headers]=count loadparams[`types] except " "; .lg.e[`dataloader;"headers and non-null separators must be the same length"]]; 
  if[c:count loadparams[`compression]; if[not (3=c) and type[loadparams[`compression]] in 6 7h; .lg.e[`dataloader;"compression parameters must be a 3 item list of type int or long"]]];
  
- // get the contents of the directory
- filelist:key dir:hsym dir;
+ // if a filepattern was specified ensure that it's a list
+ if[(`filepattern in key loadparams) & 10h=type loadparams[`filepattern];loadparams[`filepattern]:enlist loadparams[`filepattern]];
+
+ // get the contents of the directory based on optional filepattern
+ filelist:$[`filepattern in key loadparams;(key dir:hsym dir) where max like[key dir;] each loadparams[`filepattern];key dir:hsym dir];
  
  // create the full path
  filelist:` sv' dir,'filelist;

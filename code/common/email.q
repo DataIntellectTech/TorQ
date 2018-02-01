@@ -47,7 +47,7 @@ senddefault:{
  if[not enabled; .lg.e[`email;e:"email sending is not enabled"]; 'e];
  .lg.o[`email;"sending email"];
  if[not connected; connectdefault[]];
- if[not connected; .lg.e[`email; "cannot send email as no connection to mail server available"]];
+ if[not connected; :.lg.e[`email; "cannot send email as no connection to mail server available"]];
  x[`body]:x[`body],defaultfooter[];
  res:send x,`image`debug!(img;debug);
  $[res>0;.lg.o[`email;"Email sent. size was ",(string res)," bytes"]; .lg.e[`email;"failed to send email"]];

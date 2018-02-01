@@ -14,7 +14,9 @@ replay:@[value;`replay;0b];                                     /- replay the ti
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on subscription
 
-tph:0N								/- setting tickerplant handle to null
+
+tph:0N;								/- setting tickerplant handle to null
+.u.icounts:.u.jcounts:()!();.u.i:.u.j:0;			/- initialise icounts & jcounts dict
 /- clears log
 clearlog:{[lgfile]
   if[not type key lgfile;:()];
@@ -33,11 +35,19 @@ openlog:{[lgfile]
   /- create log file
   if[not lgfileexists;
     .[set;(lgfile;());{[lgf;err] .lg.e[`openlog;"cannot create new log file : ",string[lgf]," : ", err]}[lgfile]]];
+
+  /- backup upd & redefine for counting
+  updold:upd;
+  @[`.;`upd;:;{[t;x] .u.icounts[t]+:count x;}];
   /- set pub and log count
-  .u.i:.u.j:-11!(-2;lgfile);
+  .u.i:.u.j:@[-11!;lgfile;-11!(-2;lgfile)];
+  /- restore upd
+  @[`.;`upd;:;updold];
+
   /- check if log file is corrupt 
   if[0<=type .u.i;
     .lg.e[`openlog;"log file : ",(string lgfile)," is corrupt. Please remove and restart."]];
+
   /- open handle to logfile
   hopen lgfile
   }
@@ -51,7 +61,12 @@ subscribe:{[]
       /- get tickerplant date - default to today's date
       refreshtp @[tph;".u.d";.z.D];
       .lg.o[`subscribe;"subscribing to ", string subproc`procname];
-      .sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
+      r:.sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
+      if[`d in key r;.u.d::r[`d]]; 
+      if[(`icounts in key r) & (not createlogfile); /- dict r contains icounts & not using own logfile
+	subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
+      	.u.jcounts::.u.icounts::subtabs!enlist [r`icounts]subtabs;
+      ]
     ];
   }
 
@@ -60,27 +75,30 @@ writetolog:{[t;x]
    /- if x is not a table, make it a table
    if[not 98h=type x;x:flip cols[value t]!(),/:x];
   .u.l enlist (`upd;t;x);
-  .u.j+:count x;
+  .u.j+:1;
   }
 
 /- tick by tick publish
 tickpub:{[t;x]
   .ps.publish[t;x];
   .u.i:.u.j;
+  .u.icounts[t]+:count x;
   }
 
 /- batch publish
 batchpub:{[t;x]
   insert[t;x];
+  .u.jcounts[t]+:count x;
   }
 
 /- publish to subscribers
 publishalltables:{[]
-  pubtables:$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto];
+  pubtables:$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto],();
   .ps.publish'[pubtables;value each pubtables];
   cleartables[pubtables];
   /- update .u.i with .u.j
   .u.i:.u.j;
+  .u.icounts:.u.jcounts;
   }
 
 /- dictionary containing tablename!schema
@@ -103,6 +121,7 @@ refreshtp:{[d]
   if[@[value;`.u.l;0]; @[hclose;.u.l;()]];
   /- reset log and publish count
   .u.i:.u.j:0;
+  .u.icounts::.u.jcounts::()!();
   /- create new logfile name
   .u.L:createlogfilename[d];
   /- log file handle
@@ -139,6 +158,20 @@ notpconnected:{[]
 upd:$[createlogfile;
       $[pubinterval;{[t;x] writetolog[t;x];batchpub[t;x];};{[t;x] writetolog[t;x];tickpub[t;x];}];
       $[pubinterval;batchpub;tickpub]];
+
+/- ctp sub method, returns logfile, i and icounts as well as schema
+sub:{[subtabs;subsyms]
+  r:(`schema`icounts`i`logfile`d)!();
+  /- get schema & subscribe
+  r[`schema]:.u.sub[subtabs;subsyms];
+  /- add icounts if subscribing to all syms
+  if[subscribesyms~`;r[`icounts]:.u.icounts];
+  /- if logfile, add logfile & i
+  if[createlogfile;r[`i]:.u.i;r[`logfile]:.u.L];
+  /- add date
+  r[`d]:.u.d;
+  r
+  }
 
 \d .u
 
