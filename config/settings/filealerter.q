@@ -9,3 +9,4 @@ alreadyprocessed:first .proc.getconfigfile["filealerterprocessed"]	// The locati
 skipallonstart:0b						// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed)
 moveonfail:0b							// If the processing of a file fails (by any action) then whether to move it or not regardless
 usemd5:1b 							// User configuration for whether to find the md5 hash of new files. usemd5 takes 1b (on) or 0b (off)
+processduplicates:{.lg.o[`duplicates;"deleting duplicate file ",x];@[hdel;hsym`$x;{.lg.e[`duplicates;"failed to delete ",x," : ",y]}[x]]}

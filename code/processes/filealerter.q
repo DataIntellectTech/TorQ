@@ -9,6 +9,7 @@ skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all acti
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
+processduplicate:@[value;`.fa.processduplicate;({x})]          // Run processduplicate from fa namespace on duplicate filenames passed in
 
 inputcsv:string inputcsv
 alreadyprocessed:string alreadyprocessed
@@ -95,10 +96,10 @@ chktable:{[files] table:([]filename:files;md5hash:$[usemd5;gethash'[files];(coun
 processfiles:{[DICT]
     /-find all matches to the file search string
     matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];
-    /-process duplicate files, either remove, move or leave depending on duplicateaction variable
-    processdups[;DICT] each matches;
     toprocess:getunprocessed[matches;DICT[`newonly]];
     files:exec filename from toprocess;
+    /-process duplicate files, either remove, move or leave depending on duplicateaction variable
+    processduplicate each except[matches;files];
     /-If there are files to process
     $[0<count files;
     [{.lg.o[`alerter;"found file ", x]}'[files];
@@ -106,22 +107,6 @@ processfiles:{[DICT]
     pf:action/:[DICT[`function];files];];
     .lg.o[`alerter;"no new files found"]];
     t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
-
-//-process duplicates (comparison to filealerterprocessed)
-duplicateaction:`delete;
-
-processdups:{
-    $[duplicateaction=`delete;
-        [.lg.o[`duplicates;"checking duplicates for ",x];
-        //check files against filealerterprocessed
-        if[exec count i from .cache.execute[({get hsym `$getenv[`KDBCONFIG],"/filealerterprocessed"};`);0D01] where filename like x;
-
-        //file exists so delete it
-        .lg.o[`duplicates;"deleting duplicate file ",x];
-        @[hdel;hsym`$x;{.lg.e[`duplicates;"failed to delete ",x," : ",y]}[x]]]];
-    duplicateaction=`move and 0<count[y[`movetodirectory]];
-        movefile y]
-        }
 
 //-function to move files in a table, first col is files second col is destination	
 moveall:{[TAB]
