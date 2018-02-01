@@ -9,6 +9,7 @@ skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all acti
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
+processduplicate:@[value;`.fa.processduplicate;({x})]          // Run processduplicate from fa namespace on duplicate filenames passed in
 
 inputcsv:string inputcsv
 alreadyprocessed:string alreadyprocessed
@@ -93,19 +94,19 @@ chktable:{[files] table:([]filename:files;md5hash:$[usemd5;gethash'[files];(coun
 
 //-The main function that brings everything together
 processfiles:{[DICT]
-        /-find all matches to the file search string
-        matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];
-        toprocess:getunprocessed[matches;DICT[`newonly]];
-        files:exec filename from toprocess;
-        /-If there are files to process
-        $[0<count files;
-        [{.lg.o[`alerter;"found file ", x]}'[files];
-        /-perform the function on the file
-        pf:action/:[DICT[`function];files];];
-        .lg.o[`alerter;"no new files found"]];
-        t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
-
-
+    /-find all matches to the file search string
+    matches:find[.rmvr.removeenvvar[DICT[`path]];DICT[`match]];
+    toprocess:getunprocessed[matches;DICT[`newonly]];
+    files:exec filename from toprocess;
+    /-process duplicate files, either remove, move or leave depending on duplicateaction variable
+    processduplicate each except[matches;files];
+    /-If there are files to process
+    $[0<count files;
+    [{.lg.o[`alerter;"found file ", x]}'[files];
+    /-perform the function on the file
+    pf:action/:[DICT[`function];files];];
+    .lg.o[`alerter;"no new files found"]];
+    t:update function:(count toprocess)#DICT[`function],funcpassed:pf,moveto:(count toprocess)#enlist .rmvr.removeenvvar[DICT[`movetodirectory]] from toprocess; t}
 
 //-function to move files in a table, first col is files second col is destination	
 moveall:{[TAB]
@@ -129,6 +130,7 @@ movefile:{[DICT]
 
 loadcsv:{csvloader inputcsv}
 FArun:{.lg.o[`alerter;"running filealerter process"];
+        loadcsv[];
 		$[0=count filealertercsv;
 		.lg.o[`alerter;"csv file is empty"];
 		[lastproc:raze processfiles each filealertercsv;
