@@ -4,6 +4,7 @@
 synccallsallowed:0b		// whether synchronous calls are allowed
 querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
+clearinactivetime:0D01:00	// the time to keep inactive handle data
 
 // Server connection details
 \d .servers

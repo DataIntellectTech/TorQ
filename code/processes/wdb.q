@@ -81,6 +81,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
+hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
@@ -117,7 +118,7 @@ savetables:{[dir;pt;forcesave;tabname]
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
 	.[
 		upsert;
-		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbdir;r:0!.save.manipulate[tabname;`. tabname]]);
+		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbsettings[`hdbdir];r:0!.save.manipulate[tabname;`. tabname]]);
 		{[e] .lg.e[`savetables;"Failed to save table to disk : ",e];'e}
 	];
 	/- make addition to tabsizes
@@ -130,34 +131,6 @@ savetables:{[dir;pt;forcesave;tabname]
 	if[gc;.gc.run[]];
 	]};
 	
-/- function to get additional partition(s) defined by parted attribute in sort.csv		
-getextrapartitiontype:{[tablename]
-	/- check that that each table is defined or the default attributes are defined in sort.csv
-	/- exits with error if a table cannot find parted attributes in tablename or default
-	/- only checks tables that have sort enabled
-	tabparts:$[count tabparts:distinct exec column from .sort.params where tabname=tablename,sort=1,att=`p;
-			[.lg.o[`getextraparttype;"parted attribute p found in sort.csv for ",(string tablename)," table"];
-			tabparts];
-			count defaultparts:distinct exec column from .sort.params where tabname=`default,sort=1,att=`p;
-			[.lg.o[`getextraparttype;"parted attribute p not found in sort.csv for ",(string tablename)," table, using default instead"];
-			defaultparts];
-			[.lg.e[`getextraparttype;"parted attribute p not found in sort.csv for ", (string tablename)," table and default not defined"]]
-		];
-	tabparts
-	};
-	
-/- function to check each partiton type specified in sort.csv is actually present in specified table
-checkpartitiontype:{[tablename;extrapartitiontype]
-	$[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
-		.lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
-		.lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
-	};	
-	
-/- function to get list of distinct combiniations for partition directories
-/- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
-getextrapartitions:{[tablename;extrapartitiontype] 
-	value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
-	};	
 	
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
@@ -182,13 +155,13 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 	if[forcesave or maxrows[tablename] < arows: count value tablename;	
 		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
 		/- get additional partition(s) defined by parted attribute in sort.csv		
-		extrapartitiontype:getextrapartitiontype[tablename];		
+		extrapartitiontype:.merge.getextrapartitiontype[tablename];		
 		/- check each partition type actually is a column in the selected table
-		checkpartitiontype[tablename;extrapartitiontype];		
+		.merge.checkpartitiontype[tablename;extrapartitiontype];		
 		/- get list of distinct combiniations for partition directories
-		extrapartitions:getextrapartitions[tablename;extrapartitiontype];
+		extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
 		/- enumerate data to be upserted
-		enumdata:.Q.en[hdbdir;value tablename];
+		enumdata:.Q.en[hdbsettings[`hdbdir];value tablename];
 		.lg.o[`save;"enumerated ",(string tablename)," table"];		
 		/- upsert data to specific partition directory 
 		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
@@ -210,13 +183,14 @@ endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
+  tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablelist[];writedownmode;mergelimits)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
-	@[`.;`tabsizes;0#];
+	@[`.wdb;`tabsizes;0#];
 	.lg.o[`eod;"end of day is now complete"];
 	};
 	
@@ -259,78 +233,101 @@ doreload:{[pt]
 	];
 	};
 
-endofdaysortdate:{[dir;pt;tablist]
+// set .z.zd to control how data gets compressed
+setcompression:{[compression] if[3=count compression;
+				 .lg.o[`compression;$[compression~16 0 0;"resetting";"setting"]," compression level to (",(";" sv string compression),")"];
+				 .z.zd:compression
+				]}
+resetcompression:{setcompression 16 0 0 }
+
+endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
 	
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} peach tablist,'.Q.par[dir;pt;] each tablist;
+		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;hdbsettings[`compression]] peach tablist,'.Q.par[dir;pt;] each tablist;
 		];
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
 	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbdir;pt;`]];
+	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
 	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
-	.save.postreplay[hdbdir;pt];
+	.save.postreplay[hdbsettings[`hdbdir];pt];
 	if[permitreload; 
 		doreload[pt];
 		];
 	};
 
-merge:{[dir;pt;tablename;mergelimits]    
-    /- get list of partition directories for specified table 
-    partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tablename];
-    /- exit function if no subdirectories are found
-    if[0=count partdirs; :()];	
-    /- merge the data in chunks depending on max rows for table 	
-	/- destination for data to be userted to [backslashes corrected for windows]
-	dest:` sv .Q.par[hdbdir;pt;tablename],`;	
-    {[tablename;dest;mergemaxrows;curr;segment;islast]
-	.lg.o[`merge;"reading partition ", string segment];	
-	curr[0]:curr[0],select from get segment;
-	curr[1]:curr[1],segment;		
-	$[islast or mergemaxrows < count curr[0];
-	    [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-	    dest upsert curr[0];
-	    .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-	    .os.deldir each string curr[1];
-	    (();())];
-	    curr]
-	}[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
-	/- set the attributes
-	.lg.o[`merge;"setting attributes"];
-	@[dest;;`p#] each getextrapartitiontype[tablename];
-	.lg.o[`merge;"merge complete"];
-	/- run a garbage collection (if enabled)
-	if[gc;.gc.run[]];	
-	};	
+merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
+  setcompression[hdbsettings[`compression]];
+  /- get list of partition directories for specified table 
+  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tableinfo[0]];
+  /- exit function if no subdirectories are found
+
+  dest:` sv .Q.par[hdbsettings[`hdbdir];pt;tableinfo[0]],`;
+  .lg.o[`merge;"merging ",(string tableinfo[0])," to ",string dest];
+
+  $[0=count partdirs;
+    [
+      .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
+      dest set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
+      //.lg.o[`merge;"setting attributes"];
+      //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+      //.lg.o[`merge;"merge complete"];
+    ];
+    [  
+      {[tablename;dest;mergemaxrows;curr;segment;islast]
+	      .lg.o[`merge;"reading partition ", string segment];	
+	      curr[0]:curr[0],select from get segment;
+	      curr[1]:curr[1],segment;		
+      	$[islast or mergemaxrows < count curr[0];
+	        [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+	        dest upsert curr[0];
+	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+	        .os.deldir each string curr[1];
+	        (();())];
+	        curr]
+	    }[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
+	    /- set the attributes
+	    .lg.o[`merge;"setting attributes"];
+      @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+	    .lg.o[`merge;"merge complete"];
+	    /- run a garbage collection (if enabled)
+	    if[gc;.gc.run[]];	
+    ]
+  ]
+ };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits]		
+endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
 	/- merge data from partitons
 	$[(0 < count .z.pd[]) and ((system "s")<0);
-		[.lg.o[`merge;"merging on slave"];
-		merge[dir;pt;;mergelimits] peach tablist;];	
+		[.lg.o[`merge;"merging on slave"];		
+		merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
 		[.lg.o[`merge;"merging on master"];
-		merge[dir;pt;;mergelimits] each tablist]];
-	/- delete the empty date directory
-	.os.deldir .os.pth[string .Q.par[savedir;pt;`]];	
+		merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
+	/- if path exists, delete it
+        if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
 	/-call the posteod function
-	.save.postreplay[hdbdir;pt];
+	.save.postreplay[hdbsettings[`hdbdir];pt];
 	if[permitreload; 
 		doreload[pt];
 		];
 	};
 	
 /- end of day sort [depends on writedown mode]
-endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits]
+endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
+	/- set compression level (.z.zd)
+	setcompression[hdbsettings[`compression]];
 	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits];
-	endofdaysortdate[dir;pt;tablist]
+	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings];
+	endofdaysortdate[dir;pt;key tablist;hdbsettings]
 	];
+	/- reset compression level (.z.zd)  
+	resetcompression[16 0 0]
 	};
 
 /-function to send reload message to rdbs/hdbs
@@ -365,13 +362,13 @@ informgateway:{[message]
 	}
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
-informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits]
+informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits);] each exec w from sortprocs;
+		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
-		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits]]];
+		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]]];
 	};
 
 /-function to set the timer for the save to disk function	
@@ -402,13 +399,14 @@ fixpartition:{[subto]
 		.lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
 		/- set the current partiton date to the log date
 		.wdb.currentpartition:tplogdate;
-		/- delete any data in the current partiton directory
-		clearwdbdata[];
 		/- move the data that has been written to correct partition
 		pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
 		pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
-		.lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
-		.[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]];
+		if[not ()~key hsym `$.os.pthq pth1;
+		  /- delete any data in the current partiton directory
+	          clearwdbdata[];
+		  .lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
+		  .[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]]];
 		];
 	}
 
@@ -439,12 +437,7 @@ startup:{[]
 			.os.sleep[tpconnsleepintv];
 			/-run the servers startup code again (to make connection to discovery)
 			.servers.startup[];
-			subscribe[]];		
-		/- set compression level
-		if[ 3= count compression;
-			.lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
-			.z.zd:compression;
-			.lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]]];
+			subscribe[]]];		
 	}
 	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay

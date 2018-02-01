@@ -72,6 +72,7 @@ LOADPASSWORD:1b											// load the external username:password from ${KDBCONFI
 STARTUP:0b    											// whether to automatically make connections on startup
 DISCOVERY:enlist`										// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:enlist[`]!enlist `                                                                   // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
+PASSWORDS:enlist[`]!enlist `        // dict of host:port!user:pass
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore
@@ -109,6 +110,14 @@ usessl:0b                              		// connect using SSL/TLS
 debug:0i                               		// debug level for email library: 0i = none, 1i=normal, 2i=verbose
 img:`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"	// default image for bottom of email
 
+
+// configuration for kafka
+\d .kafka
+enabled:0b                            		// whether kafka is enabled
+kupd:{[k;x] -1 `char$x;}			// default definition of kupd
+
+
+
 // heartbeating
 \d .hb
 enabled:1b			// whether the heartbeating is enabled
@@ -120,13 +129,32 @@ checkinterval:0D00:00:10	// how often heartbeats are checked
 warningtolerance:2f		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:3f		// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
 
+\d .ldap
+
+enabled:0b                                  // whether ldap authentication is enabled
+debug:0i					                // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+server:"localhost";                         // name of ldap server
+port:0i;                                    // port for ldap server
+version:3;                                  // ldap version number
+blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
+checklimit:3;                               // number of attempts before user is temporarily blocked
+checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
+buildDNsuf:"";                              // suffix used for building bind DN
+buildDN:{"uid=",string[x],",",buildDNsuf};  // function to build bind DN
+
 // broadcast publishing
 \d .u
 broadcast:1b;                   // broadcast publishing is on by default. Availble in kdb version 3.4 or later.
 
 // timezone
 \d .eodtime
-rolltime:0D00:00:00.000000000;		// time to roll in rolltimezone
+rolltimeoffset:0D00:00:00.000000000;	// offset from default midnight roll
 datatimezone:`$"GMT";			// timezone for TP to timestamp data in
 rolltimezone:`$"GMT";			// timezone to perform rollover in
-dayoffset:0;				// 0 = on rollover, day becomes today; 1 = on rollover, day becomes tomorrow
+
+//Subscriber cut-off
+\d .subcut
+enabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off. Default is 0b 
+maxsize:100000000;		//a global value for the max byte size of a subscriber. Default is 100000000
+breachlimit:3;			//the number of times a handle can exceed the size limit check in a row before it is closed. Default is 3
+checkfreq:0D00:01;		//the frequency for running the queue size check on subscribers. Default is 0D00:01

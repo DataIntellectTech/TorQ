@@ -1,7 +1,7 @@
 \d .checks
 
 numformat:{reverse "," sv 3 cut reverse string `long$x}
-timeformat:{(" " sv string `date`time$.proc.cp[]," ", $[.proc.localtime=1b;"local time";"GMT"])}
+timeformat:{(" " sv string `date`time$.proc.cp[])," ", $[.proc.localtime=1b;"local time";"GMT"]}
 formatdict:{"<table>",(raze {"<tr><td><b>",(string x),"</b></td><td> | ",(string y),"</td></tr>"}'[key x;value x]),"</table>"}
 
 tablecount:{[tablelist; period; currenttime; timecol; required]
@@ -46,14 +46,14 @@ symwcheck:{[size]
     ([]messages:.checks.errs)}
 
 slowsubscriber:{[messagesize]
-    slowsubs:where (sum each .z.W) > messagesize;
     .checks.errs::();
 
-    if [0 <> count slowsubs;
-        .checks.errs,:"This alert is triggered when the subscription queue of a process grows too big<br/>";
-        .checks.errs,:"This process has much data (> ",(string messagesize),") queued up to a single subscriber:<br/><br/>";
-        .checks.errs,:formatdict count each .z.W;
-	.checks.errs,:"and counts size";
-	.checks.errs,:formatdict count each .z.W]; 
+    if [0 < count slowsubs:(key .z.W) where (sum each value .z.W)>messagesize;
+        subsdict:slowsubs!.z.W[slowsubs];
+        .checks.errs,:"This alert is triggered when the subscription queue of a process grows too big.<br/>";
+        .checks.errs,:"The dictionary below shows any subscribers with more than ",(string messagesize)," bytes in their queue:<br/>";
+        .checks.errs,:formatdict sum each subsdict;
+        .checks.errs,:"The number of messages in each subscriber's queue is:";
+        .checks.errs,:formatdict count each subsdict];
 
     ([]messages:.checks.errs)}

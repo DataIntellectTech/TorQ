@@ -43,10 +43,10 @@ if[`hkusage in key .proc.params; -1 .hk.extrausage; exit 0]
 csvloader:{[CSV]
 //-rethrows error if file doesn't exist, checks to see if correct columns exist in file
 	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***IB"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
-	housekeepingcsv::(`agemin^cols[housekeepingcsv]) xcol housekeepingcsv;
+	housekeepingcsv::@[c;where (c:cols housekeepingcsv) in ``x;:;`agemin] xcol housekeepingcsv;
 	check:(all `function`path`match`exclude`age`agemin in (cols housekeepingcsv));
 	//-if check shows incorrect columns, report error
-	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'housekeepingcsv[`function`path`match`exclude`age`agemin]}[CSV]];
+	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'`$"incorrect housekeeping csv layout"}[CSV]];
 		//-if correctly columned csv has nulls, report error and skip lines 
 		[if[(any nullcheck:any null (housekeepingcsv.function;housekeepingcsv.age))>0; .lg.o[`housekeeping;"Null values found in file, skipping line(s)  ", ("," sv (string where nullcheck))]];
 		housekeepingcsv2:(housekeepingcsv[where not nullcheck]);
