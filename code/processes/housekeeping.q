@@ -50,25 +50,13 @@ csvloader:{[CSV]
 		//-if correctly columned csv has nulls, report error and skip lines 
 		[if[(any nullcheck:any null (housekeepingcsv.function;housekeepingcsv.age))>0; .lg.o[`housekeeping;"Null values found in file, skipping line(s)  ", ("," sv (string where nullcheck))]];
 		housekeepingcsv2:(housekeepingcsv[where not nullcheck]);
-			wrapper each housekeepingcsv2]];
-		
-	 //-list all the compressed file and save in a table
-	hdbfilepaths: .files.filepaths where .files.filepaths like "*database20*";
-	files: asc last each "/" vs' hdbfilepaths;
-        filehandlesall: asc hsym `$hdbfilepaths;
-	compressedfiles: files fileindices:where 0 < count each {-21!x} each filehandlesall;
-	compressedfilehandles: filehandlesall fileindices;
-
-	`CompressedTable set (flip enlist[`files]!enlist`$compressedfiles)!{-21!x} each compressedfilehandles;
-	-1"Compression information for each file:";
-	show CompressedTable
-        }
+			wrapper each housekeepingcsv2]]}
 
 
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
 	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
-	(value DICT[`function]) each .files.filepaths,:(find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
+	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
 
 //FUNCTIONS FOR LINUX
 
@@ -76,9 +64,9 @@ wrapper:{[DICT]
 
 //-compress by calling .cmp.compress function defined
 kdbzip:{[FILE]   
-	 @[{.lg.o[`housekeeping;"compressing ",x]; .cmp.compress[hsym `$x ;2;17;4;hcount hsym `$x]};
+	 @[{.lg.o[`housekeeping;"compressing ",x]; .cmp.compress[filehandles;2;17;4;hcount filehandles:hsym `$x]};
 	     FILE; 
-		 {.lg.e[`housekeeping;"Failed to compress ",x," : ", y]}[FILE]] 
+	 {.lg.e[`housekeeping;"Failed to compress ",x," : ", y]}[FILE]] 
 	  }
 
 
