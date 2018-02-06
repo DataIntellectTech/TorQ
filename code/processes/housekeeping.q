@@ -54,15 +54,14 @@ csvloader:{[CSV]
 		
 	 //-list all the compressed file and save in a table
 	hdbfilepaths: filepaths where filepaths like "*database20*";
-	files: asc last each ("/" vs' hdbfilepaths);
+	files: asc last each "/" vs' hdbfilepaths;
     filehandlesall: asc hsym `$hdbfilepaths;
-	compressedfiles: files where 0 < count each {-21!x} each filehandlesall;
-	compressedfilehandles: filehandlesall where 0 < count each {-21!x} each filehandlesall;
+	compressedfiles: files fileindices:where 0 < count each {-21!x} each filehandlesall;
+	compressedfilehandles: filehandlesall fileindices;
 
 	CompressedTable::(flip enlist[`files]!enlist`$compressedfiles)!{-21!x} each compressedfilehandles;
 	-1"Compression information for each file:";
 	show CompressedTable
-
         }
 
 
