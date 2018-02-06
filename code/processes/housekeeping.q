@@ -50,7 +50,20 @@ csvloader:{[CSV]
 		//-if correctly columned csv has nulls, report error and skip lines 
 		[if[(any nullcheck:any null (housekeepingcsv.function;housekeepingcsv.age))>0; .lg.o[`housekeeping;"Null values found in file, skipping line(s)  ", ("," sv (string where nullcheck))]];
 		housekeepingcsv2:(housekeepingcsv[where not nullcheck]);
-			wrapper each housekeepingcsv2]]}
+			wrapper each housekeepingcsv2]];
+		
+	 //-list all the compressed file and save in a table
+	hdbfilepaths: filepaths where filepaths like "*database20*";
+	files: asc last each ("/" vs' hdbfilepaths);
+    filehandlesall: asc hsym `$hdbfilepaths;
+	compressedfiles: files where 0 < count each {-21!x} each filehandlesall;
+	compressedfilehandles: filehandlesall where 0 < count each {-21!x} each filehandlesall;
+
+	CompressedTable::(flip enlist[`files]!enlist`$compressedfiles)!{-21!x} each compressedfilehandles;
+	-1"Compression information for each file:";
+	show CompressedTable
+
+        }
 
 
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
@@ -59,6 +72,18 @@ wrapper:{[DICT]
 	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
 
 //FUNCTIONS FOR LINUX
+
+
+
+//-compress by calling .cmp.compress function defined
+kdbzip:{[FILE]   
+	 @[{.lg.o[`housekeeping;"compressing ",x]; .cmp.compress[hsym `$x ;2;17;4;hcount hsym `$x]};
+	     FILE; 
+		 {.lg.e[`housekeeping;"Failed to compress ",x," : ", y]}[FILE]] 
+	  }
+
+
+
 
 \d .unix
 
