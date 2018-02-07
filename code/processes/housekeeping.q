@@ -58,8 +58,18 @@ wrapper:{[DICT]
 	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
 	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
 
-//FUNCTIONS FOR LINUX
 
+
+//compress by calling .cmp.compress function defined using -19!
+kdbzip:{[FILE]   
+	 @[{.lg.o[`housekeeping;"compressing ",x]; .cmp.compress[filehandles;2;17;4;hcount filehandles:hsym `$x]};
+	     FILE; 
+	 {.lg.e[`housekeeping;"Failed to compress ",x," : ", y]}[FILE]] 
+	  }
+
+
+
+//FUNCTIONS FOR LINUX
 \d .unix
 
 //-locates files with path, matching string and age
