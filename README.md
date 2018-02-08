@@ -40,18 +40,60 @@ Head to the address it gives you to check if your changes have worked. More info
 
 ## Release Notes
 
-- **1.0.0, Feb 2014**: 
-  * Initial public release of TorQ
-- **1.1.0, Apr 2014**: 
-  * Added compression utilities, HTML5 utilities, housekeeping process, file alerter process, kdb+tick quick start
-- **1.2.0, Sep 2014**:	
-  * Tested on kdb+ 3.2
-  * Added connections to external (non TorQ) processes using nonprocess.csv
-  * Modified file alerter with optional switch to move or not move a file if any function fails to process the file
-  * Discovery service(s) host:port(s) can be passed on the command line (.servers.DISCOVERY) to a process (this should enable complete bypassing of process.csv if required)
-  * Add custom hook (.servers.connectcustom) which is invoked whenever a new connection is made (allows, for example, subscription to a new process)
-  * Add optional application detail file ($KDBCONFIG/application.txt) to allow customisation of the start up banner (application version etc.)
-  * If required env. variables (KDBCODE, KDBCONFIG, KDBLOG) are not set they will default to $QHOME/code, $QHOME/config, $QHOME/logs respectively (previously the process failed and exited)
+- **3.1.0, May 2017**:
+  * added kafka which is a real time messaging system with persistent storage in message logs
+  * added datareplay.q with functionality for generating tickerplant function calls from historical data which can be executed by subscriber functions
+  * added subscribercutoff.q with functionality that can be used to cut off slow subscribers from processes
+  * added new write down method for tickerlogreplay so match the writedown methods in the WDB
+- **3.0.0, January 2017**:
+  * Added a permissioning system, allowing granular control of access to users & groups
+  * Added LDAP support, allowing a user to authenticate against an LDAP server
+  * Improved documentation now available at http://aquaqanalytics.github.io/TorQ/
+- **2.7.0, November 2016**:
+  * Tickerplant incorporated.  Tickerplant has faster recovery for real time subscribers, and better timezone handling
+  * Filealerter uses a splayed table to store the table of already processed data.  If it finds a table in current format (flat) it will change it to a splay
+  * Gateway bug fixes
+  * Small improvements
+- **2.6.2, September 2016**:
+  * .z.pd and peach logic added to wdb.q
+  * Bug fixes
+- **2.6.0, August 2016**:
+  * Added broadcast publishing
+  * Added domain sockets and tcps as ipc connection mechanisms
+  * Added fallback from domain sockets to tcp functionality
+  * New gateway (which allows attributes to be sent rather than specifying the processes to hit)
+  * Heartbeat subscriptions are easier
+  * Supports snappy compression
+  * Tested with kdb+ 3.4
+  * Bug fixes
+- **2.5.0, April 2016**:
+  * Added u.q - publish/subscribe code from KDB+ Tick
+  * Improved memusage.q to do sampling
+  * Updated dataloader.q
+  * Make sure all config can be read from KDBAPPCONFIG
+- **2.4.0, February 2016**:
+  * Added k4unit to allow tests to be automatically run via the -test parameter
+  * Extended application config handling so all default config can be found in $KDBAPPCONFIG
+  * Bug Fixes
+- **2.3.0, December 2015**:
+  * Added optional write down method to wdb process, which allows data to be written to custom partition schemes during the day. 
+	At the end of day before being moved to the hdb, data is merged instead of sorted, which will allow the data to be accessed sooner. 
+	The optional method may present a significant saving in time for datasets with a low cardinality (small distinct number of elements), i.e. FX market data
+  * Added write access control to message handlers (using reval), which restricts the ability of querying clients to modify data in place
+  * Added functionality to return approximate memory size of kdb+ objects
+  * Bug fixes
+- **2.2.1, November 2015**:
+  * Bug fix - fixed endofdaysort to not throw type error when par.txt is available
+  * Bug fix - fixed gateway so results are not dropped when a client loses connection and another is querying multiple servers
+- **2.2.0, October 2015**:
+  * Added application configuration management using $KDBAPPCONFIG environmnet variable
+  * Added pid, host and port to heartbeat table
+  * Changed gateway to be non intrusive
+  * Bug fixes
+- **2.1.0, July 2015**:
+  * Added a chained tickerplant process
+  * Updated housekeeping.csv to take in an extra column agemin which represents whether to use minutes or days in find function
+  * Updated email libraries
 - **2.0.1, May 2015**:  
   * Added RDB process which extends r.q from kdb+ tick.
   * Added WDB to write down data periodically throughout the day.  Extends w.q.
@@ -69,60 +111,15 @@ Head to the address it gives you to check if your changes have worked. More info
   * Modified compression code and housekeeping process to run with kdb+ 2.*
   * Modified std out/err logging and usage logging to include process name and process type (the logmsg table had changed along with some of the functions in the .lg namespace so you might need to check in case you have overridden any of them)
   * Removed launchtick scripts and some default configuration: to create a test system, install a starter pack
-- **2.1.0, July 2015**:
-  * Added a chained tickerplant process
-  * Updated housekeeping.csv to take in an extra column agemin which represents whether to use minutes or days in find function
-  * Updated email libraries
-- **2.2.0, October 2015**:
-  * Added application configuration management using $KDBAPPCONFIG environmnet variable
-  * Added pid, host and port to heartbeat table
-  * Changed gateway to be non intrusive
-  * Bug fixes
-- **2.2.1, November 2015**:
-  * Bug fix - fixed endofdaysort to not throw type error when par.txt is available
-  * Bug fix - fixed gateway so results are not dropped when a client loses connection and another is querying multiple servers
-- **2.3.0, December 2015**:
-  * Added optional write down method to wdb process, which allows data to be written to custom partition schemes during the day. 
-	At the end of day before being moved to the hdb, data is merged instead of sorted, which will allow the data to be accessed sooner. 
-	The optional method may present a significant saving in time for datasets with a low cardinality (small distinct number of elements), i.e. FX market data
-  * Added write access control to message handlers (using reval), which restricts the ability of querying clients to modify data in place
-  * Added functionality to return approximate memory size of kdb+ objects
-  * Bug fixes
-- **2.4.0, February 2016**:
-  * Added k4unit to allow tests to be automatically run via the -test parameter
-  * Extended application config handling so all default config can be found in $KDBAPPCONFIG
-  * Bug Fixes
-- **2.5.0, April 2016**:
-  * Added u.q - publish/subscribe code from KDB+ Tick
-  * Improved memusage.q to do sampling
-  * Updated dataloader.q
-  * Make sure all config can be read from KDBAPPCONFIG
-- **2.6.0, August 2016**:
-  * Added broadcast publishing
-  * Added domain sockets and tcps as ipc connection mechanisms
-  * Added fallback from domain sockets to tcp functionality
-  * New gateway (which allows attributes to be sent rather than specifying the processes to hit)
-  * Heartbeat subscriptions are easier
-  * Supports snappy compression
-  * Tested with kdb+ 3.4
-  * Bug fixes
-- **2.6.2, September 2016**:
-  * .z.pd and peach logic added to wdb.q
-  * Bug fixes
-- **2.7.0, November 2016**:
-  * Tickerplant incorporated.  Tickerplant has faster recovery for real time subscribers, and better timezone handling
-  * Filealerter uses a splayed table to store the table of already processed data.  If it finds a table in current format (flat) it will change it to a splay
-  * Gateway bug fixes
-  * Small improvements
-- **3.0.0, January 2017**:
-  * Added a permissioning system, allowing granular control of access to users & groups
-  * Added LDAP support, allowing a user to authenticate against an LDAP server
-  * Improved documentation now available at http://aquaqanalytics.github.io/TorQ/
-- **3.1.0, May 2017**:
-  * added kafka which is a real time messaging system with persistent storage in message logs
-  * added datareplay.q with functionality for generating tickerplant function calls from historical data which can be executed by subscriber functions
-  * added subscribercutoff.q with functionality that can be used to cut off slow subscribers from processes
-  * added new write down method for tickerlogreplay so match the writedown methods in the WDB
-
-
-
+- **1.2.0, Sep 2014**:	
+  * Tested on kdb+ 3.2
+  * Added connections to external (non TorQ) processes using nonprocess.csv
+  * Modified file alerter with optional switch to move or not move a file if any function fails to process the file
+  * Discovery service(s) host:port(s) can be passed on the command line (.servers.DISCOVERY) to a process (this should enable complete bypassing of process.csv if required)
+  * Add custom hook (.servers.connectcustom) which is invoked whenever a new connection is made (allows, for example, subscription to a new process)
+  * Add optional application detail file ($KDBCONFIG/application.txt) to allow customisation of the start up banner (application version etc.)
+  * If required env. variables (KDBCODE, KDBCONFIG, KDBLOG) are not set they will default to $QHOME/code, $QHOME/config, $QHOME/logs respectively (previously the process failed and exited)
+- **1.1.0, Apr 2014**: 
+  * Added compression utilities, HTML5 utilities, housekeeping process, file alerter process, kdb+tick quick start
+- **1.0.0, Feb 2014**: 
+  * Initial public release of TorQ
