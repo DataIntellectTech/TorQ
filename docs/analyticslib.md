@@ -5,22 +5,22 @@ A set of analytical functions is provided for the simplification of common opera
 All functions contain usage examples, as well as an explanation on the type and form of the arguments they accept.
 
 
-## ffills[]
+## ffills
 
 ### Usage
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
 Input parameters:
-* Dictionary containing:
-	* `table` - Table to be forward filled
-	* `by` - list of column names to key the table (optional)
-	* `keycols` - list of columns names to be forward filled (optional)
+- Dictionary containing:
+	- `table` - Table to be forward filled
+	- `by` - list of column names to key the table (optional)
+	- `keycols` - list of columns names to be forward filled (optional)
 
 OR 
 
-* Table
+- Table
 	
 This utility is equivalent to:
-* `update fills col1, fills col2 ... by col2 from table`
+- `update fills col1, fills col2 ... by col2 from table`
 
 
 If you have a large data set or just a table with multiple columns typing this statement out can be quite laborious.
@@ -170,27 +170,28 @@ time         sym  ask bid asize bsize a id
 ..
 ```
 
-## pivot[]
+## pivot
 This is a modified version of code available on [code.kx](http://code.kx.com/q/cookbook/pivoting-tables/#a-very-general-pivot-function-and-an-example)
 
 ### Usage
 This script contains the utility to pivot a table, specifying the keyed columns, the columns
 you wish to pivot around and the values you wish to expose. This utility takes a dictionary as
 input with the following parameters:
-
-* `table 	- the table you want to pivot
-* `by	- the keyed columns
-* `piv	- the pivot columns
-* `var	- the variables you want to see
-* `f	- the function to create your column names (optional)
-* `g 	- the function to sort your column names (optional)
+- Dictionary containing:
+	- `table` 	- the table you want to pivot
+	- `by`	- the keyed columns
+	- `piv`	- the pivot columns
+	- `var`	- the variables you want to see
+	- `f`	- the function to create your column names (optional)
+	- `g` 	- the function to sort your column names (optional)
 
 The optional function f is a function of var and piv which creates column names for your
 pivoted table.
 The optional function g is a function of the keyed columns, piv and the return of f, which
 sorts the columns in ascending order.
 
-### Example 1
+### Examples
+#### Example 1.1
 We have a table of quotes:
 
 ```
@@ -236,7 +237,7 @@ date       sym  time        | price_A_0 price_A_1 price_A_2 price_A_3 price_A_4 
 ..
 ```
 
-### Example 2
+#### Example 1.2
 We have the following table showing some FX data:
 ```
 q)t
@@ -287,14 +288,19 @@ AUDUSD UBS | 3         0         744      217
 ```
 
 
-## intervals[]
-
-parameters:start,end,interval,round (optional)
+## intervals
 
 The intervals.q utility in the .al namespace is used to output a
 list of equally spaced intervals between given start and end points.
 
 ### Usage
+
+Input parameters:
+- Dictionary containing:
+	- `start` - starting integer number
+	- `end` - ending integer number
+	- `interval` - interval spacing between values
+	- `round` (optional) - toggle rounding to nearest specified interval
 
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
@@ -302,9 +308,18 @@ or of the same type as start and end (i.e if start:09:00 and end:12:00,
 and intervals of 5 minutes were required interval could equal 05:00 or 5)
 
 Allowed data types are:
-date, month, time, minute, second, timestamp, timespan, integer, short, long
+- date 
+- month 
+- time 
+- minute 
+- second 
+- timestamp 
+- timespan 
+- integer 
+- short 
+- long
 
-### Example 1
+### Example
 
 Using minute datatype:
 ```
@@ -353,23 +368,24 @@ q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
 q)intervals[params]
 0D00:00:50.000000000 0D00:01:40.000000000 0D00:02:30.000000000 0D00:03:20.000000000 0D00:04:10.000000000 0D00:05:00.000000000
 ```
-## rack[]
+## rack
 The rack utility gives the user the ability to create a rack table
 (the cross product of distinct values at the input).
 
 ### Usage
-* table (required) - keyed or unkeyed in-memory table
-* keycols (required) - the columns of the table you want to create the rack from.
-* base (optional) - this is an additional table, against which the rack can be created
-* timeseries.start (optional) - start time to create a timeseries rack
-* timeseries.end (optional) - end time to create a time series rack
-* timeseries.interval (optional) - the interval for the time racking
-* timeseries.round (optional) - should rounding be carried out when creating the timeseries
-* fullexpansion (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
+- Dictionary containing:
+	- `table` (required) - keyed or unkeyed in-memory table
+	- `keycols` (required) - the columns of the table you want to create the rack from.
+	- `base` (optional) - this is an additional table, against which the rack can be created
+	- `timeseries.start` (optional) - start time to create a timeseries rack
+	- `timeseries.end` (optional) - end time to create a time series rack
+	- `timeseries.interval` (optional) - the interval for the time racking
+	- `timeseries.round` (optional) - should rounding be carried out when creating the timeseries
+	- `fullexpansion` (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
 
-- All the above arguments must be provided in dictionary form.
-- A timeseries is optional but if it is required then start, end, and timeseries  must be specified as a dictionary called 'timseries' (round remains optional with a default value of 1b).
-- Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
+ All the above arguments must be provided in dictionary form.
+ A timeseries is optional but if it is required then start, end, and timeseries  must be specified as a dictionary called 'timeseries' (round remains optional with a default value of 1b).
+ Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
 
 Should full expansion be required the function we use is:
 ```
@@ -384,6 +400,7 @@ If full expansion isn't required the process is similar to the above but there's
 ```
 
 ### Examples
+#### Example 1.1
 - no fullexpansion, only table and keycols specified
 ```
 q)t
@@ -408,7 +425,7 @@ a   cme
 ```
 (simplest case, only returns unaltered keycols)
 
-
+#### Example 1.2
 - timeseries,fullexpansion specified, table is a keyed table
 ```
 q)dic
@@ -437,7 +454,7 @@ b   cme  10:00
 b   cme  11:00
 b   cme  12:00
 ```
-
+#### Example 1.3
 - timeseries,fullexpansion specified,base specified, table is keyed
 ```
 q)dic
