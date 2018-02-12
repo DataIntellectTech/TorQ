@@ -40,6 +40,13 @@ Head to the address it gives you to check if your changes have worked. More info
 
 ## Release Notes
 
+- **3.2.0, February 2018**:
+  * Added initial version of [analytics library](http://aquaqanalytics.github.io/TorQ/analyticslib/), a set of functions to aid data manipulation
+  * Added optional [dependency checker](http://aquaqanalytics.github.io/TorQ/gettingstarted/#application-dependency) for applications to check if they have minimal TorQ and kdb+ dependencies
+  * Added [kdb compression to filealerter](https://github.com/AquaQAnalytics/TorQ/commit/1b048d5e52fa26d537d6c88064b533f376ef08c6).  Use case is for compression of tickerplant log files, so log files can be replayed directly rather than having separate uncompress step
+  * Added [-onelog command line](http://aquaqanalytics.github.io/TorQ/gettingstarted/#logging) option to write stdout/stderr to same log file
+  * Added [file pattern option](http://aquaqanalytics.github.io/TorQ/utilities/#dataloaderq) to data loading utility
+  * Bug Fixes
 - **3.1.0, May 2017**:
   * added kafka which is a real time messaging system with persistent storage in message logs
   * added datareplay.q with functionality for generating tickerplant function calls from historical data which can be executed by subscriber functions

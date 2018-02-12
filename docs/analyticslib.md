@@ -7,6 +7,7 @@ All functions contain usage examples, as well as an explanation on the type and 
 
 ## ffills[]
 
+### Usage
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
 Input parameters:
 * Dictionary containing:
@@ -32,15 +33,10 @@ To achieve this functionality a function to forward fill mixed list columns was 
 forwardfill:{$[0h=type x;x maxs (til count x)*(0<count each x);fills x]};
 ```
 
-If the column is a numerical column it passes through the conditional statement and the function fills gets called. 
-If the column is a mixed list then a a boolean list is created with 0's at each index in the column where the count 0 is present this is then multiplied by the indexes of each element of the column which is used as 
-input to the maxs function, thereby forward filling the column. 
-
-#### Options
+If the column is a numerical column it passes through the conditional statement and the function fills gets called. If the column is a mixed list then a a boolean list is created with 0's at each index in the column where the count 0 is present this is then multiplied by the indexes of each element of the column which is used as input to the maxs function, thereby forward filling the column. 
 
 By specifying the `by` condition in the input dictionary the function can forward fill keyed by specific column, for example:
 
-Using the following table:
 ```
 q)table
 time         sym  ask bid asize bsize a id
@@ -81,7 +77,6 @@ time         sym  ask bid asize bsize a id
 01:08:00.945 AAPL 121 12  3     20    b 3
 
 ```
-
 
 By specifying the `keycols` condition in the input dictionary the function can forward fill only specific columns, for example:
 
@@ -125,8 +120,7 @@ time         sym  ask bid asize bsize a id
 
 ```
 
-
-#### Example:
+### Example
 We have the following table:
 ```
 q)table
@@ -177,10 +171,9 @@ time         sym  ask bid asize bsize a id
 ```
 
 ## pivot[]
-Modified from:
+This is a modified version of code available on [code.kx](http://code.kx.com/q/cookbook/pivoting-tables/#a-very-general-pivot-function-and-an-example)
 
-http://code.kx.com/q/cookbook/pivoting-tables/#a-very-general-pivot-function-and-an-example
-
+### Usage
 This script contains the utility to pivot a table, specifying the keyed columns, the columns
 you wish to pivot around and the values you wish to expose. This utility takes a dictionary as
 input with the following parameters:
@@ -197,7 +190,7 @@ pivoted table.
 The optional function g is a function of the keyed columns, piv and the return of f, which
 sorts the columns in ascending order.
 
-#### Example:
+### Example 1
 We have a table of quotes:
 
 ```
@@ -243,7 +236,7 @@ date       sym  time        | price_A_0 price_A_1 price_A_2 price_A_3 price_A_4 
 ..
 ```
 
-#### Example:
+### Example 2
 We have the following table showing some FX data:
 ```
 q)t
@@ -301,7 +294,7 @@ parameters:start,end,interval,round (optional)
 The intervals.q utility in the .al namespace is used to output a
 list of equally spaced intervals between given start and end points.
 
-#### Usage
+### Usage
 
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
@@ -311,9 +304,9 @@ and intervals of 5 minutes were required interval could equal 05:00 or 5)
 Allowed data types are:
 date, month, time, minute, second, timestamp, timespan, integer, short, long
 
-#### Examples
+### Example 1
 
-##### Using minute datatype:
+Using minute datatype:
 ```
 q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)
 q)intervals[params]
@@ -333,8 +326,7 @@ q)params:`start`end`interval!(09:32;12:00;00:30)
 q)intervals[params]
 09:30 10:00 10:30 11:00 11:30 12:00
 ```
-#### Some examples using other datatypes:
-##### Date
+
 ```
 q)params:`start`end`interval!(2001.04.07;2001.05.01;5)
 q)intervals[params]
@@ -346,19 +338,16 @@ q)params:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
 q)intervals[params]
 2001.04.07 2001.04.12 2001.04.17 2001.04.22 2001.04.27
 ```
-##### Second
 ```
 q)params:`start`end`interval!(00:20:30 01:00:00 00:10:00)
 q)intervals[params]
 00:20:00 00:30:00 00:40:00 00:50:00 01:00:00
 ```
-and without rounding
 ```
 q)params:`start`end`interval`round!(00:20:30 01:00:00 00:10:00)
 q)intervals[params]
 00:20:30 00:30:30 00:40:30 00:50:30
 ```
-##### timespan
 ```
 q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
 q)intervals[params]
@@ -368,7 +357,7 @@ q)intervals[params]
 The rack utility gives the user the ability to create a rack table
 (the cross product of distinct values at the input).
 
-#### Input parameters:
+### Usage
 * table (required) - keyed or unkeyed in-memory table
 * keycols (required) - the columns of the table you want to create the rack from.
 * base (optional) - this is an additional table, against which the rack can be created
@@ -377,11 +366,10 @@ The rack utility gives the user the ability to create a rack table
 * timeseries.interval (optional) - the interval for the time racking
 * timeseries.round (optional) - should rounding be carried out when creating the timeseries
 * fullexpansion (optional, default is 0b) - determines whether the required columns of input table will be expanded themselves or not.
-#### Usage
+
 - All the above arguments must be provided in dictionary form.
 - A timeseries is optional but if it is required then start, end, and timeseries  must be specified as a dictionary called 'timseries' (round remains optional with a default value of 1b).
 - Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
-
 
 Should full expansion be required the function we use is:
 ```
@@ -395,7 +383,7 @@ If full expansion isn't required the process is similar to the above but there's
      racktable:args[`base] cross ((args[`keycols]#args[`table]) cross timeseries)]
 ```
 
-#### Examples
+### Examples
 - no fullexpansion, only table and keycols specified
 ```
 q)t
