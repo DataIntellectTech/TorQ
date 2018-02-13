@@ -17,7 +17,6 @@ checkargs:{[args;k;t]
 
 / - Forward fill function 
 ffill:{[args]
-	if[not all key[args] in `table`by`keycols;'`$"Dictionary keys are incorrect. Keys should be:"]
 	 / - Checks type of each column and fills accordingly
     forwardfill:{
         $[0h=type x;
