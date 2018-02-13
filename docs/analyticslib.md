@@ -18,7 +18,7 @@ q).al.pivot[123]
 
 These error traps and messages are to guide the user in the correct use of the utilities and are designed to be as informative as possible.
 
-## ffills
+## ffill
 
 ### Usage
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
@@ -89,11 +89,52 @@ time         sym  ask bid asize bsize a id
 
 By specifying the `keycols` condition in the input dictionary the function can forward fill only specific columns, for example:
 
-Using the same data set as before we can create a new input specifying which column we want to forward fill:
+Using the data set below we can create an input specifying which column we want to forward fill:
 
 ```
-q)args:(`table`keycols)!(table;`asize)
+q)table
+time                          sym  src price size mode
+------------------------------------------------------
+2018.02.13D08:02:09.322000000 AAPL N   32    513  "A"
+2018.02.13D08:03:23.511000000 AAPL N   32    344  ""
+2018.02.13D08:06:35.424000000 AAPL N   32    1933 "B"
+2018.02.13D08:13:03.067000000 AAPL N   76    1009 "B"
+2018.02.13D08:15:09.130000000 AAPL O   43    5199 "B"
+2018.02.13D08:22:21.528000000 AAPL N   76    427  "A"
+2018.02.13D08:23:46.489000000 AAPL N         7918 "B"
+2018.02.13D08:26:34.645000000 AAPL N   43    420  ""
+2018.02.13D08:27:41.633000000 AAPL N         5391 "A"
+2018.02.13D08:28:00.078000000 AAPL N   54    713  "A"
+2018.02.13D08:28:39.200000000 AAPL N         8117 "C"
+2018.02.13D08:32:21.651000000 AAPL N   43    178  "A"
+
+q)args:(`table`keycols)!(table;`price)
 q).al.ffill args
+time                          sym  src price size mode
+------------------------------------------------------
+2018.02.13D08:02:09.322000000 AAPL N   32    513  "A"
+2018.02.13D08:03:23.511000000 AAPL N   32    344  ""
+2018.02.13D08:06:35.424000000 AAPL N   32    1933 "B"
+2018.02.13D08:13:03.067000000 AAPL N   76    1009 "B"
+2018.02.13D08:15:09.130000000 AAPL O   43    5199 "B"
+2018.02.13D08:22:21.528000000 AAPL N   76    427  "A"
+2018.02.13D08:23:46.489000000 AAPL N   76    7918 "B"
+2018.02.13D08:26:34.645000000 AAPL N   43    420  ""
+2018.02.13D08:27:41.633000000 AAPL N   43    5391 "A"
+2018.02.13D08:28:00.078000000 AAPL N   54    713  "A"
+2018.02.13D08:28:39.200000000 AAPL N   54    8117 "C"
+2018.02.13D08:32:21.651000000 AAPL N   43    178  "A"
+
+
+```
+Note that without specifying the `by` condition the column was forward filled as it sits in the table.
+
+#### Example 1.3
+
+Passing just a table into the function will forward fill all columns, for example:
+
+```
+q)table
 time         sym  ask bid asize bsize a id
 ------------------------------------------
 00:00:38.184 AMD  121 12  3     30    a 1
@@ -101,20 +142,12 @@ time         sym  ask bid asize bsize a id
 00:09:37.574 AAPL 63  32  3     30    b 3
 00:21:24.796 AAPL 63      12            4
 00:38:39.521 AAPL 121 3   5           a 3
-00:40:41.670 MSFT 63  3   5     20    c 4
-00:48:08.048 MSFT 63      4     40      3
+00:40:41.670 MSFT 63  3   4     20    c 4
+00:48:08.048 MSFT 63            40      3
 00:48:39.290 IBM  63  3   12    40    d 2
 00:57:47.067 AAPL     24  3     30      2
 01:08:00.945 AAPL 121 12  3     20    b 3
 
-```
-Note that with specifying the `by` condition the column was forward filled as it sits in the table.
-
-#### Example 1.3
-
-Passing just a table into the function will forward fill all columns, for example:
-
-```
 q).al.ffill table
 time         sym  ask bid asize bsize a id
 ------------------------------------------
