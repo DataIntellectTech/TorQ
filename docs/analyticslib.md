@@ -23,15 +23,18 @@ These error traps and messages are to guide the user in the correct use of the u
 ### Usage
 This script contains the utility to dynamically forward fill a given table keyed by given columns.
 
+
 Input is a dictionary containing:
 * 	table: Table to be forward filled
 * 	by: List of column names to key the table (optional)
 * 	keycols: List of columns names to be forward filled (optional)
 
+
 OR 
 
-* Table
+- Table
 	
+
 This utility is equivalent to:  `update fills col1, fills col2 ... by col2 from table`
 
 
@@ -172,12 +175,14 @@ This is a modified version of code available on [code.kx](http://code.kx.com/q/c
 This script contains the utility to pivot a table, specifying the keyed columns, the columns you wish to pivot around and the values you wish to expose. Note that this method always produces the last value for the grouping. To circumvent this you can do your own aggregation on the table before using the pivot function. For example you can create a column to calculate the sum: `update totsum:sum price by sym,src from table` and then pivot the data.
 
 This utility takes a dictionary as input with the following parameters:
+
 * 	table: The table you want to pivot
 * 	by:	 The keyed columns
 * 	piv:	 The pivot columns
 * 	var:	 The variables you want to see
 * 	f:	 The function to create your column names (optional)
 * 	g: 	 The function to sort your column names (optional)
+
 
 The optional function f is a function of var and piv which creates column names for your
 pivoted table.
@@ -289,11 +294,13 @@ list of equally spaced intervals between given start and end points.
 
 ### Usage
 
+
 Input is a dictionary containing:
 * 	start: Starting integer number
 * 	end: Ending integer number
 * 	interval: Interval spacing between values
 * 	round: Toggle rounding to nearest specified interval (optional)
+
 
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
@@ -301,7 +308,8 @@ or of the same type as start and end (i.e if start:09:00 and end:12:00,
 and intervals of 5 minutes were required interval could equal 00:05 or 5)
 
 Allowed data types are:
-*	date 
+
+*	  date 
 * 	month 
 * 	time 
 * 	minute 
@@ -311,6 +319,7 @@ Allowed data types are:
 * 	integer 
 * 	short 
 * 	long
+
 
 ### Example
 
@@ -366,6 +375,7 @@ The rack utility gives the user the ability to create a rack table
 (the cross product of distinct values at the input).
 
 ### Usage
+
 Input is be a dictionary containing:
 * 	table: Keyed or unkeyed in memory table
 * 	keycols:  The columns of the table you want to create the rack from.
@@ -375,6 +385,7 @@ Input is be a dictionary containing:
 * 	timeseries.interval: The interval for the time racking (optional)
 * 	timeseries.round: Should rounding be carried out when creating the timeseries (optional)
 * 	fullexpansion: Determines whether the required columns of input table will be expanded themselves or not. (optional, default is 0b)
+
 	
 A timeseries is optional but if it is required then start, end, and interval must be specified as a dictionary called 'timeseries' (round remains optional with a default value of 1b).
 Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.
@@ -383,7 +394,9 @@ Full expansion in this case refers to the level to which the data is crossed wit
 
 ### Examples
 #### Example 1.1
+
 * no fullexpansion, only table and keycols specified
+
 ```
 q)t
 sym exch price
@@ -408,7 +421,9 @@ a   cme
 (simplest case, only returns unaltered keycols)
 
 #### Example 1.2
+
 * timeseries,fullexpansion specified, table is a keyed table
+
 ```
 q)dic
 table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
@@ -437,7 +452,9 @@ b   cme  11:00
 b   cme  12:00
 ```
 #### Example 1.3
+
 * timeseries,fullexpansion specified,base specified, table is keyed
+
 ```
 q)dic
 table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
