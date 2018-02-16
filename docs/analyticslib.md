@@ -304,6 +304,7 @@ Input is a dictionary containing:
 *  round: Toggle rounding to nearest specified interval (optional)
 
 
+
 Parameters should be passed in the form of a dictionary, where start
 and end must be of the same type and interval can be either a long int
 or of the same type as start and end (i.e if start:09:00 and end:12:00,
@@ -311,16 +312,16 @@ and intervals of 5 minutes were required interval could equal 00:05 or 5)
 
 Allowed data types are:
 
-*	date 
-* 	month 
-* 	time 
-* 	minute 
-* 	second 
-* 	timestamp 
-* 	timespan 
-* 	integer 
-* 	short 
-* 	long
+*	 date 
+*  month 
+*  time 
+*  minute 
+*  second 
+*  timestamp 
+*  timespan 
+*  integer 
+*  short 
+*  long
 
 
 ### Example
@@ -388,6 +389,7 @@ Input is be a dictionary containing:
 *  timeseries.interval: The interval for the time racking (optional)
 *  timeseries.round: Should rounding be carried out when creating the timeseries (optional)
 *  fullexpansion: Determines whether the required columns of input table will be expanded themselves or not. (optional, default is 0b)
+
 
 	
 A timeseries is optional but if it is required then start, end, and interval must be specified as a dictionary called 'timeseries' (round remains optional with a default value of 1b).
