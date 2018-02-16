@@ -25,9 +25,10 @@ This script contains the utility to dynamically forward fill a given table keyed
 
 
 Input is a dictionary containing:
-* 	table: Table to be forward filled
-* 	by: List of column names to key the table (optional)
-* 	keycols: List of columns names to be forward filled (optional)
+
+*  table: Table to be forward filled
+*  by: List of column names to key the table (optional)
+*  keycols: List of columns names to be forward filled (optional)
 
 
 OR 
@@ -296,10 +297,12 @@ list of equally spaced intervals between given start and end points.
 
 
 Input is a dictionary containing:
-* 	start: Starting integer number
-* 	end: Ending integer number
-* 	interval: Interval spacing between values
-* 	round: Toggle rounding to nearest specified interval (optional)
+
+*  start: Starting integer number
+*  end: Ending integer number
+*  interval: Interval spacing between values
+*  round: Toggle rounding to nearest specified interval (optional)
+
 
 
 Parameters should be passed in the form of a dictionary, where start
@@ -309,16 +312,16 @@ and intervals of 5 minutes were required interval could equal 00:05 or 5)
 
 Allowed data types are:
 
-*	  date 
-* 	month 
-* 	time 
-* 	minute 
-* 	second 
-* 	timestamp 
-* 	timespan 
-* 	integer 
-* 	short 
-* 	long
+*	 date 
+*  month 
+*  time 
+*  minute 
+*  second 
+*  timestamp 
+*  timespan 
+*  integer 
+*  short 
+*  long
 
 
 ### Example
@@ -377,14 +380,16 @@ The rack utility gives the user the ability to create a rack table
 ### Usage
 
 Input is be a dictionary containing:
-* 	table: Keyed or unkeyed in memory table
-* 	keycols:  The columns of the table you want to create the rack from.
-* 	base: This is an additional table, against which the rack can be created (optional)
-* 	timeseries.start: Start time to create a timeseries rack (optional)
-* 	timeseries.end: End time to create a time series rack (optional)
-* 	timeseries.interval: The interval for the time racking (optional)
-* 	timeseries.round: Should rounding be carried out when creating the timeseries (optional)
-* 	fullexpansion: Determines whether the required columns of input table will be expanded themselves or not. (optional, default is 0b)
+
+*  table: Keyed or unkeyed in memory table
+*  keycols:  The columns of the table you want to create the rack from.
+*  base: This is an additional table, against which the rack can be created (optional)
+*  timeseries.start: Start time to create a timeseries rack (optional)
+*  timeseries.end: End time to create a time series rack (optional)
+*  timeseries.interval: The interval for the time racking (optional)
+*  timeseries.round: Should rounding be carried out when creating the timeseries (optional)
+*  fullexpansion: Determines whether the required columns of input table will be expanded themselves or not. (optional, default is 0b)
+
 
 	
 A timeseries is optional but if it is required then start, end, and interval must be specified as a dictionary called 'timeseries' (round remains optional with a default value of 1b).
