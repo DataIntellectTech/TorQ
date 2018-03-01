@@ -73,7 +73,7 @@
 // addserver and asyncexec, with the (servertypes) parameter projected to a single server of (for example) `standardserver
 
 \d .gw
-
+formatresponse:@[value;`.gw.formatresponse;{[x;y]if[10h=type y;'y];y}]
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
@@ -450,13 +450,13 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 
 // execute a synchronous query
 syncexecj:{[query;servertype;joinfunction]
- if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
+ if[not .gw.synccallsallowed;.gw.formatresponse "Synchronous calls are not allowed"];
  // check if the gateway allows the query to be called
- if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
+ if[.gw.permissioned;if[not .pm.allowed [.z.u;query];.gw.formatresponse "User is not permissioned to run this query from the gateway"]];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
- if[checkeod[serverids]; '"unable to query multiple servers during eod reload"];
+ if[checkeod[serverids];.gw.formatresponse"unable to query multiple servers during eod reload"];
  // get the list of handles
  tab:availableserverstable[0b];
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
@@ -471,12 +471,13 @@ syncexecj:{[query;servertype;joinfunction]
  res:handles@\:(::);
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
+ 
  // check if there are any errors in the returned results
  $[all res[;0];
   // no errors - join the results
-  @[joinfunction;res[;2];{'`$"failed to apply supplied join function to results: ",x}];
+  .gw.formatresponse @[joinfunction;res[;2];{"failed to apply supplied join function to results: ",x}];
   [failed:where not res[;0];
-   '`$"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
+   .gw.formatresponse"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
  }
 
 syncexec:syncexecj[;;raze]
