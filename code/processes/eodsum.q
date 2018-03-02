@@ -37,7 +37,7 @@ tabler:{
 savedown:{[sumtab]
   /function to save eod data to hdb partiton on disk
   
-  fpath:hsym[`$"/home/jedwards/devbranch/hdb/database/",(string .z.d-1),"/eodsum/"];
+  fpath:hsym `$string[.wdb.hdbdir],"/",string[.z.d-1],"/eodsum/";
   
   fpath set .Q.en[fpath;0!sumtab];
  };
