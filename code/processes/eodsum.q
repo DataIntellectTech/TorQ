@@ -12,9 +12,9 @@ tabler:{
 
  sumtab:sumt lj sumq}
 
-savedown:{hsym[`$"/home/jedwards/devbranch/hdb/database/",(string .z.d-1),"/eodsum/"] set .Q.en[hsym `$"/home/jedwards/devbranch/hdb/database/",(string .z.d-1),"/eodsum/";0!sumtab]}
+savedown:{[sumtab]hsym[`$"/home/jedwards/devbranch/hdb/database/",(string .z.d-1),"/eodsum/"] set .Q.en[hsym `$"/home/jedwards/devbranch/hdb/database/",(string .z.d-1),"/eodsum/";0!sumtab]}
 
 init:{
- tabler[];
- savedown[]}
+ sumtab:tabler[];
+ savedown[sumtab]}
 
