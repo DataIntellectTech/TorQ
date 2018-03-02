@@ -70,6 +70,8 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`postreplay;{{[d;p] }}]			    /-post EOD function, invoked after all the tables have been written down
 
+eodsumcall:{system"l TorQ/code/processes/eodsum.q";.eodsum.init[]}
+
 / - end of default parameters
 
 / - define .z.pd in order to connect to any slave processes
