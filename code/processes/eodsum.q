@@ -52,14 +52,16 @@ init:{
 
   hh::handler[1403];
   hw::handler[1405];
+  .lg.o[`eodsum;"handles to hdb and wdb opened"]
  };
 
 sdwrap:{
   /wrapper function for eod summary table  
 
   sumtab:tabler[hh];
-  
+  .lg.o[`eodsum;"summary table generated successfully"]   
   savedown[sumtab];
+  .lg.o[`eodsum;"summary table saved down successfully"]
  };
 
 init[]
