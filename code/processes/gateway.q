@@ -73,7 +73,7 @@
 // addserver and asyncexec, with the (servertypes) parameter projected to a single server of (for example) `standardserver
 
 \d .gw
-formatresponse:@[value;`.gw.formatresponse;{{[status;s;result] :$[(not status) and (s=`sync);'result;result];}}]
+formatresponse:@[value;`.gw.formatresponse;{{[status;call;result] :$[not[status]and(call=`sync);'result;result];}}]
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
@@ -439,7 +439,7 @@ asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
 	servertype:res;
  ]]];
  if[count errStr;
-  @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];
+  @[neg .z.w;.gw.formatresponse[0b;`async;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr]];()];
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout];
