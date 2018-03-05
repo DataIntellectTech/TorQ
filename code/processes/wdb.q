@@ -70,8 +70,6 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for 
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`postreplay;{{[d;p] }}]			    /-post EOD function, invoked after all the tables have been written down
 
-eodsumcall:{system"l TorQ/code/processes/eodsum.q";.eodsum.init[]}
-
 / - end of default parameters
 
 / - define .z.pd in order to connect to any slave processes
@@ -200,6 +198,9 @@ endofdaysave:{[dir;pt]
 	/- save remaining table rows to disk
 	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
 	savetables[dir;pt;1b;] each tl;
+	.lg.o[`eod;"saving down end of day summary table to disk"];
+	(`long$first exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;[]);
+	.lg.o[`eod;"finished saving down end of day summary table"]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
