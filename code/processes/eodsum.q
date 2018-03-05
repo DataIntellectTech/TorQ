@@ -1,18 +1,24 @@
 \d .eodsum
 
-tabler:{											     
-  /function to connect to HDB, query trade and quote data for required calculation 
-  /outputsjoin results as table
+handler:{[port]
   
-  h:@[hopen;(`::9803:admin:admin;2000);0];                                                              		/open handle to hdb
+  h:@[hopen;(hsym `$":" sv ("localhost";string port;"admin";"admin");2000);0];
 
-  if[not h;                                                                                     			/error trap for opening handle
-     -2"Cannot create connection to HDB on host:localhost, port:9803"];
+  if[not h;                                                                                                             /error trap for opening handle
+     -2"Cannot create connection to host:localhost, port:",string port;
      -1"";
      exit 1;
    ];
 
-  sumt:h({select totalVol:sum size,no.ofTrades:count i by sym from x where date=.z.d-1};`trade);/query data
+  :h;
+ };
+
+
+tabler:{[h]											     
+  /function to query trade and quote data for required calculation 
+  /outputs join results as table
+
+  sumt:h({select totalVol:sum size,no.ofTrades:count i by sym from x where date=.z.d-1};`trade);			/query data
 
   sumq:h({select time,sym,bid,ask from x where date=.z.d-1};`quote);
   
@@ -37,15 +43,21 @@ tabler:{
 savedown:{[sumtab]
   /function to save eod data to hdb partiton on disk
   
-  fpath:hsym `$string[.wdb.hdbdir],"/",string[.z.d-1],"/eodsum/";
+  fpath:hsym `$raze(.eodsum.hh(system;"pwd")),"/",string[.z.d-1],"/eodsum/";
   
   fpath set .Q.en[fpath;0!sumtab];
  };
 
 init:{
-  /initialisation function for eod summary table  
 
-  sumtab:tabler[];
+  hh::handler[1403];
+  hw::handler[1405];
+ };
+
+sdwrap:{
+  /wrapper function for eod summary table  
+
+  sumtab:tabler[hh];
   
   savedown[sumtab];
  };
