@@ -199,7 +199,7 @@ endofdaysave:{[dir;pt]
 	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
 	savetables[dir;pt;1b;] each tl;
 	.lg.o[`eod;"saving down end of day summary table to disk"];
-	(`long$first exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;[]);
+	(`long$max exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;[]);
 	.lg.o[`eod;"finished saving down end of day summary table"]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
