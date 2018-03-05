@@ -2,7 +2,7 @@
 
 handler:{[port]
   
-  h:@[hopen;(hsym `$":" sv ("localhost";string port;"admin";"admin");2000);0];
+  h:@[hopen;(hsym `$":" sv ("localhost";string port;"eod";"pass");2000);0];
 
   if[not h;                                                                                                             /error trap for opening handle
      -2"Cannot create connection to host:localhost, port:",string port;
@@ -62,3 +62,4 @@ sdwrap:{
   savedown[sumtab];
  };
 
+init[]
