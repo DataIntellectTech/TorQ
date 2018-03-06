@@ -191,6 +191,9 @@ endofday:{[pt]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
+        .lg.o[`eod;"saving down end of day summary table to disk"];
+        (`long$max exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;[]);
+        .lg.o[`eod;"finished saving down end of day summary table"]
 	.lg.o[`eod;"end of day is now complete"];
 	};
 	
@@ -198,9 +201,6 @@ endofdaysave:{[dir;pt]
 	/- save remaining table rows to disk
 	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
 	savetables[dir;pt;1b;] each tl;
-	.lg.o[`eod;"saving down end of day summary table to disk"];
-	(`long$max exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;[]);
-	.lg.o[`eod;"finished saving down end of day summary table"]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
