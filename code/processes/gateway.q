@@ -73,7 +73,7 @@
 // addserver and asyncexec, with the (servertypes) parameter projected to a single server of (for example) `standardserver
 
 \d .gw
-formatresponse:@[value;`.gw.formatresponse;{{[status;call;result] :$[not[status]and call=`sync;'result;result];}}]
+formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result] :$[not[status]and sync=`sync;'result;result];}}]
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
@@ -184,7 +184,7 @@ addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
-addserverresult:{[queryid; results] 
+addserverresult:{[queryid;results] 
  serverid:first exec serverid from .gw.servers where active, handle=.z.w;
  if[queryid in key .gw.results; .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results]];
  setserverstate[.z.w;0b];
@@ -193,7 +193,7 @@ addserverresult:{[queryid; results]
 // handle an error coming back from the server
 addservererror:{[queryid;error]
  // propagate the error to the client
- sendclientreply[queryid;.gw.errorprefix,error];
+ sendclientreply[queryid;.gw.errorprefix,error;0b];
  setserverstate[.z.w;0b];
  runnextquery[];
  // finish the query
@@ -208,20 +208,20 @@ checkresults:{[queryid]
   // If there only is one result, then just return it - ignore the join function
   res:@[{(0b;$[1<count y;$[10h=type x;value(x;y); x @ y];first y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
   // send the results back to the client.
-  sendclientreply[queryid;last res];
+  sendclientreply[queryid;last res;not res 0];
   // finish the query
   finishquery[queryid;res 0;0Ni]];}
 
 // build and send a response to go to the client
 // if the postback function is defined, then wrap the result in that, and also send back the original query
-sendclientreply:{[queryid;result]
- querydetails:queryqueue[queryid];
+sendclientreply:{[queryid;result;status].k.p:result;
+ .k.k:querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
 	result;
 	(querydetails`postback),(enlist querydetails`query),enlist result];
- @[neg querydetails`clienth;.gw.formatresponse[1b;`async;tosend];()]}
+ @[neg querydetails`clienth;.gw.formatresponse[status;`async;tosend];()]}
 
 // execute a query on the server.  Catch the error, propagate back
 serverexecute:{[queryid;query]
@@ -245,7 +245,7 @@ removeserverhandle:{[serverh]
  // 1) queries sent to this server but no reply back yet
  qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection"] each qids;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
 
  // 2) queries partially run + waiting for this server
@@ -256,13 +256,13 @@ removeserverhandle:{[serverh]
 	s:where (::)~/:res[1;;1]; 
 	$[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
 	}[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection"] each qids2;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection";0b] each qids2;
  finishquery[qids2;1b;serverh]; 
 
  // 3) queries not yet run + waiting for this server
  qids3:exec queryid from .gw.queryqueue where null submittime, not `boolean${$[11h=type z; all z in x; all any each z in\: y]}[activeServerTypes;activeServerIDs] each servertype; 
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection"] each qids3;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection";0b] each qids3;
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
@@ -280,7 +280,7 @@ checktimeout:{
  qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.proc.cp[] > time+timeout,null returntime;
  // propagate a timeout error to each client
  if[count qids;
-  sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value"] each qids;
+  sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value";0b] each qids;
   finishquery[qids;1b;0Ni]];
  }
 
@@ -561,7 +561,7 @@ reloadstart:{
  /- extract ids of queries not yet returned
  qids:exec queryid from .gw.queryqueue where 1<count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}each servertype,null returntime;
  /- propagate a timeout error to each client
- if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload"]each qids;.gw.finishquery[qids;1b;0Ni]];}
+ if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];}
 
 reloadend:{
  .lg.o[`reload;"reload end called"];
