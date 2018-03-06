@@ -173,8 +173,8 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
                 $[not 0=algo;statstab ,: (filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);statstab ,: (filetoCompress;algo;comprL;sizeuncomp)]];
             [$[(not count (-21!compressedFile));
 		[.lg.o[`compression; "Failed to compress file ",(string filetoCompress)];hdel compressedFile];
-		.lg.o[`compression; $[algo=0;"Decompressed ";"Compressed "], "file ", (string compressedFile), " doesn't match original. Deleting new file"]; hdel compressedFile]]]
+		.lg.o[`compression; $[algo=0;"Decompressed ";"Compressed "], "file ", (string compressedFile), " doesn't match original. Deleting new file"]; hdel compressedFile;]]]
         ];
         / if already compressed/decompressed, then log that and skip.
         [((not 0 = count -21!filetoCompress) & not 0 = algo)|((0 = count -21!filetoCompress) & 0 = algo)];
-        .lg.o[`compression; "file ", (string filetoCompress), " is already ",$[0=algo; "decompressed";"compressed"],". Skipping this file"]]}
+        .lg.o[`compression; "file ", (string filetoCompress), " is already ",$[0=algo; "decompressed";"compressed"],". Skipping this file"];]}
