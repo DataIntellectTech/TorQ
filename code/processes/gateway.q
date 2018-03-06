@@ -214,8 +214,8 @@ checkresults:{[queryid]
 
 // build and send a response to go to the client
 // if the postback function is defined, then wrap the result in that, and also send back the original query
-sendclientreply:{[queryid;result;status].k.p:result;
- .k.k:querydetails:queryqueue[queryid];
+sendclientreply:{[queryid;result;status]
+ querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
