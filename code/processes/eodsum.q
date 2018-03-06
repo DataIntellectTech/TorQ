@@ -14,13 +14,13 @@ handler:{[port]
  };
 
 
-tabler:{[h]											     
+tabler:{[h;pt]											     
   /function to query trade and quote data for required calculation 
   /outputs join results as table
 
-  sumt:h({select totalVol:sum size,no.ofTrades:count i by sym from x where date=.z.d-1};`trade);			/query data
+  sumt:h({[x;y]select totalVol:sum size,no.ofTrades:count i by sym from x where date=y};`trade;pt);			/query data
 
-  sumq:h({select time,sym,bid,ask from x where date=.z.d-1};`quote);
+  sumq:h({[x;y]select time,sym,bid,ask from x where date=y};`quote;pt);
   
   sumq:select                                                                                            
          avgSpread:avg spread,
@@ -40,10 +40,10 @@ tabler:{[h]
  };						
                                                                                			
 
-savedown:{[sumtab]
+savedown:{[sumtab;pt]
   /function to save eod data to hdb partiton on disk
   
-  fpath:hsym `$raze(.eodsum.hh(system;"pwd")),"/",string[.z.d-1],"/eodsum/";
+  fpath:hsym `$raze(.eodsum.hh(system;"pwd")),"/",string[pt],"/eodsum/";
   
   fpath set .Q.en[fpath;0!sumtab];
  };
@@ -55,12 +55,12 @@ init:{
   .lg.o[`eodsum;"handles to hdb and wdb opened"]
  };
 
-sdwrap:{
+sdwrap:{[pt]
   /wrapper function for eod summary table  
 
-  sumtab:tabler[hh];
+  sumtab:tabler[hh;pt];
   .lg.o[`eodsum;"summary table generated successfully"]   
-  savedown[sumtab];
+  savedown[sumtab;pt];
   .lg.o[`eodsum;"summary table saved down successfully"]
  };
 
