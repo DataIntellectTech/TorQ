@@ -73,7 +73,7 @@
 // addserver and asyncexec, with the (servertypes) parameter projected to a single server of (for example) `standardserver
 
 \d .gw
-formatresponse:@[value;`.gw.formatresponse;{{[status;call;result] :$[not[status]and(call=`sync);'result;result];}}]
+formatresponse:@[value;`.gw.formatresponse;{{[status;call;result] :$[not[status]and call=`sync;'result;result];}}]
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
@@ -221,13 +221,13 @@ sendclientreply:{[queryid;result]
  tosend:$[()~querydetails[`postback];
 	result;
 	(querydetails`postback),(enlist querydetails`query),enlist result];
- @[neg querydetails`clienth;tosend;()]}
+ @[neg querydetails`clienth;.gw.formatresponse[1b;`async;tosend];()]}
 
 // execute a query on the server.  Catch the error, propagate back
-serverexecute:{[queryid;query] 
+serverexecute:{[queryid;query]
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
- @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
+ @[neg .z.w;$[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
 	// if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
 	{@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
 // send a query to a server 
