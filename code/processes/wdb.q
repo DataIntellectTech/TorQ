@@ -191,6 +191,10 @@ endofday:{[pt]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
+        .lg.o[`eod;"saving down end of day summary table to disk"];
+        (`long$max exec w from .clients.clients where u=`eod)(`.eodsum.sdwrap;pt);
+        doreload[];
+        .lg.o[`eod;"finished saving down end of day summary table"]
 	.lg.o[`eod;"end of day is now complete"];
 	};
 	
