@@ -14,7 +14,6 @@ handler:{[port]
   if[not h;                                                                                                             /error trap for opening handle
      -2"Cannot create connection to host:localhost, port:",string port;
      -1"";
-     (::);
    ];
 
   :h;
