@@ -472,11 +472,11 @@ syncexecj:{[query;servertype;joinfunction]
  res:handles@\:(::);
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
-
  // check if there are any errors in the returned results
  $[all res[;0];
   // no errors - join the results
-  .gw.formatresponse[1b;`sync;]@[joinfunction;res[;2];{.gw.formatresponse[0b;`sync;"failed to apply supplied join function to results: ",x]}];
+  [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
+    .gw.formatresponse[s 0;`sync;s 1]];
   [failed:where not res[;0];
    .gw.formatresponse[0b;`sync;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]] 
  }
