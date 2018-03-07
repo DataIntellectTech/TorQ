@@ -184,7 +184,7 @@ addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
-addserverresult:{[queryid;results] 
+addserverresult:{[queryid;results]
  serverid:first exec serverid from .gw.servers where active, handle=.z.w;
  if[queryid in key .gw.results; .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results]];
  setserverstate[.z.w;0b];
@@ -227,7 +227,7 @@ sendclientreply:{[queryid;result;status]
 serverexecute:{[queryid;query]
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
- @[neg .z.w;$[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
+ @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)];
 	// if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
 	{@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
 // send a query to a server 
@@ -297,7 +297,7 @@ getserversinitial:{[req;att]
  /- check if all servers report all the requirements - drop any that don't
  att:(where all each (key req) in/: key each att)#att;
 
- if[not count att; '"getservers: no servers report all requested attributes"];
+ if[not count att;.gw.formatresponse[0b;`sync;"getservers: no servers report all requested attributes"]];
 
  /- calculate where each of the requirements is in each of the attribute sets
  s:update serverid:key att from value req in'/: (key req)#/:att;
@@ -330,7 +330,7 @@ getserversindependent:{[req;att;besteffort]
  alldone:1+first where all each all each' maxs value s;
 
  if[(null alldone) and not besteffort;
-        '"getserversindependent: cannot satisfy query as not all attributes can be matched"];
+  .gw.formatresponse[0b;`sync;"getserversindependent: cannot satisfy query as not all attributes can be matched"]];
 
  /- use the filter to remove any rows which don't add value
  s:1!(0!s) w:where any each any each' filter;
@@ -361,7 +361,7 @@ getserverscross:{[req;att;besteffort]
 
  /- check if everything is done
  if[(count last util`remaining) and not besteffort;
-        '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
+  .gw.formatresponse[0b;`sync;"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"]];
 
  /- remove any rows which don't add value
  s:1!(0!s) w:where not 0=count each util`found;
@@ -375,7 +375,7 @@ getserverids:{[att]
 	// its a list of servertypes e.g. `rdb`hdb
 	servertype:att,();
 	missing:servertype except exec distinct servertype from .gw.servers where active;
-	if[count missing; '"not all of the requested server types are available; missing "," " sv string missing];
+	if[count missing;.gw.formatresponse[0b;`sync;"not all of the requested server types are available; missing "," " sv string missing]];
 	:(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
@@ -385,7 +385,7 @@ getserverids:{[att]
 	raze getserveridstype[delete servertype from att] each (),att`servertype; 
 	getserveridstype[att;`all]];
 
-  if[all 0=count each serverids; '"no servers match requested attributes"];
+  if[all 0=count each serverids;.gw.formatresponse[0b;`sync;"no servers match requested attributes"]];
   :serverids;
  }
 
@@ -412,13 +412,13 @@ getserveridstype:{[att;typ]
 	getserverscross[att;servers;besteffort]];
 
   serverids:first value flip $[99h=type res; key res; res];
-  if[all 0=count each serverids; '"no servers match ",string[typ]," requested attributes"];
+  if[all 0=count each serverids;.gw.formatresponse[0b;`sync;"no servers match ",string[typ]," requested attributes"]];
   :serverids;
  }
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+ if[.gw.permissioned;if[.pm.allowed[.z.u; query];.gw.formatresponse[0b;`sync;"User is not permissioned to run this query from the gateway"]]];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -471,13 +471,13 @@ syncexecj:{[query;servertype;joinfunction]
  res:handles@\:(::);
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
- 
+
  // check if there are any errors in the returned results
  $[all res[;0];
   // no errors - join the results
-  .gw.formatresponse[1b;`sync;] @[joinfunction;res[;2];{.gw.formatresponse[0b;`sync;"failed to apply supplied join function to results: ",x]}];
+  .gw.formatresponse[1b;`sync;]@[joinfunction;res[;2];{.gw.formatresponse[0b;`sync;"failed to apply supplied join function to results: ",x]}];
   [failed:where not res[;0];
-   .gw.formatresponse[0b;`sync;] ["queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]] 
+   .gw.formatresponse[0b;`sync;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]] 
  }
 
 syncexec:syncexecj[;;raze]
