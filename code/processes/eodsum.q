@@ -58,7 +58,7 @@ init:{
 
 sdwrap:{[pt]
   /wrapper function for eod summary table  
-  while[.eodsum.hh({not count select from trade where date=x};2018.03.05);(::)]
+  while[.eodsum.hh({not string[x] in system "ls"};pt);(::)];
   sumtab:tabler[hh;pt];													/build summary table
   .lg.o[`eodsum;"summary table generated successfully"];   
   savedown[sumtab;pt];													/save down summary table
