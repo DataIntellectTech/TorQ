@@ -1,5 +1,11 @@
 \d .eodsum
 
+connected:{[]
+  :2=count .z.W;
+ };
+
+connsleepintv:10;
+
 handler:{[port]
   /function to open a handle to supplied port 
   
@@ -8,43 +14,41 @@ handler:{[port]
   if[not h;                                                                                                             /error trap for opening handle
      -2"Cannot create connection to host:localhost, port:",string port;
      -1"";
-     exit 1;
+     (::);
    ];
 
   :h;
  };
 
+queryt:{[h;pt]
+ 
+   :sumt:h({[x;y]select totalVol:sum size,noOfTrades:count i by sym from x where date=y};`trade;pt);
+ };
+
+queryq:{[h;pt]
+
+  sumq:h({[x;y]select time,sym,bid,ask from x where date=y};`quote;pt);
+  
+  :sumq:select avgSpread:avg spread,TWAS:dur wavg spread by sym from
+        update dur:(exec last time from sumq)^next[time]-time,spread:ask-bid by sym from sumq;
+ };
 
 tabler:{[h;pt]											     
   /function to query trade and quote data for required calculation 
   /outputs join results as table
 
-  sumt:h({[x;y]select totalVol:sum size,noOfTrades:count i by sym from x where date=y};`trade;pt);			/query trade data
-
-  sumq:h({[x;y]select time,sym,bid,ask from x where date=y};`quote;pt);							/query quote data
-  
-  sumq:select                                                                                            
-         avgSpread:avg spread,
-         TWAS:dur wavg spread
-       by 
-         sym 
-       from 
-         update 
-           dur:(exec last time from sumq)^next[time]-time,
-           spread:ask-bid 
-         by 
-           sym 
-         from 
-           sumq;
+  sumt:queryt[h;pt];			
+ 
+  sumq:queryq[h;pt];
 
   :sumtab:sumt lj sumq;													/join results
  };						
                                                                                			
 
-savedown:{[sumtab;pt]
+savedown:{[sumtab;h;pt]
   /function to save eod data to hdb partiton on disk
   
-  fpath:hsym `$raze(.eodsum.hh(system;"pwd")),"/",string[pt],"/eodsum/";
+  fpath:hsym `$"/" sv (raze(.eodsum.hh(system;"pwd"));string[2018.03.05];"eodsum";"");
   
   fpath set .Q.en[fpath;0!sumtab];
  };
@@ -58,11 +62,14 @@ init:{
 
 sdwrap:{[pt]
   /wrapper function for eod summary table  
-  while[.eodsum.hh({not string[x] in system "ls"};pt);(::)];
+  while[hh({not string[x] in system "ls"};pt);(::)];
   sumtab:tabler[hh;pt];													/build summary table
   .lg.o[`eodsum;"summary table generated successfully"];   
-  savedown[sumtab;pt];													/save down summary table
+  savedown[sumtab;hh;pt];													/save down summary table
   .lg.o[`eodsum;"summary table saved down successfully"];	
- };
+ };	
 
-init[]															
+while[not connected[];
+  .os.sleep[connsleepintv];
+  init[];
+ ];														
