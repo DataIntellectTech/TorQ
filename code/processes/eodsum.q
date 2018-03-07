@@ -19,7 +19,7 @@ tabler:{[h;pt]
   /function to query trade and quote data for required calculation 
   /outputs join results as table
 
-  sumt:h({[x;y]select totalVol:sum size,no.ofTrades:count i by sym from x where date=y};`trade;pt);			/query trade data
+  sumt:h({[x;y]select totalVol:sum size,noOfTrades:count i by sym from x where date=y};`trade;pt);			/query trade data
 
   sumq:h({[x;y]select time,sym,bid,ask from x where date=y};`quote;pt);							/query quote data
   
@@ -58,11 +58,11 @@ init:{
 
 sdwrap:{[pt]
   /wrapper function for eod summary table  
-
+  while[.eodsum.hh({not count select from trade where date=x};2018.03.05);(::)]
   sumtab:tabler[hh;pt];													/build summary table
-  .lg.o[`eodsum;"summary table generated successfully"]   
+  .lg.o[`eodsum;"summary table generated successfully"];   
   savedown[sumtab;pt];													/save down summary table
-  .lg.o[`eodsum;"summary table saved down successfully"]	
+  .lg.o[`eodsum;"summary table saved down successfully"];	
  };
 
 init[]															
