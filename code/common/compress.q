@@ -170,9 +170,9 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
                 / move the hash files too.
                 if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"];
                 /-log to the table if the algo wasn't 0
-                $[not 0=algo;statstab ,: (filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);statstab ,: (filetoCompress;algo;comprL;sizeuncomp)]];
+                statstab,:$[not 0=algo;(filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);(filetoCompress;algo;comprL;sizeuncomp)]];
             [$[(not count (-21!compressedFile));
-		[.lg.o[`compression; "Failed to compress file ",(string filetoCompress)];hdel compressedFile];
+		[.lg.o[`compression; "Failed to compress file ",string[filetoCompress]];hdel compressedFile];
 		.lg.o[`compression;$[algo=0;"Decompressed ";"Compressed "],"file ",string[compressedFile]," doesn't match original. Deleting new file"];hdel compressedFile;]]]
         ];
         / if already compressed/decompressed, then log that and skip.
