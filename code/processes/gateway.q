@@ -74,7 +74,9 @@
 
 \d .gw
 
-formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result] :$[not[status]and sync=`sync;'result;result];}}]
+//if error & sync message, throws an error. Else passes result as normal
+//status - 1b=success, 0b=error. sync = message type
+formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result]$[not[status]and sync=`sync;'result;result]}}]
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
@@ -298,7 +300,7 @@ getserversinitial:{[req;att]
  /- check if all servers report all the requirements - drop any that don't
  att:(where all each (key req) in/: key each att)#att;
 
- if[not count att;.gw.formatresponse[0b;`sync;"getservers: no servers report all requested attributes"]];
+ if[not count att;'"getservers: no servers report all requested attributes"];
 
  /- calculate where each of the requirements is in each of the attribute sets
  s:update serverid:key att from value req in'/: (key req)#/:att;
@@ -331,7 +333,7 @@ getserversindependent:{[req;att;besteffort]
  alldone:1+first where all each all each' maxs value s;
 
  if[(null alldone) and not besteffort;
-  .gw.formatresponse[0b;`sync;"getserversindependent: cannot satisfy query as not all attributes can be matched"]];
+  '"getserversindependent: cannot satisfy query as not all attributes can be matched"];
 
  /- use the filter to remove any rows which don't add value
  s:1!(0!s) w:where any each any each' filter;
@@ -362,7 +364,7 @@ getserverscross:{[req;att;besteffort]
 
  /- check if everything is done
  if[(count last util`remaining) and not besteffort;
-  .gw.formatresponse[0b;`sync;"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"]];
+  '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
 
  /- remove any rows which don't add value
  s:1!(0!s) w:where not 0=count each util`found;
@@ -376,7 +378,7 @@ getserverids:{[att]
 	// its a list of servertypes e.g. `rdb`hdb
 	servertype:att,();
 	missing:servertype except exec distinct servertype from .gw.servers where active;
-	if[count missing;.gw.formatresponse[0b;`sync;"not all of the requested server types are available; missing "," " sv string missing]];
+	if[count missing;'"not all of the requested server types are available; missing "," " sv string missing];
 	:(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
@@ -386,7 +388,7 @@ getserverids:{[att]
 	raze getserveridstype[delete servertype from att] each (),att`servertype; 
 	getserveridstype[att;`all]];
 
-  if[all 0=count each serverids;.gw.formatresponse[0b;`sync;"no servers match requested attributes"]];
+  if[all 0=count each serverids;'"no servers match requested attributes"];
   :serverids;
  }
 
@@ -413,13 +415,17 @@ getserveridstype:{[att;typ]
 	getserverscross[att;servers;besteffort]];
 
   serverids:first value flip $[99h=type res; key res; res];
-  if[all 0=count each serverids;.gw.formatresponse[0b;`sync;"no servers match ",string[typ]," requested attributes"]];
+  if[all 0=count each serverids;'"no servers match ",string[typ]," requested attributes"];
   :serverids;
  }
 
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- if[.gw.permissioned;if[.pm.allowed[.z.u; query];.gw.formatresponse[0b;`sync;"User is not permissioned to run this query from the gateway"]]];
+ if[.gw.permissioned;
+  if[.pm.allowed[.z.u; query];
+   @[neg .z.w;.gw.formatresponse[0b;`async;"User is not permissioned to run this query from the gateway"];()];
+   :()];
+  ];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -455,7 +461,7 @@ syncexecj:{[query;servertype;joinfunction]
  // check if the gateway allows the query to be called
  if[.gw.permissioned;if[not .pm.allowed [.z.u;query];.gw.formatresponse[0b;`sync;"User is not permissioned to run this query from the gateway"]]];
  // check if we have all the servers active
- serverids:getserverids[servertype];
+ serverids:@[getserverids;servertype;{.gw.formatresponse[0b;`sync;.gw.errorprefix,x]}];
  // check if gateway in eod reload phase
  if[checkeod[serverids];.gw.formatresponse[0b;`sync;"unable to query multiple servers during eod reload"]];
  // get the list of handles
