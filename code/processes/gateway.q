@@ -248,7 +248,7 @@ removeserverhandle:{[serverh]
  // 1) queries sent to this server but no reply back yet
  qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection";0b] each qids;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
 
  // 2) queries partially run + waiting for this server
@@ -259,13 +259,13 @@ removeserverhandle:{[serverh]
 	s:where (::)~/:res[1;;1]; 
 	$[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
 	}[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection";0b] each qids2;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for running query closed the connection";0b] each qids2;
  finishquery[qids2;1b;serverh]; 
 
  // 3) queries not yet run + waiting for this server
  qids3:exec queryid from .gw.queryqueue where null submittime, not `boolean${$[11h=type z; all z in x; all any each z in\: y]}[activeServerTypes;activeServerIDs] each servertype; 
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection";0b] each qids3;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for queued query closed the connection";0b] each qids3;
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
@@ -446,7 +446,7 @@ asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
 	servertype:res;
  ]]];
  if[count errStr;
-  @[neg .z.w;.gw.formatresponse[0b;`async;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr]];()];
+  @[neg .z.w;.gw.formatresponse[0b;`async;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout];
@@ -568,7 +568,8 @@ reloadstart:{
  /- extract ids of queries not yet returned
  qids:exec queryid from .gw.queryqueue where 1<count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}each servertype,null returntime;
  /- propagate a timeout error to each client
- if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];}
+ if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];
+ };
 
 reloadend:{
  .lg.o[`reload;"reload end called"];
