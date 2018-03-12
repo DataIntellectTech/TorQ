@@ -424,7 +424,8 @@ asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
  if[.gw.permissioned;
   if[not .pm.allowed[.z.u; query];
    @[neg .z.w;.gw.formatresponse[0b;`async;"User is not permissioned to run this query from the gateway"];()];
-   :()];
+   :();
+   ];
   ];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
@@ -484,7 +485,7 @@ syncexecj:{[query;servertype;joinfunction]
   [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
    .gw.formatresponse[s 0;`sync;s 1]];
   [failed:where not res[;0];
-   .gw.formatresponse[0b;`sync;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]] 
+   .gw.formatresponse[0b;`sync;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]];
  };
 
 syncexec:syncexecj[;;raze]
