@@ -41,12 +41,12 @@
 // each error will be prefixed with the errorprefix (currently "error: ")
 // the client should check if the result is a string, and if it is if it is prefixed with "error: "
 // errors will be returned when 
-//	a) the query times out
-// 	b) a back end server returns an error
-// 	c) the join function fails
-// 	d) a back end server fails
-// 	e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
-//	f) the query is executed successfully but the result is too big to serialize and send back ('limit)
+//  a) the query times out
+//  b) a back end server returns an error
+//  c) the join function fails
+//  d) a back end server fails
+//  e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
+//  f) the query is executed successfully but the result is too big to serialize and send back ('limit)
 // If postback functions are used, the error string will be posted back within the postback function 
 // (i.e. it will be packed the same way as a valid result)
 
@@ -74,16 +74,16 @@
 
 \d .gw
 
-synccallsallowed:@[value;`.gw.synccallsallowed; 0b]		// whether synchronous calls are allowed
-querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]		// the time to keep queries in the 
-errorprefix:@[value;`.gw.errorprefix; "error: "]		// the prefix for clients to look for in error strings
-permissioned:@[value;`.gw.permissioned; 0b]               // should the gateway permission queries before the permissions script does 
-clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]  // the time to store data on inactive handles
+formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result]$[not[status]and sync;'result;result]}}]
+synccallsallowed:@[value;`.gw.synccallsallowed; 0b]              // whether synchronous calls are allowed
+querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]               // the time to keep queries in the 
+errorprefix:@[value;`.gw.errorprefix; "error: "]                 // the prefix for clients to look for in error strings
+permissioned:@[value;`.gw.permissioned; 0b]                      // should the gateway permission queries before the permissions script does 
+clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]       // the time to store data on inactive handles
 
-eod:0b		
+eod:0b    
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
 checkeod:{[IDS].gw.eod&1<count distinct$[11h=type ids:raze IDS;ids;exec servertype from .gw.servers where any serverid in/:ids]}    // check if eod reload affects query
-
 
 // Track query IDs
 queryid:0
@@ -92,7 +92,7 @@ serverid:0
 nextserverid:{.gw.serverid:.gw.serverid+1; .gw.serverid}
 
 // Store the incoming queries
-queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:(); servertype:(); queryattributes:(); join:(); postback:(); timeout:`timespan$(); submittime:`timestamp$(); returntime:`timestamp$(); error:`boolean$();attributequery:`boolean$())
+queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:(); servertype:(); queryattributes:(); join:(); postback:(); timeout:`timespan$(); submittime:`timestamp$(); returntime:`timestamp$(); error:`boolean$();attributequery:`boolean$();sync:`boolean$())
 
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
@@ -128,7 +128,7 @@ canberun:{
  // check if it's possible to run anything
  availServers:availableserverstable[1b];
  if[0=count avail:distinct exec servertype from availServers;
-	:update required:(),available:(),handles:() from 0#0!queryqueue];
+  :update required:(),available:(),handles:() from 0#0!queryqueue];
   availIDs:exec serverid from availServers;
  queue:$[eod;select from queryqueue where 1=count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}servertype;queryqueue];
  select from 
@@ -140,8 +140,8 @@ canberun:{
  where 0<count each raze each available}
 
 // Manage client queries
-addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout] 
-   `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes)}
+addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync] 
+   `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)}
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue where clienth=x;}
@@ -219,17 +219,21 @@ sendclientreply:{[queryid;result]
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
-	result;
-	(querydetails`postback),(enlist querydetails`query),enlist result];
- @[neg querydetails`clienth;tosend;()]}
+  result;
+  (querydetails`postback),(enlist querydetails`query),enlist result];
+ $[querydetails`sync;
+  // return sync response
+  // for now if the result is a string, and the start is equivalent to the error prefix, return as error
+  -30!(querydetails`clienth;$[10h=type result;errorprefix~(count errorprefix)#result;0b];result);
+  @[neg querydetails`clienth;tosend;()]]}
 
 // execute a query on the server.  Catch the error, propagate back
 serverexecute:{[queryid;query] 
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
  @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
-	// if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
-	{@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
+  // if we fail to send the result back it might be something IPC related, e.g. limit error, so try just sending back an error message
+  {@[neg .z.w;(`.gw.addservererror;x;"failed to return query from server ",(string .z.h),":",(string system"p"),": ",y);()]}[queryid]];}
 // send a query to a server 
 sendquerytoserver:{[queryid;query;serverh]
  (neg serverh,:())@\:(serverexecute;queryid;query);
@@ -253,9 +257,9 @@ removeserverhandle:{[serverh]
  activeServerTypes:distinct exec servertype from .gw.servers where active, handle<>serverh;
 
  qids2:where {[res;id;aIDs;aTypes] 
-	s:where (::)~/:res[1;;1]; 
-	$[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
-	}[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
+  s:where (::)~/:res[1;;1]; 
+  $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
+  }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
  sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection"] each qids2;
  finishquery[qids2;1b;serverh]; 
 
@@ -273,7 +277,7 @@ removeserverhandle:{[serverh]
 
 // clear out long time inactive servers
 removeinactive:{[inactivity]
-	delete from `.gw.servers where not active,disconnecttime<.proc.cp[]-inactivity}
+  delete from `.gw.servers where not active,disconnecttime<.proc.cp[]-inactivity}
 
 // timeout queries
 checktimeout:{
@@ -372,18 +376,18 @@ getserverscross:{[req;att;besteffort]
 
 getserverids:{[att]
   if[99h<>type att;
-	// its a list of servertypes e.g. `rdb`hdb
-	servertype:att,();
-	missing:servertype except exec distinct servertype from .gw.servers where active;
-	if[count missing; '"not all of the requested server types are available; missing "," " sv string missing];
-	:(exec serverid by servertype from .gw.servers where active)[servertype];
+  // its a list of servertypes e.g. `rdb`hdb
+  servertype:att,();
+  missing:servertype except exec distinct servertype from .gw.servers where active;
+  if[count missing; '"not all of the requested server types are available; missing "," " sv string missing];
+  :(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
   // its a dictionary of attributes
 
   serverids:$[`servertype in key att; 
-	raze getserveridstype[delete servertype from att] each (),att`servertype; 
-	getserveridstype[att;`all]];
+  raze getserveridstype[delete servertype from att] each (),att`servertype; 
+  getserveridstype[att;`all]];
 
   if[all 0=count each serverids; '"no servers match requested attributes"];
   :serverids;
@@ -395,21 +399,21 @@ getserveridstype:{[att;typ]
   attype:`cross;
 
   servers:$[typ=`all;
-		exec serverid!attributes from .gw.servers where active;
-		exec serverid!attributes from .gw.servers where active, servertype=typ];
+    exec serverid!attributes from .gw.servers where active;
+    exec serverid!attributes from .gw.servers where active, servertype=typ];
 
   if[`besteffort in key att;
-	if[-1h=type att`besteffort; besteffort:att`besteffort];
-	att:delete besteffort from att;
+  if[-1h=type att`besteffort; besteffort:att`besteffort];
+  att:delete besteffort from att;
   ];
   if[`attributetype in key att;
-	if[-11h=type att`attributetype; attype:att`attributetype];
-	att:delete attributetype from att;
+  if[-11h=type att`attributetype; attype:att`attributetype];
+  att:delete attributetype from att;
   ];
 
   res:$[attype=`independent; 
-	getserversindependent[att;servers;besteffort];
-	getserverscross[att;servers;besteffort]];
+  getserversindependent[att;servers;besteffort];
+  getserverscross[att;servers;besteffort]];
 
   serverids:first value flip $[99h=type res; key res; res];
   if[all 0=count each serverids; '"no servers match ",string[typ]," requested attributes"];
@@ -417,40 +421,46 @@ getserveridstype:{[att;typ]
  }
 
 // execute an asynchronous query
-asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
- if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
+ if[.gw.permissioned;if[not .pm.allowed[.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
+ $[.gw.synccallsallowed and .z.K<3.6;errStr:.gw.errorprefix,"only synchronous calls are allowed";
  [errStr:"";
  if[99h<>type servertype;
-	// its a list of servertypes e.g. `rdb`hdb
-	servertype,:();
-	missing:(servertype,()) except exec distinct servertype from .gw.servers where active;
-	if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
-	queryattributes:()!();
+  // its a list of servertypes e.g. `rdb`hdb
+  servertype:distinct servertype,();
+  missing:(servertype,()) except exec distinct servertype from .gw.servers where active;
+  if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
+  queryattributes:()!();
  ];
  if[99h=type servertype;
-	// its a dictionary of attributes
-	queryattributes:servertype;
-	res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-	if[10h=type res; errStr:res];
-	if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
-	servertype:res;
+  // its a dictionary of attributes
+  queryattributes:servertype;
+  res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
+  if[10h=type res; errStr:res];
+  if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
+  servertype:res;
  ]]];
+ // error has been hit
  if[count errStr;
-  @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()];
+  $[sync;
+   // if request has come in sync, signal it back
+   'errStr;
+   // else send it back
+   @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()]];
   :()];
 
- addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout];
+ addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
  runnextquery[];
  }
 
+asyncexecjpt:asyncexecjpts[;;;;;0b]
 asyncexec:asyncexecjpt[;;raze;();0Wn]
 
 // execute a synchronous query
-syncexecj:{[query;servertype;joinfunction]
- if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
+syncexecjpre36:{[query;servertype;joinfunction]
+ if[not[.gw.synccallsallowed] and .z.K<3.6; '`$"synchronous calls are not allowed"];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  // check if we have all the servers active
@@ -479,8 +489,21 @@ syncexecj:{[query;servertype;joinfunction]
    '`$"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
  }
 
-syncexec:syncexecj[;;raze]
+syncexecjt:{[query;servertype;joinfunction;timeout]
+ // can only be used on 3.6 + 
+ // use async call back function, flag it as sync
+ // doesn't make sense to allow specification of a callback for sync requests
+ asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
+ // defer response
+ -30!(::);
+ }; 
 
+$[.z.K < 3.6;
+ [syncexecj:syncexecjpre36;
+  syncexec:syncexecjpre36[;;raze]];
+ [syncexecj:syncexecjt[;;;0Wn];
+  syncexec:syncexecjt[;;raze;0Wn]]] 
+ 
 // run a query
 runquery:{[]
  // check if there is something to run
@@ -494,8 +517,8 @@ runquery:{[]
   // get the handles to run on
   avail:availableserverstable[1b];
   IDs:$[11h=type torun`available; 
-	(exec first serverid by servertype from avail)[torun`available]; 
-	first each (exec serverid from avail) inter/: torun`available];
+  (exec first serverid by servertype from avail)[torun`available]; 
+  first each (exec serverid from avail) inter/: torun`available];
   handles:avail[([]serverid:IDs);`handle];
   // update the results dictionary
   addservertoquery[torun`queryid;torun`available;IDs]; 
@@ -641,5 +664,6 @@ neg[h](`.gw.asyncexec;"`$last .z.x";update besteffort:0b from enlist[`date]!enli
 neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`hdb;raze;();0D00:00:03);h[]
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
+
 
 
