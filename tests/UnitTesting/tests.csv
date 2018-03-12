@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+true,0,0,,quoteBENCHMARK~100#tMan[h(".eod.queryq[first exec w from .servers.SERVERS where procname=`hdb1;2018.03.08]");"f"],,, checking queryq
+true,0,0,,tradeBENCHMARK~tMan[0!h(".eod.queryt[first exec w from .servers.SERVERS where procname=`hdb1;2018.03.08]");"f"],,, checking queryt
+true,0,0,,tablerBENCHMARK~tMan[0!h(".eod.tabler[first exec w from .servers.SERVERS where procname=`hdb1;2018.03.08]");"f"],,, checking tabler
