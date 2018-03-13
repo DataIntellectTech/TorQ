@@ -74,7 +74,9 @@
 
 \d .gw
 
-formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result]$[not[status]and sync;'result;result]}}]
+//if error & sync message, throws an error. Else passes result as normal
+//status - 1b=success, 0b=error. sync = message type
+formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result]$[not[status]and sync;'result;result]}}];
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]              // whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]               // the time to keep queries in the 
 errorprefix:@[value;`.gw.errorprefix; "error: "]                 // the prefix for clients to look for in error strings
@@ -193,7 +195,7 @@ addserverresult:{[queryid; results]
 // handle an error coming back from the server
 addservererror:{[queryid;error]
  // propagate the error to the client
- sendclientreply[queryid;.gw.errorprefix,error];
+ sendclientreply[queryid;.gw.errorprefix,error;0b];
  setserverstate[.z.w;0b];
  runnextquery[];
  // finish the query
@@ -208,13 +210,13 @@ checkresults:{[queryid]
   // If there only is one result, then just return it - ignore the join function
   res:@[{(0b;$[1<count y;$[10h=type x;value(x;y); x @ y];first y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
   // send the results back to the client.
-  sendclientreply[queryid;last res];
+  sendclientreply[queryid;last res;not res 0];
   // finish the query
   finishquery[queryid;res 0;0Ni]];}
 
 // build and send a response to go to the client
 // if the postback function is defined, then wrap the result in that, and also send back the original query
-sendclientreply:{[queryid;result]
+sendclientreply:{[queryid;result;status]
  querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
@@ -225,10 +227,11 @@ sendclientreply:{[queryid;result]
   // return sync response
   // for now if the result is a string, and the start is equivalent to the error prefix, return as error
   -30!(querydetails`clienth;$[10h=type result;errorprefix~(count errorprefix)#result;0b];result);
-  @[neg querydetails`clienth;tosend;()]]}
+  @[neg querydetails`clienth;tosend;()]];
+ };
 
 // execute a query on the server.  Catch the error, propagate back
-serverexecute:{[queryid;query] 
+serverexecute:{[queryid;query]
  res:@[{(0b;value x)};query;{(1b;"failed to run query on server ",(string .z.h),":",(string system"p"),": ",x)}];
  // send back the result, in an error trap
  @[neg .z.w; $[res 0; (`.gw.addservererror;queryid;res 1); (`.gw.addserverresult;queryid;res 1)]; 
@@ -422,7 +425,12 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
- if[.gw.permissioned;if[not .pm.allowed[.z.u;query];'"User is not permissioned to run this query from the gateway"]];
+ if[.gw.permissioned;
+  if[not .pm.allowed[.z.u;query];
+   @[neg .z.w;.gw.formatresponse[0b;sync;"User is not permissioned to run this query from the gateway"];()];
+   :();
+   ];
+  ]; 
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -444,29 +452,31 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  ]]];
  // error has been hit
  if[count errStr;
-  $[sync;
-   // if request has come in sync, signal it back
-   'errStr;
-   // else send it back
-   @[neg .z.w;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],(enlist query),enlist errStr];()]];
+  // if request has come in sync, signal it back
+  // else send it back - does postback matter for sync?
+  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
  runnextquery[];
- }
+ };
 
 asyncexecjpt:asyncexecjpts[;;;;;0b]
 asyncexec:asyncexecjpt[;;raze;();0Wn]
 
 // execute a synchronous query
 syncexecjpre36:{[query;servertype;joinfunction]
- if[not[.gw.synccallsallowed] and .z.K<3.6; '`$"synchronous calls are not allowed"];
+ if[not[.gw.synccallsallowed] and .z.K<3.6;.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
  // check if the gateway allows the query to be called
- if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
+ if[.gw.permissioned;
+  if[not .pm.allowed [.z.u;query];
+   .gw.formatresponse[0b;1b;"User is not permissioned to run this query from the gateway"];
+   ];
+  ];
  // check if we have all the servers active
- serverids:getserverids[servertype];
+ serverids:@[getserverids;servertype;{.gw.formatresponse[0b;1b;.gw.errorprefix,x]}];
  // check if gateway in eod reload phase
- if[checkeod[serverids]; '"unable to query multiple servers during eod reload"];
+ if[checkeod[serverids];.gw.formatresponse[0b;1b;"unable to query multiple servers during eod reload"]];
  // get the list of handles
  tab:availableserverstable[0b];
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
@@ -484,10 +494,11 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // check if there are any errors in the returned results
  $[all res[;0];
   // no errors - join the results
-  @[joinfunction;res[;2];{'`$"failed to apply supplied join function to results: ",x}];
+  [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
+   .gw.formatresponse[s 0;1b;s 1]];
   [failed:where not res[;0];
-   '`$"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]] 
- }
+   .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]]; 
+ };
 
 syncexecjt:{[query;servertype;joinfunction;timeout]
  // can only be used on 3.6 + 
