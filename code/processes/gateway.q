@@ -226,8 +226,8 @@ sendclientreply:{[queryid;result;status]
  $[querydetails`sync;
   // return sync response
   // for now if the result is a string, and the start is equivalent to the error prefix, return as error
-  -30!(querydetails`clienth;$[10h=type result;errorprefix~(count errorprefix)#result;0b];result);
-  @[neg querydetails`clienth;tosend;()]];
+  -30!(querydetails`clienth;$[10h=type result;errorprefix~(count errorprefix)#result;0b];.gw.formatresponse[status;1b;result]);
+  @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
  };
 
 // execute a query on the server.  Catch the error, propagate back
@@ -252,7 +252,7 @@ removeserverhandle:{[serverh]
  // 1) queries sent to this server but no reply back yet
  qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection"] each qids;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
 
  // 2) queries partially run + waiting for this server
@@ -263,13 +263,13 @@ removeserverhandle:{[serverh]
   s:where (::)~/:res[1;;1]; 
   $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
   }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection"] each qids2;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection";0b] each qids2;
  finishquery[qids2;1b;serverh]; 
 
  // 3) queries not yet run + waiting for this server
  qids3:exec queryid from .gw.queryqueue where null submittime, not `boolean${$[11h=type z; all z in x; all any each z in\: y]}[activeServerTypes;activeServerIDs] each servertype; 
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection"] each qids3;
+ sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection";0b] each qids3;
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
@@ -287,7 +287,7 @@ checktimeout:{
  qids:exec queryid from .gw.queryqueue where not timeout=0Wn,.proc.cp[] > time+timeout,null returntime;
  // propagate a timeout error to each client
  if[count qids;
-  sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value"] each qids;
+  sendclientreply[;.gw.errorprefix,"query has exceeded specified timeout value";0b] each qids;
   finishquery[qids;1b;0Ni]];
  }
 
@@ -594,7 +594,7 @@ reloadstart:{
  /- extract ids of queries not yet returned
  qids:exec queryid from .gw.queryqueue where 1<count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}each servertype,null returntime;
  /- propagate a timeout error to each client
- if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload"]each qids;.gw.finishquery[qids;1b;0Ni]];}
+ if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];}
 
 reloadend:{
  .lg.o[`reload;"reload end called"];
