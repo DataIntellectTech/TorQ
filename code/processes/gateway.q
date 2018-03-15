@@ -512,7 +512,7 @@ $[.z.K < 3.6;
  [syncexecj:syncexecjpre36;
   syncexec:syncexecjpre36[;;raze]];
  [syncexecj:syncexecjt[;;;0Wn];
-  syncexec:syncexecjt[;;raze;0Wn]]] 
+  syncexec:syncexecjt[;;raze;0Wn]]]; 
  
 // run a query
 runquery:{[]
