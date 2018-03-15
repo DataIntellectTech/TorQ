@@ -142,8 +142,9 @@ canberun:{
  where 0<count each raze each available}
 
 // Manage client queries
-addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync] 
-   `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)}
+addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync]
+  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)
+ };
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue where clienth=x;}
@@ -216,8 +217,8 @@ checkresults:{[queryid]
 
 // build and send a response to go to the client
 // if the postback function is defined, then wrap the result in that, and also send back the original query
-sendclientreply:{[queryid;result;status].l.l:5;
- .k.k:querydetails:queryqueue[queryid];
+sendclientreply:{[queryid;result;status]
+ querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
@@ -225,7 +226,7 @@ sendclientreply:{[queryid;result;status].l.l:5;
   (querydetails`postback),(enlist querydetails`query),enlist result];
  $[querydetails`sync;
   // return sync response
-  -30!(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;tosend];tosend]);
+  -30!(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);
   @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
  };
 
@@ -402,14 +403,14 @@ getserveridstype:{[att;typ]
 
   servers:$[typ=`all;
     exec serverid!attributes from .gw.servers where active;
-    exec serverid!attributes from .gw.servers where active, servertype=typ];
+    exec serverid!attributes from .gw.servers where active,servertype=typ];
 
   if[`besteffort in key att;
-  if[-1h=type att`besteffort; besteffort:att`besteffort];
+  if[-1h=type att`besteffort;besteffort:att`besteffort];
   att:delete besteffort from att;
   ];
   if[`attributetype in key att;
-  if[-11h=type att`attributetype; attype:att`attributetype];
+  if[-11h=type att`attributetype;attype:att`attributetype];
   att:delete attributetype from att;
   ];
 
@@ -418,7 +419,7 @@ getserveridstype:{[att;typ]
   getserverscross[att;servers;besteffort]];
 
   serverids:first value flip $[99h=type res; key res; res];
-  if[all 0=count each serverids; '"no servers match ",string[typ]," requested attributes"];
+  if[all 0=count each serverids;'"no servers match ",string[typ]," requested attributes"];
   :serverids;
  }
 
@@ -451,11 +452,8 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  ]]];
  // error has been hit
  if[count errStr;
-  // if request has come in sync, signal it back
-  // else send it back - does postback matter for sync?
   @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
   :()];
-  .t.t:res;
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
  runnextquery[];
@@ -595,7 +593,8 @@ reloadstart:{
  /- extract ids of queries not yet returned
  qids:exec queryid from .gw.queryqueue where 1<count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}each servertype,null returntime;
  /- propagate a timeout error to each client
- if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];}
+ if[count qids;.gw.sendclientreply[;.gw.errorprefix,"query did not return prior to eod reload";0b]each qids;.gw.finishquery[qids;1b;0Ni]];
+ };
 
 reloadend:{
  .lg.o[`reload;"reload end called"];
