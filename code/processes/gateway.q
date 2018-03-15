@@ -41,12 +41,12 @@
 // each error will be prefixed with the errorprefix (currently "error: ")
 // the client should check if the result is a string, and if it is if it is prefixed with "error: "
 // errors will be returned when 
-//  a) the query times out
-//  b) a back end server returns an error
-//  c) the join function fails
-//  d) a back end server fails
-//  e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
-//  f) the query is executed successfully but the result is too big to serialize and send back ('limit)
+//     a) the query times out
+//     b) a back end server returns an error
+//     c) the join function fails
+//     d) a back end server fails
+//     e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
+//     f) the query is executed successfully but the result is too big to serialize and send back ('limit)
 // If postback functions are used, the error string will be posted back within the postback function 
 // (i.e. it will be packed the same way as a valid result)
 
@@ -74,8 +74,8 @@
 
 \d .gw
 
-//if error & sync message, throws an error. Else passes result as normal
-//status - 1b=success, 0b=error. sync = message type
+// if error & sync message, throws an error. Else passes result as normal
+// status - 1b=success, 0b=error. sync - 1b=sync, 0b=async
 formatresponse:@[value;`.gw.formatresponse;{{[status;sync;result]$[not[status]and sync;'result;result]}}];
 synccallsallowed:@[value;`.gw.synccallsallowed; 0b]              // whether synchronous calls are allowed
 querykeeptime:@[value;`.gw.querykeeptime; 0D00:30]               // the time to keep queries in the 
@@ -216,8 +216,8 @@ checkresults:{[queryid]
 
 // build and send a response to go to the client
 // if the postback function is defined, then wrap the result in that, and also send back the original query
-sendclientreply:{[queryid;result;status]
- querydetails:queryqueue[queryid];
+sendclientreply:{[queryid;result;status].l.l:5;
+ .k.k:querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
@@ -225,8 +225,7 @@ sendclientreply:{[queryid;result;status]
   (querydetails`postback),(enlist querydetails`query),enlist result];
  $[querydetails`sync;
   // return sync response
-  // for now if the result is a string, and the start is equivalent to the error prefix, return as error
-  -30!(querydetails`clienth;$[10h=type result;errorprefix~(count errorprefix)#result;0b];.gw.formatresponse[status;1b;result]);
+  -30!(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;tosend];tosend]);
   @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
  };
 
@@ -252,7 +251,7 @@ removeserverhandle:{[serverh]
  // 1) queries sent to this server but no reply back yet
  qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server handling query closed the connection";0b] each qids;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
 
  // 2) queries partially run + waiting for this server
@@ -263,13 +262,13 @@ removeserverhandle:{[serverh]
   s:where (::)~/:res[1;;1]; 
   $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
   }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for running query closed the connection";0b] each qids2;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for running query closed the connection";0b] each qids2;
  finishquery[qids2;1b;serverh]; 
 
  // 3) queries not yet run + waiting for this server
  qids3:exec queryid from .gw.queryqueue where null submittime, not `boolean${$[11h=type z; all z in x; all any each z in\: y]}[activeServerTypes;activeServerIDs] each servertype; 
  // propagate an error back to each client
- sendclientreply[;.gw.errorprefix,"backend ",(string servertype)," server for queued query closed the connection";0b] each qids3;
+ sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for queued query closed the connection";0b] each qids3;
  finishquery[qids3;1b;serverh]; 
 
  // mark the server as inactive
@@ -304,7 +303,7 @@ getserversinitial:{[req;att]
  /- check if all servers report all the requirements - drop any that don't
  att:(where all each (key req) in/: key each att)#att;
 
- if[not count att; '"getservers: no servers report all requested attributes"];
+ if[not count att;'"getservers: no servers report all requested attributes"];
 
  /- calculate where each of the requirements is in each of the attribute sets
  s:update serverid:key att from value req in'/: (key req)#/:att;
@@ -337,7 +336,7 @@ getserversindependent:{[req;att;besteffort]
  alldone:1+first where all each all each' maxs value s;
 
  if[(null alldone) and not besteffort;
-        '"getserversindependent: cannot satisfy query as not all attributes can be matched"];
+  '"getserversindependent: cannot satisfy query as not all attributes can be matched"];
 
  /- use the filter to remove any rows which don't add value
  s:1!(0!s) w:where any each any each' filter;
@@ -368,7 +367,7 @@ getserverscross:{[req;att;besteffort]
 
  /- check if everything is done
  if[(count last util`remaining) and not besteffort;
-        '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
+  '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
 
  /- remove any rows which don't add value
  s:1!(0!s) w:where not 0=count each util`found;
@@ -456,6 +455,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
   // else send it back - does postback matter for sync?
   @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
   :()];
+  .t.t:res;
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
  runnextquery[];
@@ -497,7 +497,8 @@ syncexecjpre36:{[query;servertype;joinfunction]
   [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
    .gw.formatresponse[s 0;1b;s 1]];
   [failed:where not res[;0];
-   .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]]; 
+   .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]
+  ]
  };
 
 syncexecjt:{[query;servertype;joinfunction;timeout]
