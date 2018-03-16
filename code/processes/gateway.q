@@ -47,7 +47,7 @@
 //     d) a back end server fails
 //     e) the client requests a query against a server type which currently isn't active (this error is returned immediately)
 //     f) the query is executed successfully but the result is too big to serialize and send back ('limit)
-// If postback functions are used, the error string will be posted back within the postback function 
+// If postback functions are used, the error string will be posted back within the postback function
 // (i.e. it will be packed the same way as a valid result)
 
 // If the client closes connection before getting results, the back end servers will still continue to execute
@@ -187,7 +187,7 @@ addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
-addserverresult:{[queryid; results] 
+addserverresult:{[queryid;results]
  serverid:first exec serverid from .gw.servers where active, handle=.z.w;
  if[queryid in key .gw.results; .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results]];
  setserverstate[.z.w;0b];
@@ -379,11 +379,11 @@ getserverscross:{[req;att;besteffort]
 
 getserverids:{[att]
   if[99h<>type att;
-  // its a list of servertypes e.g. `rdb`hdb
-  servertype:att,();
-  missing:servertype except exec distinct servertype from .gw.servers where active;
-  if[count missing; '"not all of the requested server types are available; missing "," " sv string missing];
-  :(exec serverid by servertype from .gw.servers where active)[servertype];
+	// its a list of servertypes e.g. `rdb`hdb
+	servertype:att,();
+	missing:servertype except exec distinct servertype from .gw.servers where active;
+	if[count missing;'"not all of the requested server types are available; missing "," " sv string missing];
+	:(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
   // its a dictionary of attributes
@@ -392,7 +392,7 @@ getserverids:{[att]
   raze getserveridstype[delete servertype from att] each (),att`servertype; 
   getserveridstype[att;`all]];
 
-  if[all 0=count each serverids; '"no servers match requested attributes"];
+  if[all 0=count each serverids;'"no servers match requested attributes"];
   :serverids;
  }
 
