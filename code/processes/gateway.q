@@ -83,7 +83,7 @@ errorprefix:@[value;`.gw.errorprefix; "error: "]                 // the prefix f
 permissioned:@[value;`.gw.permissioned; 0b]                      // should the gateway permission queries before the permissions script does 
 clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]       // the time to store data on inactive handles
 
-eod:0b    
+eod:0b
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
 checkeod:{[IDS].gw.eod&1<count distinct$[11h=type ids:raze IDS;ids;exec servertype from .gw.servers where any serverid in/:ids]}    // check if eod reload affects query
 
@@ -430,7 +430,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    @[neg .z.w;.gw.formatresponse[0b;sync;"User is not permissioned to run this query from the gateway"];()];
    :();
    ];
-  ]; 
+  ];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -675,6 +675,5 @@ neg[h](`.gw.asyncexec;"`$last .z.x";update besteffort:0b from enlist[`date]!enli
 neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`hdb;raze;();0D00:00:03);h[]
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
-
 
 
