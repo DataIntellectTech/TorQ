@@ -177,5 +177,4 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
 		.lg.o[`compression;cmp,"compressed ","file ",string[compressedFile]," doesn't match original. Deleting new file"];hdel compressedFile;]]]
         ];
         / if already compressed/decompressed, then log that and skip.
-        [((not 0 = count -21!filetoCompress) & not 0 = algo)|((0 = count -21!filetoCompress) & 0 = algo)];
-        .lg.o[`compression; "file ", (string filetoCompress), " is already ",cmp,"compressed",". Skipping this file"];]}
+        .lg.o[`compression; "file ", (string filetoCompress), " is already ",cmp,"compressed",". Skipping this file"]]}
