@@ -158,23 +158,23 @@ summarystats:{
 compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
     compressedFile: hsym `$(string filetoCompress),"_kdbtempzip";
     / compress or decompress as appropriate:
+    cmp:$[algo=0;"de";""];
     $[((0 = count -21!filetoCompress) & not 0 = algo)|((not 0 = count -21!filetoCompress) & 0 = algo);
-        [.lg.o[`compression;$[algo=0;"Decompressing ";"Compressing "],"file ", (string filetoCompress), " with algo: ", (string algo), ", blocksize: ", (string blocksize), ", and level: ", (string level), "."];
+        [.lg.o[`compression;cmp,"compressing ","file ", (string filetoCompress), " with algo: ", (string algo), ", blocksize: ", (string blocksize), ", and level: ", (string level), "."];
          / perform the compression/decompression
         if[0=algo;comprL:(-21!filetoCompress)`compressedLength];
         -19!(filetoCompress;compressedFile;blocksize;algo;level);
          / check the compressed/decomp file and move if appropriate; else delete compressed file and log error
         $[((get compressedFile)~sf:get filetoCompress) & (count -21!compressedFile) or algo=0;
-            [.lg.o[`compression;"File ", $[algo=0;"decompressed ";"compressed "],"successfully; matches orginal. Deleting original."];
+            [.lg.o[`compression;"File ",cmp,"compressed ","successfully; matches orginal. Deleting original."];
                 system "r ", (last ":" vs string compressedFile)," ", last ":" vs string filetoCompress;
                 / move the hash files too.
                 if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"];
                 /-log to the table if the algo wasn't 0
-                $[not 0=algo;statstab ,: (filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);statstab ,: (filetoCompress;algo;comprL;sizeuncomp)]];
-            [$[(not count (-21!compressedFile));
-		[.lg.o[`compression; "Failed to compress file ",(string filetoCompress)];hdel compressedFile];
-		.lg.o[`compression; $[algo=0;"Decompressed ";"Compressed "], "file ", (string compressedFile), " doesn't match original. Deleting new file"]; hdel compressedFile]]]
+                statstab,:$[not 0=algo;(filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);(filetoCompress;algo;comprL;sizeuncomp)]];
+            [$[not count -21!compressedFile;
+		[.lg.o[`compression; "Failed to compress file ",string[filetoCompress]];hdel compressedFile];
+		[.lg.o[`compression;cmp,"compressed ","file ",string[compressedFile]," doesn't match original. Deleting new file"];hdel compressedFile]]]]
         ];
         / if already compressed/decompressed, then log that and skip.
-        [((not 0 = count -21!filetoCompress) & not 0 = algo)|((0 = count -21!filetoCompress) & 0 = algo)];
-        .lg.o[`compression; "file ", (string filetoCompress), " is already ",$[0=algo; "decompressed";"compressed"],". Skipping this file"]]}
+        .lg.o[`compression; "file ", (string filetoCompress), " is already ",cmp,"compressed",". Skipping this file"]]}

@@ -67,7 +67,7 @@ jsformat:{ k:cols x; flip k !(y value t:type each x)@'value x:flip 0!x}
 // Arg: dictionary decoded front end JSON  
 // format should be `func`arg1`arg2 ... `arg8!(function;arg1;arg2;...;arg3)
 // all args except arg1 are optional
-execdict:{$[not `func in key x;'"no func in dictionary";1=count key x;(value x`func) @ 1;1<count key x;(value x`func) . value x _ `func]}
+execdict:{$[not `func in key x;'"no func in dictionary";1=count key x;(value x`func) @ 1;1<count key x;(value x`func) . value x _ `func;()]}
 // Arg: string JSON encoded string from front end
 evaluate:{@[execdict;x;{'"failed to execute ",(-3!x)," : ",y}[x]]}
 
