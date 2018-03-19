@@ -130,7 +130,8 @@ canberun:{
  // check if it's possible to run anything
  availServers:availableserverstable[1b];
  if[0=count avail:distinct exec servertype from availServers;
-  :update required:(),available:(),handles:() from 0#0!queryqueue];
+  :update required:(),available:(),handles:() from 0#0!queryqueue;
+  ];
   availIDs:exec serverid from availServers;
  queue:$[eod;select from queryqueue where 1=count each distinct each{@[(exec serverid!servertype from .gw.servers)@;x;x]}servertype;queryqueue];
  select from 
@@ -226,7 +227,7 @@ sendclientreply:{[queryid;result;status]
   (querydetails`postback),(enlist querydetails`query),enlist result];
  $[querydetails`sync;
   // return sync response
-  -30!(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);
+  @[-30!;(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);{.lg.o[`syncexec;x]}];
   @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
  };
 
@@ -406,12 +407,12 @@ getserveridstype:{[att;typ]
     exec serverid!attributes from .gw.servers where active,servertype=typ];
 
   if[`besteffort in key att;
-  if[-1h=type att`besteffort;besteffort:att`besteffort];
-  att:delete besteffort from att;
+    if[-1h=type att`besteffort;besteffort:att`besteffort];
+    att:delete besteffort from att;
   ];
   if[`attributetype in key att;
-  if[-11h=type att`attributetype;attype:att`attributetype];
-  att:delete attributetype from att;
+    if[-11h=type att`attributetype;attype:att`attributetype];
+    att:delete attributetype from att;
   ];
 
   res:$[attype=`independent; 
@@ -490,13 +491,13 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
  // check if there are any errors in the returned results
- $[all res[;0];
+ :$[all res[;0];
   // no errors - join the results
   [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
    .gw.formatresponse[s 0;1b;s 1]];
   [failed:where not res[;0];
    .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]
-  ]
+  ];
  };
 
 syncexecjt:{[query;servertype;joinfunction;timeout]
@@ -505,7 +506,7 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
  // doesn't make sense to allow specification of a callback for sync requests
  asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
  // defer response
- -30!(::);
+ @[-30!;(::);()];
  }; 
 
 $[.z.K < 3.6;
