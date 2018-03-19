@@ -224,12 +224,12 @@ sendclientreply:{[queryid;result;status]
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
  tosend:$[()~querydetails[`postback];
-  result;
-  (querydetails`postback),(enlist querydetails`query),enlist result];
+   result;
+   querydetails[`postback],enlist[querydetails`query],enlist result];
  $[querydetails`sync;
-  // return sync response
-  @[-30!;(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);{.lg.o[`syncexec;x]}];
-  @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
+   // return sync response
+   @[-30!;(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);{.lg.o[`syncexec;x]}];
+   @[neg querydetails`clienth;.gw.formatresponse[status;0b;tosend];()]];
  };
 
 // execute a query on the server.  Catch the error, propagate back
@@ -435,23 +435,26 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
   ];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed and .z.K<3.6;errStr:.gw.errorprefix,"only synchronous calls are allowed";
- [errStr:"";
- if[99h<>type servertype;
-  // its a list of servertypes e.g. `rdb`hdb
-  servertype:distinct servertype,();
-  missing:(servertype,()) except exec distinct servertype from .gw.servers where active;
-  if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
-  queryattributes:()!();
- ];
- if[99h=type servertype;
-  // its a dictionary of attributes
-  queryattributes:servertype;
-  res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-  if[10h=type res; errStr:res];
-  if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
-  servertype:res;
- ]]];
+ $[.gw.synccallsallowed and .z.K<3.6;
+   errStr:.gw.errorprefix,"only synchronous calls are allowed";
+   [errStr:"";
+   if[99h<>type servertype;
+     // its a list of servertypes e.g. `rdb`hdb
+     servertype:distinct servertype,();
+     missing:servertype except exec distinct servertype from .gw.servers where active;
+     if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
+     queryattributes:()!();
+    ];
+   if[99h=type servertype;
+     // its a dictionary of attributes
+     queryattributes:servertype;
+     res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
+     if[10h=type res; errStr:res];
+     if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
+     servertype:res;
+    ];
+   ]
+  ];
  // error has been hit
  if[count errStr;
   @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
@@ -469,9 +472,9 @@ syncexecjpre36:{[query;servertype;joinfunction]
  if[not[.gw.synccallsallowed] and .z.K<3.6;.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;
-  if[not .pm.allowed [.z.u;query];
-   .gw.formatresponse[0b;1b;"User is not permissioned to run this query from the gateway"];
-   ];
+   if[not .pm.allowed [.z.u;query];
+     .gw.formatresponse[0b;1b;"User is not permissioned to run this query from the gateway"];
+    ];
   ];
  // check if we have all the servers active
  serverids:@[getserverids;servertype;{.gw.formatresponse[0b;1b;.gw.errorprefix,x]}];
@@ -511,32 +514,35 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
  }; 
 
 $[.z.K < 3.6;
- [syncexecj:syncexecjpre36;
-  syncexec:syncexecjpre36[;;raze]];
- [syncexecj:syncexecjt[;;;0Wn];
-  syncexec:syncexecjt[;;raze;0Wn]]]; 
+  [syncexecj:syncexecjpre36;
+   syncexec:syncexecjpre36[;;raze]];
+  [syncexecj:syncexecjt[;;;0Wn];
+   syncexec:syncexecjt[;;raze;0Wn]]]; 
  
 // run a query
 runquery:{[]
  // check if there is something to run
  if[count torun:getnextquery[];
- if[not checkeod torun`servertype;
-  torun:first torun;
-  // if it isn't already in the result dict, add it
-  if[not torun[`queryid] in key results;
-   addemptyresult[torun`queryid;torun`clienth;torun`servertype]];
-  // update the results dictionary and send off the queries
-  // get the handles to run on
-  avail:availableserverstable[1b];
-  IDs:$[11h=type torun`available; 
-  (exec first serverid by servertype from avail)[torun`available]; 
-  first each (exec serverid from avail) inter/: torun`available];
-  handles:avail[([]serverid:IDs);`handle];
-  // update the results dictionary
-  addservertoquery[torun`queryid;torun`available;IDs]; 
-  // send off the queries
-  sendquerytoserver[torun`queryid;torun`query;handles]]];
- }
+   if[not checkeod torun`servertype;
+     torun:first torun;
+     // if it isn't already in the result dict, add it
+     if[not torun[`queryid] in key results;
+       addemptyresult[torun`queryid;torun`clienth;torun`servertype];
+      ];
+     // update the results dictionary and send off the queries
+     // get the handles to run on
+     avail:availableserverstable[1b];
+     IDs:$[11h=type torun`available; 
+     (exec first serverid by servertype from avail)[torun`available]; 
+     first each (exec serverid from avail) inter/: torun`available];
+     handles:avail[([]serverid:IDs);`handle];
+     // update the results dictionary
+     addservertoquery[torun`queryid;torun`available;IDs]; 
+     // send off the queries
+     sendquerytoserver[torun`queryid;torun`query;handles];
+    ];
+  ];
+ };
 
 runnextquery:runquery
 
@@ -673,7 +679,6 @@ h(`.gw.syncexec;"`$last .z.x";enlist[`date]!enlist .z.d-til 7)
 // errors
 neg[h](`.gw.asyncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX);h[]
 neg[h](`.gw.asyncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb));h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";update besteffort:0b from enlist[`date]!enlist .z.d-til 10);h[]
 neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`hdb;raze;();0D00:00:03);h[]
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
