@@ -37,10 +37,11 @@
 // allows the client to specify the join function
 
 // Error handling
-// errors are returned as strings (it's the only way to do it if we have to assume q and non-q clients)
+// As default, an error from an asynchronous request is sent back as a string. The format of the response can be altered
+// using the formatresponse function.
 // each error will be prefixed with the errorprefix (currently "error: ")
-// the client should check if the result is a string, and if it is if it is prefixed with "error: "
-// errors will be returned when 
+// Errors for sync requests should be remain flagged as errors using '.(the current definition of formatresponse).
+// Errors will be returned when 
 //     a) the query times out
 //     b) a back end server returns an error
 //     c) the join function fails
