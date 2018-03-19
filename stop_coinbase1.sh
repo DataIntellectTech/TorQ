@@ -30,14 +30,9 @@ start() {
   if [ -z `findproc $1` ]; then
     echo "$1 is not currently running" 
   else
-    procno=`awk '/'$1'/{print NR}' appconfig/process.csv`                                           # get line number for file
-    t=`awk -F "\"*,\"*" '{print $3}' appconfig/process.csv | sed -n ':a; $ ! {N;ba}; s/\n/ /g;p' #tr -d '\n'`
-    arr=($t)
-    procty=${arr[$(($procno-1))]}
-    params="proctype U localtime g T w load"                                                        # list of params to read from config
-    sline="q torq.q -load code/processes/kill.q -proctype kill -procname killtick -.servers.CONNECTIONS $procty"                                         # base part of startup line
     echo "Shutting down $1..."
-    eval "${sline} </dev/null >${KDBLOG}/torqkill.txt 2>&1 &"                                       # redirect output and run in background
+    pid=`ps aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`
+    eval "kill $pid"
   fi
  }
 
