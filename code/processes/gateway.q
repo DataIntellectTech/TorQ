@@ -427,6 +427,11 @@ getserveridstype:{[att;typ]
 
 // execute an asynchronous query
 asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
+ // Check correct function called
+ if[sync<>.gw.call .z.w;
+  @[neg .z.w;.gw.formatresponse[0b;not sync;"Incorrect function used: ",$[sync;"syncexec";"asyncexec"]];()];
+  :();
+  ];
  if[.gw.permissioned;
   if[not .pm.allowed[.z.u;query];
    @[neg .z.w;.gw.formatresponse[0b;sync;"User is not permissioned to run this query from the gateway"];()];
@@ -469,6 +474,10 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 
 // execute a synchronous query
 syncexecjpre36:{[query;servertype;joinfunction]
+ if[not .gw.call .z.w;
+   @[neg .z.w;.gw.formatresponse[0b;0b;"Incorrect function used: asyncexec"];()];
+   :();
+   ];
  if[not[.gw.synccallsallowed] and .z.K<3.6;.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;
@@ -555,9 +564,19 @@ pc:{
  removeclienthandle[x];
  removeserverhandle[x];}
 
+pgs:{.gw.call,:enlist[x]!enlist y};
+
 // override message handlers
-.z.pc:{x@y; .gw.pc[y]}@[value;`.z.pc;{{[x]}}]
-.z.po:{x@y; .gw.po[y]}@[value;`.z.po;{{[x]}}]
+.z.pc:{x@y;.gw.pc[y]}@[value;`.z.pc;{{[x]}}];
+.z.po:{x@y;.gw.po[y]}@[value;`.z.po;{{[x]}}];
+.z.pg:{
+  .gw.pgs[.z.w;1b];
+  :x@y;
+ }@[value;`.z.pg;{{[x]}}];
+.z.ps:{
+  .gw.pgs[.z.w;0b];
+  :x@y;
+ }@[value;`.z.ps;{{[x]}}];
 / .z.pg:{x@y; '.gw.errorprefix,"no synchronous queries allowed"}@[value;`.z.pg;{[x]}]
 
 // START UP
