@@ -429,6 +429,8 @@ getserveridstype:{[att;typ]
 asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  // Check correct function called
  if[sync<>.gw.call .z.w;
+  // if asyncexec used with sync request, signal an error.
+  // if syncexec used with async request, send async response using neg .z.w
   @[neg .z.w;.gw.formatresponse[0b;not sync;"Incorrect function used: ",$[sync;"syncexec";"asyncexec"]];()];
   :();
   ];
@@ -570,15 +572,8 @@ pgs:{.gw.call,:enlist[x]!enlist y};
 // override message handlers
 .z.pc:{x@y;.gw.pc[y]}@[value;`.z.pc;{{[x]}}];
 .z.po:{x@y;.gw.po[y]}@[value;`.z.po;{{[x]}}];
-.z.pg:{
-  .gw.pgs[.z.w;1b];
-  :x@y;
- }@[value;`.z.pg;{{[x]}}];
-.z.ps:{
-  .gw.pgs[.z.w;0b];
-  :x@y;
- }@[value;`.z.ps;{{[x]}}];
-/ .z.pg:{x@y; '.gw.errorprefix,"no synchronous queries allowed"}@[value;`.z.pg;{[x]}]
+.z.pg:{.gw.pgs[.z.w;1b];x@y}@[value;`.z.pg;{{[x]}}];
+.z.ps:{.gw.pgs[.z.w;0b];x@y}@[value;`.z.ps;{{[x]}}];
 
 // START UP
 // initialise connections
