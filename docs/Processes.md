@@ -99,15 +99,20 @@ Gateway
 A synchronous and asynchronous gateway is provided. The gateway can be
 used for load balancing and/or to join the results of queries across
 heterogeneous servers (e.g. an RDB and HDB). Ideally the gateway should
-only be used with asynchronous calls. Synchronous calls cause the
-gateway to block so limits the gateway to serving one query at a time
-(although if querying across multiple backend servers the backend
-queries will be run in parallel). When using asynchronous calls the
-client can either block and wait for the result (deferred synchronous)
-or post a call back function which the gateway will call back to the
-client with. With both asynchronous and synchronous queries the backend
-servers to execute queries against are selected using process type. The
-gateway API can be seen by querying .api.p“.gw.\*” within a gateway
+only be used with asynchronous calls. Prior to KDB v3.6, synchronous calls
+caused the gateway to block so limits the gateway to serving one query at a 
+time (although if querying across multiple backend servers the backend
+queries will be run in parallel).
+For v3.6+, deferred synchronous requests to the gateway are supported.
+This allows the gateway to process mulitple synchronous requests at once,
+therefore removing the requirement for the gateway to allow only one type
+of request.
+When using asynchronous calls the client can either block and wait for
+the result (deferred synchronous) or post a call back function which the
+gateway will call back to the client with. 
+With both asynchronous and synchronous queries the backend servers to
+execute queries against are selected using process type.
+The gateway API can be seen by querying .api.p“.gw.\*” within a gateway
 process.
 
 ![Gateway behaviour](graphics/async.png)
@@ -151,8 +156,10 @@ cannot be timed out other than by using the standard -T flag.
 
 ### Synchronous Behaviour
 
-When using synchronous queries the gateway can only handle one query at
+Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
 a time and cannot timeout queries other than with the standard -T flag.
+For v3.6+, deferred synchronous calls are supported, allowing the gateway to process mulitple
+requests at a time.
 All synchronous queries will be immediately dispatched to the back end
 processes. They will be dispatched using an asyhcnronous call, allowing
 them to run in parallel rather than serially. When the results are
@@ -170,13 +177,18 @@ requires.
 
 ### Error Handling
 
-When synchronous calls are used, q errors are returned to clients as
-they are encountered. When using asynchronous calls there is no way to
-return actual errors and appropriately prefixed strings must be used
-instead. It is up to the client to check the type of the received result
+All errors and results can now be formatted with the formatresult function.
+Each response to the client is passed through this function with inputs
+status (1b=result,0b=error), sync (1b=sync,0b=async) and result (result/error)
+to allow different errors/results to be handled appropriately.
+As default, when synchronous calls are used, q errors are returned to clients as
+they are encountered.
+When using asynchronous calls, appropriately prefixed strings are used.
+It is up to the client to check the type of the received result
 and if it is a string then whether it contains the error prefix. The
-error prefix can be changed, but the default is “error: ”. Errors will
-be returned when:
+error prefix can be changed, but the default is “error: ”.
+Alternatively, the formatresult function can be altered as necessary.
+Errors will be returned when:
 
 -   the client requests a query against a server type which the gateway
     does not currently have any active instances of (this error is

@@ -1,6 +1,9 @@
 // Default configuration for the gateway process
 
 \d .gw
+// if error & sync message, throws an error. Else passes result as normal
+// status - 1b=success, 0b=error. sync - 1b=sync, 0b=async
+formatresponse:{[status;sync;result]$[not[status]and sync;'result;result]};
 synccallsallowed:0b		// whether synchronous calls are allowed
 querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
