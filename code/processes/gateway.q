@@ -284,8 +284,11 @@ checktimeout:{
   finishquery[qids;1b;0Ni]];
  }
 
-
-
+// check if hdb query has date
+checkdate:{[query;servertype]
+ if[servertype=`hdb;
+ if[not query like "*date*"; '"query requires a date"]]
+ }
 
 /- NEED TO FILTER ON PREFERENCES FIRST
 
@@ -453,6 +456,8 @@ syncexecj:{[query;servertype;joinfunction]
  if[not .gw.synccallsallowed; '`$"synchronous calls are not allowed"];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
+ // check if hdb query has a date clause
+ checkdate[query;servertype];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
