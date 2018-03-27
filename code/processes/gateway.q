@@ -287,7 +287,9 @@ checktimeout:{
 // check if hdb query has date
 checkdate:{[query;servertype]
  if[servertype=`hdb;
- if[not query like "*date*"; '"query requires a date"]]
+  $[type [query] = 0h;
+  if[not any raze[string query 2] like "*date*"; '"query requires a date"]; 
+  if[not query like "*date*"; '"query requires a date"]]];
  }
 
 /- NEED TO FILTER ON PREFERENCES FIRST
@@ -422,6 +424,8 @@ getserveridstype:{[att;typ]
 // execute an asynchronous query
 asyncexecjpt:{[query;servertype;joinfunction;postback;timeout]
  if[.gw.permissioned;if[.pm.allowed[.z.u; query];'"User is not permissioned to run this query from the gateway"]];
+ //check if hdb query has a date clause
+ checkdate[query;servertype];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed;errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -457,7 +461,7 @@ syncexecj:{[query;servertype;joinfunction]
  // check if the gateway allows the query to be called
  if[.gw.permissioned;if[not .pm.allowed [.z.u;query];'"User is not permissioned to run this query from the gateway"]];
  // check if hdb query has a date clause
- checkdate[query;servertype];
+  checkdate[query;servertype];
  // check if we have all the servers active
  serverids:getserverids[servertype];
  // check if gateway in eod reload phase
