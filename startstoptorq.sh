@@ -41,8 +41,8 @@ startline() {
  }
 
 start() {
-  if [ -z `findproc $1` ]; then									    
-    sline="nohup $(startline $1)  </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"
+  if [ -z `findproc $1` ]; then									    # check process not running
+    sline="nohup $(startline $1) $extras </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                 # line to run each process
     echo `date '+%H:%M:%S'` "| Starting $1..."
     eval $sline                                                                                     # redirect output and run in background
   else
@@ -51,37 +51,37 @@ start() {
  }
 
 print() {
-  sline="nohup $(startline $1) </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"
+  sline="nohup $(startline $1) $extras </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                   # line to run each process in print mode
   echo "Start line for $1:"
-  echo $sline
+  echo $sline                                                                                       # echo not evaluate to print
  }
 
 debug() {
-  sline=$(startline $1)
-  eval "$sline -debug"
+  sline=$(startline $1)                                                                             # line to run each process in debug mode
+  eval "$sline -debug"                                                                              # append flag to start in debug mode
  }
 
 summary() {
-  if [ -z `findproc $1` ]; then
-    printf "%-8s | %-14s | %-4s |\n" `date '+%H:%M:%S'` "$1" "down"                                 #</dev/null >${KDBLOG}/torqsummary.txt 2>&1 &
+  if [ -z `findproc $1` ]; then                                                                     # check process not running
+    printf "%-8s | %-14s | %-4s |\n" `date '+%H:%M:%S'` "$1" "down"                                 
   else
-    pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`    
-    printf "%-8s | %-14s | %-4s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$pid"                       #</dev/null >${KDBLOG}/torqsummary.txt 2>&1 &
+    pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`                       # get pid  
+    printf "%-8s | %-14s | %-4s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$pid"                       
   fi
  }
 
 stop() {
-  if [ -z `findproc $1` ]; then
+  if [ -z `findproc $1` ]; then                                                                     # check process not running
     echo `date '+%H:%M:%S'` "| $1 is not currently running"
   else
     echo `date '+%H:%M:%S'` "| Shutting down $1..."
     pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`			    # get pid of process
-    eval "kill -15 $pid"
+    eval "kill -15 $pid"                                                                            # kill process pid
   fi
  }
 
 getall() {
-  procs=`awk -F, '{if(NR>1) print $4}' $csvpath`
+  procs=`awk -F, '{if(NR>1) print $4}' $csvpath`                                                    # get all processes from csv
   start=""
   for a in $procs;
   do
@@ -95,58 +95,99 @@ getall() {
  }
 
 checkinput() {
-  input=$*
-  procs=$(getall)
+  input=$*                                                                                          # get all input process names
+  procs=$(getall)                                                                                   # get all process names from csv
   avail=()
   for i in $input;
   do 
-    if [[ `echo "$procs" | grep -w "$i"` ]]; then
-      avail+="$i "
+    if [[ `echo "$procs" | grep -w "$i"` ]]; then                                                   # check input process is valid
+      avail+="$i "                                                                                  # get only valid processes
     else 
       echo `date '+%H:%M:%S'` "| $i failed - unavailable processname"
     fi
   done
-  procs=$avail
+  procs=$avail                                                                                      # assign valid processes
  }
 
 getprocs() {
   if [ "$2" == "all" ]; then 
-    procs=$(getall)
+    procs=$(getall)                                                                                 # get all processes
   else
-    shift
-    checkinput $@
+    shift                                                                                           # ignore first argument
+    checkinput $@                                                                                   # check input process names
   fi
  }
 
-flags() {
+flag() {
   count=0
   for i in ${BASH_ARGV[*]};
   do
     count=$(($count+1))
-    if [[ $i == "-$1" ]]; then
+    if [[ $i == "-$1" ]]; then                                                                      # find flag argument
       n=$(($count-2))
-      echo "${BASH_ARGV[$n]}"
     fi
   done
  }
 
+flagextras() {
+  flag $@
+  z=$n
+  while [ $z -ge 0 ]
+  do
+    extras+="${BASH_ARGV[$z]} "                                                                     # get all extra parameters 
+    z=$[$z-1]
+  done
+ }
+
+flagcsv() {
+  flag $@
+  csvpath="${BASH_ARGV[$n]}"                                                                        # assign specifed csv file
+ }
+
+getextras() {
+  if [[ `echo ${BASH_ARGV[*]} | grep -e extras` ]]; then                                            
+    eval flagextras "extras";
+    length=$(($#-$n-2));
+    array=${@:1:$length};                                                                           # arguments without extras flag
+  else
+    array=$@;
+  fi
+ }
+
 getcsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
-    csvpath=$(flags "csv");
+    eval flagcsv "csv";
     length=$(($#-2));
-    array=${@:1:$length};
+    array=${@:1:$length};                                                                           # arguments without csv flag
     getprocs $array;
   else
-    csvpath=$DEFAULTCSV; 
-    getprocs $@;
+    csvpath=$DEFAULTCSV;                                                                            # set csv file to default
+    getprocs $array;
+  fi
+ }
+
+getextrascsv() {
+  eval flagextras "extras";
+  eval flagcsv "csv";
+  length=$(($#-$n-2));
+  array=${@:1:$length};                                                                             # arguments without extras and csv flag
+  getprocs $array;
+ }
+
+checkextrascsv() {
+  if [[ `echo ${BASH_ARGV[*]} | grep -e extras` ]] && [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
+    getextrascsv $@;
+  else
+    getextras $@;
+    getcsv $@;
   fi
  }
 
 allcsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
-    csvpath=$(flags "csv");
+    eval flagcsv "csv";
   else
-    csvpath=$DEFAULTCSV; 
+    csvpath=$DEFAULTCSV;                                                                            
   fi
  }
 
@@ -164,19 +205,37 @@ stopprocs() {
   done
  }
 
+usage() {
+  printf -- "Arguments:\n"
+  printf -- "-procs                           to list all processes\n"
+  printf -- "-summary                         to view summary table\n"
+  printf -- "<processname> -debug             to debug process\n"
+  printf -- "start all -print                 to view all default startup lines\n"
+  printf -- "start <processname(s)> -print    to view default startup lines\n"
+  printf -- "start all                        to start all processes\n"
+  printf -- "start <processname(s)>           to start process(es)\n"
+  printf -- "stop all                         to stop all processes\n"
+  printf -- "stop <processname(s)>            to stop process(es)\n\n"
+  printf -- "Append the following:\n"
+  printf -- "-csv <csvpath>                   to run a different csv file\n"
+  printf -- "-extras <arguments>              to add/overwrite extras to the start line\n"
+  printf -- "-csv <csvpath> -extras <args>    to run both\n"
+  exit 1
+ }
+
 if [ "$1" == "start" ]; then
-  if [[ `echo ${BASH_ARGV[*]} | grep -e print` ]]; then
-    getcsv ${*%${!#}};
+  if [[ `echo ${BASH_ARGV[*]} | grep -e print` ]]; then         
+    checkextrascsv ${*%${!#}};
     for p in $procs;
     do 
-      print $p; 
+      print $p;  
     done
   else 
-    getcsv $@;
+    checkextrascsv $@;
     startprocs $procs;
   fi
 elif [ "$1" == "stop" ]; then
-  getcsv $@;
+  checkextrascsv $@;
   stopprocs $procs;
 elif [ "$1" == "-summary" ]; then
   allcsv $@;
@@ -191,8 +250,8 @@ elif [ "$1" == "-procs" ]; then
 elif [ "$2" == "-debug" ]; then
   allcsv $@;
   debug $1;
-elif [ $# -eq 0 ]; then                                                                             # usage
-  printf "Arguments:\n-procs          	         to list all processes\n-summary		   	 to view summary table\n<processname> -debug             to debug process\nstart all -print     	         to view all default startup lines\nstart <processname(s)> -print	 to view default startup lines\nstart all                        to start all processes\nstart <processname(s)>           to start process(es)\nstop all          	         to stop all processes\nstop <processname(s)>            to stop process(es)\n"
+elif [ $# -eq 0 ]; then                                                                             
+  usage
 else
   echo "Invalid argument(s)"
 fi
