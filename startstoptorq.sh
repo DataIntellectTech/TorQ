@@ -57,16 +57,23 @@ print() {
  }
 
 debug() {
-  sline=$(startline $1)                                                                             # line to run each process in debug mode
-  eval "$sline -debug"                                                                              # append flag to start in debug mode
+  proc=`getprocs $0 $1`;
+  echo $proc
+  if [[ `echo $proc | grep "unavailable"` ]]; then
+    echo $proc
+  else 
+    sline=$(startline $1)                                                                             # line to run each process in debug mode
+    eval "$sline -debug"                                                                              # append flag to start in debug mode
+  fi
  }
 
 summary() {
   if [ -z `findproc $1` ]; then                                                                     # check process not running
-    printf "%-8s | %-14s | %-4s |\n" `date '+%H:%M:%S'` "$1" "down"                                 
+    printf "%-8s | %-14s | %-6s |\n" `date '+%H:%M:%S'` "$1" "down"                                 
   else
     pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`                       # get pid  
-    printf "%-8s | %-14s | %-4s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$pid"                       
+    port=`netstat -pl 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | cut -c 3-`
+    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$port" "$pid"                      
   fi
  }
 
@@ -240,6 +247,7 @@ elif [ "$1" == "stop" ]; then
 elif [ "$1" == "-summary" ]; then
   allcsv $@;
   procs=$(getall);
+  printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
   for p in $procs;
   do
     summary $p;
@@ -254,7 +262,6 @@ elif [ $# -eq 0 ]; then
   usage
 else
   echo "Invalid argument(s)"
+  exit 1
 fi
-
-
 
