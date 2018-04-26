@@ -1,3 +1,4 @@
+#!/bin/bash 
 # Load the environment
 . ./setenv.sh
 
@@ -6,7 +7,7 @@ export KDBHDB=${PWD}/hdb/database
 export KDBWDB=${PWD}/wdbhdb
 export KDBSTACKID="-stackid ${KDBBASEPORT}"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l32
-export DEFAULTCSV="appconfig/process.csv"
+export DEFAULTCSV="$PWD/appconfig/process4.csv"
 
 getfield() {
   fieldno=`awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' $csvpath` 		    # get number for field based on headers
@@ -23,20 +24,29 @@ parameter() {
   fi
  }
 
+getqcmd() {
+  fieldval=`getfield $1 $2`
+  if [ "" != "$fieldval" ]; then
+    echo $fieldval
+  fi
+ }
+
 findproc() {
   pgrep -f "\-procname $1 $KDBSTACKID \-proctype $(getfield $1 proctype)"
  }
 
 startline() {
   procno=`awk '/'$1'/{print NR}' $csvpath`							    # get line number for file
+  qcmd=`awk '/'$1'/{print NR}' $csvpath`
   params="proctype U localtime g T w load"  							    # list of params to read from config
-  sline="q ${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"					    # base part of startup line
+  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"					    # base part of startup line
   for p in $params;   										    # iterate over params
   do
     a=`parameter $procno $p`;									    # get param
     sline="$sline$a";     									    # append to startup line
   done
-  sline="$sline $(getfield $procno extras)"
+  qcmd=`getqcmd $procno "qcmd"`;
+  sline="$qcmd $sline $(getfield $procno extras) -procfile $csvpath"
   echo $sline
  }
 
@@ -58,7 +68,6 @@ print() {
 
 debug() {
   proc=`getprocs $0 $1`;
-  echo $proc
   if [[ `echo $proc | grep "unavailable"` ]]; then
     echo $proc
   else 
