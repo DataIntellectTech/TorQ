@@ -7,6 +7,7 @@ loadprocesscode:0b		// whether to load the process specific code defined at ${KD
 loadnamecode:0b			// whether to load the name specific code defined at ${KDBCODE}/{name of process}
 loadhandlers:1b			// whether to load the message handler code defined at ${KDBCODE}/handlers
 logroll:1b			// whether to roll the std out/err logs on a daily basis
+lowpowermode:0b			// Use TorQ in low cpu usage mode (No default logging for timer calls, Disabled heartbeating, Reduced timer frequency)
 
 // logging config
 \d .lg
@@ -154,7 +155,7 @@ rolltimezone:`$"GMT";			// timezone to perform rollover in
 
 //Subscriber cut-off
 \d .subcut
-enabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off. Default is 0b 
+enabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers will be cut off. Default is 0b
 maxsize:100000000;		//a global value for the max byte size of a subscriber. Default is 100000000
 breachlimit:3;			//the number of times a handle can exceed the size limit check in a row before it is closed. Default is 3
 checkfreq:0D00:01;		//the frequency for running the queue size check on subscribers. Default is 0D00:01

@@ -7,13 +7,11 @@
 // Override the processwarning and processerror functions to implement required behaviour when warnings or errors are encountered
 // Override warningperiod and errorperiod functions to have bespoke warning and error periods for different process types
 // Use storeheartbeat function in the upd function to process heartbeats
-
 \d .hb
-
 enabled:@[value;`enabled;1b]					// whether the heartbeating is enabled
-subenabled:@[value;`subenabled;0b]                                 // whether subcriptions to heartbeats are enabled
+subenabled:@[value;`subenabled;0b]                              // whether subcriptions to heartbeats are enabled
 debug:@[value;`debug;1b]					// whether to print debug information
-publishinterval:@[value;`publishinterval;0D00:00:30]		// how often heartbeats are published	
+publishinterval:@[value;`publishinterval;0D00:00:30]		// how often heartbeats are published
 checkinterval:@[value;`checkinterval;0D00:00:10]		// how often heartbeats are checked
 warningtolerance:@[value;`warningtolerance;1.5f]		// a process will move to warning state when it hasn't heartbeated in warningtolerance*checkinterval
 errortolerance:@[value;`errortolerance;2f]			// and to an error state when it hasn't heartbeated in errortolerance*checkinterval
@@ -24,7 +22,7 @@ subscribedhandles:0 0Ni
 // sym = proctype
 heartbeat:([]time:`timestamp$(); sym:`symbol$(); procname:`symbol$(); counter:`long$(); pid:`int$(); host:`$(); port:`int$())
 
-// process ID, hostname and port 
+// process ID, hostname and port
 pid:.z.i
 host:.z.h
 port:system"p"
@@ -58,12 +56,12 @@ storeheartbeat:{[hb]
 checkheartbeat:{
  now:.proc.cp[];
  // calculate which processes haven't heartbeated recently enough
- stats:update status+`short$2*now>time+.hb.errorperiod[sym] from 
+ stats:update status+`short$2*now>time+.hb.errorperiod[sym] from
    update status:`short$now>time+.hb.warningperiod[sym] from .hb.hb;
  warn[select from stats where status=1,not warning];
  err[select from stats where status>1,not error];
  }
-	
+
 // process warnings and errors
 warn:{
  if[debug;
@@ -80,13 +78,13 @@ err:{
  processerror[x]}
 
 // override these functions to implement bespoke functionality on heartbeat errors and warnings
-processwarning:{[processtab] 
+processwarning:{[processtab]
   if[1<=count processtab;
-     .html.pub[`heartbeat;0!select from .hb.hb where procname in exec procname from processtab]]} 
+     .html.pub[`heartbeat;0!select from .hb.hb where procname in exec procname from processtab]]}
 
-processerror:{[processtab] 
+processerror:{[processtab]
   if[1<=count processtab;
-     .html.pub[`heartbeat;0!select from .hb.hb where procname in exec procname from processtab]]} 
+     .html.pub[`heartbeat;0!select from .hb.hb where procname in exec procname from processtab]]}
 
 // subscribe to heartbeats and log messages on a handle
 subscribe:{[handle]
@@ -108,10 +106,9 @@ getheartbeats:{[proctype]
 
 
 \d .
-
-if[.hb.enabled;
- // set the heartbeat table to the top level namespace, to allow it to be initialised in the pub/sub routine
- @[`.;`heartbeat;:;.hb.heartbeat];
+// set the heartbeat table to the top level namespace, to allow it to be initialis    ed in the pub/sub routine
+@[`.;`heartbeat;:;.hb.heartbeat];
+if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`enabled;1b];
  // add the checkheartbeat function to the timer
  $[@[value;`.timer.enabled;0b] and `publish in key `.ps;
   [.lg.o[`init;"adding heartbeat functions to the timer"];
