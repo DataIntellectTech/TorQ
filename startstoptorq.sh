@@ -1,4 +1,3 @@
-#!/bin/bash 
 # Load the environment
 . ./setenv.sh
 
@@ -7,7 +6,7 @@ export KDBHDB=${PWD}/hdb/database
 export KDBWDB=${PWD}/wdbhdb
 export KDBSTACKID="-stackid ${KDBBASEPORT}"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l32
-export DEFAULTCSV=${KDBAPPCONFIG}/process2.csv
+export DEFAULTCSV=${KDBAPPCONFIG}/process.csv
 
 getfield() {
   fieldno=`awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' $csvpath` 		    # get number for field based on headers
