@@ -1,4 +1,3 @@
-#!/bin/bash -x 
 # Load the environment
 . ./setenv.sh
 
