@@ -7,7 +7,7 @@ export KDBHDB=${PWD}/hdb/database
 export KDBWDB=${PWD}/wdbhdb
 export KDBSTACKID="-stackid ${KDBBASEPORT}"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l32
-export DEFAULTCSV="$PWD/appconfig/process4.csv"
+export DEFAULTCSV=${KDBAPPCONFIG}/process2.csv
 
 getfield() {
   fieldno=`awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' $csvpath` 		    # get number for field based on headers
@@ -39,7 +39,7 @@ startline() {
   procno=`awk '/'$1'/{print NR}' $csvpath`							    # get line number for file
   qcmd=`awk '/'$1'/{print NR}' $csvpath`
   params="proctype U localtime g T w load"  							    # list of params to read from config
-  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"					    # base part of startup line
+  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"					   	    # base part of startup line
   for p in $params;   										    # iterate over params
   do
     a=`parameter $procno $p`;									    # get param
@@ -223,19 +223,19 @@ stopprocs() {
 
 usage() {
   printf -- "Arguments:\n"
-  printf -- "-procs                           to list all processes\n"
-  printf -- "-summary                         to view summary table\n"
-  printf -- "<processname> -debug             to debug process\n"
-  printf -- "start all -print                 to view all default startup lines\n"
-  printf -- "start <processname(s)> -print    to view default startup lines\n"
-  printf -- "start all                        to start all processes\n"
-  printf -- "start <processname(s)>           to start process(es)\n"
-  printf -- "stop all                         to stop all processes\n"
-  printf -- "stop <processname(s)>            to stop process(es)\n\n"
+  printf -- "-procs                               to list all processes\n"
+  printf -- "-summary                             to view summary table\n"
+  printf -- "<processname> -debug                 to debug process\n"
+  printf -- "start all -print                     to view all default startup lines\n"
+  printf -- "start <processname(s)> -print        to view default startup lines\n"
+  printf -- "start all                            to start all processes\n"
+  printf -- "start <processname(s)>               to start process(es)\n"
+  printf -- "stop all                             to stop all processes\n"
+  printf -- "stop <processname(s)>                to stop process(es)\n\n"
   printf -- "Append the following:\n"
-  printf -- "-csv <csvpath>                   to run a different csv file\n"
-  printf -- "-extras <arguments>              to add/overwrite extras to the start line\n"
-  printf -- "-csv <csvpath> -extras <args>    to run both\n"
+  printf -- "-csv <fullcsvpath>                   to run a different csv file\n"
+  printf -- "-extras <arguments>                  to add/overwrite extras to the start line\n"
+  printf -- "-csv <fullcsvpath> -extras <args>    to run both\n"
   exit 1
  }
 
