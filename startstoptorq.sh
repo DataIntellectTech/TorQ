@@ -1,3 +1,4 @@
+#!/bin/bash -x 
 # Load the environment
 . ./setenv.sh
 
@@ -79,7 +80,7 @@ summary() {
   if [ -z `findproc $1` ]; then                                                                     # check process not running
     printf "%-8s | %-14s | %-6s |\n" `date '+%H:%M:%S'` "$1" "down"                                 
   else
-    pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`                       # get pid  
+    pid=$(findproc $1)
     port=`netstat -pl 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | cut -c 3-`
     printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$port" "$pid"                      
   fi
@@ -90,7 +91,7 @@ stop() {
     echo `date '+%H:%M:%S'` "| $1 is not currently running"
   else
     echo `date '+%H:%M:%S'` "| Shutting down $1..."
-    pid=`ps -aux | grep -v grep | grep "$1 ${KDBSTACKID}" | awk '{print $2}'`			    # get pid of process
+    pid=$(findproc $1)
     eval "kill -15 $pid"                                                                            # kill process pid
   fi
  }
