@@ -8,9 +8,8 @@ initialised:0b
 
 // function to add functions to initialisation list
 initlist:()
-addinitlist:{[x]if[1<count x;.proc.initlist,:enlist x]};
+addinitlist:{[x].proc.initlist,:enlist x};
   
-//add to init list functions explicitly defined on command line
 generalusage:@[value;`generalusage;"General:
  This script should form the basis of a production kdb+ environment. 
  It can be sourced from other files if required, or used as a launch script before loading other files/directories 
@@ -590,10 +589,13 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
 // function to execute functions in .proc.initlist
 .proc.init:{
-	if[count .proc.initlist;
-	{[a]@[value;a;{[x;a].lg.e[`init;"unable to run initialisation function for ",a," - ",x," error"]}[;a]]}
-	each .proc.initlist;.proc.initlist:()];
-	}
+	$[count .proc.initlist;
+		[{[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
+		@[value;a;
+		{[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
+		each .proc.initlist;.proc.initlist:()];
+		.lg.o[`init;"no initialisation functions found"]];
+ }
 
 if[count .proc.initlist;.proc.init[]]
 
