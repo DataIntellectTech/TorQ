@@ -7,7 +7,7 @@ loadprocesscode:0b		// whether to load the process specific code defined at ${KD
 loadnamecode:0b			// whether to load the name specific code defined at ${KDBCODE}/{name of process}
 loadhandlers:1b			// whether to load the message handler code defined at ${KDBCODE}/handlers
 logroll:1b			// whether to roll the std out/err logs on a daily basis
-lowpowermode:0b			// Use TorQ in low cpu usage mode (No default logging for timer calls, Disabled heartbeating, Reduced timer frequency)
+lowpowermode:0b			// Use TorQ in low cpu usage mode (No default logging for timer calls, Disabled heartbeating, Reduced timer frequency, set resubscription off)
 
 // logging config
 \d .lg
@@ -61,7 +61,7 @@ CONNECTIONS:`rdb`hdb										// list of connections to make at start up
 DISCOVERYREGISTER:1b										// whether to register with the discovery service
 CONNECTIONSFROMDISCOVERY:1b									// whether to get connection details from the discovery service (as opposed to the static file).
 TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes
-NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   				// non torQ processes file
+NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   			// non torQ processes file
 SUBSCRIBETODISCOVERY:1b										// whether to subscribe to the discovery service for new processes becoming available
 DISCOVERYRETRY:0D00:05										// how often to retry the connection to the discovery service.  If 0, no connection is made. This also dictates if the discovery service can connect it and cause it to re-register itself (val > 0)
 HOPENTIMEOUT:2000 										// new connection time out value in milliseconds
@@ -73,7 +73,7 @@ LOADPASSWORD:1b											// load the external username:password from ${KDBCONFI
 STARTUP:0b    											// whether to automatically make connections on startup
 DISCOVERY:enlist`										// list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:enlist[`]!enlist `                                                                   // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
-PASSWORDS:enlist[`]!enlist `        // dict of host:port!user:pass
+PASSWORDS:enlist[`]!enlist `        								// dict of host:port!user:pass
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore
@@ -133,7 +133,7 @@ errortolerance:3f		// and to an error state when it hasn't heartbeated in errort
 \d .ldap
 
 enabled:0b                                  // whether ldap authentication is enabled
-debug:0i					                // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+debug:0i				    // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
 server:"localhost";                         // name of ldap server
 port:0i;                                    // port for ldap server
 version:3;                                  // ldap version number
