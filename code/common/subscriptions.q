@@ -3,9 +3,7 @@
 \d .sub
 
 AUTORECONNECT:@[value;`AUTORECONNECT;1b];									//resubscribe to processes when they come back up
-if[@[value;`.proc.lowpowermode;0b];
-  checksubscriptionperiod:(not @[value;.proc.lowpowermode;0b]) * @[value;checksubscriptionperiod;0D00:00:10]  	//how frequently you recheck connections.  0D = never
- ];
+checksubscriptionperiod:(not @[value;`.proc.lowpowermode;0b]) * @[value;`checksubscriptionperiod;0D00:00:10]  	//how frequently you recheck connections.  0D = never
 
 /-table of subscriptions
 SUBSCRIPTIONS:([]procname:`symbol$();proctype:`symbol$();w:`int$();table:();instruments:();createdtime:`timestamp$();active:`boolean$());
