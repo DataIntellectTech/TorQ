@@ -1,14 +1,14 @@
 // Functionality to extend the timer
 
 \d .timer
-enabled:@[value;`enabled;1b]				// whether the timer is enabled
-debug:@[value;`debug;0b]				// print when the timer runs any function
-logcall:(not @[value;`.proc.lowpowermode;0b]) & @[value;`logcall;1b]				// log each timer call by passing it through the 0 handle
-nextscheduledefault:@[value;`nextscheduledefault;2h]	// the default way to schedule the next timer
-							// Assume there is a function f which should run at time T0, actually runs at time T1, and finishes at time T2
-                                        		// if mode 0, nextrun is scheduled for T0+period
-                                        		// if mode 1, nextrun is scheduled for T1+period
-                                        		// if mode 2, nextrun is scheduled for T2+period
+enabled:@[value;`enabled;1b]						// whether the timer is enabled
+debug:@[value;`debug;0b]						// print when the timer runs any function
+logcall:(not @[value;`.proc.lowpowermode;0b]) & @[value;`logcall;1b]	// log each timer call by passing it through the 0 handle
+nextscheduledefault:@[value;`nextscheduledefault;2h]			// the default way to schedule the next timer
+									// Assume there is a function f which should run at time T0, actually runs at time T1, and finishes at time T2
+                                        				// if mode 0, nextrun is scheduled for T0+period
+                                        				// if mode 1, nextrun is scheduled for T1+period
+                                        				// if mode 2, nextrun is scheduled for T2+period
 id:0
 getID:{:id+::1}
 
@@ -84,7 +84,7 @@ if[.timer.enabled;
 
  // Set the timer to 200ms if not set already
  if[not system"t"; system"t 200"]];
-if[.proc.lowpowermode;
+if[@[value;`.proc.lowerpowermode;0b];
  if[.timer.enabled;
  // Set the timer to 1000ms if lowpowermode
  system"t 1000"]];
