@@ -7,7 +7,9 @@
 // Override the processwarning and processerror functions to implement required behaviour when warnings or errors are encountered
 // Override warningperiod and errorperiod functions to have bespoke warning and error periods for different process types
 // Use storeheartbeat function in the upd function to process heartbeats
+
 \d .hb
+
 enabled:@[value;`enabled;1b]					// whether the heartbeating is enabled
 subenabled:@[value;`subenabled;0b]                              // whether subcriptions to heartbeats are enabled
 debug:@[value;`debug;1b]					// whether to print debug information
@@ -104,10 +106,10 @@ getheartbeats:{[proctype]
     subscribe each handles]
  }
 
-
 \d .
-// set the heartbeat table to the top level namespace, to allow it to be initialis    ed in the pub/sub routine
-@[`.;`heartbeat;:;.hb.heartbeat];
+
+// set the heartbeat table to the top level namespace, to allow it to be initialised in the pub/sub routine
+heartbeat:.hb.heartbeat;
 if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`enabled;1b];
  // add the checkheartbeat function to the timer
  $[@[value;`.timer.enabled;0b] and `publish in key `.ps;
