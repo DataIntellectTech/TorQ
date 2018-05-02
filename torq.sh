@@ -209,19 +209,19 @@ stopprocs() {
 
 usage() {
   printf -- "Arguments:\n"
-  printf -- "-procs       	                        to list all processes\n"
-  printf -- "-summary             	                to view summary table\n"
-  printf -- "<processname> -debug			to debug process\n"
-  printf -- "start all -print                   	to view all default startup lines\n"
-  printf -- "start <processname(s)> -print		to view default startup lines\n"
-  printf -- "start all		           	to start all processes\n"
-  printf -- "start <processname(s)>               	to start process(es)\n"
-  printf -- "stop all                             	to stop all processes\n"
-  printf -- "stop <processname(s)>                	to stop process(es)\n\n"
+  printf -- "-procs                                     to list all processes\n"
+  printf -- "-summary                                   to view summary table\n"
+  printf -- "<processname> -debug                       to debug process\n"
+  printf -- "start all -print                           to view all default startup lines\n"
+  printf -- "start <processname(s)> -print              to view default startup lines\n"
+  printf -- "start all                                  to start all processes\n"
+  printf -- "start <processname(s)>                     to start process(es)\n"
+  printf -- "stop all                                   to stop all processes\n"
+  printf -- "stop <processname(s)>                      to stop process(es)\n\n"
   printf -- "Append the following:\n"
-  printf -- "-csv <fullcsvpath>                  	to run a different csv file\n"
-  printf -- "-extras <arguments>                 	to add/overwrite extras to the start line\n"
-  printf -- "-csv <fullcsvpath> -extras <args>    	to run both\n"
+  printf -- "-csv <fullcsvpath>                         to run a different csv file\n"
+  printf -- "-extras <arguments>                        to add/overwrite extras to the start line\n"
+  printf -- "-csv <fullcsvpath> -extras <args>          to run both\n"
   exit 1
  }
 
