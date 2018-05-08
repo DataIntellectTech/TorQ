@@ -95,7 +95,7 @@ qualification e.g. -.servers.HOPENTIMEOUT 5000.
 
 Using torq.sh
 ---------------------
-torq.sh is a shell script that starts processes in torq. It requires environment variables to be set, similar to torq.q. A usage statement for the script can be seen by running the following in a unix environment: `./torq.sh`. The script uses the process file in the default location of $KDBCONFIG/process.csv.
+torq.sh is a script that runs processes in torq with added functionality and is only available on Linux. It requires environment variables to be set, similar to torq.q. A usage statement for the script can be seen by running the following in a unix environment: `./torq.sh`. The script uses the process file in the default location of $KDBCONFIG/process.csv.
 
 This script is able to start or stop processes seperately, in a batch or all at once. Before a process is started/stopped the script will check that the process is not already running before attempting to start/stop a process, a time of when this is executed is printed to screen. An example is below.
 ```
@@ -206,10 +206,10 @@ hostname entry.
 The process file has format as below.
 
     aquaq$ cat config/process.csv 
-    host,port,proctype,procname
-    aquaq,9997,rdb,rdb_europe_1
-    aquaq,9998,hdb,hdb_europe_1
-    aquaq,9999,hdb,hdb_europa_2
+    host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+    aquaq,9997,rdb,rdb_europe_1,appconfig/passwords/accesslist.txt,1,1,3,,${KDBCODE}/processes/rdb.q,1,,q
+    aquaq,9998,hdb,hdb_europe_1,appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
+    aquaq,9999,hdb,hdb_europe_2,appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
 
 The process will read the file and try to identify itself based on the
 host and port it is started on. The host can either be the value
@@ -218,6 +218,20 @@ not automatically identify itself it will exit, unless proctype and
 procname were both passed in as command line parameters. If both of
 these parameters are passed in then default configuration settings will
 be used.
+
+The parameters following procname set the following:
+
+  |Parameter|                          Description|
+  |---------------------------------| ----------------------------|
+  |U|                                  Authentication|
+  |localtime|                          localtime or UTC|
+  |g|                                  Garbage collection|
+  |T|                                  Timeout|
+  |w|                                  Memory limit|
+  |load|                               Path to load process file|
+  |startwithall|                       Start using torq.sh| 
+  |extras|                             Add arguments to start up line|
+  |qcmd|                               Command to start q session|
 
 <a name="logging"></a>
 
