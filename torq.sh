@@ -1,10 +1,10 @@
 #!/bin/bash
-# Load the environment
-. ./setenv.sh
+
+. ./setenv.sh                                                                                       # load the environment
 
 getfield() {
-  fieldno=`awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' $CSVPATH` 		    # get number for field based on headers
-  fieldval=`awk -F, '{if(NR == '$1') print $'$fieldno'}' $CSVPATH`                    		    # pull one field from one line of file
+  fieldno=`awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' $CSVPATH`               # get number for field based on headers
+  fieldval=`awk -F, '{if(NR == '$1') print $'$fieldno'}' $CSVPATH`                                  # pull one field from one line of file
   echo $fieldval | envsubst                                                                         # substitute env vars
  }
 
@@ -18,17 +18,17 @@ parameter() {
  }
 
 findproc() {
-  pgrep -f "\-procname $1 $KDBSTACKID \-proctype $(getfield $1 proctype)"
+  pgrep -f "\-procname $1 $KDBSTACKID \-proctype $(getfield $1 proctype)"                           # get pid of process 
  }
 
 startline() {
-  procno=`awk '/'$1'/{print NR}' $CSVPATH`							    # get line number for file
-  params="proctype U localtime g T w load"  							    # list of params to read from config
-  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"					   	    # base part of startup line
-  for p in $params;   										    # iterate over params
+  procno=`awk '/'$1'/{print NR}' $CSVPATH`                                                          # get line number for file
+  params="proctype U localtime g T w load"                                                          # list of params to read from config
+  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"                                             # base part of startup line
+  for p in $params;                                                                                 # iterate over params
   do
-    a=`parameter $procno $p`;									    # get param
-    sline="$sline$a";     									    # append to startup line
+    a=`parameter $procno $p`;                                                                       # get param
+    sline="$sline$a";                                                                               # append to startup line
   done
   qcmd=`getfield $procno "qcmd"`
   SLINE="$qcmd $sline $(getfield $procno extras) -procfile $CSVPATH $EXTRAS"                        # append csv file and extra arguments to startup line
@@ -37,7 +37,7 @@ startline() {
  }
 
 start() {
-  if [[ -z `findproc $1` ]]; then								    # check process not running
+  if [[ -z `findproc $1` ]]; then                                                                   # check process not running
     sline=$(startline $1)                                                                           # line to run each process
     echo `date '+%H:%M:%S'` "| Starting $1..."
     eval $sline                                                                                    
@@ -53,22 +53,22 @@ print() {
  }
 
 debug() {
-  proc=`getprocs $0 $1`;
-  if [[ `echo $proc | grep "unavailable"` ]]; then
-    echo $proc
+  proc=`getprocs $0 $1`;                                                                            # check input process in csv
+  if [[ `echo $proc | grep "unavailable"` ]]; then                                                  
+    echo $proc                                                                                      # print input process unavailable 
   else 
-    startline $1
+    startline $1                                                                                    # get start line for process
     eval "$SLINE -debug"                                                                            # append flag to start in debug mode
   fi
  }
 
 summary() {
   if [[ -z `findproc $1` ]]; then                                                                   # check process not running
-    printf "%-8s | %-14s | %-6s |\n" `date '+%H:%M:%S'` "$1" "down"                                 
+    printf "%-8s | %-14s | %-6s |\n" `date '+%H:%M:%S'` "$1" "down"                                 # summary table row for down process
   else
     pid=$(findproc $1)
-    port=`netstat -pl 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | cut -c 3-`
-    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$port" "$pid"                      
+    port=`netstat -pl 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | cut -c 3-`           # get port process is running on 
+    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$port" "$pid"        # summary table row for running process    
   fi
  }
 
@@ -87,9 +87,9 @@ getall() {
   start=""
   for a in $procs;
   do
-    procno=`awk '/'$a'/{print NR}' $CSVPATH`  		                                            # get line number for file
-    f=`getfield $procno startwithall`
-    if [[ "1" == "$f" ]]; then
+    procno=`awk '/'$a'/{print NR}' $CSVPATH`                                                        # get line number for file
+    f=`getfield $procno startwithall` 
+    if [[ "1" == "$f" ]]; then                                                                      # checks csv column startwithall equals 1
       start="$start $a"
     fi
   done
@@ -134,7 +134,7 @@ flag() {
 flagextras() {
   flag $@
   z=$N
-  while [ $z -ge 0 ]
+  while [ $z -ge 0 ]; 
   do
     EXTRAS+="${BASH_ARGV[$z]} "                                                                     # get all parameters following extras flag
     z=$[$z-1]
@@ -148,9 +148,9 @@ flagcsv() {
 
 getextras() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e extras` ]]; then                                            
-    eval flagextras "extras";
-    length=$(($#-$N-2));
-    array=${@:1:$length};                                                                           # arguments without extras flag
+    eval flagextras "extras";                                                                       # get arguments following flag
+    length=$(($#-$N-2));                                                                            # number of arguments minus extras 
+    array=${@:1:$length};                                                                           # arguments without extras 
   else
     array=$@;
   fi
@@ -158,9 +158,9 @@ getextras() {
 
 getcsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
-    eval flagcsv "csv";
-    length=$(($#-2));
-    array=${@:1:$length};                                                                           # arguments without csv flag
+    eval flagcsv "csv";                                                                             # get csv file following flag
+    length=$(($#-2));                                                                               # number of arguments minus csv 
+    array=${@:1:$length};                                                                           # arguments without csv 
     getprocs $array;
   else
     CSVPATH=${DEFAULTCSV};                                                                          # set csv file to default
@@ -169,25 +169,25 @@ getcsv() {
  }
 
 getextrascsv() {
-  eval flagextras "extras";
+  eval flagextras "extras";                                                                         # get arguments following flag
   eval flagcsv "csv";
   length=$(($#-$N-2));
-  array=${@:1:$length};                                                                             # arguments without extras and csv flag
-  getprocs $array;
+  array=${@:1:$length};                                                                             # arguments without extras and csv
+  getprocs $array;                                                                                  # get process names from the remaining arguments
  }
 
 checkextrascsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e extras` ]] && [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
-    getextrascsv $@;
+    getextrascsv $@;                                                                                # gets extras and csv arguments 
   else
-    getextras $@;
-    getcsv $@;
+    getextras $@;                                                                                   # checks if extras flag present
+    getcsv $@;                                                                                      # sets process csv file
   fi
  }
 
 allcsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
-    eval flagcsv "csv";
+    eval flagcsv "csv";                                                                             # get all procs from csv without starting 
   else
     CSVPATH=${DEFAULTCSV};                                                                            
   fi
@@ -196,32 +196,32 @@ allcsv() {
 startprocs() {
   for p in $PROCS;
   do
-    start $p;
+    start $p;                                                                                       # start each process in variable
   done
  }
 
 stopprocs() {
   for p in $PROCS;
   do
-    stop $p;
+    stop $p;                                                                                        # kill each process in variable 
   done
  }
 
 usage() {
   printf -- "Arguments:\n"
-  printf -- "-procs                                     to list all processes\n"
-  printf -- "-summary                                   to view summary table\n"
-  printf -- "<processname> -debug                       to debug process\n"
-  printf -- "start all -print                           to view all default startup lines\n"
-  printf -- "start <processname(s)> -print              to view default startup lines\n"
-  printf -- "start all                                  to start all processes\n"
-  printf -- "start <processname(s)>                     to start process(es)\n"
-  printf -- "stop all                                   to stop all processes\n"
-  printf -- "stop <processname(s)>                      to stop process(es)\n\n"
-  printf -- "Append the following:\n"
-  printf -- "-csv <fullcsvpath>                         to run a different csv file\n"
-  printf -- "-extras <arguments>                        to add/overwrite extras to the start line\n"
-  printf -- "-csv <fullcsvpath> -extras <args>          to run both\n"
+  printf -- "  start all                                to start all processes\n"
+  printf -- "  start <processname(s)>                   to start process(es)\n"
+  printf -- "  stop all                                 to stop all processes\n"
+  printf -- "  stop <processname(s)>                    to stop process(es)\n"
+  printf -- "  start all -print                         to view all default startup lines\n"
+  printf -- "  start <processname(s)> -print            to view default startup lines\n"
+  printf -- "  -procs                                   to list all processes\n"
+  printf -- "  -summary                                 to view summary table\n"
+  printf -- "  <processname> -debug                     to debug process\n"
+  printf -- "Optional flags:\n"
+  printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
+  printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
+  printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
   exit 1
  }
 
