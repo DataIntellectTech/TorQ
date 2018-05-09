@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash  
 
 . ./setenv.sh                                                                                       # load the environment
 
@@ -22,7 +22,7 @@ findproc() {
  }
 
 startline() {
-  procno=`awk '/'$1'/{print NR}' $CSVPATH`                                                          # get line number for file
+  procno=`awk '/,'$1',/{print NR}' $CSVPATH`                                                        # get line number for file
   params="proctype U localtime g T w load"                                                          # list of params to read from config
   sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"                                             # base part of startup line
   for p in $params;                                                                                 # iterate over params
@@ -87,7 +87,7 @@ getall() {
   start=""
   for a in $procs;
   do
-    procno=`awk '/'$a'/{print NR}' $CSVPATH`                                                        # get line number for file
+    procno=`awk '/,'$a',/{print NR}' $CSVPATH`                                                      # get line number for file
     f=`getfield $procno startwithall` 
     if [[ "1" == "$f" ]]; then                                                                      # checks csv column startwithall equals 1
       start="$start $a"
@@ -163,7 +163,7 @@ getcsv() {
     array=${@:1:$length};                                                                           # arguments without csv 
     getprocs $array;
   else
-    CSVPATH=${DEFAULTCSV};                                                                          # set csv file to default
+    CSVPATH=${TORQPROCESSES};                                                                       # set csv file to default
     getprocs $array;
   fi
  }
@@ -189,7 +189,7 @@ allcsv() {
   if [[ `echo ${BASH_ARGV[*]} | grep -e csv` ]]; then
     eval flagcsv "csv";                                                                             # get all procs from csv without starting 
   else
-    CSVPATH=${DEFAULTCSV};                                                                            
+    CSVPATH=${TORQPROCESSES};                                                                            
   fi
  }
 
@@ -209,16 +209,13 @@ stopprocs() {
 
 usage() {
   printf -- "Arguments:\n"
-  printf -- "  start all                                to start all processes\n"
-  printf -- "  start <processname(s)>                   to start process(es)\n"
-  printf -- "  stop all                                 to stop all processes\n"
-  printf -- "  stop <processname(s)>                    to stop process(es)\n"
-  printf -- "  start all -print                         to view all default startup lines\n"
-  printf -- "  start <processname(s)> -print            to view default startup lines\n"
-  printf -- "  -procs                                   to list all processes\n"
-  printf -- "  -summary                                 to view summary table\n"
+  printf -- "  start all|<processname(s)>               to start all|process(es)\n"
+  printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
+  printf -- "  procs                                    to list all processes\n"
+  printf -- "  summary                                  to view summary table\n"
   printf -- "  <processname> -debug                     to debug process\n"
   printf -- "Optional flags:\n"
+  printf -- "  -print                                   to view default startup lines\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
@@ -240,7 +237,7 @@ if [[ "$1" == "start" ]]; then
 elif [[ "$1" == "stop" ]]; then
   checkextrascsv $@;
   stopprocs $PROCS;
-elif [[ "$1" == "-summary" ]]; then
+elif [[ "$1" == "summary" ]]; then
   allcsv $@;
   PROCS=$(getall);
   printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
@@ -248,7 +245,7 @@ elif [[ "$1" == "-summary" ]]; then
   do
     summary $p;
   done
-elif [[ "$1" == "-procs" ]]; then
+elif [[ "$1" == "procs" ]]; then
   allcsv $@;
   echo `getall` | tr " " "\n";
 elif [[ "$2" == "-debug" ]]; then
