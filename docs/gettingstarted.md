@@ -95,49 +95,8 @@ qualification e.g. -.servers.HOPENTIMEOUT 5000.
 
 Using torq.sh
 ---------------------
-torq.sh is a script that runs processes in torq with added functionality and is only available on Linux. It requires environment variables to be set, similar to torq.q. A usage statement for the script can be seen by running the following in a unix environment: `./torq.sh`. The script uses the process file in the default location of $KDBCONFIG/process.csv.
+torq.sh is a script that runs processes in torq with added functionality, one key enhancement is all the process configuration is now in one place. The default process file is located in $KDBCONFIG/process.csv. This script is only available on Linux. It requires environment variables to be set, similar to torq.q. A usage statement for the script can be seen by running the following in a unix environment: `./torq.sh`.
 
-This script is able to start or stop processes seperately, in a batch or all at once. Before a process is started/stopped the script will check that the process is not already running before attempting to start/stop a process, a time of when this is executed is printed to screen. An example is below.
-```
-$ ./torq.sh start rdb1 hdb1 tickerplant1
-    15:42:00 | Starting rdb1...
-    15:42:00 | hdb1 already running
-    15:42:00 | Starting tickerplant1...
-            
-$ ./torq.sh stop all
-    15:46:19 | Shutting down hdb1...
-    15:46:19 | Shutting down hdb2...
-```
-A status summary table of all the processes can be printed to screen, the summary provides information on the time the process was checked, process name, status and the port number and PID of that process.
-```
-$ ./torq.sh -summary
-    TIME     | PROCESS        | STATUS | PORT   | PID
-    11:33:59 | discovery1     | up     | 41001  | 14426
-    11:33:59 | tickerplant1   | down   |
-```
-It is possible to view the underlying start code for all processes. This is useful if another available command line parameter was required for start up. 
-```
-$ ./torq.sh start discovery1 -print
-    Start line for discovery1:
-    nohup q deploy/torq.q -procname discovery1 -stackid 41000 -proctype discovery -U appconfig/passwords/accesslist.txt -localtime 1 -g 0 -load deploy/code/processes/discovery.q -procfile deploy/appconfig/process.csv </dev/null > deploy/logs/torqdiscovery1.txt 2>&1 &
-```
-The debug command line parameter can be appended to the start line straight from torq.sh to start a process in debug mode. Note it is only possible to start one process at a time in debug mode.
-```
-$ ./torq.sh tickerplant1 -debug
-```
-If a process name not present in the process.csv is used, the input process name will return as an invalid input. To see a list of all the processes in the process.csv see below.
-```
-$ ./torq.sh -procs
-```
-A different process file can be used with this script from the command line. The argument following the csv flag needs to be a full path to the process.csv.
-```
-$ ./torq.sh start all -csv ${KDBAPPCONFIG}/process.csv
-```
-To add/override the default values in the g, T, w, or extras column the extras flag can be used in this script. 
-```
-$ ./torq.sh start rdb1 -extras -T 60 -w 4000
-$ ./torq.sh start sort1 -extras -s -3
-```
 
 Environment Variables 
 ---------------------
@@ -223,15 +182,63 @@ The parameters following procname set the following:
 
   |Parameter|                          Description|
   |---------------------------------| ----------------------------|
-  |U|                                  Authentication|
-  |localtime|                          localtime or UTC|
-  |g|                                  Garbage collection|
-  |T|                                  Timeout|
-  |w|                                  Memory limit|
-  |load|                               Path to load process file|
-  |startwithall|                       Start using torq.sh| 
-  |extras|                             Add arguments to start up line|
-  |qcmd|                               Command to start q session|
+  |U|                                  Authentication requiring a usr:pwd file|
+  |localtime|                          Sets process running in local time rather than GMT|
+  |g|                                  Garbage collection immediate (1) or deferred (0)|
+  |T|                                  Timeout in seconds for client queries, 0 for no timeout|
+  |w|                                  Workspace MB limit|
+  |load|                               Files or database directory to load|
+  |startwithall|                       Determine if process is started when all is specified| 
+  |extras|                             Specify any additional parameters|
+  |qcmd|                               Allows different versions of q to be used or different command line options - rlwap, numactl|
+
+Where U/g/T/w are standard q command line arguments and localtime and load are TorQ command line parameters. 
+
+Running processes using torq.sh
+-------
+
+torq.sh is able to start or stop processes seperately, in a batch or all at once. Before a process is started/stopped the script will check that the process is not already running before attempting to start/stop a process, a time of when this is executed is printed to screen.
+```
+$ ./torq.sh start rdb1 hdb1 tickerplant1
+    15:42:00 | Starting rdb1...
+    15:42:00 | hdb1 already running
+    15:42:00 | Starting tickerplant1...
+            
+$ ./torq.sh stop all
+    15:46:19 | Shutting down hdb1...
+    15:46:19 | Shutting down hdb2...
+```
+A status summary table of all the processes can be printed to screen, the summary provides information on the time the process was checked, process name, status and the port number and PID of that process.
+```
+$ ./torq.sh summary
+    TIME     | PROCESS        | STATUS | PORT   | PID
+    11:33:59 | discovery1     | up     | 41001  | 14426
+    11:33:59 | tickerplant1   | down   |
+```
+It is possible to view the underlying start code for all processes. This is useful if another available command line parameter was required for start up. 
+```
+$ ./torq.sh start discovery1 -print
+    Start line for discovery1:
+    nohup q deploy/torq.q -procname discovery1 -stackid 41000 -proctype discovery -U appconfig/passwords/accesslist.txt -localtime 1 -g 0 -load deploy/code/processes/discovery.q -procfile deploy/appconfig/process.csv </dev/null > deploy/logs/torqdiscovery1.txt 2>&1 &
+```
+The debug command line parameter can be appended to the start line straight from torq.sh to start a process in debug mode. Note it is only possible to start one process at a time in debug mode.
+```
+$ ./torq.sh tickerplant1 -debug
+```
+If a process name not present in the process.csv is used, the input process name will return as an invalid input. To see a list of all the processes in the process.csv see below.
+```
+$ ./torq.sh procs
+```
+A different process file can be used with this script from the command line. The argument following the csv flag needs to be a full path to the process.csv.
+```
+$ ./torq.sh start all -csv ${KDBAPPCONFIG}/process.csv
+```
+To add/override the default values in the g, T, w, or extras column the extras flag can be used in this script. 
+```
+$ ./torq.sh start rdb1 -extras -T 60 -w 4000
+$ ./torq.sh start sort1 -extras -s -3
+```
+
 
 <a name="logging"></a>
 
