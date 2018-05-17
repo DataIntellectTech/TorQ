@@ -2,22 +2,22 @@
 
 \d .sub
 
-AUTORECONNECT:@[value;`AUTORECONNECT;1b];				//resubscribe to processes when they come back up
-checksubscriptionperiod:@[value;`checksubscribtionperiod;0D00:00:10];	//how frequently you recheck connections.  0D = never
+AUTORECONNECT:@[value;`AUTORECONNECT;1b];									//resubscribe to processes when they come back up
+checksubscriptionperiod:(not @[value;`.proc.lowpowermode;0b]) * @[value;`checksubscriptionperiod;0D00:00:10]  	//how frequently you recheck connections.  0D = never
 
 /-table of subscriptions
 SUBSCRIPTIONS:([]procname:`symbol$();proctype:`symbol$();w:`int$();table:();instruments:();createdtime:`timestamp$();active:`boolean$());
 
 getsubscriptionhandles:{[proctype;procname;attributes]
 	distinct raze {select procname,proctype,w from x}each .servers.getservers[;;attributes;1b;0b]'[`proctype`procname;(proctype;procname)]
-	}	
+	}
 
 updatesubscriptions:{[proc;tab;instrs]
 	/-delete any inactive subscriptions
 	delete from `.sub.SUBSCRIPTIONS where not active;
 	if[instrs~`;instrs,:()];
 	.sub.SUBSCRIPTIONS::0!(4!SUBSCRIPTIONS)upsert enlist proc,`table`instruments`createdtime`active!(tab;instrs;.proc.cp[];1b);
-	}	
+	}
 
 reconnectinit:0b;		//has the reconnect custom function been initialised
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
@@ -25,7 +25,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	if[0=count proc;.lg.o[`subscribe;"no connections made"]; :()];
 
 	/-check required flags are set, and add a definintion to the reconnection logic
-	/-when the process is notified of a new connection, it will try and resubscribe	
+	/-when the process is notified of a new connection, it will try and resubscribe
 	if[(not .sub.reconnectinit)&.sub.AUTORECONNECT;
 		$[.servers.enabled;
 			[.servers.connectcustom:{x@y;.sub.autoreconnect[y]}[.servers.connectcustom]; .sub.reconnectinit:1b];
@@ -42,7 +42,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	if[count s;
 		.lg.o[`subscribe;"already subscribed to specified instruments from  ",(","sv string s`table)," on handle ",string proc`w];
 		subtabs:subtabs except s`table];
-	
+
 	/-if all the tables have been subscribed to on specified instruments
 	if[0=count subtabs; :()];
 	/-if the requested tables aren't available, ignore them and log a message
@@ -72,7 +72,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			if[count where nulldetail;
 				tabs:(details[0] where not nulldetail)[;0];
 				subtabs:tabs inter subtabs];
-			/-set the replayupd function to be upd globally 
+			/-set the replayupd function to be upd globally
 			if[not (tabs;instrs)~(`;`);
 				.lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
 				@[`.;`upd;:;.sub.replayupd[origupd;subtabs;instrs]]];
@@ -107,7 +107,7 @@ replayupd:{[f;tabs;syms;t;x]
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
-retrysubscription:{[row] 
+retrysubscription:{[row]
 	subscribe[row`table;$[((),`) ~ insts:row`instruments;`;insts];0b;0b;3#row];
 	}
 //-if something becomes available again try to reconnect to any previously subscribed tables/instruments

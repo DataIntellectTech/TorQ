@@ -6,6 +6,10 @@ loaded:1b
 // Initialised flag - used to check if the process is still initialisation
 initialised:0b
 
+// function to add functions to initialisation list
+initlist:()
+addinitlist:{[x].proc.initlist,:enlist x};
+  
 generalusage:@[value;`generalusage;"General:
  This script should form the basis of a production kdb+ environment. 
  It can be sourced from other files if required, or used as a launch script before loading other files/directories 
@@ -583,11 +587,25 @@ if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
 // initialise connections
 if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
+// function to execute functions in .proc.initlist
+.proc.init:{
+	$[count .proc.initlist;
+		[{[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
+		@[value;a;
+		{[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
+		each .proc.initlist;.proc.initlist:()];
+		.lg.o[`init;"no initialisation functions found"]];
+ }
+
+if[count .proc.initlist;.proc.init[]]
+
 .lg.banner[]
 
 // set the initialised flag
 .proc.initialised:1b
 
+// set start time of the process
+.proc.starttimeUTC:.z.p
 
 if[`test in key .proc.params;
         $[0<count[getenv[`KDBTESTS]];
