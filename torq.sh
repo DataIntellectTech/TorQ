@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash 
 
 . ./setenv.sh                                                                                       # load the environment
 
@@ -18,13 +18,15 @@ parameter() {
  }
 
 findproc() {
-  pgrep -f "\-procname $1 $KDBSTACKID \-proctype $(getfield $1 proctype)"                           # get pid of process 
+  procno=`awk '/,'$1',/{print NR}' $CSVPATH`                                                        # get line number for file
+  pgrep -f "\-stackid ${KDBBASEPORT} \-proctype $(getfield $procno proctype) \-procname $1"         # get pid of process
  }
 
 startline() {
   procno=`awk '/,'$1',/{print NR}' $CSVPATH`                                                        # get line number for file
-  params="proctype U localtime g T w load"                                                          # list of params to read from config
-  sline="${TORQHOME}/torq.q -procname $1 ${KDBSTACKID}"                                             # base part of startup line
+  proctype=`getfield $procno "proctype"`                                                            # get proctype for process 
+  params="U localtime g T w load"                                                                   # list of params to read from config 
+  sline="${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $1"               # base part of startup line
   for p in $params;                                                                                 # iterate over params
   do
     a=`parameter $procno $p`;                                                                       # get param
