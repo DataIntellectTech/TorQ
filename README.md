@@ -39,7 +39,14 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
-
+- **3.3.0, May 2018**:
+  * Upgraded to run with kdb+ v3.6.  Note that it remains backwardly compatible with prior versions. 
+  * Implemented concurrent synchronous requests, as part of 3.6 upgrade 
+  * Added Response Formatter for gateway 
+  * Added Low Power Mode - aimed at use with Kx On Demand Licence
+  * Added Initialisation Function invoked after a script is loaded and connections are established.
+  * Changed the start script, to start or stop processes separately, in a batch or all at once. All the process configuration is now at one place in $KDBCONFIG/process.csv.
+  * Bug fix for erroneous brackets that were causing permissions config to be loaded in incorrect order
 - **3.2.0, February 2018**:
   * Added initial version of [analytics library](http://aquaqanalytics.github.io/TorQ/analyticslib/), a set of functions to aid data manipulation
   * Added optional [dependency checker](http://aquaqanalytics.github.io/TorQ/gettingstarted/#application-dependency) for applications to check if they have minimal TorQ and kdb+ dependencies
