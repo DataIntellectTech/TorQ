@@ -156,12 +156,14 @@ getconfig:{[path;level]
         /-if level=2 then all files are returned regardless
         if[level<2;
           if[()~keyappconf;
-            appconf:()]];
+            appconf:()];
+          if[()~keyservconf;
+            servconf:()]];
 
         /-get KDBCONFIG path
         conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
-        /-if level is non-zero return appconfig and config files
+        /-if level is non-zero return appconfig, servconfig and config files
         (),$[level;
           appconf,servconf,conf;
           first appconf,servconf,conf]}
@@ -510,30 +512,27 @@ override:{overrideconfig[.proc.params]}
 
 loadspeccode:{[ext;dir]
 	$[""~getenv dir;
-		 .lg.o[`init;"Environment variable ",string[dir]," not set, not loading specific ",ext," code"];
-		 loaddir getenv[dir],ext
+	 .lg.o[`init;"Environment variable ",string[dir]," not set, not loading specific ",ext," code"];
+	 loaddir getenv[dir],ext
    ];
 	};
 
 reloadcommoncode:{
-		loaddir getenv[`KDBCODE],"/common";
-		// Optionally load common code from seperate directory
-		loadspeccode["/common"]'[`KDBAPPCODE`KDBSERVCODE];
+	// Load common code from each directory if it exists
+	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadprocesscode:{
-		loaddir getenv[`KDBCODE],"/",string proctype;
-		// Optionally load proctype code from seperate directory
-  	loadspeccode["/",string proctype]'[`KDBSERVCODE`KDBAPPCODE];
+	// Load proctype code from each directory if it exists
+	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadnamecode:{
-		loaddir getenv[`KDBCODE],"/",string procname;
-		// Optionally load procname code from seperate directory
-  	loadspeccode["/",string procname]'[`KDBSERVCODE`KDBAPPCODE];
+	// Load procname code from each directory if it exists
+	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 
 \d . 
 // Load configuration
-// TorQ loads configuration modules in the order: TorQ Default, then Application Specific
+// TorQ loads configuration modules in the order: TorQ Default, Service Specific and then Application Specific
 // Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
