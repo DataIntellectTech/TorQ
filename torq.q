@@ -95,7 +95,7 @@ envvars:@[value;`envvars;`symbol$()]
 envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
-{if[not ""~getenv[x]; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
+{if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
 
 // set the torq environment variables if not already set
 qhome:{q:getenv[`QHOME]; if[q~""; q:$[.z.o like "w*"; "c:/q"; getenv[`HOME],"/q"]]; q}
@@ -576,7 +576,7 @@ if[`loaddir in key .proc.params;
 	.proc.loaddir each .proc.params`loaddir]
 
 // Load message handlers after all the other library code
-.proc.loaddir each(getenv$[.proc.loadhandlers & not ""~getenv[`KDBSERVCODE];`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
+.proc.loaddir each(getenv$[.proc.loadhandlers & not ""~getenv`KDBSERVCODE;`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
 
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
