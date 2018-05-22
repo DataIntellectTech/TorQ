@@ -145,11 +145,11 @@ checkdependency:{[path]
 
 getconfig:{[path;level]
         /- check if KDBSERVCONFIG exists
-        keyappconf:$[not ""~ksc:getenv[`KDBSERVCONFIG];
+        keyservconf:$[not ""~ksc:getenv`KDBSERVCONFIG;
           key hsym servconf:`$ksc,"/",path;
           ()];
         /- check if KDBAPPCONFIG exists
-        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
+        keyappconf:$[not ""~kac:getenv`KDBAPPCONFIG;
           key hsym appconf:`$kac,"/",path;
           ()];
 
@@ -508,42 +508,28 @@ overrideconfig:{[params]
 
 override:{overrideconfig[.proc.params]}
 
+loadspeccode:{[ext;dir]
+	$[""~getenv dir;
+		 .lg.o[`init;"Environment variable ",string[dir]," not set, not loading specific ",ext," code"];
+		 loaddir getenv[dir],ext
+   ];
+	};
+
 reloadcommoncode:{
-	loaddir getenv[`KDBCODE],"/common";
-	// Optionally load common code from seperate directory
-  $[""~getenv(`KDBSERVCODE);
-    .lg.o[`init;"Environment variable KDBSERVCODE not set, not loading service specific common code"];
-    loaddir getenv[`KDBSERVCODE],"/common"
-  ];
-  $[""~getenv(`KDBAPPCODE);
-		.lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific common code"];
-		loaddir getenv[`KDBAPPCODE],"/common"
-	];
-	}
+		loaddir getenv[`KDBCODE],"/common";
+		// Optionally load common code from seperate directory
+		loadspeccode["/common"]'[`KDBAPPCODE`KDBSERVCODE];
+	};
 reloadprocesscode:{
-	loaddir getenv[`KDBCODE],"/",string proctype;
-	// Optionally load proctype code from seperate directory
-  $[""~getenv(`KDBSERVCODE);
-    .lg.o[`init;"Environment variable KDBSERVCODE not set, not loading service specific proctype code"];
-    loaddir getenv[`KDBSERVCODE],"/",string proctype
-  ];
-  $[""~getenv(`KDBAPPCODE);
-    .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific proctype code"];
-    loaddir getenv[`KDBAPPCODE],"/",string proctype
-  ];
-	}
+		loaddir getenv[`KDBCODE],"/",string proctype;
+		// Optionally load proctype code from seperate directory
+  	loadspeccode["/",string proctype]'[`KDBSERVCODE`KDBAPPCODE];
+	};
 reloadnamecode:{
-	loaddir getenv[`KDBCODE],"/",string procname;
-	// Optionally load procname code from seperate directory
-  $[""~getenv(`KDBSERVCODE);
-    .lg.o[`init;"Environment variable KDBSERVCODE not set, not loading service specific procname code"];
-    loaddir getenv[`KDBSERVCODE],"/",string procname
-  ]; 
-  $[""~getenv(`KDBAPPCODE);
-    .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific procname code"];
-    loaddir getenv[`KDBAPPCODE],"/",string procname
-  ];
-	}
+		loaddir getenv[`KDBCODE],"/",string procname;
+		// Optionally load procname code from seperate directory
+  	loadspeccode["/",string procname]'[`KDBSERVCODE`KDBAPPCODE];
+	};
 
 \d . 
 // Load configuration
@@ -553,14 +539,14 @@ if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
 	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.proctype,.proc.procname;
   // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
-  $[""~getenv(`KDBSERVCONFIG);
+  $[""~getenv`KDBSERVCONFIG;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
     [.proc.servconfig:getenv[`KDBAPPCONFIG],"/settings/";
     .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
     .proc.loadconfig[.proc.servconfig;] each `default,.proc.proctype,.proc.procname]
   ];
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
-  $[""~getenv(`KDBAPPCONFIG);	
+  $[""~getenv`KDBAPPCONFIG;	
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
 	  [.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
@@ -590,11 +576,7 @@ if[`loaddir in key .proc.params;
 	.proc.loaddir each .proc.params`loaddir]
 
 // Load message handlers after all the other library code
-/if[.proc.loadhandlers;.proc.loaddir getenv[`KDBCODE],"/handlers"]
-$[.proc.loadhandlers & not ""~getenv[`KDBSERVCODE];
-  .proc.loaddir'[(getenv[`KDBCODE];getenv[`KDBSERVCODE]),\:"/handlers"];
-  .proc.loaddir getenv[`KDBCODE],"/handlers"
- ]
+.proc.loaddir each(getenv$[.proc.loadhandlers & not ""~getenv[`KDBSERVCODE];`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
 
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
