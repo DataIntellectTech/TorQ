@@ -344,6 +344,11 @@ $[count[req] = count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
 
+// If parentproctype has been supplied then set it
+parentproctype:$[`parentproctype in key params;
+  first `$params `parentproctype;
+  ()];
+
 checkdependency[getconfig["dependency.csv";1]]
 
 // If any of the required parameters are null, try to read them from a file
@@ -521,6 +526,10 @@ reloadcommoncode:{
 	// Load common code from each directory if it exists
 	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
+reloadparentprocesscode:{
+  // Load parentproctype code from each directory if it exists
+  loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+  };
 reloadprocesscode:{
 	// Load proctype code from each directory if it exists
 	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
@@ -536,7 +545,7 @@ reloadnamecode:{
 // Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
-	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.proctype,.proc.procname;
+	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
   // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
   $[""~getenv`KDBSERVCONFIG;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
