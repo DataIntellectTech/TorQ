@@ -335,4 +335,19 @@ pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;clea
 if[enabled;
 	.z.pc:{.servers.pc[x y;y]}.z.pc;
 	if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
-	if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];
+    if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];
+
+// Check if required processes all connected
+reqprocsnotconn:{[requiredprocs] 
+    (count requiredprocs)=sum requiredprocs in exec u from .clients.clients
+  }
+
+// Check all required processes are connected before starting process
+startupdependent:{[requiredprocs;timeintv]
+    while[.servers.reqprocsnotconn[requiredprocs];
+              .os.sleep[timeintv];
+              .servers.startup;
+              subscribe[];
+              ]
+  }
+
