@@ -339,15 +339,15 @@ if[enabled;
 
 // Check if required processes all connected
 reqprocsnotconn:{[requiredprocs] 
-    (count requiredprocs)=sum requiredprocs in exec u from .clients.clients
+    (count requiredprocs)<>sum requiredprocs in exec proctype from .servers.SERVERS
   }
 
-// Check all required processes are connected before starting process
+// Block process until all required processes are connected
 startupdependent:{[requiredprocs;timeintv]
     while[.servers.reqprocsnotconn[requiredprocs];
               .os.sleep[timeintv];
-              .servers.startup;
-              subscribe[];
+              .servers.startup[];
+              subscribe[]
               ]
   }
 
