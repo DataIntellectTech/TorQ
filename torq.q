@@ -345,7 +345,7 @@ $[count[req] = count req inter key params;
   ()];		 
 
 // If parentproctype has been supplied then set it
-parentproctype:();
+parentproctype:`$();
 if[`parentproctype in key params;
     parentproctype:first `$params `parentproctype;
     .lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
@@ -566,17 +566,20 @@ if[not `noconfig in key .proc.params;
 
 // Load library code 
 .proc.loadcommoncode:@[value;`.proc.loadcommoncode;1b];
+.proc.loadparentprocesscode:@[value;`.proc.loadparentprocesscode;1b];
 .proc.loadprocesscode:@[value;`.proc.loadprocesscode;1b];
 .proc.loadnamecode:@[value;`.proc.loadnamecode;0b];
 .proc.loadhandlers:@[value;`.proc.loadhandlers;1b];
 .proc.logroll:@[value;`.proc.logroll;1]
 .lg.o[`init;".proc.loadcommoncode flag set to ",string .proc.loadcommoncode];
+.lg.o[`init;".proc.loadparentprocesscode flag set to ",string .proc.loadparentprocesscode];
 .lg.o[`init;".proc.loadprocesscode flag set to ",string .proc.loadprocesscode];
 .lg.o[`init;".proc.loadnamecode flag set to ",string .proc.loadnamecode];
 .lg.o[`init;".proc.loadhandlers flag set to ",string .proc.loadhandlers];
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
 if[.proc.loadcommoncode; .proc.reloadcommoncode[]]
+if[.proc.loadparentprocesscode & not null first .proc.parentproctype;.proc.reloadparentprocesscode[]]
 if[.proc.loadprocesscode;.proc.reloadprocesscode[]]
 if[.proc.loadnamecode;.proc.reloadnamecode[]]
 
