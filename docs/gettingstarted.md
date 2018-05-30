@@ -54,6 +54,10 @@ parameters. An example is below.
     $ . setenv.sh
     $ q torq.q -debug -proctype testproc -procname test1 
 
+To specify the parent process type, do:
+
+    $ q torq.q -debug -parentproctype -testparentproc -proctype testproc -procname test1
+
 To load a file, do:
 
     $ q torq.q -load myfile.q -debug -proctype testproc -procname test1
@@ -70,6 +74,7 @@ The available command line parameters are:
   |Cmd Line Param|            Description|
   |-------------------------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
   |-procname x -proctype y   |The process name and process type|
+  |-parentproctype x         |The parent process type|
   |-procfile x               |The name of the file to get the process information from|
   |-load x \[y..z\]          |The files or database directory to load|
   |-loaddir x \[y..z\]       |Load all .q, .k files in specified directories|
@@ -128,19 +133,24 @@ Process Identification
 ----------------------
 
 At the crux of AquaQ TorQ is how processes identify themselves. This is
-defined by two variables - .proc.proctype and .proc.procname which are
-the type and name of the process respectively. These two values
-determine the code base and configuration loaded, and how they are
-connected to by other processes. If both of these are not defined, the
-TorQ will attempt to use the port number a process was started on to
-determine the code base and configuration loaded.
+defined by two required variables - .proc.proctype and .proc.procname
+which are the type and name of the process respectively and an optional
+variable parentproctype which is the type of the parent process. These
+three values determine the code base and configuration loaded, and how
+they are connected to by other processes. If both of the required
+variables are not defined, the TorQ will attempt to use the port number
+a process was started on to determine the code base and configuration
+loaded.
 
 The most important of these is the proctype. It is up to the user to
 define at what level to specify a process type. For example, in a
 production environment it would be valid to specify processes of type
 “hdb” (historic database) and “rdb” (real time database). It would also
 be valid to segregate a little more granularly based on approximate
-functionality, for example “hdbEMEA” and “hdbAmericas”. The actual
+functionality, for example “hdbEMEA” and “hdbAmericas”. In this example
+it may be sensible to set the parentproctype as "hdb" and putting all
+shared code in the "hdb" configuration to be loaded first with the
+region-specific configuration being loaded after. The actual
 functionality of a process can be defined more specifically, but this
 will be discussed later. The procname value is used solely for
 identification purposes. A process can determine its type and name in a
@@ -310,9 +320,12 @@ files in the below order:-
 
 -   default.q: default configuration loaded by all processes. In a
     standard installation this should contain the superset of
-    customisable configuration, including comments;
+    customisable configuration, including comments.
 
--   [proctype].q: configuration for a specific process type;
+-   [parentproctype].q: configuration for a specific parent process
+    type (only if parentproctype specified).
+
+-   [proctype].q: configuration for a specific process type.
 
 -   [procname].q: configuration for a specific named process.
 
@@ -331,6 +344,9 @@ configuration in the following order:-
 
 -   default.q: Application default configuration loaded by all
     processes.
+
+-   [\[parentproctype\]]{}.q : Application specific configuration for a
+    specific parent process type (only if parentproctype specified).
 
 -   [\[proctype\]]{}.q: Application specific configuration for a
     specific process type.
@@ -378,6 +394,9 @@ order:
 
 -   $KDBCODE/common: shared codebase loaded by all processes;
 
+-   $KDBCODE/\[parentproctype\]: code for a specific parent process type
+    (only if parentproctype specified).
+
 -   $KDBCODE/\[proctype\]: code for a specific process type;
 
 -   $KDBCODE/\[procname\]: code for a specific process name;
@@ -396,6 +415,12 @@ If this environment variable is set, TorQ will load codebase in the following or
 -   $KDBCODE/common: shared codebase loaded by all processes;
 
 -   $KDBAPPCODE/common: application specific code shared by all processes;
+
+-   $KDBCODE/\[parentproctype\]: code for a specific parent process type (only if
+    parentproctype specified);
+
+-   $KDBAPPCODE/\[parentproctype\[: application specific code for a specific parent
+    process type (only if parentproctype specified);
 
 -   $KDBCODE/\[proctype\]: code for a specific process type;
 
