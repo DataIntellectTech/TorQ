@@ -345,9 +345,10 @@ $[count[req] = count req inter key params;
   ()];		 
 
 // If parentproctype has been supplied then set it
-parentproctype:$[`parentproctype in key params;
-  first `$params `parentproctype;
-  ()];
+parentproctype:();
+if[`parentproctype in key params;
+    parentproctype:first `$params `parentproctype;
+    .lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
 
 checkdependency[getconfig["dependency.csv";1]]
 
