@@ -552,14 +552,14 @@ if[not `noconfig in key .proc.params;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
     [.proc.servconfig:getenv[`KDBAPPCONFIG],"/settings/";
     .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
-    .proc.loadconfig[.proc.servconfig;] each `default,.proc.proctype,.proc.procname]
+	.proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
   $[""~getenv`KDBAPPCONFIG;	
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
 	  [.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
-	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.proctype,.proc.procname]
+	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
 	// Override config from the command line
 	.proc.override[]]
