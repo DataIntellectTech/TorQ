@@ -395,7 +395,7 @@ order:
 -   $KDBCODE/common: shared codebase loaded by all processes;
 
 -   $KDBCODE/\[parentproctype\]: code for a specific parent process type
-    (only if parentproctype specified).
+    (only if parentproctype specified);
 
 -   $KDBCODE/\[proctype\]: code for a specific process type;
 
@@ -419,7 +419,7 @@ If this environment variable is set, TorQ will load codebase in the following or
 -   $KDBCODE/\[parentproctype\]: code for a specific parent process type (only if
     parentproctype specified);
 
--   $KDBAPPCODE/\[parentproctype\[: application specific code for a specific parent
+-   $KDBAPPCODE/\[parentproctype\]: application specific code for a specific parent
     process type (only if parentproctype specified);
 
 -   $KDBCODE/\[proctype\]: code for a specific process type;
