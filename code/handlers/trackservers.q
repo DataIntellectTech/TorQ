@@ -9,25 +9,25 @@ if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to 
 
 SERVERS:@[value;`.servers.SERVERS;([]procname:`symbol$();proctype:`symbol$();hpup:`symbol$();w:`int$();hits:`int$();startp:`timestamp$();lastp:`timestamp$();endp:`timestamp$();attributes:())]
 
-enabled:@[value;`enabled;1b]                                        // whether server tracking is enabled
-CONNECTIONS:@[value;`CONNECTIONS;`]                             // the list of connections to make at start up
-DISCOVERYREGISTER:@[value;`DISCOVERYREGISTER;1b]                        // whether to register with the discovery service
-CONNECTIONSFROMDISCOVERY:@[value;`CONNECTIONSFROMDISCOVERY;1b]                  // whether to get connection details from the discovery service (as opposed to the static file)
-SUBSCRIBETODISCOVERY:@[value;`SUBSCRIBETODISCOVERY;1b]                      // whether to subscribe to the discovery service for new processes becoming available
-DISCOVERYRETRY:@[value;`DISCOVERYRETRY;0D00:05]                             // how often to retry the connection to the discovery service.  If 0, no connection is made
-TRACKNONTORQPROCESS:@[value;`TRACKNONTORQPROCESS;0b]                        // whether to track and register non torQ processes
+enabled:@[value;`enabled;1b]                                                                    // whether server tracking is enabled
+CONNECTIONS:@[value;`CONNECTIONS;`]                                                             // the list of connections to make at start up
+DISCOVERYREGISTER:@[value;`DISCOVERYREGISTER;1b]                                                // whether to register with the discovery service
+CONNECTIONSFROMDISCOVERY:@[value;`CONNECTIONSFROMDISCOVERY;1b]                                  // whether to get connection details from the discovery service (as opposed to the static file)
+SUBSCRIBETODISCOVERY:@[value;`SUBSCRIBETODISCOVERY;1b]                                          // whether to subscribe to the discovery service for new processes becoming available
+DISCOVERYRETRY:@[value;`DISCOVERYRETRY;0D00:05]                                                 // how often to retry the connection to the discovery service.  If 0, no connection is made
+TRACKNONTORQPROCESS:@[value;`TRACKNONTORQPROCESS;0b]                                            // whether to track and register non torQ processes
 NONTORQPROCESSFILE:@[value;`NONTORQPROCESSFILE;hsym .proc.getconfigfile["nontorqprocess.csv"]]  // non torQ processes file
-HOPENTIMEOUT:@[value;`HOPENTIMEOUT;2000]                            // new connection time out value in milliseconds
-RETRY:@[value;`RETRY;0D00:05]                                   // period on which to retry dead connections. If 0 no connection is made
-RETAIN:@[value;`RETAIN;`long$0D00:30]                               // length of time to retain server records
-AUTOCLEAN:@[value;`AUTOCLEAN;0b]                                // clean out old records when handling a close
-DEBUG:@[value;`DEBUG;1b]                                    // whether to print debug output
-LOADPASSWORD:@[value;`LOADPASSWORD;1b]                                      // load the external username:password from ${KDBCONFIG}/passwords
-USERPASS:`                                          // the username and password used to make connections
-STARTUP:@[value;`STARTUP;0b]                                    // whether to automatically make connections on startup
-DISCOVERY:@[value;`DISCOVERY;enlist`]                               // list of discovery services to connect to (if not using process.csv)
+HOPENTIMEOUT:@[value;`HOPENTIMEOUT;2000]                                                        // new connection time out value in milliseconds
+RETRY:@[value;`RETRY;0D00:05]                                                                   // period on which to retry dead connections. If 0 no connection is made
+RETAIN:@[value;`RETAIN;`long$0D00:30]                                                           // length of time to retain server records
+AUTOCLEAN:@[value;`AUTOCLEAN;0b]                                                                // clean out old records when handling a close
+DEBUG:@[value;`DEBUG;1b]                                                                        // whether to print debug output
+LOADPASSWORD:@[value;`LOADPASSWORD;1b]                                                          // load the external username:password from ${KDBCONFIG}/passwords
+USERPASS:`                                                                                      // the username and password used to make connections
+STARTUP:@[value;`STARTUP;0b]                                                                    // whether to automatically make connections on startup
+DISCOVERY:@[value;`DISCOVERY;enlist`]                                                           // list of discovery services to connect to (if not using process.csv)
 SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                                              // dict of proctype!sockettype. sockettype options : `tcp`tcps`unix. e.g. `rdb`tickerplant!`tcp`unix
-PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]                        // dict of host:port!user:pass e.g. `:host:1234!`user:pass
+PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]                                                // dict of host:port!user:pass e.g. `:host:1234!`user:pass
 
 
 // If required, change this method to something more secure!
@@ -51,7 +51,7 @@ opencon:{
     if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
 
     // If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
-        // else return connection string passed in
+    // else return connection string passed in
         connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
 
     h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
