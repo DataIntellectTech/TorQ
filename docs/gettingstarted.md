@@ -134,13 +134,13 @@ Process Identification
 
 At the crux of AquaQ TorQ is how processes identify themselves. This is
 defined by two required variables - .proc.proctype and .proc.procname
-which are the type and name of the process respectively and an optional
-variable parentproctype which is the type of the parent process. These
-three values determine the code base and configuration loaded, and how
-they are connected to by other processes. If both of the required
-variables are not defined, the TorQ will attempt to use the port number
-a process was started on to determine the code base and configuration
-loaded.
+which are the type and name of the process respectively. An optional
+variable parentproctype allows an inital codebase and configuration to
+be loaded. The two required  values determine the code base and
+configuration loaded, and how they are connected to by other processes.
+If both of the required variables are not defined, TorQ will attempt
+to use the port number a process was started on to determine the code
+base and configuration loaded.
 
 The most important of these is the proctype. It is up to the user to
 define at what level to specify a process type. For example, in a
