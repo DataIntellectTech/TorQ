@@ -56,7 +56,7 @@ parameters. An example is below.
 
 To specify the parent process type, do:
 
-    $ q torq.q -debug -parentproctype -testparentproc -proctype testproc -procname test1
+    $ q torq.q -debug -parentproctype testparentproc -proctype testproc -procname test1
 
 To load a file, do:
 
