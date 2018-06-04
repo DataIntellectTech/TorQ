@@ -347,8 +347,8 @@ $[count[req] = count req inter key params;
 // If parentproctype has been supplied then set it
 parentproctype:`$();
 if[`parentproctype in key params;
-    parentproctype:first `$params `parentproctype;
-    .lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
+	parentproctype:first `$params `parentproctype;
+	.lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
 
 checkdependency[getconfig["dependency.csv";1]]
 
@@ -528,9 +528,9 @@ reloadcommoncode:{
 	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadparentprocesscode:{
-  // Load parentproctype code from each directory if it exists
-  loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-  };
+	// Load parentproctype code from each directory if it exists
+	loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
 reloadprocesscode:{
 	// Load proctype code from each directory if it exists
 	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];

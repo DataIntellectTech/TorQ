@@ -41,7 +41,7 @@ loadpassword:{
            .lg.o[`conn;"password file ",(string file)," not found"];
            [.lg.o[`conn;"password file ",(string file)," found"];
             .servers.USERPASS:first`$read0 hsym file]]};
-    files:{.proc.getconfig["passwords/",(string x),".txt";2]} each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
+	files:{.proc.getconfig["passwords/",(string x),".txt";2]} each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
 	loadpassfile each (distinct files[;1],files[;0]) except `;
 	}
 loadpassword[]
