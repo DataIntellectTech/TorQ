@@ -528,9 +528,9 @@ reloadcommoncode:{
 	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadparentprocesscode:{
-  // Load parentproctype code from each directory if it exists
-  loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-  };
+    // Load parentproctype code from each directory if it exists
+    loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+    };
 reloadprocesscode:{
 	// Load proctype code from each directory if it exists
 	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
