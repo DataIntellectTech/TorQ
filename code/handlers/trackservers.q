@@ -329,17 +329,9 @@ startup:{
     // try and open dead connections
     retry[]}
 
-
-pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
-
-if[enabled;
-    .z.pc:{.servers.pc[x y;y]}.z.pc;
-    if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
-    if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];
-
 // Check if required processes all connected
 reqprocsnotconn:{[requiredprocs] 
-    not all requiredprocs in exec proctype from .servers.SERVERS where w in key .z.W
+    not all requiredprocs in exec proctype from .servers.SERVERS where .dotz.liveh[w]
   }
 
 // Block process until all required processes are connected
@@ -349,3 +341,10 @@ startupdependent:{[requiredprocs;timeintv]
           .servers.startup[]
          ]
   }
+
+pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
+
+if[enabled;
+    .z.pc:{.servers.pc[x y;y]}.z.pc;
+    if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
+    if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];
