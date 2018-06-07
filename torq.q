@@ -576,10 +576,13 @@ if[not `noconfig in key .proc.params;
 .lg.o[`init;".proc.loadhandlers flag set to ",string .proc.loadhandlers];
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
-if[.proc.loadcommoncode; .proc.reloadcommoncode[]]
-if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]]
-if[.proc.loadprocesscode;.proc.reloadprocesscode[]]
-if[.proc.loadnamecode;.proc.reloadnamecode[]]
+.proc.reloadallcode:{
+	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
+	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]];
+	if[.proc.loadprocesscode;.proc.reloadprocesscode[]];
+	if[.proc.loadnamecode;.proc.reloadnamecode[]];
+	};
+.proc.reloadallcode[];
 
 if[`loaddir in key .proc.params;
 	.lg.o[`init;"loaddir flag found - loading files in directory ",first .proc.params`loaddir];
