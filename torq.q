@@ -345,7 +345,7 @@ $[count[req] = count req inter key params;
   ()];		 
 
 // If parentproctype has been supplied then set it
-parentproctype:`$();
+parentproctype:();
 if[`parentproctype in key params;
 	parentproctype:first `$params `parentproctype;
 	.lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
@@ -577,7 +577,7 @@ if[not `noconfig in key .proc.params;
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
 if[.proc.loadcommoncode; .proc.reloadcommoncode[]]
-if[.proc.loadprocesscode & not null first .proc.parentproctype;.proc.reloadparentprocesscode[]]
+if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]]
 if[.proc.loadprocesscode;.proc.reloadprocesscode[]]
 if[.proc.loadnamecode;.proc.reloadnamecode[]]
 
