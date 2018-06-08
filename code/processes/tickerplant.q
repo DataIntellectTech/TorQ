@@ -33,12 +33,12 @@
 upd:{[tab;x] .u.icounts[tab]+::count first x;}
 
 \d .u
-jcounts:(`symbol$())!`long$();
-icounts:(`symbol$())!`long$();  / set up dictionary for per table counts
+jcounts:(`symbol$())!0#0,();
+icounts:(`symbol$())!0#0,();  / set up dictionary for per table counts
 ld:{if[not type key L::`$(-10_string L),string x;.[L;();:;()]];i::j::@[-11!;L;i::-11!(-2;L)];jcounts::icounts;if[0 < type i;-2 (string L)," is a corrupt log. Truncate to length ",(string last i)," and restart";exit 1];hopen L};
 tick:{init[];if[not min(`time`sym~2#key flip value@)each t;'`timesym];@[;`sym;`g#]each t;d::.eodtime.d;if[l::count y;L::`$":",y,"/",x,10#".";l::ld d]};
 
-endofday:{end d;d+:1;icounts::(`symbol$())!`long$();if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"];.eodtime.dailyadj:.eodtime.getdailyadjustment[];if[l;hclose l;l::0(`.u.ld;d)]};
+endofday:{end d;d+:1;icounts::(`symbol$())!0#0,();if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"];.eodtime.dailyadj:.eodtime.getdailyadjustment[];if[l;hclose l;l::0(`.u.ld;d)]};
 ts:{if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]]};
 
 
