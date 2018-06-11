@@ -344,6 +344,12 @@ $[count[req] = count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
 
+// If parentproctype has been supplied then set it
+parentproctype:();
+if[`parentproctype in key params;
+	parentproctype:first `$params `parentproctype;
+	.lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
+
 checkdependency[getconfig["dependency.csv";1]]
 
 // If any of the required parameters are null, try to read them from a file
@@ -521,6 +527,10 @@ reloadcommoncode:{
 	// Load common code from each directory if it exists
 	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
+reloadparentprocesscode:{
+	// Load parentproctype code from each directory if it exists
+	loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
 reloadprocesscode:{
 	// Load proctype code from each directory if it exists
 	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
@@ -536,20 +546,20 @@ reloadnamecode:{
 // Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
-	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.proctype,.proc.procname;
+	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
   // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
   $[""~getenv`KDBSERVCONFIG;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
     [.proc.servconfig:getenv[`KDBAPPCONFIG],"/settings/";
     .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
-    .proc.loadconfig[.proc.servconfig;] each `default,.proc.proctype,.proc.procname]
+    .proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
   $[""~getenv`KDBAPPCONFIG;	
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
 	  [.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
 	  .lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
-	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.proctype,.proc.procname]
+	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
 	// Override config from the command line
 	.proc.override[]]
@@ -566,9 +576,13 @@ if[not `noconfig in key .proc.params;
 .lg.o[`init;".proc.loadhandlers flag set to ",string .proc.loadhandlers];
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
-if[.proc.loadcommoncode; .proc.reloadcommoncode[]]
-if[.proc.loadprocesscode;.proc.reloadprocesscode[]]
-if[.proc.loadnamecode;.proc.reloadnamecode[]]
+.proc.reloadallcode:{
+	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
+	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]];
+	if[.proc.loadprocesscode;.proc.reloadprocesscode[]];
+	if[.proc.loadnamecode;.proc.reloadnamecode[]];
+	};
+.proc.reloadallcode[];
 
 if[`loaddir in key .proc.params;
 	.lg.o[`init;"loaddir flag found - loading files in directory ",first .proc.params`loaddir];

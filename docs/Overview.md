@@ -40,12 +40,13 @@ AquaQ TorQ can be extended or modified as required. We have chosen some
 default behaviour, but it can all be overridden. The features of AquaQ
 TorQ are:
 
--   Process Management: Each process is given a type and name. By
-    default these are used to determine the code base it loads, the
-    configuration loaded, log file naming and how it reports itself to
-    discovery services. Whenever possible we have tried to ensure that
-    all default behaviour can be overridden at the process type level,
-    and further at the process name level.
+-   Process Management: Each process is given a type and name, and can
+    optionally be given a parent type. By default these are used to
+    determine the code base it loads, the configuration loaded, log 
+    file naming and how it reports itself to discovery services.
+    Whenever possible we have tried to ensure that all default
+    behaviour can be overridden at the process type level, and further
+    at the process name level.
 
 -   Code Management: Processes can optionally load common or process
     type/name specific code bases. All code loading is error trapped.
@@ -53,9 +54,9 @@ TorQ are:
 -   Configuration Management: Configuration scripts can be loaded as
     standard and with specific process type/name configuration
     overriding default values. Configuration scripts are loaded in a
-    specific order; default, then process type specific, then process
-    name specific. Values loaded last will override values loaded
-    previously.
+    specific order; default, then parent process type specific
+    (optional), process type specific, then process name specific.
+    Values loaded last will override values loaded previously.
 
 -   Usage Logging: All process usage is logged to a single text log file
     and periodically rolled. Logging includes opening/closing of
@@ -70,7 +71,8 @@ TorQ are:
     through query counts and total data size counts. Connections are
     stored and retrieved and can be set to automatically be re-opened as
     required. The password used for outgoing connections can be
-    overridden at default, process type and process name level.
+    overridden at default, parent process type (optional), process type
+    and process name level.
 
 -   Access Controls: Basic access controls are provided, and could be
     extended. These apply restrictions on the IP addresses of remote
