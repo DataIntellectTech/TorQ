@@ -550,7 +550,7 @@ if[not `noconfig in key .proc.params;
   // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
   $[""~getenv`KDBSERVCONFIG;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
-    [.proc.servconfig:getenv[`KDBAPPCONFIG],"/settings/";
+    [.proc.servconfig:getenv[`KDBSERVCONFIG],"/settings/";
     .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
     .proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
