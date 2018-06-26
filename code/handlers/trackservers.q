@@ -34,10 +34,11 @@ PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]                                
 // Otherwise just load the usernames and passwords from the passwords directory
 // using the usual hierarchic approach
 loadpassword:{
+    
     .lg.o[`conn;"attempting to load external connection username:password from file"];
     // load a password file
     loadpassfile:{[file]
-         $[()~key hsym file;
+         $[()~key hsym file; 
            .lg.o[`conn;"password file ",(string file)," not found"];
            [.lg.o[`conn;"password file ",(string file)," found"];
             .servers.USERPASS:first`$read0 hsym file]]};
@@ -49,13 +50,10 @@ loadpassword[]
 // open a connection
 opencon:{
     if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
-
     // If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
     // else return connection string passed in
-        connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
-
+    connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
     h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
-
     // just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
     if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
 
@@ -137,8 +135,8 @@ addh:{[hpuP]
     addhw[hpuP;W]]}
 
 // return the details of the current process
-getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
-
+getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.ges;`);()!()])}
+//getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`])}
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
@@ -175,12 +173,16 @@ retrydiscovery:{
 // Called by the discovery service when it restarts
 autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
+//check if .proc.getattributes exists in the nontorqprocess
+checkNonTorq:{[h]$[(`proc in key`)&(first distinct`getattributes`cd in key`.proc);:1;:0]}
+
 // Attempt to make a connection for specified row ids
+// this is where I should make the change I think. 
 retryrows:{[rows]
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
-        update attributes:{$[null x;()!();@[x;(`.proc.getattributes;`);()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
+        update attributes:{$[null x;()!();$[checkNonTorq[x];@[x;(`.proc.getattributes;`);()!()];()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
         if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w;
     connectcustom[connectedrows]]}
 
