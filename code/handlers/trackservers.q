@@ -174,15 +174,15 @@ retrydiscovery:{
 autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
 //check if .proc.getattributes exists in the nontorqprocess
-checknontorqattr:{$[(`proc in key`)&(first distinct`getattributes`cd in key`.proc);1;0]};
+checknontorqattr:{(`proc in key`)&(`getattributes in key`.proc)};
 
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows; 
-        update attributes:{$[null x;()!();$[@[x;(checknontorqattr;())];@[x;(`.proc.getattributes;`);()!()];()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
-        if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w;
+    update attributes:{$[null x;()!();@[x;(checknontorqattr;())];@[x;(`.proc.getattributes;`);()!()];()!()]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
+    if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w;
     connectcustom[connectedrows]]}
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
