@@ -116,6 +116,7 @@ savetables:{[dir;pt;forcesave;tabname]
 	.lg.o[`rowcheck;"the ",(string tabname)," table consists of ", (string arows), " rows"];
 	/- upsert data to partition
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
+	//break_savetables;
 	.[
 		upsert;
 		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbsettings[`hdbdir];r:0!.save.manipulate[tabname;`. tabname]]);
@@ -183,7 +184,7 @@ endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
-  tablist:tablelist[]!{0#value x} each tablelist[];
+    tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
@@ -244,7 +245,6 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
-	
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
 		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;hdbsettings[`compression]] peach tablist,'.Q.par[dir;pt;] each tablist;
@@ -252,9 +252,20 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
+     
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-	.[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+	
+	//break;
+	//check if date exists in directory
+    //$[not(`$string[pt])in`$.os.list .os.pth -10 _ hw;
+    //  .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+    //  0=count .os.list .os.path hw; 
+    //  .[.os.ren;(dw,"/*";hw,"/.");{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+    //  .lg.o[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]
+    // ]
+
+    .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
 	.save.postreplay[hdbsettings[`hdbdir];pt];
 	if[permitreload; 
