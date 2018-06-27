@@ -171,9 +171,6 @@ retrydiscovery:{
 // Called by the discovery service when it restarts
 autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
-//check if .proc.getattributes exists in the nontorqprocess
-//checknontorqattr:{(`proc in key`)&`getattributes in key`.proc};
-
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
     //function a checks if the handle passed is empty and also invokes checknontorqattr function 
