@@ -34,7 +34,6 @@ PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]                                
 // Otherwise just load the usernames and passwords from the passwords directory
 // using the usual hierarchic approach
 loadpassword:{
-    
     .lg.o[`conn;"attempting to load external connection username:password from file"];
     // load a password file
     loadpassfile:{[file]
@@ -56,7 +55,6 @@ opencon:{
     h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
     // just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
     if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
-
     first h}
 
 // req = required set of attribute
