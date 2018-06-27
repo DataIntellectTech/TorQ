@@ -9,13 +9,17 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
+//requiredprocs:tickerplanttypes;                             //requiredprocesses 
+requiredprocs:@[value;`requiredprocs;`]
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
 subscribeto:@[value;`subscribeto;`];                        //a list of tables to subscribe to, default (`) means all tables
 ignorelist:@[value;`ignorelist;`heartbeat`logmsg];          //list of tables to ignore when saving to disk
 subscribesyms:@[value;`subscribesyms;`];                    //a list of syms to subscribe for, (`) means all syms
-tpconnsleepintv:@[value;`tpconnsleepintv;10];               //number of seconds between attempts to connect to the tp											
+//tpconnsleepintv:@[value;`tpconnsleepintv;10];             //number of seconds between attempts to connect to the tp											
+tpconnsleepintv:$[requiredprocs~`;`;10];                    //number of seconds between attempts
+
 
 onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod writedown will only clear tables which have been successfully saved to disk
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
@@ -185,12 +189,16 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 /-check if the tickerplant has connected, block the process until a connection is established
-while[.rdb.notpconnected[];
-	/-while no connected make the process sleep for X seconds and then run the subscribe function again
-	.os.sleep[.rdb.tpconnsleepintv];
-	/-run the servers startup code again (to make connection to discovery)
-	.servers.startup[];
-	.rdb.subscribe[]]
+/ while[.rdb.notpconnected[];
+/ 	/-while no connected make the process sleep for X seconds and then run the subscribe function again
+/ 	.os.sleep[.rdb.tpconnsleepintv];
+/ 	/-run the servers startup code again (to make connection to discovery)
+/ 	.servers.startup[];
+/ 	.rdb.subscribe[]]
+
+//comment
+.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv]
+
 	
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
