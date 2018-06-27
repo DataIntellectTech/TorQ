@@ -172,15 +172,15 @@ retrydiscovery:{
 autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
 //check if .proc.getattributes exists in the nontorqprocess
-checknontorqattr:{(`proc in key`)&`getattributes in key`.proc};
+//checknontorqattr:{(`proc in key`)&`getattributes in key`.proc};
 
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
     //function a checks if the handle passed is empty and also invokes checknontorqattr function 
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
-    a:{$[(first not null x)&@[first x;(checknontorqattr;`);0b];@[first x;(`.proc.getattributes;`);()!()];()!()]};
-
+    a:{$[(first not null x)&@[first x;"`getattributes in key`.proc";0b];:@[first x;(`.proc.getattributes;`);()!()];()!()]};
+    
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
