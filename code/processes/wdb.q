@@ -241,6 +241,16 @@ setcompression:{[compression] if[3=count compression;
 				]}
 resetcompression:{setcompression 16 0 0 }
 
+movetohdb:{[dw;hw;pt]
+  $[not(`$string[pt])in`$.os.list .os.pth -10 _ hw;
+      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+      0=count .os.list .os.pth hw; 
+      [.[.os.ren;(dw,"/*";hw,"/.");{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];.os.deldir dw]; 
+      .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]
+     ]
+ }
+
+//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
@@ -255,17 +265,8 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
      
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-	
-	//break;
-	//check if date exists in directory
-    //$[not(`$string[pt])in`$.os.list .os.pth -10 _ hw;
-    //  .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
-    //  0=count .os.list .os.path hw; 
-    //  .[.os.ren;(dw,"/*";hw,"/.");{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
-    //  .lg.o[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]
-    // ]
+    movetohdb[dw;hw;pt];
 
-    .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
 	/-call the posteod function
 	.save.postreplay[hdbsettings[`hdbdir];pt];
 	if[permitreload; 
@@ -363,7 +364,7 @@ getprocs:{[x;y]
 
 /-function to send messages to gateway	
 informgateway:{[message]
-  	.lg.o[`informgateway;"sending message to gatway(s)"];
+  	.lg.o[`informgateway;"sending message to gateway(s)"];
 	$[count gateways:.servers.getservers[`proctype;gatewaytypes;()!();1b;0b];
 	   [
 		   {.[@;(y;x);{.lg.e[`informgateway;"unable to run command on gateway"];'x}]}[message;] each exec w from gateways;
