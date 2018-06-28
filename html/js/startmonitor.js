@@ -86,8 +86,8 @@ $(function(){
           { "sType": 'string' },
           { "sType": 'string' },
           {"bSortable": false},
-          {"bSortable":false},
-          {"bSortable":false}            // warning and error columns are both sorted descending
+          {"bSortable": false},
+          {"bSortable": false}            // warning and error columns are both sorted descending
         ],            
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
