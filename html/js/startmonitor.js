@@ -52,7 +52,7 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' },           // warning and error columns are both sorted descending
+          { "sType": 'string' },           // Warning and error columns are both sorted descending
           {"bSortable": false},
           {"bSortable": false},
           {"bSortable": false}
@@ -83,7 +83,7 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' },           // warning and error columns are both sorted descending
+          { "sType": 'string' },           // Warning and error columns are both sorted descending
           {"bSortable": false},
           {"bSortable": false},
           {"bSortable": false}
