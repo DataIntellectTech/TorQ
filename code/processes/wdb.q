@@ -35,7 +35,7 @@ rdbtypes:@[value;`rdbtypes;`rdb];                               /-list of rdb ty
 gatewaytypes:@[value;`gatewaytypes;`gateway]					/-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];      	/-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp								
-sorttypes:@[value;`sorttypes;`sort];                   		/-list of sort types to look for upon a sort		
+sorttypes:@[value;`sorttypes;`sort];                   		    /-list of sort types to look for upon a sort		
 sortslavetypes:@[value;`sortslavetypes;`sortslave];             /-list of sort types to look for upon a sort being called with slave process		
 										
 subtabs:@[value;`subtabs;`]                                     /-list of tables to subscribe for
@@ -64,7 +64,7 @@ compression:@[value;`compression;()];                           /-specify the co
 
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		        /- length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
@@ -116,7 +116,6 @@ savetables:{[dir;pt;forcesave;tabname]
 	.lg.o[`rowcheck;"the ",(string tabname)," table consists of ", (string arows), " rows"];
 	/- upsert data to partition
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
-	//break_savetables;
 	.[
 		upsert;
 		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbsettings[`hdbdir];r:0!.save.manipulate[tabname;`. tabname]]);
@@ -250,7 +249,6 @@ movetohdb:{[dw;hw;pt]
      ]
  }
 
-//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
