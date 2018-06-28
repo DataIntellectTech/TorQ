@@ -52,15 +52,15 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' },
+          { "sType": 'string' },           // warning and error columns are both sorted descending
           {"bSortable": false},
           {"bSortable": false},
-          {"bSortable": false}            // warning and error columns are both sorted descending
+          {"bSortable": false}
         ],            
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
-        "bInfo": false,
+        "bInfo": false
       }); 
     }  
     if(data.lmtable.length !== 0){  $logmsgTable.html(MONITOR.jsonTable(data.lmtable)); } // Write HTML table to div element with id logmsg-table 
@@ -73,7 +73,6 @@ $(function(){
 
     // Table doesn't exist
     if($hbTable.find('table').length === 0){
-      // $hbTable.html(MONITOR.jsonTable(data.tabledata));
       // Write HTML table to div element with id heartbeat-table this builds the table
       $hbTable.html(MONITOR.jsonTable(data.tabledata)); 
       $dataTable = $hbTable.find('table').DataTable({
@@ -84,11 +83,11 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' },
+          { "sType": 'string' },           // warning and error columns are both sorted descending
           {"bSortable": false},
           {"bSortable": false},
-          {"bSortable": false}            // warning and error columns are both sorted descending
-        ],            
+          {"bSortable": false}
+        ],
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
@@ -98,7 +97,7 @@ $(function(){
 
     // Do something with the heartbeat table
     if(data.tablename === "heartbeat"){  
-    // Assuming single message at a time, use procname as unique identifier column 2 i.e. nth-child(2)
+      // Assuming single message at a time, use procname as unique identifier column 2 i.e. nth-child(2)
       $row = $hbTable.find('table tbody td:nth-child(2):contains("' + data.tabledata[0].procname + '")');
 
       if($row.length === 0){
@@ -116,7 +115,7 @@ $(function(){
      // Do something with logmsg table
      if(data.tablename === "logmsg"){  
 
-       // No rows? Create new table
+      // No rows? Create new table
       if($logmsgTable.find('tbody tr').length === 0){
 
         // Assumes max 20 will be recieved, therefore could limit this via data.tabledata.splice(20,data.tabledata.length)
