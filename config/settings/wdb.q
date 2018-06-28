@@ -9,7 +9,7 @@ subtabs:`										                      // list of tables to subscribe for (` f
 subsyms:`										                      // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                             // location to save wdb data
 numrows:100000									                      // default number of rows
-numtab:`quote`trade!10000 50000					                      // specify number of rows per table
+numtab:`quote`trade!100000 50000					                  // specify number of rows per table
 mode:`save			        					                      // the wdb process can operate in three modes	
 												                      // 1. saveandsort:	the process will subscribe for data,
 												                      //			        periodically write data to disk and at EOD it will flush
@@ -30,7 +30,7 @@ writedownmode:`default												  // the wdb process can periodically write da
 																	  //						at EOD the data will be merged from each partiton before being moved to hdb
 												
 mergenumrows:100000													  // default number of rows for merge process
-mergenumtab:`quote`trade!10000 50000								  // specify number of rows per table
+mergenumtab:`quote`trade!100000 50000								  // specify number of rows per table
 
 tpconnsleepintv:10													  // number of seconds between attempts to connect to the tp
 upd:insert															  // value of the upd function

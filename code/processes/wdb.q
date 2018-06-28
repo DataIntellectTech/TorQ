@@ -240,15 +240,25 @@ setcompression:{[compression] if[3=count compression;
 				]}
 resetcompression:{setcompression 16 0 0 }
 
+//check if the hdb directory contains current partition
+//if yes check if patition is empty and if it is not see if any of the tables exist in both the 
+//temporary parition and the hdb partition. If there is a clash abort operation otherwise copy 
+//each table to the hdb partition
 movetohdb:{[dw;hw;pt]
   $[not(`$string[pt])in`$.os.list .os.pth -10 _ hw;
-      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
-      0=count .os.list .os.pth hw; 
-      [.[.os.ren;(dw,"/*";hw,"/.");{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];.os.deldir dw]; 
-      .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]
-     ]
+     .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
+      not any a[dw]in(a:{`$.os.list .os.pth raze x})[hw];
+      [{[y;x]  
+        $[not(`$last"/"vs x)in`$ .os.list .os.pth y;
+          [.[.os.ren;(x;y);{.lg.e[`mvtohdb;"Table ",(last"/"vs x)," has failed to copy to ",y]}];
+           .lg.o[`mvtohdb;"Table ",(last"/"vs x)," has been successfully moved to ",y]];
+          .lg.e[`mvtohdb;"Table ",(last"/"vs x)," was skipped because it already exists in ",y]];
+        }[hw]'[dw,/:"/",/:system"ls ",dw];
+        if[0=count .os.list .os.pth dw;@[.os.deldir;dw;{.lg.e[`mvtohdb;"Folder ",x," was not deleted"]}]]];
+     .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]]
  }
 
+//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
