@@ -33,8 +33,7 @@ startline() {
     sline="$sline$a";                                                                               # append to startup line
   done
   qcmd=`getfield $procno "qcmd"`
-  SLINE="$qcmd $sline $(getfield $procno extras) -procfile $CSVPATH $EXTRAS"                        # append csv file and extra arguments to startup line
-  sline="nohup $SLINE </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                    # run in background and redirect output to log file
+  sline="$qcmd $sline $(getfield $procno extras) -procfile $CSVPATH $EXTRAS"                        # append csv file and extra arguments to startup line
   echo $sline
  }
 
@@ -42,7 +41,7 @@ start() {
   if [[ -z `findproc $1` ]]; then                                                                   # check process not running
     sline=$(startline $1)                                                                           # line to run each process
     echo `date '+%H:%M:%S'` "| Starting $1..."
-    eval $sline                                                                                    
+    eval "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                   # run in background and redirect output to log file
   else
     echo `date '+%H:%M:%S'` "| $1 already running"
   fi 
@@ -51,7 +50,7 @@ start() {
 print() {
   sline=$(startline $1)                                                                             # line to run each process 
   echo "Start line for $1:"
-  echo $sline                                                                                       # echo not evaluate to print
+  echo "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                     # echo not evaluate to print
  }
 
 debug() {
@@ -59,8 +58,8 @@ debug() {
   if [[ `echo $proc | grep "unavailable"` ]]; then                                                  
     echo $proc                                                                                      # print input process unavailable 
   else 
-    startline $1                                                                                    # get start line for process
-    eval "$SLINE -debug"                                                                            # append flag to start in debug mode
+    sline=$(startline $1)                                                                           # get start line for process
+    eval "$sline -debug"                                                                            # append flag to start in debug mode
   fi
  }
 
@@ -100,7 +99,7 @@ getall() {
 
 checkinput() {
   input=$*                                                                                          # get all input process names
-  PROCS=$(getall)                                                                                   # get all process names from csv
+  PROCS=`awk -F, '{if(NR>1) print $4}' $CSVPATH`                                                    # get all process names from csv
   avail=()
   for i in $input;
   do 
@@ -241,7 +240,7 @@ elif [[ "$1" == "stop" ]]; then
   stopprocs $PROCS;
 elif [[ "$1" == "summary" ]]; then
   allcsv $@;
-  PROCS=$(getall);
+  PROCS=`awk -F, '{if(NR>1) print $4}' $CSVPATH`;
   printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
   for p in $PROCS;
   do
@@ -249,7 +248,7 @@ elif [[ "$1" == "summary" ]]; then
   done
 elif [[ "$1" == "procs" ]]; then
   allcsv $@;
-  echo `getall` | tr " " "\n";
+  echo `awk -F, '{if(NR>1) print $4}' $CSVPATH` | tr " " "\n";
 elif [[ "$2" == "-debug" ]]; then
   allcsv $@;
   debug $1;
