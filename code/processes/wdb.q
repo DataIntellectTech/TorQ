@@ -258,7 +258,6 @@ movetohdb:{[dw;hw;pt]
      .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]]
  }
 
-//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
