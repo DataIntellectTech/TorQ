@@ -53,14 +53,14 @@ $(function(){
           {"bSortable": false},
           { "sType": 'string' },
           { "sType": 'string' },
-	  {"bSortable": false},
-	  {"bSortable": false},
-	  {"bSortable": false}            // warning and error columns are both sorted descending
+          {"bSortable": false},
+          {"bSortable": false},
+          {"bSortable": false}            // warning and error columns are both sorted descending
         ],            
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
-        "bSort": false,
+        "bInfo": false,
       }); 
     }  
     if(data.lmtable.length !== 0){  $logmsgTable.html(MONITOR.jsonTable(data.lmtable)); } // Write HTML table to div element with id logmsg-table 
@@ -85,14 +85,14 @@ $(function(){
           {"bSortable": false},
           { "sType": 'string' },
           { "sType": 'string' },
-	  {"bSortable": false},
-	  {"bSortable":false},
-	  {"bSortable":false}            // warning and error columns are both sorted descending
+          {"bSortable": false},
+          {"bSortable":false},
+          {"bSortable":false}            // warning and error columns are both sorted descending
         ],            
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
-	"bInfo": false
+        "bInfo": false
       });       
     }
 
@@ -100,21 +100,21 @@ $(function(){
     if(data.tablename === "heartbeat"){  
     // Assuming single message at a time, use procname as unique identifier column 2 i.e. nth-child(2)
       $row = $hbTable.find('table tbody td:nth-child(2):contains("' + data.tabledata[0].procname + '")');
-	
+
       if($row.length === 0){
-     // Add rows
+        // Add rows
         $dataTable.fnAddData(objArray(data.tabledata[0]));    
       } 
       if($row.length>0){
-     // Get position of row
-	$pos = $dataTable.fnGetPosition($row[0])[0];
-     // Update row - with data array, position of row	
-	$dataTable.fnUpdate(objArray(data.tabledata[0]),$pos);
+        // Get position of row
+        $pos = $dataTable.fnGetPosition($row[0])[0];
+        // Update row - with data array, position of row	
+        $dataTable.fnUpdate(objArray(data.tabledata[0]),$pos);
       }
     }
     
      // Do something with logmsg table
-    if(data.tablename === "logmsg"){  
+     if(data.tablename === "logmsg"){  
 
        // No rows? Create new table
       if($logmsgTable.find('tbody tr').length === 0){
