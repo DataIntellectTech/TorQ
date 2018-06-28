@@ -68,7 +68,7 @@ summary() {
     printf "%-8s | %-14s | %-6s |\n" `date '+%H:%M:%S'` "$1" "down"                                 # summary table row for down process
   else
     pid=$(findproc $1)
-    port=`netstat -pl 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | cut -c 3-`           # get port process is running on 
+    port=`netstat -nlp 2>/dev/null | grep $pid | awk '{ print $4 }' | head -1 | awk -F: '{ print $2 }'`  
     printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" `date '+%H:%M:%S'` "$1" "up" "$port" "$pid"        # summary table row for running process    
   fi
  }
