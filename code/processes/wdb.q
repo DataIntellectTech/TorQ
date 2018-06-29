@@ -259,21 +259,21 @@ movetohdb:{[dw;hw;pt] //break1;
  }
 
 //.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
-endofdaysortdate:{[dir;pt;tablist;hdbsettings]
+endofdaysortdate:{[dir;pt;tablist;hdbsettings] //break3;
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
 	$[(0 < count .z.pd[]) and ((system "s")<0);
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;hdbsettings[`compression]] peach tablist,'.Q.par[dir;pt;] each tablist;
-		];
+		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;hdbsettings[`compression]] peach tablist,'.Q.par[dir;pt;] each tablist];
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
      
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-    movetohdb[dw;hw;pt];
+    .lg.o[`mvtohdb;"Atempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
+    .[movetohdb;(dw;hw;pt);{[e].lg.e[`mvtohdb;"Function movetohdb failed with error: ",e]}];
 
 	/-call the posteod function
 	.save.postreplay[hdbsettings[`hdbdir];pt];
