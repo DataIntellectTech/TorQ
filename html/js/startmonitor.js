@@ -1,16 +1,16 @@
 var dataarray,$dataTable;
 $(function(){
   "use strict";
-  /** 
+  /**
     Get values from object and put them into an array
     @method jsonTable
-    @param data {Object} Parsed JSON Object containing column and row data 
+    @param data {Object} Parsed JSON Object containing column and row data
     @return {Array} array of object values
-  */    
+  */
   function objArray(obj){
     return Object.keys(obj).map(function(k){return obj[k];});
   }
-  
+
   /* Define two custom functions (asc and desc) for string sorting */
   /*
   jQuery.fn.dataTableExt.oSort['string-case-asc']  = function(x,y) {
@@ -40,12 +40,12 @@ $(function(){
   KDBCONNECT.bind("data","start",function(data){
 
     // Check that data is not empty
-    if(data.hbtable.length !== 0){  
+    if(data.hbtable.length !== 0){
 
       // Write HTML table to div element with id heartbeat-table this builds the table
-      $hbTable.html(MONITOR.jsonTable(data.hbtable)); 
+      $hbTable.html(MONITOR.jsonTable(data.hbtable));
       $dataTable = $hbTable.find('table').dataTable({
-        "aaSorting": [ [4,'desc'], [5,'desc'] ],    
+        "aaSorting": [ [4,'desc'], [5,'desc'] ],
         "aoColumns": [
           {"bSortable": false},
           {"bSortable": false},
@@ -53,14 +53,14 @@ $(function(){
           {"bSortable": false},
           { "sType": 'string' },
           { "sType": 'string' }            // warning and error columns are both sorted descending
-        ],            
+        ],
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
         "bInfo": false
-      }); 
-    }  
-    if(data.lmtable.length !== 0){  $logmsgTable.html(MONITOR.jsonTable(data.lmtable)); } // Write HTML table to div element with id logmsg-table 
+      });
+    }
+    if(data.lmtable.length !== 0){  $logmsgTable.html(MONITOR.jsonTable(data.lmtable)); } // Write HTML table to div element with id logmsg-table
     if(data.lmchart.length !== 0){  MONITOR.barChart(data.lmchart,"logmsg-chart","Error Count","myTab");  }  // Log message error chart
   });
   KDBCONNECT.bind("data","upd",function(data){
@@ -72,9 +72,9 @@ $(function(){
     if($hbTable.find('table').length === 0){
       // $hbTable.html(MONITOR.jsonTable(data.tabledata));
       // Write HTML table to div element with id heartbeat-table this builds the table
-      $hbTable.html(MONITOR.jsonTable(data.tabledata)); 
+      $hbTable.html(MONITOR.jsonTable(data.tabledata));
       $dataTable = $hbTable.find('table').dataTable({
-        "aaSorting": [ [4,'desc'], [5,'desc'] ],    
+        "aaSorting": [ [4,'desc'], [5,'desc'] ],
         "aoColumns": [
           {"bSortable": false},
           {"bSortable": false},
@@ -82,16 +82,16 @@ $(function(){
           {"bSortable": false},
           { "sType": 'string' },
           { "sType": 'string' }            // warning and error columns are both sorted descending
-        ],            
+        ],
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
         "bInfo": false
-      });       
+      });
     }
 
     // Do something with the heartbeat table
-    if(data.tablename === "heartbeat"){  
+    if(data.tablename === "heartbeat"){
 
       // Assuming single message at a time, use procname as unique identifier column 2 i.e. nth-child(2)
       $row = $hbTable.find('table tbody td:nth-child(2):contains("' + data.tabledata[0].procname + '")');
@@ -99,8 +99,8 @@ $(function(){
       if($row.length === 0){
 
         // Add rows
-        $dataTable.fnAddData(objArray(data.tabledata[0]));        
-      } 
+        $dataTable.fnAddData(objArray(data.tabledata[0]));
+      }
       if($row.length>0){
         // Get position of row
         $pos = $dataTable.fnGetPosition($row[0])[0];
@@ -110,7 +110,7 @@ $(function(){
     }
 
     // Do something with logmsg table
-    if(data.tablename === "logmsg"){  
+    if(data.tablename === "logmsg"){
 
       // No rows? Create new table
       if($logmsgTable.find('tbody tr').length === 0){
@@ -133,23 +133,23 @@ $(function(){
     }
 
     // Do something with lmchart
-    // DEV - currently send all lmchart[], included in monitor.q t=`logmsg 
-    if(data.tablename === "lmchart"){  
+    // DEV - currently send all lmchart[], included in monitor.q t=`logmsg
+    if(data.tablename === "lmchart"){
       console.log("LMCHART - ", data);
-      MONITOR.barChart(data.tabledata,"logmsg-chart","Error Count","myTab"); 
+      MONITOR.barChart(data.tabledata,"logmsg-chart","Error Count","myTab");
     }
   });
   KDBCONNECT.bind("data","bucketlmchart",function(data){
     if(data[0].length>0){ MONITOR.barChart(data[0],"logmsg-chart","Error Count","myTab");}
   });
 
-  /* 
-    UI - Highlighting 
+  /*
+    UI - Highlighting
     highlightRow(tableId,colNumber,conditionArray,cssClass);
   */
   MONITOR.highlightRow('#heartbeat-table',4,["=","true"],"warning-row");
   MONITOR.highlightRow('#heartbeat-table',5,["=","true"],"error-row");
-  MONITOR.highlightColCell('#logmsg-table','logmsg-error',3);  
+  MONITOR.highlightColCell('#logmsg-table','logmsg-error',3);
 
   /* Bucket chart input - Grab value from input and send function argument */
   MONITOR.bucketChart('#bucket-time',"bucketlmchart");
