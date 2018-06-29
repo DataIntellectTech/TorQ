@@ -37,7 +37,7 @@ loadpassword:{
     .lg.o[`conn;"attempting to load external connection username:password from file"];
     // load a password file
     loadpassfile:{[file]
-         $[()~key hsym file; 
+         $[()~key hsym file;
            .lg.o[`conn;"password file ",(string file)," not found"];
            [.lg.o[`conn;"password file ",(string file)," found"];
             .servers.USERPASS:first`$read0 hsym file]]};
@@ -121,7 +121,7 @@ addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
     $[not hpup in (exec hpup from .servers.SERVERS) inter (exec hpup from .servers.nontorqprocesstab);
-        `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes);
+        [`.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes);.servers.SERVERS];
         .lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
     W
     }
@@ -134,7 +134,6 @@ addh:{[hpuP]
 
 // return the details of the current process
 getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.ges;`);()!()])}
-//getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`])}
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
@@ -176,12 +175,14 @@ retryrows:{[rows]
     //function a checks if the handle passed is empty and also invokes checknontorqattr function 
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
-    a:{$[(first not null x)&@[first x;"`getattributes in key`.proc";0b];:@[first x;(`.proc.getattributes;`);()!()];()!()]};
-    
+    a:{$[(not null x);@[x;"$[`getattributes in key`.proc;.proc.getattributes[];()!()]";()!()];()!()]};
+
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
-    update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
+    //break;
+    update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from`.servers.SERVERS where i in rows;
+    show .servers.SERVERS; 
     if[count connectedrows:select from`.servers.SERVERS where i in rows,.dotz.liveh0 w;
     connectcustom[connectedrows]]}
 
