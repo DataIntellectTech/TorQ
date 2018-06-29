@@ -244,21 +244,20 @@ resetcompression:{setcompression 16 0 0 }
 //if yes check if patition is empty and if it is not see if any of the tables exist in both the 
 //temporary parition and the hdb partition. If there is a clash abort operation otherwise copy 
 //each table to the hdb partition
-movetohdb:{[dw;hw;pt] //break1; 
+movetohdb:{[dw;hw;pt] 
   $[not(`$string[pt])in key hsym`$-10 _ hw;
      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
       not any a[dw]in(a:{key hsym`$x})[hw];
-      [{[y;x] //break2; 
-        $[not(`$last"/"vs x)in key hsym`$y;
-          [.[.os.ren;(x;y);{.lg.e[`mvtohdb;"Table ",(last"/"vs x)," has failed to copy to ",y]}];
-           .lg.o[`mvtohdb;"Table ",(last"/"vs x)," has been successfully moved to ",y]];
-          .lg.e[`mvtohdb;"Table ",(last"/"vs x)," was skipped because it already exists in ",y]];
+      [{[y;x] 
+        $[not(b:`$last"/"vs x)in key hsym`$y;
+          [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",y," with error: ",e]}[b;y;]];
+           .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",y]];
+          .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",y]];
         }[hw]'[dw,/:"/",/:system"ls ",dw];
-        if[0=count key hsym`$dw;@[.os.deldir;dw;{.lg.e[`mvtohdb;"Folder ",x," was not deleted"]}]]];
-     .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv string key hsym`$hw]]
+        if[0=count key hsym`$dw;@[.os.deldir;dw;{[x;y].lg.e[`mvtohdb;"Failed to delete folder ",x," with error: ",y]}[dw]]]];
+     .lg.e[`mvtohdb;raze"Table(s) ",string[(key hsym`$hw)inter(key hsym`$dw)]," is present in both location. Operation will be aborted to avoid corrupting the hdb"]]
  }
 
-//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings] //break3;
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
@@ -272,8 +271,8 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings] //break3;
      
 	/-move data into hdb
 	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-    .lg.o[`mvtohdb;"Atempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
-    .[movetohdb;(dw;hw;pt);{[e].lg.e[`mvtohdb;"Function movetohdb failed with error: ",e]}];
+    .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
+    .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
 
 	/-call the posteod function
 	.save.postreplay[hdbsettings[`hdbdir];pt];
