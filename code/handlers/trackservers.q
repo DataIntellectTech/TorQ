@@ -133,12 +133,31 @@ addh:{[hpuP]
     addhw[hpuP;W]]}
 
 // return the details of the current process
-getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.ges;`);()!()])}
+
+
+
+
+
+
+
+//this one has to be changed as well to avoid the .proc.getattributes to be executed when addhw is called. (is it ever?)
+//when this function is execute the .servers.SERVERS include the correct attributes. 
+
+
+
+
+
+
+
+
+
+
+getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
     / info:`f`h`port`procname`proctype`attributes!(@[W;"(.z.f;.z.h;system\"p\";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])";(`;`;0Ni;`;`;()!())]);
-    info:`f`h`port`procname`proctype`attributes!(@[W;(`.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
+    info:`f`h`port`procname`proctype`attributes!(@[W;(.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
@@ -180,9 +199,7 @@ retryrows:{[rows]
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
-    //break;
     update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from`.servers.SERVERS where i in rows;
-    show .servers.SERVERS; 
     if[count connectedrows:select from`.servers.SERVERS where i in rows,.dotz.liveh0 w;
     connectcustom[connectedrows]]}
 
@@ -327,7 +344,7 @@ startup:{
         register[procs;`discovery;0b];
         retrydiscovery[]];
     if[not CONNECTIONSFROMDISCOVERY; register[procs;;0b] each $[CONNECTIONS~`ALL;exec distinct proctype from procs;CONNECTIONS]];
-    if[TRACKNONTORQPROCESS;register[nontorqprocs;;0b] each  $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocs;CONNECTIONS]];
+    if[TRACKNONTORQPROCESS;register[nontorqprocs;;0b] each $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocs;CONNECTIONS]];
     // try and open dead connections
     retry[]}
 
