@@ -133,31 +133,14 @@ addh:{[hpuP]
     addhw[hpuP;W]]}
 
 // return the details of the current process
-
-
-
-
-
-
-
-//this one has to be changed as well to avoid the .proc.getattributes to be executed when addhw is called. (is it ever?)
-//when this function is execute the .servers.SERVERS include the correct attributes. 
-
-
-
-
-
-
-
-
-
-
+// getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
 getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
     / info:`f`h`port`procname`proctype`attributes!(@[W;"(.z.f;.z.h;system\"p\";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])";(`;`;0Ni;`;`;()!())]);
-    info:`f`h`port`procname`proctype`attributes!(@[W;(.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
+    //info:`f`h`port`procname`proctype`attributes!(@[W;(`.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
+    info:`f`h`port`procname`proctype`attributes!(@[W;"$[`getdetails in key`.proc;.proc.getdetails[];(.z.f;.z.h;system\"p\";`;`;$[`getattributes in key`.proc;.proc.getattributes[];()!()])]";(`;`;0Ni;`;`;()!())]);
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
@@ -246,7 +229,8 @@ addprocs:{[connectiontab;procs;connect]
     // we've dropped some items - maybe there are updated attributes
     if[not count[res]=count connectiontab;
         if[`attributes in cols connectiontab;
-            .servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab]];
+            a:select hpup,attributes from .servers.SERVERS;
+            .servers.SERVERS:(.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab)lj`hpup xkey a]] 
     // if we have a match where the hpup is the same, but different name/type, then remove the old details
     removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
     register[res;;connect] each $[procs~`ALL;exec distinct proctype from res;procs,()];
