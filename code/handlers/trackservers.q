@@ -137,7 +137,6 @@ getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proct
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
-    break;
     info:`f`h`port`procname`proctype`attributes!(@[W;"$[`getdetails in key`.servers;.servers.getdetails[];(.z.f;.z.h;system\"p\";`;`;$[`getattributes in key`.proc;.proc.getattributes[];()!()])]";(`;`;0Ni;`;`;()!())]);
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
@@ -175,7 +174,7 @@ retryrows:{[rows]
     //function a checks if the handle passed is empty and also invokes checknontorqattr function 
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
-    a:{$[(not null x);@[x;"$[`getattributes in key`.proc;.proc.getattributes[];()!()]";()!()];()!()]};
+    a:{$[(not null x);@[x;"@[value;`.proc.getattributes;{::}]()!()";()!()];()!()]};
 
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
