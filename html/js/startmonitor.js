@@ -44,7 +44,7 @@ $(function(){
 
       // Write HTML table to div element with id heartbeat-table this builds the table
       $hbTable.html(MONITOR.jsonTable(data.hbtable)); 
-      $dataTable = $hbTable.find('table').dataTable({
+      $dataTable = $hbTable.find('table').DataTable({
         "aaSorting": [ [4,'desc'], [5,'desc'] ],    
         "aoColumns": [
           {"bSortable": false},
@@ -52,7 +52,10 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' }            // warning and error columns are both sorted descending
+          { "sType": 'string' },           // Warning and error columns are both sorted descending
+          {"bSortable": false},
+          {"bSortable": false},
+          {"bSortable": false}
         ],            
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
@@ -70,10 +73,9 @@ $(function(){
 
     // Table doesn't exist
     if($hbTable.find('table').length === 0){
-      // $hbTable.html(MONITOR.jsonTable(data.tabledata));
       // Write HTML table to div element with id heartbeat-table this builds the table
       $hbTable.html(MONITOR.jsonTable(data.tabledata)); 
-      $dataTable = $hbTable.find('table').dataTable({
+      $dataTable = $hbTable.find('table').DataTable({
         "aaSorting": [ [4,'desc'], [5,'desc'] ],    
         "aoColumns": [
           {"bSortable": false},
@@ -81,8 +83,11 @@ $(function(){
           {"bSortable": false},
           {"bSortable": false},
           { "sType": 'string' },
-          { "sType": 'string' }            // warning and error columns are both sorted descending
-        ],            
+          { "sType": 'string' },           // Warning and error columns are both sorted descending
+          {"bSortable": false},
+          {"bSortable": false},
+          {"bSortable": false}
+        ],
         "sDom": '<"top"i>rt<"clear">',     // Place search filter box on bottom
         "bAutoWidth": false,
         "bPaginate": false,                // Do not paginate results
@@ -92,25 +97,23 @@ $(function(){
 
     // Do something with the heartbeat table
     if(data.tablename === "heartbeat"){  
-
       // Assuming single message at a time, use procname as unique identifier column 2 i.e. nth-child(2)
       $row = $hbTable.find('table tbody td:nth-child(2):contains("' + data.tabledata[0].procname + '")');
 
       if($row.length === 0){
-
         // Add rows
-        $dataTable.fnAddData(objArray(data.tabledata[0]));        
+        $dataTable.fnAddData(objArray(data.tabledata[0]));    
       } 
       if($row.length>0){
         // Get position of row
         $pos = $dataTable.fnGetPosition($row[0])[0];
-        // Update row - with data array, position of row
+        // Update row - with data array, position of row	
         $dataTable.fnUpdate(objArray(data.tabledata[0]),$pos);
       }
     }
-
-    // Do something with logmsg table
-    if(data.tablename === "logmsg"){  
+    
+     // Do something with logmsg table
+     if(data.tablename === "logmsg"){  
 
       // No rows? Create new table
       if($logmsgTable.find('tbody tr').length === 0){
