@@ -116,7 +116,7 @@ cleanup:{if[count w0:exec w from`.servers.SERVERS where not .dotz.livehn w;
         update endp:.proc.cp[],lastp:.proc.cp[],w:0Ni from`.servers.SERVERS where w in w0];
     if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,(.proc.cp[]^endp)<.proc.cp[]-.servers.RETAIN];}
 
-/ add a new server for current session
+/ add a new server for current session 
 addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
@@ -133,14 +133,12 @@ addh:{[hpuP]
     addhw[hpuP;W]]}
 
 // return the details of the current process
-// getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
 getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
-    / info:`f`h`port`procname`proctype`attributes!(@[W;"(.z.f;.z.h;system\"p\";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])";(`;`;0Ni;`;`;()!())]);
-    //info:`f`h`port`procname`proctype`attributes!(@[W;(`.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
-    info:`f`h`port`procname`proctype`attributes!(@[W;"$[`getdetails in key`.proc;.proc.getdetails[];(.z.f;.z.h;system\"p\";`;`;$[`getattributes in key`.proc;.proc.getattributes[];()!()])]";(`;`;0Ni;`;`;()!())]);
+    break;
+    info:`f`h`port`procname`proctype`attributes!(@[W;"$[`getdetails in key`.servers;.servers.getdetails[];(.z.f;.z.h;system\"p\";`;`;$[`getattributes in key`.proc;.proc.getattributes[];()!()])]";(`;`;0Ni;`;`;()!())]);
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
@@ -230,7 +228,7 @@ addprocs:{[connectiontab;procs;connect]
     if[not count[res]=count connectiontab;
         if[`attributes in cols connectiontab;
             a:select hpup,attributes from .servers.SERVERS;
-            .servers.SERVERS:(.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab)lj`hpup xkey a]] 
+            .servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS]] 
     // if we have a match where the hpup is the same, but different name/type, then remove the old details
     removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
     register[res;;connect] each $[procs~`ALL;exec distinct proctype from res;procs,()];
