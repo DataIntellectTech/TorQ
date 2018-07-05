@@ -174,10 +174,8 @@ retryrows:{[rows]
     //function a checks if the handle passed is empty and also invokes checknontorqattr function 
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
-    //a:{$[not null x;@[x;"@[value;`.proc.getattributes;{::}]()!()";()!()];()!()]};
     a:{$[not null x;@[x;({.proc.getattributes[]};::);()!()];()!()]};
  
-
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
