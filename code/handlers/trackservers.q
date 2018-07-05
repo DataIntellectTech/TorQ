@@ -226,7 +226,6 @@ addprocs:{[connectiontab;procs;connect]
     // we've dropped some items - maybe there are updated attributes
     if[not count[res]=count connectiontab;
         if[`attributes in cols connectiontab;
-            a:select hpup,attributes from .servers.SERVERS;
             .servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS]] 
     // if we have a match where the hpup is the same, but different name/type, then remove the old details
     removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
