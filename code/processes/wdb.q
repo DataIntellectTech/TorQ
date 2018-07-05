@@ -249,16 +249,16 @@ movetohdb:{[dw;hw;pt]
      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
       not any a[dw]in(a:{key hsym`$x})[hw];
       [{[y;x] 
-        $[not(b:`$last"/"vs x)in key hsym`$y;
+        $[not(b:`$last"/"vs x)in key y;
           [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",y," with error: ",e]}[b;y;]];
            .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",y]];
           .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",y]];
-        }[hw]'[dw,/:"/",/:system"ls ",dw];
+        }[hsym`$hw]'[dw,/:"/",/:string key hsym`$dw];
         if[0=count key hsym`$dw;@[.os.deldir;dw;{[x;y].lg.e[`mvtohdb;"Failed to delete folder ",x," with error: ",y]}[dw]]]];
      .lg.e[`mvtohdb;raze"Table(s) ",string[(key hsym`$hw)inter(key hsym`$dw)]," is present in both location. Operation will be aborted to avoid corrupting the hdb"]]
  }
 
-endofdaysortdate:{[dir;pt;tablist;hdbsettings] //break3;
+endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];

@@ -2,7 +2,7 @@
 \d .os
 NT:.z.o in`w32`w64
 Fex:{not 0h~type key hsym$[10=type x;`$x;x]}
-pth:{if[10h<>type x;x:string x]; if[NT;x:@[x;where"/"=x;:;"\\"]];$[":"=first x;1_x;x]}
+pth:{if[10h<>type x;x:string x]; if[NT;x:@[x;where"/"=x;:;"\\"]];(":"=first x)_x}
 ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
@@ -15,4 +15,3 @@ run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
 sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
-
