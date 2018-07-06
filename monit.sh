@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 if [ "-bash" = $0 ]; then
     dirpath="${BASH_SOURCE[0]}"
 else
@@ -7,9 +7,9 @@ fi
 
 eval ". $(dirname "$dirpath")/setenv.sh"
 
-if [ ! -f $KDBAPPCONFIG/monitrc ]; then                         # run fill_templates.sh if monitrc is no present
+if [ ! -f ${TORQHOME}/code/monit/monitrc ];then                                # run fill_templates.sh if monitrc is no present
     eval ". $(dirname "$dirpath")/fill_templates.sh"
 fi
 
-$TORQBLKTREE/monit/bin/monit -c $KDBAPPCONFIG/monitrc $@
+monit -c ${TORQHOME}/code/monit/monitrc $@
 
