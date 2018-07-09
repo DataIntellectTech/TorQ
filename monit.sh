@@ -11,5 +11,5 @@ if [ ! -f ${TORQHOME}/code/monit/monitrc ];then                                #
     eval ". $(dirname "$dirpath")/fill_templates.sh"
 fi
 
-monit -c ${TORQHOME}/code/monit/monitrc $@
+monit -c ${TORQHOME}/code/scripts/monitrc $@
 

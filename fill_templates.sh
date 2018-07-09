@@ -1,36 +1,30 @@
 #!/bin/bash
 
 #FUNTION DECLARATION 
-createmonitrc(){
+createmonconfig(){
   #function to read all processes from the processes.csv 
   #and build the array
-  
-  cat $1|while read line; do
-  conf=($line)
-  procs=$(eval "echo \"${conf[0]}\"")
-  #echo $procs
-  output="$configs/${conf[1]}"
-  done
+  echo -n "Creating output..."
+  cat $1|while read line;do
+    conf=($line)
+    procs=$(eval "echo \"${conf[0]}\"")
+    startstopsc=$(eval "echo \"${conf[1]}\"")
+    output="$configs/${conf[2]}"
 
-  proclist=`tail -n +2 /home/$USER/TorQProdSupp/TorQDev/TorQ-Finance-Starter-Pack/appconfig/process.csv | awk -F "\"*,\"*" '{print  $3 " " $4}'|cut -d" " -f1,2`
-  echo "$proclist"|while read procs; do 
-    array=($procs)
-    proctype=${array[0]}
-    procname=${array[1]}
-    "eval echo $2"
-    #eval "{$2}" >> test.txt
+    proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
+    echo "$proclist"|while read procs;do 
+      array=($procs)
+      proctype=${array[0]}
+      procname=${array[1]}
+      eval "echo $2" >> $output
+      echo "" >> $output
+    done
   done 
-
+  echo " DONE"
 }
 
-#createoutput(){
-  #function to create the output file 
-
-#}
-
-#createmonitrc(){
-  #function to create the monitrc file
-
+#createmonalert(){
+  
 #}
 
 #SETTING ENVIRONMENT VARIABLES
@@ -41,17 +35,15 @@ else
 fi
 
 eval ". $(dirname "$dirpath")/setenv.sh"                                        #set environment variables  
-templates="${TORQHOME}/code/monit/templates"                                    #set temmplates folder 
-config="${TORQHOME}/code/monit/"                                                #set configs folder 
+templates="${TORQHOME}/code/scripts/templates/"                                 #set temmplates folder 
+configs="${TORQHOME}/code/scripts/monit/"                                       #set configs folder 
 monit_control="${TORQHOME}/config/monitrc"                                      #set output file for main monit conf
 
-mkdir -p $config                                                                #ensure output directory is created
+mkdir -p $configs                                                               #ensure output directory is created
 
-monittemplate="$(cat $templates/monittemplate.txt)"
+monittemplate="$(cat ${templates}monittemplate.txt)"
 
-#echo ${monittemplate}
-
-createmonitrc "$templates/monitconfig.cfg" "$monittemplate"
+createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" ""
 
 #TESTING (to be removed)
 #echo ${TORQHOME}

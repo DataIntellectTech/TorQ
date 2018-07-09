@@ -1,7 +1,8 @@
 check process $procname
     matching \"$KDBSTACKID -proctype $proctype -procname $procname\"
-    start program = \"/bin/bash $startscript $procname\"
+    start program = \"/bin/bash $startstopsc start $procname\"
         with timeout 10 seconds
-    stop program = \"/bin/bash $stopscript $procname\"
+    stop program = \"/bin/bash $startstopsc stop $procname\"
     every \"* * * * *\"
     mode active
+
