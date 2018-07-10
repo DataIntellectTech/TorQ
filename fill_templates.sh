@@ -43,7 +43,7 @@ mkdir -p $configs                                                               
 
 monittemplate="$(cat ${templates}monittemplate.txt)"
 
-createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" ""
+createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" 
 
 #TESTING (to be removed)
 #echo ${TORQHOME}
