@@ -1,3 +1,3 @@
-#!/bin/bash 
+#!/bin/bash
 
-mail.mailutils -s "TORQMONIT" rdanutalexandru@gmail.com <<< "Hi! Monit here! Process Failed"
+echo -e "TORQMONIT\r\rThis is an automated message\r\rProcess SERVICE is down"|mail.mailutils -s \"SUBJECT\" rdanutalexandrugmail.com
