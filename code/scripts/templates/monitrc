@@ -16,15 +16,15 @@
 ##
 ## Start Monit in the background (run as a daemon):
 #
- set daemon  30              # check services at 30 seconds intervals
-#   with start delay 240    # optional: delay the first check by 4-minutes (by
+ set daemon  30             # check services at 30 seconds intervals
+   #with start delay 240     # optional: delay the first check by 4-minutes (by
 #                           # default Monit check immediately after Monit start)
 #
 #
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
-#set logfile $TORQMONIT/monit.log
+ set logfile $TORQMONIT/monit.log
 
 #
 #
@@ -46,8 +46,8 @@
 ## the monitoring state across reboots. If it is on temporary filesystem, the
 ## state will be lost on reboot which may be convenient in some situations.
 #
-  #set statefile $TORQMONIT/.monit.state
-# set statefile /var/lib/monit/state
+ set statefile $TORQMONIT/.monit.state
+  #set statefile /var/lib/monit/state
 #
 #
 
@@ -82,14 +82,13 @@
 # set mailserver mail.bar.baz,               # primary mailserver
 #                backup.bar.baz port 10025,  # backup mailserver on port 10025
 #                localhost                   # fallback relay
-  #set mailserver smtp.office365.com port 587
-    #    username "auto@aquaq.co.uk"
-     #   password "Circuit20"
-      #  using ssl
-       # with timeout 30 seconds
+  set mailserver smtp.gmail.com port 587
+        username "\"torqmonit@gmail.com\"" password "\"torqmonit2018\""
+        using ssl
+        with timeout 30 seconds
 
 
-  #set alert tradefeedr@aquaq.co.uk
+  set alert rdanutalexandru@gmail.com
 #
 #
 ## By default Monit will drop alert events if no mail servers are available.
@@ -99,10 +98,10 @@
 ## by using the SLOTS option (if omitted, the queue is limited by space
 ## available in the back end filesystem).
 #
-  #set eventqueue
+  set eventqueue
 #      basedir /var/lib/monit/events  # set the base directory where events will be stored
-   #   basedir $TORQMONIT/events
-    #  slots 100           # optionally limit the queue size
+      basedir $TORQMONIT/events
+      slots 100           # optionally limit the queue size
 #
 #
 ## Send status and events to M/Monit (for more informations about M/Monit
@@ -135,9 +134,20 @@
 ##            Monit
 ## }
 ## --8<--
-  # set mail-format {
-  #     from: auto@aquaq.co.uk
-  #  subject: [$HOST] monit alert --  $EVENT $SERVICE}
+   set mail-format {
+       from: torqmonit@gmail.com 
+    subject: [\$SERVICE] monit alert -- \$EVENT at \$DATE
+    message: Monit Report: 
+             ACTION:          \$ACTION 
+            SERVICE:          \$SERVICE 
+               DATE:          \$DATE
+               HOST:          \$HOST 
+        DESCRIPTION:          \$DESCRIPTION
+             
+       Powered by Monit
+  
+       This message has been generated automatically! 
+   }
 ##
 ## You can override this message format or parts of it, such as subject
 ## or sender using the MAIL-FORMAT statement. Macros such as $DATE, etc.
@@ -166,10 +176,10 @@
 ## commands to a running Monit daemon. See the Monit Wiki if you want to
 ## enable SSL for the HTTP interface.
 #
-#set httpd port 2812 and
+ set httpd port 2812 and
 #    use address localhost  # only accept connection from localhost
 #    allow localhost        # allow localhost to connect to the server and
- #   allow admin:monit      # require user 'admin' with password 'monit'
+    allow admin:monit       # require user 'admin' with password 'monit'
 
 ###############################################################################
 ## Services
@@ -308,4 +318,4 @@
 #
 #  include /etc/monit.d/*
 #
-# include $TORQBLKTREE/scripts/monit/*.cfg
+ include ${TORQHOME}/code/scripts/monit/*.cfg

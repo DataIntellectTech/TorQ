@@ -1,6 +1,5 @@
 #!/bin/bash
-
-#FUNTION DECLARATION 
+#FUNTION DECLARATION ###############################################################################
 createmonconfig(){
   #function to read all processes from the processes.csv 
   #and build the array
@@ -23,28 +22,38 @@ createmonconfig(){
   echo " DONE"
 }
 
-#createmonalert(){
+createmonalert(){
+  if [ -f ${configs}monitalert.cfg ];then 
+    echo -n "Deleting monitalert.cfg..."
+    rm ${configs}monitalert.cfg
+    echo " DONE" 
+  fi 
   
-#}
+  echo -n "Copying monitalert from ${templates}..."
+  cp ${templates}monitalert.cfg ${configs}
+  echo " DONE"
+}
 
-#SETTING ENVIRONMENT VARIABLES
+#SETTING DEFAULT ENVIRONMENT VARIABLES #############################################################
 if [ "-bash" = $0 ]; then
     dirpath="${BASH_SOURCE[0]}"
 else
     dirpath="$0"
 fi
-
-eval ". $(dirname "$dirpath")/setenv.sh"                                        #set environment variables  
-templates="${TORQHOME}/code/scripts/templates/"                                 #set temmplates folder 
-configs="${TORQHOME}/code/scripts/monit/"                                       #set configs folder 
-monit_control="${TORQHOME}/config/monitrc"                                      #set output file for main monit conf
-
-mkdir -p $configs                                                               #ensure output directory is created
-
+                            
+eval ". $(dirname "$dirpath")/setenv.sh"                                                            #set environment variables  
+templates="${TORQHOME}/code/scripts/templates/"                                                     #set temmplates folder 
+configs="${TORQHOME}/code/scripts/monit/"                                                           #set configs folder 
+monit_control="${TORQHOME}/config/monitrc"                                                          #set output file for main monit conf
 monittemplate="$(cat ${templates}monittemplate.txt)"
+mkdir -p $configs                                                                                   #creating the output directory
 
 createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" 
+createmonalert 
 
-#TESTING (to be removed)
-#echo ${TORQHOME}
-#echo $templates
+echo -n "Creating monitrc..."
+controltemplate="$(cat ${templates}monitrc)"
+eval "echo \"${controltemplate}\"" > ${monit_control}
+chmod 700 ${monit_control}
+echo " DONE"
+
