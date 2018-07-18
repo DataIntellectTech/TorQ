@@ -9,7 +9,7 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
-requiredprocs:tickerplanttypes;                           //requiredprocesses 
+requiredprocs:tickerplanttypes;                             //requiredprocesses 
 //requiredprocs:@[value;`requiredprocs;`]
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
@@ -17,8 +17,8 @@ schema:@[value;`schema;1b];                                 //retrieve the schem
 subscribeto:@[value;`subscribeto;`];                        //a list of tables to subscribe to, default (`) means all tables
 ignorelist:@[value;`ignorelist;`heartbeat`logmsg];          //list of tables to ignore when saving to disk
 subscribesyms:@[value;`subscribesyms;`];                    //a list of syms to subscribe for, (`) means all syms
-tpconnsleepintv:@[value;`tpconnsleepintv;10];             //number of seconds between attempts to connect to the tp											
-//tpconnsleepintv:$[requiredprocs~`;`;10];                    //number of seconds between attempts
+tpconnsleepintv:@[value;`tpconnsleepintv;10];               //number of seconds between attempts to connect to the tp											
+//tpconnsleepintv:$[requiredprocs~`;`;10];                  //number of seconds between attempts
 
 
 onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod writedown will only clear tables which have been successfully saved to disk
@@ -189,7 +189,7 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;5;.rdb.subscribe]
+.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;5;.rdb.subscribe;`rdb]
 	
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]

@@ -34,8 +34,9 @@ hdbtypes:@[value;`hdbtypes;`hdb];                               /-list of hdb ty
 rdbtypes:@[value;`rdbtypes;`rdb];                               /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway]					/-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];      	/-list of tickerplant types to try and make a connection to
+requiredprocs:@[value;`requiredprocs;{value`tickerplanttypes}]  /-list of required processes 
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp								
-sorttypes:@[value;`sorttypes;`sort];                   		/-list of sort types to look for upon a sort		
+sorttypes:@[value;`sorttypes;`sort];                   		    /-list of sort types to look for upon a sort		
 sortslavetypes:@[value;`sortslavetypes;`sortslave];             /-list of sort types to look for upon a sort being called with slave process		
 										
 subtabs:@[value;`subtabs;`]                                     /-list of tables to subscribe for
@@ -443,13 +444,10 @@ startup:{[]
 	if[saveenabled;
 		/- subscribe to tickerplant
 		subscribe[];
-		/-check if the tickerplant has connected, block the process until a connection is established
-		while[notpconnected[];
-			/-while no connected make the process sleep for X seconds and then run the subscribe function again
-			.os.sleep[tpconnsleepintv];
-			/-run the servers startup code again (to make connection to discovery)
-			.servers.startup[];
-			subscribe[]]];		
+
+        //check if tickerplant is available and if not exit with error 
+        .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;5;.wdb.subscribe;`wdb]
+	  ];		
 	}
 	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
@@ -467,7 +465,6 @@ clearwdbdata:{[]
 / - function to check that the tickerplant is connected and subscription has been setup
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .wdb.tickerplanttypes, active}
-
 
 getsortparams:{[]
 	/- get the attributes csv file
@@ -490,7 +487,6 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
-	
 	
 \d .
 

@@ -335,10 +335,10 @@ reqprocsnotconn:{[requiredprocs]
   }
 
 // Block process until all required processes are connected
-startupdependent:{[requiredprocs;timeintv;cycles;subscribe]
+startupdependent:{[requiredprocs;timeintv;cycles;subscribe;process]
      a:();
      while[.servers.reqprocsnotconn[requiredprocs];
-          [a+:timeintv;if[cycles<`int$a%timeintv;.lg.e[`connectionreport;"RDB cannot connect to tickerplant"];exit 1];.os.sleep[timeintv]];
+          [a+:timeintv;if[cycles<`int$a%timeintv;.lg.e[`connectionreport;string[process]," cannot connect to tickerplant"];exit 1];.os.sleep[timeintv]];
           [.servers.startup[];if[count subscribe;subscribe[]]]
          ]
   }
