@@ -335,11 +335,10 @@ reqprocsnotconn:{[requiredprocs]
 
 // Block process until all required processes are connected
 startupdependent:{[requiredprocs;timeintv;cycles;subscribe;process]
-     a:();
+     n:();  //variable used to check how many cycles have passed                                                                                                                                                 
      while[.servers.reqprocsnotconn[requiredprocs];
-          [a+:timeintv;if[cycles<`int$a%timeintv;.lg.e[`connectionreport;string[process]," cannot connect to tickerplant"];exit 1];.os.sleep[timeintv]];
-          [.servers.startup[];if[count subscribe;subscribe[]]]
-         ]
+       a+:1;if[a>cycles;.lg.e[`connectionreport;string[process]," cannot connect to tickerplant"];exit 1];
+       .os.sleep[timeintv];.servers.startup[];if[count subscribe;subscribe[]]]
   }
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}

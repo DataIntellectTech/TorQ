@@ -62,10 +62,11 @@ hdbdir:@[value;`hdbdir;`:hdb]                                   /-move wdb datab
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                     /-location of csv file
 permitreload:@[value;`permitreload;1b]                          /-enable reload of hdbs/rdbs
 compression:@[value;`compression;()];                           /-specify the compress level, empty list if no required
+tpcheckcycles:@[value;`tpcheckcycles;5];                        /-specify the number of times the process will check for an available tickerplant 
 
 gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		/- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000]                /- length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
@@ -117,7 +118,6 @@ savetables:{[dir;pt;forcesave;tabname]
 	.lg.o[`rowcheck;"the ",(string tabname)," table consists of ", (string arows), " rows"];
 	/- upsert data to partition
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
-	//break_savetables;
 	.[
 		upsert;
 		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbsettings[`hdbdir];r:0!.save.manipulate[tabname;`. tabname]]);
@@ -182,26 +182,26 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
 endofday:{[pt]
-	.lg.o[`eod;"end of day message received - ",spt:string pt];	
-	/- create a dictionary of tables and merge limits
-	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
-    tablist:tablelist[]!{0#value x} each tablelist[];
-	/ - if save mode is enabled then flush all data to disk
-	if[saveenabled;
-		endofdaysave[savedir;pt];
-		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
-	.lg.o[`eod;"deleting data from tabsizes"];
-	@[`.wdb;`tabsizes;0#];
-	.lg.o[`eod;"end of day is now complete"];
-	};
+        .lg.o[`eod;"end of day message received - ",spt:string pt];	
+        /- create a dictionary of tables and merge limits
+        mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
+        tablist:tablelist[]!{0#value x} each tablelist[];
+        / - if save mode is enabled then flush all data to disk
+        if[saveenabled;
+          endofdaysave[savedir;pt];
+          / - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
+          $[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
+        .lg.o[`eod;"deleting data from tabsizes"];
+        @[`.wdb;`tabsizes;0#];
+        .lg.o[`eod;"end of day is now complete"];
+        };
 	
 endofdaysave:{[dir;pt]
-	/- save remaining table rows to disk
-	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
-	savetables[dir;pt;1b;] each tl;
-	.lg.o[`savefinish;"finished saving data to disk"];
-	};
+        /- save remaining table rows to disk
+        .lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
+        savetables[dir;pt;1b;] each tl;
+        .lg.o[`savefinish;"finished saving data to disk"];
+        };
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
@@ -242,16 +242,6 @@ setcompression:{[compression] if[3=count compression;
 				]}
 resetcompression:{setcompression 16 0 0 }
 
-movetohdb:{[dw;hw;pt]
-  $[not(`$string[pt])in`$.os.list .os.pth -10 _ hw;
-      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
-      0=count .os.list .os.pth hw; 
-      [.[.os.ren;(dw,"/*";hw,"/.");{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];.os.deldir dw]; 
-      .lg.e[`mvtohdb;"Folder ",hw," contains ",","sv .os.list .os.pth hw]
-     ]
- }
-
-//.wdb.endofdaysortdate[.wdb.savedir;.wdb.getpartition[];`;.wdb.hdbsettings]
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
@@ -263,10 +253,6 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
-     
-	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-    movetohdb[dw;hw;pt];
 
 	/-call the posteod function
 	.save.postreplay[hdbsettings[`hdbdir];pt];
@@ -446,7 +432,7 @@ startup:{[]
 		subscribe[];
 
         //check if tickerplant is available and if not exit with error 
-        .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;5;.wdb.subscribe;`wdb]
+        .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles;.wdb.subscribe;`wdb]
 	  ];		
 	}
 	

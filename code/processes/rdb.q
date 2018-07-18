@@ -9,8 +9,7 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
-requiredprocs:tickerplanttypes;                             //requiredprocesses 
-//requiredprocs:@[value;`requiredprocs;`]
+requiredprocs:tickerplanttypes;                             //required processes 
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
@@ -18,8 +17,6 @@ subscribeto:@[value;`subscribeto;`];                        //a list of tables t
 ignorelist:@[value;`ignorelist;`heartbeat`logmsg];          //list of tables to ignore when saving to disk
 subscribesyms:@[value;`subscribesyms;`];                    //a list of syms to subscribe for, (`) means all syms
 tpconnsleepintv:@[value;`tpconnsleepintv;10];               //number of seconds between attempts to connect to the tp											
-//tpconnsleepintv:$[requiredprocs~`;`;10];                  //number of seconds between attempts
-
 
 onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod writedown will only clear tables which have been successfully saved to disk
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
@@ -34,6 +31,7 @@ parvaluesrc:@[value;`parvaluesrc;`log];						//where to source the rdb partition
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
                                                             //anything else will return a null date which is will be filled by pardefault									
 pardefault:@[value;`pardefault;.z.D];				        //if the src defined in parvaluesrc returns null, use this default date instead 
+tpcheckcycles:@[value;`tpcheckcycles;5];                    //specify the number of times the process will check for an available tickerplant
 
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
@@ -189,7 +187,7 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;5;.rdb.subscribe;`rdb]
-	
+.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles;.rdb.subscribe;`rdb]
+
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
