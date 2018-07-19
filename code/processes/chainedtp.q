@@ -7,16 +7,17 @@ tickerplantname:@[value;`tickerplantname;`tickerplant1];        /- list of ticke
 pubinterval:@[value;`pubinterval;0D00:00:00];                   /- publish batch updates at this interval
 tpconnsleep:@[value;`tpconnsleep;10];                           /- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:@[value;`createlogfile;0b];                       /- create a log file
-logdir:@[value;`logdir;`:tplogs];                     		/- hdb directory containing tp logs 
+logdir:@[value;`logdir;`:tplogs];                               /- hdb directory containing tp logs 
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
-clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on subscription
+clearlogonsubscription:@[value;`clearlogonsubscription;0b];     /- clear logfile on subscription
+requiredprocs:@[value;`requiredprocs;`tickerplant]              /- required processes
+tpcheckcycles:@[value;`tpcheckcycles;5]                         /- specify the number of times the process will check for an available tickerplant
 
-
-tph:0N;								/- setting tickerplant handle to null
-.u.icounts:.u.jcounts:(`symbol$())!0#0,();    /- initialise icounts & jcounts dict
+tph:0N;                                                         /- setting tickerplant handle to null
+.u.icounts:.u.jcounts:(`symbol$())!0#0,();                      /- initialise icounts & jcounts dict
 .u.i:.u.j:0;			
 /- clears log
 clearlog:{[lgfile]
@@ -197,11 +198,9 @@ upd:.ctp.upd;
 
 /- check if the tickerplant has connected, blocks the process until a connection is established
 .ctp.initialise[];
-while[.ctp.notpconnected[];
-  /- while not connected make the process sleep for X seconds and then run the subscribe function again
-  .os.sleep[.ctp.tpconnsleep];
-  /- start chained tickerplant
-  .ctp.initialise[]];
+
+//check if tickerplant is available and if not exit with error
+.servers.startupdependent[.ctp.requiredprocs;.ctp.tpconnsleep;.ctp.tpcheckcycles;.ctp.subscribe;`chainedtickerplant]
 
 /- set timer for batch update publishing
 if[.ctp.pubinterval;
