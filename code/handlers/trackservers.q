@@ -337,7 +337,7 @@ reqprocsnotconn:{[requiredprocs]
 startupdependent:{[requiredprocs;timeintv;cycles;subscribe;process]
      n:();  //variable used to check how many cycles have passed                                                                                                                                                 
      while[.servers.reqprocsnotconn[requiredprocs];
-       a+:1;if[a>cycles;.lg.e[`connectionreport;raze string[process]," cannot connect to ",$[1<count b:requiredprocs except exec proctype from .servers.SERVERS where .dotz.liveh[w];","sv string@'b;string[b]]]];
+       a+:1;if[a>cycles;.lg.e[`connectionreport;raze string[process]," cannot connect to ",$[1<count b:((),requiredprocs)except (),exec proctype from .servers.SERVERS where .dotz.liveh[w];","sv string@'b;string[b]]]];
        .os.sleep[timeintv];.servers.startup[];if[count subscribe;(subscribe[];r:(value subscribe)0)[10=0^type subscribe]]];
     r
   }
