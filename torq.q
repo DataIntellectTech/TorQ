@@ -1,9 +1,17 @@
+
 // use -usage flag to print usage info
 \d .proc
 
+capturedefinitions:{.backup.vals:l!value each l:`.,` sv'`,'key[`]except `q`Q`h`j`o}
+capturedefinitions[]
+
+.proc.execute:{
+        .[;();,;]'[key .backup.vals;value .backup.vals];value x
+ }
+
 // variable to check to ensure this file is loaded - used in other files
 loaded:1b
-// Initialised flag - used to check if the process is still initialisation
+// Initialised flag - used to check if the process is still initi:q:alisation
 initialised:0b
 
 // function to add functions to initialisation list
@@ -246,7 +254,7 @@ banner:{
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file
  -1 full;}
 
-banner[]
+.proc.execute[(`.lg.banner;`)]
 
 // Error functions to check the process is in the correct state when being started
 \d .err
@@ -298,7 +306,7 @@ removeenvvar:{
 // Read the process parameters
 params:.Q.opt .z.x
 // check for a usage flag
-if[`usage in key params; -1 .proc.getusage[]; exit 0];
+if[`usage in key params; -1 .proc.execute[(`.proc.getusage;`)]; exit 0];
 
 $[`localtime in key .proc.params;
 	[cp:{.z.P};cd:{.z.D};ct:{.z.T}];
@@ -318,10 +326,9 @@ stop:`stop in key params
 if[trap and stop; .lg.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
-settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
-
+{.proc.execute[(`.proc.settorqenv;x;y)]}'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")]
 // Check the environment is set up correctly
-.err.env[envvars]
+.proc.execute[(`.err.env;envvars)]
 
 // Need to get some process information for logging / advertisement purposes
 // We can either read these from a file, or from the command line
@@ -350,13 +357,13 @@ if[`parentproctype in key params;
 	parentproctype:first `$params `parentproctype;
 	.lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
 
-checkdependency[getconfig["dependency.csv";1]]
+.proc.execute[(`.proc.checkdependency;.proc.execute[(`.proc.getconfig;"dependency.csv";1)])]
 
 // If any of the required parameters are null, try to read them from a file
 // The file can come from the command line, or from the environment path
 file:$[`procfile in key params; 
 	first `$params `procfile;
- 	first getconfigfile["process.csv"]];
+    first .proc.execute[(`.proc.getconfigfile;"process.csv")]];
 
 // read the process file and convert port field to integer list and all other fields
 // to symbol lists
@@ -368,10 +375,10 @@ readprocs:{[file]
 		errcheckport:{@[{"I"$string value x};x;0N]};
 		
 		// begin updating process file table
-		t:update port:errcheckport each .rmvr.removeenvvar each port from x;
-		t:update host:"S"$.rmvr.removeenvvar each host from t;
-		t:update procname:"S"$.rmvr.removeenvvar each procname from t;
-		t:update proctype:"S"$.rmvr.removeenvvar each proctype from t;
+        t:update port:errcheckport each {.proc.execute (`.rmvr.removeenvvar;x)} each port from x;
+        t:update host:"S"${.proc.execute (`.rmvr.removeenvvar;x)} each host from t;
+        t:update procname:"S"${.proc.execute (`.rmvr.removeenvvar;x)} each procname from t;
+        t:update proctype:"S"${.proc.execute (`.rmvr.removeenvvar;x)} each proctype from t;
 		// return updated process file table
 		t
 		};
@@ -385,7 +392,7 @@ readprocs:{[file]
 readprocfile:{[file]
 	//order of preference for hostnames
 	prefs:(.z.h;`$"." sv string "i"$0x0 vs .z.a;`localhost);
-	res:@[{t:select from readprocs[file] where not null host;
+    res:@[{t:select from .proc.execute[(`.proc.readprocs;file)] where not null host;
 	// allow host=localhost for ease of startup
 	$[not any null `.proc req;
 		select from t where proctype=.proc.proctype,procname=.proc.procname;
@@ -408,7 +415,7 @@ readprocfile:{[file]
 
 .lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
 // Read in the file, pull out the rows which are applicable and set the local variables
-{@[`.proc;y;:;x y]}[readprocfile[file];req];
+{@[`.proc;y;:;x y]}[.proc.execute[(`.proc.readprocfile;file)];req];
 
 // Check if all the required variables have now been set properly
 $[any null `.proc req;
@@ -550,7 +557,7 @@ if[not `noconfig in key .proc.params;
   // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
   $[""~getenv`KDBSERVCONFIG;
     .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
-    [.proc.servconfig:getenv[`KDBSERVCONFIG],"/settings/";
+    [.proc.servconfig:getenv[`KDBAPPCONFIG],"/settings/";
     .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
     .proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
   ];
@@ -577,10 +584,10 @@ if[not `noconfig in key .proc.params;
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
 .proc.reloadallcode:{
-	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
-	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]];
-	if[.proc.loadprocesscode;.proc.reloadprocesscode[]];
-	if[.proc.loadnamecode;.proc.reloadnamecode[]];
+    if[.proc.loadcommoncode; .proc.execute[(`.proc.reloadcommoncode;`)];
+    if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.execute[(`.proc.reloadparentprocesscode;`)];
+    if[.proc.loadprocesscode;.proc.execute[(`proc.reloadprocesscode;`)];
+    if[.proc.loadnamecode;.proc.execute[(`.proc.reloadnamecode;`)];
 	};
 .proc.reloadallcode[];
 
@@ -589,26 +596,26 @@ if[`loaddir in key .proc.params;
 	.proc.loaddir each .proc.params`loaddir]
 
 // Load message handlers after all the other library code
-.proc.loaddir each(getenv$[.proc.loadhandlers & not ""~getenv`KDBSERVCODE;`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
+{.proc.execute[(`.proc.loaddir;x)]} each(getenv$[.proc.loadhandlers & not ""~getenv`KDBSERVCODE;`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
 
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
 	$[@[value;`.timer.enabled;0b];
-		[.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
-		 .timer.rep[`timestamp$.proc.cd[]+00:00;0Wp;1D;(`.proc.rolllogauto;`);0h;"roll standard out/standard error logs";1b]];
+        [.lg.o[`init;"adding timer function to roll std out/err logs on a daily schedule starting at ",string `timestamp$(.proc.execute[`.proc.cd;`)]+1)+00:00];
+        .proc.execute[(`.timer.rep;`timestamp$.proc.execute[`.proc.cd;`)]+00:00;0Wp;1D;(`.proc.rolllogauto;`);0h;"roll standard out/standard error logs";1b)]];
 		.lg.e[`init;".proc.logroll is set to true, but timer functionality is not loaded - cannot roll logs"]]];
 	
 // Load the file specified on the command line
-if[`load in key .proc.params; .proc.loadf each .proc.params`load]
+if[`load in key .proc.params; {.proc.execute[(`.proc.loadf;x)]} each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
 	.z.pi:show@value@;]
 
 // initialise pubsub
-if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
+if[@[value;`.ps.loaded;0b]; .proc.execute[(`.ps.initialise;`)]
 // initialise connections
-if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
+if[@[value;`.servers.STARTUP;0b]; .proc.execute[(`.servers.startup;`)]]
 
 // function to execute functions in .proc.initlist
 .proc.init:{
@@ -622,7 +629,7 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
 if[count .proc.initlist;.proc.init[]]
 
-.lg.banner[]
+.proc.execute[(`.lg.banner;`)]
 
 // set the initialised flag
 .proc.initialised:1b
