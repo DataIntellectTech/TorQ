@@ -42,23 +42,19 @@ loadpassword:{
            [.lg.o[`conn;"password file ",(string file)," found"];
             .servers.USERPASS:first`$read0 hsym file]]};
     files:{.proc.getconfig["passwords/",(string x),".txt";2]} each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
-    loadpassfile each (distinct files[;1],files[;0]) except `;
+    loadpassfile each distinct[raze flip files[;1 0]]except`;
     }
 loadpassword[]
 
 // open a connection
 opencon:{
     if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
-
     // If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
     // else return connection string passed in
-        connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
-
+    connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
     h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
-
     // just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
     if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
-
     first h}
 
 // req = required set of attribute
@@ -120,12 +116,12 @@ cleanup:{if[count w0:exec w from`.servers.SERVERS where not .dotz.livehn w;
         update endp:.proc.cp[],lastp:.proc.cp[],w:0Ni from`.servers.SERVERS where w in w0];
     if[AUTOCLEAN;delete from`.servers.SERVERS where not .dotz.liveh w,(.proc.cp[]^endp)<.proc.cp[]-.servers.RETAIN];}
 
-/ add a new server for current session
+/ add a new server for current session 
 addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
     $[not hpup in (exec hpup from .servers.SERVERS) inter (exec hpup from .servers.nontorqprocesstab);
-        `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes);
+        `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes); 
         .lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
     W
     }
@@ -138,12 +134,10 @@ addh:{[hpuP]
 
 // return the details of the current process
 getdetails:{(.z.f;.z.h;system"p";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])}
-
 / add session behind a handle
 addhw:{[hpuP;W]
     // Get the information around a process
-    / info:`f`h`port`procname`proctype`attributes!(@[W;"(.z.f;.z.h;system\"p\";@[value;`.proc.procname;`];@[value;`.proc.proctype;`];@[value;(`.proc.getattributes;`);()!()])";(`;`;0Ni;`;`;()!())]);
-    info:`f`h`port`procname`proctype`attributes!(@[W;(`.servers.getdetails;`);(`;`;0Ni;`;`;()!())]);
+    info:`f`h`port`procname`proctype`attributes!(@[W;({$[`getdetails in key`.servers;.servers.getdetails[];(.z.f;.z.h;system"p";`;`;$[`getattributes in key`.proc;.proc.getattributes[];()!()])]};`);(`;`;0Ni;`;`;()!())]);
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
@@ -177,11 +171,16 @@ autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
 
 // Attempt to make a connection for specified row ids
 retryrows:{[rows]
+    //function a checks if the handle passed is empty and also invokes checknontorqattr function 
+    //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
+    //only if it is defined
+    a:{$[not null x;@[x;({.proc.getattributes[]};::);()!()];()!()]};
+ 
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
-        update attributes:{$[null x;()!();@[x;(`.proc.getattributes;`);()!()]]} each w,startp:?[null w;0Np;.proc.cp[]] from `.servers.SERVERS where i in rows;
-        if[ count connectedrows:select from `.servers.SERVERS where i in rows, .dotz.liveh0 w;
+    update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from`.servers.SERVERS where i in rows;
+    if[count connectedrows:select from`.servers.SERVERS where i in rows,.dotz.liveh0 w;
     connectcustom[connectedrows]]}
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
@@ -227,7 +226,7 @@ addprocs:{[connectiontab;procs;connect]
     // we've dropped some items - maybe there are updated attributes
     if[not count[res]=count connectiontab;
         if[`attributes in cols connectiontab;
-            .servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab]];
+            .servers.SERVERS:.servers.SERVERS lj 3!select procname,proctype,hpup,attributes from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS]] 
     // if we have a match where the hpup is the same, but different name/type, then remove the old details
     removerows exec i from `.servers.SERVERS where hpup in exec hpup from res;
     register[res;;connect] each $[procs~`ALL;exec distinct proctype from res;procs,()];
@@ -325,7 +324,7 @@ startup:{
         register[procs;`discovery;0b];
         retrydiscovery[]];
     if[not CONNECTIONSFROMDISCOVERY; register[procs;;0b] each $[CONNECTIONS~`ALL;exec distinct proctype from procs;CONNECTIONS]];
-    if[TRACKNONTORQPROCESS;register[nontorqprocs;;0b] each  $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocs;CONNECTIONS]];
+    if[TRACKNONTORQPROCESS;register[nontorqprocs;;0b] each $[CONNECTIONS~`ALL;exec distinct proctype from nontorqprocs;CONNECTIONS]];
     // try and open dead connections
     retry[]}
 
