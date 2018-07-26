@@ -245,9 +245,9 @@ resetcompression:{setcompression 16 0 0 }
 //temporary parition and the hdb partition. If there is a clash abort operation otherwise copy 
 //each table to the hdb partition
 movetohdb:{[dw;hw;pt] 
-  $[not(`$string[pt])in key hsym`$-10 _ hw;
+  $[not(`$string pt)in key hsym`$-10 _ hw;
      .[.os.ren;(dw;hw);{.lg.e[`mvtohdb;"Failed to move data from wdb ",x," to hdb directory ",y," : ",z]}[dw;hw]];
-      not any a[dw]in(a:{key hsym`$x})[hw];
+      not any a[dw]in(a:{key hsym`$x}) hw;
       [{[y;x] 
         $[not(b:`$last"/"vs x)in key y;
           [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",y," with error: ",e]}[b;y;]];
@@ -262,9 +262,10 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
-	$[(0 < count .z.pd[]) and ((system "s")<0);
+	//$[(0 < count .z.pd[]) and ((system "s")<0);
+	$[count[.z.pd[]]&0>system"s";
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x;compression] setcompression[compression];.sort.sorttab[x];if[gc;.gc.run[]]}[;hdbsettings[`compression]] peach tablist,'.Q.par[dir;pt;] each tablist];
+		{[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
 		[.lg.o[`sort;"sorting on master sort"];
 		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
