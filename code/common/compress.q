@@ -56,7 +56,7 @@ The minimum block size for compression on windows is 16.
 
 inputcsv:@[value;`inputcsv;first .proc.getconfigfile["compressionconfig.csv"]];
 
-inputcsv:string inputcsv
+if[-11h=type inputcsv;inputcsv:string inputcsv];
 
 checkcsv:{[csvtab]
     // include snappy (3) for version 3.4 or after
