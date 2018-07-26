@@ -16,7 +16,8 @@ clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on 
 
 
 tph:0N;								/- setting tickerplant handle to null
-.u.icounts:.u.jcounts:()!();.u.i:.u.j:0;			/- initialise icounts & jcounts dict
+.u.icounts:.u.jcounts:(`symbol$())!0#0,();    /- initialise icounts & jcounts dict
+.u.i:.u.j:0;			
 /- clears log
 clearlog:{[lgfile]
   if[not type key lgfile;:()];
@@ -121,7 +122,7 @@ refreshtp:{[d]
   if[@[value;`.u.l;0]; @[hclose;.u.l;()]];
   /- reset log and publish count
   .u.i:.u.j:0;
-  .u.icounts::.u.jcounts::()!();
+  .u.icounts::.u.jcounts::(`symbol$())!0#0,();
   /- create new logfile name
   .u.L:createlogfilename[d];
   /- log file handle
