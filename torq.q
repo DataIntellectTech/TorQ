@@ -8,6 +8,7 @@ initialised:0b
 
 // function to add functions to initialisation list
 initlist:()
+initexecuted:()
 addinitlist:{[x].proc.initlist,:enlist x};
   
 generalusage:@[value;`generalusage;"General:
@@ -95,7 +96,7 @@ envvars:@[value;`envvars;`symbol$()]
 envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
-{if[not ""~getenv[x]; envvars::distinct x,envvars]}`KDBAPPCONFIG
+{if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
 
 // set the torq environment variables if not already set
 qhome:{q:getenv[`QHOME]; if[q~""; q:$[.z.o like "w*"; "c:/q"; getenv[`HOME],"/q"]]; q}
@@ -144,23 +145,29 @@ checkdependency:{[path]
         {[t;dict] runchk[dict;t;]'[t[`dependency]]}[;dict]'[t]]}
 
 getconfig:{[path;level]
-        /-check if KDBAPPCONFIG exists
-        keyappconf:$[not ""~kac:getenv[`KDBAPPCONFIG];
+        /- check if KDBSERVCONFIG exists
+        keyservconf:$[not ""~ksc:getenv`KDBSERVCONFIG;
+          key hsym servconf:`$ksc,"/",path;
+          ()];
+        /- check if KDBAPPCONFIG exists
+        keyappconf:$[not ""~kac:getenv`KDBAPPCONFIG;
           key hsym appconf:`$kac,"/",path;
           ()];
 
         /-if level=2 then all files are returned regardless
         if[level<2;
           if[()~keyappconf;
-            appconf:()]];
+            appconf:()];
+          if[()~keyservconf;
+            servconf:()]];
 
         /-get KDBCONFIG path
         conf:`$(kc:getenv[`KDBCONFIG]),"/",path;
 
-        /-if level is non-zero return appconfig and config files
+        /-if level is non-zero return appconfig, servconfig and config files
         (),$[level;
-          appconf,conf;
-          first appconf,conf]}
+          appconf,servconf,conf;
+          first appconf,servconf,conf]}
 
 getconfigfile:getconfig[;0]
 
@@ -338,6 +345,12 @@ $[count[req] = count req inter key params;
 	.lg.o[`init;"ignoring partial subset of required process parameters found on the command line - reading from file"];
   ()];		 
 
+// If parentproctype has been supplied then set it
+parentproctype:();
+if[`parentproctype in key params;
+	parentproctype:first `$params `parentproctype;
+	.lg.o[`init;"read in process parameter of parentproctype=",string parentproctype]];
+
 checkdependency[getconfig["dependency.csv";1]]
 
 // If any of the required parameters are null, try to read them from a file
@@ -504,44 +517,51 @@ overrideconfig:{[params]
 
 override:{overrideconfig[.proc.params]}
 
+loadspeccode:{[ext;dir]
+	$[""~getenv dir;
+	 .lg.o[`init;"Environment variable ",string[dir]," not set, not loading specific ",ext," code"];
+	 loaddir getenv[dir],ext
+   ];
+	};
+
 reloadcommoncode:{
-	loaddir getenv[`KDBCODE],"/common";
-	// Optionally load common code from seperate directory
-	$[""~getenv(`KDBAPPCODE);
-		.lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific common code"];
-		loaddir getenv[`KDBAPPCODE],"/common"
-	];
-	}
+	// Load common code from each directory if it exists
+	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
+reloadparentprocesscode:{
+	// Load parentproctype code from each directory if it exists
+	loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
 reloadprocesscode:{
-	loaddir getenv[`KDBCODE],"/",string proctype;
-	// Optionally load proctype code from seperate directory
-	$[""~getenv(`KDBAPPCODE);
-                .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific proctype code"];
-                loaddir getenv[`KDBAPPCODE],"/",string proctype
-        ];
-	}
+	// Load proctype code from each directory if it exists
+	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
 reloadnamecode:{
-	loaddir getenv[`KDBCODE],"/",string procname;
-	// Optionally load procname code from seperate directory
-	$[""~getenv(`KDBAPPCODE);
-                .lg.o[`init;"Environment variable KDBAPPCODE not set, not loading app specific procname code"];
-                loaddir getenv[`KDBAPPCODE],"/",string procname
-        ];
-	}
+	// Load procname code from each directory if it exists
+	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
 
 \d . 
 // Load configuration
-// TorQ loads configuration modules in the order: TorQ Default, then Application Specific
+// TorQ loads configuration modules in the order: TorQ Default, Service Specific and then Application Specific
 // Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
-	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.proctype,.proc.procname;
-	// check if KDBAPPCONFIG is set and load Appliation specific configuration module
-	$[""~getenv(`KDBAPPCONFIG);	
-	.lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
-	[.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
-	.lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
-	.proc.loadconfig[.proc.appconfig;] each `default,.proc.proctype,.proc.procname]];
+	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
+  // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
+  $[""~getenv`KDBSERVCONFIG;
+    .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
+    [.proc.servconfig:getenv[`KDBSERVCONFIG],"/settings/";
+    .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
+    .proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
+  ];
+	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
+  $[""~getenv`KDBAPPCONFIG;	
+	  .lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
+	  [.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
+	  .lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
+	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
+  ];
 	// Override config from the command line
 	.proc.override[]]
 
@@ -557,16 +577,20 @@ if[not `noconfig in key .proc.params;
 .lg.o[`init;".proc.loadhandlers flag set to ",string .proc.loadhandlers];
 .lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
 
-if[.proc.loadcommoncode; .proc.reloadcommoncode[]]
-if[.proc.loadprocesscode;.proc.reloadprocesscode[]]
-if[.proc.loadnamecode;.proc.reloadnamecode[]]
+.proc.reloadallcode:{
+	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
+	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]];
+	if[.proc.loadprocesscode;.proc.reloadprocesscode[]];
+	if[.proc.loadnamecode;.proc.reloadnamecode[]];
+	};
+.proc.reloadallcode[];
 
 if[`loaddir in key .proc.params;
 	.lg.o[`init;"loaddir flag found - loading files in directory ",first .proc.params`loaddir];
 	.proc.loaddir each .proc.params`loaddir]
 
 // Load message handlers after all the other library code
-if[.proc.loadhandlers;.proc.loaddir getenv[`KDBCODE],"/handlers"]
+.proc.loaddir each(getenv$[.proc.loadhandlers & not ""~getenv`KDBSERVCODE;`KDBCODE`KDBSERVCODE;(),`KDBCODE]),\:"/handlers";
 
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
@@ -593,7 +617,7 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 		[{[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
 		@[value;a;
 		{[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
-		each .proc.initlist;.proc.initlist:()];
+		each .proc.initlist;.proc.initexecuted,:.proc.initlist;.proc.initlist:()];
 		.lg.o[`init;"no initialisation functions found"]];
  }
 
