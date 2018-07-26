@@ -262,7 +262,6 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 	/-sort permitted tables in database
 	/- sort the table and garbage collect (if enabled)
 	.lg.o[`sort;"starting to sort data"];
-	//$[(0 < count .z.pd[]) and ((system "s")<0);
 	$[count[.z.pd[]]&0>system"s";
 		[.lg.o[`sort;"sorting on slave sort", string .z.p];
 		{[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
