@@ -611,18 +611,17 @@ if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
 // initialise connections
 if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
-.proc.run:{[id;a]
-    .lg.o[id;"attemping to run: ",.Q.s1 a];
-    @[value;a;
-    {[id;x;a].lg.e[id;x," error - failed to run: ",.Q.s1 a]}[id;;a]];
+.proc.try:{[id;a]
+  .lg.o[id;"attemping to run: ",.Q.s1 a];
+  @[value;a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a]}[id;a]];
  }
 
 // function to execute functions in .proc.initlist
 .proc.init:{
-    if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
-    .proc.run[`INIT;] each .proc.initlist;
-    .proc.initexecuted,:.proc.initlist;
-    .proc.initlist:();
+  if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
+  .proc.try[`init;]each .proc.initlist;
+  .proc.initexecuted,:.proc.initlist;
+  .proc.initlist:();
  }
 
 if[count .proc.initlist;.proc.init[]]
