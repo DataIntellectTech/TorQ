@@ -619,7 +619,7 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 // function to execute functions in .proc.initlist
 .proc.init:{
   if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
-  .proc.try[`init;]each .proc.initlist;
+  .proc.try[`init]each .proc.initlist;
   .proc.initexecuted,:.proc.initlist;
   .proc.initlist:();
  }
