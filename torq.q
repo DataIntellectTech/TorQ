@@ -613,12 +613,11 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
 // function to execute functions in .proc.initlist
 .proc.init:{
-	$[count .proc.initlist;
-		[{[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
-		@[value;a;
-		{[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
-		each .proc.initlist;.proc.initexecuted,:.proc.initlist;.proc.initlist:()];
-		.lg.o[`init;"no initialisation functions found"]];
+    if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
+    {[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
+        @[value;a;
+        {[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
+        each .proc.initlist;.proc.initexecuted,:.proc.initlist;.proc.initlist:();
  }
 
 if[count .proc.initlist;.proc.init[]]
