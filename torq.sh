@@ -221,10 +221,8 @@ usage() {
   exit 1
  }
 
-if [[ $(printenv | grep SETENV) ]]; then
-  SETENV=$(printenv | grep SETENV | sed -e 's#.*=\(\)#\1#')                                         # set predefined environment
-else
-  SETENV=${PWD}/setenv.sh                                                                           # set the environment
+if [[ -z $SETENV ]]; then 
+  SETENV=${PWD}/setenv.sh;                                                                          # set the environment if not predefined 
 fi
 
 if [ -f $SETENV ]; then                                                                             # check script exists 
