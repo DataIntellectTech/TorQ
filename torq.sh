@@ -1,7 +1,5 @@
 #!/bin/bash 
 
-. ./setenv.sh                                                                                       # load the environment
-
 getfield() {
   fieldno=$(awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' "$CSVPATH")            # get number for field based on headers
   fieldval=$(awk -F, '{if(NR == '$1') print $'$fieldno'}' "$CSVPATH")                               # pull one field from one line of file
@@ -223,6 +221,16 @@ usage() {
   exit 1
  }
 
+if [[ -z $SETENV ]]; then 
+  SETENV=${PWD}/setenv.sh;                                                                          # set the environment if not predefined 
+fi
+
+if [ -f $SETENV ]; then                                                                             # check script exists 
+  . $SETENV                                                                                         # load the environment
+else
+  echo "ERROR: Failed to load environment - $SETENV: No such file or directory"                     # show input file error
+  exit 1
+fi
 
 if [[ "$1" == "start" ]]; then
   if [[ $(echo ${BASH_ARGV[*]} | grep -e print) ]]; then         
@@ -255,7 +263,7 @@ elif [[ "$2" == "-debug" ]]; then
 elif [[ "$#" -eq 0 ]]; then                                                                             
   usage
 else
-  echo "Invalid argument(s)"
+  echo "ERROR: Invalid argument(s)"
   exit 1
 fi
 
