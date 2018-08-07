@@ -1,14 +1,37 @@
 #!/bin/bash
 #FUNTION DECLARATION ###############################################################################
+
+checkst(){
+#function to check if file exists
+case $3 in 
+  exist) 
+    if [[ -e $1 ]]; then
+      echo -e "[   \033[01;32mOK\033[0m   ] $2"
+    else 
+      echo -e "[ \033[01;31mFAILED\033[0m ] $2"
+    fi
+    ;;
+  nexist)
+    if [[ -e $1 ]]; then
+      echo -e "[ \033[01;31mFAILED\033[0m ] $2"
+    else 
+      echo -e "[   \033[01;32mOK\033[0m   ] $2"
+    fi
+    ;;
+  *)
+    echo "Not yet implemented"
+    ;;
+esac
+}
+
 createmonconfig(){
   #function to read all processes from the processes.csv 
   #and build the array
-  echo -n "Creating output..."
   cat $1|while read line;do
     conf=($line)
     procs=$(eval "echo \"${conf[0]}\"")
     startstopsc=$(eval "echo \"${conf[1]}\"")
-    output="$configs/${conf[2]}"
+    output="$configs${conf[2]}"
 
     proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
     echo "$proclist"|while read procs;do 
@@ -19,19 +42,17 @@ createmonconfig(){
       echo "" >> $output
     done
   done 
-  echo " DONE"
+   checkst "$configs${conf[2]}monitconfig.cfg" "Output file created" "exist"
 }
 
 createmonalert(){
   if [ -f ${configs}monitalert.cfg ];then 
-    echo -n "Deleting monitalert.cfg..."
     rm ${configs}monitalert.cfg
-    echo " DONE" 
+    checkst "${configs}monitalert.cfg" "Deleting monitalert.cfg" "nexist"
   fi 
   
-  echo -n "Copying monitalert from ${templates}..."
   cp ${templates}monitalert.cfg ${configs}
-  echo " DONE"
+  checkst "${configs}monitalert.cfg" "Copying monitalert from ${templates}" "exist"
 }
 
 #SETTING DEFAULT ENVIRONMENT VARIABLES #############################################################
@@ -51,9 +72,8 @@ mkdir -p $configs                                                               
 createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" 
 createmonalert 
 
-echo -n "Creating monitrc..."
 controltemplate="$(cat ${templates}monitrc)"
 eval "echo \"${controltemplate}\"" > ${monit_control}
 chmod 700 ${monit_control}
-echo " DONE"
+checkst "$monit_control" "Creating monitrc" "exist"
 

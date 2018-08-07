@@ -24,7 +24,7 @@
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
- set logfile $TORQMONIT/monit.log
+ set logfile $TORQHOME/monit.log
 
 #
 #
@@ -46,7 +46,7 @@
 ## the monitoring state across reboots. If it is on temporary filesystem, the
 ## state will be lost on reboot which may be convenient in some situations.
 #
- set statefile $TORQMONIT/.monit.state
+ #set statefile $TORQMONIT/.monit.state
   #set statefile /var/lib/monit/state
 #
 #
@@ -176,7 +176,7 @@
 ## commands to a running Monit daemon. See the Monit Wiki if you want to
 ## enable SSL for the HTTP interface.
 #
- set httpd port 2812 and
+ set httpd port 11000 and
 #    use address localhost  # only accept connection from localhost
 #    allow localhost        # allow localhost to connect to the server and
     allow admin:monit       # require user 'admin' with password 'monit'

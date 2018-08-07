@@ -222,7 +222,7 @@ usage() {
  }
 
 if [[ -z $SETENV ]]; then 
-  SETENV=${PWD}/setenv.sh;                                                                          # set the environment if not predefined 
+  SETENV=${BASEDIR}/setenv.sh;                                                                          # set the environment if not predefined 
 fi
 
 if [ -f $SETENV ]; then                                                                             # check script exists 
