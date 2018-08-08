@@ -24,7 +24,7 @@
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
- set logfile $TORQHOME/monit.log
+ set logfile ${PWD}/monit.log
 
 #
 #
@@ -46,7 +46,7 @@
 ## the monitoring state across reboots. If it is on temporary filesystem, the
 ## state will be lost on reboot which may be convenient in some situations.
 #
- #set statefile $TORQMONIT/.monit.state
+ set statefile ${PWD}/monit.state
   #set statefile /var/lib/monit/state
 #
 #
@@ -84,7 +84,7 @@
 #                localhost                   # fallback relay
   set mailserver smtp.gmail.com port 587
         username "\"torqmonit@gmail.com\"" password "\"torqmonit2018\""
-        using ssl
+        using tlsv1
         with timeout 30 seconds
 
 
@@ -100,7 +100,7 @@
 #
   set eventqueue
 #      basedir /var/lib/monit/events  # set the base directory where events will be stored
-      basedir $TORQMONIT/events
+      basedir ${PWD}/events
       slots 100           # optionally limit the queue size
 #
 #
@@ -137,16 +137,16 @@
    set mail-format {
        from: torqmonit@gmail.com 
     subject: [\$SERVICE] monit alert -- \$EVENT at \$DATE
-    message: Monit Report: 
-             ACTION:          \$ACTION 
-            SERVICE:          \$SERVICE 
-               DATE:          \$DATE
-               HOST:          \$HOST 
-        DESCRIPTION:          \$DESCRIPTION
+    message: Monit Report:
+ACTION:       \$ACTION
+SERVICE:      \$SERVICE
+DATE:         \$DATE
+HOST:         \$HOST
+DESCRIPTION:  \$DESCRIPTION
              
-       Powered by Monit
+Powered by Monit
   
-       This message has been generated automatically! 
+This message has been generated automatically! 
    }
 ##
 ## You can override this message format or parts of it, such as subject

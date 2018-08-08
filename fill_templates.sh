@@ -2,7 +2,7 @@
 #FUNTION DECLARATION ###############################################################################
 
 checkst(){
-#function to check if file exists
+#function to check if file exists 
 case $3 in 
   exist) 
     if [[ -e $1 ]]; then
@@ -29,30 +29,33 @@ createmonconfig(){
   #and build the array
   cat $1|while read line;do
     conf=($line)
-    procs=$(eval "echo \"${conf[0]}\"")
-    startstopsc=$(eval "echo \"${conf[1]}\"")
+    procs=$(eval "echo \"${PWD}/${conf[0]}\"")
+    startstopsc=$(eval "echo \"${PWD}/${conf[1]}\"")
+    echo "$startstopsc"
     output="$configs${conf[2]}"
-
+  
     proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
     echo "$proclist"|while read procs;do 
       array=($procs)
       proctype=${array[0]}
       procname=${array[1]}
-      eval "echo $2" >> $output
-      echo "" >> $output
+      if [[ ! "$procname" == "killtick" ]]; then                                                    # exclude killtick from the list of monitored processes 
+        eval "echo $2" >> $output
+        echo "" >> $output
+      fi 
     done
   done 
-   checkst "$configs${conf[2]}monitconfig.cfg" "Output file created" "exist"
+   checkst "$configs${conf[2]}monitconfig.cfg" "Output file created..." "exist"
 }
 
 createmonalert(){
   if [ -f ${configs}monitalert.cfg ];then 
     rm ${configs}monitalert.cfg
-    checkst "${configs}monitalert.cfg" "Deleting monitalert.cfg" "nexist"
+    checkst "${configs}monitalert.cfg" "Deleting monitalert.cfg..." "nexist"
   fi 
   
   cp ${templates}monitalert.cfg ${configs}
-  checkst "${configs}monitalert.cfg" "Copying monitalert from ${templates}" "exist"
+  checkst "${configs}monitalert.cfg" "Copying monitalert from ${templates}..." "exist"
 }
 
 #SETTING DEFAULT ENVIRONMENT VARIABLES #############################################################
@@ -69,11 +72,17 @@ monit_control="${TORQHOME}/config/monitrc"                                      
 monittemplate="$(cat ${templates}monittemplate.txt)"
 mkdir -p $configs                                                                                   #creating the output directory
 
-createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\"" 
-createmonalert 
+if [ ! -f ${configs}/monitconfig.cfg ]; then
+  createmonconfig "${templates}monitconfig.cfg" "\"${monittemplate}\""
+fi
 
-controltemplate="$(cat ${templates}monitrc)"
-eval "echo \"${controltemplate}\"" > ${monit_control}
-chmod 700 ${monit_control}
-checkst "$monit_control" "Creating monitrc" "exist"
+if [ ! -f ${configs}/monitalert.cfg ]; then
+  createmonalert 
+fi 
 
+if [ ! -f ${monit_control} ]; then 
+  controltemplate="$(cat ${templates}monitrc)"
+  eval "echo \"${controltemplate}\"" > ${monit_control}
+  chmod 700 ${monit_control}
+  checkst "$monit_control" "Creating monitrc" "exist"
+fi 
