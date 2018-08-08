@@ -8,6 +8,7 @@ initialised:0b
 
 // function to add functions to initialisation list
 initlist:()
+initexecuted:()
 addinitlist:{[x].proc.initlist,:enlist x};
   
 generalusage:@[value;`generalusage;"General:
@@ -610,14 +611,17 @@ if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
 // initialise connections
 if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
+.proc.try:{[id;a]
+  .lg.o[id;"attemping to run: ",.Q.s1 a];
+  @[value;a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a]}[id;a]];
+ }
+
 // function to execute functions in .proc.initlist
 .proc.init:{
-	$[count .proc.initlist;
-		[{[a].lg.o[`init;"attemping to run initialisation: ",-3!a];
-		@[value;a;
-		{[x;a].lg.e[`init;x," error - failed to run initialisation: ",-3!a]}[;a]]}
-		each .proc.initlist;.proc.initlist:()];
-		.lg.o[`init;"no initialisation functions found"]];
+  if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
+  .proc.try[`init]each .proc.initlist;
+  .proc.initexecuted,:.proc.initlist;
+  .proc.initlist:();
  }
 
 if[count .proc.initlist;.proc.init[]]
