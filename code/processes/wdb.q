@@ -27,48 +27,48 @@ writedownmode:@[value;`writedownmode;`default];                         /- the w
                                                                         /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                         /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergenumrows:@[value;`mergenumrows;100000];                     /-default number of rows for merge process
-mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     /-specify number of rows per table for merge process
-														
-hdbtypes:@[value;`hdbtypes;`hdb];                               /-list of hdb types to look for and call in hdb reload
-rdbtypes:@[value;`rdbtypes;`rdb];                               /-list of rdb types to look for and call in rdb reload
-gatewaytypes:@[value;`gatewaytypes;`gateway]					/-list of gateway types to inform at reload
-tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];      	/-list of tickerplant types to try and make a connection to
-tpconnsleepintv:@[value;`tpconnsleepintv;10];                   /-number of seconds between attempts to connect to the tp								
-sorttypes:@[value;`sorttypes;`sort];                   		    /-list of sort types to look for upon a sort		
-sortslavetypes:@[value;`sortslavetypes;`sortslave];             /-list of sort types to look for upon a sort being called with slave process		
-										
-subtabs:@[value;`subtabs;`]                                     /-list of tables to subscribe for
-subsyms:@[value;`subsyms;`]                                     /-list of syms to subscription to
-upd:@[value;`upd;{insert}]                                      /-value of the upd function
+mergenumrows:@[value;`mergenumrows;100000];                             /-default number of rows for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             /-specify number of rows per table for merge process
 
-ignorelist:@[value;`ignorelist;`heartbeat`logmsg]               /-list of tables to ignore
-replay:@[value;`replay;1b]                                      /-replay the tickerplant log file
-schema:@[value;`schema;1b]                                      /-retrieve schema from tickerplant
-numrows:@[value;`numrows;100000]                                /-default number of rows 
-savedir:@[value;`savedir;`:temphdb]                   			/-location to save wdb data
-numtab:@[value;`numtab;`quote`trade!10000 50000]                /-specify number of rows per table
-settimer:@[value;`settimer;0D00:00:10]                          /-set timer interval for row check 
+hdbtypes:@[value;`hdbtypes;`hdb];                                       /-list of hdb types to look for and call in hdb reload
+rdbtypes:@[value;`rdbtypes;`rdb];                                       /-list of rdb types to look for and call in rdb reload
+gatewaytypes:@[value;`gatewaytypes;`gateway];                           /-list of gateway types to inform at reload
+tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];               /-list of tickerplant types to try and make a connection to
+tpconnsleepintv:@[value;`tpconnsleepintv;10];                           /-number of seconds between attempts to connect to the tp								
+sorttypes:@[value;`sorttypes;`sort];                                    /-list of sort types to look for upon a sort		
+sortslavetypes:@[value;`sortslavetypes;`sortslave];                     /-list of sort types to look for upon a sort being called with slave process
 
-partitiontype:@[value;`partitiontype;`date]                     /-set type of partition (defaults to `date)
-gmttime:@[value;`gmttime;1b]	                                /-define whether the process is on gmttime or not
+subtabs:@[value;`subtabs;`];                                            /-list of tables to subscribe for
+subsyms:@[value;`subsyms;`];                                            /-list of syms to subscription to
+upd:@[value;`upd;{insert}];                                             /-value of the upd function
+
+ignorelist:@[value;`ignorelist;`heartbeat`logmsg]                       /-list of tables to ignore
+replay:@[value;`replay;1b];                                             /-replay the tickerplant log file
+schema:@[value;`schema;1b];                                             /-retrieve schema from tickerplant
+numrows:@[value;`numrows;100000];                                       /-default number of rows 
+savedir:@[value;`savedir;`:temphdb];                                    /-location to save wdb data
+numtab:@[value;`numtab;`quote`trade!10000 50000];                       /-specify number of rows per table
+settimer:@[value;`settimer;0D00:00:10];                                 /-set timer interval for row check
+
+partitiontype:@[value;`partitiontype;`date];                            /-set type of partition (defaults to `date)
+gmttime:@[value;`gmttime;1b];                                           /-define whether the process is on gmttime or not
 getpartition:@[value;`getpartition;
 	{{@[value;`.wdb.currentpartition;
-		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}]    /-function to determine the partition value
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];           /-function to determine the partition value
 
-reloadorder:@[value;`reloadorder;`hdb`rdb]                      /-order to reload hdbs and rdbs
-hdbdir:@[value;`hdbdir;`:hdb]                                   /-move wdb database to different location
-sortcsv:@[value;`sortcsv;`:config/sort.csv]                     /-location of csv file
-permitreload:@[value;`permitreload;1b]                          /-enable reload of hdbs/rdbs
-compression:@[value;`compression;()];                           /-specify the compress level, empty list if no required
+reloadorder:@[value;`reloadorder;`hdb`rdb];                             /-order to reload hdbs and rdbs
+hdbdir:@[value;`hdbdir;`:hdb];                                          /-move wdb database to different location
+sortcsv:@[value;`sortcsv;`:config/sort.csv];                            /-location of csv file
+permitreload:@[value;`permitreload;1b];                                 /-enable reload of hdbs/rdbs
+compression:@[value;`compression;()];                                   /-specify the compress level, empty list if no required
 
-gc:@[value;`gc;1b]                                              /-garbage collect at appropriate points (after each table save and after sorting data)
+gc:@[value;`gc;1b];                                                     /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000]		        /- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                       /- length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
-.save.savedownmanipulation:@[value;`savedownmanipulation;()!()]	/-a dict of table!function used to manipulate tables at EOD save
-.save.postreplay:@[value;`postreplay;{{[d;p] }}]			    /-post EOD function, invoked after all the tables have been written down
+.save.savedownmanipulation:@[value;`savedownmanipulation;()!()];        /-a dict of table!function used to manipulate tables at EOD save
+.save.postreplay:@[value;`postreplay;{{[d;p] }}];                       /-post EOD function, invoked after all the tables have been written down
 
 / - end of default parameters
 
