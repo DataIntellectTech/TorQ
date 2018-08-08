@@ -57,6 +57,7 @@ debug() {
     echo "$proc"                                                                                    # print input process unavailable 
   else 
     sline=$(startline "$1")                                                                         # get start line for process
+    printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
     eval "$sline -debug"                                                                            # append flag to start in debug mode
   fi
  }
