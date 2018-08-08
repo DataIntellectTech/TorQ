@@ -8,24 +8,24 @@
 
 /- define default parameters
 mode:@[value;`mode;`saveandsort];	                                /- the wdb process can operate in three modes
-									/- 1. saveandsort 	- 	the process will subscribe for data,
-									/-						periodically write data to disk and at EOD it will flush 
-									/-						remaining data to disk before sorting it and informing
-									/-						GWs, RDBs and HDBs etc...
-									/- 2. save 			-	the process will subscribe for data,
-									/- 						periodically write data to disk and at EOD it will flush 
-									/-						remaining data to disk.  It will then inform it's respective
-									/-						sort mode process to sort the data
-									/- 3. sort			-	the process will wait to get a trigger from it's respective
-									/-						save mode process.  When this is triggered it will sort the
-									/- 						data on disk, apply attributes and the trigger a reload on the
-									/-						rdb and hdb processes
+                                                                        /- 1. saveandsort               -               the process will subscribe for data,
+                                                                        /-                                              periodically write data to disk and at EOD it will flush 
+                                                                        /-                                              remaining data to disk before sorting it and informing
+                                                                        /-                                              GWs, RDBs and HDBs etc...
+                                                                        /- 2. save                      -               the process will subscribe for data,
+                                                                        /-                                              periodically write data to disk and at EOD it will flush
+                                                                        /-                                              remaining data to disk.  It will then inform it's respective
+                                                                        /-                                              sort mode process to sort the data
+                                                                        /- 3. sort                      -               the process will wait to get a trigger from it's respective
+                                                                        /-                                              save mode process.  When this is triggered it will sort the
+                                                                        /-                                              data on disk, apply attributes and the trigger a reload on the
+                                                                        /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];			        /- the wdb process can periodically write data to disc and sort at EOD in two ways:
-									/- 1. default                   -       the data is partitioned by [ partitiontype ]
-									/-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
+writedownmode:@[value;`writedownmode;`default];                         /- the wdb process can periodically write data to disc and sort at EOD in two ways:
+                                                                        /- 1. default                   -       the data is partitioned by [ partitiontype ]
+                                                                        /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                         /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
-                                                                        /-                                      at EOD the data will be merged from each partiton before being moved to hdb									
+                                                                        /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
 mergenumrows:@[value;`mergenumrows;100000];                     /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     /-specify number of rows per table for merge process
