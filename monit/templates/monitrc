@@ -24,7 +24,7 @@
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
- set logfile ${PWD}/monit.log
+ set logfile ${PWD}/monit/logs/monit.log
 
 #
 #
@@ -46,7 +46,7 @@
 ## the monitoring state across reboots. If it is on temporary filesystem, the
 ## state will be lost on reboot which may be convenient in some situations.
 #
- set statefile ${PWD}/monit.state
+ set statefile ${PWD}/monit/logs/monit.state
   #set statefile /var/lib/monit/state
 #
 #
@@ -83,12 +83,12 @@
 #                backup.bar.baz port 10025,  # backup mailserver on port 10025
 #                localhost                   # fallback relay
   set mailserver smtp.gmail.com port 587
-        username "USERNAME@MAILSERVICE.COM" password "PASSWORD"
+        username "\"torqmonit@gmail.com\"" password "\"torqmonit2018\""
         using tlsv1
         with timeout 30 seconds
 
 
-  set alert EMAIL
+  set alert rdanutalexandru@gmail.com
 #
 #
 ## By default Monit will drop alert events if no mail servers are available.
@@ -100,7 +100,7 @@
 #
   set eventqueue
 #      basedir /var/lib/monit/events  # set the base directory where events will be stored
-      basedir ${PWD}/events
+      basedir ${PWD}/monit/events
       slots 100           # optionally limit the queue size
 #
 #
@@ -318,4 +318,4 @@ This message has been generated automatically!
 #
 #  include /etc/monit.d/*
 #
- include ${TORQHOME}/code/scripts/monit/*.cfg
+ include ${PWD}/monit/config/*.cfg
