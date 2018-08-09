@@ -83,12 +83,12 @@
 #                backup.bar.baz port 10025,  # backup mailserver on port 10025
 #                localhost                   # fallback relay
   set mailserver smtp.gmail.com port 587
-        username "\"torqmonit@gmail.com\"" password "\"torqmonit2018\""
+        username "USERNAME@MAILSERVICE.COM" password "PASSWORD"
         using tlsv1
         with timeout 30 seconds
 
 
-  set alert rdanutalexandru@gmail.com
+  set alert EMAIL
 #
 #
 ## By default Monit will drop alert events if no mail servers are available.
@@ -138,11 +138,11 @@
        from: torqmonit@gmail.com 
     subject: [\$SERVICE] monit alert -- \$EVENT at \$DATE
     message: Monit Report:
-ACTION:       \$ACTION
-SERVICE:      \$SERVICE
-DATE:         \$DATE
-HOST:         \$HOST
-DESCRIPTION:  \$DESCRIPTION
+ACTION: \$ACTION
+SERVICE: \$SERVICE
+DATE: \$DATE
+HOST: \$HOST
+DESCRIPTION: \$DESCRIPTION
              
 Powered by Monit
   
