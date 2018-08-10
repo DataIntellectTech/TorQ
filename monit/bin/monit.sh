@@ -46,7 +46,6 @@ createmonconfig(){
         eval "echo \"${monittemplate}\"" >> $output
         echo "" >> $output
       fi 
-    #done
   done 
    checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
 }
@@ -126,14 +125,38 @@ generate(){
  start(){
  	#this function just starts monit and specifies the location of the monitrc 
  	if [ -z $1 ];then 
+      echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
  	  monit -c ${BASEDIR}/monit/config/monitrc
- 	else  
+ 	else
  	  monit -c $1
  	fi 
  }
 
  usage(){
-   echo "USAGE FUNCTION - Not yet implemented"
+   echo ""
+   echo "NOTE: if any of the arguments are missing the default locations will be used"
+   echo ""
+   echo "----------------------------------------------------------------------------"
+   printf "%-20s | %-30s | %-30s\n" "FILE" "DEFAULT TEMPLATE PATH" "DEFAULT CONFIG PATH" 
+   echo "----------------------------------------------------------------------------"
+   printf "%-20s | %-30s | %-30s\n" "monitconfig.cfg" "deploy/monit/templates" "deploy/monit/config"
+   printf "%-20s | %-30s | %-30s\n" "monitalert.cfg" "deploy/monit/templates" "deploy/monit/config"
+   printf "%-20s | %-30s | %-30s\n" "monitrc" "deploy/monit/templates" "deploy/monit/config"
+   printf "%-20s | %-30s | %-30s\n" "monit.log" "NA" "deploy/monit/logs"
+   printf "%-20s | %-30s | %-30s\n" "monit.state" "NA" "deploy/monit/logs"
+   echo "----------------------------------------------------------------------------"
+   echo ""
+   echo ""
+   echo "----------------------------------------------------------------------------------------------------------------------------------------------"
+   printf "%-10s | %-15s | %-40s | %-75s\n" "FUNCTION" "OPTION" "COMMENTS" "ARGUMENTS"
+   echo "----------------------------------------------------------------------------------------------------------------------------------------------"
+   printf "%-10s | %-15s | %-40s | %-75s\n" "generate" "monitalert" "generates the monitalert.cfg" "no arguments"
+   printf "%-10s | %-15s | %-40s | %-75s\n" "generate" "monitconfig" "generates the monitconfig.cfg" "\"<path process.csv>\" & \"<path torq.sh>\""
+   printf "%-10s | %-15s | %-40s | %-75s\n" "generate" "monitrc" "generates the monitrc.cfg" "\"<path monitrc template>\""
+   printf "%-10s | %-15s | %-40s | %-75s\n" "generate" "all" "generates all *.cfg files & monitrc" "\"<path process.csv>\" & \"<path torq.sh>\" & \"<path monitrc template>\""
+   printf "%-10s | %-15s | %-40s | %-75s\n" "start" "NA" "starts monit" "\"<path monitrc>\""
+   echo "----------------------------------------------------------------------------------------------------------------------------------------------"
+   echo ""
  }
 
 "$@"
