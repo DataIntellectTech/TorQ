@@ -52,9 +52,13 @@ print() {
  }
 
 debug() {
-  sline=$(startline $1)                                                                             # get start line for process
-  printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
-  eval "$sline -debug"                                                                              # append flag to start in debug mode
+  if [[ -z $(findproc "$1") ]]; then                             
+    sline=$(startline "$1")                                                                             # get start line for process
+    printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
+    eval "$sline -debug"                                                                              # append flag to start in debug mode
+  else
+    echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
+  fi
  }
 
 summary() {
@@ -241,8 +245,15 @@ elif [[ "$1" == "stop" ]]; then
   checkextrascsv $@;
   stopprocs "$PROCS";
 elif [[ "$1" == "debug" ]]; then
+  if [[ "$#" -gt 2 ]]; then
+    echo "ERROR: Cannot debug more than one process at a time" 
+  else
   checkextrascsv "$*";
-  debug "$PROCS";
+  for p in $PROCS;
+  do
+    debug "$p";
+  done
+  fi
 elif [[ "$1" == "summary" ]]; then
   allcsv "$*";
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
