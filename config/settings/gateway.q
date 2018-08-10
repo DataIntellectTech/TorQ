@@ -11,5 +11,5 @@ clearinactivetime:0D01:00	// the time to keep inactive handle data
 
 // Server connection details
 \d .servers
-CONNECTIONS:`rdb`hdb`wdb		// list of connections to make at start up
+CONNECTIONS:`rdb`hdb		// list of connections to make at start up
 RETRY:0D00:01                   // period on which to retry dead connections.  If 0, no reconnection attempts
