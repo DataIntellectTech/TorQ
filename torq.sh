@@ -52,14 +52,9 @@ print() {
  }
 
 debug() {
-  proc=$(getprocs "$0" "$1");                                                                       # check input process in csv
-  if [[ $(echo "$proc" | grep "unavailable") ]]; then                                                  
-    echo "$proc"                                                                                    # print input process unavailable 
-  else 
-    sline=$(startline "$1")                                                                         # get start line for process
-    printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
-    eval "$sline -debug"                                                                            # append flag to start in debug mode
-  fi
+  sline=$(startline $1)                                                                             # get start line for process
+  printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
+  eval "$sline -debug"                                                                              # append flag to start in debug mode
  }
 
 summary() {
@@ -211,11 +206,11 @@ usage() {
   printf -- "Arguments:\n"
   printf -- "  start all|<processname(s)>               to start all|process(es)\n"
   printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
+  printf -- "  print all|<processname(s)>               to view default startup lines\n"
+  printf -- "  debug <processname(s)>                   to debug a single process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
-  printf -- "  <processname> -debug                     to debug process\n"
   printf -- "Optional flags:\n"
-  printf -- "  -print                                   to view default startup lines\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
@@ -234,19 +229,20 @@ else
 fi
 
 if [[ "$1" == "start" ]]; then
-  if [[ $(echo ${BASH_ARGV[*]} | grep -e print) ]]; then         
-    checkextrascsv "${*%${!#}}";
-    for p in $PROCS;
-    do 
-      print "$p";  
-    done
-  else 
-    checkextrascsv "$*";
-    startprocs "$PROCS";
-  fi
+  checkextrascsv "$*";
+  startprocs "$PROCS";
+elif [[ "$1" == "print" ]]; then         
+  checkextrascsv "$*";
+  for p in $PROCS;
+  do 
+    print "$p";  
+  done
 elif [[ "$1" == "stop" ]]; then
   checkextrascsv $@;
   stopprocs "$PROCS";
+elif [[ "$1" == "debug" ]]; then
+  checkextrascsv "$*";
+  debug "$PROCS";
 elif [[ "$1" == "summary" ]]; then
   allcsv "$*";
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
@@ -258,9 +254,6 @@ elif [[ "$1" == "summary" ]]; then
 elif [[ "$1" == "procs" ]]; then
   allcsv "$*";
   awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
-elif [[ "$2" == "-debug" ]]; then
-  allcsv "$*";
-  debug "$1";
 elif [[ "$#" -eq 0 ]]; then                                                                             
   usage
 else
