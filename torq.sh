@@ -25,8 +25,7 @@ startline() {
   proctype=$(getfield "$procno" "proctype")                                                         # get proctype for process 
   params="U localtime g T w load"                                                                   # list of params to read from config 
   sline="${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $1"               # base part of startup line
-  for p in $params;                                                                                 # iterate over params
-  do
+  for p in $params; do                                                                              # iterate over params
     a=$(parameter "$procno" "$p");                                                                  # get param
     sline="$sline$a";                                                                               # append to startup line
   done
@@ -84,8 +83,7 @@ stop() {
 getall() {
   procs=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all processes from csv
   start=""
-  for a in $procs;
-  do
+  for a in $procs; do 
     procno=$(awk '/,'$a',/{print NR}' "$CSVPATH")                                                   # get line number for file
     f=$(getfield "$procno" startwithall) 
     if [[ "1" == "$f" ]]; then                                                                      # checks csv column startwithall equals 1
@@ -99,8 +97,7 @@ checkinput() {
   input=$*                                                                                          # get all input process names
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all process names from csv
   avail=()
-  for i in $input;
-  do 
+  for i in $input; do
     if [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                  # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
@@ -121,8 +118,7 @@ getprocs() {
 
 flag() {
   count=0
-  for i in ${BASH_ARGV[*]};
-  do
+  for i in ${BASH_ARGV[*]}; do
     count=$((count+1))
     if [[ $i == "-$1" ]]; then                                                                      # find flag argument in command line
       N=$((count-2))                                                                                # find index of flag arugment 
@@ -133,8 +129,7 @@ flag() {
 flagextras() {
   flag "$*"
   z=$N
-  while [ $z -ge 0 ]; 
-  do
+  while [ $z -ge 0 ]; do
     EXTRAS+="${BASH_ARGV[$z]} "                                                                     # get all parameters following extras flag
     z=$((z-1))
   done
@@ -193,15 +188,13 @@ allcsv() {
  }
 
 startprocs() {
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     start "$p";                                                                                     # start each process in variable
   done
  }
 
 stopprocs() {
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
   done
  }
@@ -237,8 +230,7 @@ if [[ "$1" == "start" ]]; then
   startprocs "$PROCS";
 elif [[ "$1" == "print" ]]; then         
   checkextrascsv "$*";
-  for p in $PROCS;
-  do 
+  for p in $PROCS; do 
     print "$p";  
   done
 elif [[ "$1" == "stop" ]]; then
@@ -249,8 +241,7 @@ elif [[ "$1" == "debug" ]]; then
   if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then 
     echo "ERROR: Cannot debug more than one process at a time"
   else 
-    for p in $PROCS;
-    do
+    for p in $PROCS; do
       debug "$p";
     done
   fi
@@ -258,8 +249,7 @@ elif [[ "$1" == "summary" ]]; then
   allcsv "$*";
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
   printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     summary "$p";
   done
 elif [[ "$1" == "procs" ]]; then
@@ -271,4 +261,3 @@ else
   echo "ERROR: Invalid argument(s)"
   exit 1
 fi
-
