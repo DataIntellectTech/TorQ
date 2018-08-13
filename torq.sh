@@ -225,39 +225,48 @@ else
   exit 1
 fi
 
-if [[ "$1" == "start" ]]; then
-  checkextrascsv "$*";
-  startprocs "$PROCS";
-elif [[ "$1" == "print" ]]; then         
-  checkextrascsv "$*";
-  for p in $PROCS; do 
-    print "$p";  
-  done
-elif [[ "$1" == "stop" ]]; then
-  checkextrascsv $@;
-  stopprocs "$PROCS";
-elif [[ "$1" == "debug" ]]; then
-  checkextrascsv "$*";
-  if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then 
-    echo "ERROR: Cannot debug more than one process at a time"
-  else 
+for case $1 in
+  start)
+    checkextrascsv "$*";
+    startprocs "$PROCS";
+    ;;
+  print)
+    checkextrascsv "$*";
     for p in $PROCS; do
-      debug "$p";
+      print "$p";
     done
-  fi
-elif [[ "$1" == "summary" ]]; then
-  allcsv "$*";
-  PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
-  printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
-  for p in $PROCS; do
-    summary "$p";
-  done
-elif [[ "$1" == "procs" ]]; then
-  allcsv "$*";
-  awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
-elif [[ "$#" -eq 0 ]]; then                                                                             
-  usage
-else
-  echo "ERROR: Invalid argument(s)"
-  exit 1
-fi
+    ;;
+  stop)
+    checkextrascsv $@;
+    stopprocs "$PROCS";
+    ;;
+  debug)
+    checkextrascsv "$*";
+    if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then
+      echo "ERROR: Cannot debug more than one process at a time"
+    else
+      for p in $PROCS; do
+        debug "$p";
+      done
+    fi
+    ;;
+  summary)
+    allcsv "$*";
+    PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
+    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
+    for p in $PROCS; do
+      summary "$p";
+    done
+    ;;
+  procs)
+    allcsv "$*";
+    awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+    ;;
+  "")
+    usage
+    ;;
+  *)
+    echo "ERROR: Invalid argument(s)"
+    exit 1
+    ;;
+esac
