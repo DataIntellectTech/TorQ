@@ -245,14 +245,14 @@ elif [[ "$1" == "stop" ]]; then
   checkextrascsv $@;
   stopprocs "$PROCS";
 elif [[ "$1" == "debug" ]]; then
-  if [[ "$#" -gt 2 ]]; then
-    echo "ERROR: Cannot debug more than one process at a time" 
-  else
   checkextrascsv "$*";
-  for p in $PROCS;
-  do
-    debug "$p";
-  done
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then 
+    echo "ERROR: Cannot debug more than one process at a time"
+  else 
+    for p in $PROCS;
+    do
+      debug "$p";
+    done
   fi
 elif [[ "$1" == "summary" ]]; then
   allcsv "$*";
