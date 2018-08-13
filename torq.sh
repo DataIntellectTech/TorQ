@@ -25,8 +25,7 @@ startline() {
   proctype=$(getfield "$procno" "proctype")                                                         # get proctype for process 
   params="U localtime g T w load"                                                                   # list of params to read from config 
   sline="${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $1"               # base part of startup line
-  for p in $params;                                                                                 # iterate over params
-  do
+  for p in $params; do                                                                              # iterate over params
     a=$(parameter "$procno" "$p");                                                                  # get param
     sline="$sline$a";                                                                               # append to startup line
   done
@@ -52,13 +51,12 @@ print() {
  }
 
 debug() {
-  proc=$(getprocs "$0" "$1");                                                                       # check input process in csv
-  if [[ $(echo "$proc" | grep "unavailable") ]]; then                                                  
-    echo "$proc"                                                                                    # print input process unavailable 
-  else 
+  if [[ -z $(findproc "$1") ]]; then                             
     sline=$(startline "$1")                                                                         # get start line for process
     printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
     eval "$sline -debug"                                                                            # append flag to start in debug mode
+  else
+    echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
   fi
  }
 
@@ -85,8 +83,7 @@ stop() {
 getall() {
   procs=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all processes from csv
   start=""
-  for a in $procs;
-  do
+  for a in $procs; do 
     procno=$(awk '/,'$a',/{print NR}' "$CSVPATH")                                                   # get line number for file
     f=$(getfield "$procno" startwithall) 
     if [[ "1" == "$f" ]]; then                                                                      # checks csv column startwithall equals 1
@@ -100,8 +97,7 @@ checkinput() {
   input=$*                                                                                          # get all input process names
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all process names from csv
   avail=()
-  for i in $input;
-  do 
+  for i in $input; do
     if [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                  # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
@@ -122,8 +118,7 @@ getprocs() {
 
 flag() {
   count=0
-  for i in ${BASH_ARGV[*]};
-  do
+  for i in ${BASH_ARGV[*]}; do
     count=$((count+1))
     if [[ $i == "-$1" ]]; then                                                                      # find flag argument in command line
       N=$((count-2))                                                                                # find index of flag arugment 
@@ -134,8 +129,7 @@ flag() {
 flagextras() {
   flag "$*"
   z=$N
-  while [ $z -ge 0 ]; 
-  do
+  while [ $z -ge 0 ]; do
     EXTRAS+="${BASH_ARGV[$z]} "                                                                     # get all parameters following extras flag
     z=$((z-1))
   done
@@ -194,15 +188,13 @@ allcsv() {
  }
 
 startprocs() {
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     start "$p";                                                                                     # start each process in variable
   done
  }
 
 stopprocs() {
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
   done
  }
@@ -211,11 +203,11 @@ usage() {
   printf -- "Arguments:\n"
   printf -- "  start all|<processname(s)>               to start all|process(es)\n"
   printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
+  printf -- "  print all|<processname(s)>               to view default startup lines\n"
+  printf -- "  debug <processname(s)>                   to debug a single process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
-  printf -- "  <processname> -debug                     to debug process\n"
   printf -- "Optional flags:\n"
-  printf -- "  -print                                   to view default startup lines\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
@@ -234,37 +226,38 @@ else
 fi
 
 if [[ "$1" == "start" ]]; then
-  if [[ $(echo ${BASH_ARGV[*]} | grep -e print) ]]; then         
-    checkextrascsv "${*%${!#}}";
-    for p in $PROCS;
-    do 
-      print "$p";  
-    done
-  else 
-    checkextrascsv "$*";
-    startprocs "$PROCS";
-  fi
+  checkextrascsv "$*";
+  startprocs "$PROCS";
+elif [[ "$1" == "print" ]]; then         
+  checkextrascsv "$*";
+  for p in $PROCS; do 
+    print "$p";  
+  done
 elif [[ "$1" == "stop" ]]; then
   checkextrascsv $@;
   stopprocs "$PROCS";
+elif [[ "$1" == "debug" ]]; then
+  checkextrascsv "$*";
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then 
+    echo "ERROR: Cannot debug more than one process at a time"
+  else 
+    for p in $PROCS; do
+      debug "$p";
+    done
+  fi
 elif [[ "$1" == "summary" ]]; then
   allcsv "$*";
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
   printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
-  for p in $PROCS;
-  do
+  for p in $PROCS; do
     summary "$p";
   done
 elif [[ "$1" == "procs" ]]; then
   allcsv "$*";
   awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
-elif [[ "$2" == "-debug" ]]; then
-  allcsv "$*";
-  debug "$1";
 elif [[ "$#" -eq 0 ]]; then                                                                             
   usage
 else
   echo "ERROR: Invalid argument(s)"
   exit 1
 fi
-
