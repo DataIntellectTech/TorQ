@@ -225,7 +225,7 @@ else
   exit 1
 fi
 
-for case $1 in
+case $1 in
   start)
     checkextrascsv "$*";
     startprocs "$PROCS";
