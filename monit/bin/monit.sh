@@ -1,5 +1,5 @@
 #!/bin/bash
-#FUNTION DECLARATION ###############################################################################
+#FUNCTION DECLARATION ###############################################################################
 
  cd ../.. && export BASEDIR="${PWD}" && cd - > /dev/null;                                           # set BASEDIR to the root of the torq directory
 
