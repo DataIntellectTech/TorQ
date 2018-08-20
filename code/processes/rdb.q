@@ -187,7 +187,7 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles;.rdb.subscribe;`rdb]
+.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles;.rdb.subscribe]
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
