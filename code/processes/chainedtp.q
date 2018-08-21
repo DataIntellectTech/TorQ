@@ -13,8 +13,8 @@ subscribesyms:@[value;`subscribesyms;`];                        /- list of syms 
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];     /- clear logfile on subscription
-requiredprocs:@[value;`requiredprocs;`tickerplant]              /- required processes
-tpcheckcycles:@[value;`tpcheckcycles;5]                         /- specify the number of times the process will check for an available tickerplant
+requiredprocs:@[value;`requiredprocs;`tickerplant];             /- required processes
+tpcheckcycles:@[value;`tpcheckcycles;0];                        /- specify the number of times the process will check for an available tickerplant
 
 tph:0N;                                                         /- setting tickerplant handle to null
 .u.icounts:.u.jcounts:(`symbol$())!0#0,();                      /- initialise icounts & jcounts dict
@@ -137,7 +137,7 @@ refreshtp:{[d]
 /- initialises chained tickerplant
 initialise:{
   /- connect to parent tickerplant process
-  .servers.startup[];
+  //.servers.startup[];
   /- subscribe to the tickerplant
   .ctp.subscribe[]; 
   /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
@@ -200,7 +200,8 @@ upd:.ctp.upd;
 .ctp.initialise[];
 
 //check if tickerplant is available and if not exit with error
-.servers.startupdependent[.ctp.requiredprocs;.ctp.tpconnsleep;.ctp.tpcheckcycles;.ctp.subscribe;`chainedtickerplant]
+.servers.startupdependent[.ctp.requiredprocs;.ctp.tpconnsleep;.ctp.tpcheckcycles]; 
+.ctp.initialise[]; 
 
 /- set timer for batch update publishing
 if[.ctp.pubinterval;

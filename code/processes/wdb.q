@@ -34,7 +34,11 @@ hdbtypes:@[value;`hdbtypes;`hdb];                                       /-list o
 rdbtypes:@[value;`rdbtypes;`rdb];                                       /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                           /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];               /-list of tickerplant types to try and make a connection to
-tpconnsleepintv:@[value;`tpconnsleepintv;10];                           /-number of seconds between attempts to connect to the tp								
+tpconnsleepintv:@[value;`tpconnsleepintv;10];                           /-number of seconds between attempts to connect to the tp
+tpcheckcycles:@[value;`tpcheckcycles;0];                                /-number of attempts to connect to tp before process is killed
+requiredprocs:@[value;`requiredprocs;
+                value@'(`hdbtypes`tickerplanttypes)]; 
+
 sorttypes:@[value;`sorttypes;`sort];                                    /-list of sort types to look for upon a sort		
 sortslavetypes:@[value;`sortslavetypes;`sortslave];                     /-list of sort types to look for upon a sort being called with slave process
 
@@ -195,11 +199,11 @@ endofday:{[pt]
 	};
 	
 endofdaysave:{[dir;pt]
-        /- save remaining table rows to disk
-        .lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
-        savetables[dir;pt;1b;] each tl;
-        .lg.o[`savefinish;"finished saving data to disk"];
-        };
+    /- save remaining table rows to disk
+    .lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
+    savetables[dir;pt;1b;] each tl;
+    .lg.o[`savefinish;"finished saving data to disk"];
+  };
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
@@ -448,11 +452,12 @@ startup:{[]
 		];
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
-		/- subscribe to tickerplant
-		subscribe[];
+           /- subscribe to tickerplant
+           subscribe[];
 
-        //check if tickerplant is available and if not exit with error 
-        .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles;.wdb.subscribe;`wdb]
+           //check if tickerplant is available and if not exit with error 
+           .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
+           subscribe[]; 
 	  ];		
 	}
 	

@@ -333,21 +333,24 @@ reqprocsnotconn:{[requiredprocs]
     not all requiredprocs in exec proctype from .servers.SERVERS where .dotz.liveh[w]
   }
 
-startupdependent:{[requiredprocs;timeintv;cycles;subscribe]
-  if[0<>cycles;startupdepcycles[requiredprocs;timeintv;cycles;subscribe]];   
+startupdependent:{[requiredprocs;timeintv;cycles]
+  if[0<>cycles;startupdepcycles[requiredprocs;timeintv;cycles]];   
   while[.servers.reqprocsnotconn[requiredprocs];
      .os.sleep[timeintv];
      .servers.startup[]]  
  }
 
 // Block process until all required processes are connected
-startupdepcycles:{[requiredprocs;timeintv;cycles;subscribe]
+startupdepcycles:{[requiredprocs;timeintv;cycles]
   n:();                                                                                             //variable used to check how many cycles have passed
   while[.servers.reqprocsnotconn[requiredprocs];
-    n+:1;if[n>cycles;.lg.e[`connectionreport;raze string[.proc.procname]," cannot connect to ",
-      $[1<count b:((),requiredprocs)except (),exec proctype from .servers.SERVERS where .dotz.liveh[w];","sv string@'b;string[b]]]];
-      .os.sleep[timeintv];.servers.startup[];
-        if[count subscribe;(subscribe[];r:(value subscribe)0)[10=0^type subscribe]]];r
+    n+:1;
+    if[n>cycles;.lg.e[`connectionreport;raze string[.proc.procname]," cannot connect to ",
+      $[1<count b:((),requiredprocs)except (),exec proctype from .servers.SERVERS where 
+        .dotz.liveh[w];","sv string@'b;string[b]]]];
+      
+      .os.sleep[timeintv];.servers.startup[]]
+        //if[count subscribe;(subscribe[];r:(value subscribe)0)[10=0^type subscribe]]];r
  }
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
