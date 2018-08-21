@@ -137,7 +137,6 @@ refreshtp:{[d]
 /- initialises chained tickerplant
 initialise:{
   /- connect to parent tickerplant process
-  //.servers.startup[];
   /- subscribe to the tickerplant
   .ctp.subscribe[]; 
   /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
@@ -196,6 +195,7 @@ upd:.ctp.upd;
 /- pubsub must be initialised sooner to enable tickerplant replay publishing to work
 .ps.initialise[];                                                                   
 
+.servers.startup[]; 
 /- check if the tickerplant has connected, blocks the process until a connection is established
 .ctp.initialise[];
 
