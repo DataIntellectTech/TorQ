@@ -350,7 +350,6 @@ startupdepcycles:{[requiredprocs;timeintv;cycles]
         .dotz.liveh[w];","sv string@'b;string[b]]]];
       
       .os.sleep[timeintv];.servers.startup[]]
-        //if[count subscribe;(subscribe[];r:(value subscribe)0)[10=0^type subscribe]]];r
  }
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
