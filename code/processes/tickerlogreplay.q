@@ -61,7 +61,7 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number
  [-.replay.partandmerge [0|1]\t\t\tDo a replay where the data is partitioned to a specified temp directory and then merged on disk. Default is 0
  [-.replay.compression x]\t\t\tSet the compression settings for .z.zd. Default is empty list (no compression)
  [-.replay.tempdir x]\t\t\tThe directory to save data to before moving it to the hdb. Default is the same as the hdb
- [-.replay.autoreplay [0|1]\t\tStarts replay of logs at end of script or defers start of log replay. Helpfull if loading via a wrapper 
+ [-.replay.autoreplay [0|1]\t\tStarts replay of logs at end of script or defers start of log replay. Helpful if loading via a wrapper 
  \n
  There are some other functions/variables which can be modified to change the behaviour of the replay, but shouldn't be done from the config file
  Instead, load the script in a wrapper script which sets up the definition
@@ -333,17 +333,16 @@ merge:{[dir;pt;tablename;mergelimits;h]
  };
 
 
-
-
 \d .
 //load the sort csv
 .sort.getsortcsv[.replay.sortcsv]
 
 
 
-if[.replay.autoreplay;.lg.o[`replay;"replay starting from script by default"];
-       .replay.replaylog each .replay.logstoreplay;
-       .lg.o[`replay;"replay complete"];
-   if[.replay.exitwhencomplete; exit 0];
+if[.replay.autoreplay;
+  .lg.o[`replay;"replay starting from script by default"];
+  .replay.replaylog each .replay.logstoreplay;
+  .lg.o[`replay;"replay complete"];
+  if[.replay.exitwhencomplete; exit 0];
   ];
 
