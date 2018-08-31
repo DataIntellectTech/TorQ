@@ -18,7 +18,7 @@ partafterreplay:1b	// whether to apply the parted attribute after the replay.  P
 basicmode:0b		// do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
 exitwhencomplete:1b	// exit when the replay is complete
 gc:1b			// garbage collect at appropriate points (after each table save and after the full log replay)			
-
+autoreplay:1b           //Start replaying logs at end of script. Do not leave to user to start this operation. Helpful if you want to decide when the replay starts
 // turn off some of the standard stuff 
 \d .proc
 loadhandlers:0b
