@@ -241,7 +241,7 @@ It is possible to view the underlying start code for all processes.
 This is useful if another available command line parameter was required 
 for start up. 
 ```
-$ ./torq.sh start discovery1 -print
+$ ./torq.sh print discovery1 
     Start line for discovery1:
     nohup q deploy/torq.q -procname discovery1 -stackid 41000 -proctype discovery -U appconfig/passwords/accesslist.txt -localtime 1 -g 0 -load deploy/code/processes/discovery.q -procfile deploy/appconfig/process.csv </dev/null > deploy/logs/torqdiscovery1.txt 2>&1 &
 ```
@@ -249,7 +249,7 @@ The debug command line parameter can be appended to the start line
 straight from torq.sh to start a process in debug mode. Note it is only 
 possible to start one process at a time in debug mode.
 ```
-$ ./torq.sh tickerplant1 -debug
+$ ./torq.sh debug tickerplant1 
 ```
 If a process name not present in the process.csv is used, the input 
 process name will return as an invalid input. To see a list of all the 
