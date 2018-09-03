@@ -82,7 +82,6 @@ generate(){
       fi 
     ;;
     monitrc) 
-      #I need some way to define the location of the monitrc template
       if [ ! -f ${monit_control} ];then
       	if [ -z $2 ]; then 
           controltemplate="$(cat ${templates}/monitrc)"
