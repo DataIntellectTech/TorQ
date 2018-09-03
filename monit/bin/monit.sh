@@ -2,6 +2,7 @@
 #FUNCTION DECLARATION ###############################################################################
 
  cd ../.. && export BASEDIR="${PWD}" && cd - > /dev/null;                                           # set BASEDIR to the root of the torq directory
+ mkdir -p ../logs  
 
 checkst(){
 #function to check if file exists 
@@ -62,7 +63,7 @@ createmonalert(){
 }
 
 generate(){
-  eval ". $BASEDIR/setenv.sh"                                                                       # set environment variables
+  eval "cd $BASEDIR && . setenv.sh && cd - > /dev/null"                                             # set environment variables
   templates="${BASEDIR}/monit/templates"                                                            # set temmplates folder
   configs="${BASEDIR}/monit/config"                                                                 # set configs folder
   monit_control="${BASEDIR}/monit/config/monitrc"                                                   # set output file for main monit conf
