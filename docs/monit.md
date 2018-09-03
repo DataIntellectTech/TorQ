@@ -57,10 +57,10 @@ If you want to use **monit** to monitor your UNIX system and TorQ processes you 
 4. Modify the **${KDBBASEPORT}** if necessary 
 5. Navigate to **${TORQHOME}/monit/bin/**
 6. Execute:  
-a. bash monit.sh generate all - to generate all the config files 
-b. bash monit.sh generate alert - to generate the alert configuration file
-c. bash monit.sh generate monitconfig - to generate the monitconfig.cfg 
-d. bash monit.sh generate monitrc - to generate the monitrc file 
+   * bash monit.sh generate all - to generate all the config files 
+   * bash monit.sh generate alert - to generate the alert configuration file
+   * bash monit.sh generate monitconfig - to generate the monitconfig.cfg 
+   * bash monit.sh generate monitrc - to generate the monitrc file 
 
 However, you can also use your own configuration files by either creating a new directory in monit called **config** and moving all the *.cfg files and the **monitrc** file in there or by modifying the last line in the monitrc to point to the folder where the *.cfg files can be found. 
 
