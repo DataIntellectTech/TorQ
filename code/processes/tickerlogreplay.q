@@ -4,6 +4,7 @@
 
 // Variables
 firstmessage:@[value;`firstmessage;0]			// the first message to execute
+autoreplay:@[value;`autoreplay;1b]                      // replay tplogs automatically set to 1b to be backward compatible.
 lastmessage:@[value;`lastmessage;0W]			// the last message to replay
 messagechunks:@[value;`messagechunks;0W]		// the number of messages to replay at once
 schemafile:@[value;`schemafile;`]			// the schema file to load data in to
@@ -59,7 +60,8 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number
  [-.replay.checklogfiles [0|1]\t\t\tCheck log files for corruption, if corrupt then write a good log and replay this.  Default is 0
  [-.replay.partandmerge [0|1]\t\t\tDo a replay where the data is partitioned to a specified temp directory and then merged on disk. Default is 0
  [-.replay.compression x]\t\t\tSet the compression settings for .z.zd. Default is empty list (no compression)
- [-.replay.tempdir x]\t\t\tThe directory to save data to before moving it to the hdb. Default is the same as the hdb 
+ [-.replay.tempdir x]\t\t\tThe directory to save data to before moving it to the hdb. Default is the same as the hdb
+ [-.replay.autoreplay [0|1]\t\tStarts replay of logs at end of script or defers start of log replay. Helpful if loading via a wrapper 
  \n
  There are some other functions/variables which can be modified to change the behaviour of the replay, but shouldn't be done from the config file
  Instead, load the script in a wrapper script which sets up the definition
@@ -72,7 +74,6 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number
  To trap an error and carry on, use the -trap flag
  To stop at error and not exit, use the -stop flag
  "
-
 // check for a usage flag
 if[`.replay.usage in key .proc.params; -1 .proc.getusage[]; exit 0];
 
@@ -225,7 +226,7 @@ replaylog:{[logfile]
 // upd functions down here
 realupd:{[f;t;x] 
 	// increment the tablecounts
-	tablecounts[t]+::count first x;
+        tablecounts[t]+::count first x;
 	// run the supplied function in the error trap
 	.[f;(t;x);{[t;x;e] errorcounts[t]+::count first x}[t;x]];
 	}[.replay.upd]
@@ -336,8 +337,12 @@ merge:{[dir;pt;tablename;mergelimits;h]
 //load the sort csv
 .sort.getsortcsv[.replay.sortcsv]
 
-.replay.replaylog each .replay.logstoreplay;
-.lg.o[`replay;"replay complete"]
-if[.replay.exitwhencomplete; exit 0]
 
+
+if[.replay.autoreplay;
+  .lg.o[`replay;"replay starting from script by default"];
+  .replay.replaylog each .replay.logstoreplay;
+  .lg.o[`replay;"replay complete"];
+  if[.replay.exitwhencomplete; exit 0];
+  ];
 
