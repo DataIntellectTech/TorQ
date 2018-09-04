@@ -18,7 +18,8 @@ partafterreplay:1b		// whether to apply the parted attribute after the replay.  
 basicmode:0b			// do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
 exitwhencomplete:1b		// exit when the replay is complete
 checklogfiles:0b        	// check if the log file is corrupt, if it is then write a new "good" file and replay it instead
-gc:1b				// garbage collect at appropriate points (after each table save and after the full log replay)	
+gc:1b				// garbage collect at appropriate points (after each table save and after the full log replay)
+autoreplay:1b           // start replaying logs at the end of the script without any further user input
 upd:{{[t;x] insert[t;x]}}	// default upd function used for replaying data	
 
 sortcsv:`:config/sort.csv	//location of  sort csv file

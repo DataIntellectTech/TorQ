@@ -214,8 +214,14 @@ usage() {
   exit 1
  }
 
-if [[ -z $SETENV ]]; then 
-  SETENV=${PWD}/setenv.sh;                                                                          # set the environment if not predefined 
+if [ "-bash" = $0 ]; then
+    dirpath="${BASH_SOURCE[0]}"
+else
+    dirpath="$0"
+fi
+
+if [[ -z $SETENV ]]; then
+  SETENV=$(dirname $dirpath)/setenv.sh;                                                             # set the environment if not predefined
 fi
 
 if [ -f $SETENV ]; then                                                                             # check script exists 
