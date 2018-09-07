@@ -25,13 +25,13 @@ upd:@[value;`upd;{insert}];                                 //value of upd
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
-reloadenabled:@[value;`reloadenabled;0b];					//if true, the RDB will not save when .u.end is called but 
+reloadenabled:@[value;`reloadenabled;0b];                   //if true, the RDB will not save when .u.end is called but 
                                                             //will clear it's data using reload function (called by the WDB)
-parvaluesrc:@[value;`parvaluesrc;`log];						//where to source the rdb partition value, can be log (from tp log file name), 
+parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source the rdb partition value, can be log (from tp log file name), 
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
                                                             //anything else will return a null date which is will be filled by pardefault									
-pardefault:@[value;`pardefault;.z.D];				        //if the src defined in parvaluesrc returns null, use this default date instead 
-tpcheckcycles:@[value;`tpcheckcycles;0w];                   //specify the number of times the process will check for an available tickerplant
+pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
+tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
 
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
@@ -187,7 +187,7 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdependent[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
+.servers.startupdepcycles[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
 .rdb.subscribe[]; 
 
 /-set the partition that is held in the rdb (for use by the gateway)

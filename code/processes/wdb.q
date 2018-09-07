@@ -35,8 +35,8 @@ rdbtypes:@[value;`rdbtypes;`rdb];                                          /-lis
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
-tpcheckcycles:@[value;`tpcheckcycles;0];                                   /-number of attempts to connect to tp before process is killed
-requiredprocs:@[value;`requiredprocs;valuei'[`hdbtypes`tickerplanttypes]]; 
+tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed
+requiredprocs:@[value;`requiredprocs;value'[`hdbtypes`tickerplanttypes]]; 
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
 sortslavetypes:@[value;`sortslavetypes;`sortslave];                        /-list of sort types to look for upon a sort being called with slave process
@@ -455,7 +455,7 @@ startup:{[]
            subscribe[];
 
            //check if tickerplant is available and if not exit with error 
-           .servers.startupdependent[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
+           .servers.startupdepcycles[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
            subscribe[]; 
 	  ];		
 	}
