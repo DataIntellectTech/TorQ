@@ -200,7 +200,7 @@ upd:.ctp.upd;
 .ctp.initialise[];
 
 //check if tickerplant is available and if not exit with error
-.servers.startupdependent[.ctp.requiredprocs;.ctp.tpconnsleep;.ctp.tpcheckcycles]; 
+.servers.startupdepcycles[.ctp.requiredprocs;.ctp.tpconnsleep;.ctp.tpcheckcycles]; 
 .ctp.initialise[]; 
 
 /- set timer for batch update publishing
