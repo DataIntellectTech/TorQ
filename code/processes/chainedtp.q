@@ -14,7 +14,7 @@ replay:@[value;`replay;0b];                                     /- replay the ti
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];     /- clear logfile on subscription
 requiredprocs:@[value;`requiredprocs;`tickerplant];             /- required processes
-tpcheckcycles:@[value;`tpcheckcycles;0];                        /- specify the number of times the process will check for an available tickerplant
+tpcheckcycles:@[value;`tpcheckcycles;0W];                       /- specify the number of times the process will check for an available tickerplant
 
 tph:0N;                                                         /- setting tickerplant handle to null
 .u.icounts:.u.jcounts:(`symbol$())!0#0,();                      /- initialise icounts & jcounts dict
