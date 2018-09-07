@@ -334,21 +334,17 @@ reqprocsnotconn:{[requiredprocs]
   }
 
 startupdependent:{[requiredprocs;timeintv;cycles]
-  if[0<>cycles;startupdepcycles[requiredprocs;timeintv;cycles]];   
-  while[.servers.reqprocsnotconn[requiredprocs];
-     .os.sleep[timeintv];
-     .servers.startup[]]  
+  startupdepcycles[requiredprocs;timeintv;0W];   
  }
 
 // Block process until all required processes are connected
 startupdepcycles:{[requiredprocs;timeintv;cycles]
-  n:();                                                                                             //variable used to check how many cycles have passed
+  n:@[value;`n;0];                                                                                                      //variable used to check how many cycles have passed
   while[.servers.reqprocsnotconn[requiredprocs];
     n+:1;
     if[n>cycles;.lg.e[`connectionreport;raze string[.proc.procname]," cannot connect to ",
-      $[1<count b:((),requiredprocs)except (),exec proctype from .servers.SERVERS where 
-        .dotz.liveh[w];","sv string@'b;string[b]]]];
-      
+      $[1<count b:((),requiredprocs)except(),exec proctype from .servers.SERVERS where 
+      .dotz.liveh[w];","sv string@'b;string[b]]]]; 
       .os.sleep[timeintv];.servers.startup[]]
  }
 

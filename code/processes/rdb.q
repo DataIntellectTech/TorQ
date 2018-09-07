@@ -31,7 +31,7 @@ parvaluesrc:@[value;`parvaluesrc;`log];						//where to source the rdb partition
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
                                                             //anything else will return a null date which is will be filled by pardefault									
 pardefault:@[value;`pardefault;.z.D];				        //if the src defined in parvaluesrc returns null, use this default date instead 
-tpcheckcycles:@[value;`tpcheckcycles;0];                    //specify the number of times the process will check for an available tickerplant
+tpcheckcycles:@[value;`tpcheckcycles;0w];                   //specify the number of times the process will check for an available tickerplant
 
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
