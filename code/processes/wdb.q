@@ -7,72 +7,71 @@
 \d .wdb
 
 /- define default parameters
-mode:@[value;`mode;`saveandsort];	                                /- the wdb process can operate in three modes
-                                                                        /- 1. saveandsort               -               the process will subscribe for data,
-                                                                        /-                                              periodically write data to disk and at EOD it will flush 
-                                                                        /-                                              remaining data to disk before sorting it and informing
-                                                                        /-                                              GWs, RDBs and HDBs etc...
-                                                                        /- 2. save                      -               the process will subscribe for data,
-                                                                        /-                                              periodically write data to disk and at EOD it will flush
-                                                                        /-                                              remaining data to disk.  It will then inform it's respective
-                                                                        /-                                              sort mode process to sort the data
-                                                                        /- 3. sort                      -               the process will wait to get a trigger from it's respective
-                                                                        /-                                              save mode process.  When this is triggered it will sort the
-                                                                        /-                                              data on disk, apply attributes and the trigger a reload on the
-                                                                        /-                                              rdb and hdb processes
+mode:@[value;`mode;`saveandsort];	                                   /- the wdb process can operate in three modes
+                                                                           /- 1. saveandsort               -               the process will subscribe for data,
+                                                                           /-                                              periodically write data to disk and at EOD it will flush 
+                                                                           /-                                              remaining data to disk before sorting it and informing
+                                                                           /-                                              GWs, RDBs and HDBs etc...
+                                                                           /- 2. save                      -               the process will subscribe for data,
+                                                                           /-                                              periodically write data to disk and at EOD it will flush
+                                                                           /-                                              remaining data to disk.  It will then inform it's respective
+                                                                           /-                                              sort mode process to sort the data
+                                                                           /- 3. sort                      -               the process will wait to get a trigger from it's respective
+                                                                           /-                                              save mode process.  When this is triggered it will sort the
+                                                                           /-                                              data on disk, apply attributes and the trigger a reload on the
+                                                                           /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];                         /- the wdb process can periodically write data to disc and sort at EOD in two ways:
-                                                                        /- 1. default                   -       the data is partitioned by [ partitiontype ]
-                                                                        /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
-                                                                        /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
-                                                                        /-                                      at EOD the data will be merged from each partiton before being moved to hdb
+writedownmode:@[value;`writedownmode;`default];                            /- the wdb process can periodically write data to disc and sort at EOD in two ways:
+                                                                           /- 1. default                   -       the data is partitioned by [ partitiontype ]
+                                                                           /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
+                                                                           /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
+                                                                           /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergenumrows:@[value;`mergenumrows;100000];                             /-default number of rows for merge process
-mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             /-specify number of rows per table for merge process
+mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
 
-hdbtypes:@[value;`hdbtypes;`hdb];                                       /-list of hdb types to look for and call in hdb reload
-rdbtypes:@[value;`rdbtypes;`rdb];                                       /-list of rdb types to look for and call in rdb reload
-gatewaytypes:@[value;`gatewaytypes;`gateway];                           /-list of gateway types to inform at reload
-tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];               /-list of tickerplant types to try and make a connection to
-tpconnsleepintv:@[value;`tpconnsleepintv;10];                           /-number of seconds between attempts to connect to the tp
-tpcheckcycles:@[value;`tpcheckcycles;0];                                /-number of attempts to connect to tp before process is killed
-requiredprocs:@[value;`requiredprocs;
-                value@'(`hdbtypes`tickerplanttypes)]; 
+hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
+rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
+gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
+tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
+tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
+tpcheckcycles:@[value;`tpcheckcycles;0];                                   /-number of attempts to connect to tp before process is killed
+requiredprocs:@[value;`requiredprocs;valuei'[`hdbtypes`tickerplanttypes]]; 
 
-sorttypes:@[value;`sorttypes;`sort];                                    /-list of sort types to look for upon a sort		
-sortslavetypes:@[value;`sortslavetypes;`sortslave];                     /-list of sort types to look for upon a sort being called with slave process
+sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
+sortslavetypes:@[value;`sortslavetypes;`sortslave];                        /-list of sort types to look for upon a sort being called with slave process
 
-subtabs:@[value;`subtabs;`];                                            /-list of tables to subscribe for
-subsyms:@[value;`subsyms;`];                                            /-list of syms to subscription to
-upd:@[value;`upd;{insert}];                                             /-value of the upd function
+subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
+subsyms:@[value;`subsyms;`];                                               /-list of syms to subscription to
+upd:@[value;`upd;{insert}];                                                /-value of the upd function
 
-ignorelist:@[value;`ignorelist;`heartbeat`logmsg]                       /-list of tables to ignore
-replay:@[value;`replay;1b];                                             /-replay the tickerplant log file
-schema:@[value;`schema;1b];                                             /-retrieve schema from tickerplant
-numrows:@[value;`numrows;100000];                                       /-default number of rows 
-savedir:@[value;`savedir;`:temphdb];                                    /-location to save wdb data
-numtab:@[value;`numtab;`quote`trade!10000 50000];                       /-specify number of rows per table
-settimer:@[value;`settimer;0D00:00:10];                                 /-set timer interval for row check
+ignorelist:@[value;`ignorelist;`heartbeat`logmsg]                          /-list of tables to ignore
+replay:@[value;`replay;1b];                                                /-replay the tickerplant log file
+schema:@[value;`schema;1b];                                                /-retrieve schema from tickerplant
+numrows:@[value;`numrows;100000];                                          /-default number of rows 
+savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
+numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
+settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
 
-partitiontype:@[value;`partitiontype;`date];                            /-set type of partition (defaults to `date)
-gmttime:@[value;`gmttime;1b];                                           /-define whether the process is on gmttime or not
+partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
+gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
 getpartition:@[value;`getpartition;
 	{{@[value;`.wdb.currentpartition;
-		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];           /-function to determine the partition value
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];              /-function to determine the partition value
 
-reloadorder:@[value;`reloadorder;`hdb`rdb];                             /-order to reload hdbs and rdbs
-hdbdir:@[value;`hdbdir;`:hdb];                                          /-move wdb database to different location
-sortcsv:@[value;`sortcsv;`:config/sort.csv];                            /-location of csv file
-permitreload:@[value;`permitreload;1b];                                 /-enable reload of hdbs/rdbs
-compression:@[value;`compression;()];                                   /-specify the compress level, empty list if no required
+reloadorder:@[value;`reloadorder;`hdb`rdb];                                /-order to reload hdbs and rdbs
+hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
+sortcsv:@[value;`sortcsv;`:config/sort.csv];                               /-location of csv file
+permitreload:@[value;`permitreload;1b];                                    /-enable reload of hdbs/rdbs
+compression:@[value;`compression;()];                                      /-specify the compress level, empty list if no required
 
-gc:@[value;`gc;1b];                                                     /-garbage collect at appropriate points (after each table save and after sorting data)
+gc:@[value;`gc;1b];                                                        /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                       /- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /- length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
-.save.savedownmanipulation:@[value;`savedownmanipulation;()!()];        /-a dict of table!function used to manipulate tables at EOD save
-.save.postreplay:@[value;`postreplay;{{[d;p] }}];                       /-post EOD function, invoked after all the tables have been written down
+.save.savedownmanipulation:@[value;`savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
+.save.postreplay:@[value;`postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
 
 / - end of default parameters
 
