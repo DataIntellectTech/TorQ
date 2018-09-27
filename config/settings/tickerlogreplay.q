@@ -20,7 +20,7 @@ exitwhencomplete:1b                     // exit when the replay is complete
 checklogfiles:0b                        // check if the log file is corrupt, if it is then write a new "good" file and replay it instead
 gc:1b                                   // garbage collect at appropriate points (after each table save and after the full log replay)
 autoreplay:1b                           // start replaying logs at the end of the script without any further user input
-upd:{{[t;x] insert[t;x]}}               // default upd function used for replaying data	
+upd:{[t;x] insert[t;x]}                 // default upd function used for replaying data	
 
 sortcsv:`:config/sort.csv               //location of  sort csv file
 
@@ -32,7 +32,7 @@ mergenumtab:`quote`trade!10000 50000;   //specify number of rows per table for m
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:()!()        // a dict of table!function used to manipuate tables at EOD save
-.save.postreplay:{{[d;p] }}             // post replay function, invoked after all the tables have been written down for a given log file
+.save.postreplay:{[d;p] }               // post replay function, invoked after all the tables have been written down for a given log file
 
 // turn off some of the standard stuff 
 \d .proc
