@@ -1,8 +1,13 @@
 #!/bin/bash
 #FUNCTION DECLARATION ###############################################################################
 
- cd ../.. && export BASEDIR="${PWD}" && cd - > /dev/null;                                           # set BASEDIR to the root of the torq directory
- mkdir -p ../logs  
+if [ "-bash" = $0 ]; then
+  BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  BASEDIR="$(cd "$(dirname "$0")" && pwd)"
+fi
+BASEDIR=$(dirname $(dirname $BASEDIR))                                                              # set BASEDIR to root of TorQ directory
+mkdir -p ${BASEDIR}/monit/logs                                                                      # create directory for monit logs
 
 checkst(){
 #function to check if file exists 
