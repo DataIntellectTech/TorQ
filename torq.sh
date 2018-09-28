@@ -1,4 +1,22 @@
-#!/bin/bash 
+#!/bin/bash
+
+if [ "-bash" = $0 ]; then
+  dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  dirpath="$(cd "$(dirname "$0")" && pwd)"
+fi
+
+if [ -z $SETENV ]; then
+  SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
+fi
+
+if [ -f $SETENV ]; then                                                                             # check script exists
+  . $SETENV                                                                                         # load the environment
+else
+  echo "ERROR: Failed to load environment - $SETENV: No such file or directory"                     # show input file error
+  exit 1
+fi
+
 
 getfield() {
   fieldno=$(awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' "$CSVPATH")            # get number for field based on headers
@@ -214,22 +232,6 @@ usage() {
   exit 1
  }
 
-if [ "-bash" = $0 ]; then
-    dirpath="${BASH_SOURCE[0]}"
-else
-    dirpath="$0"
-fi
-
-if [[ -z $SETENV ]]; then
-  SETENV=$(dirname $dirpath)/setenv.sh;                                                             # set the environment if not predefined
-fi
-
-if [ -f $SETENV ]; then                                                                             # check script exists 
-  . $SETENV                                                                                         # load the environment
-else
-  echo "ERROR: Failed to load environment - $SETENV: No such file or directory"                     # show input file error
-  exit 1
-fi
 
 case $1 in
   start)
