@@ -614,26 +614,22 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 // function to execute functions in .proc.initlist
 .proc.try:{[id;a]
   .lg.o[id;"attempting to run: ",.Q.s1 a];
-  success:@[value;a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a];:1b}[id;a]];
-  if[-1h=type success;:()];
+  success:@[{value x;1b};a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a];0b}[id;a]];
+  if[not success;:()];
   .proc.initexecuted,:a;
   .lg.o[id;"run successful: ",.Q.s1 a];
  }
 
 .proc.initcmd:{
   // command line functions executed first
-  $[`initlist in key .proc.params;
-    {.proc.try[`init;(x;`)]}each .proc.params`initlist;
-    .lg.o[`init;"no initialisation functions found in cmd line args"]
-   ];
+  if[not`initlist in key .proc.params;:.lg.o[`init;"no initialisation functions found in cmd line args"]];
+  {.proc.try[`init;(x;`)]}each .proc.params`initlist;
  }
 
 .proc.init:{
   .proc.initcmd[];
-  $[count .proc.initlist;
-    .proc.try[`init]each .proc.initlist;
-    .lg.o[`init;"no initialisation functions found"]
-   ];
+  if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
+  .proc.try[`init]each .proc.initlist;
   .proc.initlist:();
  }
 
