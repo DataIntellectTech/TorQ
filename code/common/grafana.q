@@ -9,12 +9,12 @@
 .gkdb.epoch:946684800000;
 
 // wrapper if user has custom .z.pp
-.z.ph:{[f;x]zpp; f x}[@[value;`.z.pp;{{[x]}}]];
+.z.pp:{[f;x]zpp x;f x}[@[value;`.z.pp;{{[x]}}]];
 
 // return alive response for GET requests
-.z.ph:{[f;x]"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n"; f x}[@[value;`.z.ph;{{[x]}}]];
+.z.ph:{[f;x]"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";f x}[@[value;`.z.ph;{{[x]}}]];
 
-// retrieve Grafana HTTP POST request,store in table and process as either timeseries or table
+// retrieve and convert Grafana HTTP POST request then process as either timeseries or table
 zpp:{
   // get API url from request
   r:" " vs first x;
@@ -61,7 +61,7 @@ tbfunc:{[rqt]
 // process a timeseries request and return in Json format, takes in query and information dictionary
 tsfunc:{[x]
   / split arguments
-  numArgs:count args:`$"."vs last raze rqt[`targets]`target;tyArgs:first args 0;
+  numArgs:count args:`$"."vs last raze x[`targets]`target;tyArgs:first args 0;
   // manipulate queried table
   rqt:value first args 1;
   colN:cols rqt;
