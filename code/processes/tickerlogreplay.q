@@ -20,7 +20,7 @@ exitwhencomplete:@[value;`exitwhencomplete;1b]		// exit when the replay is compl
 checklogfiles:@[value;`checklogfiles;0b] 		// check if the log file is corrupt, if it is then write a new "good" file and replay it instead
 gc:@[value;`gc;1b]					// garbage collect at appropriate points (after each table save and after the full log replay)
 upd:@[value;`upd;{{[t;x] insert[t;x]}}]			// default upd function used for replaying data
-
+clean:@[value;`clean;1b]                                // clean existing folders on start up. Needed if a replay     screws up and we are replaying by chunk or multiple tp logs
 sortcsv:@[value;`sortcsv;`:config/sort.csv]		//location of  sort csv file
 
 compression:@[value;`compression;()]                      	//specify the compress level, empty list if no required
@@ -28,7 +28,6 @@ partandmerge:@[value;`partandmerge;0b]				//setting to do a replay where the dat
 tempdir:@[value;`tempdir;`:tempmergedir]		        //location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                   //default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number of rows per table for merge process
-
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()] 	// a dict of table!function used to manipuate tables at EOD save
@@ -62,6 +61,7 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];     //specify number
  [-.replay.compression x]\t\t\tSet the compression settings for .z.zd. Default is empty list (no compression)
  [-.replay.tempdir x]\t\t\tThe directory to save data to before moving it to the hdb. Default is the same as the hdb
  [-.replay.autoreplay [0|1]\t\tStarts replay of logs at end of script or defers start of log replay. Helpful if loading via a wrapper 
+ [-.replay.clean  [0|1]\t\t Defines if the replay should zap any existing folder at the start of replay
  \n
  There are some other functions/variables which can be modified to change the behaviour of the replay, but shouldn't be done from the config file
  Instead, load the script in a wrapper script which sets up the definition
@@ -198,6 +198,10 @@ replaylog:{[logfile]
 	@[`.;`upd;:;.replay.realupd]];
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
  .replay.replaydate:"D"$-10#string logfile;
+ if[ .replay.clean and (`$st:string .replay.replaydate) in key hdbdir;
+    .lg.o[`replay;"HDB directory already contains ",st," partition. Deleting from the HDB directory"];
+    .os.deldir .os.pth[.Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
+  ];
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we wont replay the last message correctly
@@ -205,11 +209,6 @@ replaylog:{[logfile]
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
- if[(`$(string .replay.replaydate)) in key hdbdir;
-    .lg.o[`replay;"HDB directory already contains ",(string .replay.replaydate)," partition. Deleting from the HDB directory"];
-    .os.deldir .os.pth[string .Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
- ];
-
  // set compression level
  if[ 3= count compression;
    .lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
