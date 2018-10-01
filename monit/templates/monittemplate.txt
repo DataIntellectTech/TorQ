@@ -1,0 +1,7 @@
+check process $procname
+  matching \"$KDBBASEPORT -proctype $proctype -procname $procname\"
+    start program = \"/bin/bash -c '$startstopsc start $procname'\"
+      with timeout 10 seconds
+    stop program = \"/bin/bash -c '$startstopsc stop $procname'\"
+    every \"* * * * *\"
+    mode active
