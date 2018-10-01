@@ -6,13 +6,14 @@
 /////////////////////////////// USER DEFINED VARIABLES ///////////////////////////////
 
 // user defined column name of time column
-.gkdb.timeCol:`time;
+.gkdb.timeCol:@[value;.gdkb.timeCol;`time];
+// user defined column name of sym column
+.gkdb.sym:@[value;`gkdb.sym;`sym];
+
 // json types of kdb datatypes
 .gkdb.types:"*bgXxhijefcspmdznuvt"!`array`boolean,#[3;`null],#[5;`number],#[10;`string];
 // milliseconds between 1970 and 2000
 .gkdb.epoch:946684800000;
-// user defined column name of sym column
-.gkdb.sym:`sym
 
 /////////////////////////////// HTTP MESSAGE HANDLING ///////////////////////////////
 
