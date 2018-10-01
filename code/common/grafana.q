@@ -1,10 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// GRAFANA-KDB CONNECTER ////////////////////////////////
-///////////////////////////////    AQUAQ ANALYTICS    ////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////// USER DEFINED VARIABLES ///////////////////////////////
-
 // user defined column name of time column
 .gkdb.timeCol:@[value;.gdkb.timeCol;`time];
 // user defined column name of sym column
@@ -15,15 +8,11 @@
 // milliseconds between 1970 and 2000
 .gkdb.epoch:946684800000;
 
-/////////////////////////////// HTTP MESSAGE HANDLING ///////////////////////////////
-
 // wrapper if user has custom .z.pp
-.old.zpp:@[{.z.pp};" ";{".z.pp not defined"}];
-.z.pp:{$[(`$"X-Grafana-Org-Id")in key last x;zpp;.old.zpp]x};
+.z.ph:{[f;x]zpp; f x}[@[value;`.z.pp;{{[x]}}]];
 
 // return alive response for GET requests
-.old.zph:.z.ph;
-.z.ph:{$[(`$"X-Grafana-Org-Id")in key last x;"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";.old.zph x]};
+.z.ph:{[f;x]"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n"; f x}[@[value;`.z.ph;{{[x]}}]];
 
 // retrieve Grafana HTTP POST request,store in table and process as either timeseries or table
 zpp:{
@@ -33,8 +22,6 @@ zpp:{
   rqt:.j.k r 1;
   $["query"~r 0;query[rqt];"search"~r 0;search rqt;`$"Annotation url nyi"]
  };
-
-/////////////////////////////// URL HANDLING (query,search) ///////////////////////////////
 
 query:{[rqt]
   // retrieve final query and append to table to log
@@ -60,8 +47,6 @@ search:{[rqt]
    ];
   :.h.hy[`json].j.j rsp;
  };
-
-/////////////////////////////// REQUEST HANDLING ///////////////////////////////
 
 // process a table request and return in Json format
 tbfunc:{[rqt]
@@ -98,8 +83,6 @@ tsfunc:{[x]
     (3=numArgs)and`o~tyArgs;othernosym[first args 2;rqt]; 
     `$"Wrong input"]
  };
-
-/////////////////////////////// CASES FOR TSFUNC ///////////////////////////////
 
 // timeserie request on non-specific panel w/ no preference on sym seperation
 othernosym:{[colN;rqt]
