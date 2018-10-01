@@ -198,9 +198,9 @@ replaylog:{[logfile]
 	@[`.;`upd;:;.replay.realupd]];
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
  .replay.replaydate:"D"$-10#string logfile;
- if[ .replay.clean and (`$(string .replay.replaydate)) in key hdbdir;
-    .lg.o[`replay;"HDB directory already contains ",(string .replay.replaydate)," partition. Deleting from the HDB directory"];
-    .os.deldir .os.pth[string .Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
+ if[ .replay.clean and (`$st:string .replay.replaydate) in key hdbdir;
+    .lg.o[`replay;"HDB directory already contains ",st," partition. Deleting from the HDB directory"];
+    .os.deldir .os.pth[.Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
   ];
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
