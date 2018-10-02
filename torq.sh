@@ -10,6 +10,7 @@ if [ -z $SETENV ]; then
   SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
 fi
 
+
 if [ -f $SETENV ]; then                                                                             # check script exists
   . $SETENV                                                                                         # load the environment
 else
@@ -266,9 +267,18 @@ showprocs() {
  }
 
 runqcon() {
-  checkextrascsv "$*";
-  if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
+  CSVPATH=${TORQPROCESSES}
+  PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")
+  if [[ $(echo "$PROCS" | grep -w "$2") ]]; then
+    PROCS=$2
+  else
+    PROCS=()
+  fi
+  
+  if [[ $# -gt 3 ]]; then
     echo "ERROR: Cannot qcon more than one process at a time"
+  elif [[ $# -lt 3 ]]||[[ $(echo $PROCS | wc -w) -ne 1 ]]; then
+    echo "Requires arguments qcon <processname> <username>:<password>"
   else
     for p in $PROCS; do
       startqcon "$p";
@@ -282,7 +292,7 @@ usage() {
   printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
   printf -- "  print all|<processname(s)>               to view default startup lines\n"
   printf -- "  debug <processname(s)>                   to debug a single process\n"
-  printf -- "  qcon <processname>                       to qcon process\n"
+  printf -- "  qcon <processname> <username>:<password> to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
   printf -- "Optional flags:\n"
