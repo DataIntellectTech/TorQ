@@ -220,15 +220,60 @@ allcsv() {
  }
 
 startprocs() {
+  checkextrascsv "$*";
   for p in $PROCS; do
     start "$p";                                                                                     # start each process in variable
   done
  }
 
 stopprocs() {
+  checkextrascsv $@;
   for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
   done
+ }
+
+runprint() {
+  checkextrascsv "$*";
+  for p in $PROCS; do
+    print "$p";
+  done
+ }
+
+rundebug() {
+  checkextrascsv "$*";
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
+    echo "ERROR: Cannot debug more than one process at a time"
+  else
+    for p in $PROCS; do
+      debug "$p";
+    done
+  fi
+ }
+
+runsummary() {
+  allcsv "$*";
+  PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
+  printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
+  for p in $PROCS; do
+    summary "$p";
+  done
+ }
+
+showprocs() {
+  allcsv "$*";
+  awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+ }
+
+runqcon() {
+  checkextrascsv "$*";
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
+    echo "ERROR: Cannot qcon more than one process at a time"
+  else
+    for p in $PROCS; do
+      startqcon "$p";
+    done
+  fi
  }
 
 usage() {
@@ -249,50 +294,25 @@ usage() {
 
 case $1 in
   start)
-    checkextrascsv "$*";
-    startprocs "$PROCS";
+    startprocs "$*";
     ;;
   print)
-    checkextrascsv "$*";
-    for p in $PROCS; do
-      print "$p";
-    done
+    runprint "$*";  
     ;;
   stop)
-    checkextrascsv $@;
-    stopprocs "$PROCS";
+    stopprocs "$@";
     ;;
   debug)
-    checkextrascsv "$*";
-    if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
-      echo "ERROR: Cannot debug more than one process at a time"
-    else
-      for p in $PROCS; do
-        debug "$p";
-      done
-    fi
+    rundebug "$@";
     ;;
   summary)
-    allcsv "$*";
-    PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
-    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
-    for p in $PROCS; do
-      summary "$p";
-    done
+    runsummary "$*";
     ;;
   procs)
-    allcsv "$*";
-    awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+    showprocs "$*";
     ;;
   qcon)
-    checkextrascsv "$*";
-    if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
-      echo "ERROR: Cannot qcon more than one process at a time"
-    else
-      for p in $PROCS; do
-        debug "$p";
-      done
-    fi
+    runqcon "$@";
     ;;
   "")
     usage
