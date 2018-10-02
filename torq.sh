@@ -17,7 +17,6 @@ else
   exit 1
 fi
 
-
 getfield() {
   fieldno=$(awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' "$CSVPATH")            # get number for field based on headers
   fieldval=$(awk -F, '{if(NR == '$1') print $'$fieldno'}' "$CSVPATH")                               # pull one field from one line of file
@@ -223,6 +222,7 @@ usage() {
   printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
   printf -- "  print all|<processname(s)>               to view default startup lines\n"
   printf -- "  debug <processname(s)>                   to debug a single process\n"
+  printf -- "  qcon <processname>                       to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
   printf -- "Optional flags:\n"
@@ -232,6 +232,19 @@ usage() {
   exit 1
  }
 
+findcsvcol() {
+  head -1 $CSVPATH | tr ',' '\012' | grep -wn $1 | cut -f 1 -d ':'                                  # find column number of inputted header name
+ }
+
+startqcon() {
+  portcol=$(findcsvcol "port");                                                                     # get port column number
+  proctypecol=$(findcsvcol "proctype");                                                             # get proctype column number
+  proctype=$(grep -w $1 $CSVPATH | cut -f $proctypecol -d ',');                                     # proctype needed for auth details
+  port=$(($(grep -w $1 $CSVPATH | cut -f $portcol -d ','|sed 's/[{}]//g')));                        # port in format for evaluation
+  credentials=$(grep -w $proctype "$KDBAPPCONFIG/passwords/accesslist.txt");                        # obtain auth details for proctype
+  accesscmd="/usr/bin/rlwrap /opt/kdb/qcon :$port:$credentials";                                    # build command line equivalent of qcon
+  $accesscmd;                                                                                       # run command line
+ }
 
 case $1 in
   start)
@@ -269,6 +282,16 @@ case $1 in
   procs)
     allcsv "$*";
     awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+    ;;
+  qcon)
+    checkextrascsv "$*";
+    if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then
+      echo "ERROR: Cannot qcon more than one process at a time"
+    else
+      for p in $PROCS; do
+        startqcon "$p";
+      done
+    fi
     ;;
   "")
     usage
