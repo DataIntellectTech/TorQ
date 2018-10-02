@@ -145,8 +145,7 @@ canberun:{
 
 // Manage client queries
 addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync]
-  if[.gw.querykeeptime<>0D;
-    `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)]
+  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync);
  };
 
 removeclienthandle:{
@@ -179,8 +178,9 @@ getnextquery:{
 finishquery:{[qid;err;serverh] 
  deleteresult[qid];
  update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
+ if[.gw.querykeeptime=0D; .gw.removequeries[.gw.querykeeptime]];
  setserverstate[serverh;0b];
- }  
+ } 
 
 // Get a list of pending and running queries
 getqueue:{select queryid,time,clienth,query,servertype,status:?[null submittime;`pending;`running],submittime from .gw.queryqueue where null returntime}
