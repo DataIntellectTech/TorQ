@@ -264,10 +264,12 @@ case $1 in
     ;;
   debug)
     checkextrascsv "$*";
-    if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then
+    if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
       echo "ERROR: Cannot debug more than one process at a time"
     else
-      debug "$p";
+      for p in $PROCS; do
+        debug "$p";
+      done
     fi
     ;;
   summary)
@@ -284,10 +286,12 @@ case $1 in
     ;;
   qcon)
     checkextrascsv "$*";
-    if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then
+    if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
       echo "ERROR: Cannot qcon more than one process at a time"
     else
-      startqcon "$PROCS";
+      for p in $PROCS; do
+        debug "$p";
+      done
     fi
     ;;
   "")
