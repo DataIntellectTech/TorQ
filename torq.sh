@@ -72,6 +72,7 @@ startqcon() {
   port=$(($(grep -w $1 $CSVPATH | cut -f $portcol -d ','|sed 's/[{}]//g')));                        # port in format for evaluation
   credentials=$(grep -w $proctype "$KDBAPPCONFIG/passwords/accesslist.txt");                        # obtain auth details for proctype
   accesscmd="/usr/bin/rlwrap /opt/kdb/qcon :$port:$credentials";                                    # build command line equivalent of qcon
+  echo "Attempting to connect to $1...";                                                            # user connection message
   $accesscmd;                                                                                       # run command line
  }
 
