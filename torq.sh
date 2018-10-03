@@ -209,7 +209,7 @@ getextrascsv() {
 
 checkextrascsv() {
   if [[ $(echo ${BASH_ARGV[*]} | grep -e extras) ]] && [[ $(echo ${BASH_ARGV[*]} | grep -e csv) ]]; then
-    getextrascsv $@;
+    getextrascsv $@;                                                                                # gets extras and csv arguments
   else
     getextras $@;                                                                                   # checks if extras flag present
     getcsv $@;                                                                                      # sets process csv file
@@ -225,29 +225,29 @@ allcsv() {
  }
 
 startprocs() {
-  checkextrascsv "$*";
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
   for p in $PROCS; do
     start "$p";                                                                                     # start each process in variable
   done
  }
 
 stopprocs() {
-  checkextrascsv $@;
+  checkextrascsv $@;                                                                                # checks if extra flags/csv included
   for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
   done
  }
 
 runprint() {
-  checkextrascsv "$*";
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
   for p in $PROCS; do
     print "$p";
   done
  }
 
 rundebug() {
-  checkextrascsv "$*";
-  if [[ $(echo $PROCS | wc -w) -gt 1 ]]||[[ $# -ne 2 ]]; then
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $# -ne 2 ]]; then
     echo "ERROR: Cannot debug more than one process at a time"
   else
     for p in $PROCS; do
@@ -281,7 +281,7 @@ runqcon() {
   
   if [[ $# -gt 3 ]]; then
     echo "ERROR: Cannot qcon more than one process at a time"
-  elif [[ $# -lt 3 ]]||[[ $(echo $PROCS | wc -w) -ne 1 ]]; then
+  elif [[ $# -lt 3 ]] || [[ $(echo $PROCS | wc -w) -ne 1 ]]; then
     echo "Requires arguments qcon <processname> <username>:<password>"
   else
     for p in $PROCS; do
