@@ -91,7 +91,7 @@ debug() {
   if [[ -z $(findproc "$1") ]]; then                             
     sline=$(startline "$1")                                                                         # get start line for process
     printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
-    eval "$sline -debug"                                                                            # append flag to start in debug mode
+    eval "$RLWRAP $sline -debug"                                                                    # append flag to start in debug mode
   else
     echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
   fi
