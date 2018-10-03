@@ -27,3 +27,6 @@ export TORQPROCESSES=${KDBAPPCONFIG}/process.csv                                
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l32
 
 export TORQMONIT=${TORQHOME}/logs/monit                                                             # set the folder for monit outputs
+
+export RLWRAP="rlwrap"                                                                              # set rlwrap path
+export QCON="qcon"                                                                                  # set qcon path
