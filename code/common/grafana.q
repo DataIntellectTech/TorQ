@@ -1,5 +1,5 @@
 // user defined column name of time column
-.gikdb.timeCol:@[value;`.gdkb.timeCol;`time];
+.gkdb.timeCol:@[value;`.gdkb.timeCol;`time];
 // user defined column name of sym column
 .gkdb.sym:@[value;`.gkdb.sym;`sym];
 // user defined date range to find syms from
