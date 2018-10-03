@@ -10,6 +10,13 @@ if [ -z $SETENV ]; then
   SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
 fi
 
+if [ -z $RLWRAP ]; then
+  RLWRAP="rlwrap"                                                                                   # set environment if not predefined
+fi
+
+if [ -z $QCON ]; then
+  QCON="qcon"                                                                                       # set environment if not predefined
+fi
 
 if [ -f $SETENV ]; then                                                                             # check script exists
   . $SETENV                                                                                         # load the environment
@@ -69,7 +76,7 @@ start() {
 startqcon() {
   portcol=$(findcsvcol "port");                                                                     # get port column number
   port=$(($(grep -w $1 $CSVPATH | cut -f $portcol -d ','|sed 's/[{}]//g')));                        # port in format for evaluation
-  accesscmd="/usr/bin/rlwrap /opt/kdb/qcon :$port:$2";                                              # build command line equivalent of qcon
+  accesscmd="$RLWRAP $QCON :$port:$2";                                                              # build command line equivalent of qcon
   echo "Attempting to connect to $1...";                                                            # user connection message
   $accesscmd;                                                                                       # run command line
  }
