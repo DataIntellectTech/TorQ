@@ -68,11 +68,8 @@ start() {
 
 startqcon() {
   portcol=$(findcsvcol "port");                                                                     # get port column number
-  proctypecol=$(findcsvcol "proctype");                                                             # get proctype column number
-  proctype=$(grep -w $1 $CSVPATH | cut -f $proctypecol -d ',');                                     # proctype needed for auth details
   port=$(($(grep -w $1 $CSVPATH | cut -f $portcol -d ','|sed 's/[{}]//g')));                        # port in format for evaluation
-  credentials=$(grep -w $proctype "$KDBAPPCONFIG/passwords/accesslist.txt");                        # obtain auth details for proctype
-  accesscmd="/usr/bin/rlwrap /opt/kdb/qcon :$port:$credentials";                                    # build command line equivalent of qcon
+  accesscmd="/usr/bin/rlwrap /opt/kdb/qcon :$port:$2";                                              # build command line equivalent of qcon
   echo "Attempting to connect to $1...";                                                            # user connection message
   $accesscmd;                                                                                       # run command line
  }
@@ -281,7 +278,7 @@ runqcon() {
     echo "Requires arguments qcon <processname> <username>:<password>"
   else
     for p in $PROCS; do
-      startqcon "$p";
+      startqcon $p $3;
     done
   fi
  }
