@@ -1232,19 +1232,20 @@ The best explanation of the inputs allowed in the query section can be seen pict
 Upon opening the query box, in the metrics tab, the user will be provided with a populated drop down of all possible options. Due to the limitations of the JSON messages, it is not possible for our adaptor to distinguish between panels. Consequently, every possible option is returned for each panel, the user can reduce these choices by simply entering the first letter of their panel type, g for graph, t for table and o for other (heatmap or single stat). From here, you can follow the above diagram to specify your type of query.
 
 ### Limitations & Assumptions
-This adaptor has been built to allow visualisation of real-time non-partitioned data. It is capable of handling static and timeseries data. However, due to the nature of HDB data on disk, it cannot present such partioned data. A solution for this is currently being worked on. In addition, the drop-down options have been formed such that only one query is necessary. If more than one query on a specfic panel is made it will throw an error.
+This adaptor has been built to allow visualisation of real-time and historical data. It is capable of handling static and timeseries data.  In addition, the drop-down options have been formed such that only one query is possible per panel. If more than one query on a specfic panel is made it will throw an error. To get around this, we added the options of including all "syms" in queries so the options can be filtered out in the legend. 
 
-Table queries should work for any table format supplied to the adaptor. However, time series data is limited by the requriment of a time column, in our adaptor we assume this column to be called time. This assumption can be modified to fit your data in the opening lines of our script:
-```// user defined column name of time column
-.gkdb.timeCol:`time;
-// json types of kdb datatypes
-.gkdb.types:(`short$til[20])!`array`boolean,#[3;`null],#[5;`number],#[10;`string];
-// milliseconds between 1970 and 2000
-.gkdb.epoch:946684800000;
+Table queries should work for any table format supplied to the adaptor. However, time series data is limited by the requriment of a time column, in our adaptor we assume this column to be called time. This assumption can be modified to fit your data in the settings file which dictates the following lines at the start of the script:
+```
+// user defined column name of time column
+.gkdb.timeCol:@[value;`.gdkb.timeCol;`time];
 // user defined column name of sym column
-.gkdb.sym:`sym
+.gkdb.sym:@[value;`.gkdb.sym;`sym];
+// user defined date range to find syms from
+.gkdb.timeBackdate:@[value;`.gkdb.timeBackdate;2D];
+// user defined number of ticks to return
+.gkdb.ticks:@[value;`.gkdb.ticks;10];
 ```
 
-
-```.gkdb.timeCol``` represents the name of the time column and thus can be reassigned if your time column has a different name, eg. date. One more common modification could be changing the variable ```.gkdb.sym ``` which defines the name of the the sym column, which is normally referenced in financial data. However if the data is non-financial this could be tailored to represent another identifier such as name or postcode. This column is used to populate the drop down options in the query selector. Two more variables are included in this section, the epoch and a dictionary of kdb types. These were included here as they are susceptible for change in future updates of either Grafana or kdb+ respectively. 
+```.gkdb.timeCol``` represents the name of the time column and thus can be reassigned if your time column has a different name, eg. date. One more common modification could be changing the variable ```.gkdb.sym ``` which defines the name of the the sym column, which is normally referenced in financial data. However if the data is non-financial this could be tailored to represent another identifier such as name or postcode. This column is used to populate the drop down options in the query selector. 
+.gkdb.timeBack date is a user definable variable which dictates how far back into a hdb the adaptor will look to gather options for distinct syms to populate the dropdowns. .gkdb.ticks can be defined so that only n rows from the end of the table will be queried. This can be left as large as the user likes, but is included for managing large partitioned tables. 
 
