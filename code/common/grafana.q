@@ -56,7 +56,7 @@ search:{[rqt]
 
 diskvals:{c:count[x]- .gkdb.ticks+til .gkdb.ticks;get'[.Q.ind[x;c]]};
 memvals:{get'[?[x;enlist(within;`i;count[x]-(.gkdb.ticks),0);0b;()]]};
-catchvals:{@[diskvals;x;memvals x]};
+catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
 // process a table request and return in JSON format
 tbfunc:{[rqt]
