@@ -1197,9 +1197,7 @@ Grafana is an open source analytics platform, used to display time-series data f
 
 ### Requirments
 Grafana v5.2.2+
-
-Kdb v3.5+
-
+(Tested on Kdb v3.5+)
 ### Getting Started
 
 1. Download and set up Grafana. This is well explained on the [Grafana website](https://grafana.com/get), where you have the option to either download the software locally or let Grafana host it for you. For the purpose of this document, we host the software locally.
