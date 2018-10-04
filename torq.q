@@ -604,7 +604,7 @@ if[`load in key .proc.params; .proc.loadf each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
-	.z.pi:show@value@;]
+	.z.pi:{.Q.s value x};]
 
 // initialise pubsub
 if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
