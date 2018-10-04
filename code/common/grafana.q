@@ -1,4 +1,4 @@
-\d .gkdb
+\d .grafana
 
 // user defined column name of time column
 timeCol:@[value;`.gdkb.timeCol;`time];
