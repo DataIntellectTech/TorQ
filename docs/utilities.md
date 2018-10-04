@@ -1232,18 +1232,24 @@ Upon opening the query box, in the metrics tab, the user will be provided with a
 ### Limitations & Assumptions
 This adaptor has been built to allow visualisation of real-time and historical data. It is capable of handling static and timeseries data.  In addition, the drop-down options have been formed such that only one query is possible per panel. If more than one query on a specfic panel is made it will throw an error. To get around this, we added the options of including all "syms" in queries so the options can be filtered out in the legend. 
 
-Table queries should work for any table format supplied to the adaptor. However, time series data is limited by the requriment of a time column, in our adaptor we assume this column to be called time. This assumption can be modified to fit your data in the settings file which dictates the following lines at the start of the script:
+Table queries should work for any table format supplied to the adaptor. However, time series data is limited by the requriment of a time column, in our adaptor we assume this column to be called time. This assumption can be modified to fit your data in the settings (config/settings/defualt.q) file which dictates the following lines at the start of the script:
 ```
 // user defined column name of time column
-.gkdb.timeCol:@[value;`.gdkb.timeCol;`time];
+timeCol:@[value;`.grafana.timeCol;`time];
 // user defined column name of sym column
-.gkdb.sym:@[value;`.gkdb.sym;`sym];
+sym:@[value;`.grafana.sym;`sym];
 // user defined date range to find syms from
-.gkdb.timeBackdate:@[value;`.gkdb.timeBackdate;2D];
+timeBackdate:@[value;`.grafana.timeBackdate;2D];
 // user defined number of ticks to return
-.gkdb.ticks:@[value;`.gkdb.ticks;10];
+ticks:@[value;`.grafana.ticks;1000];
+// user defined query argument deliminator
+del:@[value;`.grafana.del;"."];
+
 ```
 
-```.gkdb.timeCol``` represents the name of the time column and thus can be reassigned if your time column has a different name, eg. date. One more common modification could be changing the variable ```.gkdb.sym ``` which defines the name of the the sym column, which is normally referenced in financial data. However if the data is non-financial this could be tailored to represent another identifier such as name or postcode. This column is used to populate the drop down options in the query selector. 
-.gkdb.timeBack date is a user definable variable which dictates how far back into a hdb the adaptor will look to gather options for distinct syms to populate the dropdowns. .gkdb.ticks can be defined so that only n rows from the end of the table will be queried. This can be left as large as the user likes, but is included for managing large partitioned tables. 
+```.grafana.timeCol``` represents the name of the time column and thus can be reassigned if your time column has a different name, eg. date. One more common modification could be changing the variable ```.grafana.sym ``` which defines the name of the the sym column, which is normally referenced in financial data. However if the data is non-financial this could be tailored to represent another identifier such as name or postcode. This column is used to populate the drop down options in the query selector. 
+
+```.grafana.timeBack``` date is a user definable variable which dictates how far back into a hdb the adaptor will look to gather options for distinct syms to populate the dropdowns.It is important to note that this should be increased if all your required syms are not in the last 2 days. ```.grafana.ticks``` can be defined so that only n rows from the end of the table will be queried. This can be left as large as the user likes, but is included for managing large partitioned tables. 
+
+One final important variable is ```.grafana.del```, this dictates the delimeter between options in the drop down menus. This has significant repercussions if one of your columns includes full stops, eg. email adresses. As a result we have left this as definable so that the user can alter this to a non-disruptive value for their data eg./.
 
