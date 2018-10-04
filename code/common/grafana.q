@@ -5,10 +5,10 @@
 // user defined date range to find syms from
 .gkdb.timeBackdate:@[value;`.gkdb.timeBackdate;2D];
 // user defined number of ticks to return
-.gkdb.ticks:@[value;`.gkdb.ticks;10];
+.gkdb.ticks:@[value;`.gkdb.ticks;1000];
 
 // json types of kdb datatypes
-.gkdb.types:"*bgXxhijefcspmdznuvt"!`array`boolean,#[3;`null],#[5;`number],#[10;`string];
+.gkdb.types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
 // milliseconds between 1970 and 2000
 .gkdb.epoch:946684800000;
 
@@ -46,7 +46,7 @@ search:{[rqt]
     rsp,:s2:string` sv/:`g,/:timetabs; 
     rsp,:raze(s2,'"."),/:'c1:string {(cols x) where`number=.gkdb.types (0!meta x)`t}each timetabs;
     rsp,:raze((string` sv/:`o,/:timetabs),'"."),/:'c1;
-    if[count symtabs;
+    if[count symtabs;show finddistinctsyms'[timetabs];
       rsp,:raze(s1,'"."),/:'c2:string each finddistinctsyms'[timetabs];
       rsp,:raze((string` sv/:`o,/:timetabs),'"."),/:'{x[0] cross ".",'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
      ];
@@ -55,10 +55,10 @@ search:{[rqt]
  };
 
 diskvals:{c:count[x]- .gkdb.ticks+til .gkdb.ticks;get'[.Q.ind[x;c]]};
-memvals:{get'[?[x;enlist(within;`i;(enlist;(-;(#:;x);(+;.gkdb.ticks;1));(#:;x)));0b;()]]};
-catchvals:{@[{diskvals x};x;memvals x]};
+memvals:{get'[?[x;enlist(within;`i;count[x]-(.gkdb.ticks),0);0b;()]]};
+catchvals:{@[diskvals;x;memvals x]};
 
-// process a table request and return in Json format
+// process a table request and return in JSON format
 tbfunc:{[rqt]
   rqt:value raze rqt[`targets]`target;
   // get column names and associated types to fit format
@@ -71,10 +71,10 @@ tbfunc:{[rqt]
 // process a timeseries request and return in Json format, takes in query and information dictionary
 tsfunc:{[x]
   / split arguments
-  numArgs:count args:`$"."vs raze x[`targets]`target;tyArgs:args 0;
+  numArgs:count args:`$"."vs raze x[`targets]`target;
+  tyArgs:args 0;
   // manipulate queried table
-  rqt:value args 1;
-  colN:cols rqt;
+  colN:cols rqt:value args 1;
   // function to convert time to milliseconds, takes timestamp
   mil:{floor .gkdb.epoch+(`long$x)%1000000};
   // ensure time column is a timestamp
@@ -82,17 +82,17 @@ tsfunc:{[x]
   // get time range from grafana
   range:"P"$-1_'x[`range]`from`to;
   // select desired time period only
-  rqt:?[rqt;enlist(within;.gkdb.timeCol;(enlist;range 0;range 1));0b;()];
+  rqt:?[rqt;enlist(within;.gkdb.timeCol;range);0b;()];
   // form milliseconds since epoch column
   rqt:@[rqt;`msec;:;mil rqt .gkdb.timeCol];
 
   // cases for graph/table and sym arguments
-  $[(2<numArgs)and`g~tyArgs;graphsym[first args 2;rqt];
-    (2<numArgs)and`t~tyArgs;tablesym[colN;rqt;first args 2];
+  $[(2<numArgs)and`g~tyArgs;graphsym[args 2;rqt];
+    (2<numArgs)and`t~tyArgs;tablesym[colN;rqt;args 2];
     (2=numArgs)and`g~tyArgs;graphnosym[colN;rqt];
     (2=numArgs)and`t~tyArgs;tablenosym[colN;rqt];
     (4=numArgs)and`o~tyArgs;othersym[args;rqt];
-    (3=numArgs)and`o~tyArgs;othernosym[first args 2;rqt]; 
+    (3=numArgs)and`o~tyArgs;othernosym[args 2;rqt]; 
     `$"Wrong input"]
  };
 
@@ -122,17 +122,17 @@ tablenosym:{[colN;rqt]
 // timeserie request on non-specific panel w/ data for one sym returned
 othersym:{[args;rqt]
   // specify what columns data to return, taken from drop down input
-  outCol:(first[args 2],`msec);
-  data:flip value flip?[rqt;enlist(=;.gkdb.sym;enlist first args 3);0b;outCol!outCol];
-  :.j.j enlist `target`datapoints!(first args 3;data);
+  outCol:args[2],`msec;
+  data:flip value flip?[rqt;enlist(=;.gkdb.sym;enlist args 3);0b;outCol!outCol];
+  :.j.j enlist `target`datapoints!(args 3;data);
  };
 
 // timeserie request on graph panel w/ data for each sym returned
 graphsym:{[colname;rqt]
   // return columns with json number type only
-  syms:`$string ?[rqt;();1b;enlist[.gkdb.sym]!enlist .gkdb.sym].gkdb.sym;
+  syms:`$string ?[rqt;();1b;{x!x}enlist .gkdb.sym].gkdb.sym;
   // specify what columns data to return, taken from drop down input
-  outCol:(colname,`msec);
+  outCol:colname,`msec;
   build:{[outCol;rqt;x;y]data:flip value flip?[rqt;enlist(=;.gkdb.sym;enlist y);0b;outCol!outCol];x,`target`datapoints!(y;data)};
   :.j.j build[outCol;rqt]\[();syms];
  };
