@@ -8,6 +8,8 @@ sym:@[value;`.grafana.sym;`sym];
 timeBackdate:@[value;`.grafana.timeBackdate;2D];
 // user defined number of ticks to return
 ticks:@[value;`.grafana.ticks;1000];
+// user defined query argument deliminator
+del:@[value;`.grafana.del;"."];
 
 // json types of kdb datatypes
 types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
@@ -44,13 +46,13 @@ search:{[rqt]
   timetabs:?[timeCol in'cols each tabs;tabs;count[tabs]#`] except `;
   rsp:string tabs;
   if[count timetabs;
-    rsp,:s1:string` sv/:`t,/:timetabs;
-    rsp,:s2:string` sv/:`g,/:timetabs; 
-    rsp,:raze(s2,'"."),/:'c1:string {(cols x) where`number=types (0!meta x)`t}each timetabs;
-    rsp,:raze((string` sv/:`o,/:timetabs),'"."),/:'c1;
+    rsp,:s1:("t",del),/:string timetabs;
+    rsp,:s2:("g",del),/:string timetabs; 
+    rsp,:raze(s2,'del),/:'c1:string {(cols x) where`number=types (0!meta x)`t}each timetabs;
+    rsp,:raze((("o",del),/:string timetabs),'del),/:'c1;
     if[count symtabs;
-      rsp,:raze(s1,'"."),/:'c2:string each finddistinctsyms'[timetabs];
-      rsp,:raze((string` sv/:`o,/:timetabs),'"."),/:'{x[0] cross ".",'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
+      rsp,:raze(s1,'del),/:'c2:string each finddistinctsyms'[timetabs];
+      rsp,:raze((("o",del),/:string timetabs),'del),/:'{x[0] cross del,'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
      ];
    ];
   :.h.hy[`json].j.j rsp;
@@ -73,7 +75,7 @@ tbfunc:{[rqt]
 // process a timeseries request and return in Json format, takes in query and information dictionary
 tsfunc:{[x]
   / split arguments
-  numArgs:count args:`$"."vs raze x[`targets]`target;
+  numArgs:count args:`$del vs raze x[`targets]`target;
   tyArgs:args 0;
   // manipulate queried table
   colN:cols rqt:value args 1;
