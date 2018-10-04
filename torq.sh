@@ -82,7 +82,7 @@ summary() {
   if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
     printf "%-8s | %-14s | %-6s |\n" "$(date '+%H:%M:%S')" "$1" "down"                              # summary table row for down process
   else
-    pid=$(findproc "$1")
+    pid=$((findproc "$1")|awk 'END{print}')
     port=$(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | head -1 | awk -F: '{ print $2 }')  # get port process is running on
     printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "$(date '+%H:%M:%S')" "$1" "up" "$port" "$pid"     # summary table row for running process    
   fi
