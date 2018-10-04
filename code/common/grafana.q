@@ -1,13 +1,13 @@
 \d .grafana
 
 // user defined column name of time column
-timeCol:@[value;`.gdkb.timeCol;`time];
+timeCol:@[value;`.grafana.timeCol;`time];
 // user defined column name of sym column
-sym:@[value;`.gkdb.sym;`sym];
+sym:@[value;`.grafana.sym;`sym];
 // user defined date range to find syms from
-timeBackdate:@[value;`.gkdb.timeBackdate;2D];
+timeBackdate:@[value;`.grafana.timeBackdate;2D];
 // user defined number of ticks to return
-ticks:@[value;`.gkdb.ticks;1000];
+ticks:@[value;`.grafana.ticks;1000];
 
 // json types of kdb datatypes
 types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
