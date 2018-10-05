@@ -100,10 +100,16 @@ queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
 
+//Function to generate random placeholder for query comparisons
+genrand:{system "S";-1?0Ng}
+
+//Generate Random placeholder GUID
+placehold:.gw.genrand[]
+
 // structure to store query results from back end servers
 // structure is queryid!(clienthandle;servertype!(handle;results))
 // structure is queryid!(clienthandle;(servertype or serverIDs)!(serverID;results))
-results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;::))  
+results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;.gw.placehold))  
 
 // server handles - whether the server is currently running a query
 servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
