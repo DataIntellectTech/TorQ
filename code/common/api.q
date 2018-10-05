@@ -73,7 +73,7 @@ search:{[s;c]
 s:.api.search[;0b]
 
 // input list of namespaces for exportconfig
-KEYS:` sv'`,'key[`]except`$'.Q.an;
+torqnamespaces:` sv'`,'key[`]except`$'.Q.an;
 
 // export the current state of config variables, takes in list of symbols of namespaces (e.g. `.usage`.procs)
 exportconfig:{
@@ -85,6 +85,9 @@ exportconfig:{
     `val`descrip!((value';`name);`descrip)
    ];
  }
+
+// export all config variables
+exportallconfig:{exportconfig torqnamespaces}
 
 
 // Approximate memory usage statistics
