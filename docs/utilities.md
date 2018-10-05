@@ -1190,3 +1190,4 @@ API Table
 |.gc.run|function|.gc|Run garbage collection, print debug info before and after|||
 |.mem.objsize|function|.mem|Returns the calculated memory size in bytes used by an object.  It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)|[q object]|size of the object in bytes|
 |.tplog.check|function|.tplog|Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle |[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]|handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt|
+
