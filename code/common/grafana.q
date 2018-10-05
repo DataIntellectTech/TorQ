@@ -58,7 +58,7 @@ search:{[rqt]
   :.h.hy[`json].j.j rsp;
  };
 
-diskvals:{c:count[x]-ticks+til ticks;get'[.Q.ind[x;c]]};
+diskvals:{c:(count[x]-ticks)+til ticks;get'[.Q.ind[x;c]]};
 memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,0);0b;()]]};
 catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
