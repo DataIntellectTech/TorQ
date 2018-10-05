@@ -42,8 +42,8 @@ finddistinctsyms:{?[x;enlist(>;timeCol;(-;.z.p;timeBackdate));1b;{x!x}enlist sym
 search:{[rqt]
   // build drop down case options from tables in port
   tabs:tables[];
-  symtabs:?[sym in'cols each tabs;tabs;count[tabs]#`] except `;
-  timetabs:?[timeCol in'cols each tabs;tabs;count[tabs]#`] except `;
+  symtabs:tabs where sym in'cols each tabs;
+  timetabs:tabs where timeCol in'cols each tabs;
   rsp:string tabs;
   if[count timetabs;
     rsp,:s1:("t",del),/:string timetabs;
