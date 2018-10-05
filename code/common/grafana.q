@@ -59,7 +59,7 @@ search:{[rqt]
  };
 
 diskvals:{c:count[x]-ticks+til ticks;get'[.Q.ind[x;c]]};
-memvals:{get'[?[x;enlist(within;`i;count[x]-(ticks),0);0b;()]]};
+memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,0);0b;()]]};
 catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
 // process a table request and return in JSON format
@@ -148,3 +148,4 @@ tablesym:{[colN;rqt;symname]
   rqt:?[rqt;enlist(=;sym;enlist symname);0b;()];
   :.j.j enlist`columns`rows`type!(flip`text`type!(colN;colType);catchvals rqt;`table);
  };
+
