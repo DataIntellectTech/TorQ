@@ -53,6 +53,17 @@ pattern matching can be done.
 
 ```
 
+.api.torqnamespaces is a variable which returns a symbol list of torq 
+namespaces.
+
+.api.exportconfig uses the table returned by .api.f` to give a table
+of the current values and descriptions of variables within the
+inputted namespace. This can be used to quickly see what configurable
+variables are currently set to.
+
+.api.exportallconfig is .api.exportconfig evaluated with all the
+available torqnamespaces and returns the same format as .api.exportconfig.
+
 .api.p is the same as .api.f, but only returns public functions. .api.u
 is as .api.p, but only includes user defined values i.e. it excludes q
 primitives and values found in the .q, .Q, .h and .o namespaces.
