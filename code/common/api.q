@@ -73,7 +73,7 @@ search:{[s;c]
 s:.api.search[;0b]
 
 // input list of namespaces for exportconfig
-KEYS:`$".",'string each key[`] except `$'.Q.an;
+KEYS:` sv'`,'key[`]except`$'.Q.an;
 
 // export the current state of config variables, takes in list of symbols of namespaces (e.g. `.usage`.procs)
 exportconfig:{
@@ -82,7 +82,7 @@ exportconfig:{
     ((=;`vartype;enlist`variable);(in;`namespace;enlist x));
     {x!x}enlist`name;
   // returns name, value and description
-    `val`descrip!(((';.:);`name);`descrip)
+    `val`descrip!((value';`name);`descrip)
    ];
  }
 
