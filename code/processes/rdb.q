@@ -9,7 +9,6 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
-requiredprocs:tickerplanttypes;                             //required processes 
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
@@ -187,7 +186,7 @@ reload:.rdb.reload
 .rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.rdb.requiredprocs;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
+.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
 .rdb.subscribe[]; 
 
 /-set the partition that is held in the rdb (for use by the gateway)

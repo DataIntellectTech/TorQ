@@ -35,8 +35,7 @@ rdbtypes:@[value;`rdbtypes;`rdb];                                          /-lis
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
-tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed
-requiredprocs:@[value;`requiredprocs;value'[`hdbtypes`tickerplanttypes]]; 
+tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed 
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
 sortslavetypes:@[value;`sortslavetypes;`sortslave];                        /-list of sort types to look for upon a sort being called with slave process
@@ -57,8 +56,7 @@ partitiontype:@[value;`partitiontype;`date];                               /-set
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
 getpartition:@[value;`getpartition;
 	{{@[value;`.wdb.currentpartition;
-		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];              /-function to determine the partition value
-
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                      /-function to determine the partition value
 reloadorder:@[value;`reloadorder;`hdb`rdb];                                /-order to reload hdbs and rdbs
 hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
 sortcsv:@[value;`sortcsv;`:config/sort.csv];                               /-location of csv file
@@ -455,7 +453,7 @@ startup:{[]
            subscribe[];
 
            //check if tickerplant is available and if not exit with error 
-           .servers.startupdepcycles[.wdb.requiredprocs;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
+           .servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
            subscribe[]; 
 	  ];		
 	}

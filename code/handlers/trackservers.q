@@ -333,12 +333,10 @@ reqprocsnotconn:{[requiredprocs]
     not all requiredprocs in exec proctype from .servers.SERVERS where .dotz.liveh[w]
   };
 
-startupdependent:{[requiredprocs;timeintv;cycles]
-  startupdepcycles[requiredprocs;timeintv;0W];   
- };
+startupdependent:startupdepcycles[;;0W];
 
 // Block process until all required processes are connected
-startupdepcycles:{[requiredprocs;timeintv;cycles]
+startupdepcycles:{[requiredprocs;timeintv;cycles] 
   n:0;                                                                                                                  //variable used to check how many cycles have passed
   while[.servers.reqprocsnotconn[requiredprocs];                                                                        //check if requiredprocs are running
     n+:1;                                                                                                               //cycle counter
