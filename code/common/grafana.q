@@ -20,7 +20,10 @@ epoch:946684800000;
 .z.pp:{[f;x]$[(`$"X-Grafana-Org-Id")in key last x;zpp;f]x}[@[value;`.z.pp;{{[x]}}]];
 
 // return alive response for GET requests
-.z.ph:{[f;x]"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";f x}[@[value;`.z.ph;{{[x]}}]];
+.z.ph:{[f;x]
+  $[(`$"X-Grafana-Org-Id")in key last x;"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";f x]
+ }[@[value;`.z.ph;{{[x]}}]];
+
 
 // retrieve and convert Grafana HTTP POST request then process as either timeseries or table
 zpp:{
@@ -59,7 +62,7 @@ search:{[rqt]
  };
 
 diskvals:{c:(count[x]-ticks)+til ticks;get'[.Q.ind[x;c]]};
-memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,0);0b;()]]};
+memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,count x);0b;()]]};
 catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
 // process a table request and return in JSON format
