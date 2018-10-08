@@ -17,7 +17,7 @@
 // When a client queries they can use a simple method or a more advanced method
 // .gw.asyncexec[query;servertypes(list of symbols)]
 // will execute the supplied query on each of the specified server types, and raze the results
-// .gw.asyncexecjpt[query;servertypes(lis t of symbols);joinfunction(lambda);postbackfunction(symbol);timeout(timespan)]
+// .gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(symbol);timeout(timespan)]
 // allows the client to specify how the results are joined, posted back and timed out.
 // The join function should be a monadic lambda - the parameter is the list of results
 // The postback function is the function which will be called back in the client.  It should be a diadic function as both 
