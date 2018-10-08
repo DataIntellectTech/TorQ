@@ -17,7 +17,7 @@
 // When a client queries they can use a simple method or a more advanced method
 // .gw.asyncexec[query;servertypes(list of symbols)]
 // will execute the supplied query on each of the specified server types, and raze the results
-// .gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(symbol);timeout(timespan)]
+// .gw.asyncexecjpt[query;servertypes(lis t of symbols);joinfunction(lambda);postbackfunction(symbol);timeout(timespan)]
 // allows the client to specify how the results are joined, posted back and timed out.
 // The join function should be a monadic lambda - the parameter is the list of results
 // The postback function is the function which will be called back in the client.  It should be a diadic function as both 
@@ -100,10 +100,10 @@ queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
 
-//Function to generate random placeholder for query comparisons
+//Function to generate random placeholder
 genrand:{system "S";-1?0Ng}
 
-//Generate Random placeholder GUID
+//Generate random placeholder
 placehold:.gw.genrand[]
 
 // structure to store query results from back end servers
@@ -151,9 +151,8 @@ canberun:{
 
 // Manage client queries
 addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync]
-  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync);
+  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)
  };
-
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue where clienth=x;}
@@ -184,15 +183,14 @@ getnextquery:{
 finishquery:{[qid;err;serverh] 
  deleteresult[qid];
  update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
- if[.gw.querykeeptime=0D; .gw.removequeries[.gw.querykeeptime]];
  setserverstate[serverh;0b];
- } 
+ }  
 
 // Get a list of pending and running queries
 getqueue:{select queryid,time,clienth,query,servertype,status:?[null submittime;`pending;`running],submittime from .gw.queryqueue where null returntime}
 
 // manage the result set dictionaries
-addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;::))}
+addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;.gw.placehold))}
 addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(y 0;0);:;y 1]};(servertype;serverh)]}
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
@@ -214,7 +212,7 @@ addservererror:{[queryid;error]
  }
 // check if all results are in.  If so, send the results to the client
 checkresults:{[queryid]
- if[not any (::)~/: value (r:.gw.results[queryid])[1;;1];
+ if[not any (.gw.placehold)~/: value (r:.gw.results[queryid])[1;;1];
   // get the rest of the detail from the query table
   querydetails:queryqueue[queryid];
   // apply the join function to the results
@@ -260,7 +258,7 @@ removeserverhandle:{[serverh]
  // get the list of effected query ids
 
  // 1) queries sent to this server but no reply back yet
- qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
+ qids:where {[res;id] any (.gw.placehold)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
@@ -270,7 +268,7 @@ removeserverhandle:{[serverh]
  activeServerTypes:distinct exec servertype from .gw.servers where active, handle<>serverh;
 
  qids2:where {[res;id;aIDs;aTypes] 
-  s:where (::)~/:res[1;;1]; 
+  s:where (.gw.placehold)~/:res[1;;1]; 
   $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
   }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for running query closed the connection";0b] each qids2;
@@ -509,9 +507,9 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
- (neg handles)@\:(::);
+ (neg handles)@\:(.gw.placehold);
  // block and wait for the results
- res:handles@\:(::);
+ res:handles@\:(.gw.placehold);
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
  // check if there are any errors in the returned results
