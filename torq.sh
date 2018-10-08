@@ -247,7 +247,7 @@ runprint() {
 
 rundebug() {
   checkextrascsv "$*";                                                                              # checks if extra flags/csv included
-  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $# -ne 2 ]]; then
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $(echo $input|wc -w) -ne 1 ]]; then
     echo "ERROR: Cannot debug more than one process at a time"
   else
     for p in $PROCS; do
