@@ -103,7 +103,6 @@ clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); 
 //Function to generate random placeholder
 genrand:{system ("S ",string `int$.z.T);-1?0Ng}
 
-
 //Generate random placeholder
 placehold:.gw.genrand[]
 
