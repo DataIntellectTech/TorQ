@@ -101,7 +101,7 @@ queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
 
 //Function to generate random placeholder
-genrand:{system "S ",string `int$.z.T;rand 0Ng}
+genrand:{system"S ",string `int$.z.T;rand 0Ng}
 
 //Generate random placeholder
 placehold:.gw.genrand[]
