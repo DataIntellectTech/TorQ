@@ -1,11 +1,11 @@
 \d .grafana
 
 // user defined column name of time column
-timeCol:@[value;`.grafana.timeCol;`time];
+timecol:@[value;`.grafana.timecol;`time];
 // user defined column name of sym column
 sym:@[value;`.grafana.sym;`sym];
 // user defined date range to find syms from
-timeBackdate:@[value;`.grafana.timeBackdate;2D];
+timebackdate:@[value;`.grafana.timebackdate;2D];
 // user defined number of ticks to return
 ticks:@[value;`.grafana.ticks;1000];
 // user defined query argument deliminator
@@ -40,13 +40,13 @@ query:{[rqt]
   :.h.hy[`json]$[rqtype~"timeserie";tsfunc rqt;tbfunc rqt];
  };
 
-finddistinctsyms:{?[x;enlist(>;timeCol;(-;.z.p;timeBackdate));1b;{x!x}enlist sym]sym};
+finddistinctsyms:{?[x;enlist(>;timecol;(-;.z.p;timebackdate));1b;{x!x}enlist sym]sym};
 
 search:{[rqt]
   // build drop down case options from tables in port
   tabs:tables[];
   symtabs:tabs where sym in'cols each tabs;
-  timetabs:tabs where timeCol in'cols each tabs;
+  timetabs:tabs where timecol in'cols each tabs;
   rsp:string tabs;
   if[count timetabs;
     rsp,:s1:("t",del),/:string timetabs;
@@ -69,68 +69,68 @@ catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 tbfunc:{[rqt]
   rqt:value raze rqt[`targets]`target;
   // get column names and associated types to fit format
-  colName:cols rqt;
-  colType:types (0!meta rqt)`t;
+  colname:cols rqt;
+  coltype:types (0!meta rqt)`t;
   // build body of response in Json adaptor schema
-  :.j.j enlist`columns`rows`type!(flip`text`type!(colName;colType);catchvals rqt;`table);
+  :.j.j enlist`columns`rows`type!(flip`text`type!(colname;coltype);catchvals rqt;`table);
  };
 
 // process a timeseries request and return in Json format, takes in query and information dictionary
 tsfunc:{[x]
   / split arguments
-  numArgs:count args:`$del vs raze x[`targets]`target;
-  tyArgs:args 0;
+  numargs:count args:`$del vs raze x[`targets]`target;
+  tyargs:args 0;
   // manipulate queried table
-  colN:cols rqt:value args 1;
+  coln:cols rqt:value args 1;
   // function to convert time to milliseconds, takes timestamp
   mil:{floor epoch+(`long$x)%1000000};
   // ensure time column is a timestamp
-  if["p"<>meta[rqt][timeCol;`t];rqt:@[rqt;timeCol;+;.z.D]];
+  if["p"<>meta[rqt][timecol;`t];rqt:@[rqt;timecol;+;.z.D]];
   // get time range from grafana
   range:"P"$-1_'x[`range]`from`to;
   // select desired time period only
-  rqt:?[rqt;enlist(within;timeCol;range);0b;()];
+  rqt:?[rqt;enlist(within;timecol;range);0b;()];
   // form milliseconds since epoch column
-  rqt:@[rqt;`msec;:;mil rqt timeCol];
+  rqt:@[rqt;`msec;:;mil rqt timecol];
 
   // cases for graph/table and sym arguments
-  $[(2<numArgs)and`g~tyArgs;graphsym[args 2;rqt];
-    (2<numArgs)and`t~tyArgs;tablesym[colN;rqt;args 2];
-    (2=numArgs)and`g~tyArgs;graphnosym[colN;rqt];
-    (2=numArgs)and`t~tyArgs;tablenosym[colN;rqt];
-    (4=numArgs)and`o~tyArgs;othersym[args;rqt];
-    (3=numArgs)and`o~tyArgs;othernosym[args 2;rqt]; 
+  $[(2<numargs)and`g~tyargs;graphsym[args 2;rqt];
+    (2<numargs)and`t~tyargs;tablesym[coln;rqt;args 2];
+    (2=numargs)and`g~tyargs;graphnosym[coln;rqt];
+    (2=numargs)and`t~tyargs;tablenosym[coln;rqt];
+    (4=numargs)and`o~tyargs;othersym[args;rqt];
+    (3=numargs)and`o~tyargs;othernosym[args 2;rqt]; 
     `$"Wrong input"]
  };
 
 // timeserie request on non-specific panel w/ no preference on sym seperation
-othernosym:{[colN;rqt]
+othernosym:{[coln;rqt]
   // return columns with json number type only
-  colName:colN cross`msec;
+  colname:coln cross`msec;
   build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colName];
+  :.j.j build[rqt]\[();colname];
  };
 
 // timeserie request on grqph panel w/ no preference on sym seperation
-graphnosym:{[colN;rqt]
+graphnosym:{[coln;rqt]
   // return columns with json number type only
-  colN:-1_colN where`number=types (0!meta rqt)`t;
-  colName:colN cross`msec;
+  coln:-1_coln where`number=types (0!meta rqt)`t;
+  colname:coln cross`msec;
   build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colName];
+  :.j.j build[rqt]\[();colname];
  };
 
 // timeserie request on table panel w/ no preference on sym seperation
-tablenosym:{[colN;rqt]
-  colType:types -1_(0!meta rqt)`t;
-  :.j.j enlist`columns`rows`type!(flip`text`type!(colN;colType);catchvals rqt;`table);
+tablenosym:{[coln;rqt]
+  coltype:types -1_(0!meta rqt)`t;
+  :.j.j enlist`columns`rows`type!(flip`text`type!(coln;coltype);catchvals rqt;`table);
  };
 
 // timeserie request on non-specific panel w/ data for one sym returned
 othersym:{[args;rqt]
   // specify what columns data to return, taken from drop down input
-  outCol:args[2],`msec;
-  data:flip value flip?[rqt;enlist(=;sym;enlist args 3);0b;outCol!outCol];
+  outcol:args[2],`msec;
+  data:flip value flip?[rqt;enlist(=;sym;enlist args 3);0b;outcol!outcol];
   :.j.j enlist `target`datapoints!(args 3;data);
  };
 
@@ -139,16 +139,16 @@ graphsym:{[colname;rqt]
   // return columns with json number type only
   syms:`$string ?[rqt;();1b;{x!x}enlist sym]sym;
   // specify what columns data to return, taken from drop down input
-  outCol:colname,`msec;
-  build:{[outCol;rqt;x;y]data:flip value flip?[rqt;enlist(=;sym;enlist y);0b;outCol!outCol];x,`target`datapoints!(y;data)};
-  :.j.j build[outCol;rqt]\[();syms];
+  outcol:colname,`msec;
+  build:{[outcol;rqt;x;y]data:flip value flip?[rqt;enlist(=;sym;enlist y);0b;outcol!outcol];x,`target`datapoints!(y;data)};
+  :.j.j build[outcol;rqt]\[();syms];
  };
 
 // timeserie request on table panel w/ single sym specified
-tablesym:{[colN;rqt;symname]
-  colType:types -1_(0!meta rqt)`t;
+tablesym:{[coln;rqt;symname]
+  coltype:types -1_(0!meta rqt)`t;
   // select data for requested sym only
   rqt:?[rqt;enlist(=;sym;enlist symname);0b;()];
-  :.j.j enlist`columns`rows`type!(flip`text`type!(colN;colType);catchvals rqt;`table);
+  :.j.j enlist`columns`rows`type!(flip`text`type!(coln;coltype);catchvals rqt;`table);
  };
 
