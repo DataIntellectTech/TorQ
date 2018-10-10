@@ -1244,7 +1244,7 @@ cases and further examples of the queries can be seen in our blogpost:
 Here you can see examples of graphs, tables, heatmaps and single statistics. 
 The best explanation of the inputs allowed in the query section can be seen pictorially here:
 
-![InputFormat](https://github.com/AquaQAnalytics/grafana-kdb/blob/master/DropDownOptions.png?raw=true)
+![InputFormat](https://github.com/AquaQAnalytics/TorQ/blob/GrafanaTorQ/docs/graphics/GrafanDropDown.png?raw=true)
 
 Upon opening the query box, in the metrics tab, the user will be provided with 
 a populated drop down of all possible options. Due to the limitations of the 
@@ -1292,9 +1292,11 @@ down options in the query selector.
 ```.grafana.timeBack``` date is a user definable variable which dictates how 
 far back into a hdb the adaptor will look to gather options for distinct syms to 
 populate the dropdowns. It is important to note that this should be increased if 
-all your required syms are not in the last 2 days. ```.grafana.ticks``` can be 
-defined so that only n rows from the end of the table will be queried. This can 
-be left as large as the user likes, but is included for managing large 
+all your required syms are not in the last 2 days. Optionally a user could hard
+code this list or implement their own search function to limit interrogation of 
+the database. ```.grafana.ticks``` can be defined so that only n rows from the
+end of the table will be queried. This can be left as large as the user likes,
+but is included for managing large 
 partitioned tables. 
 
 One final important variable is ```.grafana.del```, this dictates the delimeter 
