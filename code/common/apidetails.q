@@ -13,6 +13,8 @@ add[`.api.find;1b;"Generic method for finding functions/variables/tables/views. 
 add[`.api.search;1b;"Generic method for searching all function definitions for a specific string. s is based on this";"[string: search string; boolean: whether the search is context senstive";"table of matching functions and definitions"]
 add[`.api.add;1b;"Add a function to the api description table";"[symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]";"null"]
 add[`.api.fullapi;1b;"Return the full function api table";"[]";"api table"]
+add[`.api.exportconfig;1b;"Return value table of requested torq variables and descriptions";"[symbol:torq namespace(s) as in namespace column in .api.f table]";"keyed table of name, value, description"]
+add[`.api.exportallconfig;1b;"Return value table of all current torq variables and descriptions";"[]";"keyed table of name, value, description"]
 add[`.api.m;1b;"Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required";"[]";"memory usage table"]
 add[`.api.mem;1b;"Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required";"[boolean:return views]";"memory usage table"]
 add[`.api.whereami;1b;"Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]";"function definition";"symbol: the name of the current function"]
