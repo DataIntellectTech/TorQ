@@ -62,7 +62,7 @@ search:{[rqt]
  };
 
 diskvals:{c:(count[x]-ticks)+til ticks;get'[.Q.ind[x;c]]};
-memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,count x);0b;()]]};
+memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,0);0b;()]]};
 catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
 // process a table request and return in JSON format
