@@ -1269,11 +1269,11 @@ your data in the settings (config/settings/defualt.q) file which dictates the
 following lines at the start of the script:
 ```
 // user defined column name of time column
-timeCol:@[value;`.grafana.timeCol;`time];
+timecol:@[value;`.grafana.timecol;`time];
 // user defined column name of sym column
 sym:@[value;`.grafana.sym;`sym];
 // user defined date range to find syms from
-timeBackdate:@[value;`.grafana.timeBackdate;2D];
+timebackdate:@[value;`.grafana.timebackdate;2D];
 // user defined number of ticks to return
 ticks:@[value;`.grafana.ticks;1000];
 // user defined query argument deliminator
@@ -1281,7 +1281,7 @@ del:@[value;`.grafana.del;"."];
 
 ```
 
-```.grafana.timeCol``` represents the name of the time column and thus can be 
+```.grafana.timecol``` represents the name of the time column and thus can be 
 reassigned if your time column has a different name, eg. date. One more common 
 modification could be changing the variable ```.grafana.sym ``` which defines 
 the name of the the sym column, which is normally referenced in financial data. 
@@ -1289,7 +1289,7 @@ However if the data is non-financial this could be tailored to represent another
 identifier such as name or postcode. This column is used to populate the drop 
 down options in the query selector. 
 
-```.grafana.timeBack``` date is a user definable variable which dictates how 
+```.grafana.timebackdate``` is a user definable variable which dictates how 
 far back into a hdb the adaptor will look to gather options for distinct syms to 
 populate the dropdowns. It is important to note that this should be increased if 
 all your required syms are not in the last 2 days. Optionally a user could hard
