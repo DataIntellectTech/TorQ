@@ -162,8 +162,8 @@ checkfreq:0D00:01;		//the frequency for running the queue size check on subscrib
 
 // Grafana Adaptor
 \d .grafana
-timeCol:`time;
+timecol:`time;
 sym:`sym;
-timeBackdate:2D;
+timebackdate:2D;
 ticks:1000;
 del:".";
