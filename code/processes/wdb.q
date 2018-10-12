@@ -375,7 +375,7 @@ informgateway:{[message]
 	$[count gateways:.servers.getservers[`proctype;gatewaytypes;()!();1b;0b];
 	   [
 		   {.[@;(y;x);{.lg.e[`informgateway;"unable to run command on gateway"];'x}]}[message;] each exec w from gateways;
-		   .lg.o[`informgateway;"the message - ", message, " was sent to the gateways"]
+		   .lg.o[`informgateway;raze "the message - ",(1# string message), " was sent to the gateways"]
 	   ];
 	   .lg.e[`informgateway;"can't connect to the gateway - no gateway detected"]]
 	}
