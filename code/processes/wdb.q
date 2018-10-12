@@ -226,7 +226,7 @@ d:()!()
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
 	/-inform gateway of reload start
-	informgateway["reloadstart[]"];
+	informgateway[(`reloadstart;[])];
 	getprocs[;pt] each reloadorder;
 	if[eodwaittime>0;
 		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
