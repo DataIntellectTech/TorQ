@@ -226,7 +226,7 @@ d:()!()
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
 	/-inform gateway of reload start
-	informgateway[(`reloadstart;[])];
+	informgateway(`reloadstart;);
 	getprocs[;pt] each reloadorder;
 	if[eodwaittime>0;
 		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
@@ -375,7 +375,7 @@ informgateway:{[message]
 	$[count gateways:.servers.getservers[`proctype;gatewaytypes;()!();1b;0b];
 	   [
 		   {.[@;(y;x);{.lg.e[`informgateway;"unable to run command on gateway"];'x}]}[message;] each exec w from gateways;
-		   .lg.o[`informgateway;raze "the message - ",(1# string message), " was sent to the gateways"]
+		   .lg.o[`informgateway;"the message - ",(-3!message), " was sent to the gateways"]
 	   ];
 	   .lg.e[`informgateway;"can't connect to the gateway - no gateway detected"]]
 	}
