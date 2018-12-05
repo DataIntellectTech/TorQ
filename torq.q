@@ -185,7 +185,7 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
+format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;$[1=count message;enlist message; message])}
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
