@@ -1212,7 +1212,7 @@ direct analysis of data from kdb+. Thus, using the
 [SimpleJSON data source](https://github.com/grafana/simple-json-datasource),
 we have engineered an adaptor to allow visualisation of kdb+ data.
 
-### Requirments
+### Requirements
 Grafana v5.2.2+
 (Tested on Kdb v3.5+)
 ### Getting Started
