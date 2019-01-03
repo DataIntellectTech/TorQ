@@ -106,9 +106,7 @@ gethandlebytype:getserverbytype[;`w;]
 gethpbytype:getserverbytype[;`hpup;]
 
 // Update the server stats
-updatestats:{[W]
-  update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;
-  update lastp:.proc.cp[],hits:1+hits from`.servers.SERVERS where w=W}
+updatestats:{[W] update lastp:.proc.cp[],hits:1+hits from`.servers.SERVERS where w=W}
 
 names:{asc distinct exec procname from`.servers.SERVERS where .dotz.liveh w}
 types:{asc distinct exec proctypes from`.servers.SERVERS where .dotz.liveh w}
@@ -345,7 +343,8 @@ startupdependent:{[requiredprocs;timeintv]
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 
+.z.pc:{.servers.pc[x y;y]}.z.pc;
+
 if[enabled;
-    .z.pc:{.servers.pc[x y;y]}.z.pc;
     if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];
     if[RETRY > 0; .timer.repeat[.proc.cp[];0Wp;RETRY;(`.servers.retry;`);"Attempt reconnections to closed server handles"]]];

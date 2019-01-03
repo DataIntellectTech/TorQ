@@ -27,13 +27,14 @@ hit:{update lastp:.proc.cp[],hits:hits+1i,sz:sz+-22!x from`.clients.clients wher
 hite:{update lastp:.proc.cp[],hits:hits+1i,errs:errs+1i from`.clients.clients where w=.z.w;'x}
 po:{[result;W]
     cleanup[];
-    update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;
     `.clients.clients upsert(W;.dotz.ipa .z.a;.z.u;.z.a;0Nd;0n;0Ni;0Ni;(`);(`);0Ni;0Ni;zp;0Np;zp:.proc.cp[];0i;0i;0j);
     if[INTRUSIVE;
         neg[W]"neg[.z.w]\"update k:\",(string .z.k),\",K:\",(-3!.z.K),\",c:\",(-3!.z.c),\",s:\",(-3!system\"s\"),\",o:\",(-3!.z.o),\",f:\",(-3!.z.f),\",pid:\",(-3!.z.i),\",port:\",(-3!system\"p\"),\" from`.clients.clients where w=.z.w\""];
     result}
 addw:{po[x;x]} / manually add a client
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;cleanup[];result}
+
+.z.pc:{.clients.pc[x y;y]}.z.pc;
 
 wo:{[result;W]
     cleanup[];
@@ -42,7 +43,6 @@ wo:{[result;W]
 
 if[enabled;
 	.z.po:{.clients.po[x y;y]}.z.po;
-        .z.pc:{.clients.pc[x y;y]}.z.pc;
         .z.wo:{.clients.wo[x y;y]}.z.wo;
 	.z.wc:{.clients.pc[x y;y]}.z.wc;
 
