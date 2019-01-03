@@ -106,7 +106,9 @@ gethandlebytype:getserverbytype[;`w;]
 gethpbytype:getserverbytype[;`hpup;]
 
 // Update the server stats
-updatestats:{[W] update lastp:.proc.cp[],hits:1+hits from`.servers.SERVERS where w=W}
+updatestats:{[W]
+  update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;
+  update lastp:.proc.cp[],hits:1+hits from`.servers.SERVERS where w=W}
 
 names:{asc distinct exec procname from`.servers.SERVERS where .dotz.liveh w}
 types:{asc distinct exec proctypes from`.servers.SERVERS where .dotz.liveh w}
