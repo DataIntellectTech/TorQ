@@ -400,7 +400,7 @@ The function takes two parameters a process and a dictionary which should follow
  
 ```
 q).email.sendviaservice[`emailservice;`to`subject`body!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
-,1b
+1b
 q)2019.01.04D12:02:57.641940000|homer.aquaq.co.uk|gateway|gateway1|INF|email|Email sent successfully
 
 ```
