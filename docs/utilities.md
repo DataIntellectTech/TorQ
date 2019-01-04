@@ -399,7 +399,7 @@ A further function .email.sendviaservice can be used to send an email using the 
 The function takes two parameters a process and a dictionary which should follow  the same format as .email.send. The function uses the .async.postback Utility to send the email on the specified process which will return 1b if the async request has been sent and returns the result to the .email.servicecallback function:
  
 ```
-q).email.sendviaservice[`emailservice;`to`subject`body!(`$"user@business.co.uk";"test email";("hi";"this is an email from torq"))]
+q).email.sendviaservice[`emailservice;`to`subject`body!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
 ,1b
 q)2019.01.04D12:02:57.641940000|homer.aquaq.co.uk|gateway|gateway1|INF|email|Email sent successfully
 
