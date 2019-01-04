@@ -366,7 +366,7 @@ the initial connection). In some circumstances it may be better to batch
 emails together to send, or to offload email sending to separate
 processes as communication with the SMTP server can take a little time.
 
-Two further functions are available, .email.connectdefault and
+Two additional functions are available, .email.connectdefault and
 .email.senddefault. These are as above but will use the default
 configuration defined within the configuration files as the relevant
 parameters passed to the methods. In addition, .email.senddefault will
@@ -396,7 +396,7 @@ debug should be set to 2i (verbose) to extract the full information.
 
 A further function .email.sendviaservice can be used to send an email using the default mail server on a separate specified process and can be used to allow latency sensitive processes to offload this piece of functionality. 
 
-The function takes two parameters a process and a dictionary which should follow  the same format as .email.send.The function uses the .async.postback Utility to send the email on the specified process which will return 1b if the async request has been sent and returns the result to the .email.servicecallback function:
+The function takes two parameters a process and a dictionary which should follow  the same format as .email.send. The function uses the .async.postback Utility to send the email on the specified process which will return 1b if the async request has been sent and returns the result to the .email.servicecallback function:
  
 ```
 q).email.sendviaservice[`emailservice;`to`subject`body!(`$"cormac.ross@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
