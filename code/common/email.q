@@ -60,7 +60,7 @@ test:{senddefault `to`subject`body!(x;"test email";enlist ("this is a test email
 // used to send an email using the default mail server on a seperate specififed process
 sendviaservice:{[proc;dict]
   h:.servers.gethandlebytype[proc;`any];
-  if[not count h;.lg.e[`email;"could not connnect to ",(string proc)," process"];:0b];
+  if[not count h;:.lg.e[`email;"could not connnect to ",(string proc)," process"]];
   / returns 1b if async request has been sent. Returns result of `.email.servicesend to .email.servicecallback
   first .async.postback[first h;(`.email.servicesend;dict);.email.servicecallback]
  }
@@ -71,12 +71,8 @@ servicesend:{[dict]
   :`status`result!result
  }
 
-// Used in .email.sendviaservice to log email status once .email.servicesend has been called by .async.postback
-servicecallback:{
-  $[x[`status];
-   .lg.o[`email;"Email sent successfully"];
-   .lg.e[`email;"failed to send email: ",x[`result]]]
- };
+// logs email status
+servicecallback:{$[x[`status];.lg.o[`email;"Email sent successfully"];.lg.e[`email;"failed to send email: ",(x[`result])]]}
 
 \
 
