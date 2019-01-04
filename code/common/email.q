@@ -67,8 +67,7 @@ sendviaservice:{[proc;dict]
 
 // sends email and catches result in a dictionary
 servicesend:{[dict]
-  result:@[{(1b;.email.senddefault x)};dict;{(0b;x)}];
-  :`status`result!result
+  :`status`result!@[{(1b;.email.senddefault x)};dict;{(0b;x)}];
  }
 
 // Used in .email.sendviaservice to log email status once .email.servicesend has been called by .async.postback
