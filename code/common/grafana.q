@@ -84,14 +84,10 @@ tbfunc:{[rqt]
   rqt: raze rqt[`targets]`target;
   symname:0b;
   // if f.t.func, drop first 4 chars
-  $[isfunc[rqt] & istab[2_rqt]; rqt:4_rqt; 
-	// if f.func drop first 2
-	$[isfunc[rqt]; rqt:2_rqt;
-		// if t.tab or t.tab.sym, 
-		if[istab[rqt];rqt: `$del vs rqt; if[2<count rqt; symname: rqt 2]; rqt: rqt 1]
-	 ]
-	];
-  rqt:0!value rqt;
+  rqt:0!value $[isfunc[rqt] & istab[2_rqt]; 4_rqt; 
+                isfunc[rqt]; 2_rqt;
+                istab[rqt]; [rqt: `$del vs rqt; if[2<count rqt; symname: rqt 2]; rqt 1];
+                rqt];
   // get column names and associated types to fit format
   colname:cols rqt;
   coltype:types (0!meta rqt)`t;
@@ -126,6 +122,7 @@ tsfunc:{[x]
     (2=numargs)and`t~tyargs;tablenosym[coln;rqt];
     (4=numargs)and`o~tyargs;othersym[args;rqt];
     (3=numargs)and`o~tyargs;othernosym[args 2;rqt]; 
+    (2=numargs)and`o~tyargs;othernosym[coln except timecol;rqt];
     `$"Wrong input"]
  };
 
