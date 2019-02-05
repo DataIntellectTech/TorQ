@@ -507,9 +507,9 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
- (neg handles)@\:(::);
+ (neg handles)@\:.gw.placehold;
  // block and wait for the results
- res:handles@\:(::);
+ res:handles@\:.gw.placehold;
  // update the usage data
  update inuse:0b,usage:usage+(handles!res[;1] - start)[handle] from `.gw.servers where handle in handles;
  // check if there are any errors in the returned results
