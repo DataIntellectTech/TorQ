@@ -29,7 +29,7 @@ epoch:946684800000;
 zpp:{
   // get API url from request
   // cuts at first whitespace char to avoid splitting function params
-  r: (0;n?" ") cut n:first x;
+  r:(0;n?" ")cut n:first x;
   // convert grafana message to q
   rqt:.j.k r 1;
   $["query"~r 0;query[rqt];"search"~r 0;search rqt;`$"Annotation url nyi"]
@@ -59,7 +59,7 @@ search:{[rqt]
   if[count timetabs;
 	rsp,:s1:prefix["t";string timetabs];
 	rsp,:s2:prefix["g";string timetabs];
-    rsp,:raze(s2,'del),/:'c1:string {(cols x) where`number=types (0!meta x)`t}each timetabs;
+    rsp,:raze(s2,'del),/:'c1:string {cols[x] where`number=types (0!meta x)`t}each timetabs;
     rsp,:raze(prefix["o";string timetabs],'del),/:'c1;
     if[count symtabs;
       rsp,:raze(s1,'del),/:'c2:string each finddistinctsyms'[timetabs];
@@ -100,8 +100,8 @@ tbfunc:{[rqt]
 tsfunc:{[x]	
   targ: raze x[`targets]`target;
   / split arguments
-  $[isfunc[targ]; numargs:count args:(0;1+targ?del) cut targ:2_targ; numargs:count args:`$del vs targ];
-  $[10h=abs type args 0; tyargs: `$1#args 0; tyargs: args 0];
+  numargs:count args:$[isfunc targ;(0;1+targ?del)cut targ:2_targ;`$del vs targ];
+  tyargs:$[10h=abs type args 0;`$1#;]args 0;
   // manipulate queried table
   coln:cols rqt:0!value args 1;
   // function to convert time to milliseconds, takes timestamp
