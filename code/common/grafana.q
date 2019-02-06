@@ -57,8 +57,8 @@ search:{[rqt]
   rsp,:raze prefix["f";] each (func; raze prefix[;func] each "gto");
   
   if[count timetabs;
-	rsp,:s1:prefix["t";string timetabs];
-	rsp,:s2:prefix["g";string timetabs];
+    rsp,:s1:prefix["t";string timetabs];
+    rsp,:s2:prefix["g";string timetabs];
     rsp,:raze(s2,'del),/:'c1:string {cols[x] where`number=types (0!meta x)`t}each timetabs;
     rsp,:raze(prefix["o";string timetabs],'del),/:'c1;
     if[count symtabs;
