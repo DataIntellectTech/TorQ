@@ -59,9 +59,11 @@ search:{[rqt]
   if[count timetabs;
     rsp,:s1:prefix["t";string timetabs];
     rsp,:s2:prefix["g";string timetabs];
+    // suffix names of number columns to graph and other panel options
     rsp,:raze(s2,'del),/:'c1:string {cols[x] where`number=types (0!meta x)`t}each timetabs;
     rsp,:raze(prefix["o";string timetabs],'del),/:'c1;
     if[count symtabs;
+      // suffix distinct syms to timeseries table and other panel options
       rsp,:raze(s1,'del),/:'c2:string each finddistinctsyms'[timetabs];
       rsp,:raze(prefix["o";string timetabs],'del),/:'{x[0] cross del,'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
      ];
@@ -84,9 +86,9 @@ tbfunc:{[rqt]
   rqt: raze rqt[`targets]`target;
   symname:0b;
   // if f.t.func, drop first 4 chars
-  rqt:0!value $[isfunc[rqt] & istab[2_rqt]; 4_rqt; 
-                isfunc[rqt]; 2_rqt;
-                istab[rqt]; [rqt: `$del vs rqt; if[2<count rqt; symname: rqt 2]; rqt 1];
+  rqt:0!value $[isfunc[rqt] & istab 2_rqt; 4_rqt; 
+                isfunc rqt; 2_rqt;
+                istab rqt; [rqt: `$del vs rqt; if[2<count rqt; symname: rqt 2]; rqt 1];
                 rqt];
   // get column names and associated types to fit format
   colname:cols rqt;
@@ -126,21 +128,23 @@ tsfunc:{[x]
     `$"Wrong input"]
  };
 
+// build JSON response for graph & other panels with no sym seperation
+buildnosym:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
+nosymresponse:{[rqt;colname] .j.j buildnosym[rqt]\[();colname]};
+
 // timeserie request on non-specific panel w/ no preference on sym seperation
 othernosym:{[coln;rqt]
   // return columns with json number type only
   colname:coln cross`msec;
-  build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colname];
+  :nosymresponse[rqt;colname];
  };
 
-// timeserie request on grqph panel w/ no preference on sym seperation
+// timeserie request on graph panel w/ no preference on sym seperation
 graphnosym:{[coln;rqt]
   // return columns with json number type only
   coln:-1_coln where`number=types (0!meta rqt)`t;
   colname:coln cross`msec;
-  build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colname];
+  :nosymresponse[rqt;colname];
  };
 
 // timeserie request on table panel w/ no preference on sym seperation
