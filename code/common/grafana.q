@@ -51,10 +51,7 @@ search:{[rqt]
   tabs:tables[];
   symtabs:tabs where sym in'cols each tabs;
   timetabs:tabs where timecol in'cols each tabs;
-  func: string system "f";
   rsp:string tabs;
-  // prefixes "f" to each user defined function on the server
-  rsp,:raze prefix["f";] each (func; raze prefix[;func] each "gto");
   
   if[count timetabs;
     rsp,:s1:prefix["t";string timetabs];
