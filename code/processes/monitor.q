@@ -3,7 +3,7 @@
 .monit.configstored:@[value;`.monit.configstored;first .proc.getconfigfile["monitorconfig"]];                        //name of stored table for save and reload
 
 /load checkstatus monitor script
-.proc.loadf[getenv[`KDBCODE],"/processes/itrsmonitor.q"]
+.proc.loadf[getenv[`KDBCODE],"/processes/checkmonitor.q"]
 
 // set up the upd function to handle heartbeats
  upd:{[t;x]
