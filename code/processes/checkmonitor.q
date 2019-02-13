@@ -1,5 +1,4 @@
 // start line 
-//  q torq.q -load itrsmonitor.q -proctype itrs -procname itrs1 -p 24329 -debug -.servers.CONNECTIONS rdb hdb tickerplant
 
 //Get handle to other TorQ process specified
 gethandle:{exec first w from .servers.getservers[`procname;x;()!();1b;1b]}
