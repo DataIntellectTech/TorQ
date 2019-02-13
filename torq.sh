@@ -112,8 +112,9 @@ stop() {
     echo "$(date '+%H:%M:%S') | $1 is not currently running"
   else
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
-    pid=$(findproc "$1")
-    eval "kill -15 $pid"                                                                            # kill process pid
+    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+    port=$(eval echo \$"$(getfield "$procno" port)" | bc)
+    eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
 
