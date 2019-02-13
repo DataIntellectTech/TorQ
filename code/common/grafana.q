@@ -28,8 +28,9 @@ epoch:946684800000;
 // retrieve and convert Grafana HTTP POST request then process as either timeseries or table
 zpp:{
   // get API url from request
-  r:" " vs first x;
-  // convert grafana mesage to q
+  // cuts at first whitespace char to avoid splitting function params
+  r:(0;n?" ")cut n:first x;
+  // convert grafana message to q
   rqt:.j.k r 1;
   $["query"~r 0;query[rqt];"search"~r 0;search rqt;`$"Annotation url nyi"]
  };
@@ -42,20 +43,26 @@ query:{[rqt]
 
 finddistinctsyms:{?[x;enlist(>;timecol;(-;.z.p;timebackdate));1b;{x!x}enlist sym]sym};
 
+// prefixes string c to each string s, seperated by del
+prefix:{[c;s] (c,del),/:s};
+
 search:{[rqt]
   // build drop down case options from tables in port
   tabs:tables[];
   symtabs:tabs where sym in'cols each tabs;
   timetabs:tabs where timecol in'cols each tabs;
   rsp:string tabs;
+  
   if[count timetabs;
-    rsp,:s1:("t",del),/:string timetabs;
-    rsp,:s2:("g",del),/:string timetabs; 
-    rsp,:raze(s2,'del),/:'c1:string {(cols x) where`number=types (0!meta x)`t}each timetabs;
-    rsp,:raze((("o",del),/:string timetabs),'del),/:'c1;
+    rsp,:s1:prefix["t";string timetabs];
+    rsp,:s2:prefix["g";string timetabs];
+    // suffix names of number columns to graph and other panel options
+    rsp,:raze(s2,'del),/:'c1:string {cols[x] where`number=types (0!meta x)`t}each timetabs;
+    rsp,:raze(prefix["o";string timetabs],'del),/:'c1;
     if[count symtabs;
+      // suffix distinct syms to timeseries table and other panel options
       rsp,:raze(s1,'del),/:'c2:string each finddistinctsyms'[timetabs];
-      rsp,:raze((("o",del),/:string timetabs),'del),/:'{x[0] cross del,'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
+      rsp,:raze(prefix["o";string timetabs],'del),/:'{x[0] cross del,'string finddistinctsyms x 1}each (enlist each c1),'timetabs;
      ];
    ];
   :.h.hy[`json].j.j rsp;
@@ -65,23 +72,37 @@ diskvals:{c:(count[x]-ticks)+til ticks;get'[.Q.ind[x;c]]};
 memvals:{get'[?[x;enlist(within;`i;count[x]-ticks,0);0b;()]]};
 catchvals:{@[diskvals;x;{[x;y]memvals x}[x]]};
 
+istype:{[targ;char] (char,del)~2#targ};
+isfunc:istype[;"f"]; istab:istype[;"t"];
+
+// builds body of table response in Json adaptor schema
+tabresponse:{[colname;coltype;rqt] .j.j enlist`columns`rows`type!(flip`text`type!(colname;coltype);catchvals rqt;`table)};
+
 // process a table request and return in JSON format
 tbfunc:{[rqt]
-  rqt:value raze rqt[`targets]`target;
+  rqt: raze rqt[`targets]`target;
+  symname:0b;
+  // if f.t.func, drop first 4 chars
+  rqt:0!value $[isfunc[rqt] & istab 2_rqt; 4_rqt; 
+                isfunc rqt; 2_rqt;
+                istab rqt; [rqt: `$del vs rqt; if[2<count rqt; symname: rqt 2]; rqt 1];
+                rqt];
   // get column names and associated types to fit format
   colname:cols rqt;
   coltype:types (0!meta rqt)`t;
-  // build body of response in Json adaptor schema
-  :.j.j enlist`columns`rows`type!(flip`text`type!(colname;coltype);catchvals rqt;`table);
+  // search rqt for sym if symname was set
+  if[-11h=type symname; rqt:?[rqt;enlist(=;sym;enlist symname);0b;()]];
+  :tabresponse[colname;coltype;rqt];
  };
 
 // process a timeseries request and return in Json format, takes in query and information dictionary
-tsfunc:{[x]
+tsfunc:{[x]	
+  targ: raze x[`targets]`target;
   / split arguments
-  numargs:count args:`$del vs raze x[`targets]`target;
-  tyargs:args 0;
+  numargs:count args:$[isfunc targ;(0;1+targ?del)cut targ:2_targ;`$del vs targ];
+  tyargs:$[10h=abs type args 0;`$1#;]args 0;
   // manipulate queried table
-  coln:cols rqt:value args 1;
+  coln:cols rqt:0!value args 1;
   // function to convert time to milliseconds, takes timestamp
   mil:{floor epoch+(`long$x)%1000000};
   // ensure time column is a timestamp
@@ -100,30 +121,33 @@ tsfunc:{[x]
     (2=numargs)and`t~tyargs;tablenosym[coln;rqt];
     (4=numargs)and`o~tyargs;othersym[args;rqt];
     (3=numargs)and`o~tyargs;othernosym[args 2;rqt]; 
+    (2=numargs)and`o~tyargs;othernosym[coln except timecol;rqt];
     `$"Wrong input"]
  };
+
+// build JSON response for graph & other panels with no sym seperation
+buildnosym:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
+nosymresponse:{[rqt;colname] .j.j buildnosym[rqt]\[();colname]};
 
 // timeserie request on non-specific panel w/ no preference on sym seperation
 othernosym:{[coln;rqt]
   // return columns with json number type only
   colname:coln cross`msec;
-  build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colname];
+  :nosymresponse[rqt;colname];
  };
 
-// timeserie request on grqph panel w/ no preference on sym seperation
+// timeserie request on graph panel w/ no preference on sym seperation
 graphnosym:{[coln;rqt]
   // return columns with json number type only
   coln:-1_coln where`number=types (0!meta rqt)`t;
   colname:coln cross`msec;
-  build:{y,`target`datapoints!(z 0;value each ?[x;();0b;z!z])};
-  :.j.j build[rqt]\[();colname];
+  :nosymresponse[rqt;colname];
  };
 
 // timeserie request on table panel w/ no preference on sym seperation
 tablenosym:{[coln;rqt]
   coltype:types -1_(0!meta rqt)`t;
-  :.j.j enlist`columns`rows`type!(flip`text`type!(coln;coltype);catchvals rqt;`table);
+  :tabresponse[coln;coltype;rqt];
  };
 
 // timeserie request on non-specific panel w/ data for one sym returned
@@ -149,6 +173,5 @@ tablesym:{[coln;rqt;symname]
   coltype:types -1_(0!meta rqt)`t;
   // select data for requested sym only
   rqt:?[rqt;enlist(=;sym;enlist symname);0b;()];
-  :.j.j enlist`columns`rows`type!(flip`text`type!(coln;coltype);catchvals rqt;`table);
+  :tabresponse[coln;coltype;rqt];
  };
-
