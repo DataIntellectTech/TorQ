@@ -1,6 +1,12 @@
+//Parameters
+.monit.configcsv:@[value;`.monit.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                           //name of config csv to load in
+.monit.configstored:@[value;`.monit.configstored;first .proc.getconfigfile["monitorconfig"]];                        //name of stored table for save and reload
+
+/load checkstatus monitor script
+.proc.loadf[getenv[`KDBCODE],"/processes/itrsmonitor.q"]
 
 // set up the upd function to handle heartbeats
-upd:{[t;x]
+ upd:{[t;x]
  $[t=`heartbeat;
 	 [ // publish single heartbeat row to web pages 
 	  .html.pub[`heartbeat;$[min (`warning`error in cols exec from x);x;[.hb.storeheartbeat[x];hb_x::x;select from .hb.hb where procname in x`procname]]]];
@@ -44,6 +50,7 @@ subscribe each (exec w from .servers.SERVERS) except subscribedhandles;
 /- Table data functions - Return unkeyed sorted tables
 hbdata:{0!`error`warning xdesc .hb.hb}
 lmdata:{0!`time xdesc -20 sublist logmsg}
+checkdata:{0!checkstatus}
 
 /- Chart data functions - Return unkeyed chart data
 lmchart:{0!select errcount:count i by 0D00:05 xbar time from logmsg where loglevel=`ERR}
@@ -51,11 +58,29 @@ bucketlmchartdata:{[x] x:`minute$$[x=0;1;x];0!select errcount:count i by (0D00:0
 
 /- Data functions - These are functions that are requested by the front end
 /- start is sent on each connection and refresh. Where there are more than one table it is wise to identify each one using a dictionary as shown
-start:{.html.wssub each `heartbeat`logmsg`lmchart;
-       .html.dataformat["start";(`hbtable`lmtable`lmchart)!(hbdata[];lmdata[];lmchart[])] }
+start:{.html.wssub each `heartbeat`logmsg`lmchart`checkstatus;
+       .html.dataformat["start";(`hbtable`lmtable`lmchart`checkstatus)!(hbdata[];lmdata[];lmchart[]checkdata[])]}
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
-
 monitorui:.html.readpagereplaceHP["index.html"]
 
 // initialise pubsub
-.html.init`heartbeat`logmsg`lmchart
+.html.init`heartbeat`logmsg`lmchart`checkstatus
+
+//Monitor check
+initcheck:{
+ if[not readstoredconfig[.monit.configstored];
+  readmonitoringconfig[.monit.configcsv]]};
+
+// specify .z.exit to save config
+// capture any prior definition
+.z.exit:{[x;y] saveconfig[.monit.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
+
+//Initialise runningchecks, read in config 
+initcheck[]
+
+// REMOVE THIS WHEN MOVING AWAY FROM TORQ
+.timer.repeat[.z.p;0Wp;0D00:00:05;(`runnow;`);"run the monitoring checks"]
+.timer.repeat[.z.p;0Wp;0D00:00:05;(`checkruntime;0D00:01:00.000000000);"update status if running slow"]
+
+//.timer.repeat[.z.p;0Wp;0D00:00:05;(`publishcheck;0D00:01:00.000000000);"update status if running slow"]
+//.timer.repeat[.z.p;0Wp;0D00:00:06;(`publishchecks;`);"check sending times against median send time"]
