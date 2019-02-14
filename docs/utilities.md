@@ -1268,7 +1268,7 @@ read our followup blogpost on the subject: [Grafana kdb+ Adaptor Update](https:/
 Here you can see examples of graphs, tables, heatmaps and single statistics. 
 The best explanation of the inputs allowed in the query section can be seen pictorially here:
 
-![InputFormat](https://github.com/AquaQAnalytics/TorQ/blob/GrafanaTorQ/docs/graphics/grafana_chart.png?raw=true)
+![GrafanaQueries](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/graphics/grafana_chart.png?raw=true)
 
 Upon opening the query box, in the metrics tab, the user will be provided with 
 a populated drop down of all possible options. Server functions are not included
