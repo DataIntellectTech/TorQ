@@ -1262,16 +1262,20 @@ As the adaptor is part of the TorQ framework it will automatically be loaded
 into TorQ sessions. From this point onwards you can proceed to use Grafana as 
 it is intended, with the only difference coming in the form of the queries. Use 
 cases and further examples of the queries can be seen in our blogpost:
-[The Grafana-KDB Adaptor](https://www.aquaq.co.uk/q/ask-shall-receive-grafana-kdb-adaptor/). 
+[The Grafana-KDB Adaptor](https://www.aquaq.co.uk/q/ask-shall-receive-grafana-kdb-adaptor/).
+For information and examples of how to execute server side functions in queries, please
+read our followup blogpost on the subject: [Grafana kdb+ Adaptor Update](https://www.aquaq.co.uk/kdb/grafana-kdb-adaptor-update/). 
 Here you can see examples of graphs, tables, heatmaps and single statistics. 
 The best explanation of the inputs allowed in the query section can be seen pictorially here:
 
-![InputFormat](https://github.com/AquaQAnalytics/TorQ/blob/GrafanaTorQ/docs/graphics/GrafanDropDown.png?raw=true)
+![InputFormat](https://github.com/AquaQAnalytics/TorQ/blob/GrafanaTorQ/docs/graphics/grafana_chart.png?raw=true)
 
 Upon opening the query box, in the metrics tab, the user will be provided with 
-a populated drop down of all possible options. Due to the limitations of the 
-JSON messages, it is not possible for our adaptor to distinguish between panels. 
-Consequently, every possible option is returned for each panel, the user can 
+a populated drop down of all possible options. Server functions are not included
+in the dropdown, but can be called by entering the letter f followed by the value
+of ``` .grafana.del ``` (see below) before their function call. Due to the limitations
+of the JSON messages, it is not possible for our adaptor to distinguish between panels. 
+Consequently, every possible option is returned for each panel, the user can
 reduce these choices by simply entering the first letter of their panel type, 
 g for graph, t for table and o for other (heatmap or single stat). From here, 
 you can follow the above diagram to specify your type of query.
