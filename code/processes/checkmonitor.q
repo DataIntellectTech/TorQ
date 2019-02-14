@@ -1,5 +1,4 @@
-//Process which takes in configurable process specific checks and runs as part of monitor process
-
+//Process which takes in configurable process specific checks and is called as part of monitor process
 //Get handle to other TorQ process specified
 gethandle:{exec first w from .servers.getservers[`procname;x;()!();1b;1b]}
 

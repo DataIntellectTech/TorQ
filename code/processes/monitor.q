@@ -1,6 +1,10 @@
-//Parameters
+//TorQ Monitor Process
+
+//configurable parameters for check monitoring
 .monit.configcsv:@[value;`.monit.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                           //name of config csv to load in
 .monit.configstored:@[value;`.monit.configstored;first .proc.getconfigfile["monitorconfig"]];                        //name of stored table for save and reload
+.monit.checkinterval:@[value;`.monit.checkinterval;0D00:00:05];                                                      //interval to run checks 
+.monit.checktimeinterval:@[value;`.monit.checktimeinterval;0D00:00:05];                                              //interval to make sure checks are not lagging
 
 /load checkstatus monitor script
 .proc.loadf[getenv[`KDBCODE],"/processes/checkmonitor.q"]
@@ -59,14 +63,14 @@ bucketlmchartdata:{[x] x:`minute$$[x=0;1;x];0!select errcount:count i by (0D00:0
 /- Data functions - These are functions that are requested by the front end
 /- start is sent on each connection and refresh. Where there are more than one table it is wise to identify each one using a dictionary as shown
 start:{.html.wssub each `heartbeat`logmsg`lmchart`checkstatus;
-       .html.dataformat["start";(`hbtable`lmtable`lmchart`checkstatus)!(hbdata[];lmdata[];lmchart[]checkdata[])]}
+       .html.dataformat["start";(`hbtable`lmtable`lmchart`checkstatus)!(hbdata[];lmdata[];lmchart[];checkdata[])]}
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
 monitorui:.html.readpagereplaceHP["index.html"]
 
 // initialise pubsub
 .html.init`heartbeat`logmsg`lmchart`checkstatus
 
-//Monitor check
+//function to iniitialise process check monitoring- checks for last saved config file
 initcheck:{
  if[not readstoredconfig[.monit.configstored];
   readmonitoringconfig[.monit.configcsv]]};
@@ -75,12 +79,9 @@ initcheck:{
 // capture any prior definition
 .z.exit:{[x;y] saveconfig[.monit.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
 
-//Initialise runningchecks, read in config 
+//initialise monitor checks
 initcheck[]
 
 // REMOVE THIS WHEN MOVING AWAY FROM TORQ
 .timer.repeat[.z.p;0Wp;0D00:00:05;(`runnow;`);"run the monitoring checks"]
 .timer.repeat[.z.p;0Wp;0D00:00:05;(`checkruntime;0D00:01:00.000000000);"update status if running slow"]
-
-//.timer.repeat[.z.p;0Wp;0D00:00:05;(`publishcheck;0D00:01:00.000000000);"update status if running slow"]
-//.timer.repeat[.z.p;0Wp;0D00:00:06;(`publishchecks;`);"check sending times against median send time"]
