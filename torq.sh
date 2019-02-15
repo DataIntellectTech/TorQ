@@ -113,7 +113,7 @@ stop() {
   else
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
     procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-    port=$(eval echo \$"$(getfield "$procno" port)" | bc)
+    port=$(($(eval echo \$"$(getfield "$procno" port)")))
     eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
