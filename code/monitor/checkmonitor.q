@@ -229,6 +229,13 @@ updateconfigfammet:{[f;m;paramkey;newval]
    updateconfig[first checkid;paramkey;newval];
  }
 
+
+//Function to return only required metrics on current status of check
+currentstatus:{[c]
+ if[all null c; :select checkid,family,metric,process,status,timerstatus,running,error from checkstatus];
+  :select checkid,family,metric,process,status,timerstatus,running,error from checkstatus where checkid in c;
+ }
+
 //Get ordered status and timer status by family
 //If null return fulltable
 statusbyfam:{[f]
