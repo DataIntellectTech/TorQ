@@ -483,7 +483,7 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 // execute a synchronous query
 syncexecjpre36:{[query;servertype;joinfunction]
  // Check correct function called
- if[not .gw.call .z.w;
+ if[(.z.w<>0)&(.z.w in key .gw.call)&not .gw.call .z.w;
    @[neg .z.w;.gw.formatresponse[0b;0b;"Incorrect function used: asyncexec"];()];
    :();
    ];
