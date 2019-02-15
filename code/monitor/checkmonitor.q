@@ -15,8 +15,7 @@ checkstatus:(
  totaltime:`timespan$();	// total time- including the network transfer time+queue time on target
  timerstatus:`short$();		// whether the check run in the correct amount of time
  running:`short$();		// whether the check is currently running
- error:();			// error message
- info:())			// additional info
+ result:())			// error message
 
 // the table of checks to run
 checkconfig:(
@@ -119,7 +118,7 @@ addconfig:{
  `checkconfig upsert x;
 
  // and insert to checkstatus
- `checkstatus upsert select checkid,family,metric,process,lastrun:0Np,nextrun:.z.p,status:0Nh,executiontime:0Nn,totaltime:0Nn,timerstatus:0Nh,running:0Nh,error:(count process)#(),info:(count process)#() from x;  
+ `checkstatus upsert select checkid,family,metric,process,lastrun:0Np,nextrun:.z.p,status:0Nh,executiontime:0Nn,totaltime:0Nn,timerstatus:0Nh,running:0Nh,result:(count process)#() from x;  
  }
 
 togglecheck:{[cid;status]
@@ -134,7 +133,7 @@ runcheck:{
  // increment the run id
  runid+:1i;
  // get the handle to the process
- if[null h:gethandle[x`process]; `checkstatus upsert ((enlist`checkid)!enlist x`checkid),update running:0h,error:"no handle connection",status:0h,timerstatus:0h from checkstatus x`checkid];
+ if[null h:gethandle[x`process]; `checkstatus upsert ((enlist`checkid)!enlist x`checkid),update running:0h,result:"no handle connection",status:0h,timerstatus:0h from checkstatus x`checkid];
 // run the check remotely
  // send over the id, return a dict of `id`status`res
  .async.postback[h;({start:.z.p; (`runid`executiontime!(y;.z.p-start)),`status`result!@[{(1h;value x)};x;{(0h;x)}]};(x`query;x`params);runid);`checkresulthandler];
@@ -174,16 +173,16 @@ checkresulthandler:{
   // check here if it has failed or passed
   // override the status and error message as appropriate
   toinsert[`status]:toinsert[`status] and r`status;
-  toinsert[`error]:r`result; 
+  toinsert[`result]:r`result; 
   ];
  
  // if the query has failed, add in the error
- if[not x`status; toinsert[`error]:"request failed on remote server: ",x`result];
+ if[not x`status; toinsert[`result]:"request failed on remote server: ",x`result];
  
  // insert the record into checkstatus
  `checkstatus upsert ((enlist `checkid)!enlist toinsert`checkid),
               (checkstatus toinsert[`checkid]),
-              `lastrun`nextrun`status`executiontime`totaltime`timerstatus`running`error!(toinsert`sendtime;.z.p+conf`period;toinsert`status;toinsert`executiontime;toinsert[`receivetime]-toinsert[`sendtime];`short$conf[`runtime]>toinsert`executiontime;0h;toinsert`error)
+              `lastrun`nextrun`status`executiontime`totaltime`timerstatus`running`result!(toinsert`sendtime;.z.p+conf`period;toinsert`status;toinsert`executiontime;toinsert[`receivetime]-toinsert[`sendtime];`short$conf[`runtime]>toinsert`executiontime;0h;toinsert`result)
  } 
 
 // run each check that needs to be run
@@ -199,6 +198,7 @@ timecheck:{[n]
  }
 
 // SUPPORT API 
+//Update config based on checkid
 updateconfig:{[checkid;paramkey;newval]
  // update a config value 
  if[not checkid in exec checkid from checkconfig;
@@ -229,11 +229,10 @@ updateconfigfammet:{[f;m;paramkey;newval]
    updateconfig[first checkid;paramkey;newval];
  }
 
-
 //Function to return only required metrics on current status of check
 currentstatus:{[c]
- if[all null c; :select checkid,family,metric,process,status,timerstatus,running,error from checkstatus];
-  :select checkid,family,metric,process,status,timerstatus,running,error from checkstatus where checkid in c;
+ if[all null c; :select checkid,family,metric,process,status,timerstatus,running,result from checkstatus];
+  :select checkid,family,metric,process,status,timerstatus,running,result from checkstatus where checkid in c;
  }
 
 //Get ordered status and timer status by family
@@ -242,6 +241,7 @@ statusbyfam:{[f]
  if[all null f;:`status`timerstatus xasc select from checkstatus];
  `status`timerstatus xasc select from checkstatus where family in f
  }
+
 
 // RESULT HANDLERS
 // some example result handler functions here 
