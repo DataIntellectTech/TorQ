@@ -6,7 +6,6 @@
 .monit.checkinterval:@[value;`.monit.checkinterval;0D00:00:05];                                                      //interval to run checks 
 .monit.checktimeinterval:@[value;`.monit.checktimeinterval;0D00:00:05];                                              //interval to make sure checks are not lagging
 
-
 // set up the upd function to handle heartbeats
  upd:{[t;x]
  $[t=`heartbeat;
