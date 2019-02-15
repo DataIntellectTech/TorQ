@@ -1,27 +1,30 @@
 //TorQ Monitor Process
 
 //configurable parameters for check monitoring
-.monit.configcsv:@[value;`.monit.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                           //name of config csv to load in
-.monit.configstored:@[value;`.monit.configstored;first .proc.getconfigfile["monitorconfig"]];                        //name of stored table for save and reload
+.monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                           //name of config csv to load in
+.monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                        //name of stored table for save and reload
 .monit.checkinterval:@[value;`.monit.checkinterval;0D00:00:05];                                                      //interval to run checks 
 .monit.checktimeinterval:@[value;`.monit.checktimeinterval;0D00:00:05];                                              //interval to make sure checks are not lagging
 
-/load checkstatus monitor script
-.proc.loadf[getenv[`KDBCODE],"/processes/checkmonitor.q"]
 
 // set up the upd function to handle heartbeats
  upd:{[t;x]
  $[t=`heartbeat;
-	 [ // publish single heartbeat row to web pages 
-	  .html.pub[`heartbeat;$[min (`warning`error in cols exec from x);x;[.hb.storeheartbeat[x];hb_x::x;select from .hb.hb where procname in x`procname]]]];
-   t=`logmsg;
-	  [ 
-     insert[`logmsg;x]; 
-	   // publish single logmsg row to web page
-	   .html.pub[`logmsg;x];
-     // publish all lmchart data - DEV - could publish single cols and update svg internally
-     .html.pub[`lmchart;lmchart[]]];
-   ()]}
+    [ // publish single heartbeat row to web pages 
+      .html.pub[`heartbeat;$[min (`warning`error in cols exec from x);x;[.hb.storeheartbeat[x];hb_x::x;select from .hb.hb where procname in x`procname]]]];
+  t=`logmsg;
+    [ 
+      insert[`logmsg;x]; 
+    // publish single logmsg row to web page
+      .html.pub[`logmsg;x];
+    // publish all lmchart data - DEV - could publish single cols and update svg internally
+      .html.pub[`lmchart;lmchart[]]];
+  t=`checkstatus;
+    [
+ //      .html.pub[`checkstatus;0!checkstatus]
+         .html.pub[`checkstatus;]each checkstatus;
+    ];
+  ()]}
 
 subscribedhandles:0 0Ni
 
@@ -72,12 +75,12 @@ monitorui:.html.readpagereplaceHP["index.html"]
 
 //function to iniitialise process check monitoring- checks for last saved config file
 initcheck:{
- if[not readstoredconfig[.monit.configstored];
-  readmonitoringconfig[.monit.configcsv]]};
+ if[not readstoredconfig[.monitor.configstored];
+  readmonitoringconfig[.monitor.configcsv]]};
 
 // specify .z.exit to save config
 // capture any prior definition
-.z.exit:{[x;y] saveconfig[.monit.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
+.z.exit:{[x;y] saveconfig[.monitor.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
 
 //initialise monitor checks
 initcheck[]

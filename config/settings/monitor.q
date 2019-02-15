@@ -1,8 +1,14 @@
 // Default configuration for the monitor process
-.monit.configcsv: first .proc.getconfigfile["monitorconfig.csv"];
-.monit.configstored:first .proc.getconfigfile["monitorconfig"];
-.monit.checkinterval:0D00:00:05;
-.monit.checktimeinterval:0D00:00:07;
+
+\d .monitor 
+configcsv: first .proc.getconfigfile["monitorconfig.csv"];
+configstored:first .proc.getconfigfile["monitorconfig"];
+checkinterval:0D00:00:05;
+checktimeinterval:0D00:00:07;
+
+//Enable loading
+\d .proc
+loadprocesscode:1b              //whether to load process specific code defined at ${KDBCODE}/{process type} 
 
 // Server connection details
 \d .servers
