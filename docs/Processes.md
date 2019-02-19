@@ -1135,10 +1135,9 @@ messages in logmsg
 
 ### Checkmonitor
 
-The checkmonitor.q script extends the functionality of the monitor process.  
-The script takes a set of user defined configuration settings for a set of 
-process specific checks. These can initially be provided in the form of a CSV, 
-a sample of which is shown here:
+The checkmonitor.q script extends the functionality of the monitor process.  The script takes 
+a set of user defined configuration settings for a set of process specific checks. These 
+can initially be provided in the form of a CSV, a sample of which is shown here:
 
     family|metric|process|query|resultchecker|params|period|runtime
     datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
@@ -1157,9 +1156,39 @@ specified processes and waits for postback of the results. Once the monitoring
 process receives the result of the query, it will then be checked by the resultchecker 
 function to identify whether it will pass or fail. 
 
+Result checker functions must only take two parameters: p- a parameter dictionary, and r- the result 
+row. The status in r will be modified based on whether the r result value passes the conditions specified 
+by the resultchecker function. 
+
+   q)checkcount
+   {[p;r]
+    if[`morethan=p`cond;
+      if[p[`count]<r`result; :`status`result!(1h;"")];
+       :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)];
+    if[`lessthan=p`cond;
+      if[p[`count]>r`result; :`status`result!(1h;"")];
+      :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but should be less than ",string p`count)];
+    }
 
 
+    q)p
+    varname| `trade
+    count  | 10
+    cond   | `morethan
 
+    q)r
+    status| 1h
+    result| ""
+
+
+This example checks whether the trade table within the rdb is larger than 10. As this is true, 
+the status has been set to 1h and no error message has been returned. This information is inserted 
+into the checkstatus table, which is the master table where all results are stored. 
+
+    q)checkstatus
+    checkid| family    metric     process lastrun                       nextrun                       status executiontime        totaltime            timerstatus running result
+    -------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    2019.02.18D10:58:45.908919000 2019.02.18D10:59:45.911635000 1      0D00:00:00.000017000 0D00:00:00.002677000 1           0       ""
 
 ### HTML5 front end 
 
