@@ -215,7 +215,7 @@ updateconfig:{[checkid;paramkey;newval]
 
 forceconfig:{[checkid;newconfig]
  // force config over the top of current
- // don't check for existance, types etc. 
+ // don't check for existence of parameters,parameter types etc. 
  if[not checkid in exec checkid from checkconfig;
   '"supplied checkid doesn't exist in checkconfig table"];
  if[not 99h=type newconfig; '"new supplied config must be of type dictionary"];
