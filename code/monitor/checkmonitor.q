@@ -4,42 +4,42 @@ gethandle:{exec first w from .servers.getservers[`procname;x;()!();1b;1b]}
 
 // table of check statuses - i.e. the result of the last run
 checkstatus:(
- [checkid:`int$()]		// id of the check
- family:`symbol$();		// the family of checks
- metric:`symbol$(); 		// specific check
- process:`symbol$(); 		// process it was run on 
- lastrun:`timestamp$();		// last time it was run
- nextrun:`timestamp$();		// next time it will be run
- status:`short$();		// status 
- executiontime:`timespan$();	// time the execution took
- totaltime:`timespan$();	// total time- including the network transfer time+queue time on target
- timerstatus:`short$();		// whether the check run in the correct amount of time
- running:`short$();		// whether the check is currently running
- result:())			// error message
+ [checkid:`int$()]              // id of the check
+ family:`symbol$();             // the family of checks
+ metric:`symbol$();             // specific check
+ process:`symbol$();            // process it was run on 
+ lastrun:`timestamp$();         // last time it was run
+ nextrun:`timestamp$();         // next time it will be run
+ status:`short$();              // status 
+ executiontime:`timespan$();    // time the execution took
+ totaltime:`timespan$();        // total time- including the network transfer time+queue time on target
+ timerstatus:`short$();         // whether the check run in the correct amount of time
+ running:`short$();             // whether the check is currently running
+ result:())                     // error message
 
 // the table of checks to run
 checkconfig:(
- [checkid:`int$()]		// id of the check
- family:`symbol$();		// the family of checks
- metric:`symbol$();		// specific check
+ [checkid:`int$()]              // id of the check
+ family:`symbol$();             // the family of checks
+ metric:`symbol$();             // specific check
  process:`symbol$();            // process it was run on
- query:();			// query to execute
- resultchecker:();		// function to run on the result
- params:();			// the parameters to pass to query and resultchecker
- period:`timespan$();		// how often to run it
- runtime:`timespan$();		// how long it should take to run
- active:`boolean$())		// whether the check is active or not
+ query:();                      // query to execute
+ resultchecker:();              // function to run on the result
+ params:();                     // the parameters to pass to query and resultchecker
+ period:`timespan$();           // how often to run it
+ runtime:`timespan$();          // how long it should take to run
+ active:`boolean$())            // whether the check is active or not
 
 // table to track the monitoring requests we have in flight
 // we don't have any trimming functionality for this table, we may need to add that
 checktracker:(
- [runid:`u#`int$()]		// id of the run
- sendtime:`timestamp$();	// the time we sent the request
- receivetime:`timestamp$();	// the time the response was received
- executiontime:`timespan$();	// the time it took to run the query
- checkid:`int$();		// the id of the check that was run
- status:`short$();		// the status of the request
- result:())			// the result of the request
+ [runid:`u#`int$()]             // id of the run
+ sendtime:`timestamp$();        // the time we sent the request
+ receivetime:`timestamp$();     // the time the response was received
+ executiontime:`timespan$();    // the time it took to run the query
+ checkid:`int$();               // the id of the check that was run
+ status:`short$();              // the status of the request
+ result:())                     // the result of the request
 
 // insert placeholder row to make sure result field doesn't inherit a type
 `checktracker insert (0Ni;0Np;0Np;0Nn;0Ni;0Nh;());
