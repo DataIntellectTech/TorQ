@@ -1135,7 +1135,7 @@ messages in logmsg
 
 ### Checkmonitor
 
-The checkmonitor.q script extends the functionality of the monitor process.  
+The `checkmonitor.q` script extends the functionality of the monitor process.  
 The script takes a set of user defined configuration settings for a set of process 
 specific checks. These can initially be provided in the form of a CSV, 
 a sample of which is shown here:
@@ -1144,7 +1144,7 @@ a sample of which is shown here:
     datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
 
 Upon start up, the CSV file is loaded and inserted into the in-memory table, 
-checkconfig. During this insertion, each check will also be assigned 
+`checkconfig`. During this insertion, each check will also be assigned 
 a unique checkid number. 
 
     q)checkconfig
@@ -1185,7 +1185,7 @@ r result value passes the conditions specified by the resultchecker function.
 
 This example checks whether the trade table within the rdb is larger than 10.
 As this is true, the status has been set to 1h and no error message
-has been returned. This information is inserted into the checkstatus table, 
+has been returned. This information is inserted into the `checkstatus` table, 
 which is the master table where all results are stored. 
 
     q)checkstatus
@@ -1195,7 +1195,7 @@ which is the master table where all results are stored.
 
 
 In addition to tracking the status of the specified queries, a number of metrics 
-are also returned in the checkstatus table. 
+are also returned in the `checkstatus` table. 
 
 |  Column Header  | Value Type |      Description    
 | :-------------: |:----------:|:--------------------------------------:|
@@ -1220,7 +1220,7 @@ the in-memory functions makes altering configuration parameters easier.
 Four functions are available to do so: `addcheck`, `updateconfig`, `updateconfigfammet`
 and `forceconfig`. 
 
-|   Function      | Description |         
+|   Function Name       | Description |         
 | :-------------: |:---------------------:|
 |    `addcheck[dictionary]`  |  addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type.  |
 |   `updateconfig[checkid;paramkey;newval]`     |  updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type.  |
@@ -1229,9 +1229,16 @@ and `forceconfig`.
 
 There are other additional functions that are useful for using the check monitor. 
 
-Once run, checks are added to a checktracker table. Here, each run is assigned a 
+|  Function Name  | Value Type |        
+| :-------------: |:----------:|
+|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   | 
+|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  | 
+| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   | 
+
+
+All checks can be tracked using the table `checktracker`. Here, each run is assigned a 
 unique runid- thus individual runs for each check can be tracked. For each run,
-it tracks the time the target process receives the query, as well as 
+it tracks the time tkane for target process to recieve the query, as well as 
 the execution time. The result value will also be displayed.
 
 ### HTML5 front end 
