@@ -242,13 +242,10 @@ statusbyfam:{[f]
  `status`timerstatus xasc select from checkstatus where family in f
  }
 
-
 // RESULT HANDLERS
 // some example result handler functions here 
 // these should always return `status`result!(status; message)
-// they should take two params
-// x=parameter dictionary
-// y=result row
+// they should take two params- p (dictionary parameters) and r (resultrow)
 
 checkcount:{[p;r]
  if[`morethan=p`cond;
