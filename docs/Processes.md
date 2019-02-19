@@ -1135,10 +1135,31 @@ messages in logmsg
 
 ### Checkmonitor
 
-The checkmonitor.q script extends the functionality of the monitor process.  The script takes a set of user defined configuration settings for a set of process specific checks. These can initially be provided in the form of a CSV, a sample of which is shown here:
+The checkmonitor.q script extends the functionality of the monitor process.  
+The script takes a set of user defined configuration settings for a set of 
+process specific checks. These can initially be provided in the form of a CSV, 
+a sample of which is shown here:
 
     family|metric|process|query|resultchecker|params|period|runtime
     datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
+
+Upon start up, the CSV file is loaded and inserted into the in-memory table, checkconfig. 
+During this insertion, each check will also be assigned a unique checkid number. 
+
+    q)checkconfig
+    checkid| family    metric     process query           resultchecker params                                    period               runtime              active
+    -------| -----------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    "{count trade}" "checkcount"  `varname`count`cond!(`trade;10;`morethan) 0D00:01:00.000000000 0D00:00:01.000000000 1
+
+
+For each check, the query will be sent via asynchronous requests to the 
+specified processes and waits for postback of the results. Once the monitoring 
+process receives the result of the query, it will then be checked by the resultchecker 
+function to identify whether it will pass or fail. 
+
+
+
+
 
 ### HTML5 front end 
 
