@@ -1133,6 +1133,13 @@ messages in logmsg
     2014.01.07D12:25:17.457535000 hdb1 aquaq ERR      reload  "failed to reload database"           
     2014.01.07D13:29:28.784333000 rdb1 aquaq ERR      eodsave "failed to save tables : trade, quote"
 
+### Checkmonitor
+
+The checkmonitor.q script extends the functionality of the monitor process.  The script takes a set of user defined configuration settings for a set of process specific checks. These can initially be provided in the form of a CSV, a sample of which is shown here:
+
+    family|metric|process|query|resultchecker|params|period|runtime
+    datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
+
 ### HTML5 front end 
 
 A HTML5 front end has been built to display important process
