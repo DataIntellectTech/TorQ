@@ -7,23 +7,18 @@
 .monit.checktimeinterval:@[value;`.monit.checktimeinterval;0D00:00:05];                                              //interval to make sure checks are not lagging
 
 // set up the upd function to handle heartbeats
- upd:{[t;x]
+upd:{[t;x]
  $[t=`heartbeat;
-    [ // publish single heartbeat row to web pages 
-      .html.pub[`heartbeat;$[min (`warning`error in cols exec from x);x;[.hb.storeheartbeat[x];hb_x::x;select from .hb.hb where procname in x`procname]]]];
-  t=`logmsg;
-    [ 
-      insert[`logmsg;x]; 
-    // publish single logmsg row to web page
-      .html.pub[`logmsg;x];
-    // publish all lmchart data - DEV - could publish single cols and update svg internally
-      .html.pub[`lmchart;lmchart[]]];
-  t=`checkstatus;
-    [
- //      .html.pub[`checkstatus;0!checkstatus]
-         .html.pub[`checkstatus;]each checkstatus;
-    ];
-  ()]}
+	 [ // publish single heartbeat row to web pages 
+	  .html.pub[`heartbeat;$[min (`warning`error in cols exec from x);x;[.hb.storeheartbeat[x];hb_x::x;select from .hb.hb where procname in x`procname]]]];
+   t=`logmsg;
+	  [ 
+     insert[`logmsg;x]; 
+	   // publish single logmsg row to web page
+	   .html.pub[`logmsg;x];
+     // publish all lmchart data - DEV - could publish single cols and update svg internally
+     .html.pub[`lmchart;lmchart[]]];
+   ()]}
 
 subscribedhandles:0 0Ni
 
@@ -56,7 +51,6 @@ subscribe each (exec w from .servers.SERVERS) except subscribedhandles;
 /- Table data functions - Return unkeyed sorted tables
 hbdata:{0!`error`warning xdesc .hb.hb}
 lmdata:{0!`time xdesc -20 sublist logmsg}
-checkdata:{0!checkstatus}
 
 /- Chart data functions - Return unkeyed chart data
 lmchart:{0!select errcount:count i by 0D00:05 xbar time from logmsg where loglevel=`ERR}
@@ -64,13 +58,13 @@ bucketlmchartdata:{[x] x:`minute$$[x=0;1;x];0!select errcount:count i by (0D00:0
 
 /- Data functions - These are functions that are requested by the front end
 /- start is sent on each connection and refresh. Where there are more than one table it is wise to identify each one using a dictionary as shown
-start:{.html.wssub each `heartbeat`logmsg`lmchart`checkstatus;
-       .html.dataformat["start";(`hbtable`lmtable`lmchart`checkstatus)!(hbdata[];lmdata[];lmchart[];checkdata[])]}
+start:{.html.wssub each `heartbeat`logmsg`lmchart;
+       .html.dataformat["start";(`hbtable`lmtable`lmchart)!(hbdata[];lmdata[];lmchart[])]}
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
 monitorui:.html.readpagereplaceHP["index.html"]
 
 // initialise pubsub
-.html.init`heartbeat`logmsg`lmchart`checkstatus
+.html.init`heartbeat`logmsg`lmchart
 
 //function to iniitialise process check monitoring- checks for last saved config file
 initcheck:{
