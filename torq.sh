@@ -52,7 +52,7 @@ findproc() {
 startline() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")                                                     # get line number for file
   proctype=$(getfield "$procno" "proctype")                                                         # get proctype for process 
-  params="U localtime g T w load"                                                                   # list of params to read from config 
+  params="U localtime g T w loaddir load"                                                           # list of params to read from config 
   sline="${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $1"               # base part of startup line
   for p in $params; do                                                                              # iterate over params
     a=$(parameter "$procno" "$p");                                                                  # get param
