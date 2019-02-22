@@ -118,6 +118,19 @@ stop() {
   fi
  }
 
+restart() {
+  if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
+    echo "$(date '+%H:%M:%S') | $1 is not currently running - starting process..."                  # if not already up, process will start up anyway
+  else
+    echo "$(date '+%H:%M:%S') | Restarting $1..."                                                   # else, process will be stopped
+    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+    port=$(($(eval echo \$"$(getfield "$procno" port)")))
+    eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+  fi
+    sline=$(startline "$1")                                                                         # start - line to run each process
+    eval "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                   # run in background and redirect output to log file
+ }
+
 getall() {
   procs=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all processes from csv
   start=""
@@ -239,6 +252,13 @@ stopprocs() {
   done
  }
 
+restartprocs() {
+  checkextrascsv $@;                                                                                # checks if extra flags/csv included
+  for p in $PROCS; do
+    restart "$p";                                                                                      # restart each process in variable
+  done
+ }
+
 runprint() {
   checkextrascsv "$*";                                                                              # checks if extra flags/csv included
   for p in $PROCS; do
@@ -316,6 +336,9 @@ case $1 in
     ;;
   stop)
     stopprocs "$@";
+    ;;
+  restart)
+    restartprocs "$*";
     ;;
   debug)
     rundebug "$@";
