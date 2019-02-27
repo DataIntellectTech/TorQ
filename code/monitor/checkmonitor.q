@@ -58,9 +58,7 @@ readmonitoringconfig:{[file]
   if[not all 99h=type each p;  
     .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];  
     exit 3];
-  c:update params:p from c;
-  // add the config
-  addconfig c;
+  addconfig c:update params:p from c;
  }
 
 readstoredconfig:{[file]
