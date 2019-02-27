@@ -90,23 +90,17 @@ saveconfig:{[file;config]
 addcheck:{[checkdict]
   // add a new monitoring check
   // this is for manual adds - add it as a dictionary
-  if[not 99h=type checkdict;'"input must be a dictionary"
-  ];
+  if[not 99h=type checkdict;'"input must be a dictionary"];
   if[not all (req:`family`metric`process`query`resultchecker`params`period`runtime)in key checkdict;
-    '"not all required dictionary keys supplied; missing ",.Q.s1 req except key checkdict
-  ];
+    '"not all required dictionary keys supplied; missing ",.Q.s1 req except key checkdict];
   if[not 11h=type checkdict`family`metric`process;
-    '"keys family, metric, process must have type symbol"
-  ];
+    '"keys family, metric, process must have type symbol"];
   if[not all 10h=type each checkdict`query`resultchecker;         
-    '"keys query, resultchecker must have type char array (string)"
-  ];
+    '"keys query, resultchecker must have type char array (string)"];
   if[not all 16h=type checkdict`period`runtime;
-    '"keys period, runtime must have type timespan"
-  ];
+    '"keys period, runtime must have type timespan"];
   if[not 99h=type checkdict`params;
-    '"key params must have type dictionary"
-  ];
+    '"key params must have type dictionary"];
   // add the config
   addconfig enlist req#checkdict;
  }
@@ -117,11 +111,9 @@ addconfig:{
   // pull out the current max checkid
   nextcheckid:1i+0i|exec max checkid from checkconfig;
   // add checkid if not already present
-  if[not `checkid in cols x; x:update checkid:nextcheckid+til count x from x
-  ];
+  if[not `checkid in cols x; x:update checkid:nextcheckid+til count x from x];
   // add active if not already present
-  if[not `active in cols x; x:update active:1b from x
-  ];
+  if[not `active in cols x; x:update active:1b from x];
  
   // select only the columns we need, and key it
   x:`checkid xkey (cols checkconfig)#0!x;
@@ -234,9 +226,8 @@ forceconfig:{[checkid;newconfig]
   // don't check for existence of parameters,parameter types etc. 
   if[not checkid in exec checkid from checkconfig;
     '"supplied checkid doesn't exist in checkconfig table"
-  ];
-  if[not 99h=type newconfig; '"new supplied config must be of type dictionary"
-  ];
+ ];
+  if[not 99h=type newconfig; '"new supplied config must be of type dictionary"];
   .[`checkconfig;(checkid;`params);:;newconfig];
  }
 
@@ -268,15 +259,15 @@ statusbyfam:{[f]
 checkcount:{[p;r]
   if[`morethan=p`cond;
   if[p[`count]<r`result; :`status`result!(1h;"")];
-    :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)
+  :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)
    ];
  if[`lessthan=p`cond;
    if[p[`count]>r`result; :`status`result!(1h;"")];
-     :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but should be less than ",string p`count)
+   :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but should be less than ",string p`count)
   ];
  }
 
 queuecheck:{[p;r]
-  if[not count (where any each(r`result)>p`count); :`status`result!(1h;"")];
-    `status`result!(0h;"There are slow subscribers to publisher that have message queues longer than ",string p`count)
+  if[not count where any each(r`result)>p`count;:`status`result!(1h;"")];
+  `status`result!(0h;"There are slow subscribers to publisher that have message queues longer than ",string p`count)
  }
