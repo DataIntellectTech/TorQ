@@ -83,23 +83,30 @@ saveconfig:{[file;config]
   // write the in-memory config to disk
   if[not null file;
     .lg.o["saving stored config to ",string file:hsym file];
-    .[set;(file;config);{'"failed to write config file to ",(string x),": ",y}[file]]] 
+    .[set;(file;config);{'"failed to write config file to ",(string x),": ",y}[file]]
+ ] 
  }
 
 addcheck:{[checkdict]
   // add a new monitoring check
   // this is for manual adds - add it as a dictionary
-  if[not 99h=type checkdict;'"input must be a dictionary"];
+  if[not 99h=type checkdict;'"input must be a dictionary"
+  ];
   if[not all (req:`family`metric`process`query`resultchecker`params`period`runtime)in key checkdict;
-    '"not all required dictionary keys supplied; missing ",.Q.s1 req except key checkdict];
+    '"not all required dictionary keys supplied; missing ",.Q.s1 req except key checkdict
+  ];
   if[not 11h=type checkdict`family`metric`process;
-    '"keys family, metric, process must have type symbol"];
+    '"keys family, metric, process must have type symbol"
+  ];
   if[not all 10h=type each checkdict`query`resultchecker;         
-    '"keys query, resultchecker must have type char array (string)"];
+    '"keys query, resultchecker must have type char array (string)"
+  ];
   if[not all 16h=type checkdict`period`runtime;
-    '"keys period, runtime must have type timespan"];
+    '"keys period, runtime must have type timespan"
+  ];
   if[not 99h=type checkdict`params;
-    '"key params must have type dictionary"];
+    '"key params must have type dictionary"
+  ];
   // add the config
   addconfig enlist req#checkdict;
  }
@@ -110,9 +117,11 @@ addconfig:{
   // pull out the current max checkid
   nextcheckid:1i+0i|exec max checkid from checkconfig;
   // add checkid if not already present
-  if[not `checkid in cols x; x:update checkid:nextcheckid+til count x from x];
+  if[not `checkid in cols x; x:update checkid:nextcheckid+til count x from x
+  ];
   // add active if not already present
-  if[not `active in cols x; x:update active:1b from x];
+  if[not `active in cols x; x:update active:1b from x
+  ];
  
   // select only the columns we need, and key it
   x:`checkid xkey (cols checkconfig)#0!x;
@@ -206,13 +215,16 @@ timecheck:{[n]
 updateconfig:{[checkid;paramkey;newval]
   // update a config value 
   if[not checkid in exec checkid from checkconfig;
-    '"supplied checkid doesn't exist in checkconfig table"];
+    '"supplied checkid doesn't exist in checkconfig table"
+  ];
   // check existance
   if[not paramkey in key current:.[`checkconfig;(checkid;`params)];
-    '"supplied paramkey does not exist in params for checkid ",(string checkid)];
+    '"supplied paramkey does not exist in params for checkid ",(string checkid)
+  ];
   // check type
   if[not type[newval]=type current paramkey;
-    '"supplied value type ",(string type newval)," doesn't match current type ",string type current paramkey];
+    '"supplied value type ",(string type newval)," doesn't match current type ",string type current paramkey
+  ];
   // crack on
   .[`checkconfig;(checkid;`params;paramkey);:;newval]; 
  }
@@ -221,8 +233,10 @@ forceconfig:{[checkid;newconfig]
   // force config over the top of current
   // don't check for existence of parameters,parameter types etc. 
   if[not checkid in exec checkid from checkconfig;
-    '"supplied checkid doesn't exist in checkconfig table"];
-  if[not 99h=type newconfig; '"new supplied config must be of type dictionary"];
+    '"supplied checkid doesn't exist in checkconfig table"
+  ];
+  if[not 99h=type newconfig; '"new supplied config must be of type dictionary"
+  ];
   .[`checkconfig;(checkid;`params);:;newconfig];
  }
 
