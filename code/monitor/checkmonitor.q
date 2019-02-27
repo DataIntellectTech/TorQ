@@ -256,7 +256,7 @@ statusbyfam:{[f]
 
 checkcount:{[p;r]
   if[`morethan=p`cond;
-  if[p[`count]<r`result; :`status`result!(1h;"")];
+    if[p[`count]<r`result; :`status`result!(1h;"")];
   :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)
    ];
  if[`lessthan=p`cond;
