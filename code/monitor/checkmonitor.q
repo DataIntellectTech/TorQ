@@ -57,7 +57,8 @@ readmonitoringconfig:{[file]
   // check each params value is a dictionary
   if[not all 99h=type each p;  
     .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];  
-    exit 3];
+    exit 3
+  ];
   addconfig c:update params:p from c;
  }
 
