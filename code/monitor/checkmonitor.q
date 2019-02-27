@@ -80,10 +80,9 @@ readstoredconfig:{[file]
 
 saveconfig:{[file;config]
   // write the in-memory config to disk
-  if[not null file;
-    .lg.o["saving stored config to ",string file:hsym file];
-    .[set;(file;config);{'"failed to write config file to ",(string x),": ",y}[file]]
- ] 
+  if[null file;:()];
+  .lg.o["saving stored config to ",string file:hsym file];
+  .[set;(file;config);{'"failed to write config file to ",(string x),": ",y}file] 
  }
 
 addcheck:{[checkdict]
