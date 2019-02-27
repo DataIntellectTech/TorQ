@@ -51,7 +51,7 @@ readmonitoringconfig:{[file]
   // read in config CSV (actually pipe delimited)
   .lg.o["reading monitoring config from ",string file:hsym file];
   // read in csv file, trap error
-  c:.[0:;(("SSS***NN";enlist"|");hsym file);{.lg.e["failed to load monitoring configuration file: ",x]; exit 1}];
+  c:.[0:;(("SSS***NN";enlist"|");hsym file);{.lg.e["failed to load monitoring configuration file: ",x]}];
   // attempt to parse the params value
   p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c]; 
   // check each params value is a dictionary
