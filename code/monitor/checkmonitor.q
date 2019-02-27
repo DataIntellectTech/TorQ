@@ -240,7 +240,7 @@ updateconfigfammet:{[f;m;paramkey;newval]
 //Function to return only required metrics on current status of check
 currentstatus:{[c]
   if[all null c; :select checkid,family,metric,process,status,timerstatus,running,result from checkstatus];
-    :select checkid,family,metric,process,status,timerstatus,running,result from checkstatus where checkid in c;
+  :select checkid,family,metric,process,status,timerstatus,running,result from checkstatus where checkid in c;
  }
 
 //Get ordered status and timer status by family
