@@ -174,8 +174,8 @@ checkresulthandler:{
     if[not 99h=type r; r:`status`result!(0b;"resultchecker function did not return a dictionary")];
     // check here if it has failed or passed
     // override the status and error message as appropriate
-  toinsert[`status]&:r`status;
-  toinsert[`result]:r`result; 
+    toinsert[`status]&:r`status;
+    toinsert[`result]:r`result; 
   ];
  
  // if the query has failed, add in the error
