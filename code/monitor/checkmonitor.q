@@ -166,15 +166,14 @@ checkresulthandler:{
   // need to run the resultchecker against the actual result
   // but only if the actual query has been successful
    if[x`status; 
-   // pull out the resultchecker function and run it
-   // this should only get triggered in dev cycle- 
-   // protect against devs inserting incorrect resultchecker definitions
-   r:@[value;(conf`resultchecker;conf`params;toinsert);{`status`result!(0b;"failed to run result checker for runid ",(string x`runid)," and checkid ",(string x`checkid),": ",y)}[toinsert]];
-   // have to make sure we have dictionary result
-  if[not 99h=type r; r:`status`result!(0b;"resultchecker function did not return a dictionary")];
-   
-  // check here if it has failed or passed
-  // override the status and error message as appropriate
+     // pull out the resultchecker function and run it
+     // this should only get triggered in dev cycle- 
+     // protect against devs inserting incorrect resultchecker definitions
+     r:@[value;(conf`resultchecker;conf`params;toinsert);{`status`result!(0b;"failed to run result checker for runid ",(string x`runid)," and checkid ",(string x`checkid),": ",y)}[toinsert]];
+     // have to make sure we have dictionary result
+    if[not 99h=type r; r:`status`result!(0b;"resultchecker function did not return a dictionary")];
+    // check here if it has failed or passed
+    // override the status and error message as appropriate
   toinsert[`status]:toinsert[`status] and r`status;
   toinsert[`result]:r`result; 
   ];
