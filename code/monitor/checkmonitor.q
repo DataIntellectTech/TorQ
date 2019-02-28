@@ -136,7 +136,7 @@ runcheck:{
   // increment the run id
   runid+:1i;
   // get the handle to the process
- if[null h:gethandle[x`process]; `checkstatus upsert ((enlist`checkid)!enlist x`checkid),update running:0h,result:"no handle connection",status:0h,timerstatus:0h from checkstatus x`checkid];
+  if[null h:gethandle[x`process]; `checkstatus upsert ((enlist`checkid)!enlist x`checkid),update running:0h,result:"no handle connection",status:0h,timerstatus:0h from checkstatus x`checkid];
   // run the check remotely
   // send over the id, return a dict of `id`status`res
   .async.postback[h;({start:.z.p; (`runid`executiontime!(y;.z.p-start)),`status`result!@[{(1h;value x)};x;{(0h;x)}]};(x`query;x`params);runid);`checkresulthandler];
@@ -183,9 +183,9 @@ checkresulthandler:{
   if[not x`status; toinsert[`result]:"request failed on remote server: ",x`result];
  
   // insert the record into checkstatus
-  `checkstatus upsert ((enlist `checkid)!enlist toinsert`checkid),
-   (checkstatus toinsert[`checkid]),
-   `lastrun`nextrun`status`executiontime`totaltime`timerstatus`running`result!(toinsert`sendtime;.z.p+conf`period;toinsert`status;toinsert`executiontime;toinsert[`receivetime]-toinsert[`sendtime];`short$conf[`runtime]>toinsert`executiontime;0h;toinsert`result)
+   `checkstatus upsert ((enlist `checkid)!enlist toinsert`checkid),
+  (checkstatus toinsert[`checkid]), 
+  `lastrun`nextrun`status`executiontime`totaltime`timerstatus`running`result!(toinsert`sendtime;.z.p+conf`period;toinsert`status;toinsert`executiontime;toinsert[`receivetime]-toinsert[`sendtime];`short$conf[`runtime]>toinsert`executiontime;0h;toinsert`result)
  } 
 
 // run each check that needs to be run
