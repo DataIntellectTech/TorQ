@@ -182,7 +182,7 @@ checkresulthandler:{
   if[not x`status; toinsert[`result]:"request failed on remote server: ",x`result];
  
   // insert the record into checkstatus
-   `checkstatus upsert ((enlist `checkid)!enlist toinsert`checkid),
+  `checkstatus upsert ((enlist `checkid)!enlist toinsert`checkid),
   (checkstatus toinsert[`checkid]), 
   `lastrun`nextrun`status`executiontime`totaltime`timerstatus`running`result!(toinsert`sendtime;.z.p+conf`period;toinsert`status;toinsert`executiontime;toinsert[`receivetime]-toinsert[`sendtime];`short$conf[`runtime]>toinsert`executiontime;0h;toinsert`result)
  } 
@@ -231,7 +231,8 @@ forceconfig:{[checkid;newconfig]
 //Function to update config value based on family and metric combination
 updateconfigfammet:{[f;m;paramkey;newval]
   if[0=count checkid: exec checkid from checkconfig where family=f,metric=m;
-    '"family and metric combination doesn't exist in checkconfig table"];
+    '"family and metric combination doesn't exist in checkconfig table"
+  ];
     updateconfig[first checkid;paramkey;newval];
  }
 
