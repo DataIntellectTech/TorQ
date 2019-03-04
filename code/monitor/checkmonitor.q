@@ -123,6 +123,17 @@ addconfig:{
   `checkstatus upsert select checkid,family,metric,process,lastrun:0Np,nextrun:.z.p,status:0Nh,executiontime:0Nn,totaltime:0Nn,timerstatus:0Nh,running:0Nh,result:(count process)#() from x;  
  }
 
+copyconfig:{[checkid;newproc]
+  //function to copy config from checkconfig table and reinsert with new target process
+  //check if supplied checkid exists
+  if[not checkid in exec checkid from checkconfig;
+    '"supplied checkid doesn't exist in checkconfig table"  
+  ];
+  newcheckid: 1i+exec max checkid from checkconfig;
+  checkconfig upsert update checkid:newcheckid,process:newproc from 0!select from checkconfig where checkid=checkid
+ }
+  
+
 togglecheck:{[cid;status]
   if[not cid in exec checkid from checkconfig; '"checkid ",(string cid)," doesn't exist"];
   update active:status from `checkconfig where checkid=cid;
