@@ -127,12 +127,11 @@ copyconfig:{[checkid;newproc]
   //function to copy config from checkconfig table and reinsert with new target process
   //check if supplied checkid exists
   if[not checkid in exec checkid from checkconfig;
-    '"supplied checkid doesn't exist in checkconfig table"  
+    '"supplied checkid doesn't exist in checkconfig table"
   ];
   newcheckid: 1i+exec max checkid from checkconfig;
-  checkconfig upsert update checkid:newcheckid,process:newproc from 0!select from checkconfig where checkid=checkid
+  `checkconfig upsert update checkid:newcheckid,process:newproc from 0!select from checkconfig where checkid=checkid
  }
-  
 
 togglecheck:{[cid;status]
   if[not cid in exec checkid from checkconfig; '"checkid ",(string cid)," doesn't exist"];
@@ -259,6 +258,15 @@ statusbyfam:{[f]
   if[all null f;:`status`timerstatus xasc select from checkstatus];
   `status`timerstatus xasc select from checkstatus where family in f
  }
+
+
+//Delete rows from Checkstatus 
+deleterows:{[checkids]
+ if[all null checkids; :delete from `checkstatus];
+ delete from `checkstatus where checkid in checkids
+ }
+  
+
 
 // RESULT HANDLERS
 // some example result handler functions here 
