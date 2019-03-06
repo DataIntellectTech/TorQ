@@ -46,17 +46,24 @@ checktracker:(
 
 // initialise the runid to 0
 runid:0i
- 
+
+duplicateconfig:{
+  c:cols x;
+  w:(``process _x)where count each x`process;
+  :c#flip[enlist[`process]!enlist raze x`process],'w;
+ };
+
 readmonitoringconfig:{[file]
   // read in config CSV (actually pipe delimited)
   .lg.o["reading monitoring config from ",string file:hsym file];
   // read in csv file, trap error
-  c:.[0:;(("SSS***NN";enlist"|");file);{.lg.e["failed to load monitoring configuration file: ",x]}];
+  c:.[0:;(("SS****NN";enlist"|");file);{.lg.e["failed to load monitoring configuration file: ",x]}];
+  c:duplicateconfig[update `$";"vs/:process from c];
   // attempt to parse the params value
-  p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c]; 
+  p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c];
   // check each params value is a dictionary
-  if[not all 99h=type each p;  
-    .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];  
+  if[not all 99h=type each p;
+    .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];
     exit 3
   ];
   addconfig c:update params:p from c;
