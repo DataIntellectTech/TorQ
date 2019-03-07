@@ -47,6 +47,7 @@ checktracker:(
 // initialise the runid to 0
 runid:0i
 
+//allowing ungrouping of checks for multiple processes
 duplicateconfig:{
   c:cols x;
   w:(``process _x)where count each x`process;
@@ -58,6 +59,7 @@ readmonitoringconfig:{[file]
   .lg.o["reading monitoring config from ",string file:hsym file];
   // read in csv file, trap error
   c:.[0:;(("SS****NN";enlist"|");file);{.lg.e["failed to load monitoring configuration file: ",x]}];
+  //ungroup checks and make new row for each process
   c:duplicateconfig[update `$";"vs/:process from c];
   // attempt to parse the params value
   p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c];
