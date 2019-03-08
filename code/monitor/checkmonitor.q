@@ -297,3 +297,20 @@ queuecheck:{[p;r]
   if[not count where any each(r`result)>p`count;:`status`result!(1h;"")];
   `status`result!(0h;"There are slow subscribers to publisher that have message queues longer than ",string p`count)
  }
+
+truefalse:{[p;r]
+   if[`true=p`cond;
+    if[1b=r`result; :`status`result!(1h;"")];
+  :`status`result!(0h;"variable ",(string p`varname),"is returning false, but should return true")
+   ];
+ if[`false=p`cond;
+   if[0b=r`result; :`status`result!(1h;"")];
+  :`status`result!(0h;"variable ",(string p`varname),"is returning true, but should return false")
+  ];
+ }
+
+resulttrue:{[p;r]
+  if[(r`result)=p`result;:`status`result!(1h;"")];
+  `status`result!(0h;"The variable ",(string p`varname),"is returning ",(string r`result)," but should be returning ",string p`result)
+ }
+
