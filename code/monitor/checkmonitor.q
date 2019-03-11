@@ -267,15 +267,11 @@ statusbyfam:{[f]
   `status`timerstatus xasc select from checkstatus where family in f
  }
 
-
-//Delete rows from Checkstatus 
-deleterows:{[checkids]
- if[all null checkids; :delete from `checkstatus];
- delete from `checkstatus where checkid in checkids
+//Clear checks in checktracker older than certain age
+cleartracker:{[time]
+  delete from `checktracker where (.z.p-sendtime)> time
  }
-  
-
-
+ 
 // RESULT HANDLERS
 // some example result handler functions here 
 // these should always return `status`result!(status; message)
