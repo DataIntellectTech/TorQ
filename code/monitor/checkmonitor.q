@@ -136,10 +136,9 @@ copyconfig:{[checkid;newproc]
   //function to copy config from checkconfig table and reinsert with new target process
   //check if supplied checkid exists
   if[not checkid in exec checkid from checkconfig;
-    '"supplied checkid doesn't exist in checkconfig table"
-  ];
-  newcheckid: 1i+exec max checkid from checkconfig;
-  `checkconfig upsert update checkid:newcheckid,process:newproc from 0!select from checkconfig where checkid=checkid
+    '"supplied checkid doesn't exist in checkconfig table"];
+  newcheck:update process:newproc from 1_exec from checkconfig where checkid=checkid;
+  addcheck newcheck
  }
 
 togglecheck:{[cid;status]
