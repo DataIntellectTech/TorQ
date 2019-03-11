@@ -78,6 +78,8 @@ initcheck:{
 //initialise monitor checks
 initcheck[]
 
-// REMOVE THIS WHEN MOVING AWAY FROM TORQ
+//Timers
 .timer.repeat[.z.p;0Wp;0D00:00:05;(`runnow;`);"run the monitoring checks"]
 .timer.repeat[.z.p;0Wp;0D00:00:05;(`checkruntime;0D00:01:00.000000000);"update status if running slow"]
+.timer.repeat[.z.p;0Wp;0D00:00:05;(`cleartracker;0D00:01:00.000000000);"delete rows if over certain age"]
+
