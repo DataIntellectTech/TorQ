@@ -1,10 +1,10 @@
 // Default configuration for the monitor process
 
 \d .monitor 
-configcsv: first .proc.getconfigfile["monitorconfig.csv"];
-configstored:first .proc.getconfigfile["monitorconfig"];
-checkinterval:0D00:00:05;
-checktimeinterval:0D00:00:07;
+configcsv: first .proc.getconfigfile["monitorconfig.csv"];                               //filepath to checkmonitor config csv file 
+configstored:first .proc.getconfigfile["monitorconfig"];                                 //filepath to checkmonitor flat table file
+runcheckinterval:0D00:00:05;                                                             //interval to run checks 
+checkinginterval:0D00:00:07;                                                             //interval to identify that checks are not lagging 
 
 //Enable loading
 \d .proc
