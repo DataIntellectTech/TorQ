@@ -1,10 +1,14 @@
-//TorQ Monitor Process
+/TorQ Monitor Process
 
 //configurable parameters for check monitoring
 .monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                      //name of config csv to load in
 .monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                    //name of stored table for save and reload
-.monitor.runcheckinterval:@[value;`.monit.runcheckinterval;0D00:00:05];                                              //interval to run checks 
-.monitor.checkinginterval:@[value;`.monit.checkinginterval;0D00:00:05];                                              //interval to make sure checks are not lagging
+.monitor.runcheckinterval:@[value;`.monitor.runcheckinterval;0D00:00:05];                                              //interval to run checks 
+.monitor.checkinginterval:@[value;`.monitor.checkinginterval;0D00:00:05];                                              //interval to make sure checks are not lagging
+.monitor.cleartrackinterval::@[value;`.monitor.cleartrackinterval;0D00:00:05];     
+.monitor.agecheck:@[value;`.monitor.agecheck;0D00:01:00];     
+.monitor.lagtime:@[value;`.monitor.lagtime;0D00:01:00];     
+
 
 // set up the upd function to handle heartbeats
 upd:{[t;x]
@@ -79,7 +83,6 @@ initcheck:{
 initcheck[]
 
 //Timers
-.timer.repeat[.z.p;0Wp;0D00:00:05;(`runnow;`);"run the monitoring checks"]
-.timer.repeat[.z.p;0Wp;0D00:00:05;(`checkruntime;0D00:01:00.000000000);"update status if running slow"]
-.timer.repeat[.z.p;0Wp;0D00:00:05;(`cleartracker;0D00:01:00.000000000);"delete rows if over certain age"]
-
+.timer.repeat[.z.p;0Wp;.monitor.runcheckinterval;(`runnow;`);"run the monitoring checks"]
+.timer.repeat[.z.p;0Wp;.monitor.checkinginterval;(`checkruntime;.monitor.lagtime);"update status if running slow"]
+.timer.repeat[.z.p;0Wp;.monitor.cleartrackinterval;(`cleartracker;.monitor.agecheck);"delete rows if over certain age"]
