@@ -3,8 +3,8 @@
 //configurable parameters for check monitoring
 .monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                      //name of config csv to load in
 .monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                    //name of stored table for save and reload
-.monit.checkinterval:@[value;`.monit.checkinterval;0D00:00:05];                                                      //interval to run checks 
-.monit.checktimeinterval:@[value;`.monit.checktimeinterval;0D00:00:05];                                              //interval to make sure checks are not lagging
+.monitor.runcheckinterval:@[value;`.monit.runcheckinterval;0D00:00:05];                                              //interval to run checks 
+.monitor.checkinginterval:@[value;`.monit.checkinginterval;0D00:00:05];                                              //interval to make sure checks are not lagging
 
 // set up the upd function to handle heartbeats
 upd:{[t;x]
