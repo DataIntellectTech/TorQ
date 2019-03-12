@@ -60,7 +60,6 @@ readmonitoringconfig:{[file]
   // read in csv file, trap error
   c:.[0:;(("SS****NN";enlist"|");file);{.lg.e["failed to load monitoring configuration file: ",x]}];
   //ungroup checks and make new row for each process
-  c:duplicateconfig[update `$";"vs/:process from c];
   // attempt to parse the params value
   p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c];
   // check each params value is a dictionary
@@ -68,6 +67,8 @@ readmonitoringconfig:{[file]
     .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];
     exit 3
   ];
+  //ungroup checks and make new row for each process
+  c:duplicateconfig[update `$";"vs/:process from c];
   addconfig c:update params:p from c;
  }
 
