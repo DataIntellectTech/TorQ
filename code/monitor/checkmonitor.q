@@ -138,7 +138,7 @@ copyconfig:{[checkid;newproc]
   //check if supplied checkid exists
   if[not checkid in exec checkid from checkconfig;
     '"supplied checkid doesn't exist in checkconfig table"];
-  newcheck:update process:newproc from 1_exec from checkconfig where checkid=checkid;
+  newcheck:update process:newproc from delete checkid from exec from checkconfig where checkid=checkid;
   addcheck newcheck
  }
 
