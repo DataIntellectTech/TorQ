@@ -47,12 +47,7 @@ checktracker:(
 // initialise the runid to 0
 runid:0i
 
-//allowing ungrouping of checks for multiple processes
-duplicateconfig:{
-  c:cols x;
-  w:(``process _x)where count each x`process;
-  :c#flip[enlist[`process]!enlist raze x`process],'w;
- };
+duplicateconfig:{[t] update process:raze[t `process] from ((select from t)where count each t[`process])};
 
 readmonitoringconfig:{[file]
   // read in config CSV (actually pipe delimited)
@@ -68,8 +63,9 @@ readmonitoringconfig:{[file]
     exit 3
   ];
   //ungroup checks and make new row for each process
-  c:duplicateconfig[update `$";"vs/:process from c];
-  addconfig c:update params:p from c;
+  //c:update params:p from c;
+  c:duplicateconfig[update params:p from update`$";"vs/:process from c];
+  addconfig c;
  }
 
 readstoredconfig:{[file]
