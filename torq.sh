@@ -317,6 +317,12 @@ case $1 in
   stop)
     stopprocs "$@";
     ;;
+  restart)
+    checkextrascsv "$*";
+    echo Restarting $PROCS...
+    stopprocs "$@";
+    startprocs "$*";
+    ;;
   debug)
     rundebug "$@";
     ;;
