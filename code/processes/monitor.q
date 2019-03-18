@@ -3,12 +3,11 @@
 //configurable parameters for check monitoring
 .monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                      //name of config csv to load in
 .monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                    //name of stored table for save and reload
-.monitor.runcheckinterval:@[value;`.monitor.runcheckinterval;0D00:00:05];                                              //interval to run checks 
-.monitor.checkinginterval:@[value;`.monitor.checkinginterval;0D00:00:05];                                              //interval to make sure checks are not lagging
-.monitor.cleartrackinterval::@[value;`.monitor.cleartrackinterval;0D00:00:05];     
-.monitor.agecheck:@[value;`.monitor.agecheck;0D00:01:00];     
-.monitor.lagtime:@[value;`.monitor.lagtime;0D00:01:00];     
-
+.monitor.runcheckinterval:@[value;`.monitor.runcheckinterval;0D00:00:05];                                            //interval to run checks  
+.monitor.checkinginterval:@[value;`.monitor.checkinginterval;0D00:00:05];                                            //interval to make sure checks are not lagging                                                                                         
+.monitor.cleartrackinterval:@[value;`.monitor.cleartrackinterval;0D01:00:00];                                       //interval to check tracks are under certain age in checktracker
+.monitor.agecheck:@[value;`.monitor.agecheck;0D12:00:00];                                                           //if check over agecheck, delete from tracker
+.monitor.lagtime:@[value;`.monitor.lagtime;0D00:01:00];                                                              //if check has been running over this time, set to neg
 
 // set up the upd function to handle heartbeats
 upd:{[t;x]
