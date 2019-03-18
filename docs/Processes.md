@@ -1133,6 +1133,114 @@ messages in logmsg
     2014.01.07D12:25:17.457535000 hdb1 aquaq ERR      reload  "failed to reload database"           
     2014.01.07D13:29:28.784333000 rdb1 aquaq ERR      eodsave "failed to save tables : trade, quote"
 
+### Checkmonitor
+
+The `checkmonitor.q` script extends the functionality of the monitor process.  
+The script takes a set of user defined configuration settings for a set of process 
+specific checks. These can initially be provided in the form of a CSV, 
+a sample of which is shown here:
+
+    family|metric|process|query|resultchecker|params|period|runtime
+    datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
+
+Upon start up, the CSV file is loaded and inserted into the in-memory table, 
+`checkconfig`. During this insertion, each check will also be assigned 
+a unique checkid number. 
+
+    q)checkconfig
+    checkid| family    metric     process query           resultchecker params                                    period               runtime              active
+    -------| -----------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    "{count trade}" "checkcount"  `varname`count`cond!(`trade;10;`morethan) 0D00:01:00.000000000 0D00:00:01.000000000 1
+
+
+For each check, the query will be sent via asynchronous requests to the 
+specified processes and waits for postback of the results. Once the monitoring 
+process receives the result of the query, it will then be checked by the resultchecker 
+function to identify whether it will pass or fail. 
+
+Result checker functions must only take two parameters: p- a parameter dictionary, 
+and r- the result row. The status in r will be modified based on whether the
+r result value passes the conditions specified by the resultchecker function. 
+
+    q)checkcount
+    {[p;r]
+    if[`morethan=p`cond;
+      if[p[`count]<r`result; :`status`result!(1h;"")];
+       :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)];
+    if[`lessthan=p`cond;
+      if[p[`count]>r`result; :`status`result!(1h;"")];
+      :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but should be less than ",string p`count)];
+    }
+
+
+    q)p
+    varname| `trade
+    count  | 10
+    cond   | `morethan
+
+    q)r
+    status| 1h
+    result| ""
+
+
+This example checks whether the trade table within the rdb is larger than 10.
+As this is true, the status has been set to 1h and no error message
+has been returned. This information is inserted into the `checkstatus` table, 
+which is the master table where all results are stored. 
+
+    q)checkstatus
+    checkid| family    metric     process lastrun                       nextrun                       status executiontime        totaltime            timerstatus running result
+    -------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    2019.02.18D10:58:45.908919000 2019.02.18D10:59:45.911635000 1      0D00:00:00.000017000 0D00:00:00.002677000 1           0       ""
+
+
+In addition to tracking the status of the specified queries, a number of metrics 
+are also returned in the `checkstatus` table. 
+
+|  Column Header  | Value Type |      Description    
+| :-------------: |:----------:|:--------------------------------------:|
+|    lastrun      | Timestamp  | Last time check was run |
+|    nextrun      | Timestamp  | Next time check is scheduled to run |
+|    status       |  Boolean   | Indicates whether query result has passed resultchecker function |
+|  executiontime  |  Timespan  | Time taken for last query to be executed |
+|    totaltime    |  Timespan  | Total time taken for check to be run, including sending times and execution |
+|   timerstatus   |  Boolean   | Indicates whether last totaltime was executed under threshold value |
+|     running     |  Boolean   | Indicates whether check is currently running |
+|     results     |   String   | Will display any errors or additional information regarding running checks |
+
+
+
+ The function checkruntime uses the running column to identify functions
+ that are running extremely slow, and set their status and timerstatus to 0h. 
+
+When the process is exited, the .z.exit has been modified to save the
+checkconfig table as a flat binary file. This will then be preferentially
+loaded next time the process is started up again. The process of saving down
+the in-memory functions makes altering configuration parameters easier. 
+Four functions are available to do so: `addcheck`, `updateconfig`, `updateconfigfammet`
+and `forceconfig`. 
+
+|   Function Name       | Description |         
+| :-------------: |:---------------------:|
+|    `addcheck[dictionary]`  |  addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type.  |
+|   `updateconfig[checkid;paramkey;newval]`     |  updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type.  |
+|   `forceconfig[checkid;newconfig]`   | forceconfig changes the parameter keys of an existing check and will not check for types.  |
+| `updateconfigfammet[family;metric;paramkey;newval]`  | updateconfig changes the parameter key of an existing check, using the family and metric combination to specify which check to alter. If this combination does not exist, the function will return an error. The type of the new parameter value must match the current value type.  |
+
+There are other additional functions that are useful for using the check monitor. 
+
+|  Function Name  | Value Type |        
+| :-------------: |:----------:|
+|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   | 
+|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  | 
+| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   | 
+
+
+All checks can be tracked using the table `checktracker`. Here, each run is assigned a 
+unique runid- thus individual runs for each check can be tracked. For each run,
+it tracks the time tkane for target process to recieve the query, as well as 
+the execution time. The result value will also be displayed.
+
 ### HTML5 front end 
 
 A HTML5 front end has been built to display important process

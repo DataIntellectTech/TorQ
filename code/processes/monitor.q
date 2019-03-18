@@ -1,3 +1,13 @@
+/TorQ Monitor Process
+
+//configurable parameters for check monitoring
+.monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                      //name of config csv to load in
+.monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                    //name of stored table for save and reload
+.monitor.runcheckinterval:@[value;`.monitor.runcheckinterval;0D00:00:05];                                            //interval to run checks  
+.monitor.checkinginterval:@[value;`.monitor.checkinginterval;0D00:00:05];                                            //interval to make sure checks are not lagging                                                                                         
+.monitor.cleartrackinterval:@[value;`.monitor.cleartrackinterval;0D01:00:00];                                       //interval to check tracks are under certain age in checktracker
+.monitor.agecheck:@[value;`.monitor.agecheck;0D12:00:00];                                                           //if check over agecheck, delete from tracker
+.monitor.lagtime:@[value;`.monitor.lagtime;0D00:01:00];                                                              //if check has been running over this time, set to neg
 
 // set up the upd function to handle heartbeats
 upd:{[t;x]
@@ -52,10 +62,26 @@ bucketlmchartdata:{[x] x:`minute$$[x=0;1;x];0!select errcount:count i by (0D00:0
 /- Data functions - These are functions that are requested by the front end
 /- start is sent on each connection and refresh. Where there are more than one table it is wise to identify each one using a dictionary as shown
 start:{.html.wssub each `heartbeat`logmsg`lmchart;
-       .html.dataformat["start";(`hbtable`lmtable`lmchart)!(hbdata[];lmdata[];lmchart[])] }
+       .html.dataformat["start";(`hbtable`lmtable`lmchart)!(hbdata[];lmdata[];lmchart[])]}
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
-
 monitorui:.html.readpagereplaceHP["index.html"]
 
 // initialise pubsub
 .html.init`heartbeat`logmsg`lmchart
+
+//function to iniitialise process check monitoring- checks for last saved config file
+initcheck:{
+ if[not readstoredconfig[.monitor.configstored];
+  readmonitoringconfig[.monitor.configcsv]]};
+
+// specify .z.exit to save config
+// capture any prior definition
+.z.exit:{[x;y] saveconfig[.monitor.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
+
+//initialise monitor checks
+initcheck[]
+
+//Timers
+.timer.repeat[.z.p;0Wp;.monitor.runcheckinterval;(`runnow;`);"run the monitoring checks"]
+.timer.repeat[.z.p;0Wp;.monitor.checkinginterval;(`checkruntime;.monitor.lagtime);"update status if running slow"]
+.timer.repeat[.z.p;0Wp;.monitor.cleartrackinterval;(`cleartracker;.monitor.agecheck);"delete rows if over certain age"]
