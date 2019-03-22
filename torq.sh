@@ -338,6 +338,9 @@ case $1 in
   "")
     usage
     ;;
+  usage)
+    usage
+    ;;
   *)
     echo "ERROR: Invalid argument(s)"
     exit 1
