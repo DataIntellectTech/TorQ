@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,,1,, Unit tests for the logging functions
+before,0,0,q,system"export KDBLOG=${TORQHOME}/testlog" ,1,,Check usage exists
+before,0,0,q,system["q torq.q -load logtest.q -proctype testproc -procname test1"] ,1,,Start up test proc 
+run,0,0,q,system"find $KDBLOG/usage_test1*" ,1,,Check usage exists
+run,0,0,q,system"find $KDBLOG/out_test1*" ,1,,Check out exists
+run,0,0,q,system"find $KDBLOG/err_test1*",1,, Check err log exists 
+after,0,0,q,system"rm -r $KDBLOG",1,, Remove logs created 
+
