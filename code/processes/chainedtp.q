@@ -66,7 +66,7 @@ subscribe:{[]
       if[`d in key r;.u.d::r[`d]]; 
       if[(`icounts in key r) & (not createlogfile); /- dict r contains icounts & not using own logfile
 	subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
-      	.u.jcounts::.u.icounts::subtabs!enlist [r`icounts]subtabs;
+	.u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
       ]
     ];
   }
