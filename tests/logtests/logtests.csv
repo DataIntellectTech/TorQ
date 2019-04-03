@@ -1,9 +1,29 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 comment,0,0,q,,1,, Unit tests for the logging functions
-before,0,0,q,system"export KDBLOG=${TORQHOME}/testlog" ,1,,Check usage exists
-before,0,0,q,system["q torq.q -load logtest.q -proctype testproc -procname test1"] ,1,,Start up test proc 
-run,0,0,q,system"find $KDBLOG/usage_test1*" ,1,,Check usage exists
-run,0,0,q,system"find $KDBLOG/out_test1*" ,1,,Check out exists
-run,0,0,q,system"find $KDBLOG/err_test1*",1,, Check err log exists 
-after,0,0,q,system"rm -r $KDBLOG",1,, Remove logs created 
-
+before,0,0,q, system "mkdir ${TORQHOME}/testlog",1,,Set up test directory
+before,0,0,q, f:system "echo ${TORQHOME}/testlog",1,,Set up test directory
+before,0,0,q,`KDBLOG setenv (raze/) string f,1,,Set up test directory 
+before,0,0,q,system["q torq.q -proctype unittestproc -procname unittest -p `expr ${KDBBASEPORT} + 20`"] ,1,,Start up test proc 
+run,0,0,q, system"sleep 2",1,,allow break for file to be created 
+true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/out_unittest*";0b] ,1,,Check out exists
+true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/err_unittest*";0b],1,, Check err log exists 
+true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/out_unittest.log -type l";0b] ,1,,Check out softlink exists
+true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/err_unittest.log -type l";0b],1,, Check err softlink exists
+run,0,0,q,h:hopen `$comma["::";string 20+"J"$getenv `KDBBASEPORT],1,, open port to process
+run,0,0,q,h(".lg.e";`test;"this is a test"),1,, write a error log
+run,0,0,q,h(".lg.o";`test;"this is a test"),1,, write a out log
+run,0,0,q,e:system"find $KDBLOG/err_unittest*",1,,filepath to err
+run,0,0,q,o:system"find $KDBLOG/out_unittest*",1,,filepath to out
+true,0,0,q,("unittestproc";"unittest";"ERR";"test";"this is a test")~2_"|"vs last read0  hsym first `$e,1,,check err log written correctly 
+true,0,0,q,("unittestproc";"unittest";"INF";"test";"this is a test")~ 2_ "|"  vs last read0  hsym first `$o,1,,check out log written correctly 
+run,0,0,q,h".proc.rolllogauto[]",1,,Rollover
+true,0,0,q,1=count where 1=(string   key `:testlog) like comma["out_unittest_";comma[-2_ssr[;;"_"]/[string .z.z;".:T"];"*"]],1,,check for rolled over out log 
+true,0,0,q,1=count where 1=(string   key `:testlog) like comma["err_unittest_";comma[-2_ssr[;;"_"]/[string .z.z;".:T"];"*"]],1,,check for rolled over err log
+run,0,0,q,system"rm -r $KDBLOG/*",1,, Remove logs created
+run,0,0,q,system["q torq.q -proctype unittestproc -procname unittest -noredirect"] ,1,,Start up test proc with noredirect flag
+true,0,0,q,0=count where 1=(string key `:testlog) like "out_unittest*" ,1,,Check out doesn't exist
+true,0,0,q,0=count where 1=(string key `:testlog) like "err_unittest*",1,, Check err log doesn't exist
+run,0,0,q,system["q torq.q -proctype unittestproc -procname unittest  -noredirectalias"] ,1,,Start up test proc with noredirectalias flag
+true,0,0,q,0=count where 1=(string key `:testlog) like "out_unittest.log" ,1,,Check out alias doesn't exist
+true,0,0,q,0=count where 1=(string key `:testlog) like "err_unittest.log" ,1,,Check err alias doesn't exist
+after,0,0,q,system"rm -r $KDBLOG",1,, Remove logs created
