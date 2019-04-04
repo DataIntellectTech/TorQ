@@ -9,15 +9,14 @@ KUT:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$
 / KUTR <-> KUnit Test Results
 / KUrtf`:filename.csv / refresh expected <ms> and <bytes> based on observed results in KUTR
 KUTR:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$();repeat:`int$();file:`symbol$();msx:`int$();bytesx:`long$();ok:`boolean$();okms:`boolean$();okbytes:`boolean$();valid:`boolean$();timestamp:`datetime$())
-KUrunresults:([]code:`symbol$();res:())
 / look at KUTR in browser or q session
 / select from KUTR where not ok // KUerr
 / select from KUTR where not okms // KUslow
 / select count i by ok,okms,action from KUTR
 / select count i by ok,okms,action,file from KUTR
-/ KUstr[] / save test results
+/ KUstr[] / save test results 
 / KUltr[] / reload previously saved test results
-/ action:
+/ action:	
 / 	`beforeany - onetime, run before any tests
 /		`beforeeach - run code before tests in every file
 /			`before - run code before tests in this file ONLY
@@ -36,17 +35,17 @@ KUrunresults:([]code:`symbol$();res:())
 / file: filename
 / action,ms,bytes,lang,code,file: from KUT
 / msx: milliseconds taken to eXecute code
-/ bytesx: bytes used to eXecute code
+/ bytesx: bytes used to eXecute code 
 / ok: true if the test completes correctly (note: its correct for a fail task to fail)
 / okms: true if msx is not greater than ms, ie if performance is ok
 / okbytes: true if bytesx is not greater than bytes, ie if memory usage is ok
 / valid: true if the code is valid (ie doesn't crash - note: `fail code is valid if it fails)
 / timestamp: when test was run
-/ comment: description of the test if it's obscure..
+/ comment: description of the test if it's obscure.. 
 
-\c 10000 10000
+\c 10000 10000 
 KUstr:{.KU.SAVEFILE 0:.KU.DELIM 0:update code:string code from KUTR} / save test results
-KUltr:{`KUTR upsert("SIJSSIJSIBBBBZ";enlist .KU.DELIM)0:.KU.SAVEFILE} / reload previously saved test results
+KUltr:{`KUTR upsert("SIJSSIJSIBBBBZ";enlist .KU.DELIM)0:.KU.SAVEFILE} / reload previously saved test results 
 
 KUltf:{ / (load test file) - load tests in csv file <x> into KUT
 	before:count KUT;
@@ -58,7 +57,7 @@ KUltf:{ / (load test file) - load tests in csv file <x> into KUT
 KUltd:{ / (load test dir) - load all *.csv files in directory <x> into KUT
 	before:count KUT;
 	files:(` sv)each(x,'key x);KUltf each files where(lower files)like"*.csv";
-	neg before-count KUT}
+	neg before-count KUT}                   
 
 KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	before:count KUTR;uf:exec asc distinct file from KUT;i:0;
@@ -79,7 +78,7 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	if[.KU.VERBOSE;-1(string .z.Z)," end"];
 	neg before-count KUTR}
 
-KUpexec:{[prefix;lang;code;repeat;allowfail]
+KUpexec:{[prefix;lang;code;repeat;allowfail] 
 	s:prefix,(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	if[1<.KU.VERBOSE;-1 s];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
 
@@ -91,7 +90,7 @@ KUexec:{[lang;code;repeat]
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
 	if[action=`run;
-		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];res:KUpexec["";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
+		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
 		ok:not failed;okms:$[ms;not msx>ms;1b];okbytes:$[bytes;not bytesx>bytes;1b];valid:not failed];
 	if[action=`true;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;1b];
@@ -99,10 +98,9 @@ KUact:{[action;lang;code;repeat;ms;bytes;file]
 	if[action=`fail;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;0b];
 		ok:failed;okms:okbytes:valid:1b];
-	`KUrunresults insert (code;res);
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z);
 	}
-
+	
 KUrtf:{ / (refresh test file) updates test file x with realistic <ms>/<bytes>/<repeat> based on seen values of msx/bytesx from KUTR
 	if[not x in exec file from KUTR;'"no test results found"];
 	/x 0:.KU.DELIM 0:select action,ms,lang,string code,repeat,comment from((`code xkey KUT)upsert select code,ms:floor 1.25*msx from KUTR)where file=x}
@@ -110,9 +108,7 @@ KUrtf:{ / (refresh test file) updates test file x with realistic <ms>/<bytes>/<r
 	kutr:update repeat:1,ms:floor 1.5*msx%repeat from kutr where 75<ms%repeat;
 	kutr:update repeat:500000&floor repeat*50%1|msx,ms:75 from kutr where 75>=ms%repeat;
 	kutr:update bytes:`long$floor 1.5*bytesx from kutr;
-	x 0:.KU.DELIM 0:select action,ms,bytes,lang,string code,repeat,minver,comment from kut upsert select code,ms,bytes,repeat from kutr}
-
-KUsaveresults:{set[hsym[`$getenv[`KDBTESTS],"/previousruns/",string[x]];y]}
+	x 0:.KU.DELIM 0:select action,ms,bytes,lang,string code,repeat,minver,comment from kut upsert select code,ms,bytes,repeat from kutr} 
 
 KUf::distinct exec file from KUTR / fristance: KUrtf each KUf
 KUslow::delete okms from select from KUTR where not okms
@@ -140,4 +136,4 @@ DELIM:","
 SAVEFILE:`:KUTR.csv
 
 \d .
-@[value;"\\l k4unit.custom.q";::];
+@[value;"\\l k4unit.custom.q";::];   

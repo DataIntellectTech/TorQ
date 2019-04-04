@@ -1,10 +1,11 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 comment,0,0,q,,1,, Unit tests for the logging functions
+beforeany,0,0,q,system"rm -r ${TORQHOME}/testlog",1,,remove test directory
 before,0,0,q, system "mkdir ${TORQHOME}/testlog",1,,Set up test directory
 before,0,0,q, f:system "echo ${TORQHOME}/testlog",1,,Set up test directory
 before,0,0,q,`KDBLOG setenv (raze/) string f,1,,Set up test directory 
 before,0,0,q,system["q torq.q -proctype unittestproc -procname unittest -p `expr ${KDBBASEPORT} + 20`"] ,1,,Start up test proc 
-run,0,0,q, system"sleep 2",1,,allow break for file to be created 
+run,0,0,q, system"sleep 1",1,,allow break for file to be created 
 true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/out_unittest*";0b] ,1,,Check out exists
 true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/err_unittest*";0b],1,, Check err log exists 
 true,0,0,q,@[{[x]system[x];1b};"find $KDBLOG/out_unittest.log -type l";0b] ,1,,Check out softlink exists
@@ -21,9 +22,11 @@ true,0,0,q,1=count where 1=(string   key `:testlog) like comma["out_unittest_";c
 true,0,0,q,1=count where 1=(string   key `:testlog) like comma["err_unittest_";comma[-2_ssr[;;"_"]/[string .z.z;".:T"];"*"]],1,,check for rolled over err log
 run,0,0,q,system"rm -r $KDBLOG/*",1,, Remove logs created
 run,0,0,q,system["q torq.q -proctype unittestproc -procname unittest -noredirect"] ,1,,Start up test proc with noredirect flag
+run,0,0,q,system"sleep 1",1,,allow files to be created
 true,0,0,q,0=count where 1=(string key `:testlog) like "out_unittest*" ,1,,Check out doesn't exist
 true,0,0,q,0=count where 1=(string key `:testlog) like "err_unittest*",1,, Check err log doesn't exist
 run,0,0,q,system["q torq.q -proctype unittestproc -procname unittest  -noredirectalias"] ,1,,Start up test proc with noredirectalias flag
+run,0,0,q,system"sleep 1",1,,allow files to be created
 true,0,0,q,0=count where 1=(string key `:testlog) like "out_unittest.log" ,1,,Check out alias doesn't exist
 true,0,0,q,0=count where 1=(string key `:testlog) like "err_unittest.log" ,1,,Check err alias doesn't exist
 after,0,0,q,system"rm -r $KDBLOG",1,, Remove logs created
