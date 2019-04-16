@@ -460,11 +460,18 @@ if[not any `debug`noredirect in key params; rolllogauto[]];
 
 // utilities to load individual files / paths, and also a complete directory
 // this should then be enough to bootstrap
-loadf:{
-	.lg.o[`fileload;"loading ",x];
-	
-	$[`debug in key .proc.params; system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]]];
-	.lg.o[`fileload;"successfully loaded ",x]}
+loadedf:enlist enlist""
+loadf0:{[reload;x]
+  if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
+  .lg.o[`fileload;"loading ",x];
+  // error trapped loading of file
+  @[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]];
+  // if we got this far, file is loaded
+  loadedf,:enlist x;
+  .lg.o[`fileload;"successfully loaded ",x]
+ }
+loadf:loadf0[0b]   /load a file if it hasn't been loaded
+reloadf:loadf0[1b] /load a file even if's been loaded
 
 loaddir:{
 	.lg.o[`fileload;"loading q and k files from directory ",x];
