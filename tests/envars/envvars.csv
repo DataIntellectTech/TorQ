@@ -1,0 +1,17 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,,1,, Unit tests loading environment variables
+comment,0,0,q,,1,,startline:q torq.q -debug  -proctype vartestproc -procname vartest -test envvars -load unittestsfunctions.q
+before,0,0,q,system"echo a:1 >> test.q;",1,,make a test script 
+before,0,0,q,system"mkdir testscripts",1,,make test script directory 
+before,0,0,q,system"echo b:2 >> testscripts/test1.q;",1,, make test directory 
+before,0,0,q,system"echo c:3 >> testscripts/test2.q;",1,, make test directory 
+run,0,0,q,.proc.loadf["test.q"],1,,
+run,0,0,q,.proc.loaddir["testscripts"],1,,
+true,0,0,q,a~1,1,,did loadf load the file test.q, containing the variable a:1 correctly
+true,0,0,q,(b~2) and c~3,1,,did loaddir load the dir testscripts, containing the variable b:2 and c:3 correctly
+after,0,0,q,system "rm -r testscripts test.q",1,, remove test scripts 
+run,0,0,q,vr: raze system"echo $KDBCODE",1,, get env var path 
+true,0,0,q,.rmvr.removeenvvar["{KDBCODE}"] ~ vr,1,, check removeenvvar prints on full env var path 
+
+
+
