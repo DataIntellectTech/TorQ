@@ -607,7 +607,7 @@ if[.proc.logroll and not any `debug`noredirect in key .proc.params;
 		.lg.e[`init;".proc.logroll is set to true, but timer functionality is not loaded - cannot roll logs"]]];
 	
 // Load the file specified on the command line
-if[`load in key .proc.params; .proc.loadf each .proc.params`load]
+if[`load in key .proc.params; .proc.reloadf each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
