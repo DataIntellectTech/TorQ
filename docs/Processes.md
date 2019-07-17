@@ -52,7 +52,7 @@ listed as discovery.
 
 To run the discovery service, use a start line such as:
 
-    aquaq $ q torq.q -load code/processes/discovery.q -p 9995
+    aquaq $ q torq.q -load code/processes/discovery.q -p 9995 -proctype discovery -procname discovery1
 
 Modify the configuration as required.
 
@@ -252,7 +252,7 @@ Run the gateway. The main parameter which should be set is the
 gateway queries across. Also, we need to explicitly allow sync calls. We
 can do this from the config or from the command line.
 
-    q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb
+    q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb -proctype gateway -procname gateway1
 
 Start a client and connect to the gateway. Start with a sync query. The
 HDB query should take 4 seconds and the RDB query should take 2 seconds.
@@ -648,12 +648,12 @@ to) or it will fail on startup. These can either be set in the config
 file, or overridden from the command line in the usual way. An example
 start line would be:
 
-    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1
+    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1 -proctype tickerlogreplay -procname tplogreplay1
 
 The tickerplant log replay script has extended usage information which
 can be accessed with -.replay.usage.
 
-    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.usage
+    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.usage -proctype tickerlogreplay -procname tplogreplay1
 
 <a name="house"></a>
 
@@ -928,7 +928,7 @@ for flushing the query log table.
 
 To run the reporter process:
 
-    q torq.q -load code/processes/reporter.q -p 20004
+    q torq.q -load code/processes/reporter.q -p 20004 -proctype reporter -procname reporter1
 
 Once the reporter process has been initiated, the reports will be
 scheduled and no further input is required from the user.
@@ -1107,14 +1107,14 @@ received.
 
 Run it with:
 
-    aquaq $ q torq.q -load code/processes/monitor.q -p 20001
+    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -proctype monitor -procname monitor1
 
 It is probably advisable to run the monitor process with the -trap flag,
 as there may be some start up errors if the processes it is connecting
 to do not have the necessary heartbeating or publish/subscribe code
 loaded.
 
-    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -trap
+    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -trap -proctype monitor -procname monitor1
 
 The current heartbeat statuses are tracked in .hb.hb, and the log
 messages in logmsg
@@ -1286,7 +1286,7 @@ KDBCONFIG/settings/compression.q which specify
 
 The process is run like other TorQ processes:
 
-    q torq.q -load code/processes/compression.q -p 20005
+    q torq.q -load code/processes/compression.q -p 20005 -proctype compression -procname compression1
 
 Modify the settings file or override variables from the command line as
 appropriate.
@@ -1309,17 +1309,17 @@ the process.csv file via the configuration in the standard way.
 If run without any command line parameters, kill.q will try to kill each
 process it finds with type defined by its .servers.CONNECTIONS variable.
 
-    q torq.q -load code/processes/kill.q -p 20000
+    q torq.q -load code/processes/kill.q -p 20000 -proctype kill -procname killtick
 
 .servers.CONNECTIONS can optionally be overridden from the command line
 (as can any other process variable):
 
-    q torq.q -load code/processes/kill.q -p 20000 -.servers.CONNECTIONS rdb tickerplant
+    q torq.q -load code/processes/kill.q -p 20000 -.servers.CONNECTIONS rdb tickerplant -proctype kill -procname killtick
 
 The kill process can also be used to kill only specific named processes
 within the process types:
 
-    q torq.q -load code/processes/kill.q -p 20000 -killnames hdb1 hdb2
+    q torq.q -load code/processes/kill.q -p 20000 -killnames hdb1 hdb2 -proctype kill -procname killtick
 
 <a name="chained"></a>
 
@@ -1347,7 +1347,7 @@ The chained tickerplant can:
 
 To launch the chained tickerplant
 
-    q torq.q -load code/processes/chainedtp.q -p 12009
+    q torq.q -load code/processes/chainedtp.q -p 12009 -proctype chainedtp -procname chainedtp1
 
 Chained tickerplant settings are found in `config/settings/chainedtp.q`
 and are under the `.ctp` namespace.
