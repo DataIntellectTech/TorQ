@@ -21,6 +21,7 @@ logtodisk:@[value;`logtodisk;1b]			// whether to log to disk or not
 logtomemory:@[value;`logtomemory;1b]			// write query logs to memory
 ignore:@[value;`ignore;1b]				// check the ignore list for functions to ignore
 ignorelist:@[value;`ignorelist;(`upd;"upd")]		// the list of functions to ignore
+flushinterval:@[value;`flushinterval;0D00:30:00]        // default value for how often to flush the in-memory logs
 flushtime:@[value;`flushtime;0D03]			// default value for how long to persist the in-memory logs
 suppressalias:@[value;`suppressalias;0b]		// whether to suppress the log file alias creation
 logtimestamp:@[value;`logtimestamp;{[x] {[].proc.cd[]}}]	// function to generate the log file timestamp suffix
@@ -110,8 +111,8 @@ if[enabled;
 
 	if[flushtime>0;
 		$[@[value;`.timer.enabled;0b];
-                	[.lg.o[`init;"adding timer function to flush in-memory usage logs on 30 minute schedule"];
-                 	.timer.repeat[.proc.cp[];0Wp;0D00:30;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
+                	[.lg.o[`init;"adding timer function to flush in-memory usage logs with interval: ",string flushinterval];
+                 	.timer.repeat[.proc.cp[];0Wp;flushinterval;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
 
 	.z.pw:p0[`pw;.z.pw;;];
