@@ -90,7 +90,7 @@ endofday:{[date]
 			.lg.o[`endofday;"Escaping end of day function"];:()];
 	t:tables[`.] except ignorelist;
 	/-set eod attributes on gateway for rdb
-	gateh:first exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
+	gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
 	neg[gateh]@\:(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[]);
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
