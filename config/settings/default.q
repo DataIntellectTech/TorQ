@@ -20,6 +20,7 @@ logtodisk:1b                    // whether to log to disk or not
 logtomemory:1b                  // write query logs to memory
 ignore:1b			// check the ignore list for functions to ignore
 ignorelist:(`upd;"upd")		// the list of functions to ignore in async calls
+flushinterval:0D00:30:00        // default value for how often to flush the in-memory logs
 flushtime:1D00                  // default value for how long to persist the in-memory logs. Set to 0D for no flushing
 suppressalias:0b                // whether to suppress the log file alias creation
 logtimestamp:{[].proc.cd[]}      	// function to generate the log file timestamp suffix
