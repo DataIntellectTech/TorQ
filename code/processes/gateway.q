@@ -636,8 +636,8 @@ reloadend:{
 
 setattributes:{ [prcnme;prctyp;att]
  update attributes:(enlist att) from `.servers.SERVERS where procname=prcnme,proctype=prctyp;
- h:exec handle from .gw.servers where servertype=prctyp;
- {update attributes:(enlist (exec w!attributes from .servers.SERVERS)x) from `.gw.servers where handle=x} each h;
+ if[ prctyp in exec servertype from .gw.servers ; h:first exec w from .servers.SERVERS where procname=prcnme,proctype=prctyp;
+ update attributes:(enlist (exec attributes from .servers.SERVERS where procname=prcnme,proctype=prctyp)) from `.gw.servers where handle=h; ]
  };
 
 // Add calls to the timer
