@@ -49,9 +49,10 @@ loadpassword[]
 // open a connection
 opencon:{
     if[DEBUG;.lg.o[`conn;"attempting to open handle to ",string x]];
-    // If the supplied connection string has 2 or more colons append on user:pass from passwords dictionary
+    // If the supplied connection string has no more than 2 colons (or 3 if using a tcps connection) append user:pass from passwords dictionary
     // else return connection string passed in
-    connection:hsym $[2 >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
+    tcps:string[x] like ":tcps:*";
+    connection:hsym $[(2+tcps) >= sum ":"=string x; `$(string x),":",string USERPASS^PASSWORDS[x];x];
     h:@[{(hopen x;"")};(connection;.servers.HOPENTIMEOUT);{(0Ni;x)}];
     // just log this as standard out.  Depending on the scenario, failing to open a connection isn't necessarily an error
     if[DEBUG;.lg.o[`conn;"connection to ",(string x),$[null first h;" failed: ",last h;" successful"]]];
