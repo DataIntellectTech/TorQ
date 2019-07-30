@@ -118,13 +118,13 @@ cleanup:{if[count w0:exec w from`.servers.SERVERS where not .dotz.livehn w;
 
 / add a new server for current session 
 addnthawc:{[name;proctype;hpup;attributes;W;checkhandle]
-    if[ not 0="J"$last ":"vs string hpup ;
+    if[ 0="J"$last ":"vs string hpup ;:()];
     if[checkhandle and not isalive:.dotz.liveh W;'"invalid handle"];
     cleanup[];
     $[not hpup in (exec hpup from .servers.SERVERS) inter (exec hpup from .servers.nontorqprocesstab);
         `.servers.SERVERS insert(name;proctype;lower hpup;W;0i;$[isalive;.proc.cp[];0Np];.proc.cp[];0Np;attributes); 
         .lg.o[`conn;"Removed double entries: name->", string[name],", proctype->",string[proctype],", hpup->\"",string[hpup],"\""]];
-    W ]
+    W
     }
 
 addh:{[hpuP]
