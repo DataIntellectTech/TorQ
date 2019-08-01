@@ -21,9 +21,9 @@ lib:`$getenv[`KDBLIB],"/",string[.z.o],"/torQemail";
 connected:@[value;`connected;0b]
 
 if[enabled and .z.o~`w64;
-    .lg.w[`email;"Email is not supported for Windows 64bit. Disabling email fucntionality"];
-    enabled:0b
-    ];
+  .lg.w[`email;"Email is not supported for Windows 64bit. Disabling email fucntionality"];
+  enabled:0b
+  ];
 
 if[.email.enabled;
 
