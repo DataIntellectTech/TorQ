@@ -635,9 +635,13 @@ reloadend:{
  .gw.runnextquery[];}
 
 setattributes:{ [prcnme;prctyp;att]
+ /- get relevant atrributes
  update attributes:(enlist att) from `.servers.SERVERS where procname=prcnme,proctype=prctyp;
- if[ prctyp in exec servertype from .gw.servers ; h:first exec w from .servers.SERVERS where procname=prcnme,proctype=prctyp;
- update attributes:(enlist (exec attributes from .servers.SERVERS where procname=prcnme,proctype=prctyp)) from `.gw.servers where handle=h; ]
+ /- update attributes on gateway
+ if[ prctyp in exec servertype from .gw.servers;
+   h:first exec w from .servers.SERVERS where procname=prcnme,proctype=prctyp;
+   update attributes:(enlist (first exec attributes from .servers.SERVERS where procname=prcnme,proctype=prctyp))
+   from `.gw.servers where handle=h; ]
  };
 
 // Add calls to the timer
