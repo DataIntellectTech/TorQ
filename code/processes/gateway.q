@@ -630,10 +630,19 @@ reloadend:{
  /- set eod variable to false
  .gw.seteod[0b];
  /- retry connections - get updated attributes from servers and refresh servers tables
- update attributes:@[;(`.proc.getattributes;`);()!()]each w from`.servers.SERVERS;
- update attributes:(exec w!attributes from .servers.SERVERS)handle from `.gw.servers;
+ setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS;
  /- flush any async queries held during reload phase
  .gw.runnextquery[];}
+
+setattributes:{ [prcnme;prctyp;att]
+ /- get relevant atrributes
+ update attributes:(enlist att) from `.servers.SERVERS where procname=prcnme,proctype=prctyp;
+ /- update attributes on gateway
+ if[ prctyp in exec servertype from .gw.servers;
+   h:first exec w from .servers.SERVERS where procname=prcnme,proctype=prctyp;
+   update attributes:(enlist (first exec attributes from .servers.SERVERS where procname=prcnme,proctype=prctyp))
+   from `.gw.servers where handle=h; ]
+ };
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
