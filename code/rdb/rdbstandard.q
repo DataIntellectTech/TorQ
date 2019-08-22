@@ -1,5 +1,5 @@
 // Get the relevant RDB attributes
-.proc.getattributes:{`date`tables!(enlist .rdb.rdbpartition[] ;tables[])}
+.proc.getattributes:{`date`tables!(.rdb.rdbpartition[],();tables[])}
 
 \d .rdb
 
