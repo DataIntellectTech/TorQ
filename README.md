@@ -39,6 +39,27 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **3.5.0, Aug 2019**:
+  * .torq stop and .torq summary functions updated
+  * .torq restart function added
+  * Grafana updated
+  * Monitor checks script added
+  * Email disabled if trying to run on Win64
+  * Opencon modified to append user:password to tcps connections
+  * Bug fixes
+- **3.4.1, Jan 2019**:
+  * Gateway Query .gw.syncexec bug identified and fixed
+- **3.4.0, Dec 2018**:
+  * Update of the torq.sh script to include debug and print start lines.
+  * Integration of Monit for monitoring TorQ.
+  * Integration of Grafana adaptor, allowing visualization of TorQ process data.
+  * Added service layer for client specific customisation across all aplications.
+  * Bug Fixes including:
+  * Ability to specify parentproctype for processes when starting with torq.q
+  * Function to check .proc.getattributes for non-TorQ processes.
+  * Exit when setenv not sourced
+  * qcon now allowed in debug mode
+  * Hanging when null result returned from aysnc gateway request
 - **3.3.0, May 2018**:
   * Upgraded to run with kdb+ v3.6.  Note that it remains backwardly compatible with prior versions. 
   * Implemented concurrent synchronous requests, as part of 3.6 upgrade 
