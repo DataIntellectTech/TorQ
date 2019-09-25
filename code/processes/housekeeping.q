@@ -74,12 +74,11 @@ kdbzip:{[FILE]
 
 //-locates files with path, matching string and age
 find:{[path;match;age;agemin]
-	$[0=agemin;
-	files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mtime +",raze string z};(path;match;age);
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
-	 files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mmin +",raze string z};(path;match;age);
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}]];
-	$[(count files)=0;[.lg.o[`housekeeping;"No matching files located"];files]; files]}
+	filter:$[0=agemin;"-mtime";"-mmin"]," +",raze string age;
+	files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" ",z};
+		(path;match;filter);{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
+	if[0=count files;.lg.o[`housekeeping;"No matching files located"]];
+	files}
 
 
 //-removes files
@@ -99,19 +98,17 @@ find:{[path;match;age;agemin]
 	//renames the path to a windows readable format
 	PATH:ssr[path;"/";"\\"];
 	//searches for files and refines return to usable format
-	$[0=agemin;
-	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
+	.lg.o[`housekeeping;"Searching for: ",match];
+	files:.[{[PATH;match;age;agemin]
 		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
-		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)];
-	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
-		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)]];
+		removelist:fulllist where$[0=agemin;
+			("D"${10#x} each fulllist)<.proc.cd[]-age;
+			({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age];
+		system "z 0";
+		{[path;x]path,last" "vs x}[PATH]'[removelist]};(PATH;match;age;agemin);{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
 	//error and info for find function 
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
-	$[(count files)=0;
-	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
+	if[0=count files;.lg.o[`housekeeping;"No matching files located"]];
+	files}
 
 //removes files
 rm: {[FILE]
