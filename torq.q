@@ -400,6 +400,7 @@ readprocfile:{[file]
 		// map hostnames in res to order of preference, select most preferred
 		first res iasc prefs?res[`host];
 		first res];
+	if[null output`port;.err.ex[`readprocfile;"Port not found in process.csv. Parameters include host: ", string output`host, ", procname: ", string output`procname, ", proctype: ",string output`proctype;1]]; 
 	if[not output[`port] = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
