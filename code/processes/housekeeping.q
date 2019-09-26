@@ -101,21 +101,20 @@ find:{[path;match;age;agemin]
           .lg.o[`housekeeping;"No matching files located"];
           :();
         ];
-
 	//renames the path to a windows readable format
 	PATH:ssr[path;"/";"\\"];
-	//searches for files and refines return to usable format
+	//error and info for find function 
+	err:{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
+        //searches for files and refines return to usable format
 	$[0=agemin;
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		system "z 1";fulllist:-2_(5_system "dir ",PATH,match);
 		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)];
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err];
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		system "z 1";fulllist:-2_(5_system "dir ",PATH,match);
 		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)]];
-	//error and info for find function 
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err]];
 	$[(count files)=0;
 	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
 
