@@ -96,6 +96,12 @@ zip:{[FILE]
 
 //-locates files with path, matching string and age
 find:{[path;match;age;agemin]
+	//returns empty list for files if match is an empty string
+        if[""~match;
+          .lg.o[`housekeeping;"No matching files located"];
+          :();
+        ];
+
 	//renames the path to a windows readable format
 	PATH:ssr[path;"/";"\\"];
 	//searches for files and refines return to usable format
