@@ -6,6 +6,7 @@
 inputcsv:@[value;`.hk.inputcsv;.proc.getconfigfile["housekeeping.csv"]]
 runtimes:@[value;`.hk.runtimes;12:00]
 runnow:@[value;`.hk.runnow;0b]
+.win.version:@[value;`.win.version;`w10]
 
 inputcsv:string inputcsv
 
@@ -120,7 +121,7 @@ find:{[path;match;age;agemin]
 
 //defines full list of files based on Windows OS version
 winfilelist:{[path;match]
-	$[.windows.version in `w7`w8`w10;-2_(5_system "dir ",PATH,match);-5_(5_system "dir ",PATH,match, " /s")]
+	$[version in `w7`w8`w10;-2_(5_system "dir ",path,match);-5_(5_system "dir ",path,match, " /s")]
 }
 
 
