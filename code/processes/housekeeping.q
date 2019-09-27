@@ -108,15 +108,21 @@ find:{[path;match;age;agemin]
         //searches for files and refines return to usable format
 	$[0=agemin;
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-2_(5_system "dir ",PATH,match);
+		system "z 1";fulllist:winfilelist[PATH;match];
 		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err];
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-2_(5_system "dir ",PATH,match);
+		system "z 1";fulllist:winfilelist[PATH;match];
 		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err]];
 	$[(count files)=0;
 	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
+
+//defines full list of files based on Windows OS version
+winfilelist:{[path;match]
+	$[.windows.version in `w7`w8`w10;-2_(5_system "dir ",PATH,match);-5_(5_system "dir ",PATH,match, " /s")]
+}
+
 
 //removes files
 rm: {[FILE]
