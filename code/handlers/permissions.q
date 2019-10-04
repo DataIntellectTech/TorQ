@@ -4,6 +4,10 @@
 if[@[1b; `.access.enabled;0b]; ('"controlaccess.q already active";exit 1) ]
 enabled:@[value;`enabled;0b]            // whether permissions are enabled
 maxsize:@[value;`maxsize;200000000]     // the maximum size of any returned result set
+readonly:@[value;`.readonly.enabled;0b]
+val:$[readonly;reval;eval]
+valp:$[readonly;{reval parse x};value]
+
 
 / constants
 ALL:`$"*";  / used to indicate wildcard/superuser access to functions/data
@@ -113,9 +117,9 @@ query:{[u;q;b;pr]
   $[b; :qexe q; :1b]}
 
 dotqd:enlist[`]!enlist{[u;e;b;pr]if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]);$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
-dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;eval @[e;1 2;expr[u]];1b]}
-dotqd[`aj`ej]:{[u;e;b;pr] $[b;eval @[e;2 3;expr[u]];1b]}
-dotqd[`wj`wj1]:{[u;e;b;pr] $[b;eval @[e;2;expr[u]];1b]}
+dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;val @[e;1 2;expr[u]];1b]}
+dotqd[`aj`ej]:{[u;e;b;pr] $[b;val @[e;2 3;expr[u]];1b]}
+dotqd[`wj`wj1]:{[u;e;b;pr] $[b;val @[e;2;expr[u]];1b]}
 
 dotqf:{[u;q;b;pr]
   qf:.q?(q[0]);
@@ -130,10 +134,10 @@ lamq:{[u;e;l;b;pr]
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
 
-exe:{if[(100<abs type first x); v:eval x]; v:value x;
+exe:{if[(100<abs type first x); v:val x]; v:valp x;
   if[maxsize<-22!v; 'err[`size][]]; v} 
 
-qexe:{v:eval x; if[maxsize<-22!v; 'err[`size][]]; v}
+qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -166,7 +170,7 @@ allowed:mainexpr[;;0b;0b]
 parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]}
 destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
 cando:{[u;q]q:parsequery[q]; $[enabled;allowed[u;q];1b]};
-requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; value q]};
+requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; valp q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps
 
 / authentication
