@@ -164,4 +164,25 @@ generate(){
    echo ""
  }
 
+ quit(){                                                                                         
+        #this function quits the monit daemon                                                    
+        if [ -z $1 ]; then                                                                       
+                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+                monit -c ${BASEDIR}/monit/config/monitrc quit                                    
+        else                                                                                     
+                monit -c $1 quit                                                                 
+        fi                                                                                       
+ } 
+
+ summary(){                                                                                      
+        #this function provides a summary of the running processes                               
+        if [ z $1 ];then                                                                         
+                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+                monit -c ${BASEDIR}/monit/config/monitrc summary                                 
+        else                                                                                     
+                monit -c $1 summary                                                              
+        fi                                                                                       
+ }
+
+
 "$@"
