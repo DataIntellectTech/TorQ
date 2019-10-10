@@ -84,6 +84,10 @@ errorprefix:@[value;`.gw.errorprefix; "error: "]                 // the prefix f
 permissioned:@[value;`.gw.permissioned; 0b]                      // should the gateway permission queries before the permissions script does 
 clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]       // the time to store data on inactive handles
 
+readonly:@[value;`.readonly.enabled;0b]
+valp:$[`.pm.valp ~ key `.pm.valp;.pm.valp;.gw.readonly;{value parse x};value]
+val:$[`.pm.val ~ key `.pm.val;.pm.val;.gw.readonly;reval;eval]
+
 eod:0b
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
 checkeod:{[IDS].gw.eod&1<count distinct$[11h=type ids:raze IDS;ids;exec servertype from .gw.servers where any serverid in/:ids]}    // check if eod reload affects query
@@ -446,7 +450,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    :();
    ];
   ];
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
+ query:({[u;q;g]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u; g);`.pm.valp ~ key `.pm.valp; .pm.valp q; g q]}; .z.u; query;.gw.valp);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;
    errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -503,7 +507,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas; value(`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
+ query:({[u;q;g]$[`.pm.execas ~ key `.pm.execas; value(`.pm.execas; q; u; g);`.pm.valp ~ key `.pm.valp; .pm.valp q; g q]}; .z.u; query;.gw.valp);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
