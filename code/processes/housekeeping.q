@@ -122,7 +122,7 @@ find:{[path;match;age;agemin]
 //defines full list of files based on Windows OS version
 winfilelist:{[path;match]
 	$[version in `w7`w8`w10;-2_(5_system "dir ",path,match);-5_(5_system "dir ",path,match, " /s")]
-}
+ }
 
 
 //removes files
