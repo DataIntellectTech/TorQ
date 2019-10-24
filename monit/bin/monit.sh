@@ -164,25 +164,55 @@ generate(){
    echo ""
  }
 
- quit(){                                                                                         
-        #this function quits the monit daemon                                                    
-        if [ -z $1 ]; then                                                                       
-                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc quit                                    
-        else                                                                                     
-                monit -c $1 quit                                                                 
-        fi                                                                                       
- } 
+ quit(){
+	#this function quits the monit daemon
+	if [ -z $1 ]; then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc quit
+	else
+		monit -c $1 quit
+	fi
+ }
 
- summary(){                                                                                      
-        #this function provides a summary of the running processes                               
-        if [ z $1 ];then                                                                         
-                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc summary                                 
-        else                                                                                     
-                monit -c $1 summary                                                              
-        fi                                                                                       
+ summary(){
+	#this function provides a summary of the running processes
+	if [ z $1 ];then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc summary
+	else
+		monit -c $1 summary
+	fi
+ }
+
+ status(){
+	#this function prints a short status summary
+	if [ z $1 ];then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc status
+	else
+		monit -c $1 status
+	fi
  }
 
 
+ report(){
+        #this function prints a report services state
+        if [ z $1 ];then
+                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+                monit -c ${BASEDIR}/monit/config/monitrc report
+        else
+                monit -c $1 report
+        fi
+ }
+
+
+ reload(){
+        #this function reinitialises a running monit daemon. It will reread ints config, close and ropen log files
+        if [ z $1 ];then
+                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+                monit -c ${BASEDIR}/monit/config/monitrc reload
+        else
+                monit -c $1 reload
+        fi
+ }
 "$@"
