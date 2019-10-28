@@ -125,7 +125,7 @@ generate(){
       echo "Not yet implemented"
     ;;
   esac  
- }
+}
 
  start(){
  	#this function just starts monit and specifies the location of the monitrc 
@@ -135,7 +135,7 @@ generate(){
  	else
  	  monit -c $1
  	fi 
- }
+}
 
  usage(){
    echo ""
@@ -162,48 +162,48 @@ generate(){
    printf "%-10s | %-15s | %-40s | %-75s\n" "start" "NA" "starts monit" "\"<path monitrc>\""
    echo "----------------------------------------------------------------------------------------------------------------------------------------------"
    echo ""
- }
+}
 
  quit(){
-	#this function quits the monit daemon
+ 	#this function quits the monit daemon
 	if [ -z $1 ]; then
 		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
 		monit -c ${BASEDIR}/monit/config/monitrc quit
 	else
 		monit -c $1 quit
 	fi
- }
+}
 
  summary(){
-	#this function provides a summary of the running processes
+ 	#this function provides a summary of the running processes
 	if [ z $1 ];then
 		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
 		monit -c ${BASEDIR}/monit/config/monitrc summary
 	else
 		monit -c $1 summary
 	fi
- }
+}
 
  status(){
 	#this function prints a short status summary
-	if [ z $1 ];then
+	if [ z $2 ];then
 		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc status
+		monit -c ${BASEDIR}/monit/config/monitrc status $1
 	else
-		monit -c $1 status
+		monit -c $2 status $1
 	fi
- }
+}
 
 
  report(){
         #this function prints a report services state
-        if [ z $1 ];then
-                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc report
+        if [ z $2 ];then 
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc report $1
         else
-                monit -c $1 report
+                monit -c $2 report $1
         fi
- }
+}
 
 
  reload(){
@@ -214,5 +214,25 @@ generate(){
         else
                 monit -c $1 reload
         fi
- }
+}
+
+ unmonitor(){
+	#this function allows users to unmonitor all or specified functions
+	if [ z $2 ];then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc unmonitor $1
+	else
+		monit -c $2 unmonitor $1
+	fi
+}
+
+ monitor(){
+        #this function allows users to unmonitor all or specified functions
+        if [ z $2 ];then
+                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+                monit -c ${BASEDIR}/monit/config/monitrc monitor $1
+        else
+                monit -c $2 monitor $1
+        fi
+}
 "$@"
