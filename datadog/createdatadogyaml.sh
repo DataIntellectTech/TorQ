@@ -11,5 +11,5 @@ use_dogstatsd: true
 dogstatsd_port: 8125
 
 process_config:
- enabled: "true"" >> $filename
+ enabled: \"true\"" >> $filename
 fi
