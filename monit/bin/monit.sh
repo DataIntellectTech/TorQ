@@ -127,7 +127,7 @@ generate(){
   esac  
 }
 
- start(){
+ init(){
  	#this function just starts monit and specifies the location of the monitrc 
  	if [ -z $1 ];then 
       echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
@@ -234,5 +234,35 @@ generate(){
         else
                 monit -c $2 monitor $1
         fi
+}
+
+ start(){
+	#this function allows the monit process to start all or specified torq processes
+	if [ z $2 ];then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc start $1
+	else
+		monit -c $2 start $1
+	fi
+}
+
+ stop(){
+	#this function allows the user to stop all or specified torq processes
+	if [ z $2 ];then
+		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc stop $1
+	else
+		monit -c $2 stop $1
+	fi
+}
+
+ restart(){
+	#this function restarts all or specified named processes
+	if [ z $2 ];then
+		echo "Argument not provided monit will default to the following monitrc file:${BASEDIR}/monit/config/monitrc"
+		monit -c ${BASEDIR}/monit/config/monitrc restart $1
+	else
+		monit -c $2 restart $1
+	fi
 }
 "$@"
