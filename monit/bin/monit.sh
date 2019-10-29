@@ -176,11 +176,11 @@ generate(){
 
  summary(){
  	#this function provides a summary of the running processes
-	if [ z $1 ];then
+	if [ z $2 ];then
 		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc summary
+		monit -c ${BASEDIR}/monit/config/monitrc summary $1
 	else
-		monit -c $1 summary
+		monit -c $2 summary $1
 	fi
 }
 
@@ -195,26 +195,26 @@ generate(){
 }
 
 
- report(){
-        #this function prints a report services state
+ report(){                                                                                       
+        #this function prints a report services state                                             
         if [ z $2 ];then 
 		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
 		monit -c ${BASEDIR}/monit/config/monitrc report $1
-        else
-                monit -c $2 report $1
-        fi
-}
+        else                                                                                     
+                monit -c $2 report $1 
+        fi                                                                                       
+} 
 
 
- reload(){
-        #this function reinitialises a running monit daemon. It will reread ints config, close and ropen log files
-        if [ z $1 ];then
+ reload(){                                                                                       
+        #this function reinitialises a running monit daemon. It will reread ints config, close and ropen log files                                             
+        if [ z $1 ];then                                                                         
                 echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc reload
-        else
-                monit -c $1 reload
-        fi
-}
+                monit -c ${BASEDIR}/monit/config/monitrc reload                                  
+        else                                                                                     
+                monit -c $1 reload                                                              
+        fi                                                                                       
+} 
 
  unmonitor(){
 	#this function allows users to unmonitor all or specified functions
@@ -226,15 +226,15 @@ generate(){
 	fi
 }
 
- monitor(){
-        #this function allows users to unmonitor all or specified functions
-        if [ z $2 ];then
+ monitor(){                                                                                    
+        #this function allows users to unmonitor all or specified functions                      
+        if [ z $2 ];then                                                                         
                 echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc monitor $1
-        else
-                monit -c $2 monitor $1
-        fi
-}
+                monit -c ${BASEDIR}/monit/config/monitrc monitor $1                            
+        else                                                                                     
+                monit -c $2 monitor $1                                                         
+        fi                                                                                       
+} 
 
  start(){
 	#this function allows the monit process to start all or specified torq processes
