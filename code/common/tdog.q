@@ -18,11 +18,19 @@
 handlers:(`symbol$())!()
 
 //Function to check if there is data in the WDB
-.dg.wbstate:(0Np;0Nj)
+.dg.wdbstate:(0Np;0Nj)
 .dg.is_wdb_ok:{[x] if[(`time$.z.p)<00:05:00.00;.dg.wdbstate:(0Np;0); :1b];
-        s:$[.[.wdb.tabsizes;`trade`rowcount]>.dg.wdbstate[1];1b;0b];
+        s:$[.[.wdb.tabsizes;`trade`rowcount]>=.dg.wdbstate[1];1b;0b];
         .dg.wdbstate:(.z.p;.[.wdb.tabsizes;`trade`rowcount]);:s};
 .dg.handlers[`wdb]:.dg.is_wdb_ok
+
+//Function to check if there is data in the RDB
+.dg.rdbstate:(0Np;0Nj)
+.dg.is_rdb_ok:{[x] if[(`time$.z.p)<00:05:00.00;.dg.rdbstate:(0Np;0); :1b];
+        s:$[.[.rdb.tabsizes;`trade`rowcount]>=.dg.rdbstate[1];1b;0b];
+        .dg.rdbstate:(.z.p;.[.rdb.tabsizes;`trade`rowcount]);:s};
+.dg.handlers[`rdb]:.dg.is_wdb_ok
+
 
 //Function to check if all tables written down to hdb
 .dg.is_hdb_ok:{[x]
