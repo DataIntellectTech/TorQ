@@ -267,8 +267,8 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 		{[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
 		[.lg.o[`sort;"sorting on master sort"];
 		.lg.o[`sort;"reloading the sym file"];
-                @[load;.Q.dd[hdbdir;`sym];{.lg.e[`sort;"failed to reload sym file: ",x]}];
-                {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
+		@[load;.Q.dd[hdbdir;`sym];{.lg.e[`sort;"failed to reload sym file: ",x]}];
+		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
 	.lg.o[`sort;"finished sorting data"];
      
 	/-move data into hdb
