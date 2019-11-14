@@ -10,24 +10,23 @@ tpconnsleepintv:@[value;`tpconnsleepintv;10];                 /-default wait tim
 /- end of default parameters
 
 subscribe:{[]
-  if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];
+  if[0=count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];:()];
   .lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
   /-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
   /-and a list of the tables that the process is now subscribing for
   subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
   /-setting subtables and tplogdate globals
-  .dqe,:subinfo]
+  .dqe,:subinfo
   }
 
 init:{
   .servers.CONNECTIONS:distinct .servers.CONNECTIONS, .dqe.tickerplanttypes;
   .lg.o[`init;"searching for servers"];
   .servers.startup[];
-  .servers.startupdependent[tickerplanttypes;tpconnsleepintv];
   subscribe[];
   }
 
-tableExists:{x in tables[]};                                  /-function to check for table, param is table name as a symbol
+tableexists:{x in tables[]};                                  /-function to check for table, param is table name as a symbol
 
 \d .
 
