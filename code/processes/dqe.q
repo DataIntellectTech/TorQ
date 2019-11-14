@@ -14,10 +14,11 @@ subscribe:{[]
   .lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
   /-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
   /-and a list of the tables that the process is now subscribing for
-  subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
   /-setting subtables and tplogdate globals
-  .dqe,:subinfo
+  .dqe,:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
   }
+
+upd:{};
 
 init:{
   .servers.CONNECTIONS:distinct .servers.CONNECTIONS, .dqe.tickerplanttypes;
@@ -29,5 +30,7 @@ init:{
 tableexists:{x in tables[]};                                  /-function to check for table, param is table name as a symbol
 
 \d .
+
+upd:.dqe.upd;
 
 .dqe.init[]
