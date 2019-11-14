@@ -88,6 +88,7 @@ The available command line parameters are:
   |-debug                    |Equivalent to \[-nopi -noredirect\]|
   |-usage                    |Print usage info and exit|
   |-onelog                   |Writes all messages to stdout log file, note non-trapped errors will still be written to stderr log file|
+  |-test x                   |Use for unit testing. Pass the location of tests directory|
   
 
 In addition any process variable in a namespace (.\*.\*) can be
