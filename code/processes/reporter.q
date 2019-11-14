@@ -245,7 +245,7 @@ format:{[qid;msg] raze string[.proc.cp[]],"|",string[qid],"|",msg}
 
 /- RESULT HANDLERS
 /- returns string current date time YYYY_MM_DD_HH_MM_SS_mmm
-dtsuffix:{ssr[;;"_"]/["_" sv string .proc.cd[],.proc.ct[];".:"]};
+dtsuffix:{enlist ssr[;;"_"]/["_" sv string .proc.cd[],.proc.ct[];".:"]};
 
 emailstats:([procname:(); alertname:()] lastsent:`timestamp$());
 
