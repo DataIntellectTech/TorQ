@@ -17,8 +17,9 @@ export KDBCONFIG=${TORQHOME}/config
 export KDBCODE=${TORQHOME}/code
 export KDBAPPCONFIG=${TORQAPPHOME}/appconfig                                                        # sets the application specific configuration directory
 export KDBAPPCODE=${TORQAPPHOME}/code
-export KDBHDB=${TORQDATA}/hdb/database
+export KDBHDB=${TORQDATA}/hdb
 export KDBWDB=${TORQDATA}/wdbhdb
+export KDBTPLOG=${TORQDATA}/tplogs
 
 export KDBBASEPORT=6000                                                                             # set KDBBASEPORT to the default value for a TorQ Installation
 export KDBSTACKID="-stackid ${KDBBASEPORT}"
