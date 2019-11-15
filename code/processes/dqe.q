@@ -1,36 +1,23 @@
 \d .dqe
 
-/- default parameters
-subscribeto:@[value;`subscribeto;`];                          /-list of tables subscribed to
-subscribesyms:@[value;`subscribesyms;`];                      /-list of syms subscribed to
-schema:@[value;`schema;0b];                                   /-retrieve schema from tickerplant
-tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];     /-list of tickerplant types to try and make a connection to
-replaylog:@[value;`replaylog;0b];                             /-replay the tickerplant log file
-tpconnsleepintv:@[value;`tpconnsleepintv;10];                 /-default wait time before trying to reconnect to discovery/TP
-/- end of default parameters
-
-subscribe:{[]
-  if[0=count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];:()];
-  .lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
-  /-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
-  /-and a list of the tables that the process is now subscribing for
-  /-setting subtables and tplogdate globals
-  .dqe,:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
-  }
-
-upd:{};
-
 init:{
-  .servers.CONNECTIONS:distinct .servers.CONNECTIONS, .dqe.tickerplanttypes;
+  .servers.CONNECTIONS:`;                                                                                       /- set to nothing so that is only connects to discovery
   .lg.o[`init;"searching for servers"];
-  .servers.startup[];
-  subscribe[];
+  .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-tableexists:{x in tables[]};                                  /-function to check for table, param is table name as a symbol
+tableexists:{x in tables[]};                                                                                    /- function to check for table, param is table name as a symbol
+
+runcheck:{[fn;vars;rs]                                                                                          /- function used to send other function to test processes
+  h:.servers.opencon each exec hpup from .servers.querydiscovery`ALL where (procname in rs)|(proctype in rs);   /- check with discovery and open handles to other processes using procname and/or proctype
+  if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
+  /if[0=(count h)=(count rs);.lg.e[`handle;"not all supplied processes have handles"];                          /- check that number of handles equal input, Needs fixed due to proctype input!
+  ans:{[func;vrs;hand]hand(func;vrs)}[fn;vars]'[h];                                                             /- send function with variables down handle
+  hclose each h;                                                                                                /- close handles as they are no longer needed
+  ans
+  }
 
 \d .
 
-upd:.dqe.upd;
-
 .dqe.init[]
+
