@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #File name is set to the file name after the location of the process.yaml file
-#filename=/etc/datadog-agent/conf.d/process.d/process.yaml
-filename=~/proces.yaml
+filename=/etc/datadog-agent/conf.d/process.d/process.yaml
+#filename=~/proces.yaml
 
 #If the file doesn't exist then create the file and remove all restriction. Add first line "instances:"
 if [[ ! -f $filename ]];then
