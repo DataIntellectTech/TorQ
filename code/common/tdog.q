@@ -24,7 +24,11 @@ handlers:(`symbol$())!()
        .dg.wdbstate:(.z.p;.[.wdb.tabsizes;`trade`rowcount]);:s};
 .dg.handlers[`wdb]:.dg.is_wdb_ok
 
-//Function to check if all tables written down to hdb - min value - if any 0b returns 0b.
+//Function to check if date is correct in the RDB
+.dg.is_rdb_ok:{$[.z.d=first .rdb.getpartition[];1b;0b]}
+.dg.handlers[`rdb]:.dg.is_rdb_ok
+
+//Function to get the previous days date to do hdb_checks  - min value - if any 0bs returns 0b - something is wrong.
 .dg.is_hdb_ok:{[x]
         today:$[(`time$.z.p)>00:05:00.000;.z.d-1;.z.d-2];
         min value .dg.hdb_checks[today]
@@ -46,7 +50,9 @@ handlers:(`symbol$())!()
 //The last time it was check and .u.i (log file message count) are stored for comparison
 //Sets the tpstate to null timestamp and null long.
 .dg.tpstate:(0Np;0Nj)
-.dg.is_tickerplant_ok:{[x] if[(`time$.z.p)<00:05:00.00;.dg.tpstate:(0Np;0); :1b];
+.dg.is_tickerplant_ok:{[x]
+        if[(`time$.z.p)<00:05:00.00;.dg.tpstate:(0Np;0); :1b];
         s:$[.u.i>.dg.tpstate[1];1b;0b];
         .dg.tpstate:(.z.p;.u.i);:s};
 .dg.handlers[`tickerplant]:.dg.is_tickerplant_ok
+
