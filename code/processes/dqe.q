@@ -1,7 +1,5 @@
 \d .dqe
 
-.servers.CONNECTIONS:`;                                                                                         /- set to nothing so that is only connects to discovery
-
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
@@ -18,6 +16,8 @@ runcheck:{[fn;vars;rs]                                                          
   }
 
 \d .
+
+.servers.CONNECTIONS:`;                                                                                         /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
 
