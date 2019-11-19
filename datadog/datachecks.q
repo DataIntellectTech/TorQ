@@ -4,12 +4,12 @@ o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system 0N!"~/torqdog/deploy/datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
-.datadog.sendEvent:{[event_title;event_text] system"~/torqdog/deploy/datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
+.datadog.sendMetric:{[metric_name;metric_value] system 0N!"${TORQHOME}/datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
+.datadog.sendEvent:{[event_title;event_text] system"${TORQHOME}/datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
-        {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "~/torqdog/deploy/torq.sh summary"
+        {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "${TORQHOME}/torq.sh summary"
         }
 //Names of processes to be monitored to be edited depending on monitoring needs
 .datadog.monitorprocess:`tickerplant`hdb`wdb`rdb
