@@ -1,4 +1,5 @@
 //DATADOG CHECKS
+
 //Makes dictionary of defaults and uses .Q.opt to refer to command values passed by its key.
 o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
