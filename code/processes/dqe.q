@@ -10,8 +10,8 @@ gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x)
 tableexists:{x in tables[]};                                                                                    /- function to check for table, param is table name as a symbol
 
 runcheck:{[fn;vars;rs]                                                                                          /- function used to send other function to test processes
-  fncheck:(` vs fn);
-  if [0b=b:fncheck[2] in key value .Q.dd[`;fncheck[1]];                                                         /- run check to make sure passed in function exists
+  fncheck:` vs fn;
+  if [not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                           /- run check to make sure passed in function exists
     .lg.e[`function;"Function ",(string fn)," doesn't exist"];
     :()];
 
