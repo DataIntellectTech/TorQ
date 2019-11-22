@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #File name is set to the file name after the location of the process.yaml file
-#filename1=/etc/datadog-agent/conf.d/process.d/process.yaml
-filename1=~/process.yaml
+filename1=/etc/datadog-agent/conf.d/process.d/process.yaml
+#filename1=~/process.yaml
 
 #If the file doesn't exist then create the file and remove all restriction. Add first line "instances:"
 if [[ ! -f $filename1 ]];then
@@ -22,8 +22,8 @@ fi
 done
 
 #Filename is set to be in correct directory
-#filename2=/etc/datadog-agent/datadog.yaml
-filename2=~/datadog.yaml
+filename2=/etc/datadog-agent/datadog.yaml
+#filename2=~/datadog.yaml
 
 #If the file doesn't exist, make file and remove restrictions. Add the "echo" lines and save to file.
 touch $filename2
