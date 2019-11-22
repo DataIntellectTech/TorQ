@@ -9,7 +9,7 @@ init:{
 
 readdqeconfig:{[file]
   // read in config CSV
-  .lg.o["reading monitoring config from ",string file:hsym file];
+  .lg.o["reading dqe config from ",string file:hsym file];
   // read in csv file, trap error
   c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}];
  }
