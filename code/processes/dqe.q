@@ -1,9 +1,18 @@
 \d .dqe
 
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
+
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
+
+readdqeconfig:{[file]
+  // read in config CSV
+  .lg.o["reading monitoring config from ",string file:hsym file];
+  // read in csv file, trap error
+  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}];
+ }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
@@ -29,6 +38,6 @@ showresult:{show x};
 
 \d .
 
-.servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
+1986.servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
