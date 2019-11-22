@@ -18,12 +18,11 @@ runcheck:{[fn;vars;rs]                                                          
   rs:(),rs;                                                                                                     /- set rs to a list
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
   
-  missingproc:rs where not rs in h[`procname],h[`proctype];                                                     /- check all process exist
+  missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
   if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," processes are not connectable"]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
-  ans:{[funct;vars;hand].async.postback[hand;(funct;vars);`.dqe.showresult]}[value fn;vars]'[h[`w]];            /- send function with variables down handle
-  ans
+  ans:{[funct;vars;hand].async.postback[hand;(funct;vars);`.dqe.showresult]}[value fn;vars]'[h[`w]]             /- send function with variables down handle
   }
 
 showresult:{show x};
