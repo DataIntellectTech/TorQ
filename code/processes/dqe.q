@@ -38,6 +38,6 @@ showresult:{show x};
 
 \d .
 
-1986.servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
+.servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
