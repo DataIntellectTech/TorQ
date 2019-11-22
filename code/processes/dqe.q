@@ -19,7 +19,6 @@ runcheck:{[fn;vars;rs]                                                          
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
   
   missingproc:rs where not rs in h[`procname],h[`proctype];                                                     /- check all process exist
-  failedproc:{x,`failed}'[missingproc];
   if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," processes are not connectable"]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
