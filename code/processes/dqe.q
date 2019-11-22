@@ -18,7 +18,7 @@ runcheck:{[fn;vars;rs]                                                          
   rs:(),rs;                                                                                                     /- set rs to a list
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
   
-  missingproc:rs where not rs in h[`procname],h[`proctype];							/- check all process exist
+  missingproc:rs where not rs in h[`procname],h[`proctype];                                                     /- check all process exist
   failedproc:{x,`failed}'[missingproc];
   if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," processes are not connectable"]];
 
