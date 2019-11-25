@@ -11,15 +11,8 @@ readdqeconfig:{[file]
   // read in config CSV
   .lg.o["reading dqe config from ",string file:hsym file];
   // read in csv file, trap error
-  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}];
+  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]
  }
-
-//wrapper function I found in hk that should be useful to carry out actions in table
-Sees if the function in the CSV file is in the function list- if so, carries out
-wrapper:{[DICT]
-  $[not DICT[`action] in key `.;.lg.e[`dqe;"Could not find function ",string DICT[`action]];
-  (value DICT[`action]) each //pending finish here. ]}
-
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
