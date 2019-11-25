@@ -7,11 +7,31 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
+configtable:(
+
+
+  action:`symbol$();              // type of check
+
+  params:();                     // specific parameters to pass
+
+  proctype:();                   // process type
+
+  procesname:();                 // process name
+
+  mode:();                       // single run or repeat
+
+  starttime:`timespan$();        // when to start the check
+
+  endtime:`timespan$(); 
+         
+  period: `timespan$())         // periodicity of runs
+
 readdqeconfig:{[file]
   // read in config CSV
   .lg.o["reading dqe config from ",string file:hsym file];
   // read in csv file, trap error
   c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]
+  `configtable upsert c;
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
