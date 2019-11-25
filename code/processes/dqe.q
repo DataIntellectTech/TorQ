@@ -17,26 +17,39 @@ runcheck:{[id;fn;vars;rs]                                                       
   if [not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                           /- run check to make sure passed in function exists
     .lg.e[`function;"Function ",(string fn)," doesn't exist"];
     :()];
-
+  
   rs:(),rs;                                                                                                     /- set rs to a list
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
 
-  r:raze{[h;rs]                                                                                                 /- fill procname for results table
-    $[0=first where rs in ' h`procname`proctype;
-      enlist rs,'rs;
-      1=first where rs in ' h`procname`proctype;
-      rs,'exec procname from flip h where proctype=rs;enlist rs,'`]}[h]'[rs];
-  {[id;funct;vars;rs]                                                                                           /- set initial values in results table
-    `.dqe.results insert (id;funct;`$"," sv string (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started)}[id;fn;vars]'[r];
+  r:raze .dqe.fillprocname[h]'[rs];
+  .dqe.initializetable[id;fn;vars]'[r];
 
   missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
-  if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," processes are not connectable"]];
-  {[tab;idnum;proc]update chkstatus:`failed,descp:enlist "error:can't connect to process" from tab where id=idnum, procs=proc}[`.dqe.results;id]'[missingproc];
+  if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," process(es) are not connectable"]];
+  .dqe.failunconnected[`.dqe.results;id]'[missingproc];
+  
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
-  ans:{[funct;vars;id;proc;hand]
-    .async.postback[hand;(funct;vars);`.dqe.postback[id;proc]]}[value fn;vars;id]'[h[`procname];h[`w]]          /- send function with variables down handle
+  ans:.dqe.getresult[value fn;(),vars;id]'[h[`procname];h[`w]]
   }
 
+fillprocname:{[h;rs]                                                                                            /- fill procname for results table
+  $[0=first where rs in ' h`procname`proctype;
+    enlist rs,'rs;
+    1=first where rs in ' h`procname`proctype;
+    rs,'exec procname from flip h where proctype=rs;enlist rs,'`]
+  }
+
+initializetable:{[id;funct;vars;rs]                                                                             /- set initial values in results table
+  `.dqe.results insert (id;funct;`$"," sv string (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
+  }
+
+failunconnected:{[tab;idnum;proc]
+  update chkstatus:`failed,descp:enlist "error:can't connect to process" from tab where id=idnum, procs=proc;
+  }
+
+getresult:{[funct;vars;id;proc;hand]
+  .async.postback[hand;(funct;vars);`.dqe.postback[id;proc]];                                                   /- send function with variables down handle
+  }
 
 postback:{[idnum;proc;result]
   update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from `.dqe.results where id=idnum,procschk=proc;
