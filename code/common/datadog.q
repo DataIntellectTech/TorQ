@@ -28,8 +28,6 @@ handlers:(`symbol$())!()
 .dg.quotedate:{$[1=count exec distinct "d"$time from tables[]2;.z.d=first exec distinct "d"$time from tables[]2;1b;0b]};
 .dg.tradedate:{$[1=count exec distinct "d"$time from tables[]4;.z.d=first exec distinct "d"$time from tables[]4;1b;0b]};
 .dg.is_rdb_ok:{min .dg.quotedate[],.dg.tradedate[]};
-
-
 .dg.handlers[`rdb]:.dg.is_rdb_ok
 
 //Function to get the previous days date to do hdb_checks  - min value - if any 0bs returns 0b - something is wrong.
@@ -40,12 +38,16 @@ handlers:(`symbol$())!()
 //Creates checks dictionary 
 .dg.hdb_checks:{[x]
         checks:()!();
-        checks[`reload]:x in `. `date;                                   /Check reload is working (date is in process)
-        checks[`folder]:(`$string x) in key `:.;                         /Check folder for data is in partition
-        tablecount:{[date;table] 0<count get[`$":",string date]table}x;  /Check there is data in table
-        checks[`quote]:tablecount `quote;                                /Check data in quote
-        checks[`trade]:tablecount `trade;                                /Check data in trade
-        checks                                                           /Returns checks dictionary
+        checks[`reload]:x in `. `date;                                                                             /Check reload is working (date is in process)
+          if[not checks[`reload];.lg.e[`hdbchecks;"Reload is not working in HDB (run reload[] in hdb process)"]];  /Error log is check fails on reload
+        checks[`folder]:(`$string x) in key `:.;                                                                   /Check folder for data is in partition
+          if[not checks[`folder];.lg.e[`hdbchecks;"Yesterday's date was not saved to disk"]];                      /Error log if check fails on saved folder
+        tablecount:{[date;table] 0<count get[`$":",string date]table}x;                                            /Check there is data in table
+        checks[`quote]:tablecount `quote;                                                                          /Check data in quote
+           if[not checks[`quote];.lg.e[`hdbchecks;"No data in quote table"]];                                      /Error log if check fails on data in quotes
+        checks[`trade]:tablecount `trade;                                                                          /Check data in trade
+            if[not checks[`trade];.lg.e[`hdbchecks;"No data in trade table"]];                                     /Error log if checks fails on data in trades
+        checks                                                                                                     /Returns checks dictionary
         }
 .dg.handlers[`hdb]:.dg.is_hdb_ok
 
