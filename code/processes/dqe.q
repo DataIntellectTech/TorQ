@@ -44,4 +44,4 @@ showresult:{show x};
 
 .dqe.init[]
 
-`.dqe.configtable upsert readdqeconfig[.dqe.configcsv]
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]
