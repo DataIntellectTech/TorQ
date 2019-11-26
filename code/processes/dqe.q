@@ -19,7 +19,7 @@ fillprocname:{[h;rs]                                                            
     rs,'exec procname from flip h where proctype=rs;enlist rs,'`]
   }
 
-setchkstart:{[id;funct;vars;rs]                                                                                 /- set initial values in results table
+initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
   `.dqe.results insert (id;funct;`$"," sv string (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
   }
 
@@ -45,7 +45,7 @@ runcheck:{[id;fn;vars;rs]                                                       
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
 
   r:raze .dqe.fillprocname[h]'[rs];
-  .dqe.setchkstart[id;fn;vars]'[r];
+  .dqe.initstatusupd[id;fn;vars]'[r];
 
   missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
   if[0<count missingproc;.lg.e[`process;(", "sv string missingproc)," process(es) are not connectable"]];
