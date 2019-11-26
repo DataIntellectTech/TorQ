@@ -258,28 +258,35 @@ movetohdb:{[dw;hw;pt]
      .lg.e[`mvtohdb;raze"Table(s) ",string[(key hsym`$hw)inter(key hsym`$dw)]," is present in both location. Operation will be aborted to avoid corrupting the hdb"]]
  }
 
-endofdaysortdate:{[dir;pt;tablist;hdbsettings]
-	/-sort permitted tables in database
-	/- sort the table and garbage collect (if enabled)
-	.lg.o[`sort;"starting to sort data"];
-	$[count[.z.pd[]]&0>system"s";
-		[.lg.o[`sort;"sorting on slave sort", string .z.p];
-		{[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
-		[.lg.o[`sort;"sorting on master sort"];
-		{[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
-	.lg.o[`sort;"finished sorting data"];
-     
-	/-move data into hdb
-	.lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
-    .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
-    .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
+reloadsymfile:{[symfilepath]
+  .lg.o[`sort; "reloading the sym file from: ",string symfilepath];
+  @[load; symfilepath; {.lg.e[`sort;"failed to reload sym file: ",x]}]
+ }
 
-	/-call the posteod function
-	.save.postreplay[hdbsettings[`hdbdir];pt];
-	if[permitreload; 
-		doreload[pt];
-		];
-	};
+endofdaysortdate:{[dir;pt;tablist;hdbsettings]
+  /-sort permitted tables in database
+  /- sort the table and garbage collect (if enabled)
+  .lg.o[`sort;"starting to sort data"];
+  $[count[.z.pd[]]&0>system"s";
+    [.lg.o[`sort;"sorting on slave sort", string .z.p];
+     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+     {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
+    [.lg.o[`sort;"sorting on master sort"];
+     reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
+    {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
+  .lg.o[`sort;"finished sorting data"];
+     
+  /-move data into hdb
+  .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
+  .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
+  .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
+
+  /-call the posteod function
+  .save.postreplay[hdbsettings[`hdbdir];pt];
+  if[permitreload; 
+    doreload[pt];
+    ];
+  };
 
 merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
   setcompression[hdbsettings[`compression]];
@@ -322,20 +329,22 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
  };	
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
-	/- merge data from partitons
-	$[(0 < count .z.pd[]) and ((system "s")<0);
-		[.lg.o[`merge;"merging on slave"];		
-		merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
-		[.lg.o[`merge;"merging on master"];
-		merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
-	/- if path exists, delete it
-        if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
-	/-call the posteod function
-	.save.postreplay[hdbsettings[`hdbdir];pt];
-	if[permitreload; 
-		doreload[pt];
-		];
-	};
+  /- merge data from partitons
+  $[(0 < count .z.pd[]) and ((system "s")<0);
+    [.lg.o[`merge;"merging on slave"];
+     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
+     merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
+    [.lg.o[`merge;"merging on master"];
+     reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
+     merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
+  /- if path exists, delete it
+  if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
+  /-call the posteod function
+  .save.postreplay[hdbsettings[`hdbdir];pt];
+  if[permitreload; 
+    doreload[pt];
+    ];
+  };
 	
 /- end of day sort [depends on writedown mode]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
