@@ -7,24 +7,7 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:(
-
-
-  action:`symbol$();              // type of check
-
-  params:();                     // specific parameters to pass
-
-  proctype:();                   // process type
-
-  procesname:();                 // process name
-
-  mode:();                       // single run or repeat
-
-  starttime:`timespan$();        // when to start the check
-
-  endtime:`timespan$(); 
-         
-  period: `timespan$())         // periodicity of runs
+configtable:([] action:`symbol$(); params:(); proctype:(); procesname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 readdqeconfig:{[file]
   // read in config CSV
