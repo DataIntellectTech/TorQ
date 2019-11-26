@@ -7,14 +7,13 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`symbol$(); params:(); proctype:(); procesname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
+configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 readdqeconfig:{[file]
   // read in config CSV
   .lg.o["reading dqe config from ",string file:hsym file];
   // read in csv file, trap error
   c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]
-  `configtable upsert c;
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -44,3 +43,5 @@ showresult:{show x};
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
+
+`.dqe.configtable upsert readdqeconfig[.dqe.configcsv]
