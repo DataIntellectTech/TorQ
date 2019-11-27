@@ -10,10 +10,8 @@ init:{
 configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 readdqeconfig:{[file]
-  // read in config CSV
-  .lg.o["reading dqe config from ",string file:hsym file];
-  // read in csv file, trap error
-  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]
+  .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
+  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
