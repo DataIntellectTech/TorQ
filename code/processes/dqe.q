@@ -7,9 +7,9 @@ init:{
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
-tableexists:{[tabs]                                                                                             /- function to check for table, param is table name as a symbol
+tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
   result:();
-  $[1=all a:tabs in tables[];result:(1b;"all tables exist");result:(0b;raze ("," sv string tabs where not a)," missing from process")]
+  $[1=a:tab in tables[];result:(1b;((string tab)," table exists"));result:(0b;(string tab)," missing from process")]
   };
 
 fillprocname:{[h;rs]                                                                                            /- fill procname for results table
@@ -32,7 +32,7 @@ postback:{[idnum;proc;result]
   }
 
 getresult:{[funct;vars;id;proc;hand]
-  .async.postback[hand;(funct;vars);`.dqe.postback[id;proc]];                                                   /- send function with variables down handle
+  .async.postback[hand;funct,vars;.dqe.postback[id;proc]];                                                      /- send function with variables down handle
   }
 
 runcheck:{[id;fn;vars;rs]                                                                                       /- function used to send other function to test processes
@@ -62,4 +62,3 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
-
