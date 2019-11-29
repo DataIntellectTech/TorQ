@@ -9,6 +9,7 @@ gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x)
 
 tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
   result:();
+  .lg.o[`tabexist;"checking if ", (string tab), " table exists"];
   $[1=a:tab in tables[];result:(1b;((string tab)," table exists"));result:(0b;(string tab)," missing from process")]
   };
 
@@ -20,18 +21,29 @@ fillprocname:{[h;rs]                                                            
   }
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
+  .lg.o[`results;"setting up initial record(s) for id ",(string id)];
   `.dqe.results insert (id;funct;`$"," sv string (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
   }
 
 failunconnected:{[idnum;proc]
+  .lg.o[`results;raze "run check id ",(string idnum)," update in results table with a fail as can't connect"];
   update chkstatus:`failed,descp:enlist "error:can't connect to process" from `.dqe.results where id=idnum, procs=proc;
   }
 
+failerror:{[idnum;proc;error]
+ .lg.o[`results;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
+ update chkstatus:`failed,descp:enlist error from `.dqe.results where id=idnum, procschk=proc;
+ }
+
 postback:{[idnum;proc;result]
-  update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from `.dqe.results where id=idnum,procschk=proc;
+  $["e"=first result;
+  .dqe.failerror[idnum;proc;result];
+  update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from `.dqe.results where id=idnum,procschk=proc];
+  show result
   }
 
 getresult:{[funct;vars;id;proc;hand]
+  .lg.o[`results;raze"send function over to prcess: ",(string proc)];
   .async.postback[hand;funct,vars;.dqe.postback[id;proc]];                                                      /- send function with variables down handle
   }
 
@@ -62,3 +74,4 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
+
