@@ -19,7 +19,7 @@ gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x)
 tableexists:{x in tables[]};                                                                                    /- function to check for table, param is table name as a symbol
 
 runcheck:{[fn;vars;rs]                                                                                          /- function used to send other function to test processes
-  fncheck:` vs fn;
+  fncheck:` vs fn;                                                                                              /- vars is the parameter of the passed function(fn), rs is remote services(the processes)
   if [not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                           /- run check to make sure passed in function exists
     .lg.e[`function;"Function ",(string fn)," doesn't exist"];
     :()];
@@ -42,4 +42,7 @@ showresult:{show x};
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
+
+/timer for first commit - subjected to changed
+.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endttime];.dqe.runcheck[first .dqe.configtable[`action];`quote;`rdb];(`runnow;`);"running the tableexists check"]
