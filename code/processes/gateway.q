@@ -388,7 +388,7 @@ getserverscross:{[req;att;besteffort]
 getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
-   servertype:att,();
+   servertype:distinct att,();
    //list of active servers
    activeservers:exec distinct servertype from .gw.servers where active;
    //list of all servers
