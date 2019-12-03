@@ -1,2 +1,2 @@
 action,params,proctype,procname,mode,starttime,endtime,period
-`tableeexists,p,rdb,rdb1,repeat,00:00:00,12:00:00,04:00:00
+tableexists,p,rdb,rdb1,repeat,00:00:00,12:00:00,04:00:00
