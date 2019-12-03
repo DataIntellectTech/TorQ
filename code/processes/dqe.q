@@ -13,6 +13,12 @@ tableexists:{[tab]                                                              
   $[1=a:tab in tables[];result:(1b;((string tab)," table exists"));result:(0b;(string tab)," missing from process")]
   };
 
+tableticking:{[tab;timeperiod;timetype]                                                                         /- function to check if table is increasing in size
+  $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);                     /- params are tab        - table to check
+    (1;"there are ",(string a)," records");                                                                     /-            timeperiod - time back to check for records
+    (0b;"the table is not ticking")]                                                                            /-            timetype   - either `minute or `second
+  }
+
 fillprocname:{[h;rs]                                                                                            /- fill procname for results table
   $[0=first where rs in ' h`procname`proctype;
     enlist rs,'rs;
