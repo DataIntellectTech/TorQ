@@ -36,17 +36,17 @@ fillprocname:{[h;rs]                                                            
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string id)];
-  `.dqe.results insert (id;funct;`$"," sv string (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
+  `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
   }
 
 failunconnected:{[idnum;proc]
   .lg.o[`failuncon;raze "run check id ",(string idnum)," update in results table with a fail as can't connect"];
-  `.dqe.results set update chkstatus:`failed,descp:enlist "error:can't connect to process" from .dqe.results where id=idnum, procs=proc;
+  `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist "error:can't connect to process" from .dqe.results where id=idnum, procs=proc;
   }
 
 failerror:{[idnum;proc;error]
  .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
- `.dqe.results set update chkstatus:`failed,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
+ `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
  }
 
 postback:{[idnum;proc;result]
