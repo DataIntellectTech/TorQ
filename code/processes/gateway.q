@@ -387,11 +387,22 @@ getserverscross:{[req;att;besteffort]
 
 getserverids:{[att]
   if[99h<>type att;
-	// its a list of servertypes e.g. `rdb`hdb
-	servertype:att,();
-	missing:servertype except exec distinct servertype from .gw.servers where active;
-	if[count missing;'"not all of the requested server types are available; missing "," " sv string missing];
-	:(exec serverid by servertype from .gw.servers where active)[servertype];
+   // its a list of servertypes e.g. `rdb`hdb
+   servertype:att,();
+   //list of active servers
+   activeservers:exec distinct servertype from .gw.servers where active;
+   //list of all servers
+   allservers:exec distinct servertype from .gw.servers;
+   //if any requested servers are missing then:
+   //if requested server does not exist, return error with list of available servers
+   //if requested server exists but is currently inactive, return error with list of available servers
+   if[count servertype except activeservers;
+    $[max not servertype in allservers;
+     '"the following are not valid servers: ",(", " sv string servertype except allservers),". Available servers include: "," " sv string activeservers;
+     '"the following requested servers are currently inactive: ",(", " sv string servertype except activeservers),". Available servers include: "," " sv string activeservers
+    ];
+   ];
+   :(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
   // its a dictionary of attributes
@@ -459,11 +470,11 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
      //list of all servers
      allservers:exec distinct servertype from .gw.servers;
      //if any requested servers are missing then:
-       //if requested server does not exist, return error with list of available servers
-       //if requested server exists but is currently inactive, return error with list of available servers
+     //if requested server does not exist, return error with list of available servers
+     //if requested server exists but is currently inactive, return error with list of available servers
      if[count servertype except activeservers; 
        $[max not servertype in allservers; 
-	errStr:.gw.errorprefix,"the following are not valid servers: ",(", " sv string servertype except allservers),". Available servers include: "," " sv string activeservers;
+        errStr:.gw.errorprefix,"the following are not valid servers: ",(", " sv string servertype except allservers),". Available servers include: "," " sv string activeservers;
         errStr:.gw.errorprefix,"the following requested servers are currently inactive: ",(", " sv string servertype except activeservers),". Available servers include: "," " sv string activeservers
        ];
       ];
