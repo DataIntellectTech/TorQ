@@ -15,7 +15,7 @@ tableexists:{[tab]                                                              
 
 tableticking:{[tab;timeperiod;timetype]                                                                         /- function to check if table is increasing in size
   $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);                     /- params are tab        - table to check
-    (1;"there are ",(string a)," records");                                                                     /-            timeperiod - time back to check for records
+    (1b;"there are ",(string a)," records");                                                                    /-            timeperiod - time back to check for records
     (0b;"the table is not ticking")]                                                                            /-            timetype   - either `minute or `second
   }
 
