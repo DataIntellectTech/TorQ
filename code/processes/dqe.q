@@ -45,6 +45,6 @@ showresult:{show x};
 `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
 
 /timer for first commit - subjected to changed
-.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endttime];.dqe.runcheck[` sv (`.dqe; first .dqe.configtable[`action]);`quote;`rdb];(`runnow;`);"running the tableexists check"]
+.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endttime];.dqe.runcheck[` sv (`.dqe; first .dqe.configtable[`action]);first .dqe.configtable[`params];first .dqe.configtable[`proctype];(`runnow;`);"running the tableexists check"]
 
 
