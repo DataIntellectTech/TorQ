@@ -2,5 +2,5 @@
 
 echo `date`;
 . ~/.bashrc;
-q ./datadog/datachecks.q
+~/q/l32/q ./datadog/datachecks.q
 
