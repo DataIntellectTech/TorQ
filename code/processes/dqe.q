@@ -17,30 +17,32 @@ readdqeconfig:{[file]
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
 tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
-  result:();
-  .lg.o[`dqe;"checking if ", (string tab), " table exists"];
-  $[1=a:tab in tables[];result:(1b;((string tab)," table exists"));result:(0b;(string tab)," missing from process")]
+  .lg.o[`dqe;"checking if ", (s:string tab), " table exists"];
+  $[1=tab in tables[];
+    (1b;s," table exists")
+    (0b;s," missing from process")]
   };
 
-tableticking:{[tab;timeperiod;timetype]                                                                         /- function to check if table is increasing in size
-  $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);                     /- params are tab        - table to check
-    (1b;"there are ",(string a)," records");                                                                    /-            timeperiod - time back to check for records
-    (0b;"the table is not ticking")]                                                                            /-            timetype   - either `minute or `second
+tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
+  $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);
+    (1b;"there are ",(string a)," records");
+    (0b;"the table is not ticking")]
   }
 
 chkslowsub:{[threshold]                                                                                         /- function to check for slow subscribers
   .lg.o[`dqe;"Checking for slow subscribers"];
   overlimit:(key .z.W) where threshold<sum each value .z.W;
   $[0=count overlimit;
-    (1b;"no data queues over the limit, in ",(string .proc.procname));
+    (1b;"no data queues over the limit, in ",string .proc.procname);
     (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
   }
 
 fillprocname:{[h;rs]                                                                                            /- fill procname for results table
   $[0=first where rs in ' h`procname`proctype;
     enlist rs,'rs;
-    1=first where rs in ' h`procname`proctype;
-    rs,'exec procname from flip h where proctype=rs;enlist rs,'`]
+  1=first where rs in ' h`procname`proctype;
+    rs,'exec procname from flip h where proctype=rs;
+    enlist rs,'`]
   }
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
@@ -65,13 +67,13 @@ postback:{[idnum;proc;result]
   }
 
 getresult:{[funct;vars;id;proc;hand]
-  .lg.o[`getresults;raze"send function over to prcess: ",(string proc)];
+  .lg.o[`getresults;raze"send function over to prcess: ",string proc];
   .async.postback[hand;funct,vars;.dqe.postback[id;proc]];                                                      /- send function with variables down handle
   }
 
 runcheck:{[id;fn;vars;rs]                                                                                       /- function used to send other function to test processes
   fncheck:` vs fn;
-  if [not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                           /- run check to make sure passed in function exists
+  if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
     :()];
 
