@@ -32,7 +32,7 @@ filename2=/etc/datadog-agent/datadog.yaml
 #filename2=~/datadog.yaml
 
 #If the file doesn't exist, make file and remove restrictions. Add the "echo" lines and save to file.
-touch $filename2
+sudo touch $filename2
 sudo chmod 777 $filename2
 sudo echo "use_dogstatsd: true
 dogstatsd_port: 8125
