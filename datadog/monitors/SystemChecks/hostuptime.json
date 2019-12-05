@@ -1,0 +1,24 @@
+{
+	"name": "Host Uptime",
+	"type": "metric alert",
+	"query": "sum(last_1m):avg:system.uptime{host:ubuntu} < 60",
+	"message": "Checks that system uptime does not fall below 60seconds in the last minute\n",
+	"tags": [
+		"system"
+	],
+	"options": {
+		"notify_audit": false,
+		"locked": false,
+		"timeout_h": 0,
+		"new_host_delay": 300,
+		"require_full_window": false,
+		"notify_no_data": false,
+		"renotify_interval": "0",
+		"escalation_message": "",
+		"no_data_timeframe": null,
+		"include_tags": true,
+		"thresholds": {
+			"critical": 60
+		}
+	}
+}

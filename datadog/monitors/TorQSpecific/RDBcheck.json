@@ -1,0 +1,24 @@
+{
+	"name": "Data Check - rdb1",
+	"type": "metric alert",
+	"query": "min(last_1m):default_zero(avg:process_rdb1_check{*}) < 1",
+	"message": "Checks that the date in the RDB is today's date.",
+	"tags": [
+		"datacheck"
+	],
+	"options": {
+		"notify_audit": false,
+		"locked": false,
+		"timeout_h": 0,
+		"new_host_delay": 300,
+		"require_full_window": true,
+		"notify_no_data": false,
+		"renotify_interval": "0",
+		"escalation_message": "",
+		"no_data_timeframe": null,
+		"include_tags": true,
+		"thresholds": {
+			"critical": 1
+		}
+	}
+}

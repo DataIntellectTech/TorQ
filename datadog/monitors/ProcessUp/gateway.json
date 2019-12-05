@@ -1,0 +1,24 @@
+{
+	"name": "Process Check -gateway1",
+	"type": "metric alert",
+	"query": "min(last_1m):avg:system.processes.number{gateway1} < 1",
+	"message": "Alert if the gateway process goes down.",
+	"tags": [
+		"process"
+	],
+	"options": {
+		"notify_audit": false,
+		"locked": false,
+		"timeout_h": 0,
+		"new_host_delay": 300,
+		"require_full_window": false,
+		"notify_no_data": true,
+		"renotify_interval": "0",
+		"escalation_message": "",
+		"no_data_timeframe": 10,
+		"include_tags": true,
+		"thresholds": {
+			"critical": 1
+		}
+	}
+}
