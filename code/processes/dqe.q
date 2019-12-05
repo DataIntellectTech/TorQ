@@ -38,11 +38,12 @@ chkslowsub:{[threshold]                                                         
   }
 
 fillprocname:{[h;rs]                                                                                            /- fill procname for results table
-  $[0=first where rs in ' h`procname`proctype;
-    enlist rs,'rs;
-  1=first where rs in ' h`procname`proctype;
-    rs,'exec procname from flip h where proctype=rs;
-    enlist rs,'`]
+  val:first where rs in ' h`procname`proctype;
+  rs,'$[0=val;
+    rs;
+  1=val;
+    exec procname from flip h where proctype=rs;
+    1#`]
   }
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
@@ -80,9 +81,10 @@ runcheck:{[id;fn;vars;rs]                                                       
   rs:(),rs;                                                                                                     /- set rs to a list
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
 
-  r:raze .dqe.fillprocname[h]'[rs];
+  r:.dqe.fillprocname[h]'[rs];
+  if[any 2<>count each r;r:raze r];
   .dqe.initstatusupd[id;fn;vars]'[r];
-
+  
   missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
   if[0<count missingproc;.lg.e[`runcheck;(", "sv string missingproc)," process(es) are not connectable"]];
   .dqe.failunconnected[id]'[missingproc];
