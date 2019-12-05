@@ -41,19 +41,32 @@ createmonconfig(){
     procs="${procs:-${BASEDIR}/appconfig/process.csv}"                                              # sets procs to default only if unset already
     startstopsc="${startstopsc:-${BASEDIR}/torq.sh}"
     output="$configs/monitconfig.cfg"
-  
-    proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
-    echo "$proclist"|while read procs;do 
-      array=($procs)
-      proctype=${array[0]}
-      procname=${array[1]}
-      if [[ ! "$procname" == "killtick" ]];then                                                     # exclude killtick from the list of monitored processes 
-        #eval "echo $2" >> $output
-        eval "echo \"${monittemplate}\"" >> $output
-        echo "" >> $output
-      fi 
-  done 
-   checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
+    colcount=`head -1 ${procs} | sed 's/[^,]//g' | wc -c`
+    if [[ $colcount == 14 ]];then
+  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " " $14}'|cut -d" " -f1,2,3`
+        echo "$proclist"|while read procs;do
+        array=($procs)
+        proctype=${array[0]}
+        procname=${array[1]}
+        monitored=${array[2]}
+        if [[ ! $monitored == 0 ]];then                                                     
+            #eval "echo $2" >> $output
+            eval "echo \"${monittemplate}\"" >> $output
+            echo "" >> $output
+        fi
+        done
+  checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
+    else
+  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
+        echo "$proclist"|while read procs;do 
+          array=($procs)
+          proctype=${array[0]}
+          procname=${array[1]}
+    eval "echo \"${monittemplate}\"" >> $output
+          echo "" >> $output
+        done 
+      checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
+      fi
 }
 
 createmonalert(){
@@ -193,95 +206,15 @@ generate(){
 	fi
 }
 
- summary(){
- 	#this function provides a summary of the running processes
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc summary $1
-	else
-		monit -c $2 summary $1
-	fi
-}
-
- status(){
-	#this function prints a short status summary
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc status $1
-	else
-		monit -c $2 status $1
-	fi
-}
-
-
- report(){                                                                                       
-        #this function prints a report services state                                             
-        if [ z $2 ];then 
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc report $1
-        else                                                                                     
-                monit -c $2 report $1 
-        fi                                                                                       
-} 
-
-
- reload(){                                                                                       
-        #this function reinitialises a running monit daemon. It will reread ints config, close and ropen log files                                             
-        if [ z $1 ];then                                                                         
+ run(){
+        #overall function to call other monit commands
+        if [ -z $3 ];then
                 echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc reload                                  
-        else                                                                                     
-                monit -c $1 reload                                                              
-        fi                                                                                       
-} 
-
- unmonitor(){
-	#this function allows users to unmonitor all or specified functions
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc unmonitor $1
-	else
-		monit -c $2 unmonitor $1
-	fi
+                monit -c ${BASEDIR}/monit/config/monitrc $1 $2
+        else
+                monit -c $3 $1 $2
+        fi
 }
 
- monitor(){                                                                                    
-        #this function allows users to unmonitor all or specified functions                      
-        if [ z $2 ];then                                                                         
-                echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-                monit -c ${BASEDIR}/monit/config/monitrc monitor $1                            
-        else                                                                                     
-                monit -c $2 monitor $1                                                         
-        fi                                                                                       
-} 
 
- start(){
-	#this function allows the monit process to start all or specified torq processes
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc start $1
-	else
-		monit -c $2 start $1
-	fi
-}
-
- stop(){
-	#this function allows the user to stop all or specified torq processes
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc stop $1
-	else
-		monit -c $2 stop $1
-	fi
-}
-
- restart(){
-	#this function restarts all or specified named processes
-	if [ z $2 ];then
-		echo "Argument not provided monit will default to the following monitrc file:${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc restart $1
-	else
-		monit -c $2 restart $1
-	fi
-}
 "$@"
