@@ -37,13 +37,9 @@ chkslowsub:{[threshold]                                                         
     (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
   }
 
-fillprocname:{[h;rs]                                                                                            /- fill procname for results table
-  val:first where rs in ' h`procname`proctype;
-  rs,'$[0=val;
-    rs;
-  1=val;
-    exec procname from flip h where proctype=rs;
-    1#`]
+fillprocname:{[rs;h]                                                                                            /- fill procname for results table
+  val:rs where not rs in raze a:h`proctype`procname;
+  (flip a),val,'`
   }
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
@@ -81,8 +77,7 @@ runcheck:{[id;fn;vars;rs]                                                       
   rs:(),rs;                                                                                                     /- set rs to a list
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
 
-  r:.dqe.fillprocname[h]'[rs];
-  if[any 2<>count each r;r:raze r];
+  r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[id;fn;vars]'[r];
   
   missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
