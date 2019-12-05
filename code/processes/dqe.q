@@ -19,7 +19,7 @@ gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x)
 tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
   .lg.o[`dqe;"checking if ", (s:string tab), " table exists"];
   $[1=tab in tables[];
-    (1b;s," table exists")
+    (1b;s," table exists");
     (0b;s," missing from process")]
   };
 
