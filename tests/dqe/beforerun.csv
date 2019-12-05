@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,,1,,Start of dqe unit tests
+beforeany,0,0,q,.dqe.testing:1b,1,,"Set testing variable to true"
+beforeany,0,0,q,system raze("l ";getenv[`KDBCODE];"/processes/dqe.q"),1,,"Load dqe.q script"

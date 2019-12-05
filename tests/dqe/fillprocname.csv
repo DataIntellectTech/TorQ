@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,Start of tests for fillprocname function,1,,"comment"
+before,0,0,q,h1:(`procname`proctype!(`rdb1`hdb1`hdb2;`rdb`hdb`hdb)),1,,"Set up h dictionary"
+before,0,0,q,h2:(`procname`proctype!(`rdb1`rdb2`hdb1`hdb2;`rdb`rdb`hdb`hdb)),1,,"Set up h2 dictionary"
+run,0,0,q,r:.dqe.fillprocname[`rdb`hdb;h1],1,,"Run fillprocname for `rdb`hdb"
+true,0,0,q,all raze(`rdb`rdb1;`hdb`hdb1;`hdb`hdb2) = r,1,,"Test:all return fine"
+run,0,0,q,r:.dqe.fillprocname[`rdb`hdb`notatab;h1],1,,"Run fillprocname for `rdb`hdb`notatab"
+true,0,0,q,all raze(`rdb`rdb1;`hdb`hdb1;`hdb`hdb2;`notatab`) = r,1,,"Test:`notatab not in output"
+run,0,0,q,r:.dqe.fillprocname[`rdb`hdb;h2],1,,"Run fillprocname for `rdb`hdb"
+true,0,0,q,all raze(`rdb`rdb1;`rdb`rdb2;`hdb`hdb1;`hdb`hdb2) = r,1,,"Test:should all be listed fine"
+after,0,0,q,delete h1 from `.,1,,"Delete h1 dictionary"
+after,0,0,q,delete h2 from `.,1,,"Delete h2 dictionary"
+after,0,0,q,delete r from `.,1,,"Delete r list"

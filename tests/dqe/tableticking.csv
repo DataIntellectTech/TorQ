@@ -1,0 +1,6 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,trade:([]time:(.z.p-"u"$8)+"u"$til 5;sym:`AAPL`AAPL`DOW`GOOG`DOW;price:51.33 11.34 30.02 10.87 25.37;size:40 42 38 29 54;stop:00000b;cond:"JNJON";ex:"ONNON"),1,,"Set up trade table"
+true,0,0,q,first .dqe.tableticking[`trade;`5;`minute],1,,"Test if trade table ticked for last 5 minutes"
+true,0,0,q,first .dqe.tableticking[`trade;`320;`second],1,,"Test if trade table ticked for last 320 seconds"
+fail,0,0,q,.dqe.tableticking[`trade`quote;`5;`minute],1,,"Test for fail because of too many tables passed"
+after,0,0,q,delete trade from `.,1,,,"Delete trade table"
