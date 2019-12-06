@@ -1,24 +1,25 @@
 {
-	"name": "Data Check - wdb1",
-	"type": "query alert",
-	"query": "max(last_1d):dafault_zero(avg:process_wdb1_check{*}) < 1",
-	"message": "Shows when the write down happens in the WDB.\nAlerts if no write down happens in a period of 24hours.",
-	"tags": [
-		"datacheck"
-	],
-	"options": {
-		"notify_audit": false,
-		"locked": false,
-		"timeout_h": 0,
-		"new_host_delay": 300,
-		"require_full_window": true,
-		"notify_no_data": false,
-		"renotify_interval": "0",
-		"escalation_message": "",
-		"no_data_timeframe": null,
-		"include_tags": true,
-		"thresholds": {
-			"critical": 1
-		}
-	}
+        "name": "Data Check - wdb1",
+        "type": "query alert",
+        "query": "max(last_1d):avg:process_wdb1_check{*} < 1",
+        "message": "Alerts if no write down happens in the WDB in the last 24hours.\n",
+        "tags": [
+                "datacheck"
+        ],
+        "options": {
+                "notify_audit": false,
+                "locked": false,
+                "timeout_h": 0,
+                "new_host_delay": 300,
+                "require_full_window": true,
+                "notify_no_data": false,
+                "renotify_interval": "0",
+                "escalation_message": "",
+                "no_data_timeframe": null,
+                "include_tags": true,
+                "thresholds": {
+                        "critical": 1
+                }
+        }
 }
+
