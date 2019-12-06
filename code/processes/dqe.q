@@ -97,6 +97,11 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 .dqe.init[]
 
 `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
+update checkid:til count .dqe.configtable from `.dqe.configtable
+
+/Sample runcheck:
+/.dqe.runcheck[first .dqe.configtable[`checkid];` sv (`.dqe; first .dqe.configtable[`action]);`quote;`rdb]
+/show .dqe.results
 
 /timer for first commit - subjected to changed
 .timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endttime];.dqe.runcheck[` sv (`.dqe; first .dqe.configtable[`action]);first .dqe.configtable[`params];first .dqe.configtable[`proctype];(`runnow;`);"running the tableexists check"]
