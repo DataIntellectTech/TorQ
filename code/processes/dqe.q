@@ -102,4 +102,4 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 /show .dqe.results
 
 /timer for first commit - subjected to changed
-.timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.dqe.runcheck[` sv (`.dqe;first .dqe.configtable[`action])];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
+.timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.dqe.runcheck[first .dqe.configtable[`checkid];` sv (`.dqe;first .dqe.configtable[`action]);first .dqe.configtable[`params]];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
