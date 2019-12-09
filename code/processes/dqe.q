@@ -16,12 +16,14 @@ readdqeconfig:{[file]
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
-tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
-  .lg.o[`dqe;"checking if ", (s:string tab), " table exists"];
-  $[1=tab in tables[];
-    (1b;s," table exists");
-    (0b;s," missing from process")]
-  };
+constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
+  chkfunct:{system x," ",string $[null y;`;y]};
+  dict:`table`variable`view`function!chkfunct@/:"avbf";
+  .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
+  $[construct in dict[chktype][];
+    (1b;s," ",s2," exists");
+    (0b;s," ",s2," missing from process")]
+  }
 
 tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
   $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);
@@ -44,23 +46,19 @@ fillprocname:{[rs;h]                                                            
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string id)];
-  `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
+  `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
-failunconnected:{[idnum;proc]
-  .lg.o[`failuncon;raze "run check id ",(string idnum)," update in results table with a fail as can't connect"];
-  `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist "error:can't connect to process" from .dqe.results where id=idnum, procs=proc;
+failchk:{[idnum;error;proc]
+  c:count select from .dqe.results where id=idnum, procschk=proc;
+  .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
+  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc;
   }
-
-failerror:{[idnum;proc;error]
- .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
- `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
- }
 
 postback:{[idnum;proc;result]
   $["e"=first result;
-  .dqe.failerror[idnum;proc;result];
-  `.dqe.results set update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
+  .dqe.failchk[idnum;result;proc];
+  `.dqe.results set update endtime:.z.p,output:`boolean$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
   }
 
 getresult:{[funct;vars;id;proc;hand]
@@ -80,15 +78,15 @@ runcheck:{[id;fn;vars;rs]                                                       
   r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[id;fn;vars]'[r];
   
-  missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
-  if[0<count missingproc;.lg.e[`runcheck;(", "sv string missingproc)," process(es) are not connectable"]];
-  .dqe.failunconnected[id]'[missingproc];
+  .dqe.failchk[id;"error:can't connect to process";`];
+  procsdown:(h`procname) where 0N = h`w;
+  .dqe.failchk[id;"error:process is down or has lost its handle"]'[procsdown];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
   ans:.dqe.getresult[value fn;(),vars;id]'[h[`procname];h[`w]]
   }
 
-results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`$();descp:();chkstatus:`$());
+results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
 
 \d .
 
