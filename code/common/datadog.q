@@ -15,7 +15,7 @@
 
 .dg.default_is_ok:{[x]1b}
 
-handlers:(`symbol$())!()
+.dg.handlers:(`symbol$())!()
 
 //Function to check if writedown is happening in the WDB
 .dg.wdbstate:(0Np;0Nj)
