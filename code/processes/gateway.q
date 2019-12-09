@@ -397,10 +397,10 @@ getserverids:{[att]
    //if requested server does not exist, return error with list of available servers
    //if requested server exists but is currently inactive, return error with list of available servers
    if[count servertype except activeservers;
-    $[max not servertype in allservers;
-     '"the following are not valid servers: ",(", " sv string servertype except allservers),". Available servers include: "," " sv string activeservers;
-     '"the following requested servers are currently inactive: ",(", " sv string servertype except activeservers),". Available servers include: "," " sv string activeservers
-    ];
+    '"the following ",$[max not servertype in allservers;
+     "are not valid servers: ",", " sv string servertype except allservers;
+     "requested servers are currently inactive: ",", " sv string servertype except activeservers
+    ],". Available servers include: "," " sv string activeservers;
    ];
    :(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
