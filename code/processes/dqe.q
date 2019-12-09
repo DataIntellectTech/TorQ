@@ -21,8 +21,8 @@ constructcheck:{[construct;chktype]                                             
   dict:`table`variable`view`function!chkfunct@/:"avbf";
   .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
   $[1=construct in dict[chktype][];
-    (1b;raze s," ",s2," exists");
-    (0b;raze s," ",s2," missing from process")]
+    (1b;s," ",s2," exists");
+    (0b;s," ",s2," missing from process")]
   }
 
 tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
