@@ -50,14 +50,15 @@ initstatusupd:{[id;funct;vars;rs]                                               
   }
 
 failchk:{[idnum;error;proc]
+  c:count select from .dqe.results where id=idnum, procschk=proc;
   .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
-  `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
+  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc;
   }
 
 postback:{[idnum;proc;result]
   $["e"=first result;
   .dqe.failchk[idnum;result;proc];
-  `.dqe.results set update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
+  `.dqe.results set update endtime:.z.p,output:`boolean$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
   }
 
 getresult:{[funct;vars;id;proc;hand]
@@ -85,7 +86,7 @@ runcheck:{[id;fn;vars;rs]                                                       
   ans:.dqe.getresult[value fn;(),vars;id]'[h[`procname];h[`w]]
   }
 
-results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`$();descp:();chkstatus:`$());
+results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
 
 \d .
 
