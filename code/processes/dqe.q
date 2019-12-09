@@ -102,6 +102,4 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 /show .dqe.results
 
 /timer for first commit - subjected to changed
-.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endttime];.dqe.runcheck[` sv (`.dqe; first .dqe.configtable[`action]);first .dqe.configtable[`params];first .dqe.configtable[`proctype];(`runnow;`);"running the tableexists check"]
-
-
+.timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.dqe.runcheck[` sv (`.dqe;first .dqe.configtable[`action])];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
