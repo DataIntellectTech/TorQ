@@ -49,19 +49,14 @@ initstatusupd:{[id;funct;vars;rs]                                               
   `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
   }
 
-failunconnected:{[idnum;proc]
-  .lg.o[`failuncon;raze "run check id ",(string idnum)," update in results table with a fail as can't connect"];
-  `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist "error:can't connect to process" from .dqe.results where id=idnum, procs=proc;
+failchk:{[idnum;error;proc]
+  .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
+  `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
   }
-
-failerror:{[idnum;proc;error]
- .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
- `.dqe.results set update chkstatus:`failed,output:`0,descp:enlist error from .dqe.results where id=idnum, procschk=proc;
- }
 
 postback:{[idnum;proc;result]
   $["e"=first result;
-  .dqe.failerror[idnum;proc;result];
+  .dqe.failchk[idnum;result;proc];
   `.dqe.results set update endtime:.z.p,output:`$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
   }
 
@@ -82,9 +77,9 @@ runcheck:{[id;fn;vars;rs]                                                       
   r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[id;fn;vars]'[r];
   
-  missingproc:rs where not rs in raze h`procname`proctype;                                                      /- check all process exist
-  if[0<count missingproc;.lg.e[`runcheck;(", "sv string missingproc)," process(es) are not connectable"]];
-  .dqe.failunconnected[id]'[missingproc];
+  .dqe.failchk[id;"error:can't connect to process";`];
+  procsdown:(h`procname) where 0N = h`w;
+  .dqe.failchk[id;"error:process is down or has lost its handle"]'[procsdown];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
   ans:.dqe.getresult[value fn;(),vars;id]'[h[`procname];h[`w]]
