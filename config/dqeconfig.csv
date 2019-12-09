@@ -1,2 +1,3 @@
-action,params,proctype,procname,mode,starttime,endtime,period
-tableexists,`quote,`rdb,`rdb1,repeat,00:00:00,12:00:00,04:00:00
+id,action,params,proctype,procname,mode,starttime,endtime,period
+1,tableticking,(`quote;5;`minute),`rdb,`rdb1,repeat,00:00:00,12:00:00,04:00:00
+2,chkslowsub,1000000,`tickerplant,`tickerplant1,repeat,00:00,12:00:00,04:00:00
