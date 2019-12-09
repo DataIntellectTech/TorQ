@@ -465,19 +465,8 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    if[99h<>type servertype;
      // its a list of servertypes e.g. `rdb`hdb
      servertype:distinct servertype,();
-     //list of active servers
-     activeservers:exec distinct servertype from .gw.servers where active;
-     //list of all servers
-     allservers:exec distinct servertype from .gw.servers;
-     //if any requested servers are missing then:
-     //if requested server does not exist, return error with list of available servers
-     //if requested server exists but is currently inactive, return error with list of available servers
-     if[count servertype except activeservers; 
-       $[max not servertype in allservers; 
-        errStr:.gw.errorprefix,"the following are not valid servers: ",(", " sv string servertype except allservers),". Available servers include: "," " sv string activeservers;
-        errStr:.gw.errorprefix,"the following requested servers are currently inactive: ",(", " sv string servertype except activeservers),". Available servers include: "," " sv string activeservers
-       ];
-      ];
+     errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
+     if[10h=type errcheck; errStr:errcheck];
      queryattributes:()!();
     ];
    if[99h=type servertype;
