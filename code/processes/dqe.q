@@ -46,7 +46,7 @@ fillprocname:{[rs;h]                                                            
 
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string id)];
-  `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;`;"";`started);
+  `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
 failchk:{[idnum;error;proc]
