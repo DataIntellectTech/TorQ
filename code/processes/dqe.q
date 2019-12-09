@@ -16,12 +16,14 @@ readdqeconfig:{[file]
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
-tableexists:{[tab]                                                                                              /- function to check for table, param is table name as a symbol
-  .lg.o[`dqe;"checking if ", (s:string tab), " table exists"];
-  $[1=tab in tables[];
-    (1b;s," table exists");
-    (0b;s," missing from process")]
-  };
+constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
+  chkfunct:{system x," ",string $[null y;`;y]};
+  dict:`table`variable`view`function!chkfunct@/:"avbf";
+  .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
+  $[construct in dict[chktype][];
+    (1b;s," ",s2," exists");
+    (0b;s," ",s2," missing from process")]
+  }
 
 tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
   $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);
