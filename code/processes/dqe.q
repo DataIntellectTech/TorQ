@@ -7,7 +7,7 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
+configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
@@ -102,4 +102,4 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 /show .dqe.results
 
 /timer for first commit - subjected to changed
-.timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.dqe.runcheck[first .dqe.configtable[`checkid];` sv (`.dqe;first .dqe.configtable[`action]);first .dqe.configtable[`params]];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
+.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endtime];first .dqe.configtable[`period];(`.dqe.runcheck[first .dqe.configtable[`checkid];` sv (`.dqe;first .dqe.configtable[`action]);first .dqe.configtable[`params]];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
