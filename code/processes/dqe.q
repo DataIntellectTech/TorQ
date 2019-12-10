@@ -44,21 +44,27 @@ fillprocname:{[rs;h]                                                            
   (flip a),val,'`
   }
 
+dupchk:{[id;proc]                                                                                               /- checks for unfinished runs that match the new run
+  if[count select from .dqe.results where id=id,procschk=proc,chkstatus=`started;
+    .dqe.failchk[id;"error:fail to complete before next run";proc]];
+  }
+
 initstatusupd:{[id;funct;vars;rs]                                                                               /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string id)];
+  .dqe.dupchk[id]'[rs];
   `.dqe.results insert (id;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
 failchk:{[idnum;error;proc]
   c:count select from .dqe.results where id=idnum, procschk=proc;
-  .lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)];
-  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc;
+  if[c;.lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)]];
+  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
 postback:{[idnum;proc;result]
   $["e"=first result;
   .dqe.failchk[idnum;result;proc];
-  `.dqe.results set update endtime:.z.p,output:`boolean$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc];
+  `.dqe.results set update endtime:.z.p,output:`boolean$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
 getresult:{[funct;vars;id;proc;hand]
@@ -80,7 +86,7 @@ runcheck:{[id;fn;vars;rs]                                                       
   
   .dqe.failchk[id;"error:can't connect to process";`];
   procsdown:(h`procname) where 0N = h`w;
-  .dqe.failchk[id;"error:process is down or has lost its handle"]'[procsdown];
+  if[count procsdown;.dqe.failchk[id;"error:process is down or has lost its handle"]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
   ans:.dqe.getresult[value fn;(),vars;id]'[h[`procname];h[`w]]
