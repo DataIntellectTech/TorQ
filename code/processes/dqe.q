@@ -7,11 +7,11 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
+configtable:([] action:`$(); params:`$(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;(("SSSSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -88,6 +88,10 @@ runcheck:{[id;fn;vars;rs]                                                       
 
 results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
 
+loadtimer:{[DICT]
+  DICT[`params]:`$";" vs string DICT[`params];                                                                  /- Accounting for potential multiple parameters
+  .timer.repeat[DICT[`starttime];DICT[`endtime];DICT[`period];(`.dqe.runcheck;DICT[`checkid];.Q.dd[`.dqe;DICT[`action]];DICT[`params];DICT[`procname]);"Running Check on ",string DICT[`proctype]]
+  }
 \d .
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
@@ -97,9 +101,7 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
 
-/Sample runcheck:
-/.dqe.runcheck[first .dqe.configtable[`checkid];` sv (`.dqe; first .dqe.configtable[`action]);`quote;`rdb]
-/show .dqe.results
-
-/timer for first commit - subjected to changed
-.timer.repeat[first .dqe.configtable[`starttime];first .dqe.configtable[`endtime];first .dqe.configtable[`period];(`.dqe.runcheck;[first .dqe.configtable[`checkid];` sv (`.dqe;first .dqe.configtable[`action]);first .dqe.configtable[`params]];`);"running check ",string first .dqe.configtable[`action]," on ",string first .dqe.configtable[`proctype]];
+/ Sample runcheck:
+/ show .dqe.results
+/ timer for first commit - subjected to changed
+.dqe.loadtimer '[.dqe.configtable]
