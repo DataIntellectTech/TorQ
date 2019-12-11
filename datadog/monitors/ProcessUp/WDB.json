@@ -11,7 +11,7 @@
 		"locked": false,
 		"timeout_h": 0,
 		"new_host_delay": 300,
-		"require_full_window": true,
+		"require_full_window": false,
 		"notify_no_data": false,
 		"renotify_interval": "0",
 		"escalation_message": "",
