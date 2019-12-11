@@ -25,5 +25,5 @@ sendEvent:{[event_title;event_text;tags;alert_type] system getenv[`TORQHOME],"/d
 \d .
 
 //override default .lg.ext functionality to send error and warning events to datadog
-.lg.ext:{[loglevel;proctype;proc;id;message;dict] 
- if[loglevel in `ERR`WARN;.dg.sendEvent[string proc;message;string proctype;]$[loglevel=`ERR;"error";"warning"]]}
+.lg.ext:{[loglevel;proctype;proc;id;message;dict]
+ if[loglevel in `ERR`WARN;.dg.sendEvent[string proc;"\"",message,"\"";string proctype;]$[loglevel=`ERR;"error";"warning"]]}
