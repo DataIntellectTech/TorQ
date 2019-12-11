@@ -90,8 +90,8 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
-  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);
-  $[DICT[`mode]=`repeat;
+  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);               /- function that will be used in timer
+  $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
     .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proctype];
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
   }
@@ -107,5 +107,5 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 
 / Sample runcheck:
 / show .dqe.results
-/ timer for first commit - subjected to changed
+/ Load up timers
 .dqe.loadtimer '[.dqe.configtable]
