@@ -102,6 +102,14 @@ loadtimer:{[DICT]
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
   }
 
+reruncheck:{[chkid]
+  d:exec action, params, procname, proctype from dqe.configtable where chekid=chkid;
+  d[`params]: value d[`params];                                                                          
+  functiontorun:(`.dqe.runcheck;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname);  
+  .timer.once[.z.p;functiontorun;"Rerunning check once on ",string d`proctype]]
+  }
+
+
 \d .
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
