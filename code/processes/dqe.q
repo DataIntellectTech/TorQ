@@ -88,11 +88,6 @@ runcheck:{[id;fn;vars;rs]                                                       
 
 results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
 
-/loadtimer:{[DICT]
-/  DICT[`params]:`$";" vs string DICT[`params];                                                                  /- Accounting for potential multiple parameters
-/  .timer.repeat[DICT[`starttime];DICT[`endtime];DICT[`period];(`.dqe.runcheck;DICT[`checkid];.Q.dd[`.dqe;DICT[`action]];DICT[`params];DICT[`procname]);"Running Check on ",string DICT[`proctype]]
-/  }
-
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
   functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);
