@@ -450,7 +450,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    :();
    ];
   ];
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; @[value;q;{.lg.e[`gw;"Failed to execute query."]}]]}; .z.u; query;.gw.valp);
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;
    errStr:.gw.errorprefix,"only synchronous calls are allowed";
@@ -507,7 +507,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas; value(`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; @[value;q;{.lg.e[`gw;"Failed to execute query."]}]]}; .z.u; query;.gw.valp);
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas; value(`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
