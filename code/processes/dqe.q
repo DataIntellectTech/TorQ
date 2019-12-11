@@ -7,11 +7,11 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`$(); params:`$(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
+configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("SSSSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;(("S*SSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -94,10 +94,11 @@ results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`
 /  }
 
 loadtimer:{[DICT]
-  DICT[`params]:`$";" vs string DICT[`params];                                                                  /- Accounting for potential multiple parameters
+  DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
+  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);
   $[DICT[`mode]=`repeat;
-  .timer.repeat[DICT[`starttime];DICT[`endtime];DICT[`period];(`.dqe.runcheck;DICT[`checkid];.Q.dd[`.dqe;DICT[`action]];DICT[`params];DICT[`procname]);"Running check on ",string DICT[`proctype]];
-  .timer.once[DICT[`starttime];(`.dqe.runcheck;DICT[`checkid];.Q.dd[`.dqe;DICT[`action]];DICT[`params];DICT[`procname]);"Running check once on ",string DICT[`proctype]]]
+    .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proctype];
+    .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
   }
 
 \d .
