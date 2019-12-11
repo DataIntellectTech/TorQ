@@ -33,7 +33,7 @@ tableticking:{[tab;timeperiod;timetype]                                         
 
 chkslowsub:{[threshold]                                                                                         /- function to check for slow subscribers
   .lg.o[`dqe;"Checking for slow subscribers"];
-  overlimit:(key .z.W) where threshold<sum each value .z.W;
+  overlimit:(key .z.W) where ("J"$string threshold)<sum each value .z.W;
   $[0=count overlimit;
     (1b;"no data queues over the limit, in ",string .proc.procname);
     (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
@@ -64,7 +64,7 @@ failchk:{[idnum;error;proc]
 postback:{[idnum;proc;result]
   $["e"=first result;
   .dqe.failchk[idnum;result;proc];
-  `.dqe.results set update endtime:.z.p,output:`boolean$ string first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+  `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
 getresult:{[funct;vars;idnum;proc;hand]
