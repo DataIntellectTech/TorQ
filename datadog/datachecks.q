@@ -1,18 +1,21 @@
 //DATADOG CHECKS
+//Script for running checks manually/via crontab
 //Makes dictionary of defaults and uses .Q.opt to refer to command values passed by its key.
 o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system 0N!"./datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
-.datadog.sendEvent:{[event_title;event_text] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
+.datadog.sendMetric:{[metric_name;metric_value] system"./datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
+//.datadog.sendEvent:{[event_title;event_text] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
+.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text," ",tags," ",alert_type;}
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
         {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "./torq.sh summary"
         }
 //Names of processes to be monitored to be edited depending on monitoring needs
-.datadog.monitorprocess:`tickerplant`hdb`wdb`rdb
+.datadog.monitorprocess:()
+//.datadog.monitorprocess:`tickerplant`hdb`wdb`rdb
 
 //Open port to process and sends check for each is_ok function
 .datadog.sendcheck:{[o;x]
@@ -31,9 +34,10 @@ o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 //Retrieves the processes to be monitored with summary data. 
 .datadog.init:{[x]
         .datadog.allprocesslist:.datadog.getprocess[];
-        .datadog.monitoredprocesslist:select from .datadog.allprocesslist where any PROCESS like/:{[x]string[x],"*"}'[.datadog.monitorprocess];
-        .datadog.checkall[.datadog.monitoredprocesslist;o];
+	.datadog.monitoredprocesslist:select from .datadog.allprocesslist where any PROCESS like/:{[x]string[x],"*"}'[.datadog.monitorprocess];	
+        $[count .datadog.monitorprocess;.datadog.checkall[.datadog.monitoredprocesslist;o];.datadog.checkall[.datadog.allprocesslist;o]]
         }
+
 //if init is set to true run init
 if[o[`init];@[.datadog.init;`;1]]
 //If the noexit is set to 0b then exit
