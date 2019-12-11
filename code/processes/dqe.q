@@ -7,11 +7,11 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`symbol$(); params:(); proctype:(); procname:(); mode:(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
+configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("S****NNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;(("S*SSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -94,10 +94,24 @@ runcheck:{[idnum;fn;vars;rs]                                                    
 
 results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
 
+loadtimer:{[DICT]
+  DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
+  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);               /- function that will be used in timer
+  $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
+    .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proctype];
+    .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
+  }
+
 \d .
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
+update checkid:til count .dqe.configtable from `.dqe.configtable
+
+/ Sample runcheck:
+/ show .dqe.results
+/ Load up timers
+.dqe.loadtimer '[.dqe.configtable]

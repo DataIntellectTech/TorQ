@@ -1,2 +1,5 @@
 action,params,proctype,procname,mode,starttime,endtime,period
-`tableeexists,p,rdb,rdb1,repeat,00:00:00,12:00:00,04:00:00
+tableticking,(`quote;5;`minute),rdb,rdb1,repeat,2019.12.09D21:32:56.594650000,0W,0D00:05:00
+chkslowsub,1000000,tickerplant,tickerplant1,repeat,2019.12.09D19:32:56.594650000,0W,0D00:10:00
+tableticking,(`quote;5;`minute),rdb,rdb1,single,2019.12.09D20:45:56.594650000, 2019.12.09D21:20:56.594650000,0D00:00:00
+constructcheck,(`quote;`table),rdb,rdb1,repeat,2019.12.09D21:32:56.594650000,0W,0D00:02:00
