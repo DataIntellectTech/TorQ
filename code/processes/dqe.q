@@ -51,18 +51,18 @@ dupchk:{[idnum;proc]                                                            
 
 initstatusupd:{[idnum;funct;vars;rs]                                                                            /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
-  .dqe.dupchk[idnum]'[rs];
+  .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
   `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
-failchk:{[idnum;error;proc]
+failchk:{[idnum;error;proc]                                                                                     /- general fail function, used to fail a check with inputted error message
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   if[c;.lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)]];
   `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
-postback:{[idnum;proc;result]
-  $["e"=first result;
+postback:{[idnum;proc;result]                                                                                   /- function that updates the results table with the check result
+  $["e"=first result;                                                                                           /- checks if error returned from server side
   .dqe.failchk[idnum;result;proc];
   `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
@@ -85,7 +85,7 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   .dqe.initstatusupd[idnum;fn;vars]'[r];
   
   .dqe.failchk[idnum;"error:can't connect to process";`];
-  procsdown:(h`procname) where 0N = h`w;
+  procsdown:(h`procname) where 0N = h`w;                                                                        /- checks if any procs didn't get handles
   if[count procsdown;.dqe.failchk[idnum;"error:process is down or has lost its handle"]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
