@@ -11,7 +11,7 @@ configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$();
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("S*SSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;(("S*SSSNNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -110,6 +110,8 @@ loadtimer:{[DICT]
 
 `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
+update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
+update endtime:.z.d+endtime from `.dqe.configtable
 
 / Sample runcheck:
 / show .dqe.results
