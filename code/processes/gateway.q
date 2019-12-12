@@ -393,6 +393,9 @@ getserverids:{[att]
    activeservers:exec distinct servertype from .gw.servers where active;
    //list of all servers
    allservers:exec distinct servertype from .gw.servers;
+   activeserversmsg:". Available servers include: ",", " sv string activeservers;
+   //check if a null argument is passed
+   if[any null att;'"A null server cannot be passed as an argument",activeserversmsg];
    //if any requested servers are missing then:
    //if requested server does not exist, return error with list of available servers
    //if requested server exists but is currently inactive, return error with list of available servers
@@ -400,7 +403,7 @@ getserverids:{[att]
     '"the following ",$[max not servertype in allservers;
      "are not valid servers: ",", " sv string servertype except allservers;
      "requested servers are currently inactive: ",", " sv string servertype except activeservers
-    ],". Available servers include: "," " sv string activeservers;
+    ],activeserversmsg;
    ];
    :(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
