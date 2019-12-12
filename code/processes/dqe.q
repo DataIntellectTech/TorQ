@@ -7,7 +7,7 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
+configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 readdqeconfig:{[file]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
