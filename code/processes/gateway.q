@@ -393,7 +393,7 @@ getserverids:{[att]
    activeservers:exec distinct servertype from .gw.servers where active;
    //list of all servers
    allservers:exec distinct servertype from .gw.servers;
-   activeserversmsg:". Available servers include: "," " sv string activeservers;
+   activeserversmsg:". Available servers include: ",", " sv string activeservers;
    //check if a null argument is passed
    if[any null att;'"A null server cannot be passed as an argument",activeserversmsg];
    //if any requested servers are missing then:
