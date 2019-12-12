@@ -201,7 +201,7 @@ pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
 l:{[loglevel;proctype;proc;id;message;dict]
-	$[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
+	if[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
 		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
 		ext[loglevel;proctype;proc;id;message;dict]];
         publish[loglevel;proctype;proc;id;message];	
