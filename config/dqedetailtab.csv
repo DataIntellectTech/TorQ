@@ -1,4 +1,4 @@
 name,public,descrip,params,return
-.dqe.constructcheck,1,Used to check if a construct exists,[construct: symbol;chktype: `table`variable`view`function],Return list boolean and results
-.dqe.tableticking,1,Used to check if a table has obtained records within a specified time period,[tab: symbol;timeperiod: long;timetype: `minute or `second],Return list boolean and results
-.dqe.chkslowsub,1,Used to check queues on handles to make sure there is no slow subscribers,[threshold: long],Return list boolean and results
+.dqe.constructcheck,1,Used to check if a construct exists,[construct: symbol;chktype: `table`variable`view`function],Return boolean and if the construct exists
+.dqe.tableticking,1,Used to check if a table has obtained records within a specified time period,[tab: symbol;timeperiod: long;timetype: `minute or `second],Return boolean and how many records where in the time specified
+.dqe.chkslowsub,1,Used to check queues on handles to make sure there is no slow subscribers,[threshold: long],Return boolean and list of any slow subscribers
