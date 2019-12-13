@@ -103,8 +103,8 @@ loadtimer:{[DICT]
   }
 
 reruncheck:{[chkid]
-  d:exec action, params, procname from dqe.configtable where checkid=chkid;
-  d[`params]: value d[`params];                                                                          
+  d:exec action, params, procname from .dqe.configtable where checkid=chkid;
+  d[`params]: value d[`params][0];                                                                          
   .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
   }
 
