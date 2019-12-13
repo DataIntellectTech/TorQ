@@ -1,6 +1,7 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
+dqedbdir:@[value;`dqedbdir;`:dqedb];
 
 init:{
   .lg.o[`init;"searching for servers"];
