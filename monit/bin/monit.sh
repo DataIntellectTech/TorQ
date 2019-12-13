@@ -43,30 +43,29 @@ createmonconfig(){
     output="$configs/monitconfig.cfg"
     monitcol=`head -1 $procs | sed 's/,/\n/g' | nl | grep 'monitored' | cut -f 1 ` 
     if [ ! -z "$monitcol" ];then
-  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " "'"$""$monitcol"'}'|cut -d" " -f1,2,3`
+        proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " "'"$""$monitcol"'}'|cut -d" " -f1,2,3`
         echo "$proclist"|while read procs;do
         array=($procs)
         proctype=${array[0]}
         procname=${array[1]}
         monitored=${array[2]}
         if [[ ! $monitored == 0 ]];then                                                     
-            #eval "echo $2" >> $output
             eval "echo \"${monittemplate}\"" >> $output
             echo "" >> $output
         fi
         done
-  checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
+      checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
     else
-  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
+        proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
         echo "$proclist"|while read procs;do 
           array=($procs)
           proctype=${array[0]}
           procname=${array[1]}
-    eval "echo \"${monittemplate}\"" >> $output
+          eval "echo \"${monittemplate}\"" >> $output
           echo "" >> $output
         done 
       checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
-      fi
+    fi
 }
 
 createmonalert(){
@@ -143,10 +142,10 @@ generate(){
  init(){
  	#this function just starts monit and specifies the location of the monitrc 
  	if [ -z $1 ];then 
-      echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
- 	  monit -c ${BASEDIR}/monit/config/monitrc
+        	echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+ 	  	monit -c ${BASEDIR}/monit/config/monitrc
  	else
- 	  monit -c $1
+ 	  	monit -c $1
  	fi 
 }
 
@@ -197,13 +196,13 @@ generate(){
 }
 
  quit(){
- 	#this function quits the monit daemon
-	if [ -z $1 ]; then
-		echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
-		monit -c ${BASEDIR}/monit/config/monitrc quit
-	else
-		monit -c $1 quit
-	fi
+ 	 #this function quits the monit daemon
+	 if [ -z $1 ];then
+		 echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
+		 monit -c ${BASEDIR}/monit/config/monitrc quit
+	 else
+	       	 monit -c $1 quit
+	 fi
 }
 
  run(){
