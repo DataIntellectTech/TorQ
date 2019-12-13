@@ -5,7 +5,6 @@ configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
-  .proc.loaddir[(getenv `TORQHOME),"/code/dqe"];                                                                /- load in dqe function code directory
   }
 
 configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
