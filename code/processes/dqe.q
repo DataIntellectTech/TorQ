@@ -103,10 +103,9 @@ loadtimer:{[DICT]
   }
 
 reruncheck:{[chkid]
-  d:exec action, params, procname, proctype from dqe.configtable where chekid=chkid;
+  d:exec action, params, procname from dqe.configtable where checkid=chkid;
   d[`params]: value d[`params];                                                                          
-  functiontorun:(`.dqe.runcheck;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname);  
-  .timer.once[.z.p;functiontorun;"Rerunning check once on ",string d`proctype]]
+  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
   }
 
 
