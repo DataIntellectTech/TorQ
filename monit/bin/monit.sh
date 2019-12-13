@@ -41,9 +41,9 @@ createmonconfig(){
     procs="${procs:-${BASEDIR}/appconfig/process.csv}"                                              # sets procs to default only if unset already
     startstopsc="${startstopsc:-${BASEDIR}/torq.sh}"
     output="$configs/monitconfig.cfg"
-    colcount=`head -1 ${procs} | sed 's/[^,]//g' | wc -c`
-    if [[ $colcount == 14 ]];then
-  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " " $14}'|cut -d" " -f1,2,3`
+    monitcol=`head -1 $procs | sed 's/,/\n/g' | nl | grep 'monitored' | cut -f 1 ` 
+    if [ ! -z "$monitcol" ];then
+  proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " "'"$""$monitcol"'}'|cut -d" " -f1,2,3`
         echo "$proclist"|while read procs;do
         array=($procs)
         proctype=${array[0]}
