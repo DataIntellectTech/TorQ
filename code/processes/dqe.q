@@ -6,7 +6,7 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]]
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
-  {.[.api.add;value x]}'[.dqe.readdqeconfig[.dqe.detailcsv;"SB***"]];                                           /- add dqe functions to .api.detail
+  .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   }
 
 configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
