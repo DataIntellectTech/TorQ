@@ -16,29 +16,6 @@ readdqeconfig:{[file]
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
 
-constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
-  chkfunct:{system x," ",string $[null y;`;y]};
-  dict:`table`variable`view`function!chkfunct@/:"avbf";
-  .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
-  $[construct in dict[chktype][];
-    (1b;s," ",s2," exists");
-    (0b;s," ",s2," missing from process")]
-  }
-
-tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
-  $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);
-    (1b;"there are ",(string a)," records");
-    (0b;"the table is not ticking")]
-  }
-
-chkslowsub:{[threshold]                                                                                         /- function to check for slow subscribers
-  .lg.o[`dqe;"Checking for slow subscribers"];
-  overlimit:(key .z.W) where threshold<sum each value .z.W;
-  $[0=count overlimit;
-    (1b;"no data queues over the limit, in ",string .proc.procname);
-    (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
-  }
-
 fillprocname:{[rs;h]                                                                                            /- fill procname for results table
   val:rs where not rs in raze a:h`proctype`procname;
   (flip a),val,'`
