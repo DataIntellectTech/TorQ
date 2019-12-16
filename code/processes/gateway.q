@@ -313,7 +313,7 @@ getserversinitial:{[req;att]
  att:(where all each (key req) in/: key each att)#att;
 
  if[not count att;'"getservers: no servers report all requested attributes"];
- 
+
  /- calculate where each of the requirements is in each of the attribute sets
  s:update serverid:key att from value req in'/: (key req)#/:att;
 
@@ -413,12 +413,12 @@ getserverids:{[att]
   ];
 
   // its a dictionary of attributes
-  // check if attribute types are correct types
-  correctAttTypes:`dates`servertypes`tables!(14h;11h;11h);
-  w:(correctAttTypes [key att]=type each att);
-  if[not all{[x;y] y each key x}[att;w];
-  '("Wrong function parameter types provided.", " ",(raze " " sv string (where not w))," parameter(s) need type(s) ",raze " " sv string correctAttTypes where not w),"h"
-  ];
+    // check if attribute types are correct types
+    correctAttTypes:`dates`servertypes`tables!14 11 11h;
+    w:correctAttTypes[key att]=type each att;
+    if[not all{[x;y] y each key x}[att;w];
+    '("Wrong function parameter types provided.", " ",(raze " " sv string (where not w))," parameter(s) need type(s) ",raze " " sv string correctAttTypes where not w),"h"
+    ];
 
   serverids:$[`servertype in key att; 
   raze getserveridstype[delete servertype from att] each (),att`servertype; 
