@@ -3,7 +3,7 @@
 //Create datadog namespace
 \d .dg
 
-ddconfigfile:@[value;ddconfigfile;hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"]
+ddconfigfile:@[value;`ddconfigfile;hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"]
 
 //sets dogstatsd_port to the port defined by ddconfigfile
 value first read0 ddconfigfile
