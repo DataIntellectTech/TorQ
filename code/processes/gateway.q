@@ -388,10 +388,10 @@ getserverscross:{[req;att;besteffort]
 getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
-   // check if user attributes are a symbol list
-   if[11h<>type att;
-   '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
-   ];
+     // check if user attributes are a symbol list
+     if[11h<>type att;
+     '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
+     ];
    servertype:distinct att,();
    //list of active servers
    activeservers:exec distinct servertype from .gw.servers where active;
