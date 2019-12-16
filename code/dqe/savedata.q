@@ -8,4 +8,4 @@ savedata:{[dir;pt;tabname]                                                      
 ];
   .lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];                                      /- empty the table from memory
   @[`.;tabname;0#];
-};
+  }
