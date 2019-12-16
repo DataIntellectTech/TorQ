@@ -4,6 +4,17 @@
 cd ..
 source setenv.sh
 
+if [ -z $1 ]; then
+	echo "no argument provided; defaulting dogstatsd_port to 8125"
+	dogstatsd_port=8125
+else
+	dogstatsd_port=$1
+fi
+
+echo ${TORQHOME}
+ddconfigfile=${TORQHOME}/appconfig/ddconfig.txt
+echo "dogstatsd_port:"$dogstatsd_port > $ddconfigfile
+
 #File name is set to the file name after the location of the process.yaml file
 filename1=/etc/datadog-agent/conf.d/process.d/process.yaml
 #filename1=~/process.yaml
@@ -38,20 +49,20 @@ fi
 
 #Filename is set to be in correct directory
 filename2=/etc/datadog-agent/datadog.yaml
-#filename2=~/datadog.yaml
+#filename2=./datadog.yaml
 
 #If the file doesn't exist, make file and remove restrictions. Add the "echo" lines and save to file.
 sudo touch $filename2
 sudo chmod 777 $filename2
 if grep -qFx "use_dogstatsd: true" $filename2 ; then
-  echo "Datadog.yaml file has port 8125 enabled, no changes were made to avoid duplication."
+  echo "Datadog.yaml file has port enabled, no changes were made to avoid duplication."
 else
   sudo echo "use_dogstatsd: true
-dogstatsd_port: 8125
+dogstatsd_port: $dogstatsd_port
 
 process_config:
  enabled: \"true\"" >> $filename2
-  echo "Datadog.yaml file is now enabled to send data through port 8125."
+  echo "Datadog.yaml file is now enabled to send data through port $dogstatsd_port"
 fi
 
 #Creating the crontab to run and send check information

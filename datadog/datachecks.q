@@ -3,11 +3,14 @@
 //Makes dictionary of defaults and uses .Q.opt to refer to command values passed by its key.
 o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
+ddconfigfile:hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"
+value first read0 ddconfigfile
+
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system 0N!"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 8125";};
-//.datadog.sendEvent:{[event_title;event_text] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
-.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system "event_title=",event_title,"; event_text=",event_text,"; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 8125";}
+.datadog.sendMetric:{[metric_name;metric_value] system 0N!"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 ",$[count dogstatsd_port;string dogstatsd_port;"8127"];};
+
+.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system "event_title=",event_title,"; event_text=",event_text,"; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count dogstatsd_port;string dogstatsd_port;"8127"];}
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
