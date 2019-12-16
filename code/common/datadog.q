@@ -3,7 +3,6 @@
 //Create datadog namespace
 \d .dg
 
-ddconfigfile:hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"
 ddconfigfile:@[value;ddconfigfile;hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"]
 
 //sets dogstatsd_port to the port defined by ddconfigfile
@@ -22,7 +21,7 @@ is_ok:{[x]
         @[f;`;0b]
         }
 
-default_is_ok:{[x]0b}
+default_is_ok:{[x]1b}
 
 //functions to send metrics and events to datadog from TorQ processes
 sendMetric:{[metric_name;metric_value] system"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 ",$[count .dg.dogstatsd_port;string .dg.dogstatsd_port;"8127"];};
