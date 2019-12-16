@@ -388,6 +388,10 @@ getserverscross:{[req;att;besteffort]
 getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
+   // check if user attributes are a symbol list
+   if[not type[att]=11h;
+     '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
+   ];
    servertype:distinct att,();
    //list of active servers
    activeservers:exec distinct servertype from .gw.servers where active;
@@ -409,9 +413,15 @@ getserverids:{[att]
   ];
 
   // its a dictionary of attributes
+  // check if attribute types are correct types
+  correctAttTypes:`date`servertype`tables!14 11 11h;
+  w:correctAttTypes[key att]=abs type each att;
+  if[not all w key att;
+    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctAttTypes where not
+  ];
 
-  serverids:$[`servertype in key att; 
-  raze getserveridstype[delete servertype from att] each (),att`servertype; 
+  serverids:$[`servertype in key att;
+  raze getserveridstype[delete servertype from att] each (),att`servertype;
   getserveridstype[att;`all]];
 
   if[all 0=count each serverids;'"no servers match requested attributes"];
