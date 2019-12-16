@@ -18,9 +18,9 @@ is_ok:{[x]
 
 default_is_ok:{[x]1b}
 
-sendMetric:{[metric_name;metric_value] system getenv[`TORQHOME],"/datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
+sendMetric:{[metric_name;metric_value] system"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 8125";};
 //sendEvent:{[event_title;event_text] system getenv[`TORQHOME],"/datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
-sendEvent:{[event_title;event_text;tags;alert_type] system getenv[`TORQHOME],"/datadog/sendEventToDatadog.sh ",event_title," ",event_text," ",tags," ",alert_type;}
+sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=",event_text,"; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 8125";}
 
 \d .
 

@@ -5,14 +5,15 @@ o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system"./datadog/sendToDatadog.sh ",(string metric_value)," ",metric_name;};
+.datadog.sendMetric:{[metric_name;metric_value] system 0N!"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 8125";};
 //.datadog.sendEvent:{[event_title;event_text] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text;};
-.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system"./datadog/sendEventToDatadog.sh ",event_title," ",event_text," ",tags," ",alert_type;}
+.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system "event_title=",event_title,"; event_text=",event_text,"; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 8125";}
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
         {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "./torq.sh summary"
-        }
+ }
+
 //Names of processes to be monitored to be edited depending on monitoring needs
 .datadog.monitorprocess:()
 //.datadog.monitorprocess:`tickerplant`hdb`wdb`rdb
