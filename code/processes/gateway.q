@@ -389,7 +389,7 @@ getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
    // check if user attributes are a symbol list
-   if[not type[att]in 99 11h;
+   if[not type[att]=11h;
      '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
    ];
    servertype:distinct att,();
