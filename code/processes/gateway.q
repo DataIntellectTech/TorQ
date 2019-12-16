@@ -389,7 +389,7 @@ getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
      // check if user attributes are a symbol list
-     if[11h<>type att;
+     if[not type[att]in 99 11h;
      '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
      ];
    servertype:distinct att,();
@@ -414,10 +414,10 @@ getserverids:{[att]
 
   // its a dictionary of attributes
     // check if attribute types are correct types
-    correctAttTypes:`dates`servertypes`tables!14 11 11h;
-    w:correctAttTypes[key att]=type each att;
-    if[not all{[x;y] y each key x}[att;w];
-    '("Wrong function parameter types provided.", " ",(raze " " sv string (where not w))," parameter(s) need type(s) ",raze " " sv string correctAttTypes where not w),"h"
+    correctAttTypes:`date`servertype`tables!14 11 11h;
+    w:correctAttTypes[key att]=abs type each att;
+    if[not all w key att;
+    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctAttTypes where not w
     ];
 
   serverids:$[`servertype in key att; 
