@@ -108,6 +108,13 @@ reruncheck:{[chkid]
   .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
   }
 
+getallresults:{[manualchecks] 
+  t:.dqe.results;
+  t:update manual:(count t)#`no from t;
+  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];
+  t[manualchecks;`manual]:`yes;
+  t
+  }
 
 \d .
 
@@ -122,3 +129,9 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 / show .dqe.results
 / Load up timers
 .dqe.loadtimer '[.dqe.configtable]
+
+manualchecks:()
+chkid:3
+.dqe.reruncheck[chkid]
+manualchecks,:last select where id=chkid from .dqe.results
+.dqe.getallresults[manualchecks]
