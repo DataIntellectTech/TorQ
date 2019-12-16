@@ -1,28 +1,27 @@
 #!/bin/bash
 
-#Set the enviroment so TORQHOME is correct
+#Set the enviroment for TORQHOME
 cd ..
 source setenv.sh
 
 if [ -z $1 ]; then
-	echo "no argument provided; defaulting dogstatsd_port to 8125"
-	dogstatsd_port=8125
+  echo "no argument provided; defaulting dogstatsd_port to 8125"
+  dogstatsd_port=8125
 else
-	dogstatsd_port=$1
+  dogstatsd_port=$1
 fi
 
 echo ${TORQHOME}
 ddconfigfile=${TORQHOME}/appconfig/ddconfig.txt
 echo "dogstatsd_port:"$dogstatsd_port > $ddconfigfile
 
-#File name is set to the file name after the location of the process.yaml file
+#File path of the process.yaml file
 filename1=/etc/datadog-agent/conf.d/process.d/process.yaml
-#filename1=~/process.yaml
 
-#The process.csv from appconfig is used to check what processes are going to be monitored
+#The process.csv is used to check what processes are to be added to the process.yaml file
 input=${TORQHOME}/appconfig/process.csv
 
-#If the file doesn't exist then create the file and remove all restriction. Add first line "instances:"
+#If file doesn't exist create it and remove all restriction. Add first line "instances:". If datadog column exists in process.csv take processes marked for monitoring
 if [[ ! -f $filename1 ]];then
   sudo touch $filename1
   sudo chmod 777 $filename1
@@ -47,11 +46,10 @@ else
   echo "$input already exists, no changes were made to avoid duplication."
 fi
 
-#Filename is set to be in correct directory
+#File path of the datadog.yaml file
 filename2=/etc/datadog-agent/datadog.yaml
-#filename2=./datadog.yaml
 
-#If the file doesn't exist, make file and remove restrictions. Add the "echo" lines and save to file.
+#If file doesn't exist make it and remove restrictions. Add necessary lines and save file.
 sudo touch $filename2
 sudo chmod 777 $filename2
 if grep -qFx "use_dogstatsd: true" $filename2 ; then
@@ -65,7 +63,7 @@ process_config:
   echo "Datadog.yaml file is now enabled to send data through port $dogstatsd_port"
 fi
 
-#Creating the crontab to run and send check information
+#Create the crontab to run runchecks.sh at specified intervals.
 echo "Creating crontab if it doesn't already exist"
 crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab - 
 
