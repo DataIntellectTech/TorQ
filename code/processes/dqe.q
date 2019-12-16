@@ -3,6 +3,10 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 dqedbdir:@[value;`dqedbdir;`:dqedb];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
+gmttime:@[value;`gmttime;1b];
+getpartition:@[value;`getpartition;
+	{{@[value;`.dqe.currentpartition;
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                                                   /-function to determine the partition value
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -83,6 +87,8 @@ loadtimer:{[DICT]
   }
 
 \d .
+
+.dqe.currentpartition:.dqe.getpartition[];                                                                      /- initialize current partition
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
