@@ -2,17 +2,19 @@
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 dqedbdir:@[value;`dqedbdir;`:dqedb];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
 
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+  .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   }
 
 configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
-readdqeconfig:{[file]
+readdqeconfig:{[file;types]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("S*SSSNNN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;((types;enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                         /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
@@ -86,7 +88,7 @@ loadtimer:{[DICT]
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSNNN"]                                          /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
 update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
 update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
