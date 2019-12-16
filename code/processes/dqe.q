@@ -87,7 +87,7 @@ loadtimer:{[DICT]
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSPPN"]                                          /- Set up configtable from csv
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSNNN"]                                          /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
 update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
 update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
