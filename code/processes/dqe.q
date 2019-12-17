@@ -93,6 +93,11 @@ loadtimer:{[DICT]
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
+.u.end:{[pt]    /- setting up .u.end for dqe
+  .dqe.endofday[.dqe.getpartition[]];
+  .dqe.currentpartition:pt+1;
+  };
+
 .dqe.init[]
 
 `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSNNN"]                                          /- Set up configtable from csv

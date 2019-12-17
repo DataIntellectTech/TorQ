@@ -8,4 +8,10 @@ savedata:{[dir;pt;tabname]                                                      
   ];
   .lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];                                      /- empty the table from memory
   @[`.;tabname;0#];
-  }
+  };
+
+endofday:{[pt]
+  .lg.o[`eod;"end of day message received - ",string pt];
+  savedata[.dqe.dqedbdir;pt;`.dqe.results];
+  .lg.o[`eod;"end of day is now complete"];
+  };
