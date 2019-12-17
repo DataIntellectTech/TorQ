@@ -52,19 +52,19 @@ dupchk:{[idnum;proc]                                                            
 initstatusupd:{[idnum;funct;vars;rs]                                                                            /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
+  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started;`no);
   }
 
 failchk:{[idnum;error;proc]                                                                                     /- general fail function, used to fail a check with inputted error message
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   if[c;.lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)]];
-  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
+  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error,manual:`no from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
 postback:{[idnum;proc;result]                                                                                   /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
   .dqe.failchk[idnum;result;proc];
-  `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+  `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete,manual:`no from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
 getresult:{[funct;vars;idnum;proc;hand]
@@ -92,7 +92,7 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   ans:.dqe.getresult[value fn;(),vars;idnum]'[h[`procname];h[`w]]
   }
 
-results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$());
+results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$();manual:`$());
 
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
@@ -108,13 +108,13 @@ reruncheck:{[chkid]
   .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
   }
 
-getallresults:{[manualchecks] 
-  t:.dqe.results;
-  t:update manual:(count t)#`no from t;
-  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];
-  t[manualchecks;`manual]:`yes;
-  t
-  }
+/getallresults:{[manualchecks] 
+/  t:.dqe.results;
+/  t:update manual:(count t)#`no from t;
+/  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];
+/  t[manualchecks;`manual]:`yes;
+/  t
+/  }
 
 \d .
 
@@ -130,8 +130,8 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 / Load up timers
 .dqe.loadtimer '[.dqe.configtable]
 
-manualchecks:()
-chkid:3
-.dqe.reruncheck[chkid]
-manualchecks,:last select where id=chkid from .dqe.results
-.dqe.getallresults[manualchecks]
+/manualchecks:()
+/chkid:3
+/.dqe.reruncheck[chkid]
+/manualchecks,:last select where id=chkid from .dqe.results
+/.dqe.getallresults[manualchecks]
