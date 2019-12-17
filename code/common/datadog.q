@@ -31,7 +31,7 @@ sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,
 
 //sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text="","\"",event_text,"\"",; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count .dg.dogstatsd_port;string .dg.dogstatsd_port;"8125"];}
 
-.dg.sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count .dg.dogstatsd_port;string .dg.dogstatsd_port;"8125"];} 
+.dg.sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"",$[0h=type tags;"#",("," sv tags);"#",tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count .dg.dogstatsd_port;string .dg.dogstatsd_port;"8125"];}
 
 \d .
 
