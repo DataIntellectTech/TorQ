@@ -8,9 +8,9 @@ value first read0 ddconfigfile
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system"echo -n ","\"",metric_name,":",(string metric_value),"|g|","#shell \" | nc -4u -w0 127.0.0.1 ",$[count dogstatsd_port;string dogstatsd_port;"8125"];};
+.datadog.sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/8125\"";};
 
-.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system "event_title=",event_title,"; event_text=",event_text,"; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count dogstatsd_port;string dogstatsd_port;"8125"];}
+.datadog.sendEvent:{[event_title;event_text;tags;alert_type] system "event_title=",event_title,"; event_text="","\"",event_text,"\"",; tags=",tags,";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",$[count dogstatsd_port;string dogstatsd_port;"8125"];}
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
@@ -18,8 +18,8 @@ value first read0 ddconfigfile
  }
 
 //Names of processes to be monitored to be edited depending on monitoring needs
-//.datadog.monitorprocess:()
-.datadog.monitorprocess:`tickerplant`hdb`wdb`rdb
+.datadog.monitorprocess:()
+//.datadog.monitorprocess:`tickerplant`wdb`rdb`hdb
 
 //Open port to process and sends check for each is_ok function
 .datadog.sendcheck:{[o;x]
@@ -31,6 +31,8 @@ value first read0 ddconfigfile
 
 //state either 1b or 0b (with error trap) calling sendMetric.
 .datadog.check:{[x;o]state:.[.datadog.sendcheck;(o;x);{[x]0b}];.datadog.sendMetric[.datadog.createeventname[x];state]}
+
+//.datadog.check:{[x;o].[.datadog.sendcheck;(o;x);{[x]0b}]}
 
 //Checks each of the processes on the monitor list
 .datadog.checkall:{[x;o].datadog.check[;o] each x}
