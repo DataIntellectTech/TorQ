@@ -11,15 +11,14 @@ else
   dogstatsd_port=$1
 fi
 
-echo ${TORQHOME}
-ddconfigfile=${TORQHOME}/appconfig/ddconfig.txt
+ddconfigfile=${KDBAPPCONFIG}/ddconfig.txt
 echo "dogstatsd_port:"$dogstatsd_port > $ddconfigfile
 
 #File path of the process.yaml file
 filename1=/etc/datadog-agent/conf.d/process.d/process.yaml
 
 #The process.csv is used to check what processes are to be added to the process.yaml file
-input=${TORQHOME}/appconfig/process.csv
+input=${KDBAPPCONFIG}/process.csv
 
 #If file doesn't exist create it and remove all restriction. Add first line "instances:". If datadog column exists in process.csv take processes marked for monitoring
 if [[ ! -f $filename1 ]];then
