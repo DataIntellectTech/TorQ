@@ -10,21 +10,24 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
-.datadog.sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",(string dogstatsd_port),"\"";}
+.datadog.sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",(string dogstatsd_port),"\""}
 
 .datadog.sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"",$[0h=type tags;"#",("," sv tags);"#",tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",string dogstatsd_port;}
-
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
   {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "./torq.sh summary"
  }
 
+//Names of processes to be monitored to be edited depending on monitoring needs
+.datadog.monitorprocess:()
+
 //Open port to process and sends check for each is_ok function
 .datadog.sendcheck:{[o;x]
   h:hopen[(hsym `$":" sv string[(`localhost;x[`PORT];o[`user];o[`pass])];o[`timeout])];
   :h(`.dg.is_ok;`)
  }
+
 //Creates name for the event (how it is found on datadog metric)
 .datadog.createeventname:{[x]"_" sv string (`process;x[`PROCESS];`check)}
 
