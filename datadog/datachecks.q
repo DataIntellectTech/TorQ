@@ -17,18 +17,14 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 
 //Creates the torq summary table without the pipes
 .datadog.getprocess:{[x]
-        {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "./torq.sh summary"
+  {[x]flip (((`TIME`PROCESS`STATUS`PID`PORT!"TSSII")key[x]))$x} {[x] {[x](`$x[;0])! flip 1_ flip[x]} trim ("*****"; "|")0:x} system "./torq.sh summary"
  }
-
-//Names of processes to be monitored to be edited depending on monitoring needs
-.datadog.monitorprocess:()
-//.datadog.monitorprocess:`tickerplant`wdb`rdb`hdb
 
 //Open port to process and sends check for each is_ok function
 .datadog.sendcheck:{[o;x]
-        h:hopen[(hsym `$":" sv string[(`localhost;x[`PORT];o[`user];o[`pass])];o[`timeout])];
-        :h(`.dg.is_ok;`)
-        }
+  h:hopen[(hsym `$":" sv string[(`localhost;x[`PORT];o[`user];o[`pass])];o[`timeout])];
+  :h(`.dg.is_ok;`)
+ }
 //Creates name for the event (how it is found on datadog metric)
 .datadog.createeventname:{[x]"_" sv string (`process;x[`PROCESS];`check)}
 
@@ -40,12 +36,12 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 
 //Retrieves the processes to be monitored with summary data. 
 .datadog.init:{[x]
-        .datadog.allprocesslist:.datadog.getprocess[];
-	.datadog.monitoredprocesslist:select from .datadog.allprocesslist where any PROCESS like/:{[x]string[x],"*"}'[.datadog.monitorprocess];	
-        $[count .datadog.monitorprocess;.datadog.checkall[.datadog.monitoredprocesslist;o];.datadog.checkall[.datadog.allprocesslist;o]]
-        }
+  .datadog.allprocesslist:.datadog.getprocess[];
+  .datadog.monitoredprocesslist:select from .datadog.allprocesslist where any PROCESS like/:{[x]string[x],"*"}'[.datadog.monitorprocess];	
+  .datadog.checkall[.datadog $[count .datadog.monitorprocess;`monitoredprocesslist;`allprocesslist]]o
+ }
 
 //if init is set to true run init
-if[o[`init];@[.datadog.init;`;1]]
+if[o`init;@[.datadog.init;`;1b]]
 //If the noexit is set to 0b then exit
 if[not o[`noexit];exit[0]]
