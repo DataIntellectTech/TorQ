@@ -417,7 +417,7 @@ getserverids:{[att]
   correctAttTypes:`date`servertype`tables!14 11 11h;
   w:correctAttTypes[key att]=abs type each att;
   if[not all w key att;
-    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctAttTypes where not
+    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctAttTypes where not w
   ];
 
   serverids:$[`servertype in key att;
