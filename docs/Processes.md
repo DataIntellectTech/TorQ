@@ -100,18 +100,18 @@ A synchronous and asynchronous gateway is provided. The gateway can be
 used for load balancing and/or to join the results of queries across
 heterogeneous servers (e.g. an RDB and HDB). Ideally the gateway should
 only be used with asynchronous calls. Prior to KDB v3.6, synchronous calls
-caused the gateway to block so limits the gateway to serving one query at a 
+caused the gateway to block which limits the gateway to serving one query at a 
 time (although if querying across multiple backend servers the backend
 queries will be run in parallel).
 For v3.6+, deferred synchronous requests to the gateway are supported.
-This allows the gateway to process mulitple synchronous requests at once,
+This allows the gateway to process multiple synchronous requests at once,
 therefore removing the requirement for the gateway to allow only one type
 of request.
-When using asynchronous calls the client can either block and wait for
+When using asynchronous calls, the client can either block and wait for
 the result (deferred synchronous) or post a call back function which the
 gateway will call back to the client with. 
-With both asynchronous and synchronous queries the backend servers to
-execute queries against are selected using process type.
+The backend servers to be queried against with  asynchronous and synchronous 
+queries are selected using process type.
 The gateway API can be seen by querying .api.p“.gw.\*” within a gateway
 process.
 
@@ -154,14 +154,18 @@ not completed in the alotted time, and return a timeout error to the
 client. If the query is already running on any backend servers then they
 cannot be timed out other than by using the standard -T flag.
 
+As a default, the gateway is set to only take synchronous calls with 
+`.gw.synccallsallowed`. To allow asynchronous calls, edit the 
+gateway.q file so that .gw.synccallsallowed is set to false.
+
 ### Synchronous Behaviour
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
 a time and cannot timeout queries other than with the standard -T flag.
-For v3.6+, deferred synchronous calls are supported, allowing the gateway to process mulitple
+For v3.6+, deferred synchronous calls are supported, allowing the gateway to process multiple
 requests at a time.
 All synchronous queries will be immediately dispatched to the back end
-processes. They will be dispatched using an asyhcnronous call, allowing
+processes. They will be dispatched using an asynchronous call, allowing
 them to run in parallel rather than serially. When the results are
 received they are aggregated and returned to the client.
 
@@ -222,7 +226,7 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 
 
 For the purposes of demonstration, assume that the queries must be run
-across an RDB and HDB process, and the gateway has one RDB and two HDB
+across a single RDB and a single HDB process, and the gateway has one RDB and two HDB
 processes available to it.
 
     q).gw.servers                                                                                                                                                                                                                                                                 
@@ -237,8 +241,9 @@ Both the RDB and HDB processes have a function f and table t defined. f
 will run for 2 seconds longer on the HDB processes then it will the RDB.
 
     q)f                                                                                                                                                                                                                                                                           
-    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}
-    q)t                                                                                                                                                                                                                                                                           
+    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}  //if process type is HDB, sleep for x+2 seconds and then return table t. If not, sleep for x seconds and return table t
+    q)t:([]a:(5013;5014;5015;5016;5017))                                                                                            
+    q)t                                                                                                                                                                 
     a   
     ----
     5013
@@ -250,7 +255,7 @@ will run for 2 seconds longer on the HDB processes then it will the RDB.
 Run the gateway. The main parameter which should be set is the
 .servers.CONNECTIONS parameter, which dictates the process types the
 gateway queries across. Also, we need to explicitly allow sync calls. We
-can do this from the config or from the command line.
+can do this from the config or from the command line using the following line:
 
     q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb -proctype gateway -procname gateway1
 
@@ -284,7 +289,7 @@ is returned:
 
 Custom join functions can be specified:
 
-    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})                                                                                                                                                                                                  
+    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})        //[query;servertype;joinfunction(lambda)]                                                                                                                                                                                          
     a   | x
     ----| -
     5014| 2
@@ -338,11 +343,11 @@ Alternatively async queries can specify a postback so the client does
 not have to block and wait for the result. The postback function must
 take two parameters- the first is the function that was sent up, the
 second is the results. The postback can either be a lambda, or the name
-of a function.
+of a function eg. handleresults.
 
     q)h:hopen 8000                                                                                                                                                                                                                                                                
-    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}                                                                                                                                                                                                                
-    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;handleresults;0Wn)                                                                                                                                                                                                           
+    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}             //postback with timestamp, got results and an output of the results                                                                                                                                                                                                   
+    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;{-1(string .z.z)," got results"; -3!x; show y};0Wn)     //[.gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(lambda or symbol);timeout(timespan)]                                                                                                                                                                                                      
     q)
     q)	/- These q prompts are from pressing enter
     q)	/- The q client is not blocked, unlike the previous example
