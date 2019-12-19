@@ -13,5 +13,6 @@ savedata:{[dir;pt;tabname]                                                      
 endofday:{[pt]
   .lg.o[`eod;"end of day message received - ",string pt];
   savedata[.dqe.dqedbdir;pt;`.dqe.results];
+  savedata[.dqe.dqedbdir;pt;`.dqe.configtable];
   .lg.o[`eod;"end of day is now complete"];
   };
