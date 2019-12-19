@@ -12,7 +12,7 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 //Default check returns 1b from each process to indicate process is up and can be queried.
 //These checks run every time crontab/timer is run.
 
-handlers:(`symbol$())!()
+handlers:(`$())!()
 
 is_ok:{[x]
         f:$[@[{[x].proc.proctype in key .dg.handlers};`;0b];
