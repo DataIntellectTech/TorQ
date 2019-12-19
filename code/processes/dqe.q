@@ -44,14 +44,14 @@ fillprocname:{[rs;h]                                                            
   (flip a),val,'`
   }
 
-dupchk:{[idnum;proc]                                                                                            /- checks for unfinished runs that match the new run
+dupchk:{[man;idnum;proc]                                                                                            /- checks for unfinished runs that match the new run
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
-    .dqe.failchk[idnum;"error:fail to complete before next run";proc]];
+    .dqe.failchk[man;idnum;"error:fail to complete before next run";proc]];
   }
 
 initstatusupd:{[man;idnum;funct;vars;rs]                                                                            /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
-  .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
+  .dqe.dupchk[man;idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
   `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started;man);
   }
 
@@ -63,7 +63,7 @@ failchk:{[man;idnum;error;proc]                                                 
 
 postback:{[man;idnum;proc;result]                                                                                   /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
-  .dqe.failchk[idnum;result;proc];
+  .dqe.failchk[man;idnum;result;proc];
   `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete,manual:man from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
@@ -84,9 +84,9 @@ runcheck:{[man;idnum;fn;vars;rs]                                                
   r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[man;idnum;fn;vars]'[r];
   
-  .dqe.failchk[idnum;"error:can't connect to process";`];
+  .dqe.failchk[man;idnum;"error:can't connect to process";`];
   procsdown:(h`procname) where 0N = h`w;                                                                        /- checks if any procs didn't get handles
-  if[count procsdown;.dqe.failchk[idnum;"error:process is down or has lost its handle"]'[procsdown]];
+  if[count procsdown;.dqe.failchk[man;idnum;"error:process is down or has lost its handle"]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
   ans:.dqe.getresult[man;value fn;(),vars;idnum]'[h[`procname];h[`w]]
@@ -102,19 +102,12 @@ loadtimer:{[DICT]
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
   }
 
-reruncheck:{[chkid]
+reruncheck:{[chkid]                                                                                             /- rerun a check manually
   d:exec action, params, procname from .dqe.configtable where checkid=chkid;
-  d[`params]: value d[`params][0];                                                                          
-  .dqe.runcheck[`yes;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
+  d[`params]: value d[`params][0];                                                                            
+  .dqe.runcheck[`yes;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];                                          /- input man argument is `yes or `no indicating manul run is on or off
   }
 
-/getallresults:{[manualchecks] 
-/  t:.dqe.results;
-/  t:update manual:(count t)#`no from t;
-/  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];
-/  t[manualchecks;`manual]:`yes;
-/  t
-/  }
 
 \d .
 
@@ -130,8 +123,6 @@ update checkid:til count .dqe.configtable from `.dqe.configtable
 / Load up timers
 .dqe.loadtimer '[.dqe.configtable]
 
-/manualchecks:()
-/chkid:3
-/.dqe.reruncheck[chkid]
-/manualchecks,:last select where id=chkid from .dqe.results
-/.dqe.getallresults[manualchecks]
+/Sample reruncheck
+chkid:3
+.dqe.reruncheck[chkid]
