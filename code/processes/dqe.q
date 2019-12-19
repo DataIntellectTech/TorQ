@@ -49,30 +49,30 @@ dupchk:{[idnum;proc]                                                            
     .dqe.failchk[idnum;"error:fail to complete before next run";proc]];
   }
 
-initstatusupd:{[idnum;funct;vars;rs]                                                                            /- set initial values in results table
+initstatusupd:{[man;idnum;funct;vars;rs]                                                                            /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started;`no);
+  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started;man);
   }
 
-failchk:{[idnum;error;proc]                                                                                     /- general fail function, used to fail a check with inputted error message
+failchk:{[man;idnum;error;proc]                                                                                     /- general fail function, used to fail a check with inputted error message
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   if[c;.lg.o[`failerr;raze "run check id ",(string idnum)," update in results table with a fail, with ",(string error)]];
-  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error,manual:`no from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
+  `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error,manual:man from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
-postback:{[idnum;proc;result]                                                                                   /- function that updates the results table with the check result
+postback:{[man;idnum;proc;result]                                                                                   /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
   .dqe.failchk[idnum;result;proc];
-  `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete,manual:`no from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+  `.dqe.results set update endtime:.z.p,output:first result,descp:enlist last result,chkstatus:`complete,manual:man from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
-getresult:{[funct;vars;idnum;proc;hand]
+getresult:{[man;funct;vars;idnum;proc;hand]
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  .async.postback[hand;funct,vars;.dqe.postback[idnum;proc]];                                                   /- send function with variables down handle
+  .async.postback[hand;funct,vars;.dqe.postback[man;idnum;proc]];                                                   /- send function with variables down handle
   }
 
-runcheck:{[idnum;fn;vars;rs]                                                                                    /- function used to send other function to test processes
+runcheck:{[man;idnum;fn;vars;rs]                                                                                    /- function used to send other function to test processes
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
@@ -82,21 +82,21 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   h:.dqe.gethandles[rs];                                                                                        /- check if processes exist and are valid
 
   r:.dqe.fillprocname[rs;h];
-  .dqe.initstatusupd[idnum;fn;vars]'[r];
+  .dqe.initstatusupd[man;idnum;fn;vars]'[r];
   
   .dqe.failchk[idnum;"error:can't connect to process";`];
   procsdown:(h`procname) where 0N = h`w;                                                                        /- checks if any procs didn't get handles
   if[count procsdown;.dqe.failchk[idnum;"error:process is down or has lost its handle"]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
-  ans:.dqe.getresult[value fn;(),vars;idnum]'[h[`procname];h[`w]]
+  ans:.dqe.getresult[man;value fn;(),vars;idnum]'[h[`procname];h[`w]]
   }
 
 results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();output:`boolean$();descp:();chkstatus:`$();manual:`$());
 
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
-  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);               /- function that will be used in timer
+  functiontorun:(`.dqe.runcheck;`no;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);               /- function that will be used in timer
   $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
     .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proctype];
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
@@ -105,7 +105,7 @@ loadtimer:{[DICT]
 reruncheck:{[chkid]
   d:exec action, params, procname from .dqe.configtable where checkid=chkid;
   d[`params]: value d[`params][0];                                                                          
-  .dqe.runcheck[chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
+  .dqe.runcheck[`yes;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];  
   }
 
 /getallresults:{[manualchecks] 
