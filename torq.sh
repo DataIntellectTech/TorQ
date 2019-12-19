@@ -111,20 +111,18 @@ summary() {
  }
 
 stop() {
+  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then
+    cmd="kill -9"
+  else
+    cmd="kill -15"
+  fi
   if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
     echo "$(date '+%H:%M:%S') | $1 is not currently running"
   else
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
     procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
     port=$(($(eval echo \$"$(getfield "$procno" port)")))
-    eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
-  fi
-  if [[ ! -z $(findproc "$1") ]]; then                                                              # check process still running
-    sleep 1
-    if [[ ! -z $(findproc "$1") ]]; then
-      echo "$(date '+%H:%M:%S') | $1 did not shut down correctly. Killing process with -9..."
-      eval "kill -9 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
-    fi
+    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
 
@@ -314,6 +312,7 @@ usage() {
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
+  printf -- "  -force                                   to force stop process(es) using kill -9\n"
   exit 1
  }
 
