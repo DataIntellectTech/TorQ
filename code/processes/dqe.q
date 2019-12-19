@@ -30,6 +30,7 @@ fillprocname:{[rs;h]                                                            
   }
 
 dupchk:{[idnum;proc]                                                                                            /- checks for unfinished runs that match the new run
+  if[`=proc;:()];
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
     .dqe.failchk[idnum;"error:fail to complete before next run";proc]];
   }
