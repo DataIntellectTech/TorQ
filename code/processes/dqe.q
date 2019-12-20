@@ -3,6 +3,8 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
 
+compcounter:()!();
+
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
@@ -41,19 +43,20 @@ updresultstab:{[idnum;end;res;des;status;act;proc]                              
   }
 
 chkcompare:{[idnum;chkcount;comptype;compproc]                                                                  /- function to compare the checks
-  if[not chkcount=count select from .dqe.results where active=1b,id=idnum;                                      /- checks if all async check results have returned
+  if[not chkcount=.dqe.compcounter[`$string idnum];                                                             /- checks if all async check results have returned
     :()];
 
   a:exec descp from .dqe.results where active=1b,id=idnum,not procschk=compproc;                                /- obtain all the check returns
   b:exec descp from .dqe.results where active=1b,id=idnum,procschk=compproc;                                    /- obtain the check to compare the others to
   result:sum b comptype ' a;
-  resstring:raze((string result)," other checks agree. This result is ",string b);
-  `.dqe.results set update descp:resstring from .dqe.results where active=1b,id=idnum,chkproc=compproc;
+  resstring:raze((first string result)," other checks agree. This result is ",string b);
+  `.dqe.results set update descp:enlist resstring from .dqe.results where active=1b,id=idnum,procschk=compproc;
   `.dqe.results set update active:0b from .dqe.results where active=1b,id=idnum;
+  .dqe.compcounter:(`$string idnum) _ .dqe.compcounter;
   }
 
 postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
-  $[compare[0];active:1b;active:0b];
+  $[compare[0];[active:1b;.dqe.compcounter[`$string idnum]+::1];active:0b];
 
   if["e"=first result;                                                                                          /- checks if error returned from server side
     .dqe.updresultstab[idnum;0Np;0b;result;`failed;active;proc];
