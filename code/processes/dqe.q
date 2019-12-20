@@ -1,43 +1,24 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
+
+testing:@[value;`.dqe.testing;0b];                                                                              /- testing varible for unit tests
 
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+  .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   }
 
-configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timestamp$(); endtime:`timestamp$(); period:`timespan$())
+configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
-readdqeconfig:{[file]
+readdqeconfig:{[file;types]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;(("S*SSSPPN";enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                    /- read in csv, trap error
+  c:.[0:;((types;enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                         /- read in csv, trap error
  }
 
 gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
-
-constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
-  chkfunct:{system x," ",string $[null y;`;y]};
-  dict:`table`variable`view`function!chkfunct@/:"avbf";
-  .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
-  $[construct in dict[chktype][];
-    (1b;s," ",s2," exists");
-    (0b;s," ",s2," missing from process")]
-  }
-
-tableticking:{[tab;timeperiod;timetype]                                                                         /- [table to check;time window to check for records;`minute or `second]
-  $[0<a:count select from tab where time within (.z.p-timetype$"J"$string timeperiod;.z.p);
-    (1b;"there are ",(string a)," records");
-    (0b;"the table is not ticking")]
-  }
-
-chkslowsub:{[threshold]                                                                                         /- function to check for slow subscribers
-  .lg.o[`dqe;"Checking for slow subscribers"];
-  overlimit:(key .z.W) where threshold<sum each value .z.W;
-  $[0=count overlimit;
-    (1b;"no data queues over the limit, in ",string .proc.procname);
-    (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
-  }
 
 fillprocname:{[rs;h]                                                                                            /- fill procname for results table
   val:rs where not rs in raze a:h`proctype`procname;
@@ -45,6 +26,7 @@ fillprocname:{[rs;h]                                                            
   }
 
 dupchk:{[man;idnum;proc]                                                                                        /- checks for unfinished runs that match the new run
+  if[`=proc;:()];
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
     .dqe.failchk[man;idnum;"error:fail to complete before next run";proc]];
   }
@@ -115,14 +97,17 @@ reruncheck:{[chkid]                                                             
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv]                                                     /- Set up configtable from csv
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSNNN"]                                          /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
+update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
+update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
 
 / Sample runcheck:
 / show .dqe.results
 / Load up timers
-.dqe.loadtimer '[.dqe.configtable]
 
 /Sample reruncheck
-chkid:3
-.dqe.reruncheck[chkid]
+/chkid:3
+/.dqe.reruncheck[chkid]
+if[not .dqe.testing;.dqe.loadtimer '[.dqe.configtable]]
+

@@ -1,0 +1,8 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,Start of tests for tablecount function,1,,"comment"
+before,0,0,q,tab:([]id:til 5;name:1_5{5?.Q.a}\0),1,,"create table for test"
+true,0,0,q,first .dqe.tablecount[`tab;=;5],1,,"Check for true result"
+true,0,0,q,not first .dqe.tablecount[`tab;>;10],1,,"Check for false result"
+true,0,0,q,first .dqe.tablecount[`tab;<;10],1,,"Check for true result"
+true,0,0,q,first .dqe.tablehasrecords[`tab],1,,"test projection of function"
+after,0,0,q,delete tab from `.,1,,"delete tab table"
