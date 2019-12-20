@@ -197,6 +197,10 @@ Errors will be returned when:
 -   the client requests a query against a server type which the gateway
     does not currently have any active instances of (this error is
     returned immediately);
+    
+-   the client requests a query with the wrong servertype types;
+
+-   the client requests a query with null servers;
 
 -   the query is timed out;
 
