@@ -3,8 +3,8 @@
 //Create datadog namespace
 \d .dg
 
+//Find the config file created during set up containing the port set by user in setenv. If it doesn't exist default to 8125.
 ddconfigfile:@[value;`ddconfigfile;hsym first .proc.getconfigfile"ddconfig.txt"]
-
 //sets dogstatsd_port to the port defined by ddconfigfile
 $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfile;dogstatsd_port:8125]
 
@@ -18,7 +18,7 @@ is_ok:{
   f:$[.proc.proctype in key .dg.handlers;.dg.handlers .proc.proctype;1b]
  }
 
-default_is_ok:{[x]1b}
+//default_is_ok:{[x]1b}
 
 //functions to send metrics and events to datadog from TorQ processes
 sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",(string dogstatsd_port),"\"";}

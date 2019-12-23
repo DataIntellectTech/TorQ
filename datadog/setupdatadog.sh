@@ -1,14 +1,16 @@
 #!/bin/bash
 
-if [ -z $1 ]; then
-  echo "no argument provided; defaulting dogstatsd_port to 8125"
-  dogstatsd_port=8125
-else
-  dogstatsd_port=$1
-fi
+echo dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh.
+
+#if [ -z $1 ]; then
+#  echo "no argument provided; defaulting dogstatsd_port to 8125"
+#  dogstatsd_port=8125
+#else
+#  dogstatsd_port=$1
+#fi
 
 ddconfigfile=${KDBAPPCONFIG}/ddconfig.txt
-echo "dogstatsd_port:"$dogstatsd_port > $ddconfigfile
+echo "dogstatsd_port:"$DOGSTATSD_PORT > $ddconfigfile
 
 #File path of the process.yaml file
 processfile=/etc/datadog-agent/conf.d/process.d/process.yaml
@@ -45,16 +47,17 @@ fi
 datadogfile=/etc/datadog-agent/datadog.yaml
 
 #If file doesn't exist make it and remove restrictions. Add necessary lines and save file.
+sudo touch $datadogfile
 sudo chmod 777 $datadogfile
 if grep -qFx "use_dogstatsd: true" $datadogfile ; then
   echo "datadog.yaml file has port enabled, no changes were made to avoid duplication."
 else
   sudo echo "use_dogstatsd: true
-dogstatsd_port: $dogstatsd_port
+dogstatsd_port: $DOGSTATSD_PORT
 
 process_config:
  enabled: \"true\"" >> $datadogfile
-  echo "Datadog.yaml file is now enabled to send data through port $dogstatsd_port"
+  echo "Datadog.yaml file is now enabled to send data through port $DOGSTATSD_PORT"
 fi
 
 #Create the crontab to run runchecks.sh at specified intervals.
