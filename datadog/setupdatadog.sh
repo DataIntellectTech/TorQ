@@ -9,8 +9,8 @@ echo dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh.
 #  dogstatsd_port=$1
 #fi
 
-ddconfigfile=${KDBAPPCONFIG}/ddconfig.txt
-echo "dogstatsd_port:"$DOGSTATSD_PORT > $ddconfigfile
+dgconfigfile=${KDBAPPCONFIG}/dgconfig.txt
+echo "dogstatsd_port:"$DOGSTATSD_PORT > $dgconfigfile
 
 #File path of the process.yaml file
 processfile=/etc/datadog-agent/conf.d/process.d/process.yaml

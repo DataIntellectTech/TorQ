@@ -4,9 +4,9 @@
 \d .dg
 
 //Find the config file created during set up containing the port set by user in setenv. If it doesn't exist default to 8125.
-ddconfigfile:@[value;`ddconfigfile;hsym first .proc.getconfigfile"ddconfig.txt"]
-//sets dogstatsd_port to the port defined by ddconfigfile
-$[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfile;dogstatsd_port:8125]
+dgconfigfile:@[value;`dgconfigfile;hsym first .proc.getconfigfile"dgconfig.txt"]
+//sets dogstatsd_port to the port defined by dgconfigfile
+$[`dgconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 dgconfigfile;dogstatsd_port:8125]
 
 //Functions are set to return 1b or 0b based on the health of the service.
 //Default check returns 1b from each process to indicate process is up and can be queried.
