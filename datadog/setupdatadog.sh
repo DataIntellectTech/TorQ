@@ -61,6 +61,12 @@ process_config:
 fi
 
 #Create the crontab to run runchecks.sh at specified intervals.
-echo "Creating crontab if it doesn't already exist"
-crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -
+while true;do
+  read -p "Do you wish to install a crontab? [y/N]" yn
+  case $yn in
+    [Yy]* ) crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -; echo "Crontab installed" ;exit ;;
+    [Nn]* ) echo "Crontab not installed, please set up check scheduling." ; exit ;;
+    * ) echo "Please answer y or n.";;
+  esac
+done
 
