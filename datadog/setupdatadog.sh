@@ -1,9 +1,5 @@
 #!/bin/bash
 
-#Set the enviroment for TORQHOME
-cd ..
-source setenv.sh
-
 if [ -z $1 ]; then
   echo "no argument provided; defaulting dogstatsd_port to 8125"
   dogstatsd_port=8125
