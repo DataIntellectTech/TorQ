@@ -30,7 +30,7 @@ sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,
   system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"#",$[0h=type tags;","sv tags;tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",string dogstatsd_port;
  }
 
-//override default .lg.ext functionality to send error and warning events to datadog
+//Option to override default .lg.ext functionality to send error and warning events to datadog
 init:{[]
   .lg.ext:{[loglevel;proctype;proc;id;message;dict]
   if[loglevel in `ERR`WARN;.dg.sendEvent[string proc;message;string proctype;]$[loglevel=`ERR;"error";"warning"]]
