@@ -14,11 +14,8 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 
 handlers:(`$())!()
 
-is_ok:{[x]
-  f:$[@[{[x].proc.proctype in key .dg.handlers};`;0b];
-    .dg.handlers[.proc.proctype];
-    .dg.default_is_ok];
-  @[f;`;0b]
+is_ok:{
+  f:$[.proc.proctype in key .dg.handlers;.dg.handlers .proc.proctype;1b]
  }
 
 default_is_ok:{[x]1b}
