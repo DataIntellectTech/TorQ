@@ -3,7 +3,7 @@
 //Create datadog namespace
 \d .dg
 
-ddconfigfile:@[value;`ddconfigfile;hsym `$getenv[`KDBAPPCONFIG],"/ddconfig.txt"]
+ddconfigfile:@[value;`ddconfigfile;hsym first .proc.getconfigfile"ddconfig.txt"]
 
 //sets dogstatsd_port to the port defined by ddconfigfile
 $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfile;dogstatsd_port:8125]
@@ -15,11 +15,11 @@ $[`ddconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 ddconfigfil
 handlers:(`$())!()
 
 is_ok:{[x]
-        f:$[@[{[x].proc.proctype in key .dg.handlers};`;0b];
-                .dg.handlers[.proc.proctype];
-                .dg.default_is_ok];
-        @[f;`;0b]
-        }
+  f:$[@[{[x].proc.proctype in key .dg.handlers};`;0b];
+    .dg.handlers[.proc.proctype];
+    .dg.default_is_ok];
+  @[f;`;0b]
+ }
 
 default_is_ok:{[x]1b}
 
@@ -33,7 +33,7 @@ sendMetric:{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,
 //Option to override default .lg.ext functionality to send error and warning events to datadog
 init:{[]
   .lg.ext:{[loglevel;proctype;proc;id;message;dict]
-  if[loglevel in `ERR`WARN;.dg.sendEvent[string proc;message;string proctype;]$[loglevel=`ERR;"error";"warning"]]
+  if[loglevel in `ERR`WARN;.dg.sendEvent[string proc;message;string proctype;]$[loglevel=`ERR;"error";"warning"]]}
  }
 
 \d .
