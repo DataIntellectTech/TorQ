@@ -10,6 +10,11 @@ $[`dgconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 dgconfigfil
 
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
+//functions to send metrics and events to datadog from TorQ processes, error check for systems other than linux
+//.dg.sendMetric:$[any `l32`l64 in .z.o;{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",(string dogstatsd_port),"\"";};"Currently only linux operating systems are supported to send metrics"]
+
+//.dg.sendEvent:$[any `l32`l64 in .z.o;{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"#",$[0h=type tags;","sv tags;tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",string dogstatsd_port; };"Currently only linux operating systems are supported to send events"]
+
 .datadog.sendMetric:{[metric_name;metric_value] system "bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",(string dogstatsd_port),"\""}
 
 .datadog.sendEvent:{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"",$[0h=type tags;"#",("," sv tags);"#",tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",string dogstatsd_port;}
