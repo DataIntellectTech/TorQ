@@ -1,7 +1,7 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
 testing:@[value;`.dqe.testing;0b];                                                                              /- testing varible for unit tests
 
