@@ -43,6 +43,10 @@ failchk:{[idnum;error;proc]                                                     
   `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
+nullchk:{[t]                                                                                                   /- function to check number of nulls in each column of an input table
+  (sum null t)*100%count t
+  }
+
 postback:{[idnum;proc;result]                                                                                   /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
   .dqe.failchk[idnum;result;proc];
