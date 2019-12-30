@@ -1,7 +1,9 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
+
+testing:@[value;`.dqe.testing;0b];                                                                              /- testing varible for unit tests
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -96,4 +98,4 @@ update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
 / Sample runcheck:
 / show .dqe.results
 / Load up timers
-.dqe.loadtimer '[.dqe.configtable]
+if[not .dqe.testing;.dqe.loadtimer '[.dqe.configtable]]
