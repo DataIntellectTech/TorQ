@@ -8,6 +8,9 @@ partitiontype:@[value;`partitiontype;`date];
 getpartition:@[value;`getpartition;
 	{{@[value;`.dqe.currentpartition;
 		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                                                   /-function to determine the partition value
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
+
+testing:@[value;`.dqe.testing;0b];                                                                              /- testing varible for unit tests
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -109,4 +112,4 @@ update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
 / Sample runcheck:
 / show .dqe.results
 / Load up timers
-.dqe.loadtimer '[.dqe.configtable]
+if[not .dqe.testing;.dqe.loadtimer '[.dqe.configtable]]
