@@ -40,7 +40,7 @@ if [[ ! -f $processfile ]];then
     echo "All processes added to process.yaml from $input"  
   fi
 else
-  echo "$input already exists, no changes were made to avoid duplication."
+  echo "$processfile already exists, no changes were made to avoid duplication."
 fi
 
 #File path of the datadog.yaml file
@@ -64,8 +64,8 @@ fi
 while true;do
   read -p "Do you wish to install a crontab? [y/N]" yn
   case $yn in
-    [Yy]* ) crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -; echo "Crontab installed" ;exit ;;
-    [Nn]* ) echo "Crontab not installed, please set up check scheduling." ; exit ;;
+    [Yy]* ) crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -; echo "Crontab installed" ; break;;
+    [Nn]* ) echo "Crontab not installed, please set up check scheduling." ; break;;
     * ) echo "Please answer y or n.";;
   esac
 done
