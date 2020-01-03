@@ -2,15 +2,14 @@
 
 echo dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh.
 
-#if [ -z $1 ]; then
-#  echo "no argument provided; defaulting dogstatsd_port to 8125"
-#  dogstatsd_port=8125
-#else
-#  dogstatsd_port=$1
-#fi
+datachecks=${TORQHOME}/datadog/datachecks.q
 
-dgconfigfile=${KDBAPPCONFIG}/dgconfig.txt
-echo "dogstatsd_port:"$DOGSTATSD_PORT > $dgconfigfile
+if grep -q "dogstatsd_port:" $datachecks ; then
+  echo "dogstatsd_port already set in $datachecks"
+else
+  sed -i '6i //Datastatsd_port set in setenv.sh.\ndogstatsd_port:'`echo $DOGSTATSD_PORT`'\n ' $datachecks
+  echo "dogstatsd_port set to $DOGSTATSD_PORT in $datachecks"
+fi
 
 #File path of the process.yaml file
 processfile=/etc/datadog-agent/conf.d/process.d/process.yaml

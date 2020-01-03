@@ -3,11 +3,6 @@
 //Makes dictionary of defaults and uses .Q.opt to refer to command values passed by its key.
 o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 
-//Find the configfile created during setup containing the port number defined in setenv.sh.
-dgconfigfile:hsym `$getenv[`KDBAPPCONFIG],"/dgconfig.txt"
-//sets dogstatsd_port to the port defined by dgconfigfile
-$[`dgconfig.txt in key hsym `$getenv[`KDBAPPCONFIG];value each read0 dgconfigfile;dogstatsd_port:8125]
-
 // Send To Datadog function - takes a non string value and a stringed name.
 //Will send the value received (1 or 0) and the process name (hdb etc)
 //functions to send metrics and events to datadog from TorQ processes, error check for systems other than linux
