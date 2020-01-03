@@ -3,4 +3,4 @@ tableticking,(`quote;5;`minute),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:0
 chkslowsub,1000000,tickerplant,tickerplant1,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
 tableticking,(`quote;5;`minute),rdb,rdb1,single,12:00:00.000000000,0N,0N
 constructcheck,(`quote;`table),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
-schemacheck,(`quote;`p`s`f`f`j`j`c`c`s),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+schemacheck,(`quote;"psffjjccs"),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
