@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo `date`;
-q ./datadog/datachecks.q
+q $TORQHOME/datadog/datachecks.q
 
