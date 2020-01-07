@@ -3,7 +3,7 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
 
-compcounter:()!();
+compcounter:([id:`long$()]counter:`long$();list:());
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -48,7 +48,7 @@ chkcompare:{[idnum;chkcount;comptype;compproc]                                  
 
   a:exec descp from .dqe.results where active=1b,id=idnum,not procschk=compproc;                                /- obtain all the check returns
   b:exec descp from .dqe.results where active=1b,id=idnum,procschk=compproc;                                    /- obtain the check to compare the others to
-  result:sum b comptype ' a;
+  result:sum comptype[a;first b];
   resstring:raze((first string result)," other checks agree. This result is ",string b);
   `.dqe.results set update descp:enlist resstring from .dqe.results where active=1b,id=idnum,procschk=compproc;
   `.dqe.results set update active:0b from .dqe.results where active=1b,id=idnum;
@@ -56,7 +56,13 @@ chkcompare:{[idnum;chkcount;comptype;compproc]                                  
   }
 
 postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
-  $[compare[0];[active:1b;.dqe.compcounter[`$string idnum]+::1];active:0b];
+  $[compare[0];
+    [active:1b;.dqe.compcounter[idnum]:(
+      $[0N=.dqe.compcounter[idnum][`counter];
+        1;
+        1+.dqe.compcounter[idnum][`counter]];
+      .dqe.compcounter[idnum][`list],last result)];
+    active:0b];
 
   if["e"=first result;                                                                                          /- checks if error returned from server side
     .dqe.updresultstab[idnum;0Np;0b;result;`failed;active;proc];
@@ -96,8 +102,9 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   ans:.dqe.getresult[value fn;(),vars;idnum;(),0b]'[h[`procname];h[`w]]
   }
 
-runcomparison:{[idnum;fn;vars;rs;comptype;compproc]                                                             /- ran for comparison checks between multiple processes
-  rs:(),rs;                                                                                                     /- set rs to a list
+runcomparison:{[idnum;fn;vars;rs;comptype]                                                                      /- ran for comparison checks between multiple processes
+  compproc:rs[0];
+  rs:1_(),rs;                                                                                                   /- set rs to a list
   h:.dqe.runsetup[idnum;fn;vars;rs];
 
   if[compproc in h`procname;                                                                                    /- fail if comparison process is in list of processes to check against
