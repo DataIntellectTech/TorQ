@@ -117,7 +117,7 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[idnum;fn;vars]'[r];
 
-  if[(` in r[;1])|(0N in h`w);
+  if[any[null h`w]|any null r[;1]
     .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;0b]'[h`procname];
     :()];
 
