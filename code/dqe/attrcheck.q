@@ -1,8 +1,6 @@
-\d .dqe
-attrcheck:{[tab;attribute;col]
+\d .dqe 
+attrcheck:{[tab;attribute;col]                                // compares the attribute of given table to expectation given in csv
   metaoftab:select c,a from meta tab where c in col;
   checktab:([]c:col;a:attribute);
-  $[metaoftab~checktab;
-    (1b;"attribute of ",($[1=count col;string col;"," sv string col])," matched expectation");
-    (0b;"attribute of ",($[1=count col;string col;"," sv string col])," did not match expectation")]
+  (c;"attribute of ",(","sv string(),col)," ",$[c:metaoftab~checktab;"matched";"did not match"]," expectation")
   }
