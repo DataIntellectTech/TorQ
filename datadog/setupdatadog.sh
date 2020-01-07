@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh.
+echo "dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh."
 
 datachecks=${TORQHOME}/datadog/datachecks.q
 
