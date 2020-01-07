@@ -43,8 +43,7 @@ updresultstab:{[idnum;end;res;des;status;act;proc]                              
   }
 
 chkcompare:{[idnum;chkcount;comptype;compproc]                                                                  /- function to compare the checks
-  if[not chkcount=.dqe.compcounter[`$string idnum];                                                             /- checks if all async check results have returned
-    :()];
+  if[not chkcount=.dqe.compcounter[idnum][`counter];:()];                                                       /- checks if all async check results have returned
 
   a:exec descp from .dqe.results where active=1b,id=idnum,not procschk=compproc;                                /- obtain all the check returns
   b:exec descp from .dqe.results where active=1b,id=idnum,procschk=compproc;                                    /- obtain the check to compare the others to
@@ -56,12 +55,12 @@ chkcompare:{[idnum;chkcount;comptype;compproc]                                  
   }
 
 postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
-  $[compare[0];
+  $[compare[0];                                                                                                 /- if comparision, set records to active for comparion check
     [active:1b;.dqe.compcounter[idnum]:(
-      $[0N=.dqe.compcounter[idnum][`counter];
+      $[0N=.dqe.compcounter[idnum][`counter];                                                                   /- if counter is null, set it to 1, else add 1 to it
         1;
         1+.dqe.compcounter[idnum][`counter]];
-      .dqe.compcounter[idnum][`list],last result)];
+      .dqe.compcounter[idnum][`list],last result)];                                                             /- join result to the list
     active:0b];
 
   if["e"=first result;                                                                                          /- checks if error returned from server side
@@ -99,7 +98,7 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   if[count procsdown;.dqe.updresultstab[idnum;0Np;0b;"error:process is down or has lost its handle";`failed;0b]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
-  ans:.dqe.getresult[value fn;(),vars;idnum;(),0b]'[h[`procname];h[`w]]
+  .dqe.getresult[value fn;(),vars;idnum;(),0b]'[h`procname;h`w]
   }
 
 runcomparison:{[idnum;fn;vars;rs;comptype]                                                                      /- ran for comparison checks between multiple processes
@@ -124,7 +123,7 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
 
-  ans:.dqe.getresult[value fn;(),vars;idnum;(1b;comptype;compproc;proccount)]'[h[`procname];h[`w]]
+  .dqe.getresult[value fn;(),vars;idnum;(1b;comptype;compproc;proccount)]'[h[`procname];h[`w]]
   }
 
 results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$();active:`boolean$());
