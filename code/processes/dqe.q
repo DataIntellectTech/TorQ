@@ -1,6 +1,13 @@
 \d .dqe
 
-configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"];
+dqedbdir:@[value;`dqedbdir;`:dqedb];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
+gmttime:@[value;`gmttime;1b];
+partitiontype:@[value;`partitiontype;`date];
+getpartition:@[value;`getpartition;
+	{{@[value;`.dqe.currentpartition;
+		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                                                   /-function to determine the partition value
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
 testing:@[value;`.dqe.testing;0b];                                                                             /- testing varible for unit tests
@@ -93,7 +100,14 @@ reruncheck:{[chkid]                                                             
 
 \d .
 
+.dqe.currentpartition:.dqe.getpartition[];                                                                      /- initialize current partition
+
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
+
+.u.end:{[pt]    /- setting up .u.end for dqe
+  .dqe.endofday[.dqe.getpartition[]];
+  .dqe.currentpartition:pt+1;
+  };
 
 .dqe.init[]
 
