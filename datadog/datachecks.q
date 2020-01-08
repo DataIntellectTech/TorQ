@@ -11,15 +11,15 @@ o:.Q.def[`user`pass`timeout`init`noexit!(`admin;`admin;100;1b;0b);.Q.opt[.z.x]]
 .dg.sendevent:$[.z.o like "l*";{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"#",$[0h=type tags;","sv tags;tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",string dogstatsd_port; };"Currently only linux operating systems are supported to send events"]
 
 //Creates the torq summary table without the pipes
-.dg.getprocessstatus:("TSSII";1#"|")0:system"$TORQHOME/torq.sh summary"
+.dg.getprocessstatus:("TSSII";1#"|")0:system"./torq.sh summary"
 
 //Names of processes to be monitored to be edited depending on monitoring needs (must be input as `rdb1, `hdb2 etc.)
 .dg.monitorprocess:()
 
-//Open port to process and sends check for each is_ok function
+//Open port to process and sends check for each isok function
 .dg.sendcheck:{[o;x]
   h:hopen[(hsym `$":" sv string[(`localhost;x[`PORT];o[`user];o[`pass])];o[`timeout])];
-  :h(`.dg.is_ok;`)
+  :h(`.dg.isok;`)
  }
 //Creates name for the event (how it is found on datadog metric)
 .dg.createeventname:{[x]"_" sv string (`process;x[`PROCESS];`check)}
