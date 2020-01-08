@@ -116,8 +116,9 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   compr:.dqe.fillprocname[rs;comph];
   compr:first compr where all not `=compr;
   .dqe.initstatusupd[idnum;fn;vars;compr];
-  if[(` in r[;1])|(0N in h`w);
-    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed]'[h`procname];
+
+  if[any[null h`w]|any null r[;1]
+    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;0b]'[h`procname];
     :()];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
