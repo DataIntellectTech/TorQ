@@ -2,5 +2,5 @@
 schemacheck:{[tab;schema;colname]
   origschema:select t,c from meta tab;
   checkschema:([]t:schema;c:colname);
-  (c;"attribute of ",(","sv string(),col)," ",$[c:origschema~checkschema;"matched";"did not match"]," proposed schema")
+  (c;"type of ",(","sv string(),col)," ",$[c:origschema~checkschema;"matched";"did not match"]," proposed schema")
   }
