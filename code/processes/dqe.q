@@ -50,8 +50,11 @@ failchk:{[runtype;idnum;error;proc]                                             
   `.dqe.results set update chkstatus:`failed,output:0b,descp:c#enlist error,chkruntype:runtype from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
   }
 
-nullchk:{[t]                                                                                                   /- function to check number of nulls in each column of an input table
-  (sum null t)*100%count t
+nullchk:{[t;colslist;thres]                                                                                      /- function to check number of nulls in each column of an input table
+  tt:$[(type colslist)<0;(enlist colslist)#t;colslist#t];
+  d:(sum null tt)*100%count tt;
+  res:([] colsnames:key d; nullspercentage:value d);
+  res:update threshold:nullspercentage>thres from res
   }
 
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
