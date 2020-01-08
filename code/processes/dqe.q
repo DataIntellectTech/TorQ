@@ -3,7 +3,7 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqeconfig.csv"]];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetailtab.csv"]];
 
-compcounter:([id:`long$()]counter:`long$();list:());
+compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -26,48 +26,46 @@ fillprocname:{[rs;h]                                                            
   }
 
 dupchk:{[idnum;proc]                                                                                            /- checks for unfinished runs that match the new run
-  if[count select from .dqe.results where active=1b,id=idnum,procschk=proc,chkstatus=`started;
-    .dqe.updresultstab[idnum;0Np;0b;"error:fail to complete before next run";`failed;0b;proc]];
+  if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
+    .dqe.updresultstab[idnum;0Np;0b;"error:fail to complete before next run";`failed;proc]];
   }
 
 initstatusupd:{[idnum;funct;vars;rs]                                                                            /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started;1b);
+  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
-updresultstab:{[idnum;end;res;des;status;act;proc]                                                              /- general function used to update a check in the results table
+updresultstab:{[idnum;end;res;des;status;proc]                                                                  /- general function used to update a check in the results table
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                            /- obtain count of checks that will be updated
   if[c;.lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
-    `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,active:act from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+    `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
   }
 
 chkcompare:{[idnum;chkcount;comptype;compproc]                                                                  /- function to compare the checks
   if[not chkcount=.dqe.compcounter[idnum][`counter];:()];                                                       /- checks if all async check results have returned
-
-  a:exec descp from .dqe.results where active=1b,id=idnum,not procschk=compproc;                                /- obtain all the check returns
-  b:exec descp from .dqe.results where active=1b,id=idnum,procschk=compproc;                                    /- obtain the check to compare the others to
+  a:.dqe.compcounter[idnum][`results]where not .dqe.compcounter[idnum][`procs]=compproc;                        /- obtain all the check returns
+  b:.dqe.compcounter[idnum][`results]where .dqe.compcounter[idnum][`procs]=compproc;                            /- obtain the check to compare the others to
   result:sum comptype[a;first b];
   resstring:raze((first string result)," other checks agree. This result is ",string b);
-  `.dqe.results set update descp:enlist resstring from .dqe.results where active=1b,id=idnum,procschk=compproc;
-  `.dqe.results set update active:0b from .dqe.results where active=1b,id=idnum;
-  .dqe.compcounter:(`$string idnum) _ .dqe.compcounter;
+  `.dqe.results set update descp:enlist resstring from .dqe.results where id=idnum,procschk=compproc;
+  .dqe.compcounter:idnum _ .dqe.compcounter;
   }
 
 postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
-  $[compare[0];                                                                                                 /- if comparision, set records to active for comparion check
-    [active:1b;.dqe.compcounter[idnum]:(
+  if[compare[0];                                                                                                /- if comparision, add to compcounter table
+    .dqe.compcounter[idnum]:(
       $[0N=.dqe.compcounter[idnum][`counter];                                                                   /- if counter is null, set it to 1, else add 1 to it
         1;
         1+.dqe.compcounter[idnum][`counter]];
-      .dqe.compcounter[idnum][`list],last result)];                                                             /- join result to the list
-    active:0b];
+      .dqe.compcounter[idnum][`procs],proc;
+      .dqe.compcounter[idnum][`results],last result)];                                                          /- join result to the list
 
   if["e"=first result;                                                                                          /- checks if error returned from server side
-    .dqe.updresultstab[idnum;0Np;0b;result;`failed;active;proc];
+    .dqe.updresultstab[idnum;0Np;0b;result;`failed;proc];
     :()];
 
-  .dqe.updresultstab[idnum;.z.p;first result;$[compare[0];last result;result[1]];`complete;active;proc];
+  .dqe.updresultstab[idnum;.z.p;first result;result[1];`complete;proc];
   if[compare[0];                                                                                                /- in comparison run, check if all results have returned
     .dqe.chkcompare[idnum;compare[3];compare[1];compare[2]]];
   }
@@ -93,9 +91,9 @@ runcheck:{[idnum;fn;vars;rs]                                                    
   r:.dqe.fillprocname[rs;h];
   .dqe.initstatusupd[idnum;fn;vars]'[r];
 
-  .dqe.updresultstab[idnum;0Np;0b;"error:can't connect to process";`failed;0b;`];
+  .dqe.updresultstab[idnum;0Np;0b;"error:can't connect to process";`failed;`];
   procsdown:(h`procname) where 0N = h`w;                                                                        /- checks if any procs didn't get handles
-  if[count procsdown;.dqe.updresultstab[idnum;0Np;0b;"error:process is down or has lost its handle";`failed;0b]'[procsdown]];
+  if[count procsdown;.dqe.updresultstab[idnum;0Np;0b;"error:process is down or has lost its handle";`failed]'[procsdown]];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
   .dqe.getresult[value fn;(),vars;idnum;(),0b]'[h`procname;h`w]
@@ -107,7 +105,7 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   h:.dqe.runsetup[idnum;fn;vars;rs];
 
   if[compproc in h`procname;                                                                                    /- fail if comparison process is in list of processes to check against
-    .dqe.updresultstab[idnum;0Np;0b;"error:compare process can't be compared with itself";`failed;0b]'[h`procname];
+    .dqe.updresultstab[idnum;0Np;0b;"error:compare process can't be compared with itself";`failed]'[h`procname];
     :()];
 
   comph:.dqe.gethandles[compproc];                                                                              /- obtain handle for comparison process
@@ -115,10 +113,11 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   proccount:count h`procname;
 
   r:.dqe.fillprocname[rs;h];
-  .dqe.initstatusupd[idnum;fn;vars]'[r];
-
+  compr:.dqe.fillprocname[rs;comph];
+  compr:first compr where all not `=compr;
+  .dqe.initstatusupd[idnum;fn;vars;compr];
   if[(` in r[;1])|(0N in h`w);
-    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;0b]'[h`procname];
+    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed]'[h`procname];
     :()];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
@@ -126,7 +125,7 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   .dqe.getresult[value fn;(),vars;idnum;(1b;comptype;compproc;proccount)]'[h[`procname];h[`w]]
   }
 
-results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$();active:`boolean$());
+results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$());
 
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
