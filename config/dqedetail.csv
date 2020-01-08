@@ -4,3 +4,4 @@ name,public,descrip,params,return
 .dqe.chkslowsub,1,Used to check queues on handles to make sure there is no slow subscribers,[threshold: long],Return boolean and list of any slow subscribers
 .dqe.tablecount,1,Used to check a table count against a number. This can be a check of > = or <,[tab: symbol;operator: > = <;chkvalue: long],Return boolean and the count of the table
 .dqe.tablehasrecords,1,A projection of .dqe.tablecount that is used to check if a table has records,[tab: symbol],Return boolean and the count of the table
+.dqe.attrcheck,1,Used to check if a table's schema matches expectation,[tab;attribute;col],Return boolean and if schema matches
