@@ -9,9 +9,7 @@
 
 handlers:(`$())!()
 
-is_ok:{
-  f:$[.proc.proctype in key .dg.handlers;.dg.handlers .proc.proctype;1b]
- }
+isok:{$[.proc.proctype in key .dg.handlers;.dg.handlers .proc.proctype;1b]}
 
 //Option to override default .lg.ext functionality to send error and warning events to datadog
 init:{[]
