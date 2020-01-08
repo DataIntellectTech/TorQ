@@ -61,7 +61,7 @@ fi
 
 #Create the crontab to run runchecks.sh at specified intervals.
 while true;do
-  read -p "Do you wish to install a crontab? [y/N]" yn
+  read -p "Do you wish to modify crontab? [y/N]" yn
   case $yn in
     [Yy]* ) crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -; echo "Crontab installed" ; break;;
     [Nn]* ) echo "Crontab not installed, please set up check scheduling." ; break;;
