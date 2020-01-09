@@ -231,21 +231,21 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 
 ### Client Call Examples
 
-Here are a couple of examples for using client calls. It is important to note if asynchronous calls are to be made, 
-the .gw.synccallsallowed variable needs to be set to 0b before running any async calls.
-To do this open a handle to the gateway and send 
-`h(".gw.synccallsallowed:0b")`
+Here are a couple of examples for using client calls via a handle to the gateway process. It is important to note 
+if asynchronous calls are to be made, the .gw.synccallsallowed variable needs to be set to 0b before running any async calls.
+To do this use
+`h(".gw.synccallsallowed:0b")`.
 
 #### Calls to the RDB only
-For synchronous calls 
-```//To return the avg price per sym for the day so far 
+For synchronous calls
+```
+// To return the avg price per sym for the day so far
 h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
-h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";enlist[`tables]!enlist enlist`trade)
-h(`.gw.syncexec;"select avpr:avg price by sym from trade where time.date=.z.d";`tables`servertype!(enlist`logmsg;`rdb))
 
-h(`.gw.syncexec;"hloc[2020.01.08;2020.01.08;10]";`rdb)                     // Using the hloc function 
+// Using the hloc function
+h(`.gw.syncexec;"hloc[2020.01.08;2020.01.08;10]";`rdb)
 
-//returns following table 
+// Returns following table
 sym  time                         | high   low    open   close  totalsize vwap
 ----------------------------------| ----------------------------------------------
 AAPL 2020.01.08D00:00:00.836801000| 103.62 103.62 103.62 103.62 88        103.62
@@ -255,45 +255,34 @@ AAPL 2020.01.08D00:00:03.005465000| 104.06 104.06 104.06 104.06 78        104.06
 AAPL 2020.01.08D00:00:03.404383000| 103.9  103.9  103.9  103.9  49        103.9
 ..
 
-//To view all the functions available in the .rdb namespace
+// To view all the functions available in the .rdb namespace
 h(".rdb")
 ```
 For asynchronous calls
-```//To return the sum size per sym for the day so far
+```
+// To return the sum size per sym for the day so far
 neg[h](`.gw.asyncexec;"select sum size by sym from trade";`rdb);h[]
-neg[h](`.gw.asyncexec;"select sum size by sym from trade";enlist[`tables]!enlist enlist`trade);h[]
-neg[h](`.gw.asyncexec;"select sum size by sym from trade";enlist[`date]!enlist enlist .z.d);h[]
-neg[h](`.gw.asyncexec;"select sum size by sym from trade";`tables`servertype!(enlist`logmsg;`rdb));h[]
 ```
 
 #### Calls to the HDB only
 For synchronous calls
-```//for the high, low, open and close prices of the day before
+```
+// For the high, low, open and close prices of the day before
 h(`.gw.syncexec;"select h:max price, l:min price, o:first price, c:last price by sym from trade where date=.z.d-1";`hdb)
-h(`.gw.syncexec;"select h:max price, l:min price, o:first price, c:last price by sym from trade where date=.z.d-1";enlist[`date]!enlist enlist .z.d-1)
-h(`.gw.syncexec;"select h:max price, l:min price, o:first price, c:last price by sym from trade";`tables`date!(enlist`data;enlist .z.d-3))
 ```
 For asynchronous calls
 ```
 neg[h](`.gw.asyncexec;"`$last .z.x";`hdb);h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";enlist[`tables]!enlist enlist`data);h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";enlist[`date]!enlist enlist .z.d-1);h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";`tables`date!(enlist`data;enlist .z.d-3));h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";`tables`servertype`date!(enlist`data;`hdb;enlist .z.d-5));h[]
 ```
 
 #### Calls to the HDB and RDB
 For synchronous calls
 ```
-h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
 ```
 For asynchronous calls
 ```
 neg[h](`.gw.asyncexec;"select mxp:max price by time.date from trade where time.date in (.z.d;.z.d-3)";`rdb`hdb);h[]
-neg[h](`.gw.asyncexec;"select mxp:max price by time.date from trade where time.date in (.z.d;.z.d-3)";enlist[`servertype]!enlist`rdb`hdb);h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";`tables`servertype!(enlist`logmsg;`rdb`hdb));h[]
-neg[h](`.gw.asyncexec;"`$last .z.x";enlist[`date]!enlist .z.d-til 7);h[]
 ```
 
 For the purposes of demonstration, assume that the following queries must be run
