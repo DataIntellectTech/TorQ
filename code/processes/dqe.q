@@ -51,10 +51,9 @@ failchk:{[runtype;idnum;error;proc]                                             
   }
 
 nullchk:{[t;colslist;thres]                                                                                     /- function to check percentage of nulls in each column from colslist of a table t
-  tt:$[(type colslist)<0;(enlist colslist)#t;colslist#t];
-  d:(sum null tt)*100%count tt;
+  d:sum[null tt]*100%count tt:((),colslist)#t;
   res:([] colsnames:key d; nullspercentage:value d);
-  res:update thresholdfail:nullspercentage>thres from res                                                       /- compare each column's nulls percentage with threshold thres
+  update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
