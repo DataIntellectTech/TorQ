@@ -9,6 +9,9 @@ querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
 clearinactivetime:0D01:00	// the time to keep inactive handle data
 
+\d .proc
+loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}
+
 // Server connection details
 \d .servers
 CONNECTIONS:`rdb`hdb		// list of connections to make at start up

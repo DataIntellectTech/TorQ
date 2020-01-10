@@ -1,10 +1,9 @@
-//test process for performing unit tests on functions within gateway.q
-//changes were made to .gw.getserverids
+//functionality loaded in by gateway
+//functions include: getserverids, getserveridstype, getserverscross, buildcross
 
-//mock servers table
-.gw.servers:([serverid:`u#(3;4;5i)]handle:(6;7;8i); servertype:(`rdb;`hdb;`hdb); inuse:(0b;0b;0b);active:(0b;1b;1b);querycount:(0i;0i;0i);lastquery:(0Np;0Np;0Np);usage:(0D;0D;0D);attributes:(`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex);`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex);`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex));disconnecttime:(0Np;0Np;0Np))
+\d .gw
 
-.gw.getserverids:{[att]
+getserverids:{[att]
   if[99h<>type att;
    // its a list of servertypes e.g. `rdb`hdb
    // check if user attributes are a symbol list
@@ -74,7 +73,13 @@ getserveridstype:{[att;typ]
   :serverids;
  }
 
+/- build a cross product from a nested dictionary
+buildcross:{(cross/){flip (enlist y)#x}[x] each key x}
 
+/- given a dictionary of requirements and a list of attribute dictionaries
+/- work out which servers we need to hit to satisfy each requirement
+/- we want to satisfy the cross product of requirements - so each attribute has to be available with each other attribute
+/- e.g. each symbol has to be availble within each specified date
 getserverscross:{[req;att;besteffort]
 
  if[0=count req; :([]serverid:enlist key att)];
@@ -98,5 +103,3 @@ getserverscross:{[req;att;besteffort]
  /- return the parameters which should be queried for
  (key s)!distinct each' flip each util[w]`found
  }
-
-buildcross:{(cross/){flip (enlist y)#x}[x] each key x}
