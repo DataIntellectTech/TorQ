@@ -11,7 +11,7 @@ init:{
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   }
 
-configtable:([] action:`$(); params:(); proctype:`$(); procname:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
+configtable:([] action:`$(); params:(); proc:`$(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 readdqeconfig:{[file;types]
   .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
@@ -44,15 +44,19 @@ updresultstab:{[idnum;end;res;des;status;proc]                                  
 
 chkcompare:{[idnum;chkcount;comptype;compproc]                                                                  /- function to compare the checks
   if[not chkcount=.dqe.compcounter[idnum][`counter];:()];                                                       /- checks if all async check results have returned
+  .lg.o[`chkcompare;"comparison started with id ",string idnum];
   a:.dqe.compcounter[idnum][`results]where not .dqe.compcounter[idnum][`procs]=compproc;                        /- obtain all the check returns
   b:.dqe.compcounter[idnum][`results]where .dqe.compcounter[idnum][`procs]=compproc;                            /- obtain the check to compare the others to
-  result:sum comptype[a;first b];
-  resstring:raze((first string result)," other checks agree. This result is ",string b);
-  `.dqe.results set update descp:enlist resstring from .dqe.results where id=idnum,procschk=compproc;
+  result:sum comptype\:[a;first b];
+  .lg.o[`chkcompare;"comparison finished with id ",string idnum];
+ resstring:raze((string compproc)," agrees with ",(first string result),"/",(string .dqe.compcounter[idnum][`counter]-1)," checks");
+  .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
+  `.dqe.results set update result:1b,descp:enlist resstring,chkstatus:`complete from .dqe.results where id=idnum,chkstatus=`started;
   .dqe.compcounter:idnum _ .dqe.compcounter;
-  }
+  }  
 
 postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
+  .lg.o[`postback;"postback successful for id ",string idnum];
   if[compare[0];                                                                                                /- if comparision, add to compcounter table
     .dqe.compcounter[idnum]:(
       $[0N=.dqe.compcounter[idnum][`counter];                                                                   /- if counter is null, set it to 1, else add 1 to it
@@ -113,12 +117,11 @@ runcomparison:{[idnum;fn;vars;rs;comptype]                                      
   proccount:count h`procname;
 
   r:.dqe.fillprocname[rs;h];
-  compr:.dqe.fillprocname[rs;comph];
-  compr:first compr where all not `=compr;
+  compr:`$sv/:[",";string distinct each flip r];
   .dqe.initstatusupd[idnum;fn;vars;compr];
 
   if[any[null h`w]|any null r[;1]
-    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;0b]'[h`procname];
+    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;compr];
     :()];
 
   if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
@@ -142,7 +145,7 @@ loadtimer:{[DICT]
 
 .dqe.init[]
 
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSSNNN"]                                          /- Set up configtable from csv
+`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S*SSNNN"]                                           /- Set up configtable from csv
 update checkid:til count .dqe.configtable from `.dqe.configtable
 update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
 update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable

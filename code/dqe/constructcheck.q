@@ -4,5 +4,5 @@ constructcheck:{[construct;chktype]                                             
   dict:`table`variable`view`function!chkfunct@/:"avbf";
   .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
   c:construct in dict[chktype][];
-  (c;s," ",s2," ",$[c:construct in dict[chktype][];"exists";"missing from process"];value construct)
+  (c;s," ",s2," ",$[c:construct in dict[chktype][];"exists";"missing from process"];enlist value construct)
   }
