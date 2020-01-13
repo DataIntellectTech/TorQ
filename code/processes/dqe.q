@@ -30,10 +30,10 @@ dupchk:{[idnum;proc]                                                            
     .dqe.updresultstab[idnum;0Np;0b;"error:fail to complete before next run";`failed;proc]];
   }
 
-initstatusupd:{[idnum;funct;vars;rs]                                                                            /- set initial values in results table
+initstatusupd:{[idnum;funct;params;rs]                                                                          /- set initial values in results table
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[idnum]'[rs];                                                                                      /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string raze (),vars;rs[0];rs[1];.z.p;0Np;0b;"";`started);
+  `.dqe.results insert (idnum;funct;`$"," sv string raze (),params;rs[0];rs[1];.z.p;0Np;0b;"";`started);
   }
 
 updresultstab:{[idnum;end;res;des;status;proc]                                                                  /- general function used to update a check in the results table
@@ -53,11 +53,11 @@ chkcompare:{[idnum;chkcount;comptype;compproc]                                  
   .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
   `.dqe.results set update result:1b,descp:enlist resstring,chkstatus:`complete from .dqe.results where id=idnum,chkstatus=`started;
   .dqe.compcounter:idnum _ .dqe.compcounter;
-  }  
+  }
 
-postback:{[idnum;proc;compare;result]                                                                           /- function that updates the results table with the check result
+postback:{[idnum;proc;params;result]                                                                            /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",string idnum];
-  if[compare[0];                                                                                                /- if comparision, add to compcounter table
+  if[params`comp;                                                                                               /- if comparision, add to compcounter table
     .dqe.compcounter[idnum]:(
       $[0N=.dqe.compcounter[idnum][`counter];                                                                   /- if counter is null, set it to 1, else add 1 to it
         1;
@@ -68,75 +68,72 @@ postback:{[idnum;proc;compare;result]                                           
   if["e"=first result;                                                                                          /- checks if error returned from server side
     .dqe.updresultstab[idnum;0Np;0b;result;`failed;proc];
     :()];
-
-  .dqe.updresultstab[idnum;.z.p;first result;result[1];`complete;proc];
-  if[compare[0];                                                                                                /- in comparison run, check if all results have returned
-    .dqe.chkcompare[idnum;compare[3];compare[1];compare[2]]];
+  $[params`comp;                                                                                                /- in comparison run, check if all results have returned
+    .dqe.chkcompare[idnum;params`compcount;params`comptype;params`compproc];
+    .dqe.updresultstab[idnum;.z.p;first result;result[1];`complete;proc]];
   }
 
-getresult:{[funct;vars;idnum;compare;proc;hand]
+getresult:{[funct;params;idnum;proc;hand]
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  .async.postback[hand;funct,vars;.dqe.postback[idnum;proc;compare]];                                           /- send function with variables down handle
+  .async.postback[hand;funct,params`vars;.dqe.postback[idnum;proc;params]];                                     /- send function with variables down handle
   }
 
-runsetup:{[idnum;fn;vars;rs]
+runcheck:{[idnum;fn;params;rs]                                                                                  /- function used to send other function to test processes
+  .lg.o[`runcheck;"Starting check run ",string idnum];
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
     :()];
 
-  h:.dqe.gethandles[rs]                                                                                         /- check if processes exist and are valid
-  }
-
-runcheck:{[idnum;fn;vars;rs]                                                                                    /- function used to send other function to test processes
   rs:(),rs;                                                                                                     /- set rs to a list
-  h:.dqe.runsetup[idnum;fn;vars;rs];
-
+  h:.dqe.gethandles[rs];
   r:.dqe.fillprocname[rs;h];
-  .dqe.initstatusupd[idnum;fn;vars]'[r];
 
-  .dqe.updresultstab[idnum;0Np;0b;"error:can't connect to process";`failed;`];
-  procsdown:(h`procname) where 0N = h`w;                                                                        /- checks if any procs didn't get handles
-  if[count procsdown;.dqe.updresultstab[idnum;0Np;0b;"error:process is down or has lost its handle";`failed]'[procsdown]];
-
-  if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
-  .dqe.getresult[value fn;(),vars;idnum;(),0b]'[h`procname;h`w]
-  }
-
-runcomparison:{[idnum;fn;vars;rs;comptype]                                                                      /- ran for comparison checks between multiple processes
-  compproc:rs[0];
-  rs:1_(),rs;                                                                                                   /- set rs to a list
-  h:.dqe.runsetup[idnum;fn;vars;rs];
-
-  if[compproc in h`procname;                                                                                    /- fail if comparison process is in list of processes to check against
-    .dqe.updresultstab[idnum;0Np;0b;"error:compare process can't be compared with itself";`failed]'[h`procname];
-    :()];
-
-  comph:.dqe.gethandles[compproc];                                                                              /- obtain handle for comparison process
-  h:h,'comph;
-  proccount:count h`procname;
-
-  r:.dqe.fillprocname[rs;h];
   compr:`$sv/:[",";string distinct each flip r];
-  .dqe.initstatusupd[idnum;fn;vars;compr];
+  .lg.o[`runcheck;"Checking if comparison check"];
+  $[not params`comp;
+    [
+    .dqe.initstatusupd[idnum;fn;params]'[r];
 
-  if[any[null h`w]|any null r[;1]
-    .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;compr];
-    :()];
+    .lg.o[`runcheck;"checking for processes that are not connectable"];
+    .dqe.updresultstab[idnum;0Np;0b;"error:can't connect to process";`failed;`];
 
-  if[0=count h;.lg.e[`handle;"cannot open handle to any given processes"];:()];                                 /- check if any handles exist, if not exit function
+    procsdown:(h`procname) where 0N = h`w;                                                                      /- checks if any procs didn't get handles
+    if[count procsdown;.dqe.updresultstab[idnum;0Np;0b;"error:process is down or has lost its handle";`failed]'[procsdown]];
+    ];
+    [
+    if[(params`compproc) in h`procname;                                                                         /- fail if comparison process is in list of processes to check against
+      .lg.e[`runcheck;"Can't compare process with itself"];
+      .dqe.updresultstab[idnum;0Np;0b;"error:compare process can't be compared with itself";`failed]'[h`procname];
+      :()];
 
-  .dqe.getresult[value fn;(),vars;idnum;(1b;comptype;compproc;proccount)]'[h[`procname];h[`w]]
+    comph:.dqe.gethandles[params`compproc];                                                                     /- obtain handle for comparison process
+    h:h,'comph;
+
+    proccount:count h`procname;
+    params,:(enlist `compcount)!enlist proccount;
+
+    .lg.o[`runcheck;(string params`compcount)," procsess will be checked for this comparison"];
+    .dqe.initstatusupd[idnum;fn;params;compr];
+
+    if[any[null h`w]|any null r[;1]
+      .lg.e[`runcheck;"unable to compare as process down or missing handle"];
+      .dqe.updresultstab[idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;compr];
+      :()];
+    ]
+   ];
+  if[0=count h;.lg.e[`runcheck;"cannot open handle to any given processes"];:()];                             /- check if any handles exist, if not exit function
+  .dqe.getresult[value fn;(),params;idnum]'[h[`procname];h[`w]]
   }
 
-results:([]id:`long$();funct:`$();vars:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$());
+results:([]id:`long$();funct:`$();params:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$());
 
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
-  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`procname);               /- function that will be used in timer
+  functiontorun:(`.dqe.runcheck;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`proc);                   /- function that will be used in timer
   $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
-    .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proctype];
-    .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proctype]]
+    .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proc];
+    .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proc]]
   }
 
 \d .

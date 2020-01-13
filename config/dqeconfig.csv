@@ -1,5 +1,6 @@
-action,params,proctype,procname,mode,starttime,endtime,period
-tableticking,(`quote;5;`minute),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
-chkslowsub,1000000,tickerplant,tickerplant1,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
-tableticking,(`quote;5;`minute),rdb,rdb1,single,12:00:00.000000000,0N,0N
-constructcheck,(`quote;`table),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+action,params,proc,mode,starttime,endtime,period
+tableticking,`comp`comptype`compproc`compallow`vars!(0b;0N;0N;0N;(`quote;5;`minute)),rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+chkslowsub,`comp`comptype`compproc`compallow`vars!(0b;0N;0N;0N;1000000),tickerplant,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
+tableticking,`comp`comptype`compproc`compallow`vars!(0b;0N;0N;0N;(`quote;5;`minute)),rdb1,single,12:00:00.000000000,0N,0N
+constructcheck,`comp`comptype`compproc`compallow`vars!(0b;0N;0N;0N;(`quote;`table)),rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+constructcheck,`comp`comptype`compproc`compallow`vars!(1b;=;`hdb1;0.2;(`date;`variable)),hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
