@@ -56,6 +56,11 @@ nullchk:{[t;colslist;thres]                                                     
   update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
+anomalychk:{[t;colslist]
+  d:{sum$[0h=type x;{x~0w}@'x;x=0w]}each flip tt:((),colslist)#t;
+  res:([] colsnames:key d; anomaly:value d);
+  }  
+
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
     .dqe.failchk[runtype;idnum;result;proc];
