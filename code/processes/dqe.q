@@ -51,7 +51,7 @@ chkcompare:{[idnum;chkcount;comptype;compproc]                                  
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
  resstring:raze((string compproc)," agrees with ",(first string result),"/",(string .dqe.compcounter[idnum][`counter]-1)," checks");
   .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
-  `.dqe.results set update result:1b,descp:enlist resstring,chkstatus:`complete from .dqe.results where id=idnum,chkstatus=`started;
+  `.dqe.results set update endtime:.z.p,result:1b,descp:enlist resstring,chkstatus:`complete from .dqe.results where id=idnum,chkstatus=`started;
   .dqe.compcounter:idnum _ .dqe.compcounter;
   }
 
