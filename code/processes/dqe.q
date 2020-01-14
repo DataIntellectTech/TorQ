@@ -56,9 +56,10 @@ nullchk:{[t;colslist;thres]                                                     
   update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
-anomalychk:{[t;colslist]
-  d:{sum$[0h=type x;{x~0w}@'x;x=0w]}each flip tt:((),colslist)#t;
-  res:([] colsnames:key d; anomaly:value d);
+anomalychk:{[t;colslist;thres]                                                                                  /-function to check percentage of anomalies in each column from colslist of a table t
+  d:({sum[{x~0w}@'x]}each flip tt)*100%count tt:((),colslist)#t;
+  res:([] colsnames:key d; anomalypercentage:value d);
+  update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
   }  
 
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
