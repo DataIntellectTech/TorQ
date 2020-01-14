@@ -276,11 +276,11 @@ q) neg[h](`.gw.asyncexec;"`$last .z.x";`hdb);h[]
 #### Calls to the HDB and RDB
 For synchronous calls
 ```
-q) h(`.gw.syncexec;"$[{`date in cols x}[trade]; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb)
+q) h(`.gw.syncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade where time.date=.z.d]";`rdb`hdb)
 ```
 For asynchronous calls
 ```
-q) neg[h](`.gw.asyncexec;"$[{`date in cols x}[trade]; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb);h[]
+q) neg[h](`.gw.asyncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade where time.date=.z.d]";`rdb`hdb);h[]
 ```
 
 #### Demonstrating Aggregation of data
