@@ -243,8 +243,8 @@ For synchronous calls
 // To return the avg price per sym for the day so far
 q) h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
 
-// Using the hloc function
-q) h(`.gw.syncexec;"hloc[2020.01.08;2020.01.08;10]";`rdb)
+// Using the hloc function - change query for appropriate date
+q) h(`.gw.syncexec;(`hloc;2020.01.08;2020.01.08;10);`rdb)
 
 // Returns following table
 sym  time                         | high   low    open   close  totalsize vwap
