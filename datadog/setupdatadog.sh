@@ -7,7 +7,7 @@ datachecks=${TORQHOME}/datadog/datachecks.q
 if grep -q "dogstatsd_port:" $datachecks ; then
   echo "dogstatsd_port already set in $datachecks"
 else
-  sed -i '6i //Datastatsd_port set in setenv.sh.\ndogstatsd_port:'`echo $DOGSTATSD_PORT`'\n ' $datachecks
+  sed -i '6i //Dogstatsd_port set in setenv.sh.\ndogstatsd_port:'`echo $DOGSTATSD_PORT`'\n ' $datachecks
   echo "dogstatsd_port set to $DOGSTATSD_PORT in $datachecks"
 fi
 
@@ -19,6 +19,7 @@ else
   sed -i '4i q '`echo $datachecks`'' $runchecks
   echo "File path added to $runchecks"
 fi
+
 #File path of the process.yaml file
 processfile=/etc/datadog-agent/conf.d/process.d/process.yaml
 
@@ -32,7 +33,8 @@ if [[ ! -f $processfile ]];then
   echo "instances:" >> $processfile
   echo "process.yaml file created"
   if grep -q "datadog" $input ; then
-    cut -d "," -f4,14 "$input" | sed '1d' | while IFS=, read procname flag; do
+    dgcol=`head -1 $input | sed 's/,/\n/g' | nl | grep 'datadog' | cut -f 1 `
+    cut -d "," "-f4,"${dgcol##*( )} "$input" | sed '1d' | while IFS=, read procname flag; do
       if [[ "$flag" == "1" ]]; then
         printf -- "- name: ${procname^^}\n  search_string: ['$procname']\n  exact_match: False\n" >> $processfile
         echo "$procname has been added to process.yaml"
