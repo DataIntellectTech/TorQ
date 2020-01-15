@@ -234,14 +234,22 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 Here are a couple of examples for using client calls via a handle to the gateway process. 
 It is important to note if asynchronous calls are to be made, the .gw.synccallsallowed 
 variable needs to be set to 0b before running any async calls.
-To do this use
-`q) h(".gw.synccallsallowed:0b")`.
 
 #### Calls to the RDB only
 For synchronous calls
 ```
 // To return the avg price per sym for the day so far
 q) h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
+
+// hloc function in RDB process
+q) h(`.gw.syncexec;(`hloc);`rdb)
+{[startdate;enddate;bucket]
+ $[.z.d within (startdate;enddate);
+ select high:max price, low:min price, open:first price,close:last price,totalsize:sum `long$size, vwap:size wavg price
+ by sym, bucket xbar time
+ from trade;
+ ([sym:`symbol$();time:`timestamp$()] high:`float$();low:`float$();open:`float$();close:`float$();totalsize:`long$();vwap:`float$())]}
+
 
 // Using the hloc function - change query for appropriate date
 q) h(`.gw.syncexec;(`hloc;2020.01.08;2020.01.08;10);`rdb)
