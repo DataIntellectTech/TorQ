@@ -17,9 +17,17 @@ handlers:(`$())!()
 isok:{$[.proc.proctype in key .dg.handlers;.dg.handlers .proc.proctype;1b]}
 
 //define sendmetric and sendevent functions
-.dg.sendevent:$[.z.o like "l*";{[event_title;event_text;tags;alert_type] system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"#",$[0h=type tags;","sv tags;tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",dogstatsd_port; };"Currently only linux operating systems are supported to send events"]
+.dg.sendevent:{[event_title;event_text;tags;alert_type] 
+  $[.z.o like "l*";
+    system"event_title=",event_title,"; event_text=","\"",event_text,"\"","; tags=","\"#",$[0h=type tags;","sv tags;tags],"\"",";alert_type=",alert_type,"; ","echo \"_e{${#event_title},${#event_text}}:$event_title|$event_text|#$tags|t:$alert_type\" |nc -4u -w0 127.0.0.1 ",dogstatsd_port;
+    .lg.w[`sendevent;"Currently only linux operating systems are supported to send events"]]
+  }
 
-.dg.sendmetric:$[.z.o like "l*";{[metric_name;metric_value] system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",dogstatsd_port,"\"";};"Currently only linux operating systems are supported to send metrics"]
+.dg.sendmetric:{[metric_name;metric_value]
+  $[.z.o like "l*";
+    system"bash -c \"echo  -n '",metric_name,":",(string metric_value),"|g|#shell' > /dev/udp/127.0.0.1/",dogstatsd_port,"\"";
+    .lg.w[`sendmetric;"Currently only linux operating systems are supported to send metrics"]]
+  }
 
 //Option to override default .lg.ext functionality to send error and warning events to datadog
 enablelogging:{[]
