@@ -78,11 +78,11 @@ There are multiple price plans available for Datadog, and a 14-day free trial is
 also available - the monitoring provided here works with this free trial
 version, however if you choose to convert to the free plan after the trial
 expires then some functionality will be unavailable to you.  Sign up for datadog
-[here](https://www.datadoghq.com/) Create your login details and select "next".
+[here](https://www.datadoghq.com/). Create your login details and select "next".
 
 Supply Datadog with additional information, if necessary, and select "next".
 Choose your operating system to get installation information for the datadog
-agent (More information on the agent and getting started can be found
+agent (more information on the agent and getting started can be found
 [here](https://docs.datadoghq.com/getting_started/agent/). 
 
 When you've selected your OS, copy and paste the "easy one-step install" line into the terminal. This
@@ -149,8 +149,8 @@ follows:
 ```
 
 The agent is now receiving information on the stats of your processes, and if
-you've enabled the cron job, your agent is also receiving the results of your
-TorQ process check, .dg.isok, on regular intervals.
+you've enabled the cron job, your agent is also receiving the results of an example
+TorQ process check, .dg.isok, at regular intervals.
 
 ## Utilities Provided
 
@@ -266,10 +266,16 @@ account, click **New Monitor**, then **Import Monitor*, and copy and paste the
 JSON of the monitor you'd like to use into the text box provided, then click
 save. The monitor will then become available and start alerting. 
 
-You can create custom monitors using the guidelines in the Datadog documentation [here](https://docs.datadoghq.com/monitors/monitor_types/)
+You can create custom monitors using the guidelines in the Datadog documentation
+[here](https://docs.datadoghq.com/monitors/monitor_types/)
 
+## Monitoring Multiple Hosts
 
-
-
+Depending on your datadog pricing plan, the option to monitor multiple hosts is
+provided. To integrate Datadog and TorQ across all hosts, you will need to
+install the agent on each host, and follow the installation instructions as
+above. If your TorQ setup is operating across different hosts, you will need to
+establish which processes to monitor on which host by configuring a "datadog"
+column in the process.csv as discussed earlier.
 
 
