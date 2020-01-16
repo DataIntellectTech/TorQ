@@ -49,4 +49,3 @@ process_config:
   echo "Datadog.yaml file is now enabled to send data through port $DOGSTATSD_PORT"
 fi
 
-
