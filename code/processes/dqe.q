@@ -56,6 +56,11 @@ nullchk:{[t;colslist;thres]                                                     
   update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
+rangechk:{t;tlower;tupper]
+  colslist:(cols t) except exec c from meta t where t in "csSC";
+  tt:((),colslist)#t;
+  res:(tt>=tlower)&(tt<=tupper)
+  }
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
     .dqe.failchk[runtype;idnum;result;proc];
