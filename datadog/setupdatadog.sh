@@ -1,25 +1,5 @@
 #!/bin/bash
 
-echo dogstatsd_port is set to $DOGSTATSD_PORT in setenv.sh.
-
-datachecks=${TORQHOME}/datadog/datachecks.q
-
-if grep -q "dogstatsd_port:" $datachecks ; then
-  echo "dogstatsd_port already set in $datachecks"
-else
-  sed -i '6i //Dogstatsd_port set in setenv.sh.\ndogstatsd_port:'`echo $DOGSTATSD_PORT`'\n ' $datachecks
-  echo "dogstatsd_port set to $DOGSTATSD_PORT in $datachecks"
-fi
-
-runchecks=${TORQHOME}/datadog/runchecks.sh
-
-if grep -q "datachecks" $runchecks ; then
-  echo "File path is already added to $runchecks"
-else
-  sed -i '4i q '`echo $datachecks`'' $runchecks
-  echo "File path added to $runchecks"
-fi
-
 #File path of the process.yaml file
 processfile=/etc/datadog-agent/conf.d/process.d/process.yaml
 
@@ -69,13 +49,4 @@ process_config:
   echo "Datadog.yaml file is now enabled to send data through port $DOGSTATSD_PORT"
 fi
 
-#Create the crontab to run runchecks.sh at specified intervals.
-while true;do
-  read -p "Do you wish to install a crontab? [y/N]" yn
-  case $yn in
-    [Yy]* ) crontab -l | grep -q 'runchecks'  && echo 'Crontab already exists.' || (crontab -l 2>/dev/null; echo "PATH=$PATH"; echo "TORQHOME=$TORQHOME"; echo " * * * * * cd $TORQHOME/; . $TORQHOME/datadog/runchecks.sh") | crontab -; echo "Crontab modified" ; break;;
-    [Nn]* ) echo "Crontab not modified, please set up check scheduling." ; break;;
-    * ) echo "Please answer y or n.";;
-  esac
-done
 
