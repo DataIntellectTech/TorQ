@@ -2,7 +2,7 @@
 
 \d .monitor 
 configcsv: first .proc.getconfigfile["monitorconfig.csv"];                               //filepath to checkmonitor config csv file 
-configstored:first .proc.getconfigfile["monitorconfig"];                                 //filepath to checkmonitor flat table file
+configstored:`;                                                                          //filepath to checkmonitor flat table file
 runcheckinterval:0D00:00:05;                                                             //interval to run checks 
 checkinginterval:0D00:00:07;                                                             //interval to identify that checks are not lagging 
 cleartrackinterval:0D01:00:00;                                                           //interval to check tracks are under certain age in checktracker 
