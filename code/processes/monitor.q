@@ -2,7 +2,7 @@
 
 //configurable parameters for check monitoring
 .monitor.configcsv:@[value;`.monitor.configcsv;first .proc.getconfigfile["monitorconfig.csv"]];                      //name of config csv to load in
-.monitor.configstored:@[value;`.monitor.configstored;first .proc.getconfigfile["monitorconfig"]];                    //name of stored table for save and reload
+.monitor.configstored:@[value;`.monitor.configstored;`];                                                             //name of stored table for save and reload
 .monitor.runcheckinterval:@[value;`.monitor.runcheckinterval;0D00:00:05];                                            //interval to run checks  
 .monitor.checkinginterval:@[value;`.monitor.checkinginterval;0D00:00:05];                                            //interval to make sure checks are not lagging                                                                                         
 .monitor.cleartrackinterval:@[value;`.monitor.cleartrackinterval;0D01:00:00];                                       //interval to check tracks are under certain age in checktracker

@@ -51,16 +51,15 @@ duplicateconfig:{[t] update process:raze[t `process] from ((select from t)where 
 
 readmonitoringconfig:{[file]
   // read in config CSV (actually pipe delimited)
-  .lg.o["reading monitoring config from ",string file:hsym file];
+  .lg.o[`readconfig;"reading monitoring config from ",string file:hsym file];
   // read in csv file, trap error
-  c:.[0:;(("SS****NN";enlist"|");file);{.lg.e["failed to load monitoring configuration file: ",x]}];
+  c:.[0:;(("SS****NN";enlist"|");file);{.lg.e[`readconfig;"failed to load monitoring configuration file: ",x]}];
   //ungroup checks and make new row for each process
   // attempt to parse the params value
-  p:{@[value;x;{[x;y;e] .lg.e["failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e];exit 2}[x;y]]}'[c`params;til count c];
+  p:{@[value;x;{[x;y;e] .lg.e[`readconfig;"failed to parse param value from config file at row ",(string y)," with definition ",x,": ",e]}[x;y]]}'[c`params;til count c];
   // check each params value is a dictionary
   if[not all 99h=type each p;
-    .lg.e["all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];
-    exit 3
+    .lg.e[`readconfig;"all param values must have type dictionary. Values at rows ",(.Q.s1 where not 99h=type each p)," do not"];
   ];
   //ungroup checks and make new row for each process
   //c:update params:p from c;
@@ -72,13 +71,13 @@ readstoredconfig:{[file]
   // read in the stored config file. Return true or false status
   // check for existence 
   if[any null file;
-    .lg.o["supplied stored config file location is null: not attempting to read stored config"];
+    .lg.o[`readconfig;"supplied stored config file location is null: not attempting to read stored config"];
     :0b
   ];
   if[()~key file:hsym file;
-    .lg.o["could not find storedconfig file at ",string file];
+    .lg.o[`readconfig;"could not find storedconfig file at ",string file];
     :0b];
-    .lg.o["reading stored config file from ",string file];
+    .lg.o[`readconfig;"reading stored config file from ",string file];
     @[{addconfig get x};file;{'"failed to read stored config file: ",x}
   ];
   1b
@@ -87,7 +86,7 @@ readstoredconfig:{[file]
 saveconfig:{[file;config]
   // write the in-memory config to disk
   if[null file;:()];
-  .lg.o["saving stored config to ",string file:hsym file];
+  .lg.o[`saveconfig;"saving stored config to ",string file:hsym file];
   .[set;(file;config);{'"failed to write config file to ",(string x),": ",y}file] 
  }
 
