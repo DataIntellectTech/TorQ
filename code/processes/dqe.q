@@ -56,10 +56,9 @@ nullchk:{[t;colslist;thres]                                                     
   update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
-rangechk:{t;tlower;tupper]
-  colslist:(cols t) except exec c from meta t where t in "csSC";
-  tt:((),colslist)#t;
-  res:(tt>=tlower)&(tt<=tupper)
+rangechk:{t;tlower;tupper]                                                                                      /- function to check percentage of values within tlower and tupper range
+  colslist:(cols t) except exec c from meta t where t in "csSC";                                                /- exclude columns that do not have pre-defined limits
+  (sum (tt>=tlower)&(tt<=tupper))*100%count tt:((),colslist)#t                                                  /- dictionary with results by columns
   }
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
