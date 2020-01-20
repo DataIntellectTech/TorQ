@@ -11,7 +11,6 @@ pages:
     - Analytics Library: analyticslib.md 
     - Monitoring: monit.md 
     - Visualisation: visualisation.md
-    - Datadog: datadog.md
     - TorQ Blog Posts: blog.md
 copyright: 'Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.'
 
