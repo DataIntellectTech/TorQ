@@ -92,7 +92,7 @@ nullchk:{[t;colslist;thres]                                                     
   }
 
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
-  .lg.o[`postback;"postback successful for id ",string idnum];
+  .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
     .dqe.compcounter[idnum]:(
     1^1+.dqe.compcounter[idnum][`counter];
@@ -101,11 +101,13 @@ postback:{[runtype;idnum;proc;params;result]                                    
         .dqe.compcounter[idnum][`results],0W;
         .dqe.compcounter[idnum][`results],last result])];                                                       /- join result to the list
 
+  .lg.o[`test;"checkpoint a after return for ",(string idnum)," from ",string proc];
   if["e"=first result;                                                                                          /- checks if error returned from server side
-    if[params`comp;:()];
+    if[not params`comp;;
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
-    :()];
+    :()]];
 
+  .lg.o[`test;"checkpoint b after return for ",(string idnum)," from ",string proc];
   $[params`comp;                                                                                                /- in comparison run, check if all results have returned
     .dqe.chkcompare[runtype;idnum;params];
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
