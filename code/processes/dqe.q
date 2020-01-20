@@ -34,17 +34,18 @@ fillprocname:{[rs;h]                                                            
   (flip a),val,'`
   }
 
-dupchk:{[runtype;idnum;proc]                                                                                    /- checks for unfinished runs that match the new run
+dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
+  if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
     .dqe.updresultstab[runtype;idnum;0Np;0b;"error:fail to complete before next run";`failed;proc]];
   }
 
 initstatusupd:{[runtype;idnum;funct;params;rs]                                                                  /- set initial values in results table
-  if[idnum in exec id from .dqe.compcounter;.dqe.compcounter:idnum _ .dqe.compcounter;];
+  if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
-  .dqe.dupchk[runtype;idnum]'[rs];                                                                              /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string raze (),params;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
+  .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
+  `.dqe.results insert (idnum;funct;`$"," sv string raze (),4#params;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
   }
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
@@ -53,7 +54,8 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                            /- obtain count of checks that will be updated
   if[c;.lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
-  if[idnum in exec id from .dqe.compcounter;.dqe.compcounter:idnum _ .dqe.compcounter;];
+  if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
+  params:()!();
   }
 
 chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
@@ -151,7 +153,7 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
     params,:(enlist `compcount)!enlist proccount;
 
     .lg.o[`runcheck;(string params`compcount)," procsess will be checked for this comparison"];
-    .dqe.initstatusupd[runtype;idnum;fn;-2_ params;(`$"," sv string  r[;0]),params`compresproc];
+    .dqe.initstatusupd[runtype;idnum;fn;params;(`$"," sv string  r[;0]),params`compresproc];
 
     if[any[null h`w]|any null r[;1]
       .lg.e[`runcheck;"unable to compare as process down or missing handle"];
