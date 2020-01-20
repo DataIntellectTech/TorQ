@@ -212,7 +212,7 @@ An example dashboard has been provided in `$TORQHOME/datadog/Example_TorQ_Monito
 
 ![Example Dashboard](graphics/datadog2.png)
 
-Alternatively, you can create your own custom dashboard according to the documentation [here]https:(//docs.datadoghq.com/dashboards/)
+Alternatively, you can create your own custom dashboard according to the documentation [here](https://docs.datadoghq.com/dashboards/)
 
 **Monitors** can be set up to track metrics and establish alerts based on critical changes. We've provided some example monitors, designed to notify if a process goes down, or system resources reach a limit. To import an example monitor, go to the "Monitors" section on your datadog account, click **New Monitor**, then **Import Monitor**, and copy and paste the JSON of the monitor you'd like to use into the text box provided, then click save. The monitor will then become available and start alerting.
 
