@@ -9,7 +9,6 @@ KUT:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$
 / KUTR <-> KUnit Test Results
 / KUrtf`:filename.csv / refresh expected <ms> and <bytes> based on observed results in KUTR
 KUTR:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$();repeat:`int$();file:`symbol$();msx:`int$();bytesx:`long$();ok:`boolean$();okms:`boolean$();okbytes:`boolean$();valid:`boolean$();timestamp:`datetime$())
-KUrunresults:([]code:`symbol$();res:())
 / look at KUTR in browser or q session
 / select from KUTR where not ok // KUerr
 / select from KUTR where not okms // KUslow
@@ -91,7 +90,7 @@ KUexec:{[lang;code;repeat]
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
 	if[action=`run;
-		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];res:KUpexec["";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
+		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
 		ok:not failed;okms:$[ms;not msx>ms;1b];okbytes:$[bytes;not bytesx>bytes;1b];valid:not failed];
 	if[action=`true;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;1b];
@@ -99,7 +98,6 @@ KUact:{[action;lang;code;repeat;ms;bytes;file]
 	if[action=`fail;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;0b];
 		ok:failed;okms:okbytes:valid:1b];
-	`KUrunresults insert (code;res);
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z);
 	}
 
