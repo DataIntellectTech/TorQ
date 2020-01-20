@@ -87,6 +87,8 @@ a Linux host.
 
 </br>
 
+**Note:** The Datadog Agent used in this integration is version 7, and may not be backwards or forwards compatible with other versions. See the Datadog documentation for more detail. 
+
 Installation
 ------------
 
