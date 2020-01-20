@@ -38,7 +38,7 @@ dupchk:{[runtype;idnum;params;proc]                                             
   if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
-    .dqe.updresultstab[runtype;idnum;0Np;0b;"error:fail to complete before next run";`failed;proc]];
+    .dqe.updresultstab[runtype;idnum;0Np;0b;"error:fail to complete before next run";`failed;params;proc]];
   }
 
 initstatusupd:{[runtype;idnum;funct;params;rs]                                                                  /- set initial values in results table
