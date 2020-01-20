@@ -41,6 +41,7 @@ dupchk:{[runtype;idnum;proc]                                                    
   }
 
 initstatusupd:{[runtype;idnum;funct;params;rs]                                                                  /- set initial values in results table
+  if[idnum in exec id from .dqe.compcounter;.dqe.compcounter:idnum _ .dqe.compcounter;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum]'[rs];                                                                              /- calls dupchk function to check if last runs chkstatus is still started
   `.dqe.results insert (idnum;funct;`$"," sv string raze (),params;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
@@ -48,10 +49,11 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
   .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
-  if[1b=params`comp;proc:`$"," sv string .dqe.compcounter[idnum][`procs] except params`compproc];
+  if[1b=params`comp;proc:params`compresproc];
   c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                            /- obtain count of checks that will be updated
   if[c;.lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+  if[idnum in exec id from .dqe.compcounter;.dqe.compcounter:idnum _ .dqe.compcounter;];
   }
 
 chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
@@ -60,15 +62,11 @@ chkcompare:{[runtype;idnum;params]                                              
   a:.dqe.compcounter[idnum][`results]where not .dqe.compcounter[idnum][`procs]=params`compproc;                 /- obtain all the check returns
   procsforcomp:.dqe.compcounter[idnum][`procs] except params`compproc;
   b:.dqe.compcounter[idnum][`results]where .dqe.compcounter[idnum][`procs]=params`compproc;                     /- obtain the check to compare the others to
-
-  if[all 0N=first b;                                                                                            /- if error in compare proc then fail check
-    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: compare process error";`failed;params;`]];
-
+  if[all  0W=first b;                                                                                           /- if error in compare proc then fail check
+    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`]];
   errorprocs:.dqe.compcounter[idnum][`procs] where all each 0W=.dqe.compcounter[idnum][`results];
-
   if[(count errorprocs)= count .dqe.compcounter[idnum][`results];                                               /- if error in all comparison procs then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`]];
-
   matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
   notmatching:procsforcomp except errorprocs,matching;
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
@@ -81,8 +79,8 @@ chkcompare:{[runtype;idnum;params]                                              
   compb:$[(count errorprocs) | (count notmatching);0b;1b];
 
   .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
-  .dqe.updresultstab[runtype;idnum;.z.p;1b;s;`complete;params;`];
-  .dqe.compcounter:idnum _ .dqe.compcounter;
+  $[(count errorprocs)|(count notmatching);resbool:0b;resbool:1b];
+  .dqe.updresultstab[runtype;idnum;.z.p;resbool;s;`complete;params;`];
   }
 
 nullchk:{[t;colslist;thres]                                                                                     /- function to check percentage of nulls in each column from colslist of a table t
@@ -102,6 +100,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
         .dqe.compcounter[idnum][`results],last result])];                                                       /- join result to the list
 
   if["e"=first result;                                                                                          /- checks if error returned from server side
+    if[params`comp;:()];
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
     :()];
 
@@ -127,7 +126,6 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
   h:.dqe.gethandles[rs];
   r:.dqe.fillprocname[rs;h];
 
-  compr:`$sv/:[",";string distinct each flip r];
   .lg.o[`runcheck;"Checking if comparison check"];
   $[not params`comp;
     [
@@ -145,6 +143,7 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:compare process can't be compared with itself";`failed;params]'[h`procname];
       :()];
 
+    params,:(enlist `compresproc)!enlist `$"," sv string h`procname;
     comph:.dqe.gethandles[params`compproc];                                                                     /- obtain handle for comparison process
     h:h,'comph;
 
@@ -152,11 +151,11 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
     params,:(enlist `compcount)!enlist proccount;
 
     .lg.o[`runcheck;(string params`compcount)," procsess will be checked for this comparison"];
-    .dqe.initstatusupd[runtype;idnum;fn;params;compr];
+    .dqe.initstatusupd[runtype;idnum;fn;-2_ params;(`$"," sv string  r[;0]),params`compresproc];
 
     if[any[null h`w]|any null r[;1]
       .lg.e[`runcheck;"unable to compare as process down or missing handle"];
-      .dqe.updresultstab[runtype;idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;params;compr];
+      .dqe.updresultstab[runtype;idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;params;params`compresproc];
       :()];
     ]
    ];
@@ -176,9 +175,10 @@ loadtimer:{[DICT]
   }
 
 reruncheck:{[chkid]                                                                                             /- rerun a check manually
-  d:exec action, params, procname from .dqe.configtable where checkid=chkid;
+  d:exec action, params, proc from .dqe.configtable where checkid=chkid;
   d[`params]: value d[`params][0];
-  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqe;d`action];d`params;d`procname];                                       /- input man argument is `manual or `scheduled indicating manul run is on or off
+  d[`proc]: value raze d[`proc];
+  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqe;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
   }
 
 \d .
