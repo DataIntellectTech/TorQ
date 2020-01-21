@@ -99,12 +99,10 @@ postback:{[runtype;idnum;proc;params;result]                                    
         .dqe.compcounter[idnum][`results],0W;
         .dqe.compcounter[idnum][`results],last result])];                                                       /- join result to the list
 
-  .lg.o[`test;"checkpoint a after return for ",(string idnum)," from ",string proc];
   if[("e"=first result)&(not params`comp);                                                                      /- checks if error returned from server side;
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
     :()];
 
-  .lg.o[`test;"checkpoint b after return for ",(string idnum)," from ",string proc];
   $[params`comp;                                                                                                /- in comparison run, check if all results have returned
     .dqe.chkcompare[runtype;idnum;params];
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
