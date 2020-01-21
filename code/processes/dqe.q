@@ -95,7 +95,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.compcounter[idnum]:(
     1+0^.dqe.compcounter[idnum][`counter];
       .dqe.compcounter[idnum][`procs],proc;
-      $[3<count result;
+      .dqe.compcounter[idnum][`results],$[3<count result;0w;last result]
         .dqe.compcounter[idnum][`results],0W;
         .dqe.compcounter[idnum][`results],last result])];                                                       /- join result to the list
 
