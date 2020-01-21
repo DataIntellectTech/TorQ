@@ -154,10 +154,6 @@ not completed in the alotted time, and return a timeout error to the
 client. If the query is already running on any backend servers then they
 cannot be timed out other than by using the standard -T flag.
 
-As a default, the gateway is set to only take synchronous calls with 
-`.gw.synccallsallowed`. To allow asynchronous calls, edit the 
-gateway.q file so that .gw.synccallsallowed is set to false.
-
 ### Synchronous Behaviour
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
@@ -232,8 +228,6 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 ### Client Call Examples
 
 Here are a couple of examples for using client calls via a handle to the gateway process. 
-It is important to note if asynchronous calls are to be made, the .gw.synccallsallowed 
-variable needs to be set to 0b before running any async calls.
 
 #### Calls to the RDB only
 For synchronous calls
@@ -242,7 +236,7 @@ For synchronous calls
 q) h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
 
 // hloc function in RDB process
-q) h(`.gw.syncexec;(`hloc);`rdb)
+q) h(`.gw.syncexec;`hloc;`rdb)
 {[startdate;enddate;bucket]
  $[.z.d within (startdate;enddate);
  select high:max price, low:min price, open:first price,close:last price,totalsize:sum `long$size, vwap:size wavg price
