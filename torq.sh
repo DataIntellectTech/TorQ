@@ -111,7 +111,7 @@ summary() {
  }
 
 stop() {
-  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then
+  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
     cmd="kill -9"
   else
     cmd="kill -15"
@@ -144,7 +144,9 @@ checkinput() {
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all process names from csv
   avail=()
   for i in $input; do
-    if [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                  # check input process is valid
+    if [[ $i == "-force" ]]; then                                                                   # check for force flag
+      echo "Force stop has been set"
+    elif [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
       echo "$(date '+%H:%M:%S') | $i failed - unavailable processname"
