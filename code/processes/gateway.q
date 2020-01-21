@@ -376,28 +376,28 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;
-   errStr:.gw.errorprefix,"only synchronous calls are allowed";
-   [errStr:"";
+   errstr:.gw.errorprefix,"only synchronous calls are allowed";
+   [errstr:"";
    if[99h<>type servertype;
      // its a list of servertypes e.g. `rdb`hdb
      servertype:distinct servertype,();
      errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
-     if[10h=type errcheck; errStr:errcheck];
+     if[10h=type errcheck; errstr:errcheck];
      queryattributes:()!();
     ];
    if[99h=type servertype;
      // its a dictionary of attributes
      queryattributes:servertype;
      res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-     if[10h=type res; errStr:res];
-     if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
+     if[10h=type res; errstr:res];
+     if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
      servertype:res;
     ];
    ]
   ];
  // error has been hit
- if[count errStr;
-  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
+ if[count errstr;
+  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errstr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errstr]];()];
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];

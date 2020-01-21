@@ -39,8 +39,8 @@ getserverids:{[att]
   ];
 
   serverids:$[`servertype in key att;
-  raze getserveridstype[delete servertype from att] each (),att`servertype;
-  getserveridstype[att;`all]];
+    raze getserveridstype[delete servertype from att] each (),att`servertype;
+    getserveridstype[att;`all]];
 
   if[all 0=count each serverids;'"no servers match requested attributes"];
   :serverids;
