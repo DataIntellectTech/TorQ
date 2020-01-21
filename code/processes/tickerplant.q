@@ -28,6 +28,7 @@
 .proc.loadf[getenv[`KDBCODE],"/common/u.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/datadog.q"];
 
 \d .
 upd:{[tab;x] .u.icounts[tab]+::count first x;}
