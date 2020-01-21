@@ -117,7 +117,7 @@ stop() {
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
     procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
     port=$(($(eval echo \$"$(getfield "$procno" port)")))
-    eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
 
@@ -139,7 +139,9 @@ checkinput() {
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all process names from csv
   avail=()
   for i in $input; do
-    if [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                  # check input process is valid
+    if [[ $i == "-force" ]]; then                                                                   # check for force flag
+     :
+    elif [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
       echo "$(date '+%H:%M:%S') | $i failed - unavailable processname"
@@ -236,6 +238,12 @@ startprocs() {
  }
 
 stopprocs() {
+  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
+    cmd="kill -9"
+    echo "Force stop has been set"
+  else
+    cmd="kill -15"
+  fi
   checkextrascsv $@;                                                                                # checks if extra flags/csv included
   for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
@@ -307,6 +315,7 @@ usage() {
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
+  printf -- "  -force                                   to force stop process(es) using kill -9\n"
   exit 1
  }
 
