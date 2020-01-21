@@ -111,11 +111,6 @@ summary() {
  }
 
 stop() {
-  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
-    cmd="kill -9"
-  else
-    cmd="kill -15"
-  fi
   if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
     echo "$(date '+%H:%M:%S') | $1 is not currently running"
   else
@@ -145,7 +140,7 @@ checkinput() {
   avail=()
   for i in $input; do
     if [[ $i == "-force" ]]; then                                                                   # check for force flag
-      echo "Force stop has been set"
+     :
     elif [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
@@ -243,6 +238,12 @@ startprocs() {
  }
 
 stopprocs() {
+  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
+    cmd="kill -9"
+    echo "Force stop has been set"
+  else
+    cmd="kill -15"
+  fi
   checkextrascsv $@;                                                                                # checks if extra flags/csv included
   for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
