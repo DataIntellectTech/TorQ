@@ -32,10 +32,10 @@ getserverids:{[att]
 
   // its a dictionary of attributes
   // check if attribute types are correct types
-  correctAttTypes:`date`servertype`tables!14 11 11h;
-  w:correctAttTypes[key att]=abs type each att;
+  correctatttypes:`date`servertype`tables!14 11 11h;
+  w:correctatttypes[key att]=abs type each att;
   if[not all w key att;
-    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctAttTypes where not w
+    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctatttypes where not w
   ];
 
   serverids:$[`servertype in key att;
@@ -64,8 +64,7 @@ getserveridstype:{[att;typ]
     att:delete attributetype from att;
   ];
 
-  res:$[attype=`independent; 
-  getserversindependent[att;servers;besteffort];
+  res:$[attype=`independent;getserversindependent[att;servers;besteffort];
   getserverscross[att;servers;besteffort]];
 
   serverids:first value flip $[99h=type res; key res; res];
@@ -95,11 +94,9 @@ getserverscross:{[req;att;besteffort]
 
  /- check if everything is done
  if[(count last util`remaining) and not besteffort;
-  '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
-
+   '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
  /- remove any rows which don't add value
  s:1!(0!s) w:where not 0=count each util`found;
-
  /- return the parameters which should be queried for
  (key s)!distinct each' flip each util[w]`found
  }
