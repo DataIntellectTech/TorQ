@@ -4,5 +4,5 @@ chkslowsub:{[threshold]                                                         
   overlimit:(key .z.W) where threshold<sum each value .z.W;
   $[0=count overlimit;
     (1b;"no data queues over the limit, in ",string .proc.procname);
-    (0b;raze"handle(s) ",("," sv string overlimit)," have queues")]
+    (0b;"handle(s) ",("," sv string overlimit)," have queues")]
   }
