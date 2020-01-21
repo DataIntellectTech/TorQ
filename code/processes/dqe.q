@@ -59,15 +59,16 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
   }
 
 chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
-  if[not params[`compcount]=.dqe.compcounter[idnum][`counter];:()];                                             /- checks if all async check results have returned
+  if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];                                               /- checks if all async check results have returned
   .lg.o[`chkcompare;"comparison started with id ",string idnum];
-  a:.dqe.compcounter[idnum][`results]where not .dqe.compcounter[idnum][`procs]=params`compproc;                 /- obtain all the check returns
-  procsforcomp:.dqe.compcounter[idnum][`procs] except params`compproc;
-  b:.dqe.compcounter[idnum][`results]where .dqe.compcounter[idnum][`procs]=params`compproc;                     /- obtain the check to compare the others to
+  a:d[`results] where not d[`procs]=params`compproc;                                                            /- obtain all the check returns
+  procsforcomp:d[`procs] except params`compproc;
+  b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
+  
   if[all 0W=first b;                                                                                            /- if error in compare proc then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`]];
-  errorprocs:.dqe.compcounter[idnum][`procs] where all each 0W=.dqe.compcounter[idnum][`results];
-  if[(count errorprocs)= count .dqe.compcounter[idnum][`results];                                               /- if error in all comparison procs then fail check
+  errorprocs:d[`procs] where all each 0W=d`results;
+  if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`]];
   matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
   notmatching:procsforcomp except errorprocs,matching;
@@ -79,7 +80,7 @@ chkcompare:{[runtype;idnum;params]                                              
   if[count matching;s,:" | ";s,:raze"match ",("," sv string matching)];
 
   .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
-  $[(count errorprocs)|(count notmatching);resbool:0b;resbool:1b];
+  resbool:not(count errorprocs)|count notmatching;
   .dqe.updresultstab[runtype;idnum;.z.p;resbool;s;`complete;params;`];
   }
 
@@ -95,7 +96,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.compcounter[idnum]:(
     1+0^.dqe.compcounter[idnum][`counter];
       .dqe.compcounter[idnum][`procs],proc;
-      .dqe.compcounter[idnum][`results],$[3<count result;0w;last result])];                                     /- join result to the list
+      .dqe.compcounter[idnum][`results],$[3<count result;0W;last result])];                                     /- join result to the list
 
   if[("e"=first result)&(not params`comp);                                                                      /- checks if error returned from server side;
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
