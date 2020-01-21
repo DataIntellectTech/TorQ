@@ -95,9 +95,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.compcounter[idnum]:(
     1+0^.dqe.compcounter[idnum][`counter];
       .dqe.compcounter[idnum][`procs],proc;
-      .dqe.compcounter[idnum][`results],$[3<count result;0w;last result]
-        .dqe.compcounter[idnum][`results],0W;
-        .dqe.compcounter[idnum][`results],last result])];                                                       /- join result to the list
+      .dqe.compcounter[idnum][`results],$[3<count result;0w;last result])];                                     /- join result to the list
 
   if[("e"=first result)&(not params`comp);                                                                      /- checks if error returned from server side;
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
