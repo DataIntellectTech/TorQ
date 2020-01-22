@@ -66,10 +66,10 @@ chkcompare:{[runtype;idnum;params]                                              
   b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
   
   if[all 0W=first b;                                                                                            /- if error in compare proc then fail check
-    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`]];
+    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`];:()];
   errorprocs:d[`procs] where all each 0W=d`results;
   if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
-    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`]];
+    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`];:()];
   matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
   notmatching:procsforcomp except errorprocs,matching;
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
