@@ -449,9 +449,6 @@ startup:{[]
 		];
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
-           /- subscribe to tickerplant
-           subscribe[];
-
            //check if tickerplant is available and if not exit with error 
            .servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
            subscribe[]; 
