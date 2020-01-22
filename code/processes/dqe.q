@@ -113,8 +113,24 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
   }
 
+containerfn:{[funct;names;vars]
+  if[any b:where 11h=abs type each vars;
+    startvars:vars b;
+    names:names b;
+    finvars:startvars b2:where startvars in tables[];
+    names:names b2;
+    if[count finvars;
+      finvars:finvars b3:where `date in ' cols each finvars;
+      names:names b3;
+      names set ' value each ("select from " ,/: (string finvars)),\:" where date=.z.p-1"];
+  ];
+   value funct,vars;
+  }
+
 getresult:{[runtype;funct;params;idnum;proc;hand]
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
+  namesfunct:raze -1#2#value funct;
+  funct:containerfn[funct;namesfunct;params`vars];
   .async.postback[hand;funct,params`vars;.dqe.postback[runtype;idnum;proc;params]];                             /- send function with variables down handle
   }
 
