@@ -113,18 +113,16 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
   }
 
-containerfn:{[funct;names;vars]
-  if[any b:where 11h=abs type each vars;
+containerfn:{[funct;names;vars]                                                                                 /- used to check if table is being called in HDB
+  if[any b:where 11h=abs type each vars;                                                                        /- checks if any variable for check function is type symbol
     startvars:vars b;
     names:names b;
-    finvars:startvars b2:where startvars in .Q.pt;
+    finvars:startvars b2:where startvars in .Q.pt;                                                              /- check if the variables are partitioned tables
     names:names b2;
     if[count finvars;
-      finvars:finvars b3:where `date in ' cols each finvars;
-      names:names b3;
-      names set ' value each ("select from " ,/: (string finvars)),\:" where date=.z.p-1"];
+      names set ' value each ("select from " ,/: (string finvars)),\:" where date=.z.p-1"];                     /- replace table names with select statments when run in HDB
   ];
-   value funct,vars;
+   value funct,vars;                                                                                            /- run check function
   }
 
 getresult:{[runtype;funct;params;idnum;proc;hand]
