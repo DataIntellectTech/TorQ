@@ -614,19 +614,19 @@ source (e.g. in the case of tickerplant subscriptions).
 subscribe to. The following can be used to return a table of all
 connected processes of type tickerplant:
 
-    .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.getsubscriptionhandles[`tickerplant;();()!()]
 
 .sub.subscribe is used to subscribe to a process for the supplied list
 of tables and instruments. For example, to subscribe to instruments A, B
 and C for the quote table from all tickerplants:
 
-    .sub.subscribe[`trthquote;`A`B;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.subscribe[`trthquote;`A`B;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
 
 The subscription method uses backtick for “all” (which is the same as
 kdb+tick). To subscribe to all tables, all instruments, from all
 tickerplants:
 
-    .sub.subscribe[`;`;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.subscribe[`;`;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
 
 See .api.p“.sub.\*” for more details.
 
