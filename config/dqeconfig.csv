@@ -5,3 +5,4 @@ tableticking,(`quote;5;`minute),rdb,rdb1,single,12:00:00.000000000,0N,0N
 constructcheck,(`quote;`table),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
 schemacheck,(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"psffjjccs";`````````;`s`g```````),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:15:00
 attrcheck,(`quote;`s`g;`time`sym),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+symfilecheck,(hdbdir;`sym),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
