@@ -157,7 +157,10 @@ cannot be timed out other than by using the standard -T flag.
 ### Synchronous Behaviour
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
-a time and cannot timeout queries other than with the standard -T flag.
+a time and cannot timeout queries other than with the standard -T flag. The variable
+`.gw.synccallsallowed` is by default set to 0b prior to KDB v3.6. 
+To send synchronous calls, edit the gateway.q file so that .gw.synccallsallowed 
+is set to true. (The exception being with TorQ-FSP, in which case it is set to 1b by default.)
 For v3.6+, deferred synchronous calls are supported, allowing the gateway to process multiple
 requests at a time.
 All synchronous queries will be immediately dispatched to the back end
