@@ -56,13 +56,13 @@ nullchk:{[t;colslist;thres]                                                     
   update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
   }
 
-rangechk:{t;colslist;tlower;tupper;thres]                                                                       /- function to check percentage of values within tlower and tupper range
-  colslist:colslist except exec c from meta t where t in "csSC";                                                /- exclude columns that do not have pre-defined limits
+rangechk:{t;colslist;tlower;tupper;thres]                                                                       /- check that values are within the range defined by tlower and tupper tables
+  colslist:((),colslist) except exec c from meta t where t in "csSC ";                                          /- exclude columns that do not have pre-defined limits
   tupper:((),colslist)#tupper;
   tlower:((),colslist)#tlower;
-  d:(sum (tt>=tlower)&(tt<=tupper))*100%count tt:((),colslist)#t;                                               /- dictionary with results by columns
+  d:(sum (tt within (tlower;tupper))*100%count tt:((),colslist)#t;                                              /- dictionary with results by columns
   res:([] colsnames:key d; inrangepercentage:value d);
-  update thresholdfail:inrangepercentage<thres from res                                                         /- check if within range percantage is higher than threshold
+  update thresholdfail:inrangepercentage<thres from res                                                         /- check if within range percentage is higher than threshold
   }
 postback:{[runtype;idnum;proc;result]                                                                           /- function that updates the results table with the check result
   $["e"=first result;                                                                                           /- checks if error returned from server side
