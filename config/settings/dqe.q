@@ -4,6 +4,7 @@
 
 configcsv:first .proc.getconfigfile["dqeconfig.csv"]
 dqedbdir:hsym`$getenv[`KDBDQEDB]  // location to save dqe data
+hdbdir:hsym`$getenv[`KDBHDB]      // for locating the sym file
 gmttime:1b                        // define whether this process is on gmt time or not
 partitiontype:`date               // default partition type to date
 getpartition:{@[value;`.dqe.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}
