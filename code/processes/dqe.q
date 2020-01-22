@@ -120,7 +120,7 @@ containerfn:{[funct;names;vars]                                                 
     finvars:startvars b2:where startvars in .Q.pt;                                                              /- check if the variables are partitioned tables
     names:names b2;
     if[count finvars;
-      names set ' value each ("select from " ,/: (string finvars)),\:" where date=.z.p-1"];                     /- replace table names with select statments when run in HDB
+      names set ' {?[x;enlist (=;.Q.pf;last .Q.PV);0b;()]}'[finvars]];                                          /- replace table names with select statments when run in HDB
   ];
    value funct,vars;                                                                                            /- run check function
   }
