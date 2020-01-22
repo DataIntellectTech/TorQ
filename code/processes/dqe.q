@@ -117,7 +117,7 @@ containerfn:{[funct;names;vars]
   if[any b:where 11h=abs type each vars;
     startvars:vars b;
     names:names b;
-    finvars:startvars b2:where startvars in tables[];
+    finvars:startvars b2:where startvars in .Q.pt;
     names:names b2;
     if[count finvars;
       finvars:finvars b3:where `date in ' cols each finvars;
