@@ -1,7 +1,7 @@
 \d .dqe
 hdbdir:@[value;`hdbdir;`hdb]
-symfilecheck:{[filename]                     // if sym file exists
-  fullpath:.Q.dd[.dqe.hdbdir]filename;
+symfilecheck:{[directory;filename]                     // if sym file exists
+  fullpath:.Q.dd[directory]filename;
   $[not ()~key hsym fullpath;
     (1b;string filename," exists");
     (0b;string filename," doesn't exist")];
