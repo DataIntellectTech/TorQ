@@ -125,10 +125,10 @@ containerfn:{[funct;names;vars]                                                 
    value funct,vars;                                                                                            /- run check function
   }
 
-getresult:{[runtype;funct;params;idnum;proc;hand]
+getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  namesfunct:raze -1#2#value funct;
-  funct:containerfn[funct;namesfunct;params`vars];
+  namesfunct:raze -1#2#value funct;                                                                             /- obtain the parameters for the check function
+  funct:containerfn[funct;namesfunct;params`vars];                                                              /- add continerfn to start of check function
   .async.postback[hand;funct,params`vars;.dqe.postback[runtype;idnum;proc;params]];                             /- send function with variables down handle
   }
 
