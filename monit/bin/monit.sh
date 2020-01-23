@@ -10,19 +10,19 @@ BASEDIR=$(dirname $(dirname $BASEDIR))                                          
 mkdir -p ${BASEDIR}/monit/logs                                                                      # create directory for monit logs
 
 checkst(){
-#function to check if file exists 
-case $3 in 
-  exist) 
+#function to check if file exists
+case $3 in
+  exist)
     if [[ -e $1 ]]; then
       echo -e "[   \033[01;32mOK\033[0m   ] $2"
-    else 
+    else
       echo -e "[ \033[01;31mFAILED\033[0m ] $2"
     fi
     ;;
   nexist)
     if [[ -e $1 ]]; then
       echo -e "[ \033[01;31mFAILED\033[0m ] $2"
-    else 
+    else
       echo -e "[   \033[01;32mOK\033[0m   ] $2"
     fi
     ;;
@@ -33,15 +33,15 @@ esac
 }
 
 createmonconfig(){
-  #function to read all processes from the processes.csv 
+  #function to read all processes from the processes.csv
   #and build the array
-  #generating the monitconfig.cfg 
+  #generating the monitconfig.cfg
     procs=$1
     startstopsc=$2
     procs="${procs:-${BASEDIR}/appconfig/process.csv}"                                              # sets procs to default only if unset already
     startstopsc="${startstopsc:-${BASEDIR}/torq.sh}"
     output="$configs/monitconfig.cfg"
-    monitcol=`head -1 $procs | sed 's/,/\n/g' | nl | grep 'monitored' | cut -f 1 ` 
+    monitcol=`head -1 $procs | sed 's/,/\n/g' | nl | grep 'monitored' | cut -f 1 `
     if [ ! -z "$monitcol" ];then
         proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4 " "'"$""$monitcol"'}'|cut -d" " -f1,2,3`
         echo "$proclist"|while read procs;do
@@ -49,7 +49,7 @@ createmonconfig(){
         proctype=${array[0]}
         procname=${array[1]}
         monitored=${array[2]}
-        if [[ ! $monitored == 0 ]];then                                                     
+        if [[ ! $monitored == 0 ]];then
             eval "echo \"${monittemplate}\"" >> $output
             echo "" >> $output
         fi
@@ -57,24 +57,24 @@ createmonconfig(){
       checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
     else
         proclist=`tail -n +2 ${procs} | awk -F "\"*,\"*" '{print $3 " " $4}'|cut -d" " -f1,2`
-        echo "$proclist"|while read procs;do 
+        echo "$proclist"|while read procs;do
           array=($procs)
           proctype=${array[0]}
           procname=${array[1]}
           eval "echo \"${monittemplate}\"" >> $output
           echo "" >> $output
-        done 
+        done
       checkst "$configs/monitconfig.cfg" "Output file created..." "exist"
     fi
 }
 
 createmonalert(){
-  #generating the monitalert file from template 
-  if [ -f ${configs}/monitalert.cfg ];then 
+  #generating the monitalert file from template
+  if [ -f ${configs}/monitalert.cfg ];then
     rm ${configs}/monitalert.cfg
     checkst "${configs}/monitalert.cfg" "Deleting monitalert.cfg..." "nexist"
-  fi 
-  
+  fi
+
   cp ${templates}/monitalert.cfg ${configs}
   checkst "${configs}/monitalert.cfg" "Copying monitalert from ${templates}..." "exist"
 }
@@ -85,68 +85,68 @@ generate(){
   configs="${BASEDIR}/monit/config"                                                                 # set configs folder
   monit_control="${BASEDIR}/monit/config/monitrc"                                                   # set output file for main monit conf
   monittemplate="$(cat ${templates}/monittemplate.txt)"
-  mkdir -p $configs 
-  
-  case $1 in 
-    monitalert) 
+  mkdir -p $configs
+
+  case $1 in
+    monitalert)
       if [ ! -f ${configs}/monitalert.cfg ];then
-        createmonalert 
-      fi  
+        createmonalert
+      fi
     ;;
-    monitconfig) 
+    monitconfig)
       if [ ! -f ${configs}/monitconfig.cfg ];then
         createmonconfig "$2" "$3"
-      fi 
+      fi
     ;;
-    monitrc) 
+    monitrc)
       if [ ! -f ${monit_control} ];then
-      	if [ -z $2 ]; then 
+      	if [ -z $2 ]; then
           controltemplate="$(cat ${templates}/monitrc)"
         else
-          controltemplate="$(cat $2)" 
-        fi 
+          controltemplate="$(cat $2)"
+        fi
         eval "echo \"${controltemplate}\"" > ${monit_control}
         chmod 700 ${monit_control}
         checkst "$monit_control" "Creating monitrc" "exist"
-      fi  
-    ;; 
+      fi
+    ;;
     all)
-      #create monitalert 
+      #create monitalert
       if [ ! -f ${configs}/monitalert.cfg ];then
-        createmonalert 
+        createmonalert
       fi
 
-      #create monitconfig 
+      #create monitconfig
       if [ ! -f ${configs}/monitconfig.cfg ];then
         createmonconfig "$2" "$3"
       fi
 
-      #create monitrc 
+      #create monitrc
       if [ ! -f ${monit_control} ];then
-      	if [ -z $4 ]; then 
+      	if [ -z $4 ]; then
           controltemplate="$(cat ${templates}/monitrc)"
         else
           controltemplate="$(cat $4)"
-        fi 
+        fi
         eval "echo \"${controltemplate}\"" > ${monit_control}
         chmod 700 ${monit_control}
         checkst "$monit_control" "Creating monitrc" "exist"
       fi
-    ;; 
-    *) 
+    ;;
+    *)
       echo "Not yet implemented"
     ;;
-  esac  
+  esac
 }
 
  init(){
- 	#this function just starts monit and specifies the location of the monitrc 
- 	if [ -z $1 ];then 
+ 	#this function just starts monit and specifies the location of the monitrc
+ 	if [ -z $1 ];then
         	echo "Argument not provided monit will default to the following monitrc file: ${BASEDIR}/monit/config/monitrc"
  	  	monit -c ${BASEDIR}/monit/config/monitrc
  	else
  	  	monit -c $1
- 	fi 
+ 	fi
 }
 
  usage(){
@@ -154,7 +154,7 @@ generate(){
    echo "NOTE: if any of the arguments are missing the default locations will be used"
    echo ""
    echo "----------------------------------------------------------------------------"
-   printf "%-20s | %-30s | %-30s\n" "FILE" "DEFAULT TEMPLATE PATH" "DEFAULT CONFIG PATH" 
+   printf "%-20s | %-30s | %-30s\n" "FILE" "DEFAULT TEMPLATE PATH" "DEFAULT CONFIG PATH"
    echo "----------------------------------------------------------------------------"
    printf "%-20s | %-30s | %-30s\n" "monitconfig.cfg" "deploy/monit/templates" "deploy/monit/config"
    printf "%-20s | %-30s | %-30s\n" "monitalert.cfg" "deploy/monit/templates" "deploy/monit/config"
