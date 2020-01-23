@@ -168,3 +168,8 @@ sym:`sym;
 timebackdate:2D;
 ticks:1000;
 del:".";
+
+//Datadog configuration
+\d .dg
+enabled:0b;		//whether .lg.ext is overwritten to send errors to datadog. Default is 0b meaning errors will not be sent to datadog.
+
