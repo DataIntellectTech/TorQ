@@ -9,7 +9,9 @@ checksubscriptionperiod:(not @[value;`.proc.lowpowermode;0b]) * @[value;`checksu
 SUBSCRIPTIONS:([]procname:`symbol$();proctype:`symbol$();w:`int$();table:();instruments:();createdtime:`timestamp$();active:`boolean$());
 
 getsubscriptionhandles:{[proctype;procname;attributes]
-	distinct raze {select procname,proctype,w from x}each .servers.getservers[;;attributes;1b;0b]'[`proctype`procname;(proctype;procname)]
+	/-grab data from .serves.SERVERS, add handling for passing in () as an argument
+	data:{select procname,proctype,w from x}each .servers.getservers[;;attributes;1b;0b]'[`proctype`procname;(proctype;procname)];
+	$[0h in type each (proctype;procname);:distinct raze data;:inter/[data]]
 	}
 
 updatesubscriptions:{[proc;tab;instrs]
