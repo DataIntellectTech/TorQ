@@ -70,13 +70,9 @@ start() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
   hostips=`hostname -I`
-<<<<<<< HEAD
   hostnames=`hostname -A`
   if [[ $host == "localhost" || $host == `hostname -i`  ||  
-        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then                                # check if host value  matches hostname
-=======
-  if [[ $host == "localhost" || $host == $HOSTNAME || $host == `hostname -i`  ||  ${hostips[@]}  =~ $host ]]; then
->>>>>>> 3997544a1e422a4bf16508511a5cf06fe90f223e
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
     if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
       sline=$(startline "$1")                                                                       # line to run each process
       echo "$(date '+%H:%M:%S') | Starting $1..."
@@ -106,13 +102,8 @@ print() {
 debug() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-<<<<<<< HEAD
   if [[ $host == "localhost" || $host == `hostname -i`  ||
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
-=======
-  hostips=`hostname -I`
-  if [[ $host == "localhost" || $host == $HOSTNAME || $host == `hostname -i`  ||  ${hostips[@]}  =~ $host ]]; then
->>>>>>> 3997544a1e422a4bf16508511a5cf06fe90f223e
     if [[ -z $(findproc "$1") ]]; then                             
       sline=$(startline "$1")                                                                       # get start line for process
       printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
@@ -138,13 +129,8 @@ summary() {
 stop() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-<<<<<<< HEAD
   if [[ $host == "localhost" || $host == `hostname -i`  ||
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
-=======
-  hostips=`hostname -I`
-   if [[ $host == "localhost" || $host == $HOSTNAME || $host == `hostname -i`  ||  ${hostips[@]}  =~ $host ]]; then
->>>>>>> 3997544a1e422a4bf16508511a5cf06fe90f223e
     if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
       echo "$(date '+%H:%M:%S') | $1 is not currently running"
     else
