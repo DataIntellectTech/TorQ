@@ -64,7 +64,7 @@ chkcompare:{[runtype;idnum;params]                                              
   a:d[`results] where not d[`procs]=params`compproc;                                                            /- obtain all the check returns
   procsforcomp:d[`procs] except params`compproc;
   b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
-  
+
   if[all 0W=first b;                                                                                            /- if error in compare proc then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`];:()];
   errorprocs:d[`procs] where all each 0W=d`results;
@@ -94,8 +94,8 @@ anomalychk:{[t;colslist;thres]                                                  
   d:({sum{any x~'(0w;-0w;0W;-0W)}'[x]}each flip tt)*100%count tt:((),colslist)#t;
   res:([] colsnames:key d; anomalypercentage:value d);
   update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
-  }  
-  
+  }
+
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
@@ -114,22 +114,22 @@ postback:{[runtype;idnum;proc;params;result]                                    
   }
 
 containerfn:{[funct;names;vars]                                                                                 /- used to check if table is being called in HDB
-  if[any b:where 11h=abs type each vars;                                                                        /- checks if any variable for check function is type symbol
+  if[any b:where (),11h=abs type each vars;                                                                     /- checks if any variable for check function is type symbol
     startvars:vars b;
     names:names b;
-    finvars:startvars b2:where startvars in .Q.pt;                                                              /- check if the variables are partitioned tables
+    finvars:startvars b2:where (),startvars in .Q.pt;                                                           /- check if the variables are partitioned tables
     names:names b2;
     if[count finvars;
-      names set ' {?[x;enlist (=;.Q.pf;last .Q.PV);0b;()]}'[finvars]];                                          /- replace table names with select statments when run in HDB
+      vars[b2]:({?[x;enlist (=;.Q.pf;last .Q.PV);0b;()]}'[finvars b2])];                                        /- replace table names with select statments when run in HDB
   ];
-   value funct,vars;                                                                                            /- run check function
+  value funct,vars                                                                                              /- run check function
   }
 
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
   namesfunct:raze -1#2#value funct;                                                                             /- obtain the parameters for the check function
-  funct:containerfn[funct;namesfunct;params`vars];                                                              /- add continerfn to start of check function
-  .async.postback[hand;funct,params`vars;.dqe.postback[runtype;idnum;proc;params]];                             /- send function with variables down handle
+  funct:containerfn[funct;namesfunct];                                                                          /- add continerfn to start of check function
+  .async.postback[hand;(funct;params`vars);.dqe.postback[runtype;idnum;proc;params]];                           /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
