@@ -69,7 +69,10 @@ startline() {
 start() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-  if [[ $host == "localhost" || $host == $HOSTNAME ]]; then
+  hostips=`hostname -I`
+  hostnames=`hostname -A`
+  if [[ $host == "localhost" || $host == `hostname -i`  ||  
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then                                # check if host value  matches hostname
     if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
       sline=$(startline "$1")                                                                       # line to run each process
       echo "$(date '+%H:%M:%S') | Starting $1..."
@@ -99,7 +102,8 @@ print() {
 debug() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-  if [[ $host == "localhost" || $host == $HOSTNAME ]]; then
+  if [[ $host == "localhost" || $host == `hostname -i`  ||
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
     if [[ -z $(findproc "$1") ]]; then                             
       sline=$(startline "$1")                                                                       # get start line for process
       printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
@@ -125,7 +129,8 @@ summary() {
 stop() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-  if [[ $host == "localhost" || $host == $HOSTNAME ]]; then
+  if [[ $host == "localhost" || $host == `hostname -i`  ||
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
     if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
       echo "$(date '+%H:%M:%S') | $1 is not currently running"
     else
