@@ -7,3 +7,7 @@ tablecount:{[tab;operator;chkvalue]                                             
   }
 
 tablehasrecords:.dqe.tablecount[;>;0];                                                                          /- check if the count of the table is greater than zero
+
+tablecountcomp:{[tab]
+  count value tab
+  }

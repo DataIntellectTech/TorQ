@@ -1,7 +1,9 @@
-action,params,proctype,procname,mode,starttime,endtime,period
-tableticking,(`quote;5;`minute),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
-chkslowsub,1000000,tickerplant,tickerplant1,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
-tableticking,(`quote;5;`minute),rdb,rdb1,single,12:00:00.000000000,0N,0N
-constructcheck,(`quote;`table),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
-xmarketalert,`quote,rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
-attrcheck,(`quote;`s`g;`time`sym),rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+action,params,proc,mode,starttime,endtime,period
+tableticking,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;5;`minute)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+chkslowsub,`comp`compallow`compproc`vars!(0b;0;0N;1000000),`tickerplant,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
+tableticking,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;5;`minute)),`rdb1,single,12:00:00.000000000,0N,0N
+constructcheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`table)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
+attrcheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`s`g;`time`sym)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+schemacheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"psffjjccs";`````````;`s`g```````)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:15:00
+xmarketalert,`comp`compallow`compproc`vars!(0b;0;0N;(`quote)),`rdb,rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
