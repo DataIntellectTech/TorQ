@@ -96,9 +96,9 @@ anomalychk:{[t;colslist;thres]                                                  
   update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
   }
 
-dfilechk:{[tname;dirname] 
+dfilechk:{[tname;dirname]                                                                                       /- function to check .d file. Sample use: .dqe.dfilechk[`trade;getenv `KDBHDB]
   system"l ",dirname;
-  (get (` sv (`:./;`$string last .Q.PV-1;`trade;`.d)))~get (` sv (`:./;`$string last .Q.PV;`trade;`.d))
+  (get .Q.dd[`:.](`$string last .Q.PV;tname;`.d))~get .Q.dd[`:.](`$string last .Q.PV except last .Q.PV;tname;`.d)
   }  
   
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
