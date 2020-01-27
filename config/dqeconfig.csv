@@ -6,4 +6,4 @@ constructcheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`table)),`rdb1,rep
 constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
 attrcheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`s`g;`time`sym)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
 schemacheck,`comp`compallow`compproc`vars!(0b;0;0N;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"psffjjccs";`````````;`s`g```````)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:15:00
-symfilecheck,(`comp`compallow`compproc`vars!(0b;0;0N;(.dqe.hdbdir;`sym))),hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+symfilecheck,(`comp`compallow`compproc`vars!(0b;0;0N;(.dqe.hdbdir;`sym))),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
