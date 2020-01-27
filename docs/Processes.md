@@ -230,7 +230,8 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 
 ### Client Call Examples
 
-Here are a couple of examples for using client calls via a handle to the gateway process. 
+Here are some examples for using client calls via a handle to the gateway process.    
+To reiterate, v3.6+ users can use synchronous calls, whilst asynchronous calls are only relevant for users on < v3.6. 
 
 #### Calls to the RDB only
 For synchronous calls
