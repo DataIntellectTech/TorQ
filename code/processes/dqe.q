@@ -96,12 +96,9 @@ anomalychk:{[t;colslist;thres]                                                  
   update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
   }
 
-dchk:{[tname;dirname]
-  dirpath:.Q.dd[`:.]dirname;
-  \l ./testdir;
-  dcurrent:get (` sv (`:./;`$string .z.d;tname;`.d));
-  dprev:get (` sv (`:./;`$string .z.d-1;tname;`.d));
-  dcurrent~dprev
+dfilechk:{[tname;dirname] 
+  system"l ",dirname;
+  (get (` sv (`:./;`$string last .Q.PV-1;`trade;`.d)))~get (` sv (`:./;`$string last .Q.PV;`trade;`.d))
   }  
   
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
