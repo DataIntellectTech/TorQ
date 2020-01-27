@@ -140,11 +140,16 @@ stop() {
       eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
     fi
   else
-    echo "$(date '+%H:%M:%S') | Shutting down $1..."
-    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-    port=$(($(eval echo \$"$(getfield "$procno" port)")))
-    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    if [[ -z $(findproc "$1") ]]; then
+    echo "$(date '+%H:%M:%S') | $1 is not currently running"
+    else
+      echo "$(date '+%H:%M:%S') | Shutting down $1..."
+      procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+      port=$(($(eval echo \$"$(getfield "$procno" port)")))
+      eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    fi
   fi
+  
  }
 
 getall() {
