@@ -100,18 +100,18 @@ A synchronous and asynchronous gateway is provided. The gateway can be
 used for load balancing and/or to join the results of queries across
 heterogeneous servers (e.g. an RDB and HDB). Ideally the gateway should
 only be used with asynchronous calls. Prior to KDB v3.6, synchronous calls
-caused the gateway to block so limits the gateway to serving one query at a 
+caused the gateway to block which limits the gateway to serving one query at a 
 time (although if querying across multiple backend servers the backend
 queries will be run in parallel).
 For v3.6+, deferred synchronous requests to the gateway are supported.
-This allows the gateway to process mulitple synchronous requests at once,
+This allows the gateway to process multiple synchronous requests at once,
 therefore removing the requirement for the gateway to allow only one type
 of request.
-When using asynchronous calls the client can either block and wait for
+When using asynchronous calls, the client can either block and wait for
 the result (deferred synchronous) or post a call back function which the
 gateway will call back to the client with. 
-With both asynchronous and synchronous queries the backend servers to
-execute queries against are selected using process type.
+The backend servers to be queried against with  asynchronous and synchronous 
+queries are selected using process type.
 The gateway API can be seen by querying .api.p“.gw.\*” within a gateway
 process.
 
@@ -157,11 +157,14 @@ cannot be timed out other than by using the standard -T flag.
 ### Synchronous Behaviour
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
-a time and cannot timeout queries other than with the standard -T flag.
-For v3.6+, deferred synchronous calls are supported, allowing the gateway to process mulitple
+a time and cannot timeout queries other than with the standard -T flag. The variable
+`.gw.synccallsallowed` is by default set to 0b prior to KDB v3.6. 
+To send synchronous calls, edit the gateway.q file so that .gw.synccallsallowed 
+is set to true. (The exception being with TorQ-FSP, in which case it is set to 1b by default.)
+For v3.6+, deferred synchronous calls are supported, allowing the gateway to process multiple
 requests at a time.
 All synchronous queries will be immediately dispatched to the back end
-processes. They will be dispatched using an asyhcnronous call, allowing
+processes. They will be dispatched using an asynchronous call, allowing
 them to run in parallel rather than serially. When the results are
 received they are aggregated and returned to the client.
 
@@ -193,6 +196,10 @@ Errors will be returned when:
 -   the client requests a query against a server type which the gateway
     does not currently have any active instances of (this error is
     returned immediately);
+    
+-   the client requests a query with the wrong servertype types;
+
+-   the client requests a query with null servers;
 
 -   the query is timed out;
 
@@ -221,8 +228,70 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 | .gw.asyncexecjpt\[query; servertypes; joinfunction; postback; timeout\] | Execute the specified query against the required list of servers. Use the specified join function to aggregate the results. If the postback function is not set, the client must block and wait for the results. If it is set, the result will be wrapped in the specified postback function and returned asynchronously to the client. The query will be timed out if the timeout value is exceeded. |
 
 
-For the purposes of demonstration, assume that the queries must be run
-across an RDB and HDB process, and the gateway has one RDB and two HDB
+### Client Call Examples
+
+Here are some examples for using client calls via a handle to the gateway process.    
+To reiterate, v3.6+ users can use synchronous calls, whilst asynchronous calls are only relevant for users on < v3.6. 
+
+#### Calls to the RDB only
+For synchronous calls
+```
+// To return the avg price per sym for the day so far
+q) h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
+
+// hloc function in RDB process
+q) h(`.gw.syncexec;`hloc;`rdb)
+{[startdate;enddate;bucket]
+ $[.z.d within (startdate;enddate);
+ select high:max price, low:min price, open:first price,close:last price,totalsize:sum `long$size, vwap:size wavg price
+ by sym, bucket xbar time
+ from trade;
+ ([sym:`symbol$();time:`timestamp$()] high:`float$();low:`float$();open:`float$();close:`float$();totalsize:`long$();vwap:`float$())]}
+
+
+// Using the hloc function - change query for appropriate date
+q) h(`.gw.syncexec;(`hloc;2020.01.08;2020.01.08;10);`rdb)
+
+// Returns following table
+sym  time                         | high   low    open   close  totalsize vwap
+----------------------------------| ----------------------------------------------
+AAPL 2020.01.08D00:00:00.836801000| 103.62 103.62 103.62 103.62 88        103.62
+AAPL 2020.01.08D00:00:01.804684000| 103.64 103.64 103.64 103.64 86        103.64
+AAPL 2020.01.08D00:00:02.405682000| 103.86 103.86 103.86 103.86 90        103.86
+AAPL 2020.01.08D00:00:03.005465000| 104.06 104.06 104.06 104.06 78        104.06
+AAPL 2020.01.08D00:00:03.404383000| 103.9  103.9  103.9  103.9  49        103.9
+..
+```
+For asynchronous calls
+```
+// To return the sum size per sym for the day so far
+q) neg[h](`.gw.asyncexec;"select sum size by sym from trade";`rdb);h[]
+```
+
+#### Calls to the HDB only
+For synchronous calls
+```
+// For the high, low, open and close prices of the day before
+q) h(`.gw.syncexec;"select h:max price, l:min price, o:first price, c:last price by sym from trade where date=.z.d-1";`hdb)
+```
+For asynchronous calls
+```
+q) neg[h](`.gw.asyncexec;"`$last .z.x";`hdb);h[]
+```
+
+#### Calls to the HDB and RDB
+For synchronous calls
+```
+q) h(`.gw.syncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb)
+```
+For asynchronous calls
+```
+q) neg[h](`.gw.asyncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb);h[]
+```
+
+#### Demonstrating Aggregation of data
+For the purposes of demonstration, assume that the following queries must be run
+across a single RDB and a single HDB process, and the gateway has one RDB and two HDB
 processes available to it.
 
     q).gw.servers                                                                                                                                                                                                                                                                 
@@ -237,8 +306,9 @@ Both the RDB and HDB processes have a function f and table t defined. f
 will run for 2 seconds longer on the HDB processes then it will the RDB.
 
     q)f                                                                                                                                                                                                                                                                           
-    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}
-    q)t                                                                                                                                                                                                                                                                           
+    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}  //if process type is HDB, sleep for x+2 seconds and then return table t. If not, sleep for x seconds and return table t
+    q)t:([]a:(5013;5014;5015;5016;5017))                                                                                            
+    q)t                                                                                                                                                                 
     a   
     ----
     5013
@@ -250,7 +320,7 @@ will run for 2 seconds longer on the HDB processes then it will the RDB.
 Run the gateway. The main parameter which should be set is the
 .servers.CONNECTIONS parameter, which dictates the process types the
 gateway queries across. Also, we need to explicitly allow sync calls. We
-can do this from the config or from the command line.
+can do this from the config or from the command line using the following line:
 
     q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb -proctype gateway -procname gateway1
 
@@ -284,7 +354,7 @@ is returned:
 
 Custom join functions can be specified:
 
-    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})                                                                                                                                                                                                  
+    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})        //[query;servertype;joinfunction(lambda)]                                                                                                                                                                                          
     a   | x
     ----| -
     5014| 2
@@ -338,11 +408,11 @@ Alternatively async queries can specify a postback so the client does
 not have to block and wait for the result. The postback function must
 take two parameters- the first is the function that was sent up, the
 second is the results. The postback can either be a lambda, or the name
-of a function.
+of a function eg. handleresults.
 
     q)h:hopen 8000                                                                                                                                                                                                                                                                
-    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}                                                                                                                                                                                                                
-    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;handleresults;0Wn)                                                                                                                                                                                                           
+    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}             //postback with timestamp, got results and an output of the results                                                                                                                                                                                                   
+    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;{-1(string .z.z)," got results"; -3!x; show y};0Wn)     //[.gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(lambda or symbol);timeout(timespan)]                                                                                                                                                                                                      
     q)
     q)	/- These q prompts are from pressing enter
     q)	/- The q client is not blocked, unlike the previous example
