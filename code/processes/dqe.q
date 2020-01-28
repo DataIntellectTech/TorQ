@@ -98,7 +98,8 @@ anomalychk:{[t;colslist;thres]                                                  
 
 dfilechk:{[tname;dirname]                                                                                       /- function to check .d file. Sample use: .dqe.dfilechk[`trade;getenv `KDBHDB]
   system"l ",dirname;
-  (get .Q.dd[`:.](`$string first .Q.PV;tname;`.d))~get .Q.dd[`:.](`$string first .Q.PV except first .Q.PV;tname;`.d)
+  $[1<count .Q.PV; (~). get each ` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d]; "only one .d file exists"]
+  /$[1<count .Q.PV; [0=sum {()~key x} each ` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d; (~). get each ` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d];["only one .d file exists"]
   }  
   
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
