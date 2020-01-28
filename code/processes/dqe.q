@@ -98,7 +98,7 @@ anomalychk:{[t;colslist;thres]                                                  
 
 dfilechk:{[tname;dirname]                                                                                       /- function to check .d file. Sample use: .dqe.dfilechk[`trade;getenv `KDBHDB]
   system"l ",dirname;
-  (get .Q.dd[`:.](`$string last .Q.PV;tname;`.d))~get .Q.dd[`:.](`$string last .Q.PV except last .Q.PV;tname;`.d)
+  (get .Q.dd[`:.](`$string first .Q.PV;tname;`.d))~get .Q.dd[`:.](`$string first .Q.PV except first .Q.PV;tname;`.d)
   }  
   
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
