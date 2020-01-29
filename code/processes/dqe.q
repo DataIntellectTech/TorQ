@@ -45,7 +45,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string (raze/) (),4#params;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
+  `.dqe.results insert (idnum;funct;`$"," sv string (raze/) (),params[`vars] params`fnpar;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
   }
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
@@ -113,28 +113,23 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
   }
 
-containerfn:{[funct;names;vars]                                                                                 /- used to check if table is being called in HDB
-  if[any b:where (),11h=abs type each vars;                                                                     /- checks if any variable for check function is type symbol
-    startvars:vars b;
-    names:names b;
-    finvars:startvars b2:where (),startvars in .Q.pt;                                                           /- check if the variables are partitioned tables
-    names:names b2;
-    if[count finvars;
-      vars[b2]:({?[x;enlist (=;.Q.pf;last .Q.PV);0b;()]}'[finvars b2])];                                        /- replace table names with select statments when run in HDB
-  ];
-  value funct,vars                                                                                              /- run check function
+hdbtabchk:{[table]
+  if[count b:where (),(11h=abs type table) & (table in .Q.pt);                                                  /- checks if any variable for check function is type symbol
+    .lg.o[`containerfn;"Table(s) sent to HDB without a where clause"];
+    .lg.o[`containerfn;("," sv string vars b)," have been changed to functional selects with where clause"];
+    ?[table;enlist (=;.Q.pf;last .Q.PV);0b;()]]
   }
 
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  namesfunct:raze -1#2#value funct;                                                                             /- obtain the parameters for the check function
-  funct:containerfn[funct;namesfunct];                                                                          /- add continerfn to start of check function
-  .async.postback[hand;(funct;params`vars);.dqe.postback[runtype;idnum;proc;params]];                           /- send function with variables down handle
+  params[`hdbtabchk]:.dqe.hdbtabchk;
+  .async.postback[hand;(funct,params[`vars] params`fnpar);.dqe.postback[runtype;idnum;proc;params]];            /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
   .lg.o[`runcheck;"Starting check run ",string idnum];
-
+  temp:(raze(`;params[`fnpar]:(value value fn)[1]))!raze (::;params`vars);
+  params[`vars]:temp;
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
