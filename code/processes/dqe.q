@@ -45,7 +45,8 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string (raze/) (),params[`vars] params`fnpar;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
+  parprint:`$("," sv string (raze/) (),params[`vars] params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
+  `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
   }
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
