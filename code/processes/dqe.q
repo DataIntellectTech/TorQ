@@ -69,12 +69,15 @@ chkcompare:{[runtype;idnum;params]                                              
   procsforcomp:d[`procs] except params`compproc;
   b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
 
-  if[all 0W=first b;                                                                                            /- if error in compare proc then fail check
+  if[@[{all 0W=x};first b;0b];                                                                                  /- if error in compare proc then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`];:()];
-  errorprocs:d[`procs] where all each 0W=d`results;
+  errorprocs:d[`procs] where (),all each @[{0W=x};d`results;0b];
   if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`];:()];
-  matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
+
+  $[@[{98h=type raze x};b;0b];                                                                                  /- changes comparison for tables
+    matching:procsforcomp where (), params[`compallow] <= (sum t2)%count t2:100*(sum  t)%count t:=[raze a;raze b];
+    matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b];
   notmatching:procsforcomp except errorprocs,matching;
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
 
