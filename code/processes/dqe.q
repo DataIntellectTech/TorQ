@@ -119,13 +119,14 @@ postback:{[runtype;idnum;proc;params;result]                                    
 
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  .async.postback[hand;(funct,params[`vars] params`fnpar);.dqe.postback[runtype;idnum;proc;params]];            /- send function with variables down handle
+  fvars:params[`vars] params`fnpar;
+  .async.postback[hand;(funct,$[10h=type fvars);enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
-  temp:$[1=count params`fnpar;enlist params`fnpar;params[`fnpar]]!$[10h=type params`vars;enlist params`vars;params`vars];
+  temp:$[1=count params`fnpar;enlist params`fnpar;params[`fnpar]]!$[(10h=type params`vars)|(1=count params`vars);enlist params`vars;params`vars];
   params[`vars]:temp;
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
