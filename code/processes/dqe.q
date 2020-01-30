@@ -45,7 +45,10 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
-  parprint:`$("," sv string (raze/) (),params[`vars] params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
+  vars:params`vars;
+  updvars:(key params[`vars]) b:where (),10h=type each value params`vars;
+  if[count updvars;(vars updvars):`$params[`vars] updvars];
+  parprint:`$("," sv string (raze/) (),enlist each vars params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
   `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
   }
 
@@ -114,22 +117,15 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
   }
 
-hdbtabchk:{[table]
-  if[count b:where (),(11h=abs type table) & (table in .Q.pt);                                                  /- checks if any variable for check function is type symbol
-    .lg.o[`containerfn;"Table(s) sent to HDB without a where clause"];
-    .lg.o[`containerfn;("," sv string vars b)," have been changed to functional selects with where clause"];
-    ?[table;enlist (=;.Q.pf;last .Q.PV);0b;()]]
-  }
-
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  params[`hdbtabchk]:.dqe.hdbtabchk;
   .async.postback[hand;(funct,params[`vars] params`fnpar);.dqe.postback[runtype;idnum;proc;params]];            /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
   .lg.o[`runcheck;"Starting check run ",string idnum];
-  temp:(raze(`;params[`fnpar]:(value value fn)[1]))!raze (::;params`vars);
+  params[`fnpar]:(value value fn)[1];
+  temp:$[1=count params`fnpar;enlist params`fnpar;params[`fnpar]]!$[10h=type params`vars;enlist params`vars;params`vars];
   params[`vars]:temp;
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
