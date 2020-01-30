@@ -94,6 +94,18 @@ anomalychk:{[t;colslist;thres]                                                  
   d:({sum{any x~'(0w;-0w;0W;-0W)}'[x]}each flip tt)*100%count tt:((),colslist)#t;
   res:([] colsnames:key d; anomalypercentage:value d);
   update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
+  }
+
+dfilechk:{[tname;dirname]                                                                                       /- function to check .d file. Sample use: .dqe.dfilechk[`trade;getenv `KDBHDB]
+  system"l ",dirname;
+  if[not `PV in key`.Q;
+    .lg.o[`dfilechk;"The directory is not partitioned"]; :0b];
+  if[2>count .Q.PV;
+    .lg.o[`dfilechk;"There is only one partition, therefore there are no two .d files to compare"]; :1b];
+  u:` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d;
+  $[0=sum {()~key x} each u;
+    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u]; 
+    [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
   }  
   
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
