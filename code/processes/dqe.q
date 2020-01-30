@@ -123,7 +123,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
   fvars:params[`vars] params`fnpar;
-  .async.postback[hand;(funct,$[10h=type fvars);enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
+  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
