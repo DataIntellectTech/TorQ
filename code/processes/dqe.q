@@ -123,7 +123,7 @@ datechk:{[dirname]                                                              
   if[not `PV in key`.Q;
     .lg.o[`datechk;"The directory is not partitioned"]; :0b];
   if[not `date in .Q.pf;
-    .lg.o[`datechk;"date is not a partition field value]; :0b];
+    .lg.o[`datechk;"date is not a partition field value"]; :0b];
   last date=.z.d
 }
 
