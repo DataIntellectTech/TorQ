@@ -118,10 +118,12 @@ dfilechk:{[tname;dirname]                                                       
     [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
   }
 
-datechk:{[dirname] 
+datechk:{[dirname]                                                                                              /- function to check date vector contains latest date in an hdb 
   system"l ",dirname;
   if[not `PV in key`.Q;
-    .lg.o[`dfilechk;"The directory is not partitioned"]; :0b];
+    .lg.o[`datechk;"The directory is not partitioned"]; :0b];
+  if[not `date in .Q.pf;
+    .lg.o[`datechk;"date is not the partition field values]; :0b];
   last date=.z.d
 }
 
