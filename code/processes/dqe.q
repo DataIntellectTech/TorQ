@@ -18,6 +18,7 @@ init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
+  .dqe.compcounter[0N]:(0N;();());
   }
 
 configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
@@ -74,9 +75,11 @@ chkcompare:{[runtype;idnum;params]                                              
   errorprocs:d[`procs] where (),all each @[{0W=x};d`results;0b];
   if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`];:()];
-
   $[@[{98h=type raze x};b;0b];                                                                                  /- changes comparison for tables
-    matching:procsforcomp where (), params[`compallow] <= (sum t2)%count t2:100*(sum  t)%count t:=[raze a;raze b];
+    matching:procsforcomp where (), params[`compallow] <= (sum t2)%count t2:100*(sum  t)%count t:$[`error~.[{(all/)=[raze x;raze y]};(a;b);{`error}]; 
+      .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: tables are not of the same length";`complete;params;`];
+      :()];
+       =[raze a;raze b]];
     matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b];
   notmatching:procsforcomp except errorprocs,matching;
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
@@ -111,10 +114,10 @@ dfilechk:{[tname;dirname]                                                       
     .lg.o[`dfilechk;"There is only one partition, therefore there are no two .d files to compare"]; :1b];
   u:` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d;
   $[0=sum {()~key x} each u;
-    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u]; 
+    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u];
     [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
-  }  
-  
+  }
+
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
