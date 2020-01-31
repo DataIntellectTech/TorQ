@@ -18,6 +18,7 @@ init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
+  .dqe.compcounter[0N]:(0N;();());
   }
 
 configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
@@ -45,7 +46,11 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
-  `.dqe.results insert (idnum;funct;`$"," sv string (raze/) (),4#params;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
+  vars:params`vars;
+  updvars:(key params[`vars]) b:where (),10h=type each value params`vars;
+  if[count updvars;vars[updvars]:`$params[`vars] updvars];
+  parprint:`$("," sv string (raze/) (),enlist each vars params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
+  `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
   }
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
@@ -64,13 +69,18 @@ chkcompare:{[runtype;idnum;params]                                              
   a:d[`results] where not d[`procs]=params`compproc;                                                            /- obtain all the check returns
   procsforcomp:d[`procs] except params`compproc;
   b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
-  
-  if[all 0W=first b;                                                                                            /- if error in compare proc then fail check
+
+  if[@[{all 0W=x};first b;0b];                                                                                  /- if error in compare proc then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`];:()];
-  errorprocs:d[`procs] where all each 0W=d`results;
+  errorprocs:d[`procs] where (),all each @[{0W=x};d`results;0b];
   if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
     .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`];:()];
-  matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
+  $[@[{98h=type raze x};b;0b];                                                                                  /- changes comparison for tables
+    matching:procsforcomp where (), params[`compallow] <= (sum t2)%count t2:100*(sum  t)%count t:$[`error~.[{(all/)=[raze x;raze y]};(a;b);{`error}]; 
+      .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: tables are not of the same length";`complete;params;`];
+      :()];
+       =[raze a;raze b]];
+    matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b];
   notmatching:procsforcomp except errorprocs,matching;
   .lg.o[`chkcompare;"comparison finished with id ",string idnum];
 
@@ -104,10 +114,10 @@ dfilechk:{[tname;dirname]                                                       
     .lg.o[`dfilechk;"There is only one partition, therefore there are no two .d files to compare"]; :1b];
   u:` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d;
   $[0=sum {()~key x} each u;
-    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u]; 
+    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u];
     [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
-  }  
-  
+  }
+
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
@@ -125,14 +135,17 @@ postback:{[runtype;idnum;proc;params;result]                                    
     .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
   }
 
-getresult:{[runtype;funct;params;idnum;proc;hand]
+getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
-  .async.postback[hand;funct,params`vars;.dqe.postback[runtype;idnum;proc;params]];                             /- send function with variables down handle
+  fvars:params[`vars] params`fnpar;
+  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
   .lg.o[`runcheck;"Starting check run ",string idnum];
-
+  params[`fnpar]:(value value fn)[1];
+  temp:$[1=count params`fnpar;enlist params`fnpar;params[`fnpar]]!$[(10h=type params`vars)|(1=count params`vars);enlist params`vars;params`vars];
+  params[`vars]:temp;
   fncheck:` vs fn;
   if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
