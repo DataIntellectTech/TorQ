@@ -124,7 +124,8 @@ datechk:{[dirname]                                                              
     .lg.o[`datechk;"The directory is not partitioned"]; :0b];
   if[not `date in .Q.pf;
     .lg.o[`datechk;"date is not a partition field value"]; :0b];
-  last date=.z.d
+  k:.z.d mod 7;
+  [k in 1 2; last date=.z.d-1+k; last date=.z.d]
 }
 
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
