@@ -1,6 +1,6 @@
-KUltd each hsym`$.proc.params[`test]
+KUltd each hsym`$.proc.params[`test];
 
-KUrt[]
+KUrt[];
 
 show "k4unit Test Results"
 show KUTR
