@@ -15,6 +15,7 @@ export KDBHTML=${TORQHOME}/html
 export KDBLIB=${TORQHOME}/lib
 export KDBCONFIG=${TORQHOME}/config
 export KDBCODE=${TORQHOME}/code
+export KDBTESTS=${TORQHOME}/tests
 export KDBAPPCONFIG=${TORQAPPHOME}/appconfig                                                        # sets the application specific configuration directory
 export KDBAPPCODE=${TORQAPPHOME}/code
 export KDBHDB=${TORQDATA}/hdb
