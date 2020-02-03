@@ -25,6 +25,9 @@ else
   exit 1
 fi
 
+hostips=`hostname -I`
+hostnames=`hostname -A`
+
 findcsvcol() {
   head -1 $CSVPATH | tr ',' '\012' | grep -wn $1 | cut -f 1 -d ':'                                  # find column number of inputted header name
  }
@@ -69,8 +72,6 @@ startline() {
 start() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-  hostips=`hostname -I`
-  hostnames=`hostname -A`
   if [[ $host == "localhost" || $host == `hostname -i`  ||  
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
     if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
