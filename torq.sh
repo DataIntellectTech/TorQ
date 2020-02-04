@@ -1,4 +1,33 @@
-#!/bin/bash 
+#!/bin/bash
+
+if [ "-bash" = $0 ]; then
+  dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  dirpath="$(cd "$(dirname "$0")" && pwd)"
+fi
+
+if [ -z $SETENV ]; then
+  SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
+fi
+
+if [ -z $RLWRAP ]; then
+  RLWRAP="rlwrap"                                                                                   # set environment if not predefined
+fi
+
+if [ -z $QCON ]; then
+  QCON="qcon"                                                                                       # set environment if not predefined
+fi
+
+if [ -f $SETENV ]; then                                                                             # check script exists
+  . $SETENV                                                                                         # load the environment
+else
+  echo "ERROR: Failed to load environment - $SETENV: No such file or directory"                     # show input file error
+  exit 1
+fi
+
+findcsvcol() {
+  head -1 $CSVPATH | tr ',' '\012' | grep -wn $1 | cut -f 1 -d ':'                                  # find column number of inputted header name
+ }
 
 getfield() {
   fieldno=$(awk -F, '{if(NR==1) for(i=1;i<=NF;i++){if($i=="'$2'") print i}}' "$CSVPATH")            # get number for field based on headers
@@ -30,6 +59,9 @@ startline() {
     sline="$sline$a";                                                                               # append to startup line
   done
   qcmd=$(getfield "$procno" "qcmd")
+  if [ -z $qcmd ]; then                                                                             # if qcmd is undefined then default to q
+    qcmd="q"
+  fi
   sline="$qcmd $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
   echo "$sline"
  }
@@ -44,6 +76,14 @@ start() {
   fi 
  }
 
+startqcon() {
+  portcol=$(findcsvcol "port");                                                                     # get port column number
+  port=$(($(grep -w $1 $CSVPATH | cut -f $portcol -d ','|sed 's/[{}]//g')));                        # port in format for evaluation
+  accesscmd="$RLWRAP $QCON :$port:$2";                                                              # build command line equivalent of qcon
+  echo "Attempting to connect to $1...";                                                            # user connection message
+  $accesscmd;                                                                                       # run command line
+ }
+
 print() {
   sline=$(startline "$1")                                                                           # line to run each process 
   echo "Start line for $1:"
@@ -54,7 +94,7 @@ debug() {
   if [[ -z $(findproc "$1") ]]; then                             
     sline=$(startline "$1")                                                                         # get start line for process
     printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
-    eval "$sline -debug"                                                                            # append flag to start in debug mode
+    eval "$RLWRAP $sline -debug"                                                                    # append flag to start in debug mode
   else
     echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
   fi
@@ -64,9 +104,9 @@ summary() {
   if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
     printf "%-8s | %-14s | %-6s |\n" "$(date '+%H:%M:%S')" "$1" "down"                              # summary table row for down process
   else
-    pid=$(findproc "$1")
-    port=$(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | head -1 | awk -F: '{ print $2 }')  # get port process is running on
-    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "$(date '+%H:%M:%S')" "$1" "up" "$port" "$pid"     # summary table row for running process    
+    pid=$((findproc "$1")|awk 'END{print}')
+    port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
+    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "$(date '+%H:%M:%S')" "$1" "up" "$pid" "$port"     # summary table row for running process
   fi
  }
 
@@ -75,8 +115,9 @@ stop() {
     echo "$(date '+%H:%M:%S') | $1 is not currently running"
   else
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
-    pid=$(findproc "$1")
-    eval "kill -15 $pid"                                                                            # kill process pid
+    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+    port=$(($(eval echo \$"$(getfield "$procno" port)")))
+    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
 
@@ -98,7 +139,9 @@ checkinput() {
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")                                                 # get all process names from csv
   avail=()
   for i in $input; do
-    if [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                  # check input process is valid
+    if [[ $i == "-force" ]]; then                                                                   # check for force flag
+     :
+    elif [[ $(echo "$PROCS" | grep -w "$i") ]]; then                                                # check input process is valid
       avail+="$i "                                                                                  # get only valid processes
     else 
       echo "$(date '+%H:%M:%S') | $i failed - unavailable processname"
@@ -172,7 +215,7 @@ getextrascsv() {
 
 checkextrascsv() {
   if [[ $(echo ${BASH_ARGV[*]} | grep -e extras) ]] && [[ $(echo ${BASH_ARGV[*]} | grep -e csv) ]]; then
-    getextrascsv $@;                                                                                # gets extras and csv arguments 
+    getextrascsv $@;                                                                                # gets extras and csv arguments
   else
     getextras $@;                                                                                   # checks if extras flag present
     getcsv $@;                                                                                      # sets process csv file
@@ -188,15 +231,75 @@ allcsv() {
  }
 
 startprocs() {
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
   for p in $PROCS; do
     start "$p";                                                                                     # start each process in variable
   done
  }
 
 stopprocs() {
+  if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
+    cmd="kill -9"
+    echo "Force stop has been set"
+  else
+    cmd="kill -15"
+  fi
+  checkextrascsv $@;                                                                                # checks if extra flags/csv included
   for p in $PROCS; do
     stop "$p";                                                                                      # kill each process in variable 
   done
+ }
+
+runprint() {
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
+  for p in $PROCS; do
+    print "$p";
+  done
+ }
+
+rundebug() {
+  checkextrascsv "$*";                                                                              # checks if extra flags/csv included
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $(echo $input|wc -w) -ne 1 ]]; then
+    echo "ERROR: Cannot debug more than one process at a time"
+  else
+    for p in $PROCS; do
+      debug "$p";
+    done
+  fi
+ }
+
+runsummary() {
+  allcsv "$*";
+  PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
+  printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PID" "PORT"
+  for p in $PROCS; do
+    summary "$p";
+  done
+ }
+
+showprocs() {
+  allcsv "$*";
+  awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+ }
+
+runqcon() {
+  CSVPATH=${TORQPROCESSES}
+  PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH")
+  if [[ $(echo "$PROCS" | grep -w "$2") ]]; then
+    PROCS=$2
+  else
+    PROCS=()
+  fi
+  
+  if [[ $# -gt 3 ]]; then
+    echo "ERROR: Cannot qcon more than one process at a time"
+  elif [[ $# -lt 3 ]] || [[ $(echo $PROCS | wc -w) -ne 1 ]]; then
+    echo "Requires arguments qcon <processname> <username>:<password>"
+  else
+    for p in $PROCS; do
+      startqcon $p $3;
+    done
+  fi
  }
 
 usage() {
@@ -205,68 +308,44 @@ usage() {
   printf -- "  stop all|<processname(s)>                to stop all|process(es)\n"
   printf -- "  print all|<processname(s)>               to view default startup lines\n"
   printf -- "  debug <processname(s)>                   to debug a single process\n"
+  printf -- "  qcon <processname> <username>:<password> to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
   printf -- "Optional flags:\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
   printf -- "  -csv <fullcsvpath> -extras <args>        to run both\n"
+  printf -- "  -force                                   to force stop process(es) using kill -9\n"
   exit 1
  }
 
-if [ "-bash" = $0 ]; then
-    dirpath="${BASH_SOURCE[0]}"
-else
-    dirpath="$0"
-fi
-
-if [[ -z $SETENV ]]; then
-  SETENV=$(dirname $dirpath)/setenv.sh;                                                             # set the environment if not predefined
-fi
-
-if [ -f $SETENV ]; then                                                                             # check script exists 
-  . $SETENV                                                                                         # load the environment
-else
-  echo "ERROR: Failed to load environment - $SETENV: No such file or directory"                     # show input file error
-  exit 1
-fi
-
 case $1 in
   start)
-    checkextrascsv "$*";
-    startprocs "$PROCS";
+    startprocs "$*";
     ;;
   print)
-    checkextrascsv "$*";
-    for p in $PROCS; do
-      print "$p";
-    done
+    runprint "$*";  
     ;;
   stop)
-    checkextrascsv $@;
-    stopprocs "$PROCS";
+    stopprocs "$@";
+    ;;
+  restart)
+    checkextrascsv "$*";
+    echo Restarting $PROCS...
+    stopprocs "$@";
+    startprocs "$*";
     ;;
   debug)
-    checkextrascsv "$*";
-    if [[ $(echo $PROCS | wc -w) -gt 1 ]]; then
-      echo "ERROR: Cannot debug more than one process at a time"
-    else
-      for p in $PROCS; do
-        debug "$p";
-      done
-    fi
+    rundebug "$@";
     ;;
   summary)
-    allcsv "$*";
-    PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
-    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PORT" "PID"
-    for p in $PROCS; do
-      summary "$p";
-    done
+    runsummary "$*";
     ;;
   procs)
-    allcsv "$*";
-    awk -F, '{if(NR>1) print $4}' "$CSVPATH" | tr " " "\n"
+    showprocs "$*";
+    ;;
+  qcon)
+    runqcon "$@";
     ;;
   "")
     usage

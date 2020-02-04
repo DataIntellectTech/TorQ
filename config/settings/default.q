@@ -20,6 +20,7 @@ logtodisk:1b                    // whether to log to disk or not
 logtomemory:1b                  // write query logs to memory
 ignore:1b			// check the ignore list for functions to ignore
 ignorelist:(`upd;"upd")		// the list of functions to ignore in async calls
+flushinterval:0D00:30:00        // default value for how often to flush the in-memory logs
 flushtime:1D00                  // default value for how long to persist the in-memory logs. Set to 0D for no flushing
 suppressalias:0b                // whether to suppress the log file alias creation
 logtimestamp:{[].proc.cd[]}      	// function to generate the log file timestamp suffix
@@ -159,3 +160,23 @@ enabled:0b;			//flag for enabling subscriber cutoff. true means slow subscribers
 maxsize:100000000;		//a global value for the max byte size of a subscriber. Default is 100000000
 breachlimit:3;			//the number of times a handle can exceed the size limit check in a row before it is closed. Default is 3
 checkfreq:0D00:01;		//the frequency for running the queue size check on subscribers. Default is 0D00:01
+
+// Grafana Adaptor
+\d .grafana
+timecol:`time;
+sym:`sym;
+timebackdate:2D;
+ticks:1000;
+del:".";
+
+//Datadog configuration
+\d .dg
+enabled:0b;		//whether .lg.ext is overwritten to send errors to datadog. Default is 0b meaning errors will not be sent to datadog.
+
+// k4unit tests
+\d .KU
+VERBOSE:1;              // 0 - no logging to console, 1 - log filenames, >1 - log tests
+DEBUG:0;                // 0 - trap errors, 1 - suspend if errors (except action=`fail)
+DELIM:",";              // csv delimiter
+SAVEFILE:`:KUTR.csv;    // test results savefile
+

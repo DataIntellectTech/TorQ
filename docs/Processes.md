@@ -52,7 +52,7 @@ listed as discovery.
 
 To run the discovery service, use a start line such as:
 
-    aquaq $ q torq.q -load code/processes/discovery.q -p 9995
+    aquaq $ q torq.q -load code/processes/discovery.q -p 9995 -proctype discovery -procname discovery1
 
 Modify the configuration as required.
 
@@ -100,18 +100,18 @@ A synchronous and asynchronous gateway is provided. The gateway can be
 used for load balancing and/or to join the results of queries across
 heterogeneous servers (e.g. an RDB and HDB). Ideally the gateway should
 only be used with asynchronous calls. Prior to KDB v3.6, synchronous calls
-caused the gateway to block so limits the gateway to serving one query at a 
+caused the gateway to block which limits the gateway to serving one query at a 
 time (although if querying across multiple backend servers the backend
 queries will be run in parallel).
 For v3.6+, deferred synchronous requests to the gateway are supported.
-This allows the gateway to process mulitple synchronous requests at once,
+This allows the gateway to process multiple synchronous requests at once,
 therefore removing the requirement for the gateway to allow only one type
 of request.
-When using asynchronous calls the client can either block and wait for
+When using asynchronous calls, the client can either block and wait for
 the result (deferred synchronous) or post a call back function which the
 gateway will call back to the client with. 
-With both asynchronous and synchronous queries the backend servers to
-execute queries against are selected using process type.
+The backend servers to be queried against with  asynchronous and synchronous 
+queries are selected using process type.
 The gateway API can be seen by querying .api.p“.gw.\*” within a gateway
 process.
 
@@ -157,11 +157,14 @@ cannot be timed out other than by using the standard -T flag.
 ### Synchronous Behaviour
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
-a time and cannot timeout queries other than with the standard -T flag.
-For v3.6+, deferred synchronous calls are supported, allowing the gateway to process mulitple
+a time and cannot timeout queries other than with the standard -T flag. The variable
+`.gw.synccallsallowed` is by default set to 0b prior to KDB v3.6. 
+To send synchronous calls, edit the gateway.q file so that .gw.synccallsallowed 
+is set to true. (The exception being with TorQ-FSP, in which case it is set to 1b by default.)
+For v3.6+, deferred synchronous calls are supported, allowing the gateway to process multiple
 requests at a time.
 All synchronous queries will be immediately dispatched to the back end
-processes. They will be dispatched using an asyhcnronous call, allowing
+processes. They will be dispatched using an asynchronous call, allowing
 them to run in parallel rather than serially. When the results are
 received they are aggregated and returned to the client.
 
@@ -193,6 +196,10 @@ Errors will be returned when:
 -   the client requests a query against a server type which the gateway
     does not currently have any active instances of (this error is
     returned immediately);
+    
+-   the client requests a query with the wrong servertype types;
+
+-   the client requests a query with null servers;
 
 -   the query is timed out;
 
@@ -221,8 +228,70 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 | .gw.asyncexecjpt\[query; servertypes; joinfunction; postback; timeout\] | Execute the specified query against the required list of servers. Use the specified join function to aggregate the results. If the postback function is not set, the client must block and wait for the results. If it is set, the result will be wrapped in the specified postback function and returned asynchronously to the client. The query will be timed out if the timeout value is exceeded. |
 
 
-For the purposes of demonstration, assume that the queries must be run
-across an RDB and HDB process, and the gateway has one RDB and two HDB
+### Client Call Examples
+
+Here are some examples for using client calls via a handle to the gateway process.    
+To reiterate, v3.6+ users can use synchronous calls, whilst asynchronous calls are only relevant for users on < v3.6. 
+
+#### Calls to the RDB only
+For synchronous calls
+```
+// To return the avg price per sym for the day so far
+q) h(`.gw.syncexec;"select avp:avg price by sym from trade where time.date=.z.d";`rdb)
+
+// hloc function in RDB process
+q) h(`.gw.syncexec;`hloc;`rdb)
+{[startdate;enddate;bucket]
+ $[.z.d within (startdate;enddate);
+ select high:max price, low:min price, open:first price,close:last price,totalsize:sum `long$size, vwap:size wavg price
+ by sym, bucket xbar time
+ from trade;
+ ([sym:`symbol$();time:`timestamp$()] high:`float$();low:`float$();open:`float$();close:`float$();totalsize:`long$();vwap:`float$())]}
+
+
+// Using the hloc function - change query for appropriate date
+q) h(`.gw.syncexec;(`hloc;2020.01.08;2020.01.08;10);`rdb)
+
+// Returns following table
+sym  time                         | high   low    open   close  totalsize vwap
+----------------------------------| ----------------------------------------------
+AAPL 2020.01.08D00:00:00.836801000| 103.62 103.62 103.62 103.62 88        103.62
+AAPL 2020.01.08D00:00:01.804684000| 103.64 103.64 103.64 103.64 86        103.64
+AAPL 2020.01.08D00:00:02.405682000| 103.86 103.86 103.86 103.86 90        103.86
+AAPL 2020.01.08D00:00:03.005465000| 104.06 104.06 104.06 104.06 78        104.06
+AAPL 2020.01.08D00:00:03.404383000| 103.9  103.9  103.9  103.9  49        103.9
+..
+```
+For asynchronous calls
+```
+// To return the sum size per sym for the day so far
+q) neg[h](`.gw.asyncexec;"select sum size by sym from trade";`rdb);h[]
+```
+
+#### Calls to the HDB only
+For synchronous calls
+```
+// For the high, low, open and close prices of the day before
+q) h(`.gw.syncexec;"select h:max price, l:min price, o:first price, c:last price by sym from trade where date=.z.d-1";`hdb)
+```
+For asynchronous calls
+```
+q) neg[h](`.gw.asyncexec;"`$last .z.x";`hdb);h[]
+```
+
+#### Calls to the HDB and RDB
+For synchronous calls
+```
+q) h(`.gw.syncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb)
+```
+For asynchronous calls
+```
+q) neg[h](`.gw.asyncexec;"$[.proc.proctype=`hdb; select from trade where date within (.z.d-2;.z.d-1); select from trade]";`rdb`hdb);h[]
+```
+
+#### Demonstrating Aggregation of data
+For the purposes of demonstration, assume that the following queries must be run
+across a single RDB and a single HDB process, and the gateway has one RDB and two HDB
 processes available to it.
 
     q).gw.servers                                                                                                                                                                                                                                                                 
@@ -237,8 +306,9 @@ Both the RDB and HDB processes have a function f and table t defined. f
 will run for 2 seconds longer on the HDB processes then it will the RDB.
 
     q)f                                                                                                                                                                                                                                                                           
-    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}
-    q)t                                                                                                                                                                                                                                                                           
+    {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}  //if process type is HDB, sleep for x+2 seconds and then return table t. If not, sleep for x seconds and return table t
+    q)t:([]a:(5013;5014;5015;5016;5017))                                                                                            
+    q)t                                                                                                                                                                 
     a   
     ----
     5013
@@ -250,9 +320,9 @@ will run for 2 seconds longer on the HDB processes then it will the RDB.
 Run the gateway. The main parameter which should be set is the
 .servers.CONNECTIONS parameter, which dictates the process types the
 gateway queries across. Also, we need to explicitly allow sync calls. We
-can do this from the config or from the command line.
+can do this from the config or from the command line using the following line:
 
-    q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb
+    q torq.q -load code/processes/gateway.q -p 8000 -.gw.synccallsallowed 1 -.servers.CONNECTIONS hdb rdb -proctype gateway -procname gateway1
 
 Start a client and connect to the gateway. Start with a sync query. The
 HDB query should take 4 seconds and the RDB query should take 2 seconds.
@@ -284,7 +354,7 @@ is returned:
 
 Custom join functions can be specified:
 
-    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})                                                                                                                                                                                                  
+    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})        //[query;servertype;joinfunction(lambda)]                                                                                                                                                                                          
     a   | x
     ----| -
     5014| 2
@@ -338,11 +408,11 @@ Alternatively async queries can specify a postback so the client does
 not have to block and wait for the result. The postback function must
 take two parameters- the first is the function that was sent up, the
 second is the results. The postback can either be a lambda, or the name
-of a function.
+of a function eg. handleresults.
 
     q)h:hopen 8000                                                                                                                                                                                                                                                                
-    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}                                                                                                                                                                                                                
-    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;handleresults;0Wn)                                                                                                                                                                                                           
+    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}             //postback with timestamp, got results and an output of the results                                                                                                                                                                                                   
+    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;{-1(string .z.z)," got results"; -3!x; show y};0Wn)     //[.gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(lambda or symbol);timeout(timespan)]                                                                                                                                                                                                      
     q)
     q)	/- These q prompts are from pressing enter
     q)	/- The q client is not blocked, unlike the previous example
@@ -648,12 +718,12 @@ to) or it will fail on startup. These can either be set in the config
 file, or overridden from the command line in the usual way. An example
 start line would be:
 
-    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1
+    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1 -proctype tickerlogreplay -procname tplogreplay1
 
 The tickerplant log replay script has extended usage information which
 can be accessed with -.replay.usage.
 
-    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.usage
+    q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.usage -proctype tickerlogreplay -procname tplogreplay1
 
 <a name="house"></a>
 
@@ -928,7 +998,7 @@ for flushing the query log table.
 
 To run the reporter process:
 
-    q torq.q -load code/processes/reporter.q -p 20004
+    q torq.q -load code/processes/reporter.q -p 20004 -proctype reporter -procname reporter1
 
 Once the reporter process has been initiated, the reports will be
 scheduled and no further input is required from the user.
@@ -1107,14 +1177,14 @@ received.
 
 Run it with:
 
-    aquaq $ q torq.q -load code/processes/monitor.q -p 20001
+    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -proctype monitor -procname monitor1
 
 It is probably advisable to run the monitor process with the -trap flag,
 as there may be some start up errors if the processes it is connecting
 to do not have the necessary heartbeating or publish/subscribe code
 loaded.
 
-    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -trap
+    aquaq $ q torq.q -load code/processes/monitor.q -p 20001 -trap -proctype monitor -procname monitor1
 
 The current heartbeat statuses are tracked in .hb.hb, and the log
 messages in logmsg
@@ -1132,6 +1202,114 @@ messages in logmsg
     -------------------------------------------------------------------------------------
     2014.01.07D12:25:17.457535000 hdb1 aquaq ERR      reload  "failed to reload database"           
     2014.01.07D13:29:28.784333000 rdb1 aquaq ERR      eodsave "failed to save tables : trade, quote"
+
+### Checkmonitor
+
+The `checkmonitor.q` script extends the functionality of the monitor process.  
+The script takes a set of user defined configuration settings for a set of process 
+specific checks. These can initially be provided in the form of a CSV, 
+a sample of which is shown here:
+
+    family|metric|process|query|resultchecker|params|period|runtime
+    datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
+
+Upon start up, the CSV file is loaded and inserted into the in-memory table, 
+`checkconfig`. During this insertion, each check will also be assigned 
+a unique checkid number. 
+
+    q)checkconfig
+    checkid| family    metric     process query           resultchecker params                                    period               runtime              active
+    -------| -----------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    "{count trade}" "checkcount"  `varname`count`cond!(`trade;10;`morethan) 0D00:01:00.000000000 0D00:00:01.000000000 1
+
+
+For each check, the query will be sent via asynchronous requests to the 
+specified processes and waits for postback of the results. Once the monitoring 
+process receives the result of the query, it will then be checked by the resultchecker 
+function to identify whether it will pass or fail. 
+
+Result checker functions must only take two parameters: p- a parameter dictionary, 
+and r- the result row. The status in r will be modified based on whether the
+r result value passes the conditions specified by the resultchecker function. 
+
+    q)checkcount
+    {[p;r]
+    if[`morethan=p`cond;
+      if[p[`count]<r`result; :`status`result!(1h;"")];
+       :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but requires ",string p`count)];
+    if[`lessthan=p`cond;
+      if[p[`count]>r`result; :`status`result!(1h;"")];
+      :`status`result!(0h;"variable ",(string p`varname)," has count of ",(string r`result)," but should be less than ",string p`count)];
+    }
+
+
+    q)p
+    varname| `trade
+    count  | 10
+    cond   | `morethan
+
+    q)r
+    status| 1h
+    result| ""
+
+
+This example checks whether the trade table within the rdb is larger than 10.
+As this is true, the status has been set to 1h and no error message
+has been returned. This information is inserted into the `checkstatus` table, 
+which is the master table where all results are stored. 
+
+    q)checkstatus
+    checkid| family    metric     process lastrun                       nextrun                       status executiontime        totaltime            timerstatus running result
+    -------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    1      | datacount tradecount rdb1    2019.02.18D10:58:45.908919000 2019.02.18D10:59:45.911635000 1      0D00:00:00.000017000 0D00:00:00.002677000 1           0       ""
+
+
+In addition to tracking the status of the specified queries, a number of metrics 
+are also returned in the `checkstatus` table. 
+
+|  Column Header  | Value Type |      Description    
+| :-------------: |:----------:|:--------------------------------------:|
+|    lastrun      | Timestamp  | Last time check was run |
+|    nextrun      | Timestamp  | Next time check is scheduled to run |
+|    status       |  Boolean   | Indicates whether query result has passed resultchecker function |
+|  executiontime  |  Timespan  | Time taken for last query to be executed |
+|    totaltime    |  Timespan  | Total time taken for check to be run, including sending times and execution |
+|   timerstatus   |  Boolean   | Indicates whether last totaltime was executed under threshold value |
+|     running     |  Boolean   | Indicates whether check is currently running |
+|     results     |   String   | Will display any errors or additional information regarding running checks |
+
+
+
+ The function checkruntime uses the running column to identify functions
+ that are running extremely slow, and set their status and timerstatus to 0h. 
+
+When the process is exited, the .z.exit has been modified to save the
+checkconfig table as a flat binary file. This will then be preferentially
+loaded next time the process is started up again. The process of saving down
+the in-memory functions makes altering configuration parameters easier. 
+Four functions are available to do so: `addcheck`, `updateconfig`, `updateconfigfammet`
+and `forceconfig`. 
+
+|   Function Name       | Description |         
+| :-------------: |:---------------------:|
+|    `addcheck[dictionary]`  |  addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type.  |
+|   `updateconfig[checkid;paramkey;newval]`     |  updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type.  |
+|   `forceconfig[checkid;newconfig]`   | forceconfig changes the parameter keys of an existing check and will not check for types.  |
+| `updateconfigfammet[family;metric;paramkey;newval]`  | updateconfig changes the parameter key of an existing check, using the family and metric combination to specify which check to alter. If this combination does not exist, the function will return an error. The type of the new parameter value must match the current value type.  |
+
+There are other additional functions that are useful for using the check monitor. 
+
+|  Function Name  | Value Type |        
+| :-------------: |:----------:|
+|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   | 
+|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  | 
+| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   | 
+
+
+All checks can be tracked using the table `checktracker`. Here, each run is assigned a 
+unique runid- thus individual runs for each check can be tracked. For each run,
+it tracks the time tkane for target process to recieve the query, as well as 
+the execution time. The result value will also be displayed.
 
 ### HTML5 front end 
 
@@ -1178,7 +1356,7 @@ KDBCONFIG/settings/compression.q which specify
 
 The process is run like other TorQ processes:
 
-    q torq.q -load code/processes/compression.q -p 20005
+    q torq.q -load code/processes/compression.q -p 20005 -proctype compression -procname compression1
 
 Modify the settings file or override variables from the command line as
 appropriate.
@@ -1201,17 +1379,17 @@ the process.csv file via the configuration in the standard way.
 If run without any command line parameters, kill.q will try to kill each
 process it finds with type defined by its .servers.CONNECTIONS variable.
 
-    q torq.q -load code/processes/kill.q -p 20000
+    q torq.q -load code/processes/kill.q -p 20000 -proctype kill -procname killtick
 
 .servers.CONNECTIONS can optionally be overridden from the command line
 (as can any other process variable):
 
-    q torq.q -load code/processes/kill.q -p 20000 -.servers.CONNECTIONS rdb tickerplant
+    q torq.q -load code/processes/kill.q -p 20000 -.servers.CONNECTIONS rdb tickerplant -proctype kill -procname killtick
 
 The kill process can also be used to kill only specific named processes
 within the process types:
 
-    q torq.q -load code/processes/kill.q -p 20000 -killnames hdb1 hdb2
+    q torq.q -load code/processes/kill.q -p 20000 -killnames hdb1 hdb2 -proctype kill -procname killtick
 
 <a name="chained"></a>
 
@@ -1239,7 +1417,7 @@ The chained tickerplant can:
 
 To launch the chained tickerplant
 
-    q torq.q -load code/processes/chainedtp.q -p 12009
+    q torq.q -load code/processes/chainedtp.q -p 12009 -proctype chainedtp -procname chainedtp1
 
 Chained tickerplant settings are found in `config/settings/chainedtp.q`
 and are under the `.ctp` namespace.

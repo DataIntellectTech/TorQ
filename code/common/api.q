@@ -72,6 +72,24 @@ search:{[s;c]
 // search function
 s:.api.search[;0b]
 
+// input list of namespaces for exportconfig
+torqnamespaces:` sv'`,'key[`]except`$'.Q.an;
+
+// export the current state of config variables, takes in list of symbols of namespaces (e.g. `.usage`.procs)
+exportconfig:{
+  // selects only variables in inpoutted namespaces
+  :?[.api.f`;
+    ((=;`vartype;enlist`variable);(in;`namespace;enlist x));
+    {x!x}enlist`name;
+  // returns name, value and description
+    `val`descrip!((value';`name);`descrip)
+   ];
+ }
+
+// export all config variables
+exportallconfig:{exportconfig torqnamespaces}
+
+
 // Approximate memory usage statistics
 mem:{`size xdesc update sizeMB:`int$size%2 xexp 20 from update size:{-22!value x}each variable from ([]variable:raze varnames[;;0b] .' allns[] cross $[x;"vb";enlist"v"])}
 m:{mem[1b]}

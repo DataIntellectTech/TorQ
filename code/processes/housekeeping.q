@@ -6,6 +6,7 @@
 inputcsv:@[value;`.hk.inputcsv;.proc.getconfigfile["housekeeping.csv"]]
 runtimes:@[value;`.hk.runtimes;12:00]
 runnow:@[value;`.hk.runnow;0b]
+.win.version:@[value;`.win.version;`w10]
 
 inputcsv:string inputcsv
 
@@ -96,22 +97,33 @@ zip:{[FILE]
 
 //-locates files with path, matching string and age
 find:{[path;match;age;agemin]
+	//returns empty list for files if match is an empty string
+        if[""~match;
+          .lg.o[`housekeeping;"No matching files located"];
+          :();
+        ];
 	//renames the path to a windows readable format
 	PATH:ssr[path;"/";"\\"];
-	//searches for files and refines return to usable format
+	//error and info for find function 
+	err:{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
+        //searches for files and refines return to usable format
 	$[0=agemin;
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		system "z 1";fulllist:winfilelist[PATH;match];
 		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)];
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err];
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:-5_(5_system "dir ",PATH,match, " /s");
+		system "z 1";fulllist:winfilelist[PATH;match];
 		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
-		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age)]];
-	//error and info for find function 
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()};
+		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err]];
 	$[(count files)=0;
 	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
+
+//defines full list of files based on Windows OS version
+winfilelist:{[path;match]
+	$[version in `w7`w8`w10;-2_(5_system "dir ",path,match);-5_(5_system "dir ",path,match, " /s")]
+ }
+
 
 //removes files
 rm: {[FILE]
@@ -123,7 +135,7 @@ zip:{[FILE]
 
 \d .
 
-$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.rm;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip;]]
+$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip;]]
 
 //-runner function
 hkrun:{[]

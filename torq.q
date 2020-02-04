@@ -185,7 +185,7 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|" sv (string .proc.cp[];string .z.h;string proctype;string proc;string loglevel;string id;message)}
+format:{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
@@ -201,10 +201,10 @@ pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
 l:{[loglevel;proctype;proc;id;message;dict]
-	$[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
-		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
-		ext[loglevel;proctype;proc;id;message;dict]];
-        publish[loglevel;proctype;proc;id;message];	
+	if[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
+		neg[redir] .lg.format[loglevel;proctype;proc;id;message]];
+	ext[loglevel;proctype;proc;id;message;dict];
+	publish[loglevel;proctype;proc;id;message];	
 	}
 
 // Log an error.  
@@ -400,7 +400,12 @@ readprocfile:{[file]
 		// map hostnames in res to order of preference, select most preferred
 		first res iasc prefs?res[`host];
 		first res];
-	if[not output[`port] = system"p";
+        if[not output[`host]in prefs;
+                .err.ex[`readprocfile;"Current host does not match host specified in ",string[file],". Parameters are host: ", string[output`host], ", port: ", string[output`port], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]];
+	// exit if no port passed via command line or specified in config
+	if[null[output`port]&0i=system"p";
+		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
+	if[not[output[`port] = system"p"]& 0i = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
 		];
@@ -460,11 +465,18 @@ if[not any `debug`noredirect in key params; rolllogauto[]];
 
 // utilities to load individual files / paths, and also a complete directory
 // this should then be enough to bootstrap
-loadf:{
-	.lg.o[`fileload;"loading ",x];
-	
-	$[`debug in key .proc.params; system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]]];
-	.lg.o[`fileload;"successfully loaded ",x]}
+loadedf:enlist enlist""
+loadf0:{[reload;x]
+  if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
+  .lg.o[`fileload;"loading ",x];
+  // error trapped loading of file
+  @[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]];
+  // if we got this far, file is loaded
+  loadedf,:enlist x;
+  .lg.o[`fileload;"successfully loaded ",x]
+ }
+loadf:loadf0[0b]   /load a file if it hasn't been loaded
+reloadf:loadf0[1b] /load a file even if's been loaded
 
 loaddir:{
 	.lg.o[`fileload;"loading q and k files from directory ",x];
@@ -600,27 +612,36 @@ if[.proc.logroll and not any `debug`noredirect in key .proc.params;
 		.lg.e[`init;".proc.logroll is set to true, but timer functionality is not loaded - cannot roll logs"]]];
 	
 // Load the file specified on the command line
-if[`load in key .proc.params; .proc.loadf each .proc.params`load]
+if[`load in key .proc.params; .proc.reloadf each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
-	.z.pi:show@value@;]
+	.z.pi:{.Q.s value x};]
 
 // initialise pubsub
 if[@[value;`.ps.loaded;0b]; .ps.initialise[]]
 // initialise connections
 if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 
+// function to execute functions in .proc.initlist
 .proc.try:{[id;a]
-  .lg.o[id;"attemping to run: ",.Q.s1 a];
-  @[value;a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a]}[id;a]];
+  .lg.o[id;"attempting to run: ",.Q.s1 a];
+  success:@[{value x;1b};a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a];0b}[id;a]];
+  if[not success;:()];
+  .proc.initexecuted,:a;
+  .lg.o[id;"run successful: ",.Q.s1 a];
  }
 
-// function to execute functions in .proc.initlist
+.proc.initcmd:{
+  // command line functions executed first
+  if[not`initlist in key .proc.params;:.lg.o[`init;"no initialisation functions found in cmd line args"]];
+  {.proc.try[`init;(x;`)]}each .proc.params`initlist;
+ }
+
 .proc.init:{
+  .proc.initcmd[];
   if[0=count .proc.initlist;:.lg.o[`init;"no initialisation functions found"]];
   .proc.try[`init]each .proc.initlist;
-  .proc.initexecuted,:.proc.initlist;
   .proc.initlist:();
  }
 

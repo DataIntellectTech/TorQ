@@ -84,6 +84,10 @@ errorprefix:@[value;`.gw.errorprefix; "error: "]                 // the prefix f
 permissioned:@[value;`.gw.permissioned; 0b]                      // should the gateway permission queries before the permissions script does 
 clearinactivetime:@[value;`.gw.clearinactivetime; 0D01:00]       // the time to store data on inactive handles
 
+readonly:@[value;`.readonly.enabled;0b]
+valp:$[`.pm.valp ~ key `.pm.valp;.pm.valp;.gw.readonly;{value parse x};value]
+val:$[`.pm.val ~ key `.pm.val;.pm.val;.gw.readonly;reval;eval]
+
 eod:0b
 seteod:{[b] .lg.o[`eod;".gw.eod set to ",string b]; eod::b;}    // called by wdb.q during EOD
 checkeod:{[IDS].gw.eod&1<count distinct$[11h=type ids:raze IDS;ids;exec servertype from .gw.servers where any serverid in/:ids]}    // check if eod reload affects query
@@ -100,10 +104,16 @@ queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
 
+//Function to generate random placeholder
+genrand:{system"S ",string `int$.z.T;rand 0Ng}
+
+//Generate random placeholder
+placehold:.gw.genrand[]
+
 // structure to store query results from back end servers
 // structure is queryid!(clienthandle;servertype!(handle;results))
 // structure is queryid!(clienthandle;(servertype or serverIDs)!(serverID;results))
-results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;::))  
+results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;.gw.placehold))  
 
 // server handles - whether the server is currently running a query
 servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
@@ -145,7 +155,7 @@ canberun:{
 
 // Manage client queries
 addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync]
-  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync)
+  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;postback;timeout;0Np;0Np;0b;0<count queryattributes;sync);
  };
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
@@ -178,13 +188,13 @@ finishquery:{[qid;err;serverh]
  deleteresult[qid];
  update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
  setserverstate[serverh;0b];
- }  
+ }
 
 // Get a list of pending and running queries
 getqueue:{select queryid,time,clienth,query,servertype,status:?[null submittime;`pending;`running],submittime from .gw.queryqueue where null returntime}
 
 // manage the result set dictionaries
-addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;::))}
+addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;.gw.placehold))}
 addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(y 0;0);:;y 1]};(servertype;serverh)]}
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
@@ -206,7 +216,7 @@ addservererror:{[queryid;error]
  }
 // check if all results are in.  If so, send the results to the client
 checkresults:{[queryid]
- if[not any (::)~/: value (r:.gw.results[queryid])[1;;1];
+ if[not any .gw.placehold~/: value (r:.gw.results[queryid])[1;;1];
   // get the rest of the detail from the query table
   querydetails:queryqueue[queryid];
   // apply the join function to the results
@@ -252,7 +262,7 @@ removeserverhandle:{[serverh]
  // get the list of effected query ids
 
  // 1) queries sent to this server but no reply back yet
- qids:where {[res;id] any (::)~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
+ qids:where {[res;id] any .gw.placehold~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
  // propagate an error back to each client
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
@@ -262,7 +272,7 @@ removeserverhandle:{[serverh]
  activeServerTypes:distinct exec servertype from .gw.servers where active, handle<>serverh;
 
  qids2:where {[res;id;aIDs;aTypes] 
-  s:where (::)~/:res[1;;1]; 
+  s:where .gw.placehold~/:res[1;;1]; 
   $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
   }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for running query closed the connection";0b] each qids2;
@@ -348,83 +358,6 @@ getserversindependent:{[req;att;besteffort]
  /- if you want overlaps, remove the &filter w from the end of this bit of code
  (key s)!{(key x)!(value x)@'where each y key x}[req]each value s&filter w}
 
-/- build a cross product from a nested dictionary
-buildcross:{(cross/){flip (enlist y)#x}[x] each key x}
-
-/- given a dictionary of requirements and a list of attribute dictionaries
-/- work out which servers we need to hit to satisfy each requirement
-/- we want to satisfy the cross product of requirements - so each attribute has to be available with each other attribute
-/- e.g. each symbol has to be availble within each specified date
-getserverscross:{[req;att;besteffort]
-
- if[0=count req; :([]serverid:enlist key att)];
-
- s:getserversinitial[req;att];
-
- /- build the cross product of requirements
- reqcross:buildcross[req];
-
- /- calculate the cross product of data contributed by each source
- /- and drop it from the list of stuff that is required
- util:flip `remaining`found!flip ({[x;y;z] (y[0] except found; y[0] inter found:$[0=count y[0];y[0];buildcross x@'where each z])}[req]\)[(reqcross;());value s];
-
- /- check if everything is done
- if[(count last util`remaining) and not besteffort;
-  '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
-
- /- remove any rows which don't add value
- s:1!(0!s) w:where not 0=count each util`found;
-
- /- return the parameters which should be queried for
- (key s)!distinct each' flip each util[w]`found
- }
-
-getserverids:{[att]
-  if[99h<>type att;
-	// its a list of servertypes e.g. `rdb`hdb
-	servertype:att,();
-	missing:servertype except exec distinct servertype from .gw.servers where active;
-	if[count missing;'"not all of the requested server types are available; missing "," " sv string missing];
-	:(exec serverid by servertype from .gw.servers where active)[servertype];
-  ];
-
-  // its a dictionary of attributes
-
-  serverids:$[`servertype in key att; 
-  raze getserveridstype[delete servertype from att] each (),att`servertype; 
-  getserveridstype[att;`all]];
-
-  if[all 0=count each serverids;'"no servers match requested attributes"];
-  :serverids;
- }
-
-getserveridstype:{[att;typ]
-  // default values
-  besteffort:1b;
-  attype:`cross;
-
-  servers:$[typ=`all;
-    exec serverid!attributes from .gw.servers where active;
-    exec serverid!attributes from .gw.servers where active,servertype=typ];
-
-  if[`besteffort in key att;
-    if[-1h=type att`besteffort;besteffort:att`besteffort];
-    att:delete besteffort from att;
-  ];
-  if[`attributetype in key att;
-    if[-11h=type att`attributetype;attype:att`attributetype];
-    att:delete attributetype from att;
-  ];
-
-  res:$[attype=`independent; 
-  getserversindependent[att;servers;besteffort];
-  getserverscross[att;servers;besteffort]];
-
-  serverids:first value flip $[99h=type res; key res; res];
-  if[all 0=count each serverids;'"no servers match ",string[typ]," requested attributes"];
-  :serverids;
- }
-
 // execute an asynchronous query
 asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  // Check correct function called
@@ -440,31 +373,31 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    :();
    ];
   ];
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;
-   errStr:.gw.errorprefix,"only synchronous calls are allowed";
-   [errStr:"";
+   errstr:.gw.errorprefix,"only synchronous calls are allowed";
+   [errstr:"";
    if[99h<>type servertype;
      // its a list of servertypes e.g. `rdb`hdb
      servertype:distinct servertype,();
-     missing:servertype except exec distinct servertype from .gw.servers where active;
-     if[count missing; errStr:.gw.errorprefix,"not all of the requested server types are available; missing "," " sv string missing];
+     errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
+     if[10h=type errcheck; errstr:errcheck];
      queryattributes:()!();
     ];
    if[99h=type servertype;
      // its a dictionary of attributes
      queryattributes:servertype;
      res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-     if[10h=type res; errStr:res];
-     if[10h<>type res; if[0=count raze res; errStr:.gw.errorprefix,"no servers match given attributes"]];
+     if[10h=type res; errstr:res];
+     if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
      servertype:res;
     ];
    ]
   ];
  // error has been hit
- if[count errStr;
-  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errStr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errStr]];()];
+ if[count errstr;
+  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errstr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errstr]];()];
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
@@ -477,7 +410,7 @@ asyncexec:asyncexecjpt[;;raze;();0Wn]
 // execute a synchronous query
 syncexecjpre36:{[query;servertype;joinfunction]
  // Check correct function called
- if[not .gw.call .z.w;
+ if[(.z.w<>0)&(.z.w in key .gw.call)&not .gw.call .z.w;
    @[neg .z.w;.gw.formatresponse[0b;0b;"Incorrect function used: asyncexec"];()];
    :();
    ];
@@ -497,7 +430,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
  handles:(exec serverid!handle from tab)first each (exec serverid from tab) inter/: serverids;
  setserverstate[handles;1b];
  start:.z.p;
- query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);value q]}; .z.u; query);
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas; value(`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  // to allow parallel execution, send an async query up each handle, then block and wait for the results
  (neg handles)@\:({@[neg .z.w;@[{(1b;.z.p;value x)};x;{(0b;.z.p;x)}];{@[neg .z.w;(0b;.z.p;x);()]}]};query);
  // flush
@@ -624,10 +557,19 @@ reloadend:{
  /- set eod variable to false
  .gw.seteod[0b];
  /- retry connections - get updated attributes from servers and refresh servers tables
- update attributes:@[;(`.proc.getattributes;`);()!()]each w from`.servers.SERVERS;
- update attributes:(exec w!attributes from .servers.SERVERS)handle from `.gw.servers;
+ setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS;
  /- flush any async queries held during reload phase
  .gw.runnextquery[];}
+
+setattributes:{ [prcnme;prctyp;att]
+ /- get relevant atrributes
+ update attributes:(enlist att) from `.servers.SERVERS where procname=prcnme,proctype=prctyp;
+ /- update attributes on gateway
+ if[ prctyp in exec servertype from .gw.servers;
+   h:first exec w from .servers.SERVERS where procname=prcnme,proctype=prctyp;
+   update attributes:(enlist (first exec attributes from .servers.SERVERS where procname=prcnme,proctype=prctyp))
+   from `.gw.servers where handle=h; ]
+ };
 
 // Add calls to the timer
 if[@[value;`.timer.enabled;0b];
@@ -638,8 +580,8 @@ if[@[value;`.timer.enabled;0b];
 // add in some api details 
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]
 .api.add[`.gw.asyncexec;1b;"Execute a function asynchronously.  The result is posted back to the client directly down the socket. The client must block and wait for the result - deferred synchronous.  Equivalent to .gw.asyncexecjpt with join function of raze, no postback and no timeout";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"]
-.api.add[`.gw.syncexecj;1b;"Execute a function asynchronously, join the results with the specified join function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data]";"The result of the query"];
-.api.add[`.gw.syncexec;1b;"Execute a function asynchronously, use raze to join the results";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"];
+.api.add[`.gw.syncexecj;1b;"Execute a function synchronously, join the results with the specified join function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data]";"The result of the query"];
+.api.add[`.gw.syncexec;1b;"Execute a function synchronously, use raze to join the results";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"];
 .api.add[`.gw.getqueue;1b;"Return the current queryqueue with status";"[]";"table: the current queryqueue with either pending or running status"];
 
 // make connections to processes as they appear in the .servers.SERVERS table

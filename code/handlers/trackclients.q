@@ -34,6 +34,8 @@ po:{[result;W]
 addw:{po[x;x]} / manually add a client
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;cleanup[];result}
 
+.z.pc:{.clients.pc[x y;y]}.z.pc;
+
 wo:{[result;W]
     cleanup[];
     `.clients.clients upsert(W;.dotz.ipa .z.a;.z.u;.z.a;0Nd;0n;0Ni;0Ni;(`);(`);0Ni;0Ni;zp;0Np;zp:.proc.cp[];0i;0i;0j);
@@ -41,7 +43,6 @@ wo:{[result;W]
 
 if[enabled;
 	.z.po:{.clients.po[x y;y]}.z.po;
-        .z.pc:{.clients.pc[x y;y]}.z.pc;
         .z.wo:{.clients.wo[x y;y]}.z.wo;
 	.z.wc:{.clients.pc[x y;y]}.z.wc;
 

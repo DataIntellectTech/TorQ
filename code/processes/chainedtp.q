@@ -38,7 +38,7 @@ openlog:{[lgfile]
     .[set;(lgfile;());{[lgf;err] .lg.e[`openlog;"cannot create new log file : ",string[lgf]," : ", err]}[lgfile]]];
 
   /- backup upd & redefine for counting
-  updold:upd;
+  updold:`. `upd;
   @[`.;`upd;:;{[t;x] .u.icounts[t]+:count x;}];
   /- set pub and log count
   .u.i:.u.j:@[-11!;lgfile;-11!(-2;lgfile)];
@@ -66,7 +66,7 @@ subscribe:{[]
       if[`d in key r;.u.d::r[`d]]; 
       if[(`icounts in key r) & (not createlogfile); /- dict r contains icounts & not using own logfile
 	subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
-      	.u.jcounts::.u.icounts::subtabs!enlist [r`icounts]subtabs;
+	.u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
       ]
     ];
   }
@@ -189,8 +189,8 @@ end:{[d]
 
 \d .
 
-/- set upd function in the top level name space
-upd:.ctp.upd;
+/- set upd function in the top level name space, provided it isn't already defined
+if[not `upd in key `.; upd:.ctp.upd];
 
 /- pubsub must be initialised sooner to enable tickerplant replay publishing to work
 .ps.initialise[];                                                                   
