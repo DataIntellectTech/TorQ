@@ -11,7 +11,7 @@ SUBSCRIPTIONS:([]procname:`symbol$();proctype:`symbol$();w:`int$();table:();inst
 getsubscriptionhandles:{[proctype;procname;attributes]
 	/-grab data from .serves.SERVERS, add handling for passing in () as an argument
 	data:{select procname,proctype,w from x}each .servers.getservers[;;attributes;1b;0b]'[`proctype`procname;(proctype;procname)];
-	$[0h in type each (proctype;procname);:distinct raze data;:inter/[data]]
+	$[0h in type each (proctype;procname);distinct raze data;inter/[data]]
 	}
 
 updatesubscriptions:{[proc;tab;instrs]
