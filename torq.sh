@@ -25,6 +25,9 @@ else
   exit 1
 fi
 
+hostips=`hostname -I`
+hostnames=`hostname -A`
+
 findcsvcol() {
   head -1 $CSVPATH | tr ',' '\012' | grep -wn $1 | cut -f 1 -d ':'                                  # find column number of inputted header name
  }
@@ -67,13 +70,20 @@ startline() {
  }
 
 start() {
-  if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
-    sline=$(startline "$1")                                                                         # line to run each process
-    echo "$(date '+%H:%M:%S') | Starting $1..."
-    eval "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                   # run in background and redirect output to log file
+  procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+  host=$(getfield "$procno" "host")
+  if [[ $host == "localhost" || $host == `hostname -i`  ||  
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
+    if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
+      sline=$(startline "$1")                                                                       # line to run each process
+      echo "$(date '+%H:%M:%S') | Starting $1..."
+      eval "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"                                 # run in background and redirect output to log file
+    else
+      echo "$(date '+%H:%M:%S') | $1 already running"
+    fi 
   else
-    echo "$(date '+%H:%M:%S') | $1 already running"
-  fi 
+    echo "$(date '+%H:%M:%S') | $1 configured with host that does not match current hostname"
+  fi
  }
 
 startqcon() {
@@ -91,12 +101,19 @@ print() {
  }
 
 debug() {
-  if [[ -z $(findproc "$1") ]]; then                             
-    sline=$(startline "$1")                                                                         # get start line for process
-    printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
-    eval "$RLWRAP $sline -debug"                                                                    # append flag to start in debug mode
+  procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+  host=$(getfield "$procno" "host")
+  if [[ $host == "localhost" || $host == `hostname -i`  ||
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
+    if [[ -z $(findproc "$1") ]]; then                             
+      sline=$(startline "$1")                                                                       # get start line for process
+      printf "$(date '+%H:%M:%S') | Executing...\n$sline -debug\n\n"
+      eval "$RLWRAP $sline -debug"                                                                  # append flag to start in debug mode
+    else
+      echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
+    fi
   else
-    echo "$(date '+%H:%M:%S') | Debug failed - $1 already running"
+    echo "$(date '+%H:%M:%S') | $1 configured with host that does not match current hostname"
   fi
  }
 
@@ -111,14 +128,29 @@ summary() {
  }
 
 stop() {
-  if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
-    echo "$(date '+%H:%M:%S') | $1 is not currently running"
+  procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+  host=$(getfield "$procno" "host")
+  if [[ $host == "localhost" || $host == `hostname -i`  ||
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
+    if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
+      echo "$(date '+%H:%M:%S') | $1 is not currently running"
+    else
+      echo "$(date '+%H:%M:%S') | Shutting down $1..."
+      procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+      port=$(($(eval echo \$"$(getfield "$procno" port)")))
+      eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    fi
   else
-    echo "$(date '+%H:%M:%S') | Shutting down $1..."
-    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-    port=$(($(eval echo \$"$(getfield "$procno" port)")))
-    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    if [[ -z $(findproc "$1") ]]; then
+    echo "$(date '+%H:%M:%S') | $1 is not currently running"
+    else
+      echo "$(date '+%H:%M:%S') | Shutting down $1..."
+      procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+      port=$(($(eval echo \$"$(getfield "$procno" port)")))
+      eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    fi
   fi
+  
  }
 
 getall() {
