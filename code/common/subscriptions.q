@@ -55,9 +55,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-if replaylog is false,dont try to get the log file details - they may not exist
 	/-set the function to send to the server based on this
 	.lg.o[`subscribe;"getting details from the server"];
-	df:$[replaylog;{(.u.sub\:[x;y];(.u.i;.u.L);(.u `icounts);(.u `d))};{(.u.sub\:[x;y];(.u `i;`);(.u `icounts);(.u `d))}];
-	details:@[proc`w;(df;subtabs;instrs);
-		{.lg.e[`subscribe;"failed to get the required details from server : ",x];()}];
+    df:{(.u.sub\:[x;y];(.u`i`L);(.u `icounts);(.u `d))};
+    details:@[proc`w;(df;subtabs;instrs);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
 	/-to be returned at end of function (null if there is no log)
 	logdate: 0Nd;
 	if[count details;
@@ -66,7 +65,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			/-the first element of details is a list of pairs (tablename; schema)
 			/-this is the same as (tablename set schema)each table subscribed to
 			(@[`.;;:;].)each details[0] where not nulldetail:0=count each details 0;];
-		if[replaylog;
+		if[replaylog&not null details[1;1];
 			.lg.o[`subscribe;"replaying the log file"];
 			/-store the orig version of upd
 			origupd:@[value;`..upd;{{[x;y]}}];
@@ -82,6 +81,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			@[{-11!x;};details 1;{.lg.e[`subscribe;"could not replay the log file: ", x]}];
 			/-reset the upd function back to original upd
 			@[`.;`upd;:;origupd]];
+		if[replaylog&null details[1;1];
+			.lg.w[`subscribe;"replaylog set to true but TP not using log file"]];
 		/-insert the details into the SUBSCRIPTIONS table
 		.lg.o[`subscribe;"subscription successful"];
 		updatesubscriptions[proc;;instrs]each subtabs];
