@@ -7,7 +7,7 @@
 \d .wdb
 
 /- define default parameters
-mode:@[value;`mode;`saveandsort];	                                   /- the wdb process can operate in three modes
+mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
                                                                            /- 1. saveandsort               -               the process will subscribe for data,
                                                                            /-                                              periodically write data to disk and at EOD it will flush 
                                                                            /-                                              remaining data to disk before sorting it and informing
@@ -21,7 +21,7 @@ mode:@[value;`mode;`saveandsort];	                                   /- the wdb 
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];                            /- the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
@@ -65,7 +65,7 @@ compression:@[value;`compression;()];                                      /-spe
 
 gc:@[value;`gc;1b];                                                        /-garbage collect at appropriate points (after each table save and after sorting data)
 
-eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /- length of time to wait for async callbacks to complete at eod
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
@@ -184,7 +184,7 @@ endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
-        tablist:tablelist[]!{0#value x} each tablelist[];
+	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
@@ -196,11 +196,11 @@ endofday:{[pt]
 	};
 	
 endofdaysave:{[dir;pt]
-    /- save remaining table rows to disk
-    .lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
-    savetables[dir;pt;1b;] each tl;
-    .lg.o[`savefinish;"finished saving data to disk"];
-  };
+	/- save remaining table rows to disk
+	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
+	savetables[dir;pt;1b;] each tl;
+	.lg.o[`savefinish;"finished saving data to disk"];
+	};
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
@@ -458,10 +458,10 @@ startup:{[]
 		];
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
-           //check if tickerplant is available and if not exit with error 
-           .servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
-           subscribe[]; 
-	  ];		
+		//check if tickerplant is available and if not exit with error 
+		.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
+		subscribe[]; 
+		];		
 	}
 	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
