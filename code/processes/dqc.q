@@ -28,13 +28,6 @@ readdqeconfig:{[file;types]
   c:.[0:;((types;enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                         /- read in csv, trap error
  }
 
-gethandles:{exec procname,proctype,w from .servers.SERVERS where (procname in x) | (proctype in x)};
-
-fillprocname:{[rs;h]                                                                                            /- fill procname for results table
-  val:rs where not rs in raze a:h`proctype`procname;
-  (flip a),val,'`
-  }
-
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
   if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
