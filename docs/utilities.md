@@ -611,7 +611,8 @@ process will get the schema and replay the log file from the remote
 source (e.g. in the case of tickerplant subscriptions).
 
 .sub.getsubscriptionhandles is used to get a table of processes to
-subscribe to. It takes a process type and process name, and `()` and a null symbol can be used for all:
+subscribe to. It takes a process type and process name, where `()` or a null
+symbol can be used for all:
 
     .sub.getsubscriptionhandles[`tickerplant;();()!()]      / all processes of type tickerplant
     .sub.getsubscriptionhandles[`;`rdb1;()!()]              / all processes called 'rdb1'
@@ -1332,4 +1333,3 @@ between options in the drop down menus. This has significant repercussions if
 one of your columns includes full stops, eg. email adresses. As a result we have 
 left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.
-
