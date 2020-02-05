@@ -123,12 +123,13 @@ refreshtp:{[d]
   /- reset log and publish count
   .u.i:.u.j:0;
   .u.icounts::.u.jcounts::(`symbol$())!0#0,();
-  /- create new logfile name
-  .u.L:createlogfilename[d];
+  /- create log file if required
+  if[createlogfile;
+    .u.L:createlogfilename[d];
+    if[clearlogonsubscription;clearlog .u.L];
+  ];
   /- log file handle
-  .u.l:$[createlogfile;
-    [if[clearlogonsubscription;clearlog .u.L];
-    openlog .u.L];1i];
+  .u.l:$[createlogfile;openlog .u.L;1i];
   /- set date
   .u.d:d;
   }
