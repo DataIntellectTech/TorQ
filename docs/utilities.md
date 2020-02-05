@@ -611,10 +611,12 @@ process will get the schema and replay the log file from the remote
 source (e.g. in the case of tickerplant subscriptions).
 
 .sub.getsubscriptionhandles is used to get a table of processes to
-subscribe to. The following can be used to return a table of all
-connected processes of type tickerplant:
+subscribe to. It takes a process type and process name, and `()` and a null symbol can be used for all:
 
-    .sub.getsubscriptionhandles[`tickerplant;();()!()]
+    .sub.getsubscriptionhandles[`tickerplant;();()!()]      / all processes of type tickerplant
+    .sub.getsubscriptionhandles[`;`rdb1;()!()]              / all processes called 'rdb1'
+    .sub.getsubscriptionhandles[`;`;()!()]                  / all processes
+    .sub.getsubscriptionhandles[();();()!()]                / nothing
 
 .sub.subscribe is used to subscribe to a process for the supplied list
 of tables and instruments. For example, to subscribe to instruments A, B
