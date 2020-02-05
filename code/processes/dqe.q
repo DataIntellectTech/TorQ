@@ -118,6 +118,16 @@ dfilechk:{[tname;dirname]                                                       
     [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
   }
 
+datechk:{[dirname]                                                                                              /- function to check date vector contains latest date in an hdb 
+  system"l ",dirname;
+  if[not `PV in key`.Q;
+    .lg.o[`datechk;"The directory is not partitioned"]; :0b];
+  if[not `date in .Q.pf;
+    .lg.o[`datechk;"date is not a partition field value"]; :0b];
+  k:.z.d mod 7;
+  $[k in 1 2; last date=.z.d-1+k; last date=.z.d-1]
+}
+
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
