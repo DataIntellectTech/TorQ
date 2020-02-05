@@ -1,4 +1,5 @@
 \d .dqe
+hdbport:@[value;`hdbport;6003]
 rdbhdbcompare:{[tab]                                    // this function should be ran in the rdb
   h:hopen (`::56003:admin:admin);
   hdbmeta:h(meta;tab);
