@@ -55,7 +55,7 @@ openlog:{[lgfile]
 
 /- subscribe to tickerplant and refresh tickerplant settings
 subscribe:{[]
-  s:.sub.getsubscriptionhandles[`procname;.ctp.tickerplantname;()!()];
+  s:.sub.getsubscriptionhandles[`;.ctp.tickerplantname;()!()];
   if[count s;
       subproc:first s;
       .ctp.tph:subproc`w;
