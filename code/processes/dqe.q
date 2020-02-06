@@ -1,12 +1,29 @@
 \d .dqe
 
+queries:`tablecount`nullcheck`anomcheck;
+resultstab:2!flip (`procs`tab,queries)!((`$();`$()),count[queries]#`long$());
+
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-qpostback:{[proc;params;result]
+updresultstab:{[proc;col;table;tabinput]
+  .lg.o[`updresultstab;"Updating results table for ",(string table)," table from proc ",string proc];
+  ![table;enlist ((=;procs;proc);(=;tab;table));0b;(enlist col)!enlist tabinput]                                /- Update query results into table
+  }
 
+chkinresults:{[proc;table]
+  if[not (proc;table) in key resultstab;
+    .lg.o[`chkinresults;"adding null row for ",(string table)," table from proc ",string proc];
+    resultstab insert (proc;table,(count cols resultstab -2)#0N);]
+  }
+
+qpostback:{[proc;params;query;result]
+  .lg.o[`qpostback;"Postback sucessful for ",string proc];
+  tab:key result;
+  .dqe.chkinresults[proc]'[tab];
+  .dqe.updresultstab[proc;query]'[tab;value result];
   }
 
 runquery:{[query;params;rs]
@@ -15,8 +32,11 @@ runquery:{[query;params;rs]
   if[not rs in exec procname from .servers.SERVERS;.lg.e[`runquery;"error: remote service must be a proctype";:()]];
 
   h:.dqe.gethandles[(),rs];
-  r:.dqe.fillprocname[(),rs;h];
-  .async.postback[exec x from r;query,params;.dqe.qpostback[proc;params]];
+  .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query]];
+  }
+
+tablecountstore:{[partition]
+  .Q.pt!{count ?[x;enliist(=;.Q.pf;partition);0b;()]}[partition]'[.Q.pt]
   }
 
 \d .
