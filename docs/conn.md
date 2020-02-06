@@ -128,7 +128,7 @@ intersection of attributes).
     hdb2         hdb       :aquaq:5013 8 0    2014.01.08D11:51:01.928045000 2014.01.08D11:51:01.925078000      `datacentre`country!`essex`uk
     
     /- pull back hdbs.  Leave the attributes empty
-    q).servers.getservers[`proctype;`hdb;()!();1b;f0b] 
+    q).servers.getservers[`proctype;`hdb;()!();1b;0b] 
     procname proctype lastp                         w hpup        attributes                    attribmatch
     -------------------------------------------------------------------------------
     hdb3     hdb      2014.01.08D11:51:38.347598000 9 :aquaq:5012 `datacentre`country!`essex`uk ()!()      
