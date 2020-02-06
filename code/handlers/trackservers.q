@@ -342,7 +342,7 @@ startupdepcycles:{[requiredprocs;timeintv;cycles]
     .servers.startup[];
     if[n>cycles;
       b:((),requiredprocs)except(),exec proctype from .servers.SERVERS where .dotz.liveh w;
-      .lg.o[`connectionreport;string[.proc.procname]," cannot connect to ",","sv string'[b]];                           //after "cycles" times output error and exit process.
+      .lg.e[`connectionreport;string[.proc.procname]," cannot connect to ",","sv string'[b]];                           //after "cycles" times output error and exit process.
      ];
     .os.sleep[timeintv]
    ];
