@@ -39,7 +39,7 @@ schema:1b                                                                       
 settimer:0D00:00:10                                                                         // timer to check if data needs written to disk
 partitiontype:`date                                                                         // set type of partition (defaults to `date, can be `date, `month or `year)
 gmttime:1b                                                                                  // define whether the process is on gmttime or not
-getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}     //function to determine the partition value
+getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}     // function to determine the partition value
 reloadorder:`hdb`rdb                                                                        // order to reload hdbs and rdbs
 hdbdir:`:hdb                                                                                // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile"sort.csv"                                            // location of csv file
@@ -47,6 +47,7 @@ permitreload:1b                                                                 
 compression:()                                                                              // specify the compress level, empty list if no required
 gc:1b                                                                                       // garbage collect at appropriate points (after each table save and after sorting data)
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
+tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
 // Server connection details
 \d .servers
