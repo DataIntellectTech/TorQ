@@ -1,4 +1,4 @@
-\d .dqe 
+\d .dqc
 xmarketalert:{[tab]                                     // alerts user when bid has exceeded the ask in market data
   data:select from tab where bid>ask;
   $[0=count data;

@@ -1,4 +1,4 @@
-\d .dqe
+\d .dqc
 chkslowsub:{[threshold]                                                                                         /- function to check for slow subscribers
   .lg.o[`dqe;"Checking for slow subscribers"];
   overlimit:(key .z.W) where threshold<sum each value .z.W;

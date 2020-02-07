@@ -1,4 +1,4 @@
-\d .dqe
+\d .dqc
 constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
