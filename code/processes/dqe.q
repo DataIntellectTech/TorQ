@@ -29,15 +29,17 @@ runquery:{[query;params;rs]
 
 loadtimer:{[d]
   d[`proc]:value raze d[`proc];
-  .timer.once[d`starttime;({x+4};1);("Running check on ",string d[`proc])]
+  functiontorun:(`.dqe.runquery;.Q.dd[`.dqe;d`query];d`params;d`proc);
+  .timer.once[d`starttime;functiontorun;("Running check on ",string d[`proc])] 
+  /.timer.once[d`starttime;({x+4};1);("Running check on ",string d[`proc])]
   }
 
 configtimer:{[]
-  t:.dqe.readdqeconfig[.dqe.configcsv;"***NN"];  
+  t:.dqe.readdqeconfig[.dqe.configcsv;"S***N"];
   t:update starttime:.z.d+starttime from t;
-  d:t[0];
-  .dqe.loadtimer[d]
-  / {.dqe.loadtimer[x]}each t
+  /d:t[0];
+  /.dqe.loadtimer[d]
+  {.dqe.loadtimer[x]}each t
   }
 
 
@@ -46,4 +48,4 @@ configtimer:{[]
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .dqe.init[]
-/.dqe.configtimer[] 
+.dqe.configtimer[] 
