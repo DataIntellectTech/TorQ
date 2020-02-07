@@ -37,11 +37,6 @@ runquery:{[query;params;rs]
   .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query]];
   }
 
-tablecount:{[par]
-  .lg.o[`test;"Getting table count dictionary"];
-  .Q.pt!{[par;x]count ?[x;enlist(=;.Q.pf;par);0b;()]}[par]'[.Q.pt]                                              /- create dictionary of partition tables with their counts
-  }
-
 \d .
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
