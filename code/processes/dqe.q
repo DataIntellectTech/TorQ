@@ -17,7 +17,7 @@ chkinresults:{[proc;table]                                                      
   .lg.o[`chkresults;"Checking if ",(string proc),",",(string table)," is in resultstab"];
   if[not (proc;table) in key resultstab;
     .lg.o[`chkinresults;"adding null row for ",(string table)," table from proc ",string proc];
-    colcount:(-2)+count cols resultstab;                                                                        /- get count of unkeyed columns from results table
+    colcount:-2+count cols resultstab;                                                                          /- get count of unkeyed columns from results table
     `.dqe.resultstab insert raze(proc;table,colcount#0N)]                                                       /- insert proc,table pair with nulls into other columns
   }
 
