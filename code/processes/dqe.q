@@ -1,29 +1,31 @@
 \d .dqe
 
-queries:`tablecount`nullcheck`anomcheck;
-resultstab:2!flip (`procs`tab,queries)!((`$();`$()),count[queries]#`long$());
+resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcount:`long$());
 
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-updresultstab:{[proc;col;table;tabinput]
+updresultstab:{[proc;col;table;tabinput]                                                                        /- upadate results table with results
   .lg.o[`updresultstab;"Updating results table for ",(string table)," table from proc ",string proc];
-  ![table;enlist ((=;procs;proc);(=;tab;table));0b;(enlist col)!enlist tabinput]                                /- Update query results into table
+  colfix:`$5_string col;                                                                                        /- remove namespace from query name
+  ![`.dqe.resultstab;((=;`procs;enlist proc);(=;`tab;enlist table));0b;(enlist colfix)!enlist tabinput]         /- Update query results into table
   }
 
-chkinresults:{[proc;table]
+chkinresults:{[proc;table]                                                                                      /- check if record already exists for proc,table pair
+  .lg.o[`chkresults;"Checking if ",(string proc),",",(string table)," is in resultstab"];
   if[not (proc;table) in key resultstab;
     .lg.o[`chkinresults;"adding null row for ",(string table)," table from proc ",string proc];
-    resultstab insert (proc;table,(count cols resultstab -2)#0N);]
+    colcount:(-2)+count cols resultstab;                                                                        /- get count of unkeyed columns from results table
+    `.dqe.resultstab insert raze(proc;table,colcount#0N)]                                                       /- insert proc,table pair with nulls into other columns
   }
 
-qpostback:{[proc;params;query;result]
+qpostback:{[proc;query;result]
   .lg.o[`qpostback;"Postback sucessful for ",string proc];
-  tab:key result;
-  .dqe.chkinresults[proc]'[tab];
-  .dqe.updresultstab[proc;query]'[tab;value result];
+  tab:key result;                                                                                               /- get table names from dictionary
+  .dqe.chkinresults[first proc]'[tab];
+  .dqe.updresultstab[first proc;query]'[tab;value result];
   }
 
 runquery:{[query;params;rs]
@@ -35,8 +37,9 @@ runquery:{[query;params;rs]
   .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query]];
   }
 
-tablecountstore:{[partition]
-  .Q.pt!{count ?[x;enliist(=;.Q.pf;partition);0b;()]}[partition]'[.Q.pt]
+tablecount:{[par]
+  .lg.o[`test;"Getting table count dictionary"];
+  .Q.pt!{[par;x]count ?[x;enlist(=;.Q.pf;par);0b;()]}[par]'[.Q.pt]                                              /- create dictionary of partition tables with their counts
   }
 
 \d .
