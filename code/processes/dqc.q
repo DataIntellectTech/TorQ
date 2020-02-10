@@ -23,11 +23,6 @@ init:{
 
 configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
-readdqeconfig:{[file;types]
-  .lg.o["reading dqe config from ",string file:hsym file];                                                      /- notify user about reading in config csv
-  c:.[0:;((types;enlist",");file);{.lg.e["failed to load dqe configuration file: ",x]}]                         /- read in csv, trap error
- }
-
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
   if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
