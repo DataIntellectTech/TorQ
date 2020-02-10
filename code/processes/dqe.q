@@ -48,16 +48,13 @@ runquery:{[query;params;querytype;rs]
 loadtimer:{[d]
   d[`params]:value d[`params];
   d[`proc]:value raze d[`proc];
-  functiontorun:(`.dqe.runquery;.Q.dd[`.dqe;d`query];d`params;d`proc);
-  .timer.once[d`starttime;functiontorun;("Running check on ",string d[`proc])] 
-  /.timer.once[d`starttime;({x+4};1);("Running check on ",string d[`proc])]
+  functiontorun:(`.dqe.runquery;.Q.dd[`.dqe;d`query];d`params;d`querytype;d`proc);
+  .timer.once[d`starttime;functiontorun;("Running check on ",string d[`proc])]
   }
 
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
   t:update starttime:.z.d+starttime from t;
-  /d:t[0];
-  /.dqe.loadtimer[d]
   {.dqe.loadtimer[x]}each t
   }
 
