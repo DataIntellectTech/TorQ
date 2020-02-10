@@ -2,7 +2,7 @@
 
 \d .dqe
 
-configcsv:first .proc.getconfigfile["dqeconfig.csv"]
+configcsv:first .proc.getconfigfile["dqcconfig.csv"]
 dqcdbdir:hsym`$getenv[`KDBDQCDB]  // location to save dqc data
 hdbdir:hsym`$getenv[`KDBHDB]      // for locating the sym file
 gmttime:1b                        // define whether this process is on gmt time or not
