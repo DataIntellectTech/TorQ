@@ -22,7 +22,7 @@ chkinresults:{[proc;table]                                                      
   }
 
 qpostback:{[proc;query;result]
-  .lg.o[`qpostback;"Postback sucessful for ",string proc];
+  .lg.o[`qpostback;"Postback sucessful for ",string first proc];
   tab:key result;                                                                                               /- get table names from dictionary
   .dqe.chkinresults[first proc]'[tab];
   .dqe.updresultstab[first proc;query]'[tab;value result];
