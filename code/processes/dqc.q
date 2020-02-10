@@ -179,7 +179,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.getpartition[]];
+  .dqe.endofday[.dqe.getpartition[];(`results;`configtable);`.dqe];
   .dqe.currentpartition:pt+1;
   };
 
