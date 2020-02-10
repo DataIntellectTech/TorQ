@@ -1,7 +1,7 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];
-dqedbdir:@[value;`dqedbdir;`:dqedb];
+dqcdbdir:@[value;`dqcdbdir;`:dqedb];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
@@ -179,7 +179,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.getpartition[];(`results;`configtable);`.dqe];
+  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe];
   .dqe.currentpartition:pt+1;
   };
 

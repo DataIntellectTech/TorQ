@@ -8,8 +8,8 @@ savedata:{[dir;pt;ns;tabname]
   @[ns;tabname;0#];
   };
 
-endofday:{[pt;tabs;ns]
+endofday:{[dir;pt;tabs;ns]
   .lg.o[`eod;"end of day message received - ",string pt];
-  savedata[.dqe.dqedbdir;pt;ns]each tabs;
+  savedata[dir;pt;ns]each tabs;
   .lg.o[`eod;"end of day is now complete"];
   };
