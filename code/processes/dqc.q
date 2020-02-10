@@ -87,30 +87,6 @@ chkcompare:{[runtype;idnum;params]                                              
   .dqe.updresultstab[runtype;idnum;.z.p;resbool;s;`complete;params;`];
   }
 
-nullchk:{[t;colslist;thres]                                                                                     /- function to check percentage of nulls in each column from colslist of a table t
-  d:({sum$[0h=type x;0=count@'x;null x]}each flip tt)*100%count tt:((),colslist)#t;                             /- dictionary of nulls percentages for each column
-  res:([] colsnames:key d; nullspercentage:value d);
-  update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
-  }
-
-anomalychk:{[t;colslist;thres]                                                                                  /-function to check percentage of anomalies in each column from colslist of a table t
-  d:({sum{any x~'(0w;-0w;0W;-0W)}'[x]}each flip tt)*100%count tt:((),colslist)#t;
-  res:([] colsnames:key d; anomalypercentage:value d);
-  update thresholdfail:anomalypercentage>thres from res                                                         /- compare each column's anomalies percentage with threshold thres
-  }
-
-dfilechk:{[tname;dirname]                                                                                       /- function to check .d file. Sample use: .dqe.dfilechk[`trade;getenv `KDBHDB]
-  system"l ",dirname;
-  if[not `PV in key`.Q;
-    .lg.o[`dfilechk;"The directory is not partitioned"]; :0b];
-  if[2>count .Q.PV;
-    .lg.o[`dfilechk;"There is only one partition, therefore there are no two .d files to compare"]; :1b];
-  u:` sv'.Q.par'[`:.;-2#.Q.PV;tname],'`.d;
-  $[0=sum {()~key x} each u;
-    [.lg.o[`dfilechk;"Checking if two latest .d files match"]; (~). get each u];
-    [.lg.o[`dfilechk;"Two partitions are available but there are no two .d files for the given table to compare"]; 0b]]
-  }
-
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   if[params`comp;                                                                                               /- if comparision, add to compcounter table
@@ -188,7 +164,7 @@ results:([]id:`long$();funct:`$();params:`$();procs:`$();procschk:`$();starttime
 loadtimer:{[DICT]
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
   DICT[`proc]: value DICT[`proc];
-  functiontorun:(`.dqe.runcheck;`scheduled;DICT`checkid;.Q.dd[`.dqe;DICT`action];DICT`params;DICT`proc);        /- function that will be used in timer
+  functiontorun:(`.dqe.runcheck;`scheduled;DICT`checkid;.Q.dd[`.dqc;DICT`action];DICT`params;DICT`proc);        /- function that will be used in timer
   $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
     .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proc];
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proc]]
