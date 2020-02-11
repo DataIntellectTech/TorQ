@@ -169,7 +169,7 @@ reruncheck:{[chkid]                                                             
   d:exec action, params, proc from .dqe.configtable where checkid=chkid;
   d[`params]: value d[`params][0];
   d[`proc]: value raze d[`proc];
-  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqe;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
+  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqc;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
   }
 
 \d .
@@ -178,8 +178,10 @@ reruncheck:{[chkid]                                                             
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
-.u.end:{[pt]    /- setting up .u.end for dqe
+.u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
   .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe];
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
+  .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
   .dqe.currentpartition:pt+1;
   };
 
