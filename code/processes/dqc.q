@@ -1,7 +1,7 @@
 \d .dqe
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];
-dqcdbdir:@[value;`dqcdbdir;`:dqedb];
+dqcdbdir:@[value;`dqcdbdir;`:dqcdb];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
