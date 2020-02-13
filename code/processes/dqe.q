@@ -8,7 +8,7 @@ getpartition:@[value;`getpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
-resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcount:`long$());
+resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcount:`long$();symcount:`long$());
 
 init:{
   .lg.o[`init;"searching for servers"];
