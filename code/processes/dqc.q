@@ -20,7 +20,9 @@ init:{
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   .dqe.compcounter[0N]:(0N;();());
   
-  .timer.once[.eodtime.nextroll;`.u.end;"Running EOD on Checker"];                                              /- set timer to call EOD
+  configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())  
+
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
 
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];                                        /- Set up configtable from csv
   update checkid:til count .dqe.configtable from `.dqe.configtable;
@@ -36,8 +38,6 @@ init:{
   /.dqe.reruncheck[chkid]
   .dqe.loadtimer '[.dqe.configtable]
   }
-
-configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
   if[params`comp;proc:params`compresproc];
