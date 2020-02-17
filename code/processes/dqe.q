@@ -8,31 +8,32 @@ getpartition:@[value;`getpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
-resultstab:([]funct:`$();params:`$();procs:`$();resvalue:`long$());
+resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
 
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   }
 
-updresultstab:{[proc;fn;params;resinput]                                                                        /- upadate results table with results
+updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
   .lg.o[`updresultstab;"Updating results for ",(string fn)," from proc ",string proc];
-  `.dqe.resultstab insert (`$5_string fn;`$"," sv string params;proc;resinput)
+  if[not 11h=abs type params`col; params[`col]:`];
+  `.dqe.resultstab insert (proc;`$5_string fn;tab;params`col;resinput)
   }
 
 qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback sucessful for ",string first proc];
-  if[`table=querytype;params:(key result),\:params];                                                            /- get table names from dictionary and attach other parameters
-  .dqe.updresultstab[first proc;query]'[params;value result];
+  .dqe.updresultstab[first proc;query;params]'[$[`table=querytype;key result;0N];value result];
   }
 
 runquery:{[query;params;querytype;rs]
+  temp:(`,(value value query)[1])!(::), params;
   .lg.o[`runquery;"Starting query run for ",string query];
   if[1<count rs;.lg.e[`runquery"error: can only send query to one remote service, trying to send to ",string count rs];:()];
   if[not rs in exec procname from .servers.SERVERS;.lg.e[`runquery;"error: remote service must be a proctype";:()]];
 
   h:.dqe.gethandles[(),rs];
-  .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query;params;querytype]];
+  .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query;temp;querytype]];
   }
 
 loadtimer:{[d]
@@ -47,7 +48,6 @@ configtimer:{[]
   t:update starttime:.z.d+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
-
 
 \d .
 
