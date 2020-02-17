@@ -82,7 +82,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			/-reset the upd function back to original upd
 			@[`.;`upd;:;origupd]];
 		if[replaylog&null details[1;1];
-			.lg.w[`subscribe;"replaylog set to true but TP not using log file"]];
+			.lg.e[`subscribe;"replaylog set to true but TP not using log file"]];
 		/-insert the details into the SUBSCRIPTIONS table
 		.lg.o[`subscribe;"subscription successful"];
 		updatesubscriptions[proc;;instrs]each subtabs];
