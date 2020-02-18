@@ -7,5 +7,5 @@ constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb
 attrcheck,`comp`vars!(0b;(`quote;`s`g;`time`sym)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
 schemacheck,`comp`vars!(0b;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"psffjjccs";`````````;`s`g```````)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:15:00
 freeform,`comp`vars!(0b;"select from trade where date=2020.01.02"),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:03:00
-symfilecheck,(`comp`vars!(0b;(.dqe.hdbdir;`sym))),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+symfilecheck,(`comp`vars!(0b;(.dqc.hdbdir;`sym))),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
 xmarketalert,`comp`vars!(0b;(`quote)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
