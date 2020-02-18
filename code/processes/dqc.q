@@ -145,7 +145,7 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
     .lg.o[`runcheck;(string params`compcount)," procsess will be checked for this comparison"];
     .dqe.initstatusupd[runtype;idnum;fn;params;(`$"," sv string  r[;0]),params`compresproc];
 
-    if[any[null h`w]|any null r[;1]
+    if[any[null h`w]|any null r[;1];
       .lg.e[`runcheck;"unable to compare as process down or missing handle"];
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;params;params`compresproc];
       :()];
