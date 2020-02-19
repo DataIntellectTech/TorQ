@@ -23,7 +23,7 @@ updresultstab:{[proc;fn;params;tab;resinput]                                    
 
 qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback sucessful for ",string first proc];
-  .dqe.updresultstab[first proc;query;params]'[$[`table=querytype;key result;0N];value result];
+  .dqe.updresultstab[first proc;query;params]'[$[`table=querytype;key result;`];value result];
   }
 
 runquery:{[query;params;querytype;rs]
