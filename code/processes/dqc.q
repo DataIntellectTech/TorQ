@@ -28,7 +28,7 @@ init:{
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
   update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
-]
+
   .dqe.loadtimer '[.dqe.configtable]
   }
 
@@ -192,6 +192,7 @@ reruncheck:{[chkid]                                                             
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in ' funcparam];
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in ' funcparam];
   delete configtable from `.dqe;
   .dqe.init[];
   .dqe.currentpartition:pt+1;
