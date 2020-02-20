@@ -38,7 +38,7 @@ init:{
   et:$[0<'a:exec max endtime from (select from .dqe.configtable where checkid<>1) where (endtime<>0Wp);         /- checks that there is and end time in .dqe.configtable
     a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
     .eodtime.nextroll-.dqe.writedownperiod];                                                                    /- take EOD time and go back the writedown period
-  .timer.repeat[st;et;.dqe.writedownperiod;`.dqe.writedown;"Running peridotic writedown"];
+  .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
 
 writedown:{
