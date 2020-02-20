@@ -4,8 +4,8 @@ savedata:{[dir;pt;icounts;ns;tabname]
   pth:` sv .Q.par[dir;pt;tabname],`;
   err:{[e].lg.e[`savedata;"Failed to save dqe data to disk : ",e];'e};
   tab:.Q.dd[ns;tabname];
-  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where (i within(icounts;count value tab))&(chkstatus<>`Started)]]);err];
-  .dqe.icounts:count select from  tab where chkstatus<>`Started;
+  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where (i within(icounts;count value tab))&(chkstatus<>`started)]]);err];
+  .dqe.icounts:count select from  tab where chkstatus<>`started;
   };
 
 cleartables:{[ns;tabname]
