@@ -28,14 +28,7 @@ init:{
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
   update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
-
-  / Sample runcheck:
-  / show .dqe.results
-  / Load up timers
-
-  /Sample reruncheck
-  /chkid:3
-  /.dqe.reruncheck[chkid]
+]
   .dqe.loadtimer '[.dqe.configtable]
   }
 
