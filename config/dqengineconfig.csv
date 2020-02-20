@@ -1,2 +1,3 @@
 query,params,proc,querytype,starttime
 tablecount,.z.d-1,`hdb1,table,09:00:00.000000000
+symcount,(`quote;`sym),`hdb1,table,09:00:00.000000000
