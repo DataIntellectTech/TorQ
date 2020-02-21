@@ -32,8 +32,7 @@ init:{
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.icounts:count .dqe.results;
-
+  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:$[0<'a:exec max endtime from (select from .dqe.configtable where checkid<>1) where (endtime<>0Wp);         /- checks that there is and end time in .dqe.configtable
     a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
@@ -42,7 +41,7 @@ init:{
   }
 
 writedown:{
-  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];`.dqe;`results];
+  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
   }
@@ -68,9 +67,10 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
   .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
   if[1b=params`comp;proc:params`compresproc];
-  if[c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                         /- obtain count of checks that will be updated
+  if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                       /- obtain count of checks that will be updated
     .lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+    .dqe.tosavedown,:s;
   delete from `.dqe.compcounter where id=idnum;
   params:()!();
   }
@@ -203,7 +203,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe];
+  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers

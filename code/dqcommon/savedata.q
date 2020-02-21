@@ -1,11 +1,12 @@
 \d .dqe
-savedata:{[dir;pt;ns;tabname]
+savedata:{[dir;pt;savetemp;ns;tabname]
   .lg.o[`dqe;"Saving ",(string tabname)," data to ",.os.pth dir];
   pth:` sv .Q.par[dir;pt;tabname],`;
   err:{[e].lg.e[`savedata;"Failed to save dqe data to disk : ",e];'e};
   tab:.Q.dd[ns;tabname];
-  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where (i within(.dqe.icounts;count value tab))&(chkstatus<>`started)]]);err];
-  .dqe.icounts:count select from  tab where chkstatus<>`started;
+  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;{[tab;x]exec from tab where i=x}[tab]'[savetemp] ]]);err];
+  .lg.o[`savedata;"i values for rows that will be saved down: ","," sv string savetemp];
+  .dqe.tosavedown:.dqe.tosavedown except savetemp;
   };
 
 cleartables:{[ns;tabname]
@@ -13,9 +14,9 @@ cleartables:{[ns;tabname]
   @[ns;tabname;0#];
   };
 
-endofday:{[dir;pt;tabs;ns]
+endofday:{[dir;pt;tabs;ns;tempsave]
   .lg.o[`eod;"end of day message received - ",string pt];
-  savedata[dir;pt;ns]each tabs;
+  savedata[dir;pt;savetemp;ns]each tabs;
   cleartables[ns]each tabs;
   .lg.o[`eod;"end of day is now complete"];
   };
