@@ -4,8 +4,8 @@
 //Connect to other slave processes and retrieve details to determine which process is master
 
 //run lines
-//q torq.q -load lb.q -proctype lb -procname lb1 -p 6100 -debug -parentproctype wdb
-//q torq.q -load lb.q -proctype lb -procname lb2 -p 6101 -debug -parentproctype wdb
+//q torq.q -load masterslave.q -proctype lb -procname lb1 -p 6100 -debug -parentproctype wdb
+//q torq.q -load masterslave.q -proctype lb -procname lb2 -p 6101 -debug -parentproctype wdb
 
 
 // the list of processes to connect to
