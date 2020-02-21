@@ -6,5 +6,5 @@ datechk:{[dirname]                                                              
   if[not `date in .Q.pf;
     .lg.o[`datechk;"date is not a partition field value"]; :0b];
   k:.z.d mod 7;
-  $[k in 1 2; last date=.z.d-1+k; last date=.z.d-1]
+  last date=.z.d-1+k*(k:.z.d mod 7)in 1 2
   }
