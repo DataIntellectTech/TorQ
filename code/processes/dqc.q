@@ -41,6 +41,7 @@ init:{
   }
 
 writedown:{
+  if[not count .dqe.tosavedown;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
