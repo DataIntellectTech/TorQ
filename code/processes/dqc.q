@@ -19,9 +19,18 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   .dqe.compcounter[0N]:(0N;();());
-  }
+  
+  configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())  
 
-configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
+
+  `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];                                        /- Set up configtable from csv
+  update checkid:til count .dqe.configtable from `.dqe.configtable;
+  update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
+  update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
+
+  .dqe.loadtimer'[.dqe.configtable]
+  }
 
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
   if[params`comp;proc:params`compresproc];
@@ -182,21 +191,11 @@ reruncheck:{[chkid]                                                             
   .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
+  delete configtable from `.dqe;
+  .dqe.init[];
   .dqe.currentpartition:pt+1;
   };
 
-.dqe.init[]
-
-`.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"]                                           /- Set up configtable from csv
-update checkid:til count .dqe.configtable from `.dqe.configtable
-update starttime:.z.d+starttime from `.dqe.configtable                                                          /- from timespan to timestamp
-update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable
-
-/ Sample runcheck:
-/ show .dqe.results
-/ Load up timers
-
-/Sample reruncheck
-/chkid:3
-/.dqe.reruncheck[chkid]
-if[not .dqe.testing;.dqe.loadtimer '[.dqe.configtable]]
+if[not .dqe.testing;.dqe.init[]]
