@@ -1,13 +1,5 @@
 \d .dqe
-tablecount:{[tab;operator;chkvalue]                                                                             /- compare the count of a table to a chosen value
-  d:(>;=;<)!("greater than";"equal to";"less than");
-  statement:d[operator]," ",(string chkvalue),". Its count is ",string count value tab;
-  c:operator .(count value tab;chkvalue);
-  (c;"The count of ",(string tab)," is ",$[c;"";"not "],statement)
-  }
-
-tablehasrecords:.dqe.tablecount[;>;0];                                                                          /- check if the count of the table is greater than zero
-
-tablecountcomp:{[tab]
-  count value tab
+tablecount:{[par]
+  .lg.o[`test;"Getting table count dictionary"];
+  .Q.pt!{[par;x]count ?[x;enlist(=;.Q.pf;par);0b;()]}[par]'[.Q.pt]                                              /- create dictionary of partition tables with their counts
   }

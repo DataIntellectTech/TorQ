@@ -1,5 +1,5 @@
 \d .dqe
-hdbdir:@[value;`hdbdir;`hdb]
-symfilecheck:{[directory;filename]                     // if sym file exists
-  (c;"sym file named ",(string filename)," ",$[c:.os.Fex .Q.dd[directory]filename;"exists";"doesn't exist"])
+symfilecheck:{[filename]                             // - should be run on hdb process - function returns a dictionary of count of syms in sym file
+  .lg.o[`test;"Counting number of symbols in the symbol file each day"];
+  (enlist `symfilecount)!(enlist count get filename)
   }
