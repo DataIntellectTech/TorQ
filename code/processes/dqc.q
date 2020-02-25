@@ -44,7 +44,7 @@ writedown:{
   if[not count .dqe.tosavedown;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
-  .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for BD's to reload
   }
   
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
@@ -206,7 +206,7 @@ reruncheck:{[chkid]                                                             
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
   .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
-  .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for BD's to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];                     /- clear writedown timer
