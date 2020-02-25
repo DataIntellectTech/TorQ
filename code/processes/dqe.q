@@ -58,6 +58,13 @@ configtimer:{[]
   {.dqe.loadtimer[x]}each t
   }
 
+writedowndqe:{
+  if[not count .dqe.tosavedown;:()];
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`resultstab];
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for BD's to reload
+  }
+
 
 \d .
 
