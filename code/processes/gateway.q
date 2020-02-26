@@ -557,7 +557,7 @@ reloadend:{
  /- set eod variable to false
  .gw.seteod[0b];
  /- retry connections - get updated attributes from servers and refresh servers tables
- setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS;
+ setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS where .dotz.liveh[w];
  /- flush any async queries held during reload phase
  .gw.runnextquery[];}
 
