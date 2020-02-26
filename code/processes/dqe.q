@@ -14,6 +14,7 @@ resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcoun
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+  .dqe.tosavedownengine:();                                                                                           /- store i numbers of rows to be saved down to DB
   }
 
 updresultstab:{[proc;col;table;tabinput]                                                                        /- upadate results table with results
@@ -60,8 +61,8 @@ configtimer:{[]
   }
 
 writedownengine:{
-  if[not count .dqe.tosavedown;:()];
-  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`resultstab];
+  if[not count .dqe.tosavedownengine;:()];
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedownengine;`.dqe;`resultstab];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for BD's to reload
   }
