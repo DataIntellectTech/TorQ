@@ -6,6 +6,7 @@ partitiontype:@[value;`partitiontype;`date];
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
 resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcount:`long$());
@@ -58,7 +59,7 @@ configtimer:{[]
   {.dqe.loadtimer[x]}each t
   }
 
-writedowndqe:{
+writedownengine:{
   if[not count .dqe.tosavedown;:()];
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`resultstab];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
