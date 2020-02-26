@@ -14,6 +14,8 @@ resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcoun
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+ .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                        /- set timer to call EOD
+  
   .dqe.tosavedownengine:();                                                                                           /- store i numbers of rows to be saved down to DB
   }
 
