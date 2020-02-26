@@ -23,9 +23,10 @@ init:{
 
  // custom function, this is invoked when a new outbound connection is created
  // to be customised to invoke negotiation of processes
- .servers.connectcustom:{.lg.o[`connect;"found new connection"];
+ .servers.connectcustom:{[f;x]
                          .masterslave.checkifmaster[];
-                         };
+                         f@x
+                         }@[value;`.servers.connectcustom;{{}}];
  // create connections
  .servers.startup[]
  };
@@ -33,14 +34,14 @@ init:{
 \d .masterslave
 
 //table scehma of connected lb processes with ismaster status
-statustable:([handle:`int$()] procname:();starttimeUTC:`timestamp$();ismaster:`boolean$());
+statustable:([handle:`int$()] procname:`$();starttimeUTC:`timestamp$();ismaster:`boolean$());
 
 //store own process start timestamp
 start:.z.p;
 
 //set details dict with own details
 details:{
- `procname`starttimeUTC!(string .proc.procname;.masterslave.start)
+ `procname`starttimeUTC!(.proc.procname;.masterslave.start)
  };
 
 //get details of procname provided
@@ -57,26 +58,45 @@ addmember:{[processname]
 masterupdate:{update ismaster:starttimeUTC=min starttimeUTC from `.masterslave.statustable}
 
 //is the process itself the master
-ammaster:{exec ismaster from .masterslave.statustable where handle=0};
+ammaster:{first exec ismaster from .masterslave.statustable where handle=0};
 
 //find which process is the master - can only be run after checkifmaster has been run
 findmaster:{exec handle, procname from .masterslave.statustable where ismaster=1b};
 
 //wrapper func for finding master
 checkifmaster:{
- (.masterslave.addmember')[string exec procname from .servers.SERVERS where proctype like "lb", not null w];
+ (.masterslave.addmember')[string exec procname from .servers.SERVERS where proctype=.proc.proctype, not null w];
  .masterslave.masterupdate[]
  };
+
+
+
+///
+//push msgs from master to slaves
+//sendtoslaves:{}
+//check if master
+//1=ammaster[]
+//>send msg from master to slave
+
+
+//push masgs from slaves to master
+//sendtomaster:{}
+//check if slave
+//0=ammaster[]
+//>send msg from slave to master 
+
+///
+
+
 
 deletedropped:{[W]delete from `.masterslave.statustable where handle=W};
 
 //add pc override here
 //remove dropped connection from statustable
 //tell other alive processes to renegotiate who the master is
-pc:{[result;W]
+pc:{[W]
  .masterslave.deletedropped[W];
  .masterslave.checkifmaster[];
- result
  };
 
 \d .
@@ -85,4 +105,4 @@ pc:{[result;W]
 init[];
 
 //.z.pc call
-.z.pc:{.masterslave.pc[x y;y]}.z.pc;
+.z.pc:{x y;.masterslave.pc[y]}@[value;`.z.pc;{{[x]}}];
