@@ -6,11 +6,11 @@ name,public,descrip,params,return
 .dqc.tablehasrecords,1,A projection of .dqe.tablecount that is used to check if a table has records,[tab: symbol],Return boolean and the count of the table
 .dqc.attrcheck,1,Used to check if a table's schema matches expectation,[tab;attribute;col],Return boolean and if attribute matches
 .dqc.anomalychk,1,Used to check percentage of anomlaies in each col of table,[t;colslist;thres],Returns ...
-.dqc.freeform,1,
+.dqc.freeform,1,Used to check if query has passsed correctly,[query],Return boolean and whether query passed
 .dqc.schemacheck,1,Used to check if meta of table matches expectation,[tab;colname;types;forkeys;attribute],Return boolean and if schema matches
-.dqc.datechk,1,Used to check if date vector contains latest date in hdb,[dirname],Return ...
-.dqc.nullchk,1,Used to check percentage of nulls in each column in table,[t;colslist;thres],Returns ...
+.dqc.datechk,1,Used to check if date vector contains latest date in hdb,[dirname],Return boolean and whether date vector contains latest date in hdb
+.dqc.nullchk,1,Used to check percentage of nulls in each column in table,[t;colslist;thres],Returns boolean and percentage of nulls in each column from colslist of tablt t
 .dqc.symfilecheck,1,Used to check if sym file exists,[directory;filename],Returns boolean and if sym file exists
 .dqc.xmarketalert,1,Used to check if bid price has exceeded the ask in market data,[tab],Returns boolean and whether the price has exceeded
-.dqc.dfilechk,1,Used to check the .d file ???? fill this in
+.dqc.dfilechk,1,Used to check if two .d files match[tname;dirname],Returns
 .dqc.rangechk,1,Used to check whether values are within the range defined,[t;colslist;tlower;tupper;thres],Returns ....
