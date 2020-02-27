@@ -17,21 +17,23 @@
 // should then become master
 //3 processes, one master, master dies, one of the remaining two takes over
 
+
+\d .masterslave
 init:{
  // the list of processes to connect to
  .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.proc.proctype;
 
  // custom function, this is invoked when a new outbound connection is created
  // to be customised to invoke negotiation of processes
- .servers.connectcustom:{[f;x]
-                         .masterslave.checkifmaster[];
-                         f@x
-                         }@[value;`.servers.connectcustom;{{}}];
- // create connections
- .servers.startup[]
- };
+ .servers.connectcustom:{[f;x] .masterslave.checkifmaster[];
+                         f@x} @[value;`.servers.connectcustom;{{}}];
 
-\d .masterslave
+ // create connections
+  .servers.startup[];
+ 
+ //.z.pc call
+ .z.pc:{x y; .masterslave.pc[y]}@[value;`.z.pc;{{[x]}}]
+ };
 
 //table scehma of connected lb processes with ismaster status
 statustable:([handle:`int$()] procname:`$();starttimeUTC:`timestamp$();ismaster:`boolean$());
@@ -71,7 +73,7 @@ checkifmaster:{
 
 
 
-///
+//
 //push msgs from master to slaves
 //sendtoslaves:{}
 //check if master
@@ -79,13 +81,13 @@ checkifmaster:{
 //>send msg from master to slave
 
 
-//push masgs from slaves to master
+//push msgs from slaves to master
 //sendtomaster:{}
 //check if slave
 //0=ammaster[]
 //>send msg from slave to master 
 
-///
+//
 
 
 
@@ -99,10 +101,9 @@ pc:{[W]
  .masterslave.checkifmaster[];
  };
 
+
 \d .
 
-//populate statutable and find which process is master
-init[];
+ //.z.pc call
+// .z.pc:{x y;.masterslave.pc[y]}@[value;`.z.pc;{{[x]}}]
 
-//.z.pc call
-.z.pc:{x y;.masterslave.pc[y]}@[value;`.z.pc;{{[x]}}];
