@@ -119,11 +119,11 @@ debug() {
 
 summary() {
   if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
-    printf "%-8s | %-14s | %-6s |\n" "$(date '+%H:%M:%S')" "$1" "down"                              # summary table row for down process
+    printf "%s | %s | down |" "$(date '+%H:%M:%S')" "$1"                                            # summary table row for down process
   else
     pid=$((findproc "$1")|awk 'END{print}')
     port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
-    printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "$(date '+%H:%M:%S')" "$1" "up" "$pid" "$port"     # summary table row for running process
+    printf "%s | %s | up | %s | %s" "$(date '+%H:%M:%S')" "$1" "$pid" "$port"                       # summary table row for running process
   fi
  }
 
@@ -303,10 +303,11 @@ rundebug() {
 runsummary() {
   allcsv "$*";
   PROCS=$(awk -F, '{if(NR>1) print $4}' "$CSVPATH");
-  printf "%-8s | %-14s | %-6s | %-6s | %-6s\n" "TIME" "PROCESS" "STATUS" "PID" "PORT"
+  out="TIME | PROCESS | STATUS | PID | PORT"
   for p in $PROCS; do
-    summary "$p";
+    out="${out}\n$(summary "$p")";
   done
+  echo -e $out | column -t
  }
 
 showprocs() {
