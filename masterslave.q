@@ -17,14 +17,15 @@
 // should then become master
 //3 processes, one master, master dies, one of the remaining two takes over
 
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.proc.proctype;
+.servers.CONNECTIONS:show distinct .servers.CONNECTIONS,.proc.proctype;
 .servers.startup[];
+show .servers.SERVERS;
 
 \d .masterslave
 
 init:{
  .masterslave.checkifmaster[];
- .servers.connectcustom:{[f;x] .masterslave.addmember[x `.proc.procname];f@x}@[value;`.servers.connectcustom;{{}}];
+ .servers.connectcustom:{[f;x] show .servers.SERVERS; show x;.masterslave.addmember[x `.proc.procname];f@x}@[value;`.servers.connectcustom;{{}}];
  .masterslave.masterupdate[]
  };
 
@@ -41,13 +42,13 @@ details:{
 
 //get details of procname provided
 getdetails:{[processname]
- (first exec w from .servers.SERVERS where procname like raze string processname,not null w) (`.masterslave.details;[])
+ (first exec w from .servers.SERVERS where procname=processname,not null w) (`.masterslave.details;[])
  };
 
 //update .masterslave.statustable with other proc details and update ismaster col to determine which process is master
 addmember:{[processname]
  `.masterslave.statustable upsert .masterslave.getdetails[processname],
-  (`handle`ismaster)!(first exec w from .servers.SERVERS  where procname like processname,not null w;1b)
+  (`handle`ismaster)!(first exec w from .servers.SERVERS  where procname=processname,not null w;1b)
  };
 
 masterupdate:{update ismaster:starttimeUTC=min starttimeUTC from `.masterslave.statustable};
@@ -60,7 +61,7 @@ findmaster:{exec handle, procname from .masterslave.statustable where ismaster=1
 
 //wrapper func for finding master
 checkifmaster:{
- (.masterslave.addmember')[string exec procname from .servers.SERVERS where proctype=.proc.proctype, not null w];
+ (.masterslave.addmember')[exec procname from .servers.SERVERS where proctype=.proc.proctype, not null w];
  .masterslave.masterupdate[]
  };
 
@@ -92,7 +93,7 @@ deletedropped:{[W]delete from `.masterslave.statustable where handle=W};
 pc:{[W]
  if[W=0;show "Handle is 0";.masterslave.deletedropped[W]];
  .masterslave.checkifmaster[]
- }
+ };
 
 
 //\d .
