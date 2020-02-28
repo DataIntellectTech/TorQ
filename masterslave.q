@@ -17,25 +17,18 @@
 // should then become master
 //3 processes, one master, master dies, one of the remaining two takes over
 
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.proc.proctype;
+.servers.startup[];
 
 \d .masterslave
+
 init:{
- // the list of processes to connect to
- .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.proc.proctype;
-
- // custom function, this is invoked when a new outbound connection is created
- // to be customised to invoke negotiation of processes
- .servers.connectcustom:{[f;x] .masterslave.checkifmaster[];
-                         f@x} @[value;`.servers.connectcustom;{{}}];
-
- // create connections
-  .servers.startup[];
- 
- //.z.pc call
- .z.pc:{x y; .masterslave.pc[y]}@[value;`.z.pc;{{[x]}}]
+ .masterslave.checkifmaster[];
+ .servers.connectcustom:{[f;x] .masterslave.addmember[x `.proc.procname];f@x}@[value;`.servers.connectcustom;{{}}];
+ .masterslave.masterupdate[]
  };
 
-//table scehma of connected lb processes with ismaster status
+//table
 statustable:([handle:`int$()] procname:`$();starttimeUTC:`timestamp$();ismaster:`boolean$());
 
 //store own process start timestamp
@@ -48,7 +41,7 @@ details:{
 
 //get details of procname provided
 getdetails:{[processname]
- (first exec w from .servers.SERVERS where procname like processname,not null w) (`.masterslave.details;[])
+ (first exec w from .servers.SERVERS where procname like raze string processname,not null w) (`.masterslave.details;[])
  };
 
 //update .masterslave.statustable with other proc details and update ismaster col to determine which process is master
@@ -57,7 +50,7 @@ addmember:{[processname]
   (`handle`ismaster)!(first exec w from .servers.SERVERS  where procname like processname,not null w;1b)
  };
 
-masterupdate:{update ismaster:starttimeUTC=min starttimeUTC from `.masterslave.statustable}
+masterupdate:{update ismaster:starttimeUTC=min starttimeUTC from `.masterslave.statustable};
 
 //is the process itself the master
 ammaster:{first exec ismaster from .masterslave.statustable where handle=0};
@@ -87,7 +80,7 @@ checkifmaster:{
 //0=ammaster[]
 //>send msg from slave to master 
 
-//
+
 
 
 
@@ -97,13 +90,13 @@ deletedropped:{[W]delete from `.masterslave.statustable where handle=W};
 //remove dropped connection from statustable
 //tell other alive processes to renegotiate who the master is
 pc:{[W]
- .masterslave.deletedropped[W];
- .masterslave.checkifmaster[];
- };
+ if[W=0;show "Handle is 0";.masterslave.deletedropped[W]];
+ .masterslave.checkifmaster[]
+ }
 
 
-\d .
+//\d .
 
- //.z.pc call
+//.z.pc call
 // .z.pc:{x y;.masterslave.pc[y]}@[value;`.z.pc;{{[x]}}]
 
