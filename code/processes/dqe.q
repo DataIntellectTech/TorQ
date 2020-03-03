@@ -14,9 +14,10 @@ resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcoun
 init:{
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
- .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                        /- set timer to call EOD
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   
-  .dqe.tosavedownengine:();                                                                                           /- store i numbers of rows to be saved down to DB
+  .dqe.configtable[];
+  .dqe.tosavedownengine:();                                                                                     /- store i numbers of rows to be saved down to DB
   }
 
 updresultstab:{[proc;col;table;tabinput]                                                                        /- upadate results table with results
@@ -84,8 +85,9 @@ writedownengine:{
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
+  .dqe.init[];
   .dqe.currentpartition:pt+1;
   };
 
 .dqe.init[]
-.dqe.configtimer[]
+/.dqe.configtimer[]
