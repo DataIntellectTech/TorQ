@@ -36,7 +36,7 @@ init:{
   et:(.eodtime.nextroll;a)0<'a:exec max endtime from .dqe.configtable where checkid<>1,endtime<>0Wp;
   et-:dqe.writedownperiod;
     a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
-    .eodtime.nextroll-.dqe.writedownperiod];                                                                    /- take EOD time and go back the writedown period
+    .eodtime.nextroll-.dqe.writedownperiod;                                                                    /- take EOD time and go back the writedown period
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
 
