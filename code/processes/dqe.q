@@ -16,7 +16,7 @@ init:{
   .servers.startup[];                                                                                           /- Open connection to discovery
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   
-  .dqe.configtable[];
+  .dqe.configtimer[];
   .dqe.tosavedownengine:();                                                                                     /- store i numbers of rows to be saved down to DB
   }
 
