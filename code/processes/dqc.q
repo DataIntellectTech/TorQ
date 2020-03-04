@@ -32,12 +32,13 @@ init:{
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.tosavedown:();
-  st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;                                                                                           /- store i numbers of rows to be saved down to DB
-  et:(.eodtime.nextroll;a)0<'a:exec max endtime from .dqe.configtable where checkid<>1,endtime<>0Wp;
-  et-:.dqe.writedownperiod;
-    a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
-    .eodtime.nextroll-.dqe.writedownperiod;                                                                    /- take EOD time and go back the writedown period
+  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
+  st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
+  et:.eodtime.nextroll-.dqe.writedownperiod;
+  /et:(.eodtime.nextroll;a)0<'a:exec max endtime from .dqe.configtable where checkid<>1,endtime<>0Wp;
+  /et-:.dqe.writedownperiod;
+    /a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
+    /.eodtime.nextroll-.dqe.writedownperiod;                                                                    /- take EOD time and go back the writedown period
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
 
