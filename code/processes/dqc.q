@@ -32,7 +32,8 @@ init:{
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:();
+  st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;                                                                                           /- store i numbers of rows to be saved down to DB
   et:(.eodtime.nextroll;a)0<'a:exec max endtime from .dqe.configtable where checkid<>1,endtime<>0Wp;
   et-:.dqe.writedownperiod;
     a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
