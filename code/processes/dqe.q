@@ -17,7 +17,7 @@ init:{
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   
   .dqe.configtimer[];
-  .dqe.tosavedownengine:();                                                                                     /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:();                                                                                     /- store i numbers of rows to be saved down to DB
   }
 
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
@@ -25,7 +25,7 @@ updresultstab:{[proc;fn;params;tab;resinput]                                    
   if[not 11h=abs type params`col; params[`col]:`];
   `.dqe.resultstab insert (proc;`$5_string fn;tab;params`col;resinput);
   s:exec i from .dqe.resultstab where procs=proc,funct=fn,table=tab,column=params[`col];
-  .dqe.tosavedownengine,:s;
+  .dqe.tosavedown,:s;
   }
 
 qpostback:{[proc;query;params;querytype;result]
@@ -57,8 +57,8 @@ configtimer:{[]
   }
 
 writedownengine:{
-  if[not count .dqe.tosavedownengine;:()];
-  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedownengine;`.dqe;`resultstab];
+  if[not count .dqe.tosavedown;:()];
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`resultstab];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for BD's to reload
   }
@@ -71,7 +71,7 @@ writedownengine:{
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedownengine];
+  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for BD's to reloadi
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
