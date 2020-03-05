@@ -9,7 +9,7 @@ getpartition:@[value;`getpartition;
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
-resultstab:([procs:`$();tab:`$()]tablecount:`long$();nullcount:`long$();anomcount:`long$());
+resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
 
 init:{
   .lg.o[`init;"searching for servers"];
@@ -20,35 +20,25 @@ init:{
   .dqe.tosavedownengine:();                                                                                     /- store i numbers of rows to be saved down to DB
   }
 
-updresultstab:{[proc;col;table;tabinput]                                                                        /- upadate results table with results
-  .lg.o[`updresultstab;"Updating results table for ",(string table)," table from proc ",string proc];
-  colfix:`$5_string col;                                                                                        /- remove namespace from query name
-  ![`.dqe.resultstab;((=;`procs;enlist proc);(=;`tab;enlist table));0b;(enlist colfix)!enlist tabinput]         /- Update query results into table;
-  exec i from .dqe.resultstab where procs=proc,z
+updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
+  .lg.o[`updresultstab;"Updating results for ",(string fn)," from proc ",string proc];
+  if[not 11h=abs type params`col; params[`col]:`];
+  `.dqe.resultstab insert (proc;`$5_string fn;tab;params`col;resinput)
   }
 
-chkinresults:{[proc;table]                                                                                      /- check if record already exists for proc,table pair
-  .lg.o[`chkresults;"Checking if ",(string proc),",",(string table)," is in resultstab"];
-  if[not (proc;table) in key resultstab;
-    .lg.o[`chkinresults;"adding null row for ",(string table)," table from proc ",string proc];
-    colcount:-2+count cols resultstab;                                                                          /- get count of unkeyed columns from results table
-    `.dqe.resultstab insert raze(proc;table,colcount#0N)]                                                       /- insert proc,table pair with nulls into other columns
-  }
-
-qpostback:{[proc;query;result]
+qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback sucessful for ",string first proc];
-  tab:key result;                                                                                               /- get table names from dictionary
-  .dqe.chkinresults[first proc]'[tab];
-  .dqe.updresultstab[first proc;query]'[tab;value result];
+  .dqe.updresultstab[first proc;query;params]'[$[`table=querytype;key result;`];value result];
   }
 
 runquery:{[query;params;querytype;rs]
+  temp:(`,(value value query)[1])!(::), params;
   .lg.o[`runquery;"Starting query run for ",string query];
   if[1<count rs;.lg.e[`runquery"error: can only send query to one remote service, trying to send to ",string count rs];:()];
   if[not rs in exec procname from .servers.SERVERS;.lg.e[`runquery;"error: remote service must be a proctype";:()]];
 
   h:.dqe.gethandles[(),rs];
-  .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query]];
+  .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query;temp;querytype]];
   }
 
 loadtimer:{[d]
@@ -70,7 +60,6 @@ writedownengine:{
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for BD's to reload
   }
-
 
 \d .
 
