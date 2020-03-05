@@ -23,7 +23,8 @@ init:{
 updresultstab:{[proc;col;table;tabinput]                                                                        /- upadate results table with results
   .lg.o[`updresultstab;"Updating results table for ",(string table)," table from proc ",string proc];
   colfix:`$5_string col;                                                                                        /- remove namespace from query name
-  ![`.dqe.resultstab;((=;`procs;enlist proc);(=;`tab;enlist table));0b;(enlist colfix)!enlist tabinput]         /- Update query results into table
+  ![`.dqe.resultstab;((=;`procs;enlist proc);(=;`tab;enlist table));0b;(enlist colfix)!enlist tabinput]         /- Update query results into table;
+  exec i from .dqe.resultstab where procs=proc,z
   }
 
 chkinresults:{[proc;table]                                                                                      /- check if record already exists for proc,table pair
