@@ -43,7 +43,7 @@ init:{                          /- this function gets called at every EOD by .u.
   }
 
 writedown:{
-  if[not count .dqe.tosavedown;:()];
+  if[0=count .dqe.tosavedown;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for BD's to reload
