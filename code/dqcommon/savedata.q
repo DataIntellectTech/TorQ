@@ -4,7 +4,7 @@ savedata:{[dir;pt;savetemp;ns;tabname]
   pth:` sv .Q.par[dir;pt;tabname],`;
   err:{[e].lg.e[`savedata;"Failed to save dqe data to disk : ",e];'e};
   tab:.Q.dd[ns;tabname];
-  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;{[tab;x]exec from tab where i=x}[tab]'[savetemp] ]]);err];
+  .[upsert;(pth;.Q.en[dir;0!.save.manipulate[tabname;{[tab;x]exec from tab where i=x}[tab]'[savetemp] ]]);err];
   .lg.o[`savedata;"i values for rows that will be saved down: ","," sv string savetemp];
   .dqe.tosavedown:.dqe.tosavedown except savetemp;
   };
@@ -14,7 +14,7 @@ cleartables:{[ns;tabname]
   @[ns;tabname;0#];
   };
 
-endofday:{[dir;pt;tabs;ns;tempsave]
+endofday:{[dir;pt;tabs;ns;savetemp]
   .lg.o[`eod;"end of day message received - ",string pt];
   savedata[dir;pt;savetemp;ns]each tabs;
   cleartables[ns]each tabs;
