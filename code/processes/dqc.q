@@ -15,7 +15,7 @@ testing:@[value;`.dqe.testing;0b];                                              
 
 compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
-init:{                          /- this function gets called at every EOD by .u.end
+init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
@@ -37,7 +37,7 @@ init:{                          /- this function gets called at every EOD by .u.
   et:.eodtime.nextroll-.dqe.writedownperiod;
   /et:(.eodtime.nextroll;a)0<'a:exec max endtime from .dqe.configtable where checkid<>1,endtime<>0Wp;
   /et-:.dqe.writedownperiod;
-    /a-.dqe.writedownperiod;                                                                                     /- take last end time and go back the writedown period
+    /a-.dqe.writedownperiod;                                                                                    /- take last end time and go back the writedown period
     /.eodtime.nextroll-.dqe.writedownperiod;                                                                    /- take EOD time and go back the writedown period
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
@@ -129,7 +129,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
   fvars:params[`vars] params`fnpar;
-  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
+  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];  /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes

@@ -11,13 +11,13 @@ writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
 resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
 
-init:{                          /- this function gets called at every EOD by .u.end
+init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   
   .dqe.configtimer[];
-  .dqe.tosavedown:();                                                                                     /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
   }
 
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
