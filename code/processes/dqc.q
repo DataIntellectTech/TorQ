@@ -15,7 +15,7 @@ testing:@[value;`.dqe.testing;0b];                                              
 
 compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
-init:{
+init:{                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
