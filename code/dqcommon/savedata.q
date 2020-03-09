@@ -4,7 +4,7 @@ savedata:{[dir;pt;savetemp;ns;tabname]
   pth:` sv .Q.par[dir;pt;tabname],`;
   err:{[e].lg.e[`savedata;"Failed to save dqe data to disk : ",e];'e};
   tab:.Q.dd[ns;tabname];
-  .[upsert;(pth;.Q.en[dir;0!.save.manipulate[tabname;{[tab;x]exec from tab where i=x}[tab]'[savetemp] ]]);err];
+  .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where i in savetemp]]);err];
   .lg.o[`savedata;"i values for rows that will be saved down: ","," sv string savetemp];
   .dqe.tosavedown:.dqe.tosavedown except savetemp;
   };
