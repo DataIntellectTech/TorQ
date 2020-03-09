@@ -5,6 +5,7 @@ dqcdbdir:@[value;`dqcdbdir;`:dqcdb];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
+writedownperiod:@[value;`writedownperiod;0D01:00:00];
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                                                               /-function to determine the partition value
@@ -14,13 +15,13 @@ testing:@[value;`.dqe.testing;0b];                                              
 
 compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
-init:{
+init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   .dqe.compcounter[0N]:(0N;();());
   
-  configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())  
+  configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
 
@@ -29,9 +30,21 @@ init:{
   update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
   update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
 
-  .dqe.loadtimer'[.dqe.configtable]
+  .dqe.loadtimer'[.dqe.configtable];
+
+  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
+  st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
+  et:.eodtime.nextroll-.dqe.writedownperiod;
+  .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
 
+writedown:{
+  if[0=count .dqe.tosavedown;:()];
+  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
+  }
+  
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
   if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
@@ -53,9 +66,10 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
   .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
   if[1b=params`comp;proc:params`compresproc];
-  if[c:count select from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                         /- obtain count of checks that will be updated
+  if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                       /- obtain count of checks that will be updated
     .lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
+    .dqe.tosavedown,:s;
   delete from `.dqe.compcounter where id=idnum;
   params:()!();
   }
@@ -111,7 +125,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
   .lg.o[`getresults;raze"send function over to prcess: ",string proc];
   fvars:params[`vars] params`fnpar;
-  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]]; /- send function with variables down handle
+  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];  /- send function with variables down handle
   }
 
 runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
@@ -188,11 +202,12 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe];
-  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DB's that need to reload
-  .dqe.notifyhdb[1_string .dqe.dqcdbdir]'[hdbs];                                                                /- send message for BD's to reload
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];
-  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
+  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe;.dqe.tosavedown];
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];                     /- clear writedown timer
   delete configtable from `.dqe;
   .dqe.init[];
   .dqe.currentpartition:pt+1;
