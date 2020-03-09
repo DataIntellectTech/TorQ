@@ -5,7 +5,7 @@ savedata:{[dir;pt;savetemp;ns;tabname]
   err:{[e].lg.e[`savedata;"Failed to save dqe data to disk : ",e];'e};
   tab:.Q.dd[ns;tabname];
   .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where i in savetemp]]);err];
-  .lg.o[`savedata;"i values for rows that will be saved down: ","," sv string savetemp];
+  .lg.o[`savedata;"number of rows that will be saved down: ", string count savetemp];
   .dqe.tosavedown:.dqe.tosavedown except savetemp;
   };
 
