@@ -26,7 +26,8 @@ updresultstab:{[proc;fn;params;tab;resinput]                                    
   .lg.o[`updresultstab;"Updating results for ",(string fn)," from proc ",string proc];
   if[not 11h=abs type params`col; params[`col]:`];
   `.dqe.resultstab insert (proc;`$5_string fn;tab;params`col;resinput);
-  .dqe.tosavedown,:exec i from .dqe.resultstab where procs=proc,funct=fn,table=tab,column=params[`col];
+  s:exec i from .dqe.resultstab where procs=proc,funct=fn,table=tab,column=params[`col];
+  .dqe.tosavedown,:s;
   }
 
 qpostback:{[proc;query;params;querytype;result]
