@@ -20,7 +20,7 @@ init:{                                                                          
   .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
-  .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedown;`);"Running periodic writedown"];
+  .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
   }
 
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
