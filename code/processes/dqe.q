@@ -1,4 +1,4 @@
-\d .dqe
+\ .dqe
 
 dqedbdir:@[value;`dqedbdir;`:dqedb];
 gmttime:@[value;`gmttime;1b];
@@ -15,9 +15,8 @@ init:{                                                                          
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
-  
-  .dqe.configtimer[];
   .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
+  .dqe.configtimer[];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedown;`);"Running periodic writedown"];
