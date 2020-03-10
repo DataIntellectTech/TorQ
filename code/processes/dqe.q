@@ -1,4 +1,4 @@
-\ .dqe
+\d .dqe
 
 dqedbdir:@[value;`dqedbdir;`:dqedb];
 gmttime:@[value;`gmttime;1b];
