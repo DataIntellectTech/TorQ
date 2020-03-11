@@ -40,7 +40,7 @@ init:{                                                                          
 
 writedown:{
   if[0=count .dqe.tosavedown`.dqe.results;:()];
-  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
+  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.results;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
   }
@@ -202,7 +202,8 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];`results`configtable;`.dqe;.dqe.tosavedown];
+  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
+//  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];`results`configtable;`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
