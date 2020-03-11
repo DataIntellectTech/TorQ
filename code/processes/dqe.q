@@ -76,7 +76,7 @@ writedownengine:{
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for DBs to reloadi
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runquery in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
   .dqe.init[];
