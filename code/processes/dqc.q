@@ -32,7 +32,7 @@ init:{                                                                          
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.tosavedown:()!();                                                                                           /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
@@ -43,6 +43,14 @@ writedown:{
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.results;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
+  }
+
+writedownconfig:{
+  if[0=count .dqe.tosavedown`.dqe.configtable;:()];
+  .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.configtable;`.dqe;`configtable];
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBsthat need to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
+    /- send message for DB
   }
   
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
@@ -72,6 +80,8 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
     .dqe.tosavedown[`.dqe.results],:s;
   delete from `.dqe.compcounter where id=idnum;
   params:()!();
+  s2:exec i from .dqe.configtable where checkid=idnum;
+  .dqe.tosavedown[`.dqe.configtable],:s2;
   }
 
 chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
