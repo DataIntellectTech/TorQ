@@ -32,14 +32,14 @@ init:{                                                                          
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.tosavedown:();                                                                                           /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:()!();                                                                                           /- store i numbers of rows to be saved down to DB
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running peridotic writedown"];
   }
 
 writedown:{
-  if[0=count .dqe.tosavedown;:()];
+  if[0=count .dqe.tosavedown`.dqe.results;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown;`.dqe;`results];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
@@ -69,7 +69,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
   if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                       /- obtain count of checks that will be updated
     .lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
-    .dqe.tosavedown,:s;
+    .dqe.tosavedown[`.dqe.results],:s;
   delete from `.dqe.compcounter where id=idnum;
   params:()!();
   }
@@ -202,7 +202,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
-  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];(`results;`configtable);`.dqe;.dqe.tosavedown];
+  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];`results`configtable;`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
