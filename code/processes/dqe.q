@@ -25,8 +25,8 @@ init:{                                                                          
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
   .lg.o[`updresultstab;"Updating results for ",(string fn)," from proc ",string proc];
   if[not 11h=abs type params`col; params[`col]:`];
-  `.dqe.resultstab insert (proc;`$5_string fn;tab;params`col;resinput);
-  s:exec i from .dqe.resultstab where procs=proc,funct=fn,table=tab,column=params[`col];
+  `.dqe.resultstab insert (proc;fn1:last` vs fn;tab;params`col;resinput);
+  s:exec i from .dqe.resultstab where procs=proc,funct=fn1,table=tab,column=params[`col];
   .dqe.tosavedown,:s;
   }
 
