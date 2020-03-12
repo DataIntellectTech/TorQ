@@ -50,8 +50,7 @@ writedownconfig:{
   if[0=count .dqe.tosavedown`.dqe.configtable;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.configtable;`.dqe;`configtable];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBsthat need to reload
-  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
-    /- send message for DB
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DB
   }
   
 dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
