@@ -82,7 +82,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
   delete from `.dqe.compcounter where id=idnum;
   params:()!();
   s2:exec i from .dqe.configtable where checkid=idnum;
-  .dqe.tosavedown[`.dqe.configtable],:s2;
+  .dqe.tosavedown[`.dqe.configtable]:.dqe.tosavedown[`.dqe.configtable] union s2;
   }
 
 chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
