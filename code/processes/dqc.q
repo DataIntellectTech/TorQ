@@ -205,6 +205,17 @@ reruncheck:{[chkid]                                                             
   .dqe.runcheck[`manual;chkid;.Q.dd[`.dqc;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
   }
 
+analytics:{[fname;tabname;ndays;thres] 
+  hpath:`$system"pwd";
+  dbname:`$("/" sv ("dqe";"dqedb";"database"));
+  dqedbdir:.Q.dd[hsym hpath; dbname];
+  system"l ",.os.pth dqedbdir;
+  previous:select avg resvalue from resultstab where date in (last date;(-1)*ndays+last date),funct=fname,table=tabname;
+  current:select avg resvalue from resultstab where date in (last date),funct=fname,table=tabname;
+  if[previous[0;`resvalue]=thres*current[0;`resvalue]; .lg.o[`analytics;"count doesn't exceed average"]; :1b];
+  }
+
+
 \d .
 
 .dqe.currentpartition:.dqe.getpartition[];                                                                      /- initialize current partition
