@@ -213,7 +213,6 @@ reruncheck:{[chkid]                                                             
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
-//  .dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];`results`configtable;`.dqe;.dqe.tosavedown];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
