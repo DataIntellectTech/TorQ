@@ -222,6 +222,6 @@ reruncheck:{[chkid]                                                             
   .dqe.currentpartition:pt+1;
   };
 
-if[not .dqe.testing;.dqe.init[]]
-
-.timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                  /- set up EOD timer
+if[not .dqe.testing;
+  .dqe.init[];
+  .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]]                /- set up EOD timer
