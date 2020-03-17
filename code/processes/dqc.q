@@ -23,8 +23,6 @@ init:{                                                                          
   
   configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
-  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
-
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];                                        /- Set up configtable from csv
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
@@ -224,4 +222,6 @@ reruncheck:{[chkid]                                                             
   .dqe.currentpartition:pt+1;
   };
 
-if[not .dqe.testing;.dqe.init[]]
+if[not .dqe.testing;
+  .dqe.init[];
+  .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]]                /- set up EOD timer
