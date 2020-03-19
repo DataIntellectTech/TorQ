@@ -3,6 +3,8 @@
 /-changes added 
 /-Can specify the hdb directory rather than relying on the tickerplant
 
+
+
 /-default parameters
 \d .rdb
 
@@ -18,6 +20,7 @@ ignorelist:@[value;`ignorelist;`heartbeat`logmsg];          //list of tables to 
 subscribesyms:@[value;`subscribesyms;`];                    //a list of syms to subscribe for, (`) means all syms
 tpconnsleepintv:@[value;`tpconnsleepintv;10];               //number of seconds between attempts to connect to the tp											
 
+timeout:@[value;`timeout;system"T"];						//get timeout for rdb
 onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod writedown will only clear tables which have been successfully saved to disk
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
 gc:@[value;`gc;1b];                                         //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
@@ -97,6 +100,9 @@ endofday:{[date]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
+	/-reset timeout to original timeout if reloadenabled is 0b
+	if[not reloadenabled;
+		system["T ", string timeout]];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
@@ -166,6 +172,9 @@ getpartition:{[] rdbpartition}
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
+/-resets timeout to 0 before EOD writedown
+timeoutreset:{if[not reloadenabled; system"T 0"]};
+
 \d .
 
 /- make sure that the process will make a connection to each of the tickerplant and hdb types
@@ -194,3 +203,8 @@ reload:.rdb.reload
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
+
+/-change timeout to zero before eod flush
+.rdb.timeoutreset[]
+.timer.repeat[.eodtime.nextroll-1000000000*60;0W;1D00:00:00.000000000;(`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
+
