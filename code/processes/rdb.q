@@ -3,7 +3,6 @@
 /-changes added 
 /-Can specify the hdb directory rather than relying on the tickerplant
 
-
 /-default parameters
 \d .rdb
 
