@@ -6,7 +6,8 @@ savedata:{[dir;pt;savetemp;ns;tabname]
   tab:.Q.dd[ns;tabname];
   .[upsert;(pth;.Q.en[dir;r:0!.save.manipulate[tabname;select from tab where i in savetemp]]);err];
   .lg.o[`savedata;"number of rows that will be saved down: ", string count savetemp];
-  .dqe.tosavedown[tbl]:.dqe.tosavedown[tbl] except savetemp tbl:` sv ns,tabname;
+  tbl:` sv ns,tabname;
+  .dqe.tosavedown[tbl]:.dqe.tosavedown[tbl] except savetemp;
   };
 
 cleartables:{[ns;tabname]
