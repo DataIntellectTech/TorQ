@@ -4,7 +4,6 @@
 /-Can specify the hdb directory rather than relying on the tickerplant
 
 
-
 /-default parameters
 \d .rdb
 
@@ -206,5 +205,6 @@ reload:.rdb.reload
 
 /-change timeout to zero before eod flush
 .rdb.timeoutreset[]
-.timer.repeat[.eodtime.nextroll-1000000000*60;0W;1D00:00:00.000000000;(`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
+.timer.repeat[.eodtime.nextroll-1000000000*60;0W;1D00:00:00.000000000;
+  (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
 
