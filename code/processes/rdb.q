@@ -205,6 +205,5 @@ reload:.rdb.reload
 
 /-change timeout to zero before eod flush
 .rdb.timeoutreset[]
-.timer.repeat[.eodtime.nextroll-1000000000*60;0W;1D00:00:00.000000000;
+.timer.repeat[.eodtime.nextroll-00:01;0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
-
