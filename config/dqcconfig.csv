@@ -9,4 +9,4 @@ schemacheck,`comp`vars!(0b;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"ps
 freeform,`comp`vars!(0b;"select from trade where date=2020.01.02"),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:03:00
 symfilecheck,(`comp`vars!(0b;(.dqe.hdbdir;`sym))),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
 xmarketalert,`comp`vars!(0b;(`quote)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
-pctAvgDailyChange,`comp`vars!(0b;(`symcount;`quote;`resultstab;1;1)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+pctAvgDailyChange,`comp`vars!(0b;(`symcount;`quote;`resultstab;2;1)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
