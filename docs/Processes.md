@@ -1435,3 +1435,45 @@ and are under the `.ctp` namespace.
  | schema               |    retrieve schema from tickerplant    |                                                                   `1b`|
  | clearlogonsubscription  | clear log on subscription, only called if createlogfile is also enabled  |                              `0b`|
 
+Data Quality Checker(DQC)
+-------
+
+The Data Quality process is a process to run checks on other TorQ
+processes to ensure quality of data in the system. The Checker runs
+periodic checks on specific processes, and the results of the checks
+are then saved to the results table in dqe namespace. The results 
+table that contains all check results would periodically be saved to
+Data Quality Checker Database(DQCDB) intraday. The specific parameters
+of the checks that are being run can be configured in config/dqcconfig.csv. 
+Configuration from dqcconfig.csv are loaded to configtable in dqe namespace,
+and the configuration will also be periodically saved to the Data Quality
+Checker Database intraday.
+
+Example of results is shown below:
+
+    id funct               params                                   procs       procschk     starttime                     endtime                       result descp                                            chkstatus chkruntype
+    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    2  .dqc.tableticking   quote,5,minute                           rdb         rdb1         2020.03.19D20:04:59.777402000 2020.03.19D20:04:59.784107000 1      "there are 44 records"                           complete  scheduled
+    0  .dqc.tableticking   quote,5,minute                           rdb         rdb1         2020.03.19D20:05:00.178288000 2020.03.19D20:05:00.186770000 1      "there are 82 records"                           complete  scheduled
+    9  .dqc.xmarketalert   quote                                    rdb         rdb1         2020.03.19D20:05:00.179664000 2020.03.19D20:05:00.193734000 1      "bid has not exceeded the ask in market data"    complete  scheduled
+    3  .dqc.constructcheck quote,table                              rdb         rdb1         2020.03.19D20:06:00.178885000 2020.03.19D20:06:00.196380000 1      "quote table exists"                             complete  scheduled
+    4  .dqc.constructcheck date,variable,comp(hdb1,0)               hdb         hdb2         2020.03.19D20:06:00.180247000 2020.03.19D20:06:00.203920000 1      "hdb1  | match hdb2"                             complete  scheduled
+    5  .dqc.attrcheck      quote,s,g,time,sym                       rdb         rdb1         2020.03.19D20:06:00.182379000 2020.03.19D20:06:00.201300000 1      "attribute of time,sym matched expectation"      complete  scheduled
+    7  .dqc.freeform       select from trade where date=2020.01.02  hdb         hdb1         2020.03.19D20:06:00.184577000 2020.03.19D20:06:00.205209000 1      "select from trade where date=2020.01.02 passed" complete  scheduled
+    3  .dqc.constructcheck quote,table                              rdb         rdb1         2020.03.19D20:08:00.378141000 2020.03.19D20:08:00.398781000 1      "quote table exists"                             complete  scheduled
+    4  .dqc.constructcheck date,variable,comp(hdb1,0)               hdb         hdb2         2020.03.19D20:08:00.379574000 2020.03.19D20:08:00.404501000 1      "hdb1  | match hdb2"                             complete  scheduled
+
+Example of configtable is shown below:
+
+    action         params                                                                                                   proc           mode   starttime                     endtime                       period               checkid
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    tableticking   "`comp`vars!(0b;(`quote;5;`minute))"                                                                     "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 0
+    chkslowsub     "`comp`vars!(0b;1000000)"                                                                                "`tickerplant" repeat 2020.03.20D09:00:00.000000000 2020.03.20D19:00:00.000000000 0D00:10:00.000000000 1
+    tableticking   "`comp`vars!(0b;(`quote;5;`minute))"                                                                     "`rdb1"        single 2020.03.20D12:00:00.000000000                                                    2
+    constructcheck "`comp`vars!(0b;(`quote;`table))"                                                                        "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 3
+    constructcheck "`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable))"                                           "`hdb2"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 4
+    attrcheck      "`comp`vars!(0b;(`quote;`s`g;`time`sym))"                                                                "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 5
+    schemacheck    "`comp`vars!(0b;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;\"psffjjccs\";`````````;`s`g```````))" "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:15:00.000000000 6
+    freeform       "`comp`vars!(0b;\"select from trade where date=2020.01.02\")"                                            "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:03:00.000000000 7
+    symfilecheck   "(`comp`vars!(0b;(.dqe.hdbdir;`sym)))"                                                                   "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:10:00.000000000 8
+    xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
