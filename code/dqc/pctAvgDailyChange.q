@@ -7,5 +7,5 @@ pctAvgDailyChange:{[fname;tabname;rt;ndays;thres]
   current:select avg resvalue from rt where date=(last date),funct=fname,table=tabname;
   $[previous[0;`resvalue]=thres*current[0;`resvalue];
     (1b;"count doesn't exceed average");
-    (0b;"count exceeds average"")]
+    (0b;"count exceeds average")]
   }
