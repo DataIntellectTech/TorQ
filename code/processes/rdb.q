@@ -173,7 +173,7 @@ notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
 /-resets timeout to 0 before EOD writedown
-timeoutreset:{if[not reloadenabled; .rdb.timeout:system"T";system"T 0"]};
+timeoutreset:{.rdb.timeout:system"T";system"T 0"};
 restoretimeout:{system["T ", string timeout]};
 \d .
 
