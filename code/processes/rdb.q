@@ -97,9 +97,8 @@ endofday:{[date]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
-	/-reset timeout to original timeout if reloadenabled is 0b
-	if[not reloadenabled;
-		system["T ", string timeout]];
+	/-reset timeout to original timeout
+    restoretimeout[];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
