@@ -98,7 +98,7 @@ endofday:{[date]
 	/-save and wipe the tables
 	writedown[hdbdir;date];
 	/-reset timeout to original timeout
-    restoretimeout[];
+        restoretimeout[];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
