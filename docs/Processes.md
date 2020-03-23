@@ -1445,9 +1445,9 @@ are then saved to the results table in `dqe` namespace. The results
 table that contains all check results would periodically be saved to
 Data Quality Checker Database (DQCDB) intraday. The specific parameters
 of the checks that are being run can be configured in `config/dqcconfig.csv`.
-Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe` namespace,
-and the configuration will also be periodically saved to the Data Quality
-Checker Database intraday.
+Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe` 
+namespace, and the configuration will also be periodically saved to the 
+Data Quality Checker Database intraday.
 
 Example of results is shown below:
 
@@ -1480,4 +1480,29 @@ Example of `configtable` is shown below:
     freeform       "`comp`vars!(0b;\"select from trade where date=2020.01.02\")"                                            "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:03:00.000000000 7
     symfilecheck   "(`comp`vars!(0b;(.dqe.hdbdir;`sym)))"                                                                   "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:10:00.000000000 8
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
+```
+
+Data Quality Engine (DQE)
+-------
+
+Data Quality Engine process is a process that stores intraday statistics
+of other TorQ processes. It is a seperate process from Data Quality
+Checker because the Engine doe not run checks. The statistics provided by
+the Engine are used by the Checker to perform advanced analytics. For
+example, the engine could be used for tracking percentage change of records 
+in a table from day to day. The intraday statistics of other TorQ prcoesses
+are saved to the resultstab table in `dqe` namespace, which would be saved to
+Data Quality Engine Database(DQEDB).
+
+Example of resultstab is shown below:
+
+```
+    date       procs funct        table     column resvalue
+    -------------------------------------------------------
+    2020.03.16 hdb1  tablecount   quote            0
+    2020.03.16 hdb1  tablecount   quote_iex        0
+    2020.03.16 hdb1  tablecount   trade            0
+    2020.03.16 hdb1  tablecount   trade_iex        0
+    2020.03.16 hdb1  symfilecheck                  10
+    2020.03.16 hdb1  symcount     quote     sym    10
 ```
