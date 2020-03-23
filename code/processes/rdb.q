@@ -113,6 +113,8 @@ endofday:{[date]
 	
 reload:{[date]
 	.lg.o[`reload;"reload command has been called remotely"];
+	/-set timeout to be 0 before tables are wiped
+	system"T 0";
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tabs:subtables except ignorelist;
@@ -126,6 +128,8 @@ reload:{[date]
 	if[gc;.gc.run[]];
 	/-reset eodtabcount back to zero for each table (in case this is called more than once)
 	eodtabcount[tabs]:0;
+	/-restore original timeout back to rdb
+	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
@@ -171,7 +175,7 @@ notpconnected:{[]
 
 /-resets timeout to 0 before EOD writedown
 timeoutreset:{if[not reloadenabled; .rdb.timeout:system"T";system"T 0"]};
-
+restoretimeout:{system["T ", string timeout]};
 \d .
 
 /- make sure that the process will make a connection to each of the tickerplant and hdb types
