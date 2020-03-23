@@ -1443,7 +1443,7 @@ processes to ensure quality of data in the system. The Checker runs
 periodic checks on specific processes, and the results of the checks
 are then saved to the results table in `dqe` namespace. The results
 table that contains all check results would periodically be saved to
-Data Quality Checker Database(DQCDB) intraday. The specific parameters
+Data Quality Checker Database (DQCDB) intraday. The specific parameters
 of the checks that are being run can be configured in `config/dqcconfig.csv`.
 Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe` namespace,
 and the configuration will also be periodically saved to the Data Quality
