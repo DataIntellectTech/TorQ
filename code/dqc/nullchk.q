@@ -1,7 +1,12 @@
 \d .dqc
-nullchk:{[t;colslist;thres]                                                                                     /- function to check percentage of nulls in each column from colslist of a table t
-  t: get t; 
-  d:({sum$[0h=type x;0=count@'x;null x]}each flip tt)*100%count tt:((),colslist)#t;                             /- dictionary of nulls percentages for each column
+nullchk:{[t;colslist;thres] 
+  / Function to check the percentage of nulls in each column from colslist of a
+  / table t against a threshold thres, a list of threshold percentages for each
+  / column..
+  d:({sum$[0h=type x;0=count@'x;null x]}each flip tt)*100%count tt:((),colslist)#get t;
   res:([] colsnames:key d; nullspercentage:value d);
-  update thresholdfail:nullspercentage>thres from res                                                           /- compare each column's nulls percentage with threshold thres
+  $[count b:exec colsnames from res where nullspercentage>thres;
+    (0b;"Following columns above threshold: ",(", " sv string b),".");
+    (1b;"No columns above threshold.")
+    ]
   }
