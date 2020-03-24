@@ -162,7 +162,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 		/- get list of distinct combiniations for partition directories
 		extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
 		/- enumerate data to be upserted
-		enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
+		enumdata:.Q.en[hdbsettings[`hdbdir];value tablename];
 		.lg.o[`save;"enumerated ",(string tablename)," table"];		
 		/- upsert data to specific partition directory 
 		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
