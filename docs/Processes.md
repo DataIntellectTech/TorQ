@@ -1435,6 +1435,19 @@ and are under the `.ctp` namespace.
  | schema               |    retrieve schema from tickerplant    |                                                                   `1b`|
  | clearlogonsubscription  | clear log on subscription, only called if createlogfile is also enabled  |                              `0b`|
 
+TorQ Data Quality System Architecture
+-------
+
+The Data Quality System consists of two processes that are listed below: 
+Data Quality Checker (DQC) and Data Quality Engine(DQE). The Purpose of 
+the Data Quality System is to ensure quality of data in the data capturing
+system by running checks on other TorQ processes. The system behaves based
+on Data Quality Config files. The metrics from the config files and the
+results of the checks performed on databases in the data capturing system
+are saved to Data Quality Databases. The results are then used for monitoring
+tools to alert the users.
+
+
 Data Quality Checker (DQC)
 -------
 
