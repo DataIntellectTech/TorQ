@@ -1570,14 +1570,41 @@ to run manually at a certain time.
 Data Quality Engine (DQE)
 -------
 
-Data Quality Engine process is a process that stores intraday statistics
+Data Quality Engine process is a process that stores daily statistics
 of other TorQ processes. It is a seperate process from Data Quality
-Checker because the Engine doe not run checks. The statistics provided by
-the Engine are used by the Checker to perform advanced analytics. For
-example, the engine could be used for tracking percentage change of records 
-in a table from day to day. The intraday statistics of other TorQ prcoesses
-are saved to the resultstab table in `dqe` namespace, which would be saved to
-Data Quality Engine Database(DQEDB).
+Checker because the Engine doe not run checks. The Engine and the Checker
+do not directly engage with each other. The daily statisitcs of other TorQ
+processes are saved to Data Quality Engine Database(DQEDB) which would be
+used by the Checker to performed advanced checks. For example, the engine
+could be used for tracking percentage change of records in a table from day 
+to day. The Checker can then use the data saved the DQEDB to perform
+advanced checks.The behavior of the Engine is based on the config file stored
+in `config/dqengineconfig.csv`.
+
+The config csv file is shown below:
+```
+    query,params,proc,querytype,starttime
+    -------------------------------------
+    tablecount,.z.d-1,`hdb1,table,09:00:00.000000000
+    symfilecheck,`sym,`hdb1,other,09:00:00.000000000
+    symcount,(`quote;`sym),`hdb1,table,09:00:00.000000000
+```
+
+**query** - The query function that is used to provide daily statistics
+of a process.
+
+**params** - the variables that is used for the query function.
+
+**proc** - The process that the query function is running on.
+
+**querytype** - Whether the query is ran for a `table` or `other`.
+
+**starttime** - What time should the query start.
+
+
+The daily statistics of other TorQ prcoesses are saved to the resultstab 
+table in `dqe` namespace, which would be saved to Data Quality Engine 
+Database(DQEDB).
 
 Example of resultstab is shown below:
 
