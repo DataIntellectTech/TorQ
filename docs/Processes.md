@@ -1480,6 +1480,37 @@ Example of `configtable` is shown below:
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
 ```
 
+**action** - the check functon that you would like to perform that is in
+the directory `code/dqc`.
+
+**params** - the parameters that are used by the function. The Checker
+accepts **params** as a dictionary, with `comp` and `vars` being the two
+keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
+is ON and the function is then used to compare two processes. when it is
+`0b`, comparision is OFF and the function is only used in one process. The
+`var` key should have a value of all the variables that are used by the
+fucntion. Details of the variables used by checker functions can be found
+in `config/dqedetail.csv`.
+
+**proc** - The process(es) that you would want the check function to be used
+for - in symbol datatype.
+
+**mode** - Mode could be set to either `repeat` or `single`. When it is set
+to `repeat` the check will be periodically run based on the **period**
+parameter, which sets the time it will take before running the same check
+again. When it is set to `single`, the check will only be ran once.
+
+**starttime** - The start time of the check function - in timespan datatype.
+
+**endtime** - When mode is `repeat`, end time specifies when the check will
+run for the last time for the day. When mode is `single`, endtime should be
+set to `0N`. Should be in timespan datatype.
+
+**period** - When mdoe is `repeat`, period represents the time it takes for
+the next run to start. When mode is `single`, period should be set to `0N`.
+Should be in timespan datatype.
+
+
 Example of results is shown below:
 
 ```
@@ -1496,40 +1527,45 @@ Example of results is shown below:
     4  .dqc.constructcheck date,variable,comp(hdb1,0)               hdb         hdb2         2020.03.19D20:08:00.379574000 2020.03.19D20:08:00.404501000 1      "hdb1  | match hdb2"                             complete  scheduled
 ```
 
-To add a new additional check to the configtable, first you must make sure
-that the check function can be found in the directory `code/dqc`. Next, 
-locate the file `dqcconfig.csv` in the directory `config/`. There are 7
-columns,and the parameters to be input in the csv file are listed below:
+The columns of results table provide information about the checks performed:
 
-**action** - the check functon that you would like to perform that is in
-the directory `code/dqc`.
+**id** - The id of the check after being loaded into the process. In the
+sample table above, `.dqc.construckcheck` with the id 3 that checks whether
+quote table exists and `.dqc.construckcheck` with the id 4 that checks
+whether data in hdb1 matches hdb2 had two results showing as they have been
+ran twice within that time period, but the parameters of the checks have not
+been changed. The id column is also useful for manually running checks.
 
-**params** - the parameters that are used by the function. The Checker
-accepts **params** as a dictionary, with `comp` and `vars` being the two
-keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
-is ON and the function is then used to compare two processes. when it is
-`0b`, comparision is OFF and the function is only used in one process. The
-`var` key should have a value of all the variables that are used by the
-fucntion. Details of the variables used by checker functions can be found 
-in `config/dqedetail.csv`.
+**funct** - The check function that was performed.
 
-**proc** - The process(es) that you would want the check function to be used
-for - in symbol datatype.
+**params** - The variables that were input while the check function was 
+performed.
 
-**mode** - Mode could be set to either `repeat` or `single`. When it is set 
-to `repeat` the check will be periodically run based on the **period**
-parameter, which sets the time it will take before running the same check
-again. When it is set to `single`, the check will only be ran once.
+**procs** - The process(es) type that the function was performed on.
 
-**starttime** - The start time of the check function - in timespan datatype.
+**procschk** - The specific process(es) that the function was performed on.
 
-**endtime** - When mode is `repeat`, end time specifies when the check will
-run for the last time for the day. When mode is `single`, endtime should be
-set to `0N`. Should be in timespan datatype.
+**starttime** - When the function was started.
 
-**period** - When mdoe is `repeat`, period represents the time it takes for
-the next run to start. When mode is `single`, period should be set to `0N`.
-Should be in timespan datatype.
+**endtime** - When the function stopped running.
+
+**result** - Returns a boolean value. if the **result** is `1`, then the
+function was ran successfully, and no data anomaly was found. If the
+**result** is `0`, then the function may not have been run successfully,
+or the data quality may be corrupted.
+
+**descp** - A string description describing the result of the check 
+function.
+
+**chkstatus** - Could display either `complete` or `failed`. When the
+check function is succesfully ran, whether the **result** column is 0 or 1,
+**chkstatus** would be `complete`. However, if there was an error that caused
+the check to not run normally(Ex: variables being a wrong type), `failed` 
+would be displayed instead.
+
+**chkruntype** - Could display either `scheduled` or `manual`, meaning
+either the check was ran as scheduled from the configtable, or it was forced
+to run manually at a certain time.
 
 Data Quality Engine (DQE)
 -------
