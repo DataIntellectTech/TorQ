@@ -3,4 +3,7 @@ comment,0,0,q,Start of tests for rangechk function,1,,"comment"
 before,0,0,q,t:([]bid:til 100;ask:100#10),1,,"create table for test"
 before,0,0,q,tlower:([]bid:100#0;ask:100#0),1,,"create variable for test"
 before,0,0,q,tupper:([]bid:100#50;ask:100#10),1,,"create variable for test"
-true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;tlowe;tupper;90],1,,"Check for false test"
+before,0,0,q,ftlower:([]bid:101#0;ask:101#0),1,,"create false length variable for test"
+true,
+true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;tlower;tupper;90],1,,"Check for false test"
+true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;ftlower;tupper;90],1,,"Check for different length false test"
