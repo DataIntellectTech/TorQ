@@ -1618,3 +1618,17 @@ Example of resultstab is shown below:
     2020.03.16 hdb1  symfilecheck                  10
     2020.03.16 hdb1  symcount     quote     sym    10
 ```
+
+**date** - Date that the data was saved.
+
+**procs** - The process that the query function was running on.
+
+**funct** - The query function that was used.
+
+**table** - Table that the function ran on. if the query was 
+not performed on a table, the section is left blank.
+
+**column** - Column of the table that the function ran on. If 
+the query did not specify the column, the section is left blank.
+
+**resvalue** - The value returned from the function that was ran.
