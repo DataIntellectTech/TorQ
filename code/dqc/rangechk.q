@@ -1,7 +1,7 @@
 \d .dqc
 rangechk:{[tn;colslist;tlower;tupper;thres]                                   /- Check that values of specified columns colslist in table (name) tn are within the range defined by the tables tlower and tupper.
   if[0=count colslist; :(0b; "ERROR: No columns specified in colslist.")];
-  tab: get tn;
+  tab:get tn;
   if[1<>sum differ count each (tab;tupper;tlower);
     :(0b; "ERROR: Input tables are different lengths.")
     ]
