@@ -12,3 +12,5 @@ xmarketalert,`comp`vars!(0b;(`quote)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:0
 anomalychk,`comp`vars ! (0b; (`quote; `bid`ask; 20)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
 nullchk,`comp`vars ! (0b; (`quote; `bid`ask; 10)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
 pctAvgDailyChange,`comp`vars!(0b;(`symcount;`quote;`resultstab;2;0)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+datechk,`comp`vars!(0b;0N),`hdb1,repeat,00:10:00.000000000,0Wn,0D00:01:00
+dfilechk,`comp`vars!(0b;`trade),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:01:00
