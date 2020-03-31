@@ -1454,14 +1454,15 @@ config files and the results of the checks performed on databases in the data
 capturing system are saved to Data Quality Databases. The results can then be
 used for monitoring tools to alert users.
 
-The Data Quality System consists of two processes: the Data Quality Checker (DQC)
-and the Data Quality Engine(DQE). These are explained in detail below.
+The Data Quality System consists of four processes: the Data Quality Checker (DQC)
+and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). These are 
+explained in detail below.
 
 Data Quality Checker (DQC)
 -------
 
-The Data Quality process is a process to run checks on other TorQ
-processes to ensure quality of data in the system. The Checker runs
+The Data Quality process runs checks on other TorQ
+processes to check the quality of data in the system. The Checker runs
 periodic checks on specific processes. The specific parameters of 
 the checks that are being run can be configured in `config/dqcconfig.csv`.
 Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe`
@@ -1470,7 +1471,7 @@ of the checks are then saved to the results table in `dqe` namespace. The
 results table that contains all check results would periodically be saved to
 Data Quality Checker Database (DQCDB) intraday. The configuration of the
 checks will also be periodically saved to the Data Quality Checker Database 
-intraday.
+throughout the day.
 
 Example of `configtable` is shown below:
 
@@ -1489,16 +1490,16 @@ Example of `configtable` is shown below:
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
 ```
 
-**action** - the check functon that you would like to perform that is in
+**action** - the check function that you would like to perform that is in
 the directory `code/dqc`.
 
 **params** - the parameters that are used by the function. The Checker
 accepts **params** as a dictionary, with `comp` and `vars` being the two
 keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
-is ON and the function is then used to compare two processes. when it is
-`0b`, comparision is OFF and the function is only used in one process. The
+is ON and the function is then used to compare two processes. When it is
+`0b`, comparison is OFF and the function is only used in one process. The
 `var` key should have a value of all the variables that are used by the
-fucntion. Details of the variables used by checker functions can be found
+function. Details of the variables used by checker functions can be found
 in `config/dqedetail.csv`.
 
 **proc** - The process(es) that you would want the check function to be used
@@ -1515,7 +1516,7 @@ again. When it is set to `single`, the check will only be ran once.
 run for the last time for the day. When mode is `single`, endtime should be
 set to `0N`. Should be in timespan datatype.
 
-**period** - When mdoe is `repeat`, period represents the time it takes for
+**period** - When mode is `repeat`, period represents the time it takes for
 the next run to start. When mode is `single`, period should be set to `0N`.
 Should be in timespan datatype.
 
@@ -1558,7 +1559,7 @@ performed.
 
 **endtime** - When the function stopped running.
 
-**result** - Returns a boolean value. if the **result** is `1`, then the
+**result** - Returns a boolean value. If the **result** is `1`, then the
 function was ran successfully, and no data anomaly was found. If the
 **result** is `0`, then the function may not have been run successfully,
 or the data quality may be corrupted.
@@ -1567,7 +1568,7 @@ or the data quality may be corrupted.
 function.
 
 **chkstatus** - Could display either `complete` or `failed`. When the
-check function is succesfully ran, whether the **result** column is 0 or 1,
+check function is successfully ran, whether the **result** column is 0 or 1,
 **chkstatus** would be `complete`. However, if there was an error that caused
 the check to not run normally(Ex: variables being a wrong type), `failed` 
 would be displayed instead.
@@ -1580,11 +1581,11 @@ Data Quality Engine (DQE)
 -------
 
 Data Quality Engine process is a process that stores daily statistics
-of other TorQ processes. It is a seperate process from Data Quality
+of other TorQ processes. It is a separate process from Data Quality
 Checker because the Engine doe not run checks. The Engine and the Checker
 could be used to track the percentage change of records in a table from day
 to day. The Checker can then use the data saved the DQEDB to perform
-advanced checks.The behavior of the Engine is based on the config file stored
+advanced checks.The behaviour of the Engine is based on the config file stored
 in `config/dqengineconfig.csv`.
 
 The config csv file is shown below:
