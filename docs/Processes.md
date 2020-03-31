@@ -1438,15 +1438,24 @@ and are under the `.ctp` namespace.
 TorQ Data Quality System Architecture
 -------
 
-The Data Quality System consists of two processes that are listed below: 
-Data Quality Checker (DQC) and Data Quality Engine(DQE). The Purpose of 
-the Data Quality System is to ensure quality of data in the data capturing
-system by running checks on other TorQ processes. The system behaves based
-on Data Quality Config files. The metrics from the config files and the
-results of the checks performed on databases in the data capturing system
-are saved to Data Quality Databases. The results are then used for monitoring
-tools to alert the users.
+Whilst the Monitor process checks the health of other processes in the system,
+it does not check the quality of the data captured. An RDB process could be running, but
+capturing and populating its tables with null values, an error that would not be caught
+by the Monitor process. This is the purpose of the Data Quality System, and is achieved by
+periodically running a set of user-specified checks on select processes.
 
+For example, you can place checks on a table to periodically check that the
+percentage of nulls it contains in a certain column is below a given threshold, or
+check that the values of a column stay within a specified range that changes throughout
+the day.
+
+The system behaves based on Data Quality Config files. The metrics from the
+config files and the results of the checks performed on databases in the data
+capturing system are saved to Data Quality Databases. The results can then be
+used for monitoring tools to alert users.
+
+The Data Quality System consists of two processes: the Data Quality Checker (DQC)
+and the Data Quality Engine(DQE). These are explained in detail below.
 
 Data Quality Checker (DQC)
 -------
