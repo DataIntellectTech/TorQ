@@ -28,7 +28,7 @@ except for discovery services which must have a process type of
 
 <a name="disc"></a>
 
-Discovery Service
+Discovery Service 
 -----------------
 
 ### Overview
@@ -77,30 +77,30 @@ Modify the configuration as required.
 The list of available processes can be found in the .servers.SERVERS
 table.
 
-    q).servers.SERVERS
-    procname     proctype        hpup            w  hits startp                        lastp                         endp attributes
+    q).servers.SERVERS                                                                                                                                                                                                                                                            
+    procname     proctype        hpup            w  hits startp                        lastp                         endp attributes                                                                   
     -------------------------------------------------------------------------------------
-    discovery1   discovery       :aquaq:9995     0                                  2014.01.22D17:00:40.947470000      ()!()
-    discovery2   discovery       :aquaq:9996     0                                  2014.01.22D17:00:40.947517000      ()!()
-    hdb2         hdb             :aquaq:5013     0                                  2014.01.22D17:00:40.947602000      ()!()
-    killtick     kill            :aquaq:20000    0                                  2014.01.22D17:00:40.947602000      ()!()
-    tpreplay1    tickerlogreplay :aquaq:20002    0                                  2014.01.22D17:00:40.947602000      ()!()
-    tickerplant1 tickerplant     :aquaq:5010  6  0    2014.01.22D17:00:40.967699000 2014.01.22D17:00:40.967698000      ()!()
-    monitor1     monitor         :aquaq:20001 9  0    2014.01.22D17:00:40.971344000 2014.01.22D17:00:40.971344000      ()!()
-    rdb1         rdb             :aquaq:5011  7  0    2014.01.22D17:06:13.032883000 2014.01.22D17:06:13.032883000      `date`tables!(,2014.01.22;`fxquotes`heartbeat`logmsg`quotes`trades)
+    discovery1   discovery       :aquaq:9995     0                                  2014.01.22D17:00:40.947470000      ()!()                                                                        
+    discovery2   discovery       :aquaq:9996     0                                  2014.01.22D17:00:40.947517000      ()!()                                                                        
+    hdb2         hdb             :aquaq:5013     0                                  2014.01.22D17:00:40.947602000      ()!()                                                                        
+    killtick     kill            :aquaq:20000    0                                  2014.01.22D17:00:40.947602000      ()!()                                                                        
+    tpreplay1    tickerlogreplay :aquaq:20002    0                                  2014.01.22D17:00:40.947602000      ()!()                                                                        
+    tickerplant1 tickerplant     :aquaq:5010  6  0    2014.01.22D17:00:40.967699000 2014.01.22D17:00:40.967698000      ()!()                                                                        
+    monitor1     monitor         :aquaq:20001 9  0    2014.01.22D17:00:40.971344000 2014.01.22D17:00:40.971344000      ()!()                                                                        
+    rdb1         rdb             :aquaq:5011  7  0    2014.01.22D17:06:13.032883000 2014.01.22D17:06:13.032883000      `date`tables!(,2014.01.22;`fxquotes`heartbeat`logmsg`quotes`trades)          
     hdb3         hdb             :aquaq:5012  8  0    2014.01.22D17:06:18.647349000 2014.01.22D17:06:18.647349000      `date`tables!(2014.01.13 2014.01.14;`fxquotes`heartbeat`logmsg`quotes`trades)
     gateway1     gateway         :aquaq:5020  10 0    2014.01.22D17:06:32.152836000 2014.01.22D17:06:32.152836000      ()!()
 
 <a name="gate"></a>
 
-Gateway
+Gateway 
 -------
 
 A synchronous and asynchronous gateway is provided. The gateway can be
 used for load balancing and/or to join the results of queries across
 heterogeneous servers (e.g. an RDB and HDB). Ideally the gateway should
 only be used with asynchronous calls. Prior to KDB v3.6, synchronous calls
-caused the gateway to block which limits the gateway to serving one query at a
+caused the gateway to block which limits the gateway to serving one query at a 
 time (although if querying across multiple backend servers the backend
 queries will be run in parallel).
 For v3.6+, deferred synchronous requests to the gateway are supported.
@@ -109,8 +109,8 @@ therefore removing the requirement for the gateway to allow only one type
 of request.
 When using asynchronous calls, the client can either block and wait for
 the result (deferred synchronous) or post a call back function which the
-gateway will call back to the client with.
-The backend servers to be queried against with  asynchronous and synchronous
+gateway will call back to the client with. 
+The backend servers to be queried against with  asynchronous and synchronous 
 queries are selected using process type.
 The gateway API can be seen by querying .api.p“.gw.\*” within a gateway
 process.
@@ -158,8 +158,8 @@ cannot be timed out other than by using the standard -T flag.
 
 Prior to KDB v3.6, when using synchronous queries the gateway could only handle one query at
 a time and cannot timeout queries other than with the standard -T flag. The variable
-`.gw.synccallsallowed` is by default set to 0b prior to KDB v3.6.
-To send synchronous calls, edit the gateway.q file so that .gw.synccallsallowed
+`.gw.synccallsallowed` is by default set to 0b prior to KDB v3.6. 
+To send synchronous calls, edit the gateway.q file so that .gw.synccallsallowed 
 is set to true. (The exception being with TorQ-FSP, in which case it is set to 1b by default.)
 For v3.6+, deferred synchronous calls are supported, allowing the gateway to process multiple
 requests at a time.
@@ -196,7 +196,7 @@ Errors will be returned when:
 -   the client requests a query against a server type which the gateway
     does not currently have any active instances of (this error is
     returned immediately);
-
+    
 -   the client requests a query with the wrong servertype types;
 
 -   the client requests a query with null servers;
@@ -230,8 +230,8 @@ the gateway api. Use .api.p“.gw.\*” for more details.
 
 ### Client Call Examples
 
-Here are some examples for using client calls via a handle to the gateway process.
-To reiterate, v3.6+ users can use synchronous calls, whilst asynchronous calls are only relevant for users on < v3.6.
+Here are some examples for using client calls via a handle to the gateway process.    
+To reiterate, v3.6+ users can use synchronous calls, whilst asynchronous calls are only relevant for users on < v3.6. 
 
 #### Calls to the RDB only
 For synchronous calls
@@ -294,8 +294,8 @@ For the purposes of demonstration, assume that the following queries must be run
 across a single RDB and a single HDB process, and the gateway has one RDB and two HDB
 processes available to it.
 
-    q).gw.servers
-    handle| servertype inuse active querycount lastquery                     usage                attributes
+    q).gw.servers                                                                                                                                                                                                                                                                 
+    handle| servertype inuse active querycount lastquery                     usage                attributes                   
     ------| --------------------------------------------------------------------
     7     | rdb        0     1      17         2014.01.07D17:05:03.113927000 0D00:00:52.149069000 `datacentre`country!`essex`uk
     8     | hdb        0     1      17         2014.01.07D17:05:03.113927000 0D00:01:26.143564000 `datacentre`country!`essex`uk
@@ -305,11 +305,11 @@ processes available to it.
 Both the RDB and HDB processes have a function f and table t defined. f
 will run for 2 seconds longer on the HDB processes then it will the RDB.
 
-    q)f
+    q)f                                                                                                                                                                                                                                                                           
     {system"sleep ",string x+$[`hdb=.proc.proctype;2;0]; t}  //if process type is HDB, sleep for x+2 seconds and then return table t. If not, sleep for x seconds and return table t
-    q)t:([]a:(5013;5014;5015;5016;5017))
-    q)t
-    a
+    q)t:([]a:(5013;5014;5015;5016;5017))                                                                                            
+    q)t                                                                                                                                                                 
+    a   
     ----
     5013
     5014
@@ -329,9 +329,9 @@ HDB query should take 4 seconds and the RDB query should take 2 seconds.
 If the queries run in parallel, the total query time should be 4
 seconds.
 
-    q)h:hopen 8000
-    q)h(`.gw.syncexec;(`f;2);`hdb`rdb)
-    a
+    q)h:hopen 8000                                                                                                                                                                                                                                                                
+    q)h(`.gw.syncexec;(`f;2);`hdb`rdb)                                                                                                                                                                                                                                            
+    a   
     ----
     5014
     5015
@@ -343,18 +343,18 @@ seconds.
     5014
     5015
     5016
-    q)\t h(`.gw.syncexec;(`f;2);`hdb`rdb)
+    q)\t h(`.gw.syncexec;(`f;2);`hdb`rdb)                                                                                                                                                                                                                                         
     4009
 
 If a query is done for a server type which is not registered, an error
 is returned:
 
-    q)\t h(`.gw.syncexec;(`f;2);`hdb`rdb`other)
+    q)\t h(`.gw.syncexec;(`f;2);`hdb`rdb`other)                                                                                                                                                                                                                                   
     `not all of the requested server types are available; missing other
 
 Custom join functions can be specified:
 
-    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})        //[query;servertype;joinfunction(lambda)]
+    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by a from x} each x})        //[query;servertype;joinfunction(lambda)]                                                                                                                                                                                          
     a   | x
     ----| -
     5014| 2
@@ -367,19 +367,19 @@ Custom join functions can be specified:
 
 Custom joins can fail with appropriate errors:
 
-    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by b from x} each x})
+    q)h(`.gw.syncexecj;(`f;2);`hdb`rdb;{sum{select count i by b from x} each x})                                                                                                                                                                                                  
     `failed to apply supplied join function to results: b
 
 Asynchronous queries must be sent in async and blocked:
 
-    q)(neg h)(`.gw.asyncexec;(`f;2);`hdb`rdb); r:h(::)
+    q)(neg h)(`.gw.asyncexec;(`f;2);`hdb`rdb); r:h(::)                                                                                                                                                                                                                          
     	/- This white space is from pressing return
     	/- the client is blocked and unresponsive
-
-    q)q)q)
-    q)
-    q)r
-    a
+    
+    q)q)q)                                                                                                                                                                                                                                                                        
+    q)                                                                                                                                                                                                                                                                            
+    q)r                                                                                                                                                                                                                                                                           
+    a   
     ----
     5014
     5015
@@ -397,10 +397,10 @@ We can send multiple async queries at once. Given the gateway has two
 RDBs and two HDBs avaialble to it, it should be possible to service two
 of these queries at the same time.
 
-    q)h:hopen each 8000 8000
+    q)h:hopen each 8000 8000                                                                                                                                                                                                                                                      
     q)\t (neg h)@\:(`.gw.asyncexec;(`f;2);`hdb`rdb); (neg h)@\:(::); r:h@\:(::)
     4012
-    q)r
+    q)r                                                                                                                                                                                                                                                                           
     +(,`a)!,5014 5015 5016 5017 5018 5012 5013 5014 5015 5016
     +(,`a)!,5013 5014 5015 5016 5017 9999 10000 10001 10002 10003
 
@@ -410,15 +410,15 @@ take two parameters- the first is the function that was sent up, the
 second is the results. The postback can either be a lambda, or the name
 of a function eg. handleresults.
 
-    q)h:hopen 8000
-    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}             //postback with timestamp, got results and an output of the results
-    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;{-1(string .z.z)," got results"; -3!x; show y};0Wn)     //[.gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(lambda or symbol);timeout(timespan)]
+    q)h:hopen 8000                                                                                                                                                                                                                                                                
+    q)handleresults:{-1(string .z.z)," got results"; -3!x; show y}             //postback with timestamp, got results and an output of the results                                                                                                                                                                                                   
+    q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;{-1(string .z.z)," got results"; -3!x; show y};0Wn)     //[.gw.asyncexecjpt[query;servertypes(list of symbols);joinfunction(lambda);postbackfunction(lambda or symbol);timeout(timespan)]                                                                                                                                                                                                      
     q)
     q)	/- These q prompts are from pressing enter
     q)	/- The q client is not blocked, unlike the previous example
     q)
     q)2014.01.07T16:53:42.481 got results
-    a
+    a   
     ----
     5014
     5015
@@ -430,13 +430,13 @@ of a function eg. handleresults.
     5014
     5015
     5016
-
+    
     /- Can also use a named function rather than a lambda
     q)(neg h)(`.gw.asyncexecjpt;(`f;2);`hdb`rdb;raze;`handleresults;0Wn)
     q)
-    q)
+    q)              
     q)2014.01.07T16:55:12.235 got results
-    a
+    a   
     ----
     5014
     5015
@@ -454,11 +454,11 @@ seconds, but should be timed out after 5 seconds. There is a tolerance
 of +5 seconds on the timeout value, as that is how often the query list
 is checked. This can be reduced as required.
 
-    q)(neg h)(`.gw.asyncexecjpt;(`f;20);`hdb`rdb;raze;();0D00:00:05); r:h(::)
-
-    q)q)q)r
+    q)(neg h)(`.gw.asyncexecjpt;(`f;20);`hdb`rdb;raze;();0D00:00:05); r:h(::)                                                                                                                                                                                                     
+                                                                                                                                                                                                                                                                          
+    q)q)q)r                                                                                                                                                                                                                                                                       
     "error: query has exceeded specified timeout value"
-    q)\t (neg h)(`.gw.asyncexecjpt;(`f;20);`hdb`rdb;raze;();0D00:00:05); r:h(::)
+    q)\t (neg h)(`.gw.asyncexecjpt;(`f;20);`hdb`rdb;raze;();0D00:00:05); r:h(::)                                                                                                                                                                                                  
     6550
 
 ### Non kdb+ Clients
@@ -481,31 +481,31 @@ Viewer](http://code.kx.com/wiki/Cookbook/InterfacingWithJava):
     import javax.swing.JTable;
     import javax.swing.table.AbstractTableModel;
     import kx.c;
-
+    
     public class Main {
         public static class KxTableModel extends AbstractTableModel {
             private c.Flip flip;
             public void setFlip(c.Flip data) {
                 this.flip = data;
             }
-
+    
             public int getRowCount() {
                 return Array.getLength(flip.y[0]);
             }
-
+    
             public int getColumnCount() {
                 return flip.y.length;
             }
-
+    
             public Object getValueAt(int rowIndex, int columnIndex) {
                 return c.at(flip.y[columnIndex], rowIndex);
             }
-
+    
             public String getColumnName(int columnIndex) {
                 return flip.x[columnIndex];
             }
         };
-
+    
         public static void main(String[] args) {
             KxTableModel model = new KxTableModel();
             c c = null;
@@ -513,7 +513,7 @@ Viewer](http://code.kx.com/wiki/Cookbook/InterfacingWithJava):
                 c = new c("localhost", 8000,"username:password");
                 // Create the query to send
       	    String query=".gw.asyncexec[(`f;2);`hdb`rdb]";
-                // Send the query
+                // Send the query 
     	    c.ks(query);
                 // Block on the socket and wait for the result
      	    model.setFlip((c.Flip) c.k());
@@ -532,7 +532,7 @@ Viewer](http://code.kx.com/wiki/Cookbook/InterfacingWithJava):
             frame.setSize(300, 300);
             frame.setVisible(true);
         }
-    }
+    } 
 
 Some of the unofficially supported APIs may only allow synchronous calls
 to be made.
@@ -557,7 +557,7 @@ The tickerplant log file will be written to hdb/database.
 
 <a name="rdb"></a>
 
-Real Time Database (RDB)
+Real Time Database (RDB) 
 ------------------------
 
 The Real Time Database is a modified version of r.q found in kdb+tick.
@@ -583,7 +583,7 @@ See the top of the file for more information.
 
 <a name="wdb"></a>
 
-Write Database (WDB)
+Write Database (WDB) 
 --------------------
 
 The Write Database or WDB is based on w.q. This process features a
@@ -727,7 +727,7 @@ can be accessed with -.replay.usage.
 
 <a name="house"></a>
 
-Housekeeping
+Housekeeping 
 ------------
 
 The housekeeping process is used to undertake periodic system
@@ -779,7 +779,7 @@ An example csv file would be:
     rm,./logs/,*.log*,*tick*,4
     zip,./logs/,*tick*,,1
     rm,./logs/,*tick*,,3
-
+    
     function path      match    exclude  age
     ----------------------------------------
     zip      "./logs/" "*.log"  "*tick*" 2
@@ -826,7 +826,7 @@ accessed using the ‘-hkusage’ flag:
 
 <a name="file"></a>
 
-File Alerter
+File Alerter 
 ------------
 
 The file alerter process is a long-running process which periodically
@@ -904,7 +904,7 @@ alerter would look like:
     /path/to/dirA,fileA.*,copy,0,/path/to/newDir
     /path/to/dirB,fileB.txt,email,1,
     /path/to/dirA,fileA.*,delete,0,/path/to/newDir
-
+    
     path		match 	   function  newonly    movetodirectory
     ---------------------------------------------------
     "/path/to/dirA"	"fileA.*"	copy	0	"/path/to/newDir"
@@ -957,7 +957,7 @@ versions of files if the filename or filesize changes.
 
 <a name="report"></a>
 
-Reporter
+Reporter 
 --------
 
 ### Overview
@@ -1101,7 +1101,7 @@ table \[table:stagetable\]. An appropriate log message is also shown so
 any problems can easily be diagnosed. The in memory table is flushed
 every interval depending on the value of the flushqueryloginterval
 variable in the reporter.q file found in the $KDBCONFIG/settings
-directory.
+directory. 
 
 | Stage symbol | Explanation                              |
 | ------------ | ---------------------------------------- |
@@ -1124,7 +1124,7 @@ directory.
     2014.10.20D22:30:06.784419000| 39 R "Running report: rdbtablecount against proctype: rdb on handle: 7i"
     2014.10.20D22:30:06.796431000| 39 R "Received result"
 
-### Subscribing for Results
+### Subscribing for Results 
 
 To publish the results of the report, the reporter process uses the pub
 sub functionality of TorQ. This is done by using the using the inbuilt
@@ -1136,13 +1136,13 @@ reporter name as a symbol.
 
     /- define a upd function
     upd:insert
-
+    
     /- handle to reporter process
     h: hopen 20004
-
+    
     /- Subscribe to all results that use the publishresult handler
     h(`.ps.subscribe;`reporterprocessresults;`)
-
+    
     /- Subscribe to a specific report called testreport
     h(`.ps.subscribe;`reporterprocessresults;`testreport)
 
@@ -1189,33 +1189,33 @@ loaded.
 The current heartbeat statuses are tracked in .hb.hb, and the log
 messages in logmsg
 
-    q)show .hb.hb
+    q)show .hb.hb                                                                                                                                                                                                                                                                 
     sym       procname    | time                          counter warning error
     ----------------------| ---------------------------------------------------
-    discovery discovery2  | 2014.01.07D13:24:31.848257000 893     0       0
-    hdb       hdb1        | 2014.01.07D13:24:31.866459000 955     0       0
-    rdb       rdb_europe_1| 2014.01.07D13:23:31.507203000 901     1       0
-    rdb       rdb1        | 2014.01.07D13:24:31.848259000 34      0       0
-
-    q)show select from logmsg where loglevel=`ERR
-    time                          sym  host  loglevel id      message
+    discovery discovery2  | 2014.01.07D13:24:31.848257000 893     0       0    
+    hdb       hdb1        | 2014.01.07D13:24:31.866459000 955     0       0    
+    rdb       rdb_europe_1| 2014.01.07D13:23:31.507203000 901     1       0    
+    rdb       rdb1        | 2014.01.07D13:24:31.848259000 34      0       0  
+    
+    q)show select from logmsg where loglevel=`ERR                                                                                                              
+    time                          sym  host  loglevel id      message                               
     -------------------------------------------------------------------------------------
-    2014.01.07D12:25:17.457535000 hdb1 aquaq ERR      reload  "failed to reload database"
+    2014.01.07D12:25:17.457535000 hdb1 aquaq ERR      reload  "failed to reload database"           
     2014.01.07D13:29:28.784333000 rdb1 aquaq ERR      eodsave "failed to save tables : trade, quote"
 
 ### Checkmonitor
 
-The `checkmonitor.q` script extends the functionality of the monitor process.
-The script takes a set of user defined configuration settings for a set of process
-specific checks. These can initially be provided in the form of a CSV,
+The `checkmonitor.q` script extends the functionality of the monitor process.  
+The script takes a set of user defined configuration settings for a set of process 
+specific checks. These can initially be provided in the form of a CSV, 
 a sample of which is shown here:
 
     family|metric|process|query|resultchecker|params|period|runtime
     datacount|tradecount|rdb1|{count trade}|checkcount|`varname`count`cond!(`trade;10;`morethan)|0D00:01|0D00:00:01
 
-Upon start up, the CSV file is loaded and inserted into the in-memory table,
-`checkconfig`. During this insertion, each check will also be assigned
-a unique checkid number.
+Upon start up, the CSV file is loaded and inserted into the in-memory table, 
+`checkconfig`. During this insertion, each check will also be assigned 
+a unique checkid number. 
 
     q)checkconfig
     checkid| family    metric     process query           resultchecker params                                    period               runtime              active
@@ -1223,14 +1223,14 @@ a unique checkid number.
     1      | datacount tradecount rdb1    "{count trade}" "checkcount"  `varname`count`cond!(`trade;10;`morethan) 0D00:01:00.000000000 0D00:00:01.000000000 1
 
 
-For each check, the query will be sent via asynchronous requests to the
-specified processes and waits for postback of the results. Once the monitoring
-process receives the result of the query, it will then be checked by the resultchecker
-function to identify whether it will pass or fail.
+For each check, the query will be sent via asynchronous requests to the 
+specified processes and waits for postback of the results. Once the monitoring 
+process receives the result of the query, it will then be checked by the resultchecker 
+function to identify whether it will pass or fail. 
 
-Result checker functions must only take two parameters: p- a parameter dictionary,
+Result checker functions must only take two parameters: p- a parameter dictionary, 
 and r- the result row. The status in r will be modified based on whether the
-r result value passes the conditions specified by the resultchecker function.
+r result value passes the conditions specified by the resultchecker function. 
 
     q)checkcount
     {[p;r]
@@ -1255,8 +1255,8 @@ r result value passes the conditions specified by the resultchecker function.
 
 This example checks whether the trade table within the rdb is larger than 10.
 As this is true, the status has been set to 1h and no error message
-has been returned. This information is inserted into the `checkstatus` table,
-which is the master table where all results are stored.
+has been returned. This information is inserted into the `checkstatus` table, 
+which is the master table where all results are stored. 
 
     q)checkstatus
     checkid| family    metric     process lastrun                       nextrun                       status executiontime        totaltime            timerstatus running result
@@ -1264,10 +1264,10 @@ which is the master table where all results are stored.
     1      | datacount tradecount rdb1    2019.02.18D10:58:45.908919000 2019.02.18D10:59:45.911635000 1      0D00:00:00.000017000 0D00:00:00.002677000 1           0       ""
 
 
-In addition to tracking the status of the specified queries, a number of metrics
-are also returned in the `checkstatus` table.
+In addition to tracking the status of the specified queries, a number of metrics 
+are also returned in the `checkstatus` table. 
 
-|  Column Header  | Value Type |      Description
+|  Column Header  | Value Type |      Description    
 | :-------------: |:----------:|:--------------------------------------:|
 |    lastrun      | Timestamp  | Last time check was run |
 |    nextrun      | Timestamp  | Next time check is scheduled to run |
@@ -1281,37 +1281,37 @@ are also returned in the `checkstatus` table.
 
 
  The function checkruntime uses the running column to identify functions
- that are running extremely slow, and set their status and timerstatus to 0h.
+ that are running extremely slow, and set their status and timerstatus to 0h. 
 
 When the process is exited, the .z.exit has been modified to save the
 checkconfig table as a flat binary file. This will then be preferentially
 loaded next time the process is started up again. The process of saving down
-the in-memory functions makes altering configuration parameters easier.
+the in-memory functions makes altering configuration parameters easier. 
 Four functions are available to do so: `addcheck`, `updateconfig`, `updateconfigfammet`
-and `forceconfig`.
+and `forceconfig`. 
 
-|   Function Name       | Description |
+|   Function Name       | Description |         
 | :-------------: |:---------------------:|
 |    `addcheck[dictionary]`  |  addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type.  |
 |   `updateconfig[checkid;paramkey;newval]`     |  updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type.  |
 |   `forceconfig[checkid;newconfig]`   | forceconfig changes the parameter keys of an existing check and will not check for types.  |
 | `updateconfigfammet[family;metric;paramkey;newval]`  | updateconfig changes the parameter key of an existing check, using the family and metric combination to specify which check to alter. If this combination does not exist, the function will return an error. The type of the new parameter value must match the current value type.  |
 
-There are other additional functions that are useful for using the check monitor.
+There are other additional functions that are useful for using the check monitor. 
 
-|  Function Name  | Value Type |
+|  Function Name  | Value Type |        
 | :-------------: |:----------:|
-|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   |
-|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  |
-| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   |
+|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   | 
+|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  | 
+| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   | 
 
 
-All checks can be tracked using the table `checktracker`. Here, each run is assigned a
+All checks can be tracked using the table `checktracker`. Here, each run is assigned a 
 unique runid- thus individual runs for each check can be tracked. For each run,
-it tracks the time tkane for target process to recieve the query, as well as
+it tracks the time tkane for target process to recieve the query, as well as 
 the execution time. The result value will also be displayed.
 
-### HTML5 front end
+### HTML5 front end 
 
 A HTML5 front end has been built to display important process
 information that is sent from the monitor process. It uses HTML5,
@@ -1337,7 +1337,7 @@ It is accessible by going to the url `http://HOST:PORT/.non?monitorui`
 
 <a name="compress"></a>
 
-Compression
+Compression 
 -----------
 
 The compression process is a thin wrapper around the compression utility
@@ -1438,38 +1438,29 @@ and are under the `.ctp` namespace.
 TorQ Data Quality System Architecture
 -------
 
-Whilst the Monitor process checks the health of other processes in the system,
-it does not check the quality of the data captured. An RDB process could be running, but
-capturing and populating its tables with null values, an error that would not be caught
-by the Monitor process. This is the purpose of the Data Quality System, and is achieved by
-periodically running a set of user-specified checks on select processes.
+The Data Quality System consists of two processes that are listed below: 
+Data Quality Checker (DQC) and Data Quality Engine(DQE). The Purpose of 
+the Data Quality System is to ensure quality of data in the data capturing
+system by running checks on other TorQ processes. The system behaves based
+on Data Quality Config files. The metrics from the config files and the
+results of the checks performed on databases in the data capturing system
+are saved to Data Quality Databases. The results are then used for monitoring
+tools to alert the users.
 
-For example, you can place checks on a table to periodically check that the
-percentage of nulls it contains in a certain column is below a given threshold, or
-check that the values of a column stay within a specified range that changes throughout
-the day.
-
-The system behaves based on Data Quality Config files. The metrics from the
-config files and the results of the checks performed on databases in the data
-capturing system are saved to Data Quality Databases. The results can then be
-used for monitoring tools to alert users.
-
-The Data Quality System consists of two processes: the Data Quality Checker (DQC)
-and the Data Quality Engine(DQE). These are explained in detail below.
 
 Data Quality Checker (DQC)
 -------
 
-The Data Quality process runs checks on other TorQ
-processes to check the quality of data in the system. The Checker runs
-periodic checks on specific processes. The specific parameters of
+The Data Quality process is a process to run checks on other TorQ
+processes to ensure quality of data in the system. The Checker runs
+periodic checks on specific processes. The specific parameters of 
 the checks that are being run can be configured in `config/dqcconfig.csv`.
 Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe`
 namespace, and the checks are then run based on the parameters. The results
-of the checks are then saved to the results table in `dqe` namespace. The
+of the checks are then saved to the results table in `dqe` namespace. The 
 results table that contains all check results would periodically be saved to
 Data Quality Checker Database (DQCDB) intraday. The configuration of the
-checks will also be periodically saved to the Data Quality Checker Database
+checks will also be periodically saved to the Data Quality Checker Database 
 intraday.
 
 Example of `configtable` is shown below:
@@ -1547,7 +1538,7 @@ been changed. The id column is also useful for manually running checks.
 
 **funct** - The check function that was performed.
 
-**params** - The variables that were input while the check function was
+**params** - The variables that were input while the check function was 
 performed.
 
 **procs** - The process(es) type that the function was performed on.
@@ -1563,13 +1554,13 @@ function was ran successfully, and no data anomaly was found. If the
 **result** is `0`, then the function may not have been run successfully,
 or the data quality may be corrupted.
 
-**descp** - A string description describing the result of the check
+**descp** - A string description describing the result of the check 
 function.
 
 **chkstatus** - Could display either `complete` or `failed`. When the
 check function is succesfully ran, whether the **result** column is 0 or 1,
 **chkstatus** would be `complete`. However, if there was an error that caused
-the check to not run normally(Ex: variables being a wrong type), `failed`
+the check to not run normally(Ex: variables being a wrong type), `failed` 
 would be displayed instead.
 
 **chkruntype** - Could display either `scheduled` or `manual`, meaning
@@ -1586,6 +1577,7 @@ Checker because the Engine doe not run checks. The Engine and the Checker
 do not directly engage with each other. The daily statistics of other TorQ
 processes are saved to Data Quality Engine Database(DQEDB), which would be
 used by the Checker to perform advanced checks. For example, the engine
+<<<<<<< HEAD
 could be used to track the percentage change of records in a table from day
 =======
 do not directly engage with each other. The daily statisitcs of other TorQ
@@ -1593,6 +1585,9 @@ processes are saved to Data Quality Engine Database(DQEDB) which would be
 used by the Checker to performed advanced checks. For example, the engine
 could be used for tracking percentage change of records in a table from day 
 >>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
+=======
+could be used to track the percentage change of records in a table from day 
+>>>>>>> parent of 3b7207b... changed dqe part of processed.md in docs
 to day. The Checker can then use the data saved the DQEDB to perform
 advanced checks.The behavior of the Engine is based on the config file stored
 in `config/dqengineconfig.csv`.
@@ -1619,12 +1614,17 @@ of a process.
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 The daily statistics of other TorQ processes are saved to the resultstab
 table in `dqe` namespace, which would be saved to Data Quality Engine
 =======
 The daily statistics of other TorQ prcoesses are saved to the resultstab 
 table in `dqe` namespace, which would be saved to Data Quality Engine 
 >>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
+=======
+The daily statistics of other TorQ processes are saved to the resultstab 
+table in `dqe` namespace, which would be saved to Data Quality Engine 
+>>>>>>> parent of 3b7207b... changed dqe part of processed.md in docs
 Database(DQEDB).
 
 Example of resultstab is shown below:
@@ -1646,14 +1646,10 @@ Example of resultstab is shown below:
 
 **funct** - The query function that was used.
 
-<<<<<<< HEAD
 **table** - Table that the function ran on. If the query was
-=======
-**table** - Table that the function ran on. if the query was 
->>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
 not performed on a table, the section is left blank.
 
-**column** - Column of the table that the function ran on. If
+**column** - Column of the table that the function ran on. If 
 the query did not specify the column, the section is left blank.
 
-**resvalue** - The value returned from the function that was run.
+**resvalue** - The value returned from the function that was ran.
