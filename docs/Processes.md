@@ -1489,16 +1489,16 @@ Example of `configtable` is shown below:
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
 ```
 
-**action** - the check function that you would like to perform that is in
+**action** - the check functon that you would like to perform that is in
 the directory `code/dqc`.
 
 **params** - the parameters that are used by the function. The Checker
 accepts **params** as a dictionary, with `comp` and `vars` being the two
 keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
-is ON and the function is then used to compare two processes. When it is
-`0b`, comparison is OFF and the function is only used in one process. The
+is ON and the function is then used to compare two processes. when it is
+`0b`, comparision is OFF and the function is only used in one process. The
 `var` key should have a value of all the variables that are used by the
-function. Details of the variables used by checker functions can be found
+fucntion. Details of the variables used by checker functions can be found
 in `config/dqedetail.csv`.
 
 **proc** - The process(es) that you would want the check function to be used
@@ -1515,7 +1515,7 @@ again. When it is set to `single`, the check will only be ran once.
 run for the last time for the day. When mode is `single`, endtime should be
 set to `0N`. Should be in timespan datatype.
 
-**period** - When mode is `repeat`, period represents the time it takes for
+**period** - When mdoe is `repeat`, period represents the time it takes for
 the next run to start. When mode is `single`, period should be set to `0N`.
 Should be in timespan datatype.
 
@@ -1567,7 +1567,7 @@ or the data quality may be corrupted.
 function.
 
 **chkstatus** - Could display either `complete` or `failed`. When the
-check function is successfully ran, whether the **result** column is 0 or 1,
+check function is succesfully ran, whether the **result** column is 0 or 1,
 **chkstatus** would be `complete`. However, if there was an error that caused
 the check to not run normally(Ex: variables being a wrong type), `failed`
 would be displayed instead.
@@ -1579,15 +1579,22 @@ to run manually at a certain time.
 Data Quality Engine (DQE)
 -------
 
-The Data Quality Engine (DQE) process that stores daily statistics about
-other TorQ processes. It is a separate process from the Data Quality
+Data Quality Engine process is a process that stores daily statistics
+of other TorQ processes. It is a seperate process from Data Quality
 Checker because the Engine doe not run checks. The Engine and the Checker
+<<<<<<< HEAD
 do not directly engage with each other. The daily statistics of other TorQ
 processes are saved to Data Quality Engine Database(DQEDB), which would be
 used by the Checker to perform advanced checks. For example, the engine
 could be used to track the percentage change of records in a table from day
+=======
+do not directly engage with each other. The daily statisitcs of other TorQ
+processes are saved to Data Quality Engine Database(DQEDB) which would be
+used by the Checker to performed advanced checks. For example, the engine
+could be used for tracking percentage change of records in a table from day 
+>>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
 to day. The Checker can then use the data saved the DQEDB to perform
-advanced checks. The behaviour of the Engine is based on the config file stored
+advanced checks.The behavior of the Engine is based on the config file stored
 in `config/dqengineconfig.csv`.
 
 The config csv file is shown below:
@@ -1611,11 +1618,16 @@ of a process.
 **starttime** - What time should the query start.
 
 
+<<<<<<< HEAD
 The daily statistics of other TorQ processes are saved to the resultstab
 table in `dqe` namespace, which would be saved to Data Quality Engine
+=======
+The daily statistics of other TorQ prcoesses are saved to the resultstab 
+table in `dqe` namespace, which would be saved to Data Quality Engine 
+>>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
 Database(DQEDB).
 
-Example of `resultstab` is shown below:
+Example of resultstab is shown below:
 
 ```
     date       procs funct        table     column resvalue
@@ -1634,7 +1646,11 @@ Example of `resultstab` is shown below:
 
 **funct** - The query function that was used.
 
+<<<<<<< HEAD
 **table** - Table that the function ran on. If the query was
+=======
+**table** - Table that the function ran on. if the query was 
+>>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
 not performed on a table, the section is left blank.
 
 **column** - Column of the table that the function ran on. If
