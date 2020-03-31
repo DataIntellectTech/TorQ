@@ -1573,21 +1573,7 @@ Data Quality Engine (DQE)
 Data Quality Engine process is a process that stores daily statistics
 of other TorQ processes. It is a seperate process from Data Quality
 Checker because the Engine doe not run checks. The Engine and the Checker
-<<<<<<< HEAD
-do not directly engage with each other. The daily statistics of other TorQ
-processes are saved to Data Quality Engine Database(DQEDB), which would be
-used by the Checker to perform advanced checks. For example, the engine
-<<<<<<< HEAD
 could be used to track the percentage change of records in a table from day
-=======
-do not directly engage with each other. The daily statisitcs of other TorQ
-processes are saved to Data Quality Engine Database(DQEDB) which would be
-used by the Checker to performed advanced checks. For example, the engine
-could be used for tracking percentage change of records in a table from day 
->>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
-=======
-could be used to track the percentage change of records in a table from day 
->>>>>>> parent of 3b7207b... changed dqe part of processed.md in docs
 to day. The Checker can then use the data saved the DQEDB to perform
 advanced checks.The behavior of the Engine is based on the config file stored
 in `config/dqengineconfig.csv`.
@@ -1613,18 +1599,8 @@ of a process.
 **starttime** - What time should the query start.
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 The daily statistics of other TorQ processes are saved to the resultstab
 table in `dqe` namespace, which would be saved to Data Quality Engine
-=======
-The daily statistics of other TorQ prcoesses are saved to the resultstab 
-table in `dqe` namespace, which would be saved to Data Quality Engine 
->>>>>>> parent of c2b6b72... fixed a few spelling mistakes in Processes.md
-=======
-The daily statistics of other TorQ processes are saved to the resultstab 
-table in `dqe` namespace, which would be saved to Data Quality Engine 
->>>>>>> parent of 3b7207b... changed dqe part of processed.md in docs
 Database(DQEDB).
 
 Example of resultstab is shown below:
