@@ -192,8 +192,6 @@ reload:.rdb.reload
 
 .lg.o[`init;"searching for servers"];
 .servers.startup[];
-/-subscribe to the tickerplant
-.rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
