@@ -30,14 +30,6 @@ getserverids:{[att]
    :(exec serverid by servertype from .gw.servers where active)[servertype];
   ];
 
-  // its a dictionary of attributes
-  // check if attribute types are correct types
-  correctatttypes:`date`servertype`tables!14 11 11h;
-  w:correctatttypes[key att]=abs type each att;
-  if[not all w key att;
-    '"Wrong function parameter types provided.", " ",(" "sv string where not w)," parameter(s) need type(s) ",.Q.s1 correctatttypes where not w
-  ];
-
   serverids:$[`servertype in key att;
     raze getserveridstype[delete servertype from att] each (),att`servertype;
     getserveridstype[att;`all]];
