@@ -17,6 +17,7 @@ init:{                                                                          
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   .dqe.configtimer[];
+  if[.z.p>.eodtime.nextroll:.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`dqe;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
