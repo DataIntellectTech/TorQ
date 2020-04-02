@@ -191,6 +191,7 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
 results:([]id:`long$();funct:`$();params:`$();procs:`$();procschk:`$();starttime:`timestamp$();endtime:`timestamp$();result:`boolean$();descp:();chkstatus:`$();chkruntype:`$());
 
 loadtimer:{[DICT]
+  .lg.o[`dqc;("Loading check - ",(string DICT[`action])," from configtable into timer table")];
   DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
   DICT[`proc]: value DICT[`proc];
   functiontorun:(`.dqe.runcheck;`scheduled;DICT`checkid;.Q.dd[`.dqc;DICT`action];DICT`params;DICT`proc);        /- function that will be used in timer
