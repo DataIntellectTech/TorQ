@@ -191,7 +191,6 @@ reload:.rdb.reload
 .sort.getsortcsv[.rdb.sortcsv]
 
 .lg.o[`init;"searching for servers"];
-.servers.startup[];
 
 //check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
