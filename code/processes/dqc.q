@@ -31,11 +31,14 @@ init:{                                                                          
   .dqe.loadtimer'[.dqe.configtable];
 
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
+  .lg.o[`.dqc.init; "Starting EOD writedown."]; 
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]       /- Checking if .eodtime.nextroll is correct
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
+  .lo.o[`.dqe.init; "Start time: ",(string st),". End time: ",string et];                                       /- Log the start and end times.
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedownconfig;`);"Running periodic writedown for configtable"];
+  .lg.o[`.dqe.init; "Finished init function."];
   }
 
 writedown:{
@@ -211,6 +214,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
+  .lg.o[`end; "Starting dqc end of day process."];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
@@ -221,6 +225,7 @@ reruncheck:{[chkid]                                                             
   delete configtable from `.dqe;
   .dqe.init[];
   .dqe.currentpartition:pt+1;
+  .lg.o[`end; "Finished dqc end of day process."];
   };
 
 if[not .dqe.testing;
