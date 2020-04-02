@@ -31,7 +31,8 @@ init:{                                                                          
   .dqe.loadtimer'[.dqe.configtable];
 
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"]                     /- Checking if .eodtime.nextroll is correct
+  if[.z.p>.eodtime.nextroll:.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`whatever;"manual update nextroll"];.eodtime.nextroll+:1D]
+  /- Checking if .eodtime.nextroll is correct
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
