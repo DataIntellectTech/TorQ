@@ -18,6 +18,7 @@ init:{                                                                          
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   .dqe.configtimer[];
   if[.z.p>.eodtime.nextroll:.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`dqe;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
+  .lg.o[`dqe;(".eodtime.nextroll set to ", string .eodtime.nextroll)];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
@@ -74,6 +75,7 @@ writedownengine:{
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
+  .lg.o[`dqe;".u.end initiated"];
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for DBs to reloadi
@@ -82,6 +84,7 @@ writedownengine:{
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
   .dqe.init[];
   .dqe.currentpartition:pt+1;
+  .lg.o[`dqe;".u.end finished"];
   };
 
 .dqe.init[]

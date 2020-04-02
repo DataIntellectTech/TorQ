@@ -33,6 +33,7 @@ init:{                                                                          
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   if[.z.p>.eodtime.nextroll:.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`dqc;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
   /- Checking if .eodtime.nextroll is correct
+  lg.o[`dqc;(".eodtime.nextroll set to ",string .eodtime.nextroll)];
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
@@ -212,6 +213,7 @@ reruncheck:{[chkid]                                                             
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
+  .lg.o[`dqc;".u.end initiated"];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
@@ -222,6 +224,7 @@ reruncheck:{[chkid]                                                             
   delete configtable from `.dqe;
   .dqe.init[];
   .dqe.currentpartition:pt+1;
+  .lg.o[`dqc;".u.end completed"];
   };
 
 if[not .dqe.testing;
