@@ -35,7 +35,7 @@ init:{                                                                          
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]       /- Checking if .eodtime.nextroll is correct
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
-  .lo.o[`.dqe.init; "Start time: ",(string st),". End time: ",string et];                                       /- Log the start and end times.
+  .lg.o[`.dqe.init; "Start time: ",(string st),". End time: ",string et];                                       /- Log the start and end times.
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedownconfig;`);"Running periodic writedown for configtable"];
   .lg.o[`.dqe.init; "Finished init function."];
