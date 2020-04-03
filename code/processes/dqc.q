@@ -203,6 +203,7 @@ loadtimer:{[DICT]
 
 reruncheck:{[chkid]                                                                                             /- rerun a check manually
   d:exec action, params, proc from .dqe.configtable where checkid=chkid;
+  .lg.o[`dqc;("re-running check ",string(d[`action])," manually")];
   d[`params]: value d[`params][0];
   d[`proc]: value raze d[`proc];
   .dqe.runcheck[`manual;chkid;.Q.dd[`.dqc;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
@@ -231,4 +232,5 @@ reruncheck:{[chkid]                                                             
 
 if[not .dqe.testing;
   .dqe.init[];
+  .lg.o[`dqc;"Initializing dqc for the first time"];
   .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]]                /- set up EOD timer
