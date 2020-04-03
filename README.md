@@ -39,7 +39,7 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
-- **3.6.0, Apr 2019**:
+- **3.6.0, Apr 2020**:
   * Added DataDog integration for monitoring: https://www.aquaq.co.uk/q/monitoring-a-torq-system-with-datadog/
   * Improved k4unit integration
   * Tested with kdb+ 4.0
