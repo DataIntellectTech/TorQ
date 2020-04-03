@@ -22,6 +22,7 @@ init:{                                                                          
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
+  .lg.o[`init;"initialization completed"];
   }
 
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results

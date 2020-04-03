@@ -38,6 +38,7 @@ init:{                                                                          
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedownconfig;`);"Running periodic writedown for configtable"];
+  .lg.o[`init;"initialization completed"];
   }
 
 writedown:{
