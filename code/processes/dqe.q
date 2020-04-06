@@ -5,7 +5,7 @@ gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
