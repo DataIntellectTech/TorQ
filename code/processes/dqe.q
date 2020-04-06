@@ -5,7 +5,7 @@ gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$([].z.D,.z.d)gmttime]}}];
+    (`date^partitiontype(.z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
@@ -18,7 +18,7 @@ init:{                                                                          
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   .dqe.configtimer[];
   if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;.eodtime.getroll[`timestamp$.dqe.currentpartition];.lg.o[`dqc;"Manually update .eodtime.nextroll as it was incorrect"]]
-  .lg.o[`dqe;(".eodtime.nextroll set to ", string .eodtime.nextroll)];
+  .lg.o[`dqe;".eodtime.nextroll set to ", string .eodtime.nextroll];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
@@ -89,4 +89,4 @@ writedownengine:{
   .lg.o[`dqe;".u.end finished"];
   };
 
-.dqe.init[[]]
+.dqe.init[]
