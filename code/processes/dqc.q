@@ -31,8 +31,6 @@ init:{                                                                          
   .dqe.loadtimer'[.dqe.configtable];
 
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
-  /- Checking if .eodtime.nextroll is correct
-  .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
@@ -225,7 +223,8 @@ reruncheck:{[chkid]                                                             
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];               /- clear writedownconfig timer
   delete configtable from `.dqe;
   .dqe.currentpartition:pt+1;
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;.eodtime.getroll[`timestamp$.dqe.currentpartition];.lg.o[`dqc;"Manually update .eodtime.nextroll as it was incorrect"]]
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;.eodtime.getroll[`timestamp$.dqe.currentpartition];.lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]]
+  .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqc;".u.end completed"]; 
   };
