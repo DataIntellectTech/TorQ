@@ -31,7 +31,7 @@ init:{                                                                          
   .dqe.loadtimer'[.dqe.configtable];
 
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`dqc;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
+  if[.proc.cp[]>.eodtime.nextroll:.eodtime.getroll[.proc.cp[]];.lg.o[`dqc;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
   /- Checking if .eodtime.nextroll is correct
   .lg.o[`dqc;(".eodtime.nextroll set to ",string .eodtime.nextroll)];
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
@@ -70,7 +70,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   updvars:(key params[`vars]) b:where (),10h=type each value params`vars;
   if[count updvars;vars[updvars]:`$params[`vars] updvars];
   parprint:`$("," sv string (raze/) (),enlist each vars params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
-  `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.z.p;0Np;0b;"";`started;runtype);
+  `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.proc.cp[];0Np;0b;"";`started;runtype);
   }
 
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
@@ -94,13 +94,13 @@ chkcompare:{[runtype;idnum;params]                                              
   b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
 
   if[@[{all 0W=x};first b;0b];                                                                                  /- if error in compare proc then fail check
-    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error on comparison process";`failed;params;`];:()];
+    .dqe.updresultstab[runtype;idnum;.proc.cp[];0b;"error: error on comparison process";`failed;params;`];:()];
   errorprocs:d[`procs] where (),all each @[{0W=x};d`results;0b];
   if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
-    .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: error with all comparison procs";`failed;params;`];:()];
+    .dqe.updresultstab[runtype;idnum;.proc.cp[];0b;"error: error with all comparison procs";`failed;params;`];:()];
   $[@[{98h=type raze x};b;0b];                                                                                  /- changes comparison for tables
     [matching:procsforcomp where (), params[`compallow] <= (sum t2)%count t2:100*(sum  t)%count t:$[`error~.[{(all/)=[raze x;raze y]};(a;b);{`error}]; 
-      .dqe.updresultstab[runtype;idnum;.z.p;0b;"error: tables are not of the same length";`complete;params;`];
+      .dqe.updresultstab[runtype;idnum;.proc.cp[];0b;"error: tables are not of the same length";`complete;params;`];
       :()];
      =[raze a;raze b]];
     matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b];
@@ -114,7 +114,7 @@ chkcompare:{[runtype;idnum;params]                                              
 
   .lg.o[`chkcompare;"Updating descp of compare process in the results table"];
   resbool:not(count errorprocs)|count notmatching;
-  .dqe.updresultstab[runtype;idnum;.z.p;resbool;s;`complete;params;`];
+  .dqe.updresultstab[runtype;idnum;.proc.cp[];resbool;s;`complete;params;`];
   }
 
 postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
@@ -131,7 +131,7 @@ postback:{[runtype;idnum;proc;params;result]                                    
 
   $[params`comp;                                                                                                /- in comparison run, check if all results have returned
     .dqe.chkcompare[runtype;idnum;params];
-    .dqe.updresultstab[runtype;idnum;.z.p;first result;result[1];`complete;params;proc]];
+    .dqe.updresultstab[runtype;idnum;.proc.cp[];first result;result[1];`complete;params;proc]];
   }
 
 getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async

@@ -5,7 +5,7 @@ gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$([].z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
@@ -17,7 +17,7 @@ init:{                                                                          
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   .dqe.configtimer[];
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];.lg.o[`dqe;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
+  if[.proc.cp[]>.eodtime.nextroll:.eodtime.getroll[.proc.cp[]];.lg.o[`dqe;"Manually update .eodtime.nextroll as it was incorrect"];.eodtime.nextroll+:1D]
   .lg.o[`dqe;(".eodtime.nextroll set to ", string .eodtime.nextroll)];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
@@ -89,4 +89,4 @@ writedownengine:{
   .lg.o[`dqe;".u.end finished"];
   };
 
-.dqe.init[]
+.dqe.init[[]]
