@@ -223,13 +223,16 @@ reruncheck:{[chkid]                                                             
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];               /- clear writedownconfig timer
   delete configtable from `.dqe;
   .dqe.currentpartition:pt+1;
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];.lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]]
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
+    .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+    ];
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqc;".u.end completed"]; 
   };
 
 if[not .dqe.testing;
-  .dqe.init[];
   .lg.o[`dqc;"Initializing dqc for the first time"];
+  .dqe.init[];
   .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]]                /- set up EOD timer

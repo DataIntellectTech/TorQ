@@ -83,7 +83,10 @@ writedownengine:{
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
   .dqe.currentpartition:pt+1;
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];.lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]]
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
+    .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
+    ];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];
