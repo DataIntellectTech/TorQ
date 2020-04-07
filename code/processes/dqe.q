@@ -20,6 +20,7 @@ init:{                                                                          
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
+  .lg.o[`init;"initialization completed"];
   }
 
 updresultstab:{[proc;fn;params;tab;resinput]                                                                    /- upadate results table with results
@@ -46,6 +47,7 @@ runquery:{[query;params;querytype;rs]
   }
 
 loadtimer:{[d]
+  .lg.o[`dqe;("Loading query - ",(string d[`query])," from configtable into timer table")];
   d[`params]:value d[`params];
   d[`proc]:value raze d[`proc];
   functiontorun:(`.dqe.runquery;.Q.dd[`.dqe;d`query];d`params;d`querytype;d`proc);
@@ -73,14 +75,21 @@ writedownengine:{
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
+  .lg.o[`dqe;".u.end initiated"];
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for DBs to reloadi
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runquery in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
-  .dqe.init[];
   .dqe.currentpartition:pt+1;
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
+    .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
+    ];
+  .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
+  .dqe.init[];
+  .lg.o[`dqe;".u.end finished"];
   };
 
 .dqe.init[]
