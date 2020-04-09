@@ -234,4 +234,5 @@ reruncheck:{[chkid]                                                             
 if[not .dqe.testing;
   .lg.o[`dqc;"Initializing dqc for the first time"];
   .dqe.init[];
-  .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]]                /- set up EOD timer
+  .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]
+  ];                                                                                                            /- set up EOD timer
