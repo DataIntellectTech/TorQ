@@ -218,7 +218,6 @@ reruncheck:{[chkid]                                                             
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
-  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];                     /- clear writedown timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];               /- clear writedownconfig timer
   delete configtable from `.dqe;
