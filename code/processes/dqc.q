@@ -18,6 +18,7 @@ compcounter:([id:`long$()]counter:`long$();procs:();results:());
 init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   .dqe.compcounter[0N]:(0N;();());
   
@@ -220,6 +221,7 @@ reruncheck:{[chkid]                                                             
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];                     /- clear writedown timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];               /- clear writedownconfig timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear .u.end timer
   delete configtable from `.dqe;
   .dqe.currentpartition:pt+1;
   if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
@@ -234,5 +236,4 @@ reruncheck:{[chkid]                                                             
 if[not .dqe.testing;
   .lg.o[`dqc;"Initializing dqc for the first time"];
   .dqe.init[];
-  .timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"]
-  ];                                                                                                            /- set up EOD timer
+  ];

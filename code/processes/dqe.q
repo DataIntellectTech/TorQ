@@ -14,6 +14,7 @@ resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
 init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
   .servers.startup[];                                                                                           /- Open connection to discovery
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                         /- set timer to call EOD
   .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
   .dqe.configtimer[];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
@@ -80,6 +81,7 @@ writedownengine:{
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];                                                                 /- send message for DBs to reloadi
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runquery in' funcparam];                      /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];               /- clear writedown timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear EOD timer
   .dqe.currentpartition:pt+1;
   if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
@@ -91,5 +93,3 @@ writedownengine:{
   };
 
 .dqe.init[]
-.timer.repeat[.eodtime.nextroll;0W;1D;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];                   /- set up EOD timer
-
