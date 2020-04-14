@@ -7,6 +7,6 @@ datechk:{[]                                                                     
   if[not `date in .Q.pf;
     .lg.o[`datechk;"date is not a partition field value"];
     :(0b;"date is not a partition field value")];
-  c:(last .Q.pv)=.z.d-1+k*(k:.z.d mod 7)in 1 2;
+  c:(last .Q.pv)=.z.d-1+k*(k:.z.d mod 7)in 0 1;
   (c;"Latest date in hdb is ", $[c;"correct";"not correct"])
   }
