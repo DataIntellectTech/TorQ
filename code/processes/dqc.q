@@ -17,7 +17,7 @@ compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
 init:{                                                                                                          /- this function gets called at every EOD by .u.end
   .lg.o[`init;"searching for servers"];
-  .servers.startupdependent[enlist `dqedb; 30];                                                                 /- Open connection to discovery. Retry until connected to dqe.
+  .servers.startupdependent[`dqedb; 30];                                                                        /- Open connection to discovery. Retry until connected to dqe.
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
   .dqe.compcounter[0N]:(0N;();());
