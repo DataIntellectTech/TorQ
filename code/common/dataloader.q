@@ -115,7 +115,7 @@ loadallfiles:{[loadparams;dir]
  loadparams:(`dataprocessfunc`chunksize`partitioncol`partitiontype`compression`gc!({[x;y] y};`int$100*2 xexp 20;`time;`date;();0b)),loadparams;
 
  // required types
- reqtypes:`headers`types`tablename`dbdir`chunksize`partitioncol`partitiontype`gc!`short$(11;10;-11;-11;-6;-11;-11;-1);
+ reqtypes:`headers`types`tablename`dbdir`symdir`chunksize`partitioncol`partitiontype`gc!`short$(11;10;-11;-11;-11;-6;-11;-11;-1);
  
  // check the types
  if[count w:where not (type each loadparams key reqtypes)=reqtypes;
