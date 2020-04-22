@@ -10,6 +10,7 @@
 // separator = separator field.  enlist it if the first row in the file is header data (same as standard q way) e.g. enlist","
 // tablename = name of table to load to, e.g. `trade
 // dbdir = database directory to write to e.g. `:hdb
+// symdir [optional] = directory to enumerate against; default is to enumerate against dbdir
 // dataprocessfunc [optional] = diadic function to use to further process data before saving. 
 // Parameters passed in are loadparams dict and data to be modified.  Default is {[x;y] y}
 // partitiontype [optional] = the partition type - one of `date`month`year`int.  Default is `date
@@ -55,7 +56,9 @@ loaddata:{[loadparams;rawdata]
 
  // enumerate the table - best to do this once
  .lg.o[`dataloader;"Enumerating"];
- data:.Q.en[loadparams[`dbdir];data]; 
+ data:$[`symdir in key loadparams;
+  .Q.en[loadparams[`symdir];data];
+  .Q.en[loadparams[`dbdir];data]]; 
 
  writedatapartition[loadparams[`dbdir];;loadparams[`partitiontype];loadparams[`partitioncol];loadparams[`tablename];data] each distinct loadparams[`partitiontype]$data[loadparams`partitioncol];
  
