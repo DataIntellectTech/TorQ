@@ -16,7 +16,7 @@ dogstatsd_port:@[value;`dogstatsd_port;getenv[`DOGSTATSD_PORT]]
 dogstatsd_apikey:@[value;`dogstatsd_apikey;getenv[`DOGSTATSD_APIKEY]]
 
 //define dogstatsd_url
-dogstatsd_url:@[value;`dogstatsd_url;getenv[`DOGSTATSD_URL]]
+dogstatsd_url:":https://api.datadoghq.com/api/v1/"
 
 
 //Functions are set to return 1b or 0b based on the health of the process
