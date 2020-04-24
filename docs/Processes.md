@@ -1577,6 +1577,26 @@ would be displayed instead.
 either the check was ran as scheduled from the configtable, or it was forced
 to run manually at a certain time.
 
+Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
+
+- `.dqc.constructchkeck` - Used to check if a construct exists.
+- `.dqc.tableticking` - Used to check if a table has obtained records within a specified time period.
+- `.dqc.chkslowsub` - Used to check queues on handles to make sure there are no slow subscribers.
+- `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
+- `.dqc.tablehasrecords` - A projection of `.dqc.tablecount` that is used to check if a table is non-empty.
+- `.dqc.attrcheck` - Checks that a tables acutal schema matches the expectation.
+- `.dqc.anomalychk` - Checks the percentage of anomalies in certain columns of a table are below a given threshold.
+- `.dqc.freeform` - Checks if a query has passed correctly.
+- `.dqc.schemacheck` - Checks if the meta of a table matches expectation.
+- `.dqc.datechk` - Checks the date vector contains the latest date in a HDB.
+- `.dqc.nullchk` - Checks percentages of nulls in columns of a table are below a given threshold.
+- `.dqc.symfilecheck` - Checks that the sym file exists.
+- `.dqc.xmarketalert` - Tests whether the bid price has exceeded in the ask price in market data.
+- `.dqc.dfilechk` - Checks the `.d` file in the latest date partition matches the previous date values.
+- `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
+- `.dqc.tablecountcomp` - Counts the number of rows in a table.
+- `.dqc.pctAvgDailyChange` - Used to check if a function applied to a table is within the threshold limits of an n-day average.
+
 Data Quality Engine (DQE)
 -------
 
