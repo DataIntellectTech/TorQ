@@ -335,20 +335,21 @@ reqprocsnotconn:{[requiredprocs]
   };
 
 // Block process until all required processes are connected
-startupdepcycles:{[requiredprocs;timeintv;cycles] 
-  n:0;                                                                                                                  //variable used to check how many cycles have passed
+startupdepcycles:{[requiredprocs;timeintv;cycles]
+  n:1;                                                                                                                  //variable used to check how many cycles have passed
+  .servers.startup[];
   while[.servers.reqprocsnotconn requiredprocs;                                                                         //check if requiredprocs are running
-    n+:1;                                                                                                               //cycle counter
-    .servers.startup[];
     if[n>cycles;
       b:((),requiredprocs)except(),exec proctype from .servers.SERVERS where .dotz.liveh w;
       .lg.e[`connectionreport;string[.proc.procname]," cannot connect to ",","sv string'[b]];                           //after "cycles" times output error and exit process.
      ];
-    .os.sleep[timeintv]
+    .os.sleep[timeintv];
+    n+:1;
+    .servers.startup[];
    ];
  };
 
- startupdependent:startupdepcycles[;;0W];
+startupdependent:startupdepcycles[;;0W];
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 

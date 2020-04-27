@@ -172,6 +172,7 @@ del:".";
 //Datadog configuration
 \d .dg
 enabled:0b;		//whether .lg.ext is overwritten to send errors to datadog. Default is 0b meaning errors will not be sent to datadog.
+webreq:0b;		//whether datadog agent or web request function is used. Default is 0b which means datadog agent is used.
 
 // k4unit tests
 \d .KU

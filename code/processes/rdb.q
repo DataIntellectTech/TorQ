@@ -97,6 +97,8 @@ endofday:{[date]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
+	/-reset timeout to original timeout
+	restoretimeout[];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
@@ -123,6 +125,8 @@ reload:{[date]
 	if[gc;.gc.run[]];
 	/-reset eodtabcount back to zero for each table (in case this is called more than once)
 	eodtabcount[tabs]:0;
+	/-restore original timeout back to rdb
+	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
@@ -166,6 +170,9 @@ getpartition:{[] rdbpartition}
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
+/-resets timeout to 0 before EOD writedown
+timeoutreset:{.rdb.timeout:system"T";system"T 0"};
+restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
 /- make sure that the process will make a connection to each of the tickerplant and hdb types
@@ -184,9 +191,6 @@ reload:.rdb.reload
 .sort.getsortcsv[.rdb.sortcsv]
 
 .lg.o[`init;"searching for servers"];
-.servers.startup[];
-/-subscribe to the tickerplant
-.rdb.subscribe[]
 
 //check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
@@ -194,3 +198,7 @@ reload:.rdb.reload
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
+
+/-change timeout to zero before eod flush
+.timer.repeat[.eodtime.nextroll-00:01;0W;1D;
+  (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];

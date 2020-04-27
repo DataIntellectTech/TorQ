@@ -586,6 +586,7 @@ dictionary should/can have the following fields:
 |    separator    |  Y   | char\[list\] | Delimiting character. Enlist it if first line of file is header data |
 |    tablename    |  Y   |    symbol    |      Name of table to write data to      |
 |      dbdir      |  Y   |    symbol    |        Directory to write data to        |
+|     symdir      |  N   |    symbol    |      Directory to enumerate against      |
 |  partitiontype  |  N   |    symbol    | Partitioning to use. Must be one of \`date\`month\`year\`int. Default is \`date |
 |  partitioncol   |  N   |    symbol    | Column to use to extract partition information.Default is `time |
 | dataprocessfunc |  N   |   function   | Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y} |
