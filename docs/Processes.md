@@ -1435,3 +1435,227 @@ and are under the `.ctp` namespace.
  | schema               |    retrieve schema from tickerplant    |                                                                   `1b`|
  | clearlogonsubscription  | clear log on subscription, only called if createlogfile is also enabled  |                              `0b`|
 
+TorQ Data Quality System Architecture
+-------
+
+Whilst the Monitor process checks the health of other processes in the system,
+it does not check the quality of the data captured. An RDB process could be running, but
+capturing and populating its tables with null values, an error that would not be caught
+by the Monitor process. This is the purpose of the Data Quality System, and is achieved by
+periodically running a set of user-specified checks on select processes.
+
+For example, you can place checks on a table to periodically check that the
+percentage of nulls it contains in a certain column is below a given threshold, or
+check that the values of a column stay within a specified range that changes throughout
+the day.
+
+The system behaves based on Data Quality Config files. The metrics from the
+config files and the results of the checks performed on databases in the data
+capturing system are saved to Data Quality Databases. The results can then be
+used for monitoring tools to alert users.
+
+The Data Quality System consists of four processes: the Data Quality Checker (DQC)
+and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). These are 
+explained in detail below.
+
+Data Quality Checker (DQC)
+-------
+
+The Data Quality process runs checks on other TorQ
+processes to check the quality of data in the system. The Checker runs
+periodic checks on specific processes. The specific parameters of 
+the checks that are being run can be configured in `config/dqcconfig.csv`.
+Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe`
+namespace, and the checks are then run based on the parameters. The results
+of the checks are then saved to the results table in `dqe` namespace. The 
+results table that contains all check results would periodically be saved to
+Data Quality Checker Database (DQCDB) intraday. The configuration of the
+checks will also be periodically saved to the Data Quality Checker Database 
+throughout the day.
+
+Example of `configtable` is shown below:
+
+```
+    action         params                                                                                                   proc           mode   starttime                     endtime                       period               checkid
+    --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    tableticking   "`comp`vars!(0b;(`quote;5;`minute))"                                                                     "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 0
+    chkslowsub     "`comp`vars!(0b;1000000)"                                                                                "`tickerplant" repeat 2020.03.20D09:00:00.000000000 2020.03.20D19:00:00.000000000 0D00:10:00.000000000 1
+    tableticking   "`comp`vars!(0b;(`quote;5;`minute))"                                                                     "`rdb1"        single 2020.03.20D12:00:00.000000000                                                    2
+    constructcheck "`comp`vars!(0b;(`quote;`table))"                                                                        "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 3
+    constructcheck "`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable))"                                           "`hdb2"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 4
+    attrcheck      "`comp`vars!(0b;(`quote;`s`g;`time`sym))"                                                                "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:02:00.000000000 5
+    schemacheck    "`comp`vars!(0b;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;\"psffjjccs\";`````````;`s`g```````))" "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:15:00.000000000 6
+    freeform       "`comp`vars!(0b;\"select from trade where date=2020.01.02\")"                                            "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:03:00.000000000 7
+    symfilecheck   "(`comp`vars!(0b;(.dqe.hdbdir;`sym)))"                                                                   "`hdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:10:00.000000000 8
+    xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
+```
+
+**action** - the check function that you would like to perform that is in
+the directory `code/dqc`.
+
+**params** - the parameters that are used by the function. The Checker
+accepts **params** as a dictionary, with `comp` and `vars` being the two
+keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
+is ON and the function is then used to compare two processes. When it is
+`0b`, comparison is OFF and the function is only used in one process. The
+`var` key should have a value of all the variables that are used by the
+function. Details of the variables used by checker functions can be found
+in `config/dqedetail.csv`.
+
+**proc** - The process(es) that you would want the check function to be used
+for - in symbol datatype.
+
+**mode** - Mode could be set to either `repeat` or `single`. When it is set
+to `repeat` the check will be periodically run based on the **period**
+parameter, which sets the time it will take before running the same check
+again. When it is set to `single`, the check will only be ran once.
+
+**starttime** - The start time of the check function - in timespan datatype.
+
+**endtime** - When mode is `repeat`, end time specifies when the check will
+run for the last time for the day. When mode is `single`, endtime should be
+set to `0N`. Should be in timespan datatype.
+
+**period** - When mode is `repeat`, period represents the time it takes for
+the next run to start. When mode is `single`, period should be set to `0N`.
+Should be in timespan datatype.
+
+
+Example of results is shown below:
+
+```
+    id funct               params                                   procs       procschk     starttime                     endtime                       result descp                                            chkstatus chkruntype
+    ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    2  .dqc.tableticking   quote,5,minute                           rdb         rdb1         2020.03.19D20:04:59.777402000 2020.03.19D20:04:59.784107000 1      "there are 44 records"                           complete  scheduled
+    0  .dqc.tableticking   quote,5,minute                           rdb         rdb1         2020.03.19D20:05:00.178288000 2020.03.19D20:05:00.186770000 1      "there are 82 records"                           complete  scheduled
+    9  .dqc.xmarketalert   quote                                    rdb         rdb1         2020.03.19D20:05:00.179664000 2020.03.19D20:05:00.193734000 1      "bid has not exceeded the ask in market data"    complete  scheduled
+    3  .dqc.constructcheck quote,table                              rdb         rdb1         2020.03.19D20:06:00.178885000 2020.03.19D20:06:00.196380000 1      "quote table exists"                             complete  scheduled
+    4  .dqc.constructcheck date,variable,comp(hdb1,0)               hdb         hdb2         2020.03.19D20:06:00.180247000 2020.03.19D20:06:00.203920000 1      "hdb1  | match hdb2"                             complete  scheduled
+    5  .dqc.attrcheck      quote,s,g,time,sym                       rdb         rdb1         2020.03.19D20:06:00.182379000 2020.03.19D20:06:00.201300000 1      "attribute of time,sym matched expectation"      complete  scheduled
+    7  .dqc.freeform       select from trade where date=2020.01.02  hdb         hdb1         2020.03.19D20:06:00.184577000 2020.03.19D20:06:00.205209000 1      "select from trade where date=2020.01.02 passed" complete  scheduled
+    3  .dqc.constructcheck quote,table                              rdb         rdb1         2020.03.19D20:08:00.378141000 2020.03.19D20:08:00.398781000 1      "quote table exists"                             complete  scheduled
+    4  .dqc.constructcheck date,variable,comp(hdb1,0)               hdb         hdb2         2020.03.19D20:08:00.379574000 2020.03.19D20:08:00.404501000 1      "hdb1  | match hdb2"                             complete  scheduled
+```
+
+The columns of results table provide information about the checks performed:
+
+**id** - The id of the check after being loaded into the process. In the
+sample table above, `.dqc.construckcheck` with the id 3 that checks whether
+quote table exists and `.dqc.construckcheck` with the id 4 that checks
+whether data in hdb1 matches hdb2 had two results showing as they have been
+ran twice within that time period, but the parameters of the checks have not
+been changed. The id column is also useful for manually running checks.
+
+**funct** - The check function that was performed.
+
+**params** - The variables that were input while the check function was 
+performed.
+
+**procs** - The process(es) type that the function was performed on.
+
+**procschk** - The specific process(es) that the function was performed on.
+
+**starttime** - When the function was started.
+
+**endtime** - When the function stopped running.
+
+**result** - Returns a boolean value. If the **result** is `1`, then the
+function was ran successfully, and no data anomaly was found. If the
+**result** is `0`, then the function may not have been run successfully,
+or the data quality may be corrupted.
+
+**descp** - A string description describing the result of the check 
+function.
+
+**chkstatus** - Could display either `complete` or `failed`. When the
+check function is successfully ran, whether the **result** column is 0 or 1,
+**chkstatus** would be `complete`. However, if there was an error that caused
+the check to not run normally(Ex: variables being a wrong type), `failed` 
+would be displayed instead.
+
+**chkruntype** - Could display either `scheduled` or `manual`, meaning
+either the check was ran as scheduled from the configtable, or it was forced
+to run manually at a certain time.
+
+Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
+
+- `.dqc.constructchkeck` - Checks if a construct exists.
+- `.dqc.tableticking` - Checks if a table has obtained records within a specified time period.
+- `.dqc.chkslowsub` - Checks queues on handles to make sure there are no slow subscribers.
+- `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
+- `.dqc.tablehasrecords` - A projection of `.dqc.tablecount` that is used to check if a table is non-empty.
+- `.dqc.attrcheck` - Checks that a tables actual schema matches the expectation.
+- `.dqc.anomalychk` - Checks the percentage of anomalies in certain columns of a table are below a given threshold.
+- `.dqc.freeform` - Checks if a query has passed correctly.
+- `.dqc.schemacheck` - Checks if the meta of a table matches expectation.
+- `.dqc.datechk` - Checks the date vector contains the latest date in a HDB.
+- `.dqc.nullchk` - Checks percentages of nulls in columns of a table are below a given threshold.
+- `.dqc.symfilecheck` - Checks that the sym file exists.
+- `.dqc.xmarketalert` - Tests whether the bid price has exceeded in the ask price in market data.
+- `.dqc.dfilechk` - Checks the `.d` file in the latest date partition matches the previous date values.
+- `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
+- `.dqc.tablecountcomp` - Counts the number of rows in a table.
+- `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
+
+Data Quality Engine (DQE)
+-------
+
+Data Quality Engine process is a process that stores daily statistics
+of other TorQ processes. It is a separate process from Data Quality
+Checker because the Engine doe not run checks. The Engine and the Checker
+could be used to track the percentage change of records in a table from day
+to day. The Checker can then use the data saved the DQEDB to perform
+advanced checks.The behaviour of the Engine is based on the config file stored
+in `config/dqengineconfig.csv`.
+
+The config csv file is shown below:
+```
+    query,params,proc,querytype,starttime
+    -------------------------------------
+    tablecount,.z.d-1,`hdb1,table,09:00:00.000000000
+    symfilecheck,`sym,`hdb1,other,09:00:00.000000000
+    symcount,(`quote;`sym),`hdb1,table,09:00:00.000000000
+```
+
+**query** - The query function that is used to provide daily statistics
+of a process.
+
+**params** - the variables that is used for the query function.
+
+**proc** - The process that the query function is running on.
+
+**querytype** - Whether the query is ran for a `table` or `other`.
+
+**starttime** - What time should the query start.
+
+
+The daily statistics of other TorQ processes are saved to the resultstab
+table in `dqe` namespace, which would be saved to Data Quality Engine
+Database(DQEDB).
+
+Example of resultstab is shown below:
+
+```
+    date       procs funct        table     column resvalue
+    -------------------------------------------------------
+    2020.03.16 hdb1  tablecount   quote            0
+    2020.03.16 hdb1  tablecount   quote_iex        0
+    2020.03.16 hdb1  tablecount   trade            0
+    2020.03.16 hdb1  tablecount   trade_iex        0
+    2020.03.16 hdb1  symfilecheck                  10
+    2020.03.16 hdb1  symcount     quote     sym    10
+```
+
+**date** - Date that the data was saved.
+
+**procs** - The process that the query function was running on.
+
+**funct** - The query function that was used.
+
+**table** - Table that the function ran on. If the query was
+not performed on a table, the section is left blank.
+
+**column** - Column of the table that the function ran on. If 
+the query did not specify the column, the section is left blank.
+
+**resvalue** - The value returned from the function that was ran.
