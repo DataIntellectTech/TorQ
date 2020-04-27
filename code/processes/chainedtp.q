@@ -38,7 +38,7 @@ openlog:{[lgfile]
     .[set;(lgfile;());{[lgf;err] .lg.e[`openlog;"cannot create new log file : ",string[lgf]," : ", err]}[lgfile]]];
 
   /- backup upd & redefine for counting
-  updold:upd;
+  updold:`. `upd;
   @[`.;`upd;:;{[t;x] .u.icounts[t]+:count x;}];
   /- set pub and log count
   .u.i:.u.j:@[-11!;lgfile;-11!(-2;lgfile)];
@@ -55,7 +55,7 @@ openlog:{[lgfile]
 
 /- subscribe to tickerplant and refresh tickerplant settings
 subscribe:{[]
-  s:.sub.getsubscriptionhandles[`procname;.ctp.tickerplantname;()!()];
+  s:.sub.getsubscriptionhandles[`;.ctp.tickerplantname;()!()];
   if[count s;
       subproc:first s;
       .ctp.tph:subproc`w;
@@ -123,12 +123,13 @@ refreshtp:{[d]
   /- reset log and publish count
   .u.i:.u.j:0;
   .u.icounts::.u.jcounts::(`symbol$())!0#0,();
-  /- create new logfile name
-  .u.L:createlogfilename[d];
+  /- create log file if required
+  if[createlogfile;
+    .u.L:createlogfilename[d];
+    if[clearlogonsubscription;clearlog .u.L];
+  ];
   /- log file handle
-  .u.l:$[createlogfile;
-    [if[clearlogonsubscription;clearlog .u.L];
-    openlog .u.L];1i];
+  .u.l:$[createlogfile;openlog .u.L;1i];
   /- set date
   .u.d:d;
   }
@@ -189,8 +190,8 @@ end:{[d]
 
 \d .
 
-/- set upd function in the top level name space
-upd:.ctp.upd;
+/- set upd function in the top level name space, provided it isn't already defined
+if[not `upd in key `.; upd:.ctp.upd];
 
 /- pubsub must be initialised sooner to enable tickerplant replay publishing to work
 .ps.initialise[];                                                                   

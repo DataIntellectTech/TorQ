@@ -28,6 +28,7 @@
 .proc.loadf[getenv[`KDBCODE],"/common/u.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/datadog.q"];
 
 \d .
 upd:{[tab;x] .u.icounts[tab]+::count first x;}
@@ -79,7 +80,7 @@ if[not system"t";system"t 1000";
 
 \d .
 src:$["/" in src;(1 + last src ss "/") _ src; src];  / if src contains directory path, remove it
-.u.tick[src;ssr[raze .proc.params`tplogdir;"\\";"/"]];
+.u.tick[src;ssr[$[count .proc.params`tplogdir;raze .proc.params`tplogdir;""];"\\";"/"]];
 
 
 \

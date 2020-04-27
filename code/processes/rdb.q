@@ -25,12 +25,13 @@ upd:@[value;`upd;{insert}];                                 //value of upd
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
-reloadenabled:@[value;`reloadenabled;0b];					//if true, the RDB will not save when .u.end is called but 
+reloadenabled:@[value;`reloadenabled;0b];                   //if true, the RDB will not save when .u.end is called but 
                                                             //will clear it's data using reload function (called by the WDB)
-parvaluesrc:@[value;`parvaluesrc;`log];						//where to source the rdb partition value, can be log (from tp log file name), 
+parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source the rdb partition value, can be log (from tp log file name), 
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
                                                             //anything else will return a null date which is will be filled by pardefault									
-pardefault:@[value;`pardefault;.z.D];				        //if the src defined in parvaluesrc returns null, use this default date instead 
+pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
+tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
 
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
@@ -96,6 +97,8 @@ endofday:{[date]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
+	/-reset timeout to original timeout
+	restoretimeout[];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
@@ -122,6 +125,8 @@ reload:{[date]
 	if[gc;.gc.run[]];
 	/-reset eodtabcount back to zero for each table (in case this is called more than once)
 	eodtabcount[tabs]:0;
+	/-restore original timeout back to rdb
+	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
@@ -165,6 +170,9 @@ getpartition:{[] rdbpartition}
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
+/-resets timeout to 0 before EOD writedown
+timeoutreset:{.rdb.timeout:system"T";system"T 0"};
+restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
 /- make sure that the process will make a connection to each of the tickerplant and hdb types
@@ -183,17 +191,14 @@ reload:.rdb.reload
 .sort.getsortcsv[.rdb.sortcsv]
 
 .lg.o[`init;"searching for servers"];
-.servers.startup[];
-/-subscribe to the tickerplant
-.rdb.subscribe[]
 
-/-check if the tickerplant has connected, block the process until a connection is established
-while[.rdb.notpconnected[];
-	/-while no connected make the process sleep for X seconds and then run the subscribe function again
-	.os.sleep[.rdb.tpconnsleepintv];
-	/-run the servers startup code again (to make connection to discovery)
-	.servers.startup[];
-	.rdb.subscribe[]]
-	
+//check if tickerplant is available and if not exit with error 
+.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
+.rdb.subscribe[]; 
+
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
+
+/-change timeout to zero before eod flush
+.timer.repeat[.eodtime.nextroll-00:01;0W;1D;
+  (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];

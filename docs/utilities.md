@@ -586,6 +586,7 @@ dictionary should/can have the following fields:
 |    separator    |  Y   | char\[list\] | Delimiting character. Enlist it if first line of file is header data |
 |    tablename    |  Y   |    symbol    |      Name of table to write data to      |
 |      dbdir      |  Y   |    symbol    |        Directory to write data to        |
+|     symdir      |  N   |    symbol    |      Directory to enumerate against      |
 |  partitiontype  |  N   |    symbol    | Partitioning to use. Must be one of \`date\`month\`year\`int. Default is \`date |
 |  partitioncol   |  N   |    symbol    | Column to use to extract partition information.Default is `time |
 | dataprocessfunc |  N   |   function   | Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y} |
@@ -611,22 +612,25 @@ process will get the schema and replay the log file from the remote
 source (e.g. in the case of tickerplant subscriptions).
 
 .sub.getsubscriptionhandles is used to get a table of processes to
-subscribe to. The following can be used to return a table of all
-connected processes of type tickerplant:
+subscribe to. It takes a process type and process name, where `()` or a null
+symbol can be used for all:
 
-    .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.getsubscriptionhandles[`tickerplant;();()!()]      / all processes of type tickerplant
+    .sub.getsubscriptionhandles[`;`rdb1;()!()]              / all processes called 'rdb1'
+    .sub.getsubscriptionhandles[`;`;()!()]                  / all processes
+    .sub.getsubscriptionhandles[();();()!()]                / nothing
 
 .sub.subscribe is used to subscribe to a process for the supplied list
 of tables and instruments. For example, to subscribe to instruments A, B
 and C for the quote table from all tickerplants:
 
-    .sub.subscribe[`trthquote;`A`B;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.subscribe[`trthquote;`A`B;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
 
 The subscription method uses backtick for “all” (which is the same as
 kdb+tick). To subscribe to all tables, all instruments, from all
 tickerplants:
 
-    .sub.subscribe[`;`;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;`;()!()]
+    .sub.subscribe[`;`;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
 
 See .api.p“.sub.\*” for more details.
 
@@ -1330,4 +1334,3 @@ between options in the drop down menus. This has significant repercussions if
 one of your columns includes full stops, eg. email adresses. As a result we have 
 left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.
-

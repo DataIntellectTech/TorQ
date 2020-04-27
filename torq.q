@@ -201,10 +201,10 @@ pubmap:@[value;`pubmap;`ERROR`ERR`INF`WARN!1 1 0 1]
 
 // Log a message
 l:{[loglevel;proctype;proc;id;message;dict]
-	$[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
-		neg[redir] .lg.format[loglevel;proctype;proc;id;message];
-		ext[loglevel;proctype;proc;id;message;dict]];
-        publish[loglevel;proctype;proc;id;message];	
+	if[0 < redir:`int$(0w 1 `onelog in key .proc.params)&0^outmap[loglevel];
+		neg[redir] .lg.format[loglevel;proctype;proc;id;message]];
+	ext[loglevel;proctype;proc;id;message;dict];
+	publish[loglevel;proctype;proc;id;message];	
 	}
 
 // Log an error.  
@@ -400,7 +400,12 @@ readprocfile:{[file]
 		// map hostnames in res to order of preference, select most preferred
 		first res iasc prefs?res[`host];
 		first res];
-	if[not output[`port] = system"p";
+        if[not output[`host]in prefs;
+                .err.ex[`readprocfile;"Current host does not match host specified in ",string[file],". Parameters are host: ", string[output`host], ", port: ", string[output`port], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]];
+	// exit if no port passed via command line or specified in config
+	if[null[output`port]&0i=system"p";
+		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
+	if[not[output[`port] = system"p"]& 0i = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
 		];

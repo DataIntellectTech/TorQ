@@ -2,6 +2,14 @@
 / csv columns: action,ms,bytes,lang,code (csv with colheaders)
 / if your code contains commas enclose the whole code in "quotes"
 / usage: q k4unit.q -p 5001
+
+\d .KU
+VERBOSE:@[value;`.KU.VERBOSE;1];                // 0 - no logging to console, 1 - log filenames, >1 - log tests
+DEBUG:@[value;`.KU.DEBUG;0];                    // 0 - trap errors, 1 - suspend if errors (except action=`fail)
+DELIM:@[value;`.KU.DELIM;","];                  // csv delimiter
+SAVEFILE:@[value;`.KU.SAVEFILE;`:KUTR.csv];     // test results savefile
+\d .
+
 / KUT <-> KUnit Tests
 KUT:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$();repeat:`int$();minver:`float$();file:`symbol$();comment:())
 / KUltd `:dirname and/or KUltf `:filename.csv
@@ -9,7 +17,6 @@ KUT:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$
 / KUTR <-> KUnit Test Results
 / KUrtf`:filename.csv / refresh expected <ms> and <bytes> based on observed results in KUTR
 KUTR:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$();repeat:`int$();file:`symbol$();msx:`int$();bytesx:`long$();ok:`boolean$();okms:`boolean$();okbytes:`boolean$();valid:`boolean$();timestamp:`datetime$())
-KUrunresults:([]code:`symbol$();res:())
 / look at KUTR in browser or q session
 / select from KUTR where not ok // KUerr
 / select from KUTR where not okms // KUslow
@@ -44,7 +51,6 @@ KUrunresults:([]code:`symbol$();res:())
 / timestamp: when test was run
 / comment: description of the test if it's obscure..
 
-\c 10000 10000
 KUstr:{.KU.SAVEFILE 0:.KU.DELIM 0:update code:string code from KUTR} / save test results
 KUltr:{`KUTR upsert("SIJSSIJSIBBBBZ";enlist .KU.DELIM)0:.KU.SAVEFILE} / reload previously saved test results
 
@@ -62,12 +68,11 @@ KUltd:{ / (load test dir) - load all *.csv files in directory <x> into KUT
 
 KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	before:count KUTR;uf:exec asc distinct file from KUT;i:0;
-	if[.KU.VERBOSE;-1(string .z.Z)," start"];
+	if[.KU.VERBOSE;.lg.o[`k4unit;"start"]];
 	exec KUexec'[lang;code;repeat] from KUT where action=`beforeany;
 	do[count uf;
 		ufi:uf[i];KUTI:select from KUT where file=ufi;
-		if[.KU.VERBOSE;
-			-1(string .z.Z)," ",(string ufi)," ",(string exec count i from KUTI where action in `run`true`fail)," test(s)"];
+		if[.KU.VERBOSE;.lg.o[`k4unit;(string ufi)," ",(string exec count i from KUTI where action in `run`true`fail)," test(s)"]];
 		exec KUexec'[lang;code;repeat] from KUT where action=`beforeeach;
 		exec KUexec'[lang;code;repeat] from KUTI where action=`before;
 		/ preserve run,true,fail order
@@ -76,12 +81,12 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 		exec KUexec'[lang;code;repeat] from KUT where action=`aftereach;
 		i+:1];
 	exec KUexec'[lang;code;repeat] from KUT where action=`afterall;
-	if[.KU.VERBOSE;-1(string .z.Z)," end"];
+	if[.KU.VERBOSE;.lg.o[`k4unit;"end"]];
 	neg before-count KUTR}
 
 KUpexec:{[prefix;lang;code;repeat;allowfail]
 	s:prefix,(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
-	if[1<.KU.VERBOSE;-1 s];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
+	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
 
 KUfailed:{`FA1L~x}
 
@@ -91,7 +96,7 @@ KUexec:{[lang;code;repeat]
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
 	if[action=`run;
-		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];res:KUpexec["";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
+		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
 		ok:not failed;okms:$[ms;not msx>ms;1b];okbytes:$[bytes;not bytesx>bytes;1b];valid:not failed];
 	if[action=`true;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;1b];
@@ -99,7 +104,6 @@ KUact:{[action;lang;code;repeat;ms;bytes;file]
 	if[action=`fail;
 		failed:KUfailed r:KUpexec["";lang;code;repeat;0b];
 		ok:failed;okms:okbytes:valid:1b];
-	`KUrunresults insert (code;res);
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z);
 	}
 
@@ -123,21 +127,6 @@ KUerr::delete ok from select from KUTR where not ok
 KUerrf::distinct exec file from KUerr
 KUinvalid::delete ok,valid from select from KUTR where not valid
 KUinvalidf::distinct exec file from KUinvalid
-
-\d .KU
-/ VERBOSE:
-/ 0 - no logging to console
-/ 1 - log filenames
-/>1 - log tests
-VERBOSE:1
-/ DEBUG:
-/0 - trap errors, press on regardless
-/1 - suspend if errors (except if action=`fail of course)
-DEBUG:0
-/ DELIM, csv delimiter
-DELIM:","
-/ Test Results SAVEFILE
-SAVEFILE:`:KUTR.csv
 
 \d .
 @[value;"\\l k4unit.custom.q";::];

@@ -168,3 +168,16 @@ sym:`sym;
 timebackdate:2D;
 ticks:1000;
 del:".";
+
+//Datadog configuration
+\d .dg
+enabled:0b;		//whether .lg.ext is overwritten to send errors to datadog. Default is 0b meaning errors will not be sent to datadog.
+webreq:0b;		//whether datadog agent or web request function is used. Default is 0b which means datadog agent is used.
+
+// k4unit tests
+\d .KU
+VERBOSE:1;              // 0 - no logging to console, 1 - log filenames, >1 - log tests
+DEBUG:0;                // 0 - trap errors, 1 - suspend if errors (except action=`fail)
+DELIM:",";              // csv delimiter
+SAVEFILE:`:KUTR.csv;    // test results savefile
+
