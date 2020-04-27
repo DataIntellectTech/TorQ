@@ -68,7 +68,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
   .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
   vars:params`vars;
-  updvars:(key params[`vars]) b:where (),10h=type each value params`vars;
+  updvars:(key params[`vars]) where (),10h=type each value params`vars;
   if[count updvars;vars[updvars]:`$params[`vars] updvars];
   parprint:`$("," sv string (raze/) (),enlist each vars params`fnpar),$[params`comp;",comp(",(string params[`compproc]),",",(string params`compallow),")";""];
   `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.proc.cp[];0Np;0b;"";`started;runtype);
