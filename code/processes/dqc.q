@@ -178,7 +178,7 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
     proccount:count h`procname;
     params,:(enlist `compcount)!enlist proccount;
 
-    .lg.o[`runcheck;(string params`compcount)," procsess will be checked for this comparison"];
+    .lg.o[`runcheck;(string params`compcount)," process will be checked for this comparison"];
     .dqe.initstatusupd[runtype;idnum;fn;params;(`$"," sv string  r[;0]),params`compresproc];
 
     if[any[null h`w]|any null r[;1];
