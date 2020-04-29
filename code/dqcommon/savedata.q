@@ -25,6 +25,7 @@ endofday:{[dir;pt;tabs;ns;savetemp]
 
 /- function to reload an hdb
 notifyhdb:{[dir;h]
+  .lg.o[`dqc;"notifying the hdb to reload"];
   /- if you can connect to the hdb - call the reload function
   @[h;"system \"l ",dir,"\"";{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
   };
