@@ -6,6 +6,7 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 writedownperiod:@[value;`writedownperiod;0D01:00:00];
+.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
 
 /- determine the partition value
 getpartition:@[value;`getpartition;
@@ -254,7 +255,6 @@ reruncheck:{[chkid]
 
 .dqe.currentpartition:.dqe.getpartition[];
 
-.servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 /- setting up .u.end for dqe
 .u.end:{[pt]

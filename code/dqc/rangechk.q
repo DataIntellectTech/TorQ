@@ -9,10 +9,12 @@ rangechk:{[tn;colslist;tlower;tupper;thres]
     :(0b; "ERROR: Input tables are different lengths.")
     ]
   if[any any tupper<tlower;:(0b;"ERROR: tlower and tupper wrong way round.")]
-  colslist:((),colslist) except exec c from meta tab where t in "csSC ";      /- exclude columns that do not have pre-defined limits
+  /- exclude columns that do not have pre-defined limits
+  colslist:((),colslist) except exec c from meta tab where t in "csSC ";
   tupper:colslist#tupper;
   tlower:colslist#tlower;
-  d:sum[tt within (tlower;tupper)]*100%count tt:colslist#tab;                 /- dictionary with results by columns
+  /- dictionary with results by columns
+  d:sum[tt within (tlower;tupper)]*100%count tt:colslist#tab;
   $[count b:where d<thres;
     (0b;"Following columns below threshold: ",(", " sv string b),".");
     (1b;"No columns below threshold.")

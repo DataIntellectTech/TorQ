@@ -8,7 +8,9 @@ tablecount:{[tab;operator;chkvalue]
   (c;"The count of ",(string tab)," is ",$[c;"";"not "],statement)
   }
 
-tablehasrecords:.dqc.tablecount[;>;0];                                                                          /- check if the count of the table is greater than zero
+
+/- check if the count of the table is greater than zero
+tablehasrecords:.dqc.tablecount[;>;0];
 
 /- count the number of rows in a table
 tablecountcomp:{[tab]
