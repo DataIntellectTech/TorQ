@@ -11,7 +11,8 @@ savedata:{[dir;pt;savetemp;ns;tabname]
   };
 
 cleartables:{[ns;tabname]
-  .lg.o[`cleartables;"deleting ",(string tabname)," data from in-memory table"];                                /- empty the table from memory
+  /- empty the table from memory
+  .lg.o[`cleartables;"deleting ",(string tabname)," data from in-memory table"];
   @[ns;tabname;0#];
   };
 
@@ -22,6 +23,8 @@ endofday:{[dir;pt;tabs;ns;savetemp]
   .lg.o[`eod;"end of day is now complete"];
   };
 
-notifyhdb:{[dir;h]                                                                                              /-function to reload an hdb
-  @[h;"system \"l ",dir,"\"";{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];         /-if you can connect to the hdb - call the reload function
+/- function to reload an hdb
+notifyhdb:{[dir;h]
+  /- if you can connect to the hdb - call the reload function
+  @[h;"system \"l ",dir,"\"";{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
   };
