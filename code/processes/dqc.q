@@ -6,37 +6,48 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 writedownperiod:@[value;`writedownperiod;0D01:00:00];
+
+/- determine the partition value
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                                                               /-function to determine the partition value
+    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
-testing:@[value;`.dqe.testing;0b];                                                                              /- testing varible for unit tests
+testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
 
 compcounter:([id:`long$()]counter:`long$();procs:();results:());
 
-init:{                                                                                                          /- this function gets called at every EOD by .u.end
+/- called at every EOD by .u.end
+init:{
   .lg.o[`init;"searching for servers"];
-  .servers.startupdependent[`dqedb; 30];                                                                        /- Open connection to discovery. Retry until connected to dqe.
-  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];                        /- set timer to call EOD
-  .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];                                             /- add dqe functions to .api.detail
+  /- Open connection to discovery. Retry until connected to dqe.
+  .servers.startupdependent[`dqedb; 30];
+  /- set timer to call EOD
+  .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];
+  /- add dqe functions to .api.detail
+  .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];
   .dqe.compcounter[0N]:(0N;();());
   
   configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
-  `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];                                        /- Set up configtable from csv
+  /- Set up configtable from csv
+  `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
-  update starttime:.z.d+starttime from `.dqe.configtable;                                                       /- from timespan to timestamp
+  /- from timespan to timestamp
+  update starttime:.z.d+starttime from `.dqe.configtable;
   update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
-  .dqe.tosavedown:()!();                                                                                        /- store i numbers of rows to be saved down to DB
+  /- store i numbers of rows to be saved down to DB
+  .dqe.tosavedown:()!();
   .lg.o[`.dqc.init; "Starting EOD writedown."]; 
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]       /- Checking if .eodtime.nextroll is correct
+  /- Checking if .eodtime.nextroll is correct
+  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
-  .lg.o[`.dqe.init; "Start time: ",(string st),". End time: ",string et];                                       /- Log the start and end times.
+  /- Log the start and end times.
+  .lg.o[`.dqe.init; "Start time: ",(string st),". End time: ",string et];
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedown;`);"Running periodic writedown for results"];
   .timer.repeat[st;et;.dqe.writedownperiod;(`.dqe.writedownconfig;`);"Running periodic writedown for configtable"];
   .lg.o[`init;"initialization completed"];
@@ -45,28 +56,35 @@ init:{                                                                          
 writedown:{
   if[0=count .dqe.tosavedown`.dqe.results;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.results;`.dqe;`results];
-  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
-  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
+  /- get handles for DBs that need to reload
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- send message for DBs to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   }
 
 writedownconfig:{
   if[0=count .dqe.tosavedown`.dqe.configtable;:()];
   .dqe.savedata[.dqe.dqcdbdir;.dqe.getpartition[];.dqe.tosavedown`.dqe.configtable;`.dqe;`configtable];
-  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBsthat need to reload
-  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DB
+  /- get handles for DBsthat need to reload
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- send message for DB
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   }
   
-dupchk:{[runtype;idnum;params;proc]                                                                             /- checks for unfinished runs that match the new run
+/- checks for unfinished runs that match the new run
+dupchk:{[runtype;idnum;params;proc]
   if[params`comp;proc:params`compresproc];
   if[`=proc;:()];
   if[count select from .dqe.results where id=idnum,procschk=proc,chkstatus=`started;
     .dqe.updresultstab[runtype;idnum;0Np;0b;"error:fail to complete before next run";`failed;params;proc]];
   }
 
-initstatusupd:{[runtype;idnum;funct;params;rs]                                                                  /- set initial values in results table
+/- set initial values in results table
+initstatusupd:{[runtype;idnum;funct;params;rs]
   if[idnum in exec id from .dqe.compcounter;delete from `.dqe.compcounter where id=idnum;];
   .lg.o[`initstatus;"setting up initial record(s) for id ",(string idnum)];
-  .dqe.dupchk[runtype;idnum;params]'[rs];                                                                       /- calls dupchk function to check if last runs chkstatus is still started
+  /- calls dupchk function to check if last runs chkstatus is still started
+  .dqe.dupchk[runtype;idnum;params]'[rs];
   vars:params`vars;
   updvars:(key params[`vars]) where (),10h=type each value params`vars;
   if[count updvars;vars[updvars]:`$params[`vars] updvars];
@@ -74,10 +92,12 @@ initstatusupd:{[runtype;idnum;funct;params;rs]                                  
   `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.proc.cp[];0Np;0b;"";`started;runtype);
   }
 
-updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                                                   /- general function used to update a check in the results table
+/- general function used to update a check in the results table
+updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
   if[1b=params`comp;proc:params`compresproc];
-  if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;                       /- obtain count of checks that will be updated
+  /- obtain count of checks that will be updated
+  if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
     .lg.o[`updresultstab;raze "run check id ",(string idnum)," update in results table with check status ",string status];
     `.dqe.results set update endtime:end,result:res,descp:enlist des,chkstatus:status,chkruntype:runtype from .dqe.results where id=idnum,procschk=proc,chkstatus=`started];
     .dqe.tosavedown[`.dqe.results],:s;
@@ -87,17 +107,23 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]                   
   .dqe.tosavedown[`.dqe.configtable]:.dqe.tosavedown[`.dqe.configtable] union s2;
   }
 
-chkcompare:{[runtype;idnum;params]                                                                              /- function to compare the checks
-  if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];                                               /- checks if all async check results have returned
+/- function to compare the checks
+chkcompare:{[runtype;idnum;params]
+  /- checks if all async check results have returned
+  if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];
   .lg.o[`chkcompare;"comparison started with id ",string idnum];
-  a:d[`results] where not d[`procs]=params`compproc;                                                            /- obtain all the check returns
+  /- obtain all the check returns
+  a:d[`results] where not d[`procs]=params`compproc;
   procsforcomp:d[`procs] except params`compproc;
-  b:d[`results] where d[`procs]=params`compproc;                                                                /- obtain the check to compare the others to
+  /- obtain the check to compare the others to
+  b:d[`results] where d[`procs]=params`compproc;
 
-  if[@[{all 0W=x};first b;0b];                                                                                  /- if error in compare proc then fail check
+  /- if error in compare proc then fail check
+  if[@[{all 0W=x};first b;0b];
     .dqe.updresultstab[runtype;idnum;.proc.cp[];0b;"error: error on comparison process";`failed;params;`];:()];
   errorprocs:d[`procs] where (),all each @[{0W=x};d`results;0b];
-  if[(count errorprocs)= count d`results;                                                                       /- if error in all comparison procs then fail check
+  /- if error in all comparison procs then fail check
+  if[(count errorprocs)= count d`results;
     .dqe.updresultstab[runtype;idnum;.proc.cp[];0b;"error: error with all comparison procs";`failed;params;`];:()];
   matching:procsforcomp where all each params[`compallow] >= 100* abs -\:[a;first b]%\:first b;
   notmatching:procsforcomp except errorprocs,matching;
@@ -113,40 +139,50 @@ chkcompare:{[runtype;idnum;params]                                              
   .dqe.updresultstab[runtype;idnum;.proc.cp[];resbool;s;`complete;params;`];
   }
 
-postback:{[runtype;idnum;proc;params;result]                                                                    /- function that updates the results table with the check result
+/- function that updates the results table with the check result
+postback:{[runtype;idnum;proc;params;result]
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
-  if[params`comp;                                                                                               /- if comparision, add to compcounter table
+  /- if comparision, add to compcounter table
+  if[params`comp;
     .dqe.compcounter[idnum]:(
     1+0^.dqe.compcounter[idnum][`counter];
       .dqe.compcounter[idnum][`procs],proc;
-      .dqe.compcounter[idnum][`results],$[3<count result;0W;last result])];                                     /- join result to the list
+       /- join result to the list
+      .dqe.compcounter[idnum][`results],$[3<count result;0W;last result])];
 
-  if[("e"=first result)&(not params`comp);                                                                      /- checks if error returned from server side;
+    /- checks if error returned from server side;
+    if[("e"=first result)&(not params`comp);
     .dqe.updresultstab[runtype;idnum;0Np;0b;result;`failed;params;proc];
     :()];
 
-  $[params`comp;                                                                                                /- in comparison run, check if all results have returned
+  /- in comparison run, check if all results have returned
+  $[params`comp;
     .dqe.chkcompare[runtype;idnum;params];
     .dqe.updresultstab[runtype;idnum;.proc.cp[];first result;result[1];`complete;params;proc]];
   }
 
-getresult:{[runtype;funct;params;idnum;proc;hand]                                                               /- function that sends the check function over async
+/- function that sends the check function over async
+getresult:{[runtype;funct;params;idnum;proc;hand]
   .lg.o[`getresults;raze"Send function over to process: ",string proc];
   fvars:params[`vars] params`fnpar;
-  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];  /- send function with variables down handle
+  /- send function with variables down handle
+  .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];
   }
 
-runcheck:{[runtype;idnum;fn;params;rs]                                                                          /- function used to send other function to test processes
+/- function used to send other function to test processes
+runcheck:{[runtype;idnum;fn;params;rs]
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
   temp:$[1=count params`fnpar;enlist params`fnpar;params[`fnpar]]!$[(10h=type params`vars)|(1=count params`vars);enlist params`vars;params`vars];
   params[`vars]:temp;
   fncheck:` vs fn;
-  if[not fncheck[2] in key value .Q.dd[`;fncheck 1];                                                            /- run check to make sure passed in function exists
+  /- run check to make sure passed in function exists
+  if[not fncheck[2] in key value .Q.dd[`;fncheck 1];
     .lg.e[`runcheck;"Function ",(string fn)," doesn't exist"];
     :()];
 
-  rs:(),rs;                                                                                                     /- set rs to a list
+  /- set rs to a list
+  rs:(),rs;
   h:.dqe.gethandles[rs];
   r:.dqe.fillprocname[rs;h];
 
@@ -157,17 +193,20 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
     .lg.o[`runcheck;"checking for processes that are not connectable"];
     .dqe.updresultstab[runtype;idnum;0Np;0b;"error:can't connect to process";`failed;params;`];
 
-    procsdown:(h`procname) where 0N = h`w;                                                                      /- checks if any procs didn't get handles
+    /- checks if any procs didn't get handles
+    procsdown:(h`procname) where 0N = h`w;
     if[count procsdown;.dqe.updresultstab[runtype;idnum;0Np;0b;"error:process is down or has lost its handle";`failed;params]'[procsdown]];
   ];
   if[params`comp;
-    if[(params`compproc) in h`procname;                                                                         /- fail if comparison process is in list of processes to check against
+    /- fail if comparison process is in list of processes to check against
+    if[(params`compproc) in h`procname;
       .lg.e[`runcheck;"Can't compare process with itself"];
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:compare process can't be compared with itself";`failed;params]'[h`procname];
       :()];
 
     params,:(enlist `compresproc)!enlist `$"," sv string h`procname;
-    comph:.dqe.gethandles[params`compproc];                                                                     /- obtain handle for comparison process
+    /- obtain handle for comparison process
+    comph:.dqe.gethandles[params`compproc];
     h:h,'comph;
 
     proccount:count h`procname;
@@ -181,7 +220,8 @@ runcheck:{[runtype;idnum;fn;params;rs]                                          
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:unable to compare as process down or missing handle";`failed;params;params`compresproc];
       :()];
    ]
-  if[0=count h;.lg.e[`runcheck;"cannot open handle to any given processes"];:()];                               /- check if any handles exist, if not exit function
+  /- check if any handles exist, if not exit function
+  if[0=count h;.lg.e[`runcheck;"cannot open handle to any given processes"];:()];
   .dqe.getresult[runtype;value fn;(),params;idnum]'[h[`procname];h[`w]]
   }
 
@@ -189,40 +229,52 @@ results:([]id:`long$();funct:`$();params:`$();procs:`$();procschk:`$();starttime
 
 loadtimer:{[DICT]
   .lg.o[`dqc;("Loading check - ",(string DICT[`action])," from configtable into timer table")];
-  DICT[`params]: value DICT[`params];                                                                           /- Accounting for potential multiple parameters
+  /- Accounting for potential multiple parameters
+  DICT[`params]: value DICT[`params];
   DICT[`proc]: value DICT[`proc];
-  functiontorun:(`.dqe.runcheck;`scheduled;DICT`checkid;.Q.dd[`.dqc;DICT`action];DICT`params;DICT`proc);        /- function that will be used in timer
-  $[DICT[`mode]=`repeat;                                                                                        /- Determine whether the check should be repeated
+  /- function that will be used in timer
+  functiontorun:(`.dqe.runcheck;`scheduled;DICT`checkid;.Q.dd[`.dqc;DICT`action];DICT`params;DICT`proc);
+  /- Determine whether the check should be repeated
+  $[DICT[`mode]=`repeat;
     .timer.repeat[DICT`starttime;DICT`endtime;DICT`period;functiontorun;"Running check on ",string DICT`proc];
     .timer.once[DICT`starttime;functiontorun;"Running check once on ",string DICT`proc]]
   }
 
-reruncheck:{[chkid]                                                                                             /- rerun a check manually
+/- rerun a check manually
+reruncheck:{[chkid]
   d:exec action, params, proc from .dqe.configtable where checkid=chkid;
   .lg.o[`dqc;("re-running check ",string(d[`action])," manually")];
   d[`params]: value d[`params][0];
   d[`proc]: value raze d[`proc];
-  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqc;d`action];d`params;d`proc];                                           /- input man argument is `manual or `scheduled indicating manul run is on or off
+  /- input man argument is `manual or `scheduled indicating manul run is on or off
+  .dqe.runcheck[`manual;chkid;.Q.dd[`.dqc;d`action];d`params;d`proc];
   }
 
 \d .
 
-.dqe.currentpartition:.dqe.getpartition[];                                                                      /- initialize current partition
+.dqe.currentpartition:.dqe.getpartition[];
 
 .servers.CONNECTIONS:`ALL                                                                                       /- set to nothing so that is only connects to discovery
 
 .u.end:{[pt]                                                                                                    /- setting up .u.end for dqe
   .lg.o[`end; "Starting dqc end of day process."];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
-  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;                                        /- get handles for DBs that need to reload
-  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];                                                                 /- send message for DBs to reload
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];                      /- clear check function timers
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];                     /- clear writedown timer
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];               /- clear writedownconfig timer
-  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];                             /- clear .u.end timer
+  /- get handles for DBs that need to reload
+  hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- send message for DBs to reload
+  .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
+  /- clear check function timers
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runcheck in' funcparam];
+  /- clear writedown timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedown in' funcparam];
+  /- clear writedownconfig timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownconfig in' funcparam];
+  /- clear .u.end timer
+  .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
   .dqe.currentpartition:pt+1;
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;                                                     /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+  /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
     .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
     ];
