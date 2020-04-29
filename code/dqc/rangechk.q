@@ -1,5 +1,8 @@
 \d .dqc
-rangechk:{[tn;colslist;tlower;tupper;thres]                                   /- Check that values of specified columns colslist in table (name) tn are within the range defined by the tables tlower and tupper.
+
+/- Check that values of specified columns colslist in table (name) tn are within 
+/- the range defined by the tables tlower and tupper.
+rangechk:{[tn;colslist;tlower;tupper;thres]
   if[0=count colslist; :(0b; "ERROR: No columns specified in colslist.")];
   tab:get tn;
   if[1<>sum differ count each (tab;tupper;tlower);

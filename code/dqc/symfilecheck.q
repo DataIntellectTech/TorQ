@@ -1,5 +1,7 @@
 \d .dqc
 hdbdir:@[value;`hdbdir;`hdb]
-symfilecheck:{[directory;filename]                     // if sym file exists
+
+/- check that the sym file exists
+symfilecheck:{[directory;filename]
   (c;"sym file named ",(string filename)," ",$[c:.os.Fex .Q.dd[directory]filename;"exists";"doesn't exist"])
   }

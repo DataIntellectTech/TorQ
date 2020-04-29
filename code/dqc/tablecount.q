@@ -1,5 +1,7 @@
 \d .dqc
-tablecount:{[tab;operator;chkvalue]                                                                             /- compare the count of a table to a chosen value
+
+/- compare the count of a table to a chosen value
+tablecount:{[tab;operator;chkvalue]
   d:(>;=;<)!("greater than";"equal to";"less than");
   statement:d[operator]," ",(string chkvalue),". Its count is ",string count value tab;
   c:operator .(count value tab;chkvalue);
@@ -8,6 +10,7 @@ tablecount:{[tab;operator;chkvalue]                                             
 
 tablehasrecords:.dqc.tablecount[;>;0];                                                                          /- check if the count of the table is greater than zero
 
+/- count the number of rows in a table
 tablecountcomp:{[tab]
   count value tab
   }

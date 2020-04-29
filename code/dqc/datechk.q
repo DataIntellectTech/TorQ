@@ -1,5 +1,7 @@
 \d .dqc
-datechk:{[]                                                                                                     /- function to check that date vector contains latest date in an hdb
+
+/- function to check that date vector contains latest date in an hdb
+datechk:{[]
   .lg.o[`datechk;"Checking if latest date in hdb is corect"]; 
   if[not `PV in key`.Q;
     .lg.o[`datechk;"The directory is not partitioned"];

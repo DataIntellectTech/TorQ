@@ -1,5 +1,7 @@
 \d .dqc
-constructcheck:{[construct;chktype]                                                                             /- function to check for table,variable,function or view
+
+/- function to check for table,variable,function or view
+constructcheck:{[construct;chktype]
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
   .lg.o[`dqe;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
