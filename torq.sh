@@ -132,25 +132,21 @@ stop() {
   host=$(getfield "$procno" "host")
   if [[ $host == "localhost" || $host == `hostname -i`  ||
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
-    if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
-      echo "$(date '+%H:%M:%S') | $1 is not currently running"
-    else
-      echo "$(date '+%H:%M:%S') | Shutting down $1..."
-      procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-      port=$(($(eval echo \$"$(getfield "$procno" port)")))
-      eval "kill -15 `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
-    fi
+    kcmd="kill -15"
   else
-    if [[ -z $(findproc "$1") ]]; then
-    echo "$(date '+%H:%M:%S') | $1 is not currently running"
-    else
-      echo "$(date '+%H:%M:%S') | Shutting down $1..."
-      procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-      port=$(($(eval echo \$"$(getfield "$procno" port)")))
-      eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
-    fi
+    kcmd="$cmd"
   fi
-  
+  if [[ -z $(findproc "$1") ]]; then
+    echo "$(date '+%H:%M:%S') | $1 is not currently running"
+  else
+    echo "$(date '+%H:%M:%S') | Shutting down $1..."
+    procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+    port=$(getfield "$procno" port)
+    if [[ ! $port =~ ^[0-9]+$ ]]; then
+      port=$(($(eval echo \$$port)))
+    fi
+    eval "$kcmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+  fi
  }
 
 getall() {
