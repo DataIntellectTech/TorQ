@@ -142,6 +142,7 @@ stop() {
     echo "$(date '+%H:%M:%S') | Shutting down $1..."
     procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
     port=$(getfield "$procno" port)
+    # check if port is numerical, if not it is an expression that needs evaluated
     if [[ ! $port =~ ^[0-9]+$ ]]; then
       port=$(($(eval echo \$$port)))
     fi
