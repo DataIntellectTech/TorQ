@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,Start of dupchk function tests,1,,"comment"
+before,0,0,q,.dqe.results:get `:tests/dqe/dupchktab,1,,"Set up test table"
+before,0,0,q,param:(enlist `comp)!(enlist 0b),1,,"Set up param variable"
+run,0,0,q,.dqe.dupchk[`manual;1;param;`rdb1],1,,"Will fail the last id 1 that is still on started"
+run,0,0,q,.dqe.dupchk[`manual;1;param;`rdb2],1,,"Nothing happens as process is not in table"
+run,0,0,q,.dqe.dupchk[`manual;2;param;`rdb1],1,,"Nothing happens as last row for id 2 has failed"
+run,0,0,q,.dqe.dupchk[`manual;3;param;`hdb1],1,,"Nothing happens as last row for id 2 has completed"
+true,0,0,q,("testing";"error:fail to complete before next run")~exec descp from .dqe.results where id=1,procschk=`rdb1,1,,"Test that descp value correct"
+true,0,0,q,("testing";"testing")~exec descp from .dqe.results where id=2,procschk=`rdb1,1,,"Test that descp value correct"
+true,0,0,q,("testing";"testing")~exec descp from .dqe.results where id=3,procschk=`hdb1,1,,"Test that descp value correct"
+after,0,0,q,.dqe.results:0#.dqe.results,1,,"Empty .dqe.results table"
+after,0,0,q,delete param from `.,1,,"Delete param dictionary"
