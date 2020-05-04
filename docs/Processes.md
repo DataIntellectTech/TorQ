@@ -1438,30 +1438,32 @@ and are under the `.ctp` namespace.
 TorQ Data Quality System Architecture
 -------
 
-Whilst the Monitor process checks the health of other processes in the system,
-it does not check the quality of the data captured. An RDB process could be running, but
-capturing and populating its tables with null values, an error that would not be caught
-by the Monitor process. This is the purpose of the Data Quality System, and is achieved by
-periodically running a set of user-specified checks on select processes.
+Whilst the Monitor process checks the health of other processes in the 
+system, it does not check the quality of the data captured. An RDB process 
+could be running, but capturing and populating its tables with null values,
+an error that would not be caught by the Monitor process. The Data Quality
+System is developed with the purpose of capturing such errors. The system
+periodically run a set of user-specified checks on selected processes to ensure
+data quality.
 
 For example, you can place checks on a table to periodically check that the
-percentage of nulls it contains in a certain column is below a given threshold, or
-check that the values of a column stay within a specified range that changes throughout
-the day.
+percentage of nulls it contains in a certain column is below a given threshold,
+or check that the values of a column stay within a specified range that changes
+throughout the day.
 
 The system behaves based on Data Quality Config files. The metrics from the
 config files and the results of the checks performed on databases in the data
 capturing system are saved to Data Quality Databases. The results can then be
 used for monitoring tools to alert users.
 
-The Data Quality System consists of four processes: the Data Quality Checker (DQC)
-and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). These are 
-explained in detail below.
+The Data Quality System consists of four processes: the Data Quality Checker(DQC)
+and the Data Quality Engine(DQE), as well as a Database process for each(DQCDB and DQEDB). 
+The processes are explained in detail below.
 
 Data Quality Checker (DQC)
 -------
 
-The Data Quality process runs checks on other TorQ
+The Data Quality Checker process runs checks on other TorQ
 processes to check the quality of data in the system. The Checker runs
 periodic checks on specific processes. The specific parameters of 
 the checks that are being run can be configured in `config/dqcconfig.csv`.
@@ -1470,8 +1472,7 @@ namespace, and the checks are then run based on the parameters. The results
 of the checks are then saved to the results table in `dqe` namespace. The 
 results table that contains all check results would periodically be saved to
 Data Quality Checker Database (DQCDB) intraday. The configuration of the
-checks will also be periodically saved to the Data Quality Checker Database 
-throughout the day.
+checks will also be periodically saved to the DQCDB throughout the day.
 
 Example of `configtable` is shown below:
 
@@ -1490,10 +1491,10 @@ Example of `configtable` is shown below:
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
 ```
 
-**action** - the check function that you would like to perform that is in
-the directory `code/dqc`.
+**action** - The check function that you would like to perform. Specific
+checks and usages can be found in the directory `code/dqc`.
 
-**params** - the parameters that are used by the function. The Checker
+**params** - The parameters that are used by the function. The Checker
 accepts **params** as a dictionary, with `comp` and `vars` being the two
 keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
 is ON and the function is then used to compare two processes. When it is
@@ -1602,7 +1603,7 @@ Data Quality Engine (DQE)
 
 Data Quality Engine process is a process that stores daily statistics
 of other TorQ processes. It is a separate process from Data Quality
-Checker because the Engine doe not run checks. The Engine and the Checker
+Checker because the Engine does not run checks. The Engine and the Checker
 could be used to track the percentage change of records in a table from day
 to day. The Checker can then use the data saved the DQEDB to perform
 advanced checks.The behaviour of the Engine is based on the config file stored
