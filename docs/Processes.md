@@ -1569,14 +1569,14 @@ or the data quality may be corrupted.
 function.
 
 **chkstatus** - Could display either `complete` or `failed`. When the
-check function is successfully ran, whether the **result** column is 0 or 1,
+check function runs successfully, whether the **result** column is 0 or 1,
 **chkstatus** would be `complete`. However, if there was an error that caused
-the check to not run normally(Ex: variables being a wrong type), `failed` 
+the check to not run successfully(Ex: variables being a wrong type), `failed` 
 would be displayed instead.
 
 **chkruntype** - Could display either `scheduled` or `manual`, meaning
 either the check was ran as scheduled from the configtable, or it was forced
-to run manually at a certain time.
+to run manually from the console.
 
 Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
 
