@@ -91,7 +91,7 @@ KUpexec:{[prefix;lang;code;repeat;allowfail]
 KUfailed:{`FA1L~x}
 
 KUexec:{[lang;code;repeat]
-	value(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"]}
+	value $[1=repeat;string code;"do[",(string repeat),";",(string code),"]"]}
 
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
