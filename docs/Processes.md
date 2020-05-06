@@ -1440,11 +1440,11 @@ TorQ Data Quality System Architecture
 
 Whilst the Monitor process checks the health of other processes in the 
 system, it does not check the quality of the data captured. An RDB process 
-could be running, but capturing and populating its tables with null values,
-an error that would not be caught by the Monitor process. The Data Quality
-System is developed with the purpose of capturing such errors. The system
-periodically run a set of user-specified checks on selected processes to ensure
-data quality.
+could be running, but capturing and populating its tables with null values, 
+or not running at all. These errors would not be caught by the Monitor process, 
+so the Data Quality System has been developed with the purpose of capturing such errors.
+The system periodically runs a set of user-specified checks on selected processes
+to ensure data quality.
 
 For example, you can place checks on a table to periodically check that the
 percentage of nulls it contains in a certain column is below a given threshold,
@@ -1457,21 +1457,20 @@ capturing system are saved to Data Quality Databases. The results can then be
 used for monitoring tools to alert users.
 
 The Data Quality System consists of four processes: the Data Quality Checker(DQC)
-and the Data Quality Engine(DQE), as well as a Database process for each(DQCDB and DQEDB). 
-The processes are explained in detail below.
+and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). 
+These processes are explained in detail below.
 
 Data Quality Checker (DQC)
 -------
 
 The Data Quality Checker process runs checks on other TorQ
-processes to check the quality of data in the system. The Checker runs
-periodic checks on specific processes. The specific parameters of 
+processes to check the quality of data in the system. The specific parameters of 
 the checks that are being run can be configured in `config/dqcconfig.csv`.
-Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe`
+Configuration from `dqcconfig.csv` is then  loaded to `configtable` in the `dqe`
 namespace, and the checks are then run based on the parameters. The results
-of the checks are then saved to the results table in `dqe` namespace. The 
-results table that contains all check results would periodically be saved to
-Data Quality Checker Database (DQCDB) intraday. The configuration of the
+of the checks are saved to the results table in the `dqe` namespace. The 
+results table that contains all check results will periodically be saved to
+the DQCDB intraday. The configuration of the
 checks will also be periodically saved to the DQCDB throughout the day.
 
 Example of `configtable` is shown below:
@@ -1522,7 +1521,7 @@ the next run to start. When mode is `single`, period should be set to `0N`.
 Should be in timespan datatype.
 
 
-Example of results is shown below:
+An example of `.dqe.results` is shown below:
 
 ```
     id funct               params                                   procs       procschk     starttime                     endtime                       result descp                                            chkstatus chkruntype
@@ -1601,9 +1600,9 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 Data Quality Engine (DQE)
 -------
 
-Data Quality Engine process is a process that stores daily statistics
-of other TorQ processes. It is a separate process from Data Quality
-Checker because the Engine does not run checks. The Engine and the Checker
+The DQE process stores daily statistics
+of other TorQ processes. It is a separate process from the DQC 
+because the DQE does not run checks. The DQE and the DQC
 could be used to track the percentage change of records in a table from day
 to day. The Checker can then use the data saved the DQEDB to perform
 advanced checks.The behaviour of the Engine is based on the config file stored
@@ -1630,11 +1629,11 @@ of a process.
 **starttime** - What time should the query start.
 
 
-The daily statistics of other TorQ processes are saved to the resultstab
+The daily statistics of other TorQ processes are saved to the `resultstab`
 table in `dqe` namespace, which would be saved to Data Quality Engine
-Database(DQEDB).
+Database (DQEDB).
 
-Example of resultstab is shown below:
+Example of `resultstab` is shown below:
 
 ```
     date       procs funct        table     column resvalue
