@@ -85,13 +85,13 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	neg before-count KUTR}
 
 KUpexec:{[prefix;lang;code;repeat;allowfail]
-	s:prefix,(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
+	s:prefix,$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
 
 KUfailed:{`FA1L~x}
 
 KUexec:{[lang;code;repeat]
-	value $[1=repeat;string code;"do[",(string repeat),";",(string code),"]"]}
+	value$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"]}
 
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
