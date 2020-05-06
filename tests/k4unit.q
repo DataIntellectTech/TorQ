@@ -85,7 +85,7 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	neg before-count KUTR}
 
 KUpexec:{[prefix;lang;code;repeat;allowfail]
-	s:prefix,(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
+	s:(string lang),")",prefix,$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
 
 KUfailed:{`FA1L~x}
