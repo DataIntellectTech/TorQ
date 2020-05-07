@@ -1597,6 +1597,48 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.tablecountcomp` - Counts the number of rows in a table.
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
 
+
+**New Custom Check**
+To add custom checks, create a new q file in /code/dqc. The new q script
+should be under the namespace dqc, and should contain the function. The function
+should return a mixed list with two atoms: first atom being boolean, and second
+being string. The first atom would contain whether the check was successful (1b)
+or was there an error/failed check(0b). This will be shown in the **result**
+column of the results table. The second atom would contain the description of
+the result of the check.
+
+Below is a sample of a qscript named customcheck.q, with the function customcheck,
+written in pseudo-code for reference:
+
+```
+\d .dqc
+
+customcheck:{[variable1;variable2]
+  $[variable1~variable2;
+    (1b;"Description if the function ran successfully");
+    (0b;"Description if the function failed to run")]
+  }
+```
+
+To use the function to run check, proceed to /appconfig/dqcconfig.csv, and modify
+how you would want the check to be ran.
+As an example, to run the customcheck above with the following settings - 
+
+**params** - Not comparing two processes, and running with the two variables being
+`abc` and `def`.
+**proc** - running on the process `rdb1`.
+**mode** - the function being run repeatedly.
+**starttime** - 9AM.
+**endtime** - not specified.
+**period** - the check to be run every 10 minutes.
+
+The line in the config csv should be:
+
+```
+action,params,proc,mode,starttime,endtime,period
+customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+```
+
 Data Quality Engine (DQE)
 -------
 
