@@ -1585,7 +1585,7 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
 - `.dqc.tablehasrecords` - A projection of `.dqc.tablecount` that is used to check if a table is non-empty.
 - `.dqc.attrcheck` - Checks that a tables actual schema matches the expectation.
-- `.dqc.anomalychk` - Checks the percentage of anomalies in certain columns of a table are below a given threshold.
+- `.dqc.anomalychk` - Checks the percentage of anomalies in certain columns of a table are below a given threshold, where anomalies are defined as infinity values (0w, -0w, 0W, -0W).
 - `.dqc.freeform` - Checks if a query has passed correctly.
 - `.dqc.schemacheck` - Checks if the meta of a table matches expectation.
 - `.dqc.datechk` - Checks the date vector contains the latest date in a HDB.
