@@ -1596,6 +1596,10 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
 - `.dqc.tablecountcomp` - Counts the number of rows in a table.
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
+- `.dqc.memoryusage` - Checks if memory usage of the process is over a certain percentage.
+
+
+
 
 
 **New Custom Check**
@@ -1701,6 +1705,11 @@ not performed on a table, the section is left blank.
 the query did not specify the column, the section is left blank.
 
 **resvalue** - The value returned from the function that was ran.
+
+
+
+
+
 
 **New Custom Queries**
 To add custom queries, create a new q file in /code/dqe. The new q script
