@@ -56,7 +56,7 @@ KUltr:{`KUTR upsert("SIJSSIJSIBBBBZ";enlist .KU.DELIM)0:.KU.SAVEFILE} / reload p
 
 KUltf:{ / (load test file) - load tests in csv file <x> into KUT
 	before:count KUT;
-	this:update file:x,action:lower action,lang:`q^lower lang,ms:0^ms,bytes:0j^bytes,repeat:1|repeat,minver:0^minver from `action`ms`bytes`lang`code`repeat`minver`comment xcol("SIJSSIF*";enlist .KU.DELIM)0:x:hsym x;
+	this:update file:x,action:lower action,lang:`q^lower lang,code:`$code,ms:0^ms,bytes:0j^bytes,repeat:1|repeat,minver:0^minver from `action`ms`bytes`lang`code`repeat`minver`comment xcol("SIJS*IF*";enlist .KU.DELIM)0:x:hsym x;
 	KUT,:select from this where minver<=.z.K;
 	/KUT,:update file:x,action:lower action,lang:`q^lower lang,ms:0^ms,bytes:0j,repeat:1|repeat from `action`ms`lang`code`repeat`comment xcol("SISSI*";enlist .KU.DELIM)0:x:hsym x;
 	neg before-count KUT}
@@ -85,7 +85,7 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	neg before-count KUTR}
 
 KUpexec:{[prefix;lang;code;repeat;allowfail]
-	s:prefix,(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
+	s:(string lang),")",prefix,$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
 
 KUfailed:{`FA1L~x}
