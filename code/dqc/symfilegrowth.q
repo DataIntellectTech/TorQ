@@ -4,10 +4,9 @@
 /- sym file count hasn't grown more than pct%.
 symfilegrowth: {[directory;ndays;pct]
   /- Get handles to the DQE and the DQEDB. 
-  dqeh:first exec w from .servers.SERVERS where proctype=`dqe;
-  dqedbh:first exec w from .servers.SERVERS where proctype=`dqedb;
+  h:first exec w from .servers.SERVERS where proctype=`dqedb;
   / Make sure we have enough days in the dqedb.
-  if[ndays>dqedbh"count .Q.pv";:(0b;"ERROR: number of days (ndays) exceeds number of available dates")];
+  if[ndays>h"count .Q.pv";:(0b;"ERROR: number of days (ndays) exceeds number of available dates")];
   / Get todays sym file count.
   tc:dqeh"first exec resvalue from .dqe.resultstab where funct=`symcount";
   /- Get average sym file count from previous days, where select statement is
