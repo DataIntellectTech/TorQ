@@ -7,5 +7,5 @@ attrcheck:{[tab;attribute;col]
   dictcheck:col!attribute;
   $[dictmeta~dictcheck;
     (1b;"attribute of ",(","sv string(),col)," matched expectation");
-    (0b;"Expected attribute of ",(","sv string(),col)," was ",(","sv string(),attribute),". Attribute of ",(","sv string(),col)," is ",(","sv string(),value dictmeta))]
+    (0b;"Expected attribute of column ",(","sv string(),col)," was ",(","sv string(),attribute),". Attribute of column ",(","sv string(),col)," is ",(","sv string(),value dictmeta))]
   }
