@@ -1596,8 +1596,6 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
 - `.dqc.tablecountcomp` - Counts the number of rows in a table.
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
-- `.dqc.memoryusage` - Checks if memory usage of the process is over a certain percentage.
-
 
 
 
