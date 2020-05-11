@@ -1,5 +1,5 @@
 \d .dqc
-/- Check percentage of anomalies in each of the columns of t, where the columns 
+/- Check percentage of infinities in each of the columns of t, where the columns 
 /- to watch are specified in colslist, and a percentage threshold thres.
 infinitychk:{[t;colslist;thres]
   .lg.o[`dqe;"checking ",string[t]," for infinities in columns ",", "sv string(),colslist];
