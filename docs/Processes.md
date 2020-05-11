@@ -1725,9 +1725,9 @@ the query did not specify the column, the section is left blank.
 **New Custom Queries**
 To add custom queries, create a new q file in /code/dqe. The new q script
 should be under the namespace dqe, and should contain the function. The function
-should return a dictionary.
-The value from the dictionary will be shown as the **resvalue** in the resultstab
-table. 
+should return a dictionary, With the key being the function name, and the value
+being the statistic that the query should return. The value from the dictionary will
+be shown as the **resvalue** in the `resultstab` table. 
 
 Below is a sample of a qscript named customquery.q, with the function customquery,
 written in pseudo-code for reference:
@@ -1736,9 +1736,7 @@ written in pseudo-code for reference:
 \d .dqe
 
 customquery:{[variable1;variable2]
-  $[variable1~variable2;
-    (1b;"Description if the function ran successfully");
-    (0b;"Description if the function failed to run")]
+  (enlist variable1)!enlist count variable2
   }
 ```
 
@@ -1755,6 +1753,6 @@ The line in the config csv should be:
 
 ```
 query,params,proc,querytype,starttime
-customquery,`abc,`hdb1,other,09:00:00.000000000
+customquery,`table`quote,`hdb1,other,09:00:00.000000000
 ```
 
