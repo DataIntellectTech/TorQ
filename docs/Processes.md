@@ -1634,11 +1634,24 @@ As an example, to run the customcheck above with the following settings -
 **endtime** - not specified.
 **period** - the check to be run every 10 minutes.
 
-The line in the config csv should be:
+The line in dqcconfig.csv should be:
 
 ```
 action,params,proc,mode,starttime,endtime,period
 customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+```
+
+To add a check that compares two processes, the check function would have to return
+a mixed listed with three atoms. The first two being the same as above, and the third being
+a numeric value. The numeric value would be what is compared between the two processes.
+Secondly, the line in dqcconfig.csv should be modified. As mentioned above, the `params`
+parameter would now have to be changed, and two additional dictionary keys would have to be
+added. As an example, if we were to run the function constructcheck comparing `hdb1` and `hdb2`,
+the line would be the following:
+
+```
+action,params,proc,mode,starttime,endtime,period
+constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
 ```
 
 Data Quality Engine (DQE)
