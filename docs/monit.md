@@ -28,7 +28,7 @@ We have also included a standard **monitrc** which will:
 
 + Set the check interval to 30 seconds
 + Set the location of the **monit.log** file
-+ Set the location of **monit.state** fsile
++ Set the location of **monit.state** file
 + Define the **mail alert** basic configuration
 + Define the **e-mail format**
 + Set the **interface port** (11000) **user** and **password**
