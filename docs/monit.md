@@ -52,16 +52,16 @@ check process tickerplant1
 If you want to use **monit** to monitor your UNIX system and TorQ processes you must first generate the configuration files and then start **monit**. We will assume that you start with a fresh copy of TorQ.
 
 1. Install TorQ and the any optional customisations (e.g. the TorQ Finanace Starter Pack)
-2. Navigate to **${TORQHOME}/monit/bin/**
+2. Navigate to `${TORQHOME}/monit/bin/`
 3. Execute:
-   * bash monit.sh generate all - to generate all the config files
-   * bash monit.sh generate alert - to generate the alert configuration file
-   * bash monit.sh generate monitconfig - to generate the monitconfig.cfg
-   * bash monit.sh generate monitrc - to generate the monitrc file
+   * `bash monit.sh generate all` - to generate all the config files
+   * `bash monit.sh generate alert` - to generate the alert configuration file
+   * `bash monit.sh generate monitconfig` - to generate the monitconfig.cfg
+   * `bash monit.sh generate monitrc` - to generate the monitrc file
 
 However, you can also use your own configuration files by either creating a new directory in monit called **config** and moving all the *.cfg files and the **monitrc** file in there or by modifying the last line in the monitrc to point to the folder where the *.cfg files can be found.
 
-4. Start monit by executing bash monit.sh start
+4. Start monit by executing `bash monit.sh start`
 
 The start function also take a parameter **("string")** whch can specify the location of the **monitrc**.
 
