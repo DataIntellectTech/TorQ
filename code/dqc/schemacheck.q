@@ -5,7 +5,10 @@ schemacheck:{[tab;colname;types;forkeys;attribute]
   .lg.o[`dqc;"checking schema of table mathces expectation"];
   origschema:0!meta tab;
   checkschema:([]c:colname;t:types;f:forkeys;a:attribute);
-  $[all c:((flip origschema)each key flip origschema)~'(flip checkschema)each key flip checkschema;
+  all c:((flip origschema)each key flip origschema)~'(flip checkschema)each key flip checkschema;
+  / Function to replace empty symbols with underscores in error messages.
+  f: {@[x;where 0=count each string x;{`$"_"}]};
+  a:$[b:all c:((flip origschema)each key flip origschema)~'(flip checkschema)each key flip checkschema;
     (1b;"Schema of ",(string tab)," matched proposed schema");
-    (0b;"The following columns from the schema of table ",(string tab)," did not match expectation: ",(","sv("columnname";"types";"foreignkeys";"attribute")where not c) ,". Expected: ",((raze/)string checkschema b),". Actual Schema: ",(raze/)string origschema b:`c`t`f`a where not c)]
+    (0b;"The following columns from the schema of table ",(string tab)," did not match expectation: ",(", "sv("columnname";"types";"foreignkeys";"attribute")where not c) ,". Expected schema: ",(", "sv raze each string f each checkschema b),". Actual schema: ",", "sv raze each string f each origschema b:`c`t`f`a where not c)]
   }
