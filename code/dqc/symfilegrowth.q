@@ -10,7 +10,7 @@ symfilegrowth: {[directory;ndays;pct]
   / Get todays sym file count.
   tc:dqeh"first exec resvalue from .dqe.resultstab where funct=`symcount";
   /- Get average sym file count from previous days, where select statement is
-  /- "select from resultstab where date>=.z.d>ndays,funct=`symfilecheck"
+  /- "select from resultstab where date>=.z.d-ndays,funct=`symfilecheck"
   ac:exec avg resvalue from dqedbh(?;`resultstab;(((';~:;<);`date;(-;`.z.d;ndays));(=;`funct;enlist`symcount));0b;());
   (1b;"Sym file ",$[pct<100*(tc-ac)%ac;"has";"has not"]," grown more than ",string[pct],"% in the last ",string[ndays]," days.")
   }
