@@ -9,5 +9,5 @@ schemacheck:{[tab;colname;types;forkeys;attribute]
   f: {@[x;where 0=count each string x;{`$"_"}]};
   $[all c:checkschema~'origschema;
     (1b;"Schema of ",(string tab)," matched proposed schema");
-    (0b;"The following columns from the schema of table ",(string tab)," did not match expectation: ",(", "sv string origschema[`c][where not c]),". Expected schema from the columns: ",(", "sv raze each string f each checkschema[where not c][`t`f`a]),". Actaul Schema: ",", "sv raze each string f each origschema[where not c][`t`f`a])]
+    (0b;"The following columns from the schema of table ",(string tab)," did not match expectation: ",(", "sv string origschema[`c][where not c]),". Expected schema from the columns: ",(", "sv raze each string f each checkschema[where not c][`t`f`a]),". Actual Schema: ",", "sv raze each string f each origschema[where not c][`t`f`a])]
   }
