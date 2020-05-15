@@ -15,7 +15,7 @@ resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
 init:{
   .lg.o[`init;"searching for servers"];
   /- Open connection to discovery
-  .servers.startup[];
+  .servers.startupdependent[`dqedb;10];
   /- set timer to call EOD
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
@@ -79,10 +79,10 @@ writedownengine:{
 .dqe.currentpartition:.dqe.getpartition[];  /- initialize current partition
 
 
-.servers.CONNECTIONS:`tickerplant`rdb`hdb /- set to nothing so that is only connects to discovery
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb /- set to nothing so that is only connects to discovery
 
 /- setting up .u.end for dqe
-.u.end:{[pt] 
+.u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
   /- get handles for DBs that need to reload
@@ -92,7 +92,7 @@ writedownengine:{
   /- clear check function timers
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.runquery in' funcparam];
   /- clear writedown timer
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam]; 
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   .dqe.currentpartition:pt+1;
