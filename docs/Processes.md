@@ -1438,40 +1438,40 @@ and are under the `.ctp` namespace.
 TorQ Data Quality System Architecture
 -------
 
-Whilst the Monitor process checks the health of other processes in the system,
-it does not check the quality of the data captured. An RDB process could be running, but
-capturing and populating its tables with null values, an error that would not be caught
-by the Monitor process. This is the purpose of the Data Quality System, and is achieved by
-periodically running a set of user-specified checks on select processes.
+Whilst the Monitor process checks the health of other processes in the 
+system, it does not check the quality of the data captured. An RDB process 
+could be running, but capturing and populating its tables with null values, 
+or not running at all. These errors would not be caught by the Monitor process, 
+so the Data Quality System has been developed with the purpose of capturing such errors.
+The system periodically runs a set of user-specified checks on selected processes
+to ensure data quality.
 
 For example, you can place checks on a table to periodically check that the
-percentage of nulls it contains in a certain column is below a given threshold, or
-check that the values of a column stay within a specified range that changes throughout
-the day.
+percentage of nulls it contains in a certain column is below a given threshold,
+or check that the values of a column stay within a specified range that changes
+throughout the day.
 
 The system behaves based on Data Quality Config files. The metrics from the
 config files and the results of the checks performed on databases in the data
 capturing system are saved to Data Quality Databases. The results can then be
 used for monitoring tools to alert users.
 
-The Data Quality System consists of four processes: the Data Quality Checker (DQC)
-and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). These are 
-explained in detail below.
+The Data Quality System consists of four processes: the Data Quality Checker(DQC)
+and the Data Quality Engine(DQE), as well as a Database process for each (DQCDB and DQEDB). 
+These processes are explained in detail below.
 
 Data Quality Checker (DQC)
 -------
 
-The Data Quality process runs checks on other TorQ
-processes to check the quality of data in the system. The Checker runs
-periodic checks on specific processes. The specific parameters of 
+The Data Quality Checker process runs checks on other TorQ
+processes to check the quality of data in the system. The specific parameters of 
 the checks that are being run can be configured in `config/dqcconfig.csv`.
-Configuration from `dqcconfig.csv` are loaded to `configtable` in `dqe`
+Configuration from `dqcconfig.csv` is then  loaded to `configtable` in the `dqe`
 namespace, and the checks are then run based on the parameters. The results
-of the checks are then saved to the results table in `dqe` namespace. The 
-results table that contains all check results would periodically be saved to
-Data Quality Checker Database (DQCDB) intraday. The configuration of the
-checks will also be periodically saved to the Data Quality Checker Database 
-throughout the day.
+of the checks are saved to the results table in the `dqe` namespace. The 
+results table that contains all check results will periodically be saved to
+the DQCDB intraday. The configuration of the
+checks will also be periodically saved to the DQCDB throughout the day.
 
 Example of `configtable` is shown below:
 
@@ -1490,10 +1490,10 @@ Example of `configtable` is shown below:
     xmarketalert   "`comp`vars!(0b;(`quote))"                                                                               "`rdb1"        repeat 2020.03.20D09:00:00.000000000                               0D00:05:00.000000000 9
 ```
 
-**action** - the check function that you would like to perform that is in
-the directory `code/dqc`.
+**action** - The check function that you would like to perform. Specific
+checks and usages can be found in the directory `code/dqc`.
 
-**params** - the parameters that are used by the function. The Checker
+**params** - The parameters that are used by the function. The Checker
 accepts **params** as a dictionary, with `comp` and `vars` being the two
 keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
 is ON and the function is then used to compare two processes. When it is
@@ -1521,7 +1521,7 @@ the next run to start. When mode is `single`, period should be set to `0N`.
 Should be in timespan datatype.
 
 
-Example of results is shown below:
+An example of `.dqe.results` is shown below:
 
 ```
     id funct               params                                   procs       procschk     starttime                     endtime                       result descp                                            chkstatus chkruntype
@@ -1568,14 +1568,14 @@ or the data quality may be corrupted.
 function.
 
 **chkstatus** - Could display either `complete` or `failed`. When the
-check function is successfully ran, whether the **result** column is 0 or 1,
+check function runs successfully, whether the **result** column is 0 or 1,
 **chkstatus** would be `complete`. However, if there was an error that caused
-the check to not run normally(Ex: variables being a wrong type), `failed` 
+the check to not run successfully(Ex: variables being a wrong type), `failed` 
 would be displayed instead.
 
 **chkruntype** - Could display either `scheduled` or `manual`, meaning
 either the check was ran as scheduled from the configtable, or it was forced
-to run manually at a certain time.
+to run manually from the console.
 
 Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
 
@@ -1585,7 +1585,7 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
 - `.dqc.tablehasrecords` - A projection of `.dqc.tablecount` that is used to check if a table is non-empty.
 - `.dqc.attrcheck` - Checks that a tables actual schema matches the expectation.
-- `.dqc.anomalychk` - Checks the percentage of anomalies in certain columns of a table are below a given threshold.
+- `.dqc.infinitychk` - Checks the percentage of infinities in certain columns of a table are below a given threshold.
 - `.dqc.freeform` - Checks if a query has passed correctly.
 - `.dqc.schemacheck` - Checks if the meta of a table matches expectation.
 - `.dqc.datechk` - Checks the date vector contains the latest date in a HDB.
@@ -1597,12 +1597,69 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.tablecountcomp` - Counts the number of rows in a table.
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
 
+
+
+
+**New Custom Check**
+To add custom checks, create a new q file in /code/dqc. The new q script
+should be under the namespace dqc, and should contain the function. The function
+should return a mixed list with two atoms: first atom being boolean, and second
+being string. The first atom would contain whether the check was successful (1b)
+or was there an error/failed check(0b). This will be shown in the **result**
+column of the results table. The second atom would contain the description of
+the result of the check.
+
+Below is a sample of a qscript named customcheck.q, with the function customcheck,
+written in pseudo-code for reference:
+
+```
+\d .dqc
+
+customcheck:{[variable1;variable2]
+  $[variable1~variable2;
+    (1b;"Description if the function ran successfully");
+    (0b;"Description if the function failed to run")]
+  }
+```
+
+To use the function to run check, proceed to /appconfig/dqcconfig.csv, and modify
+how you would want the check to be ran.
+As an example, to run the customcheck above with the following settings - 
+
+**params** - Not comparing two processes, and running with the two variables being
+`abc` and `def`.
+**proc** - running on the process `rdb1`.
+**mode** - the function being run repeatedly.
+**starttime** - 9AM.
+**endtime** - not specified.
+**period** - the check to be run every 10 minutes.
+
+The line in dqcconfig.csv should be:
+
+```
+action,params,proc,mode,starttime,endtime,period
+customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+```
+
+To add a check that compares two processes, the check function would have to return
+a mixed listed with three atoms. The first two being the same as above, and the third being
+a numeric value. The numeric value would be what is compared between the two processes.
+Secondly, the line in dqcconfig.csv should be modified. As mentioned above, the `params`
+parameter would now have to be changed, and two additional dictionary keys would have to be
+added. As an example, if we were to run the function constructcheck comparing `hdb1` and `hdb2`,
+the line would be the following:
+
+```
+action,params,proc,mode,starttime,endtime,period
+constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
+```
+
 Data Quality Engine (DQE)
 -------
 
-Data Quality Engine process is a process that stores daily statistics
-of other TorQ processes. It is a separate process from Data Quality
-Checker because the Engine doe not run checks. The Engine and the Checker
+The DQE process stores daily statistics
+of other TorQ processes. It is a separate process from the DQC 
+because the DQE does not run checks. The DQE and the DQC
 could be used to track the percentage change of records in a table from day
 to day. The Checker can then use the data saved the DQEDB to perform
 advanced checks.The behaviour of the Engine is based on the config file stored
@@ -1629,11 +1686,11 @@ of a process.
 **starttime** - What time should the query start.
 
 
-The daily statistics of other TorQ processes are saved to the resultstab
+The daily statistics of other TorQ processes are saved to the `resultstab`
 table in `dqe` namespace, which would be saved to Data Quality Engine
-Database(DQEDB).
+Database (DQEDB).
 
-Example of resultstab is shown below:
+Example of `resultstab` is shown below:
 
 ```
     date       procs funct        table     column resvalue
@@ -1659,3 +1716,43 @@ not performed on a table, the section is left blank.
 the query did not specify the column, the section is left blank.
 
 **resvalue** - The value returned from the function that was ran.
+
+
+
+
+
+
+**New Custom Queries**
+To add custom queries, create a new q file in /code/dqe. The new q script
+should be under the namespace dqe, and should contain the function. The function
+should return a dictionary, With the key being the function name, and the value
+being the statistic that the query should return. The value from the dictionary will
+be shown as the **resvalue** in the `resultstab` table. 
+
+Below is a sample of a qscript named customquery.q, with the function customquery,
+written in pseudo-code for reference:
+
+```
+\d .dqe
+
+customquery:{[variable1;variable2]
+  (enlist variable1)!enlist count variable2
+  }
+```
+
+To use the function to run check, proceed to /appconfig/dqengineconfig.csv, and modify
+how you would want the check to be ran.
+As an example, to run the customquery above with the following settings -
+
+**params** - Variable being `abc`.
+**proc** - running on the process `hdb1`.
+**querytype** - other as it is not a table
+**starttime** - 9AM
+
+The line in the config csv should be:
+
+```
+query,params,proc,querytype,starttime
+customquery,`table`quote,`hdb1,other,09:00:00.000000000
+```
+
