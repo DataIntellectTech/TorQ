@@ -7,7 +7,7 @@ symfilegrowth:{[ndays;pct]
   /- Get handle to the DQEDB.
   h:(exec first w from .servers.getservers[`proctype;`dqedb;()!();0b;1b]);
   /- Make sure we have enough days in the dqedb.
-  if[ndays>c:h"count .Q.pv";:(0b;"ERROR: number of days (",string[ndays],") exceeds number of available dates(",string[c],") on disk")];
+  if[ndays>c:@[h;"count .Q.pv";0];:(0b;"ERROR: number of days (",string[ndays],") exceeds number of available dates(",string[c],") on disk")];
   /- Get todays sym file count.
   tc:first exec resvalue from .dqe.resultstab where funct=`symcount;
   /- Get average sym file count from previous days.
