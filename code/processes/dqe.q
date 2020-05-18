@@ -79,7 +79,7 @@ writedownengine:{
 .dqe.currentpartition:.dqe.getpartition[];  /- initialize current partition
 
 
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb /- set to nothing so that is only connects to discovery
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
 
 /- setting up .u.end for dqe
 .u.end:{[pt]
