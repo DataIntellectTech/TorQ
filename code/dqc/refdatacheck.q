@@ -8,3 +8,4 @@ refdatacheck:{[tablea;tableb;cola;colb]
     "The following data did not exist in",(string colb), " of ",(string tableb),": ",string tablea[cola]where not r];
     .lg.o[`refdatacheck;"refdatacheck completed; All data from ",(string cola),$[msg;"did";"did not"]," exist in ",string colb];
     (c;msg)
+  }
