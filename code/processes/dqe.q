@@ -52,7 +52,7 @@ runquery:{[query;params;querytype;rs]
   }
 
 loadtimer:{[d]
-  .lg.o[`dqe;("Loading query - ",(string d[`query])," from configtable into timer table")];
+  .lg.o[`dqe;("Loading query - ",(string d[`query])," from config csv into timer table")];
   d[`params]:value d[`params];
   d[`proc]:value raze d[`proc];
   functiontorun:(`.dqe.runquery;.Q.dd[`.dqe;d`query];d`params;d`querytype;d`proc);
