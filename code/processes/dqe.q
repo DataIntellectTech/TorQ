@@ -37,8 +37,8 @@ updresultstab:{[proc;fn;params;tab;resinput]
   }
 
 qpostback:{[proc;query;params;querytype;result]
-  .lg.o[`qpostback;"Postback sucessful for ",string first proc];
   .dqe.updresultstab[first proc;query;params]'[$[`table=querytype;key result;`];value result];
+  .lg.o[`qpostback;"Postback sucessful for ",string first proc];
   }
 
 runquery:{[query;params;querytype;rs]
@@ -49,6 +49,7 @@ runquery:{[query;params;querytype;rs]
 
   h:.dqe.gethandles[(),rs];
   .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query;temp;querytype]];
+  .lg.o[`runquery;"query successfully ran for ",string query];
   }
 
 loadtimer:{[d]
