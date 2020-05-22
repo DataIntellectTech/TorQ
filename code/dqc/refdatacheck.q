@@ -6,6 +6,6 @@ refdatacheck:{[tablea;tableb;cola;colb]
   msg:$[c:all r:tablea[cola]in tableb colb;
     "All data from ",(string cola)," of ",(string tablea),"exists in ",(string colb), " of ",string tableb;
     "The following data did not exist in ",(string colb), " of ",(string tableb),": ","," sv string tablea[cola]where not r];
-    .lg.o[`refdatacheck;"refdatacheck completed; All data from ",(string cola),$[c;"did";"did not"]," exist in ",string colb];
-    (c;msg)
+  .lg.o[`refdatacheck;"refdatacheck completed; All data from ",(string cola),$[c;"did";"did not"]," exist in ",string colb];
+  (c;msg)
   }
