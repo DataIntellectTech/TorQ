@@ -1,6 +1,6 @@
 \d .dqe
 
-/- Given a table name as a symbol (tn), returns the number of infinities in tn.
+/- Given a table name as a symbol (tn), a column name as a symbol (col), returns the number of infinities in col of tn.
 /- Works on partitioned tables in an hdb
 infinitycount:{[tn;col]
   .lg.o[`infinitycount;"Getting count of infinities in ",string tn];
