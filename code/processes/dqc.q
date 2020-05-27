@@ -110,7 +110,8 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   if[status=`complete;
     funcname:string first exec action from .dqe.configtable where checkid=idnum;
     .lg.o[`updresultstab;"Sending metric to datadog."];
-    .dg.sendmetric["dataquality.",funcname;res]
+    .dg.sendmetric["dataquality.",funcname;res];
+    .dg.sendevent["dataquality",funcname;des;enlist"dataquality";$[res;"success";"error"]]
     ];
   }
 
