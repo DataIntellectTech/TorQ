@@ -5,5 +5,5 @@
 /- col can be set to ` for the function to work on the whole table
 nullcount:{[tn;col]
   .lg.o[`nullcount;"Getting count of nulls in",$[col~`;" ";" column: ",(string col)," of "],string tn];
-  (enlist tn)!enlist sum value{sum$[0h=type x;0=count each x;null x]}each flip (?[tn; enlist(=;.Q.pf;last .Q.PV);1b;$[col~`;();{x!x}enlist col]])
+  (enlist tn)!enlist sum value{sum$[0h=type x;0=count each x;null x]}each flip?[tn;enlist(=;.Q.pf;last .Q.PV);1b;$[col~`;();{x!x}enlist col]]
   }
