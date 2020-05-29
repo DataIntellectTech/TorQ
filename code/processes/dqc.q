@@ -96,7 +96,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]
 
 /- general function used to update a check in the results table
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
-  .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
+  if[not proc=`;.lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status]];
   if[1b=params`comp;proc:params`compresproc];
   /- obtain count of checks that will be updated
   if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
