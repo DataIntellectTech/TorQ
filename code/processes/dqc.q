@@ -96,7 +96,6 @@ initstatusupd:{[runtype;idnum;funct;params;rs]
 
 /- general function used to update a check in the results table
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
-  .lg.o[`updresultstab;"Updating check id ",(string idnum)," in the results table with status ",string status];
   if[1b=params`comp;proc:params`compresproc];
   /- obtain count of checks that will be updated
   if[c:count s:exec i from .dqe.results where id=idnum, procschk=proc,chkstatus=`started;
@@ -107,6 +106,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   params:()!();
   s2:exec i from .dqe.configtable where checkid=idnum;
   .dqe.tosavedown[`.dqe.configtable]:.dqe.tosavedown[`.dqe.configtable] union s2;
+  .lg.o[`updresultstab;"Updated check id ",(string idnum)," in the results table with status ",string status];
   }
 
 /- function to compare the checks
@@ -193,8 +193,9 @@ runcheck:{[runtype;idnum;fn;params;rs]
     .dqe.initstatusupd[runtype;idnum;fn;params]'[r];
 
     .lg.o[`runcheck;"checking for processes that are not connectable"];
-    .dqe.updresultstab[runtype;idnum;0Np;0b;"error:can't connect to process";`failed;params;`];
-
+    if[count select from .dqe.results where id=idnum,procschk=`,chkstatus=`started;
+      .dqe.updresultstab[runtype;idnum;0Np;0b;"error:can't connect to process";`failed;params;`];
+    ];
     /- checks if any procs didn't get handles
     procsdown:(h`procname) where 0N = h`w;
     if[count procsdown;.dqe.updresultstab[runtype;idnum;0Np;0b;"error:process is down or has lost its handle";`failed;params]'[procsdown]];
