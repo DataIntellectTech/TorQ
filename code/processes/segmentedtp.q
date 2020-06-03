@@ -73,13 +73,19 @@ ts:{
   if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]]; 
  }; 
 
-pub:.u.pub;
+/pub:.u.pub;
+
+pub:{[t;x]
+  subgroups:flip (.u.w[t;;0]@/:value g;key g:group .u.w[t;;1]);
+  {[t;x;w] if[count x:sel[x]w 1;-25!(w 0;(`upd;t;x))] }[t;x] each subgroups
+ };
+
 i:.u.i;
 j:.u.j;
 icounts:.u.icounts;
 jcounts:.u.jcounts;
-w:.u.w;
 d:.u.d;
+sel:.u.sel;
 
 .z.ts:{
   pub'[t;value each t];
