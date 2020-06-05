@@ -2,6 +2,5 @@
 /- also might need to modify the comparison code
 \d .dqc
 tablecomp:{[tab]
-  .lg.o["checking whether two tables from two processes have the same count"];
   (1b;("table count of ",(string tab)," is ",count tab);count tab)
   }
