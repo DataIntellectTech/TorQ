@@ -180,7 +180,10 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
         .lg.o[`compression; "file ", (string filetoCompress), " is already ",cmp,"compressed",". Skipping this file"]]}
 
 hashfilecheck:{[compressedFile;filetoCompress;sf]
+    / if running 3.6 or higher, account for anymap type for nested lists
+    / check for double hash file if nested data contains symbol vector/atom
     $[3.6<=.z.K;
         if[77 = type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#";
             .[{system "r ", (last ":" vs string x),"## ", (last ":" vs string y),"##"};(compressedFile;filetoCompress);.lg.o[`compression;"File does not have enumeration domain"]]];
+        / if running below 3.6, nested list types will be 77h+t and will not have double hash file    
         if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"]]}
