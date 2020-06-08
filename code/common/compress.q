@@ -169,7 +169,10 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
             [.lg.o[`compression;"File ",cmp,"compressed ","successfully; matches orginal. Deleting original."];
                 system "r ", (last ":" vs string compressedFile)," ", last ":" vs string filetoCompress;
                 / move the hash files too.
-                if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"];
+                $[3.6<=.z.K;
+                    if[77 = type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#";
+                        .[{system "r ", (last ":" vs string x),"## ", (last ":" vs string y),"##"};(compressedFile;filetoCompress);.lg.o[`compression;"File does not have enumeration domain"]]];
+                    if[78 <= type sf; system "r ", (last ":" vs string compressedFile),"# ", (last ":" vs string filetoCompress),"#"]];
                 /-log to the table if the algo wasn't 0
                 statstab,:$[not 0=algo;(filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);(filetoCompress;algo;comprL;sizeuncomp)]];
             [$[not count -21!compressedFile;
