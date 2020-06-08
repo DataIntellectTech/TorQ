@@ -10,8 +10,6 @@
 
 \d .stp 
 
-dldir:` 
-
 createdld:{[name;date] 
   .os.md dldir::hsym`$(,/)"stplogs/",string name,date}; 
 
@@ -33,6 +31,19 @@ openlog:{[multilog;dir;tab;logfreq;dailyadj]
   `.stp.currlog upsert (tab;lname;h); 
   }; 
 
+openlogerr:{[dir]
+  lname:` sv(hsym dir;`$"errdatabase",string .z.d);
+  if[not type key lname;.[lname;();:;()]];
+  h:hopen lname;
+  `.stp.currlog upsert (`err;lname;h);
+  };
+
+badmsg:{[e;t;x]
+  .lg.o[`upd;"Bad message received, error: ",e];
+  w:.stp.whichlog[`err;x];
+  w[`handle] enlist(`upd;t;w[`data]);
+  };
+
 whichlog:{[t;x] currlog[t],enlist[`data]!enlist x} 
 
 closelog:{[tab] 
@@ -53,7 +64,10 @@ endp:{(neg union/[w[;;0]])@\:(`.u.endp;x;y)}
 
 endofperiod:{ 
   endp . .eodtime`p`nextperiod;  
-  if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.p];system"t 0";'"next period is in the past"]; 
+  .lg.o[`stp.endofperiod;"rolling from ",string[.eodtime.currperiod]," to ",string .eodtime.nextperiod];
+  .eodtime.currperiod:.eodtime.nextperiod;
+  if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.P];system"t 0";'"next period is in the past"];
+  .lg.o
   {if[not null currlog[x;`handle];rolllog[multilog;dldir;x;multilogperiod;0D01]]}each t; 
  }; 
 
@@ -95,33 +109,32 @@ sel:.u.sel;
  };
 
 init:{
-  createdld[`database;.z.D];
-  openlog[multilog;dldir;;multilogperiod;0D01]each t;
+  createdld[`database;.z.d];
+  openlog[multilog;dldir;;0D00:00:00.001;0D00]each t;
  }
 
 \d .
 
 .u.upd:{[t;x]
- if[not -12=type first first x;
-     if[.z.p>.eodtime.nextroll;.z.ts[]
-         ];
-     /a:"n"$a;
-     a:.z.p+.eodtime.dailyadj;
-     x:$[0>type first x;
-         a,x;
-         (enlist(count first x)#a),x
-         ]
-    ];
- t insert x;
- .stp.jcounts[t]+::count first x;
- if[t in key .stp.currlog;
-   w:.stp.whichlog[t;x];
-   w[`handle] enlist(`upd;t;w[`data])
- ];
- //multiple updates?
+  if[not -12=type first first x;
+    if[.z.p>.eodtime.nextroll;.z.ts[]];
+    a:.z.p+.eodtime.dailyadj;
+    x:$[0>type first x;
+      a,x;
+      (enlist(count first x)#a),x
+    ]
+  ];
+  t insert x;
+  .stp.jcounts[t]+::count first x;
+  if[t in key .stp.currlog;
+    w:.stp.whichlog[t;x];
+    w[`handle] enlist(`upd;t;w[`data])
+  ];
+  //multiple updates?
  }
 
-.eodtime.nextperiod:.stp.multilogperiod xbar .z.p+2*.stp.multilogperiod
+.eodtime.currperiod:0D01 xbar .z.p
+.eodtime.nextperiod:.eodtime.currperiod+.stp.multilogperiod
 
 .eodtime.getperiod:{[p]
   z:.eodtime.rolltimeoffset-.eodtime.adjtime[p];
@@ -130,3 +143,10 @@ init:{
  }
 
 .stp.init[]
+
+if[.stp.errmode;
+  .stp.openlogerr[.stp.dldir];
+  .stp.upd:.u.upd;
+  .u.upd:{[t;x] .[.stp.upd;(t;x);{.stp.badmsg[x;y;z]}[;t;x]]}
+  ]
+
