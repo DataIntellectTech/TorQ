@@ -1,0 +1,3 @@
+tabname,filts,columns
+trade,sym=`GOOG,
+quote,bid>100.0,

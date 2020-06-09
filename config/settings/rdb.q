@@ -26,6 +26,7 @@ parvaluesrc:`log		//where to source the rdb partition value, can be log (from tp
 				//anything else will return a null date which is will be filled by pardefault                                             
 pardefault:.z.D			//if the src defined in parvaluesrc returns null, use this default date instead
 tpcheckcycles:0W                //specify the number of times the process will check for an available tickerplant
+subfiltered:0b
 
 \d .proc
 loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}

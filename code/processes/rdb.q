@@ -192,6 +192,12 @@ reload:.rdb.reload
 
 .lg.o[`init;"searching for servers"];
 
+if[.rdb.subfiltered;
+  .sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
+  .rdb.subscribeto:raze value flip key .sub.filterparams;
+  .rdb.subscribesyms:.sub.filterparams
+ ];
+
 //check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
 .rdb.subscribe[]; 

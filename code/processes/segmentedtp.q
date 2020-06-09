@@ -22,6 +22,10 @@ logname.custom:{[dir;tab;logfreq;dailyadj]}
 
 t:.u.t
 
+subrequestall:.u.w
+
+subrequestfiltered:([tabname:`$()]handle:`int$();filts:`$();columns:`$())
+
 currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$()); 
  
 openlog:{[multilog;dir;tab;logfreq;dailyadj] 
@@ -60,16 +64,14 @@ rolllog:{[multilog;dir;tab;logfreq;dailyadj]
 // assumes .eodtime.getperiod and .eodtime.nextperiod have been defined appropriately in code/common/eodtime.q 
 
 // endp here assumes that .u.endp has been defined on the client side – perhaps a simple logging function 
-endp:{(neg union/[w[;;0]])@\:(`.u.endp;x;y)} 
+endp:{(neg union/[subrequestall[;;0]])@\:(`.u.endp;x;y)} 
 
 endofperiod:{ 
-  endp . .eodtime`p`nextperiod;  
-  .lg.o[`stp.endofperiod;"rolling from ",string[.eodtime.currperiod]," to ",string .eodtime.nextperiod];
+  endp . .eodtime`p`nextperiod;
   .eodtime.currperiod:.eodtime.nextperiod;
   if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.P];system"t 0";'"next period is in the past"];
-  .lg.o
   {if[not null currlog[x;`handle];rolllog[multilog;dldir;x;multilogperiod;0D01]]}each t; 
- }; 
+ };
 
 endofday:{
   end d;
@@ -78,7 +80,7 @@ endofday:{
   .eodtime.dailyadj:.eodtime.getdailyadjustment[];
   closelog each t;
   init[];  
- }  
+ }
 
 end:.u.end
 
@@ -87,11 +89,38 @@ ts:{
   if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]]; 
  }; 
 
-/pub:.u.pub;
+suball:{
+  del[x].z.w;
+  :add[x];
+ }
+
+subfiltered:{[x;y]
+  /delfiltered
+  :addfiltered[x;y];
+ }
+
+add:{
+  if[not (count .stp.subrequestall x)>i:.stp.subrequestall[x;]?.z.w;
+    .stp.subrequestall[x],:.z.w];
+  (x;$[99=type v:value x;sel[v]`;0#v])}
+
+addfiltered:{[x;y]
+  if[not .z.w in .stp.subrequestfiltered[x]`handle;
+    @[`.stp.subrequestfiltered;x;:;(enlist[`handle]!enlist .z.w),y[x]]];
+  (x;$[99=type v:value x;sel[v]`;0#v])}
 
 pub:{[t;x]
-  subgroups:flip (.u.w[t;;0]@/:value g;key g:group .u.w[t;;1]);
-  {[t;x;w] if[count x:sel[x]w 1;-25!(w 0;(`upd;t;x))] }[t;x] each subgroups
+ /  subgroups:flip (.u.w[t;;0]@/:value g;key g:group .u.w[t;;1]);
+ /  {[t;x;w] if[count x:sel[x]w 1;-25!(w 0;(`upd;t;x))] }[t;x] each subgroups
+  if[count x:sel[x]`;
+    if[count h:.stp.subrequestall[t];-25!(h;(`upd;t;x))];
+    if[t in key .stp.subrequestfiltered;
+      w:.stp.subrequestfiltered[t];
+      query:"select ",string[w`columns]," from ",string[t]," where ",string[w`filts];
+      x:value query;
+      -25!((),w`handle;(`upd;t;x))
+    ]
+  ]
  };
 
 i:.u.i;
@@ -100,6 +129,7 @@ icounts:.u.icounts;
 jcounts:.u.jcounts;
 d:.u.d;
 sel:.u.sel;
+del:.u.del;
 
 .z.ts:{
   pub'[t;value each t];
@@ -131,6 +161,12 @@ init:{
     w[`handle] enlist(`upd;t;w[`data])
   ];
   //multiple updates?
+ }
+
+.u.sub:{[x;y]
+  if[not x in .stp.t;'x];
+  if[y~`;:.stp.suball[x]];
+  if[not y~`;:.stp.subfiltered[x;y]]
  }
 
 .eodtime.currperiod:0D01 xbar .z.p
