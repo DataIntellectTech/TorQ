@@ -88,11 +88,11 @@ endofday:{[date]
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];
 			.lg.o[`endofday;"reload is enabled - storing counts of tables at EOD : ",.Q.s1 eodtabcount];
+			/-set eod attributes on gateway for rdb
+			gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
+			.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
 			.lg.o[`endofday;"Escaping end of day function"];:()];
 	t:tables[`.] except ignorelist;
-	/-set eod attributes on gateway for rdb
-	gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
-	.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
