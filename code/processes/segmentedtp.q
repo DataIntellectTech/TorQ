@@ -80,7 +80,7 @@ endofday:{
   .eodtime.dailyadj:.eodtime.getdailyadjustment[];
   closelog each t;
   init[];  
- }
+ };
 
 end:.u.end
 
@@ -123,6 +123,11 @@ pub:{[t;x]
   ]
  };
 
+closesub:{[h]
+  @[`.stp.subrequest;key .stp.subrequestall;except;h];
+  delete from  `.stp.subrequestfiltered where handle=h;
+ };
+
 i:.u.i;
 j:.u.j;
 icounts:.u.icounts;
@@ -145,14 +150,12 @@ init:{
 
 \d .
 
+updtab:.stp.t!(count .stp.t)#{(enlist(count first x)#.z.p+.eodtime.dailyadj),x}
+
 .u.upd:{[t;x]
   if[not -12=type first first x;
     if[.z.p>.eodtime.nextroll;.z.ts[]];
-    a:.z.p+.eodtime.dailyadj;
-    x:$[0>type first x;
-      a,x;
-      (enlist(count first x)#a),x
-    ]
+    x:updtab[t]@x
   ];
   t insert x;
   .stp.jcounts[t]+::count first x;
@@ -168,6 +171,8 @@ init:{
   if[y~`;:.stp.suball[x]];
   if[not y~`;:.stp.subfiltered[x;y]]
  }
+
+.z.pc:{[f;x] f@x; .stp.closesub x}@[value;`.z.pc;{{}}]
 
 .eodtime.currperiod:0D01 xbar .z.p
 .eodtime.nextperiod:.eodtime.currperiod+.stp.multilogperiod
