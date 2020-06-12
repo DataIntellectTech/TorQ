@@ -247,7 +247,7 @@ loadtimer:{[DICT]
 reruncheck:{[chkid]
   .lg.o[`dqc;"rerunning check ",string chkid];
   d:exec action, params, proc from .dqe.configtable where checkid=chkid;
-  .lg.o[`dqc;("re-running check ",(string first d[`action])," manually")];
+  .lg.o[`dqc;"re-running check ",(string first d`action)," manually"];
   d[`params]: value d[`params][0];
   d[`proc]: value raze d[`proc];
   /- input man argument is `manual or `scheduled indicating manul run is on or off
