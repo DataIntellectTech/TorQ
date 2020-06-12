@@ -1665,13 +1665,25 @@ customcheck:{[variable1;variable2]
 
 Secondly, the line in dqcconfig.csv should be modified. As mentioned above, the `params`
 parameter would now have to be changed, and two additional dictionary keys would have to be
-added. As an example, if we were to run the function constructcheck comparing `hdb1` and `hdb2`,
+added. As an example, if we were to run the function customcheck comparing `hdb1` and `hdb2`,
+with there being no difference allowed between the two results returned from the two processes,
 the line would be the following:
 
 ```
 action,params,proc,mode,starttime,endtime,period
 customcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`abc;`def)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
 ```
+
+If we were to allow for 50% difference between the results returned from the two processes using
+the function customcheck, the line would be the following:
+
+```
+action,params,proc,mode,starttime,endtime,period
+customcheck,`comp`compallow`compproc`vars!(1b;50;`hdb1;(`abc;`def)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
+```
+
+
+
 
 Data Quality Engine (DQE)
 -------
