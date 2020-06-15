@@ -12,7 +12,7 @@ writedownperiod:@[value;`writedownperiod;0D01:00:00];
 /- determine the partition value
 getpartition:@[value;`getpartition;
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
 testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
@@ -29,7 +29,7 @@ init:{
   /- add dqe functions to .api.detail
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];
   .dqe.compcounter[0N]:(0N;();());
-
+  
   configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
 
   /- Set up configtable from csv
@@ -43,7 +43,7 @@ init:{
 
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
-  .lg.o[`.dqc.init; "Starting EOD writedown."];
+  .lg.o[`.dqc.init; "Starting EOD writedown."]; 
   /- Checking if .eodtime.nextroll is correct
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
@@ -72,7 +72,7 @@ writedownconfig:{
   /- send message for DB
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   }
-
+  
 /- checks for unfinished runs that match the new run
 dupchk:{[runtype;idnum;params;proc]
   if[params`comp;proc:params`compresproc];
@@ -247,7 +247,7 @@ loadtimer:{[DICT]
 reruncheck:{[chkid]
   .lg.o[`dqc;"rerunning check ",string chkid];
   d:exec action, params, proc from .dqe.configtable where checkid=chkid;
-  .lg.o[`dqc;"re-running check ",(string first d`action)," manually"];
+  .lg.o[`dqc;("re-running check ",string(d[`action])," manually")];
   d[`params]: value d[`params][0];
   d[`proc]: value raze d[`proc];
   /- input man argument is `manual or `scheduled indicating manul run is on or off
