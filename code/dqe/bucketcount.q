@@ -1,6 +1,7 @@
 \d .dqe
 
 bucketcount:{[agg;tn]
+  .lg.o[.Q.dd[`$string agg;`bucketcount];"Getting ",(string agg)," hourly count of rows in ",string tn];
   (enlist tn)!"j"$value agg select rowcount:count i by 60 xbar time.minute from ?[tn;enlist(=;.Q.pf;last .Q.PV);1b;()]
   }
 
