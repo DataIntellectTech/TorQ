@@ -7,18 +7,15 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  
 gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on gmttime or not
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to all so that it connects to everything
-/.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
 
-/- determine the partition value
-getpartition:@[value;`getpartition;
+getpartition:@[value;`getpartition;                                             // function to determine the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
-testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
+testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
 
-compcounter:([id:`long$()]counter:`long$();procs:();results:());
+compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
 
 / - end of default parameters
 
@@ -264,7 +261,7 @@ reruncheck:{[chkid]
 .dqe.currentpartition:.dqe.getpartition[];
 
 
-/- setting up .u.end for dqe
+/- setting up .u.end for dqc
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
