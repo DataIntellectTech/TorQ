@@ -171,7 +171,7 @@ getresult:{[runtype;funct;params;idnum;proc;hand]
   .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];
   }
 
-/- function used to send other function to test processes
+/- function used to send check function to test processes
 runcheck:{[runtype;idnum;fn;params;rs]
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
