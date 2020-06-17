@@ -1,12 +1,13 @@
+/ - default parameters
 \d .dqe
 
-configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];
-dqcdbdir:@[value;`dqcdbdir;`:dqcdb];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
-gmttime:@[value;`gmttime;1b];
-partitiontype:@[value;`partitiontype;`date];
-writedownperiod:@[value;`writedownperiod;0D01:00:00];
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb // set to all so that it connects to everything
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
+dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
+gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on gmttime or not
+partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
+writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to all so that it connects to everything
 /.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
 
 /- determine the partition value
@@ -18,6 +19,8 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
 
 compcounter:([id:`long$()]counter:`long$();procs:();results:());
+
+/ - end of default parameters
 
 /- called at every EOD by .u.end
 init:{
@@ -111,7 +114,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
 
 /- function to compare the checks
 chkcompare:{[runtype;idnum;params]
-  /- checks if all async check results have returned
+  /- checks if all async check results have returned - if not, exit the function
   if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];
   .lg.o[`chkcompare;"comparison started with id ",string idnum];
   /- obtain all the check returns
@@ -185,7 +188,9 @@ runcheck:{[runtype;idnum;fn;params;rs]
 
   /- set rs to a list
   rs:(),rs;
+  /- h would be assigned to a dictionary with the process' procname, proctype, and handle
   h:.dqe.gethandles[rs];
+  /- r would be assigned to a list with two atoms, containing process' procname and proctype
   r:.dqe.fillprocname[rs;h];
 
   .lg.o[`runcheck;"Checking if comparison check"];
