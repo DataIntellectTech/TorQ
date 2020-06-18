@@ -57,7 +57,7 @@ closelog:{[tab]
   if[addmeta;.stpm.updmeta[`close;currlog[tab;`logname];tab]];
   if[null h:currlog[tab;`handle];.lg.o[`closelog;"No open handle to log file"];:()];
   hclose h;
-  update handle:0N from `currlog where tbl=tab;
+  update handle:0N from `.stplg.currlog where tbl=tab;
  };
 
 rolllog:{[multilog;dir;tab;logfreq;dailyadj]
