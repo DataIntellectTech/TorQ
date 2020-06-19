@@ -1,0 +1,11 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.stplg.init[],1,,"Initialise period roll test"
+before,0,0,q,currper:.eodtime.currperiod,1,,"Save roll parameters"
+before,0,0,q,nextper:.eodtime.nextperiod,1,,"Save roll parameters"
+before,0,0,q,delete from `.stplg.currlog where tbl in `KUT`KUTR,1,,"Remove k4 tables from log table"
+before,0,0,q,.stplg.endofperiod[],1,,"Roll logs into next period"
+true,0,0,q,.eodtime.nextperiod~.eodtime.currperiod+.stplg.multilogperiod,1,,"Check logging period times have been rolled"
+true,0,0,q,.eodtime.currperiod~nextper,1,,"Check logging period times have been rolled"
+true,0,0,q,("T"$-4#string .stplg.currlog[`trade;`logname])=.eodtime.currperiod,1,,"Check log name has been rolled"
+after,0,0,q,.eodtime.currperiod:currper,1,,"Reset roll parameters"
+after,0,0,q,.eodtime.nextperiod:nextper,1,,"Reset roll parameters"
