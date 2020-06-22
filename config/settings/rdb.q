@@ -4,7 +4,8 @@
 ignorelist:`heartbeat`logmsg	//list of tables to ignore when saving to disk
 hdbtypes:`hdb    		//list of hdb types to look for and call in hdb reload
 hdbnames:()			//list of hdb names to search for and call in hdb reload
-tickerplanttypes:`tickerplant`segmentedtp	//list of tickerplant types to try and make a connection to
+tickerplanttypes:`tickerplant`segmentedtickerplant
+				//list of tickerplant types to try and make a connection to
 gatewaytypes:`gateway		//list of gateway types to try and make a connection to
 checktpperiod:0D00:00:05	//how often to check for tickerplant connection
 onlyclearsaved:0b		//if true, eod writedown will only clear tables which have been successfully saved to disk
