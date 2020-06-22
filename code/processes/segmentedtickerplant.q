@@ -3,7 +3,6 @@
 // Configurable logging and subscriptions
 
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
-.proc.loadf[getenv[`KDBCODE],"/segmentedtp"];
 
 .z.ts:{
   .stpps.pub'[.stpps.t;value each .stpps.t];
