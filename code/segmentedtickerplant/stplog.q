@@ -88,6 +88,8 @@ ts:{
  };
 
 init:{
+  .eodtime.currperiod:multilogperiod xbar .z.p;
+  .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod];
   createdld[`database;.z.d];
   openlog[multilog;dldir;;0D00:00:00.001;0D00]each t;
  };

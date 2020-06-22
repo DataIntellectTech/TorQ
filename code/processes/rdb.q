@@ -147,6 +147,7 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
+		if[subfiltered;loadsubfilters[]];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
 		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
@@ -163,6 +164,11 @@ setpartition:{[]
 	rdbpartition:: enlist pardefault ^ part;	
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
+loadsubfilters:{[]
+	.sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
+	.rdb.subscribeto:raze value flip key .sub.filterparams;
+	.rdb.subscribesyms:.sub.filterparams;}
+
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}
 	
@@ -191,12 +197,6 @@ reload:.rdb.reload
 .sort.getsortcsv[.rdb.sortcsv]
 
 .lg.o[`init;"searching for servers"];
-
-if[.rdb.subfiltered;
-  .sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
-  .rdb.subscribeto:raze value flip key .sub.filterparams;
-  .rdb.subscribesyms:.sub.filterparams
- ];
 
 //check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]

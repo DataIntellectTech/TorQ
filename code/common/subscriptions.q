@@ -91,9 +91,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
 	if[`tickerplant=proc`proctype;
 		:(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])];
-	if[`segmentedtp=proc`proctype;
+	if[`segmentedtickerplant=proc`proctype;
 		retdic:enlist[`logdir]!enlist enlist proc[`w]".stplg.dldir";
-		retdic[`subtables]:proc[`w]".stpps.t"; // logic here for nested dict
+		retdic[`subtables]:details[0;;0];
 		:retdic,{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;0];details[2];details[3];(first "D" $ -10 sublist string last details 1)^logdate);]; 
 	}
 
