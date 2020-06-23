@@ -1,16 +1,14 @@
 // Utilites for periodic tp logging in stp process
 
-.proc.loadf[raze .proc.params`stpconfig]
-
 \d .stplg
-
-d:.z.d
-t:tables`.
 
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  .os.md dldir::hsym`$getenv[`TORQHOME],(,/)"/stplogs/",string name,date
+  $[count dir:getenv[`KDBSTPLOG];
+    .os.md dldir::hsym`$raze dir,"/",string name,date;
+    [.lg.e[`stp;"log directory not defined"];exit]
+  ]
  };
 
 // Default stp mode is tabperiod
@@ -68,8 +66,8 @@ rolllog:{[multilog;dir;tab;logfreq;dailyadj]
 endofperiod:{
   .stpps.endp . .eodtime`p`nextperiod;
   .eodtime.currperiod:.eodtime.nextperiod;
-  if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod];system"t 0";'"next period is
- in the past"];
+  if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
+    system"t 0";'"next period is in the past"];
   {if[not null currlog[x;`handle];rolllog[multilog;dldir;x;multilogperiod;0D01]]}each t;
  };
 
@@ -88,8 +86,11 @@ ts:{
  };
 
 init:{
+  .stplg.t:tables`.;
+  .stplg.d:.eodtime.d;
   .eodtime.currperiod:multilogperiod xbar .z.p;
-  .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod];
+  .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
+
   createdld[`database;.z.d];
   openlog[multilog;dldir;;0D00:00:00.001;0D00]each t;
  };
