@@ -276,19 +276,12 @@ reruncheck:{[chkid]
   /- clear .u.end timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
-  if[.dqe.partitiontype=`date;
-    .dqe.currentpartition:pt+1;
-    /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
-    if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
-      .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
-      .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
-      ];
-    .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
-  ];
-  if[.dqe.partitiontype=`month;
-    .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
-    .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
-  ]
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
+  .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
+  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]
   };
