@@ -276,8 +276,6 @@ reruncheck:{[chkid]
   /- clear .u.end timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
-  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
-  .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
   .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
   .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
