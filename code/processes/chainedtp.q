@@ -195,7 +195,7 @@ if[not `upd in key `.; upd:.ctp.upd];
 
 /- pubsub must be initialised sooner to enable tickerplant replay publishing to work
 .ps.initialise[];                                                                   
-
+/
 /- check if the tickerplant has connected, blocks the process until a connection is established
 .ctp.initialise[];
 while[.ctp.notpconnected[];

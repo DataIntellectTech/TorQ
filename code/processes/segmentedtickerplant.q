@@ -22,25 +22,36 @@ $[`schemafile in key .proc.params;
 // TO DO - add function to load user-sepcified updtab funcs
 @[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
 
-// Timer function in batch mode
-.z.ts:{
-  // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
-  .stpps.pub'[.stpps.t;value each .stpps.t];
-  @[`.;.stpps.t;@[;`sym;`g#]0#];
-  // Initiates log rollover if end of period exceeded
-  .stplg.ts .z.p
- };
+if[system"t";
+  // Timer function in batch mode
+  .z.ts:{
+    // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
+    .stpps.pub'[.stpps.t;value each .stpps.t];
+    @[`.;.stpps.t;@[;`sym;`g#]0#];
+    // Initiates log rollover if end of period exceeded
+    .stplg.ts .z.p
+  };
+  .u.upd:{[t;x]
+    if[.z.p>.eodtime.nextroll;.z.ts[]];
+    x:.stpps.upd[t;x];
+    // Find appropriate log for update
+    if[not null h:(w:.stplg.whichlog[t;x])`handle;
+      h enlist(`upd;t;w[`data])
+    ];
+  };
+ ];
 
-.u.upd:{[t;x]
-  if[.z.p>.eodtime.nextroll;.z.ts[]];
-  x:.stpps.updtab[t]@x;
-  t insert x;
-  .stpps.msgcount[t]+::count first x;
-  // Find appropriate log for update
-  if[not null h:(w:.stplg.whichlog[t;x])`handle;
-    h enlist(`upd;t;w[`data])
-  ];
- };
+if[not system"t";
+  .z.ts:{.stplg.ts .z.p};
+  .u.upd:{[t;x]
+    x:.stpps.upd[t;x];
+    if[not null h:(w:.stplg.whichlog[t;x])`handle;
+      h enlist(`upd;t;w[`data])
+    ];
+    .stpps.pub[t;x];
+    @[`.;t;@[;`sym;`g#]0#];
+  };
+ ];
 
 // Initialise process
 // Creates log directory, opens all table logs, defines logging period

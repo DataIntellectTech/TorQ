@@ -37,7 +37,8 @@ suball:{
 
 subfiltered:{[x;y]
   delhandlef[x].z.w;
-  :addfiltered[x;y];
+  if[11=type y;:selfiltered[x;y]];
+  if[99=type y;:addfiltered[x;y]];
  };
 
 // Add handle to subscriber in sub all mode
@@ -52,6 +53,21 @@ addfiltered:{[x;y]
   if[not .z.w in subrequestfiltered[x]`handle;
     @[`.stpps.subrequestfiltered;x;:;(enlist[`handle]!enlist .z.w),y[x]]];
   (x;$[99=type v:value x;v;0#v])
+ };
+
+// Add handle for subscriber using old API (filter is list of syms)
+selfiltered:{[x;y]
+  if[not .z.w in subrequestfiltered[x]`handle;
+    y:`$"sym in ","`","`"sv string y;
+    @[`.stpps.subrequestfiltered;x;:;`handle`filts`columns!(.z.w;y;`)]];
+  (x;$[99=type v:value x;v;0#v])
+ };
+
+upd:{[t;x]
+  x:updtab[t]@x;
+  t insert x;
+  msgcount[t]+::count first x;
+  :x;
  };
 
 pub:{[t;x]

@@ -31,7 +31,7 @@ openlog:{[multilog;dir;tab;logfreq;dailyadj]
   if[not type key lname;.[lname;();:;()]];
   h:hopen lname;
   `.stplg.currlog upsert (tab;lname;h);
-  if[addmeta;.stpm.updmeta[`open;lname;tab]];
+  if[addmeta;.stpm.updmeta[`open;lname;tab;.z.p]];
  };
 
 // Error log for failed updates in error mode
@@ -52,7 +52,7 @@ badmsg:{[e;t;x]
 whichlog:{[t;x] currlog[t],enlist[`data]!enlist x}
 
 closelog:{[tab]
-  if[addmeta;.stpm.updmeta[`close;currlog[tab;`logname];tab]];
+  if[addmeta;.stpm.updmeta[`close;currlog[tab;`logname];tab;.z.p]];
   if[null h:currlog[tab;`handle];.lg.o[`closelog;"No open handle to log file"];:()];
   hclose h;
   update handle:0N from `.stplg.currlog where tbl=tab;
