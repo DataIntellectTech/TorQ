@@ -2,9 +2,6 @@
 // Functionality for clients to subscribe to all tables or a subset
 // Includes option for subsrcibe to apply filters to received data
 
-/load schema from params, default to "sym.q"
-/.proc.loadf[(src:$[`schemafile in key .proc.params;raze .proc.params`schemafile;"sym"]),".q"];
-
 \d .stpps
 
 // List of pub/sub tables, populated on startup
