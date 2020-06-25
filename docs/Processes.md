@@ -1584,7 +1584,7 @@ to run manually from the console.
 
 Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
 
-- `.dqc.constructchkeck` - Checks if a construct exists.
+- `.dqc.constructcheck` - Checks if a construct exists.
 - `.dqc.tableticking` - Checks if a table has obtained records within a specified time period.
 - `.dqc.chkslowsub` - Checks queues on handles to make sure there are no slow subscribers.
 - `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
@@ -1599,11 +1599,12 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.xmarketalert` - Tests whether the bid price has exceeded in the ask price in market data.
 - `.dqc.dfilechk` - Checks the `.d` file in the latest date partition matches the previous date values.
 - `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
-- `.dqc.tablecountcomp` - Counts the number of rows in a table.
+- `.dqc.tablecomp` - Counts the number of rows in a table, used for comparison between two processes
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
 - `.dqc.symfilegrowth` - Checks if today's sym file count has grown more than a certain percentage
-
-
+- `.dqc.timdiff` - Checks if idfferences between time columns are over a certain limit
+- `.dqc.memoryusage` - Checks percentage of memory usage compared to max memory
+- `.dqc.refdatacheck` - Checks whether the referenced column of a table is in another column of another table
 
 **New Custom Check**
 To add custom checks, create a new q file in /code/dqc. The new q script
