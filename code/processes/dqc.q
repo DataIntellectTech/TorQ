@@ -4,7 +4,7 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
 dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
-gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on gmttime or not
+gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
@@ -278,7 +278,9 @@ reruncheck:{[chkid]
   /- clear .u.end timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
+  /- sets currentpartition to fit the partitiontype provided in settings
   .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
+  /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
   .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
   .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
