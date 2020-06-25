@@ -4,7 +4,7 @@
 dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
 gmttime:@[value;`gmttime;1b];                                                       // define whether the process is on gmttime or not
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
-getpartition:@[value;`getpartition;                                                 // function to determine the partition value
+getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
@@ -44,7 +44,7 @@ qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback successful for ",string first proc];
   }
 
-/- function used to send queries to test processes
+/- sends queries to test processes
 runquery:{[query;params;querytype;rs]
   temp:(`,(value value query)[1])!(::), params;
   .lg.o[`runquery;"Starting query run for ",string query];
@@ -64,7 +64,7 @@ loadtimer:{[d]
   .timer.once[d`starttime;functiontorun;("Running check on ",string d[`proc])]
   }
 
-/- function used to add today's date to the time from config csv, before loading the queries to the timer
+/- adds today's date to the time from config csv, before loading the queries to the timer
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
   t:update starttime:.z.d+starttime from t;

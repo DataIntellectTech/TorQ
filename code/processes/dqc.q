@@ -9,7 +9,7 @@ partitiontype:@[value;`partitiontype;`date];                                    
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
 
-getpartition:@[value;`getpartition;                                             // function to determine the partition value
+getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
 
@@ -94,7 +94,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]
   `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.proc.cp[];0Np;0b;"";`started;runtype);
   }
 
-/- general function used to update a check in the results table
+/- updates a check in the results table
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   if[1b=params`comp;proc:params`compresproc];
   /- obtain count of checks that will be updated
@@ -109,7 +109,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   .lg.o[`updresultstab;"Updated check id ",(string idnum)," in the results table with status ",string status];
   }
 
-/- function to compare the checks
+/- compares the third atom of results when comparison is on
 chkcompare:{[runtype;idnum;params]
   /- checks if all async check results have returned - if not, exit the function
   if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];
@@ -141,7 +141,7 @@ chkcompare:{[runtype;idnum;params]
   .dqe.updresultstab[runtype;idnum;.proc.cp[];resbool;s;`complete;params;`];
   }
 
-/- function that updates the results table with the check result
+/- updates the results table with the check result
 postback:{[runtype;idnum;proc;params;result]
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   /- if comparision, add to compcounter table
@@ -163,7 +163,7 @@ postback:{[runtype;idnum;proc;params;result]
     .dqe.updresultstab[runtype;idnum;.proc.cp[];first result;result[1];`complete;params;proc]];
   }
 
-/- function that sends the check function over async
+/- sends the check function over async
 getresult:{[runtype;funct;params;idnum;proc;hand]
   .lg.o[`getresults;raze"Send function over to process: ",string proc];
   fvars:params[`vars] params`fnpar;
@@ -171,7 +171,7 @@ getresult:{[runtype;funct;params;idnum;proc;hand]
   .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];
   }
 
-/- function used to send check function to test processes
+/- sends check function to test processes
 runcheck:{[runtype;idnum;fn;params;rs]
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
