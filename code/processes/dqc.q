@@ -1,23 +1,23 @@
+/ - default parameters
 \d .dqe
 
-configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];
-dqcdbdir:@[value;`dqcdbdir;`:dqcdb];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
-gmttime:@[value;`gmttime;1b];
-partitiontype:@[value;`partitiontype;`date];
-writedownperiod:@[value;`writedownperiod;0D01:00:00];
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb // set to all so that it connects to everything
-/.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
+dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
+gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on gmttime or not
+partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
+writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
 
-/- determine the partition value
-getpartition:@[value;`getpartition;
+getpartition:@[value;`getpartition;                                             // function to determine the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 
-testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
+testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
 
-compcounter:([id:`long$()]counter:`long$();procs:();results:());
+compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
+
+/ - end of default parameters
 
 /- called at every EOD by .u.end
 init:{
@@ -111,7 +111,7 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
 
 /- function to compare the checks
 chkcompare:{[runtype;idnum;params]
-  /- checks if all async check results have returned
+  /- checks if all async check results have returned - if not, exit the function
   if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];
   .lg.o[`chkcompare;"comparison started with id ",string idnum];
   /- obtain all the check returns
@@ -171,7 +171,7 @@ getresult:{[runtype;funct;params;idnum;proc;hand]
   .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];
   }
 
-/- function used to send other function to test processes
+/- function used to send check function to test processes
 runcheck:{[runtype;idnum;fn;params;rs]
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
@@ -185,7 +185,9 @@ runcheck:{[runtype;idnum;fn;params;rs]
 
   /- set rs to a list
   rs:(),rs;
+  /- h would be assigned to a dictionary with the process' procname, proctype, and handle
   h:.dqe.gethandles[rs];
+  /- r would be assigned to a list with two atoms, containing process' procname and proctype
   r:.dqe.fillprocname[rs;h];
 
   .lg.o[`runcheck;"Checking if comparison check"];
@@ -259,7 +261,7 @@ reruncheck:{[chkid]
 .dqe.currentpartition:.dqe.getpartition[];
 
 
-/- setting up .u.end for dqe
+/- setting up .u.end for dqc
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
