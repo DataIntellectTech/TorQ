@@ -6,15 +6,14 @@ bucketcount:{[agg;tn]
   (enlist tn)!"j"$value agg select rowcount:count i by 60 xbar time.minute from ?[tn;enlist(=;.Q.pf;last .Q.PV);1b;()]
   }
 
-/- Given a table name as a symbol (tn), return the avg number of messages recieved each hour throughout the day
+/- Given a table name as a symbol (tn), return the average number of messages received throughout the day based on hourly counts
 /- Works on partitioned tables in an hdb
 avgbucketcount:bucketcount[avg;]
 
-/- Given a table name as a symbol (tn), return the max number of messages recieved each hour throughout the day
-/- Works on partitioned tables in an hdb
+/- Given a table name as a symbol (tn), return the maximum number of messages received throughout the day based on hourly counts
 maxbucketcount:bucketcount[max;]
 
-/- Given a table name as a symbol (tn), return the min number of messages recieved each hour throughout the day
+/- Given a table name as a symbol (tn), return the minimum number of messages received throughout the day based on hourly counts
 /- Works on partitioned tables in an hdb
 minbucketcount:bucketcount[min;]
 
