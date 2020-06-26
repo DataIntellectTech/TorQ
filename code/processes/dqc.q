@@ -195,7 +195,7 @@ runcheck:{[runtype;idnum;fn;params;rs]
     .dqe.initstatusupd[runtype;idnum;fn;params]'[r];
 
     .lg.o[`runcheck;"checking for processes that are not connectable"];
-    if[count select from .dqe.results where id=idnum,procschk=`,chkstatus=`started;
+    if[not any raze[r]in\:exec procname from .servers.SERVERS where .dotz.liveh w;
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:can't connect to process";`failed;params;`];
     ];
     /- checks if any procs didn't get handles
