@@ -13,8 +13,6 @@ subrequestall:enlist[`]!enlist ()
 // Handles and conditions to publish filtered data
 subrequestfiltered:([tabname:`$()]handle:`int$();filts:`$();columns:`$())
 
-msgcount:enlist[`]!enlist ()
-
 // Function to send end of period messages to subscribers
 // Assumes that .u.endp has been defined on the client side
 endp:{
@@ -63,7 +61,6 @@ selfiltered:{[x;y]
 upd:{[t;x]
   x:updtab[t]@x;
   t insert x;
-  msgcount[t]+::count first x;
   :x;
  };
 

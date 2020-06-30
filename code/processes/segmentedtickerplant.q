@@ -22,46 +22,65 @@ $[`schemafile in key .proc.params;
 // TO DO - add function to load user-sepcified updtab funcs
 @[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
 
-if[system"t";
-  // Timer function in batch mode
-  .z.ts:{
-    // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
-    .stpps.pub'[.stpps.t;value each .stpps.t];
-    @[`.;.stpps.t;@[;`sym;`g#]0#];
-    // Initiates log rollover if end of period exceeded
-    .stplg.ts .z.p
-  };
-  .u.upd:{[t;x]
-    if[.z.p>.eodtime.nextroll;.z.ts[]];
-    x:.stpps.upd[t;x];
-    // Find appropriate log for update
-    if[not null h:(w:.stplg.whichlog[t;x])`handle;
-      h enlist(`upd;t;w[`data])
+init:{[t]
+  if[t;
+    // Timer function in batch mode
+    // If .stplg.batchmode set, publish and write to disk in batches
+    // Otherwise, publish in batch, write immediately
+    $[.stplg.batchmode;
+      [.z.ts:{
+        // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
+        .stpps.pub'[.stpps.t;value each .stpps.t];
+        // Disk write for all tables
+        {[t;x].stplg.handles[t] enlist(`upd;t;x)}'[.stplg.t;value each .stplg.t];
+        @[`.;.stpps.t;@[;`sym;`g#]0#];
+        // Initiates log rollover if end of period exceeded
+        .stplg.ts .z.p
+      };
+      .u.upd:{[t;x]
+        if[.z.p>.eodtime.nextroll;.z.ts[]];
+        x:.stpps.upd[t;x];
+        .stplg.msgcount[t]+::1;
+      }];
+      [.z.ts:{
+        .stpps.pub'[.stpps.t;value each .stpps.t];
+        @[`.;.stpps.t;@[;`sym;`g#]0#];
+        .stplg.ts .z.p
+      };
+      .u.upd:{[t;x]
+        if[.z.p>.eodtime.nextroll;.z.ts[]];
+        x:.stpps.upd[t;x];
+        .stplg.msgcount[t]+::1;
+        .stplg.handles[t] enlist(`upd;t;x)
+      }]
     ];
-  };
- ];
+  ];
+  if[not t;
+    // Immediate mode - publish and write immediately
+    .z.ts:{.stplg.ts .z.p};
+    .u.upd:{[t;x]
+      .stplg.ts .z.p;
+      x:.stpps.upd[t;x];
+      .stplg.msgcount[t]+::1;
+      .stplg.handles[t] enlist(`upd;t;x);
+      .stpps.pub[t;x];
+      @[`.;t;@[;`sym;`g#]0#];
+    };
+  ];
+  // Error mode - write failed updates to separate TP log
+  if[.stplg.errmode;
+    .stplg.openlogerr[.stplg.dldir];
+    .stplg.handles::.stplg.handles,exec tbl!handle from .stplg.currlog where tbl=`err;
+    .stp.upd:.u.upd;
+    .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
+  ];
+ };
 
-if[not system"t";
-  .z.ts:{.stplg.ts .z.p};
-  .u.upd:{[t;x]
-    x:.stpps.upd[t;x];
-    if[not null h:(w:.stplg.whichlog[t;x])`handle;
-      h enlist(`upd;t;w[`data])
-    ];
-    .stpps.pub[t;x];
-    @[`.;t;@[;`sym;`g#]0#];
-  };
- ];
 
 // Initialise process
-// Creates log directory, opens all table logs, defines logging period
 
+// Creates log directory, opens all table logs, defines logging period
 .stplg.init[]
 
-// Error mode - write failed updates to separate TP log
-if[.stplg.errmode;
-  .stplg.openlogerr[.stplg.dldir];
-  .stp.upd:.u.upd;
-  .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
- ]
-
+// Set update and publish modes
+init[system"t"]

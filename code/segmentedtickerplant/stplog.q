@@ -20,18 +20,25 @@ logname.tabperiod:{[dir;tab;logfreq;dailyadj]
 // Standard TP mode - to be added
 logname.none:{[dir;tab;logfreq;dailyadj]}
 
-// Custom mode, configured by user - to be added
-logname.custom:{[dir;tab;logfreq;dailyadj]}
+// Custom mode
+// Default writes all tables to single log, rolls hourly
+// Can be overwritten by ueser
+logname.custom:{[dir;tab;logfreq;dailyadj]
+  ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
+ };
 
 // Live logs and handles to logs for each table
 currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 
+msgcount:enlist[`]!enlist ()
+
 openlog:{[multilog;dir;tab;logfreq;dailyadj]
   lname:logname[multilog][dir;tab;logfreq;dailyadj];
-  if[not type key lname;.[lname;();:;()]];
-  h:hopen lname;
+  h:$[not type key lname;
+    [.[lname;();:;()];hopen lname];
+    exec first handle from .stplg.currlog where logname=lname
+  ];
   `.stplg.currlog upsert (tab;lname;h);
-  if[addmeta;.stpm.updmeta[`open;lname;tab;.z.p]];
  };
 
 // Error log for failed updates in error mode
@@ -45,22 +52,22 @@ openlogerr:{[dir]
 // Log failed message and error type in error mode
 badmsg:{[e;t;x]
   .lg.o[`upd;"Bad message received, error: ",e];
-  w:whichlog[`err;x];
-  w[`handle] enlist(`upd;t;w[`data]);
+  .stplg.handles[`err] enlist(`upderr;t;x);
  };
 
-whichlog:{[t;x] currlog[t],enlist[`data]!enlist x}
-
 closelog:{[tab]
-  if[addmeta;.stpm.updmeta[`close;currlog[tab;`logname];tab;.z.p]];
   if[null h:currlog[tab;`handle];.lg.o[`closelog;"No open handle to log file"];:()];
-  hclose h;
+  @[hclose;h;.lg.e[`closelog;"Handle already closed"]];
   update handle:0N from `.stplg.currlog where tbl=tab;
  };
 
 rolllog:{[multilog;dir;tab;logfreq;dailyadj]
-  closelog[tab];
-  openlog[multilog;dir;tab;logfreq;dailyadj];
+  .stpm.updmeta[multilog][`close;tab;.z.p];
+  closelog each tab;
+  i+::1;
+  @[`.stplg.msgcount;tab;:;0];
+  openlog[multilog;dir;;logfreq;dailyadj]each tab;
+  .stpm.updmeta[multilog][`open;tab;.z.p];
  };
 
 endofperiod:{
@@ -68,12 +75,12 @@ endofperiod:{
   .eodtime.currperiod:.eodtime.nextperiod;
   if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
-  {if[not null currlog[x;`handle];rolllog[multilog;dldir;x;multilogperiod;0D01]]}each t;
+  rolllog[multilog;dldir;t;multilogperiod;0D01];
  };
 
 endofday:{
   .stpps.end d;
-  d+:1;.stpps.msgcount:t!(count t)#0;
+  d+:1;
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"];
   .eodtime.dailyadj:.eodtime.getdailyadjustment[];
   closelog each t;
@@ -88,11 +95,14 @@ ts:{
 init:{
   .stplg.t:tables`.;
   .stplg.d:.eodtime.d;
+  .stplg.i:0;
+  @[`.stplg.msgcount;t;:;0];
   .eodtime.currperiod:multilogperiod xbar .z.p;
   .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
-
   createdld[`database;.z.d];
   openlog[multilog;dldir;;0D00:00:00.001;0D00]each t;
+  .stplg.handles::exec tbl!handle from .stplg.currlog;
+  .stpm.updmeta[multilog][`open;t;.z.p];
  };
 
 \d .
