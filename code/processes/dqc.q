@@ -8,13 +8,11 @@ gmttime:@[value;`gmttime;1b];                                                   
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
-
 getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}]; 
-
+    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // location of description of functions
 testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
-
 compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
 
 / - end of default parameters
