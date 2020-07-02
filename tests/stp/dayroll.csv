@@ -2,6 +2,7 @@ action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.stplg.multilog:`tabperiod,1,,"Set default logging mode"
 before,0,0,q,.stplg.init[],1,,"Initialise day roll test"
 before,0,0,q,delete from `.stplg.currlog where tbl in `KUT`KUTR,1,,"Remove k4 tables from log table"
+before,0,0,q,.stplg.t:.stplg.t except `KUT`KUTR,1,,"Remove k4 tables from log table"
 before,0,0,q,.stplg.endofday[],1,,"Roll logs into next day"
 before,0,0,q,.stplg.createdld[`database;.z.d+1],1,,"Create log directory for next day"
 before,0,0,q,.stplg.openlog[.stplg.multilog;.stplg.dldir;;0D00:00:00.001;0D00]each .stplg.t,1,,"Open new logs"

@@ -33,10 +33,50 @@ logname.custom:{[dir;tab;logfreq;dailyadj]
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+// Update and timer functions in three batch modes ////////////////////////////////////
+// If set to autobatch, publish and write to disk will be run in batches
+upd.autobatch:{[t;x]
+  .stpps.upd[t;x];
+ };
+
+// Standard batch mode - publish in batches, write to disk immediately
+upd.defaultbatch:{[t;x]
+  x:.stpps.upd[t;x];
+  .stplg.handles[t] enlist(`upd;t;x);
+ };
+
+// Immediate mode - publish and write immediately
+upd.immediate:{[t;x]
+  x:.stpps.updtab[t]@x;
+  .stplg.handles[t] enlist(`upd;t;x);
+  .stpps.pub[t;x]
+ };
+
+zts.autobatch:{
+  {[t;x] .stpps.pub[t;x];
+  .stplg.handles[t] enlist(`upd;t;x)}'[.stpps.t;value each .stpps.t];
+  @[`.;.stpps.t;@[;`sym;`g#]0#];
+  ts .z.p;
+ };
+
+zts.defaultbatch:{
+  .stpps.pub'[.stpps.t;value each .stpps.t];
+  @[`.;.stpps.t;@[;`sym;`g#]0#];
+  ts .z.p;
+ };
+
+zts.immediate:{ts .z.p}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
 // Live logs and handles to logs for each table
 currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 
+// Number of update messages received for each table
 msgcount:enlist[`]!enlist ()
+
+// Total messages received
+totalmsgcount:0Ni
 
 // Open log for a single table at start of logging period
 openlog:{[multilog;dir;tab;logfreq;dailyadj]
@@ -105,6 +145,7 @@ init:{
   d::.eodtime.d;
   i::0;
   @[`.stplg.msgcount;t;:;0];
+  totalmsgcount::0;
   .eodtime.currperiod:multilogperiod xbar .z.p;
   .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
   createdld[`database;.z.d];

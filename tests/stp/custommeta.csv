@@ -2,6 +2,7 @@ action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.stplg.multilog:`custom,1,,"Set custom logging mode"
 before,0,0,q,.stplg.init[],1,,"Initialise stp script"
 before,0,0,q,tabmeta:last .stpm.metatable,1,,"Save custom table meta"
+before,0,0,q,.stplg.t:.stplg.t except `KUT`KUTR,1,,"Remove k4 tables from log table"
 before,0,0,q,testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy),1,,"Create test trade update"
 before,0,0,q,testquote:(10?`4;10?100.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3),1,,"Create
 test quote update"

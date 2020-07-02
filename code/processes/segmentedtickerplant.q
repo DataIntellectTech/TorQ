@@ -25,53 +25,14 @@ $[`schemafile in key .proc.params;
 // In none mode, revert to standard tickerplant logging, intraday rolling not required
 if[.stplg.multilog~`none;.stplg.multilogperiod:1D]
 
-init:{[t]
-  if[t;
-    // Timer function in batch mode
-    // If .stplg.batchmode set, updates can contain multiple messages
-    // Publish and write to disk will be run in batches
-    $[.stplg.batchmode;
-      [.z.ts:{
-        // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
-        .stpps.pub'[.stpps.t;value each .stpps.t];
-        // Disk write for all tables
-        {[t;x].stplg.handles[t] enlist(`upd;t;x)}'[.stplg.t;value each .stplg.t];
-        @[`.;.stpps.t;@[;`sym;`g#]0#];
-        // Initiates log rollover if end of period exceeded
-        .stplg.ts .z.p
-      };
-      .u.upd:{[t;x]
-        if[.z.p>.eodtime.nextroll;.z.ts[]];
-        x:.stpps.upd'[t;x];
-        @[`stplg.msgcount;t;+;1]
-      }];
-    // If not .stplg.batchmode, use standard batch mode
-    // Updates contain single messages, publish in batches, write to disk immediately
-      [.z.ts:{
-        .stpps.pub'[.stpps.t;value each .stpps.t];
-        @[`.;.stpps.t;@[;`sym;`g#]0#];
-        .stplg.ts .z.p
-      };
-      .u.upd:{[t;x]
-        if[.z.p>.eodtime.nextroll;.z.ts[]];
-        x:.stpps.upd[t;x];
-        .stplg.msgcount[t]+::1;
-        .stplg.handles[t] enlist(`upd;t;x)
-      }]
-    ];
-  ];
-  if[not t;
-    // Immediate mode - publish and write immediately
-    .z.ts:{.stplg.ts .z.p};
-    .u.upd:{[t;x]
-      .stplg.ts .z.p;
-      x:.stpps.upd[t;x];
-      .stplg.msgcount[t]+::1;
-      .stplg.handles[t] enlist(`upd;t;x);
-      .stpps.pub[t;x];
-      @[`.;t;@[;`sym;`g#]0#];
-    };
-  ];
+init:{[b]
+  .u.upd:{[b;t;x]
+    .stplg.totalmsgcount+:1;
+    // Type check allows update messages to contain multiple tables/data
+    $[0h<type t;.stplg.upd[b]'[t;x];.stplg.upd[b][t;x]]
+    @[`.stplg.msgcount;t;+;1];
+  }[b;;];
+  .z.ts:.stplg.zts[b];
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
     .stplg.openlogerr[.stplg.dldir];
@@ -81,11 +42,10 @@ init:{[t]
   ];
  };
 
-
 // Initialise process
 
 // Creates log directory, opens all table logs, defines logging period
 .stplg.init[]
 
 // Set update and publish modes
-init[system"t"]
+init[.stplg.batchmode]
