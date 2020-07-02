@@ -10,7 +10,7 @@ true,0,0,q,.stplg.currlog[`quote;`logname]~tabmeta[`logname],1,,"Check logname s
 true,0,0,q,(0#trade)~tabmeta[`schema][`trade],1,,"Check schema saved to meta table"
 true,0,0,q,(0#quote)~tabmeta[`schema][`quote],1,,"Check schema saved to meta table"
 true,0,0,q,0=tabmeta[`msgcount],1,,"Check no records listed in log"
-true,0,0,q,all `trade`quote in tabmeta[`tabname],1,,"Check all tables saved to meta"
+true,0,0,q,all `trade`quote in tabmeta[`tbls],1,,"Check all tables saved to meta"
 true,0,0,q,("v"$.z.p)~"v"$tabmeta[`start],1,,"Check correct start time listed for log"
 true,0,0,q,null tabmeta[`end],1,,"Check no end time listed for log"
 run,0,0,q,.u.upd[`trade;testtrade],1,,"Run trade update"

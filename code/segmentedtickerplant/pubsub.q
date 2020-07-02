@@ -94,12 +94,6 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
-.z.ts:{
-  pub'[t;value each t];
-  @[`.;t;@[;`sym;`g#]0#];
-  ts .z.p
- };
-
 .z.pc:{[f;x] f@x; closesub x}@[value;`.z.pc;{{}}]
 
 \d .

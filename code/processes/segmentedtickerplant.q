@@ -22,11 +22,14 @@ $[`schemafile in key .proc.params;
 // TO DO - add function to load user-sepcified updtab funcs
 @[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
 
+// In none mode, revert to standard tickerplant logging, intraday rolling not required
+if[.stplg.multilog~`none;.stplg.multilogperiod:1D]
+
 init:{[t]
   if[t;
     // Timer function in batch mode
-    // If .stplg.batchmode set, publish and write to disk in batches
-    // Otherwise, publish in batch, write immediately
+    // If .stplg.batchmode set, updates can contain multiple messages
+    // Publish and write to disk will be run in batches
     $[.stplg.batchmode;
       [.z.ts:{
         // Publish data to handles in .stpps.subrequestall and .stpps.subrequestfiltered
@@ -39,9 +42,11 @@ init:{[t]
       };
       .u.upd:{[t;x]
         if[.z.p>.eodtime.nextroll;.z.ts[]];
-        x:.stpps.upd[t;x];
-        .stplg.msgcount[t]+::1;
+        x:.stpps.upd'[t;x];
+        @[`stplg.msgcount;t;+;1]
       }];
+    // If not .stplg.batchmode, use standard batch mode
+    // Updates contain single messages, publish in batches, write to disk immediately
       [.z.ts:{
         .stpps.pub'[.stpps.t;value each .stpps.t];
         @[`.;.stpps.t;@[;`sym;`g#]0#];
