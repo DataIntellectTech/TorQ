@@ -1,6 +1,8 @@
 action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.stplg.multilog:`tabperiod,1,,"Set default logging mode"
 before,0,0,q,.stplg.init[],1,,"Initialise day roll test"
 before,0,0,q,delete from `.stplg.currlog where tbl in `KUT`KUTR,1,,"Remove k4 tables from log table"
+before,0,0,q,.stplg.t:.stplg.t except `KUT`KUTR,1,,"Remove k4 tables from log table"
 before,0,0,q,.stplg.endofday[],1,,"Roll logs into next day"
 before,0,0,q,.stplg.createdld[`database;.z.d+1],1,,"Create log directory for next day"
 before,0,0,q,.stplg.openlog[.stplg.multilog;.stplg.dldir;;0D00:00:00.001;0D00]each .stplg.t,1,,"Open new logs"
@@ -10,3 +12,4 @@ true,0,0,q,all not null .stplg.currlog[;`logname],1,,"Check log names generated 
 true,0,0,q,all not null .stplg.currlog[;`logname],1,,"Check handle generated to each log"
 true,0,0,q,string[.z.d+1]~-10#("/"vs string .stplg.currlog[`trade;`logname])6,1,,"Check new logs in next day directory"
 after,0,0,q,"system""rm -r "",getenv[`TORQHOME],""/stplogs/database"",string[.z.d+1]",1,,"Remove new log directory for tomorrow's date"
+after,0,0,q,"system""rm -r "",getenv[`TORQHOME],""/stplogs/database"",string[.z.d]",1,,"Remove today's log directory"

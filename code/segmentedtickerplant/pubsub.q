@@ -2,33 +2,27 @@
 // Functionality for clients to subscribe to all tables or a subset
 // Includes option for subsrcibe to apply filters to received data
 
-/load schema from params, default to "sym.q"
-.proc.loadf[(src:$[`schemafile in key .proc.params;raze .proc.params`schemafile;"sym"]),".q"];
-
 \d .stpps
 
-t:tables`.
+// List of pub/sub tables, populated on startup
+t:`
 
 // Handles to publish all data
-subrequestall:t!(count t)#()
+subrequestall:enlist[`]!enlist ()
 
 // Handles and conditions to publish filtered data
 subrequestfiltered:([tabname:`$()]handle:`int$();filts:`$();columns:`$())
 
-msgcount:t!(count t)#0
-
 // Function to send end of period messages to subscribers
 // Assumes that .u.endp has been defined on the client side
 endp:{
-  (neg union/[subrequestall])@\:(`.u.endp;x;y);
-  (neg union/[subrequestfiltered[;`handle]])@\:(`.u.endp;x;y);
+  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.endp;x;y);
  };
 
 // Function to send end of day messages to subscribers      
 // Assumes that .u.end has been defined on the client side   
 end:{
-  (neg union/[subrequestall])@\:(`.u.end;x);
-  (neg union/[subrequestfiltered[;`handle]])@\:(`.u.end;x);
+  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.endp;x;y);
  };
 
 suball:{
@@ -38,7 +32,8 @@ suball:{
 
 subfiltered:{[x;y]
   delhandlef[x].z.w;
-  :addfiltered[x;y];
+  if[11=type y;:selfiltered[x;y]];
+  if[99=type y;:addfiltered[x;y]];
  };
 
 // Add handle to subscriber in sub all mode
@@ -55,6 +50,20 @@ addfiltered:{[x;y]
   (x;$[99=type v:value x;v;0#v])
  };
 
+// Add handle for subscriber using old API (filter is list of syms)
+selfiltered:{[x;y]
+  if[not .z.w in subrequestfiltered[x]`handle;
+    y:`$"sym in ","`","`"sv string y;
+    @[`.stpps.subrequestfiltered;x;:;`handle`filts`columns!(.z.w;y;`)]];
+  (x;$[99=type v:value x;v;0#v])
+ };
+
+upd:{[t;x]
+  x:updtab[t]@x;
+  t insert x;
+  :x;
+ };
+
 pub:{[t;x]
   if[count x;
     if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
@@ -68,7 +77,7 @@ pub:{[t;x]
  };
 
 // Functions to add columns on updates
-updtab:t!(count t)#{(enlist(count first x)#.z.p),x}
+updtab:enlist[`]!enlist {(enlist(count first x)#.z.p),x}
 
 // Remove handle from subscription meta
 delhandle:{[t;h]
@@ -83,12 +92,6 @@ delhandlef:{[t;h]
 closesub:{[h]
   delhandle[;h]each t;
   delhandlef[;h]each t;
- };
-
-.z.ts:{
-  pub'[t;value each t];
-  @[`.;t;@[;`sym;`g#]0#];
-  ts .z.p
  };
 
 .z.pc:{[f;x] f@x; closesub x}@[value;`.z.pc;{{}}]
