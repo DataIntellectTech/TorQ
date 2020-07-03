@@ -6,28 +6,30 @@
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
   $[count dir:getenv[`KDBSTPLOG];
-    .os.md dldir::hsym`$raze dir,"/",string name,date;
+    [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
  };
 
 // Functions to generate log names in one of three modes //////////////////////////////
 
+logname:enlist[`]!enlist ()
+
 // Default stp mode is tabperiod
 // TP log rolled periodically (default 1 hr), 1 log per table
-logname.tabperiod:{[dir;tab;logfreq;dailyadj]
+logname[`tabperiod]:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym dir;`$string[tab],ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])
  };
 
 // Standard TP mode - write all tables to single log, roll daily
-logname.none:{[dir;tab;logfreq;dailyadj]
+logname[`none]:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",ssr[;;""]/[string .z.d;":.D"])
  };
 
 // Custom mode
 // Periodic-only mode
 // TO DO - Add tabular-only mode, mixed periodic/tabular mode
-logname.custom:{[dir;tab;logfreq;dailyadj]
+logname[`custom]:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
  };
 
@@ -35,12 +37,14 @@ logname.custom:{[dir;tab;logfreq;dailyadj]
 
 // Update and timer functions in three batch modes ////////////////////////////////////
 
+upd:zts:enlist[`]!enlist ()
+
 // If set to autobatch, publish and write to disk will be run in batches
-upd.autobatch:{[t;x]
+upd[`autobatch]:{[t;x]
   .stpps.upd[t;x];
  };
 
-zts.autobatch:{
+zts[`autobatch]:{
   {[t;x] .stpps.pub[t;x];
   .stplg.handles[t] enlist(`upd;t;x)}'[.stpps.t;value each .stpps.t];
   @[`.;.stpps.t;@[;`sym;`g#]0#];
@@ -48,25 +52,25 @@ zts.autobatch:{
  };
 
 // Standard batch mode - publish in batches, write to disk immediately
-upd.defaultbatch:{[t;x]
+upd[`defaultbatch]:{[t;x]
   x:.stpps.upd[t;x];
   .stplg.handles[t] enlist(`upd;t;x);
  };
 
-zts.defaultbatch:{
+zts[`defaultbatch]:{
   .stpps.pub'[.stpps.t;value each .stpps.t];
   @[`.;.stpps.t;@[;`sym;`g#]0#];
   ts .z.p;
  };
 
 // Immediate mode - publish and write immediately
-upd.immediate:{[t;x]
+upd[`immediate]:{[t;x]
   x:.stpps.updtab[t]@x;
   .stplg.handles[t] enlist(`upd;t;x);
   .stpps.pub[t;x]
  };
 
-zts.immediate:{ts .z.p}
+zts[`immediate]:{ts .z.p}
 
 //////////////////////////////////////////////////////////////////////////////////////
 
