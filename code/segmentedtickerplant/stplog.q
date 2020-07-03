@@ -19,14 +19,14 @@ logname.tabperiod:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym dir;`$string[tab],ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])
  };
 
-// Standard TP mode - to be added
+// Standard TP mode - write all tables to single log, roll daily
 logname.none:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",ssr[;;""]/[string .z.d;":.D"])
  };
 
 // Custom mode
-// Default writes all tables to single log, rolls hourly
-// Can be overwritten by ueser
+// Periodic-only mode
+// TO DO - Add tabular-only mode, mixed periodic/tabular mode
 logname.custom:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
  };
@@ -34,22 +34,10 @@ logname.custom:{[dir;tab;logfreq;dailyadj]
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Update and timer functions in three batch modes ////////////////////////////////////
+
 // If set to autobatch, publish and write to disk will be run in batches
 upd.autobatch:{[t;x]
   .stpps.upd[t;x];
- };
-
-// Standard batch mode - publish in batches, write to disk immediately
-upd.defaultbatch:{[t;x]
-  x:.stpps.upd[t;x];
-  .stplg.handles[t] enlist(`upd;t;x);
- };
-
-// Immediate mode - publish and write immediately
-upd.immediate:{[t;x]
-  x:.stpps.updtab[t]@x;
-  .stplg.handles[t] enlist(`upd;t;x);
-  .stpps.pub[t;x]
  };
 
 zts.autobatch:{
@@ -59,10 +47,23 @@ zts.autobatch:{
   ts .z.p;
  };
 
+// Standard batch mode - publish in batches, write to disk immediately
+upd.defaultbatch:{[t;x]
+  x:.stpps.upd[t;x];
+  .stplg.handles[t] enlist(`upd;t;x);
+ };
+
 zts.defaultbatch:{
   .stpps.pub'[.stpps.t;value each .stpps.t];
   @[`.;.stpps.t;@[;`sym;`g#]0#];
   ts .z.p;
+ };
+
+// Immediate mode - publish and write immediately
+upd.immediate:{[t;x]
+  x:.stpps.updtab[t]@x;
+  .stplg.handles[t] enlist(`upd;t;x);
+  .stpps.pub[t;x]
  };
 
 zts.immediate:{ts .z.p}
@@ -71,6 +72,9 @@ zts.immediate:{ts .z.p}
 
 // Live logs and handles to logs for each table
 currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
+
+// Handles view for performing lookups when writing to disk
+handles:exec tbl!handle from .stplg.currlog;
 
 // Number of update messages received for each table
 msgcount:enlist[`]!enlist ()
