@@ -45,7 +45,7 @@ TXT,:(enlist`cmdline)!enlist(
  "-P N             printdigits, default 7, 0=>all";
  "-q               quiet, no startup banner text";
  "-r :H:P          replicate from :host:port ";
- "-s N             slaves for parallel execution";
+ "-s N             secondary processes for parallel execution";
  "-t N             timer milliseconds";
  "-T N             timeout seconds(applies to all client queries)";
  "-u F             usr:pwd file, no access above start directory";
@@ -275,7 +275,7 @@ TXT,:(enlist`syscmd)!enlist(
  "\\p [i]       port (0 turns off)";
  "\\P [7]       print digits(0-all)";
  "\\r old new   unix mv ";
- "\\s           number of slaves (query only) ";
+ "\\s           number of secondary processes (query only) ";
  "\\S [-314159] seed";
  "\\t [i]       timer [x] milliseconds (1st fire after delay)";
  "\\t expr      time expression ";
