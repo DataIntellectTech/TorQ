@@ -10,6 +10,7 @@ writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
 resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
+advancedres:([]procs;`$();funct:`$();table:`$();resultkeys:`$();resulttables:());
 
 /- called at every EOD by .u.end
 init:{
@@ -30,10 +31,16 @@ init:{
 /- update results table with results
 updresultstab:{[proc;fn;params;tab;resinput]
   .lg.o[`updresultstab;"Updating results for ",(string fn)," from proc ",string proc];
-  if[not 11h=abs type params`col; params[`col]:`];
-  `.dqe.resultstab insert (proc;fn1:last` vs fn;tab;params`col;resinput);
-  s:exec i from .dqe.resultstab where procs=proc,funct=fn1,table=tab,column=params[`col];
-  .dqe.tosavedown[`.dqe.resultstab],:s;
+  if[type resinput=7h;
+    if[not 11h=abs type params`col; params[`col]:`];
+    `.dqe.resultstab insert (proc;fn1:last` vs fn;tab;params`col;resinput);
+    s:exec i from .dqe.resultstab where procs=proc,funct=fn1,table=tab,column=params[`col];
+    .dqe.tosavedown[`.dqe.resultstab],:s;]
+  if[type resinput<>7h;
+    if[not 11=abs type params`tab;params[`tab]:`];
+    `.dqe.advancedres insert (proc;fnl;last` vs fn;params`tab;tab;resinput);
+    s:exec i from .dqe.advancedres where procs=proc,funct=fn1,table=params[`tab],resultkeys=tab;
+    .dqe.tosavedown[`.dqe.advancedres],:s;]
   }
 
 qpostback:{[proc;query;params;querytype;result]
