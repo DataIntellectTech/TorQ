@@ -82,6 +82,6 @@ initcheck:{
 initcheck[]
 
 //Timers
-.timer.repeat[.z.p;0Wp;.monitor.runcheckinterval;(`runnow;`);"run the monitoring checks"]
-.timer.repeat[.z.p;0Wp;.monitor.checkinginterval;(`checkruntime;.monitor.lagtime);"update status if running slow"]
-.timer.repeat[.z.p;0Wp;.monitor.cleartrackinterval;(`cleartracker;.monitor.agecheck);"delete rows if over certain age"]
+.timer.repeat[.proc.cp[];0Wp;.monitor.runcheckinterval;(`runnow;`);"run the monitoring checks"]
+.timer.repeat[.proc.cp[];0Wp;.monitor.checkinginterval;(`checkruntime;.monitor.lagtime);"update status if running slow"]
+.timer.repeat[.proc.cp[];0Wp;.monitor.cleartrackinterval;(`cleartracker;.monitor.agecheck);"delete rows if over certain age"]
