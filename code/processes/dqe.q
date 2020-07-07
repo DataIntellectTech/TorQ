@@ -38,7 +38,7 @@ updresultstab:{[proc;fn;params;tab;resinput]
     .dqe.tosavedown[`.dqe.resultstab],:s;]
   if[type resinput<>7h;
     if[not 11=abs type params`tab;params[`tab]:`];
-    `.dqe.advancedres insert (proc;fnl;last` vs fn;params`tab;tab;resinput);
+    `.dqe.advancedres insert (proc;fnl:last` vs fn;params`tab;tab;resinput);
     s:exec i from .dqe.advancedres where procs=proc,funct=fn1,table=params[`tab],resultkeys=tab;
     .dqe.tosavedown[`.dqe.advancedres],:s;]
   }
