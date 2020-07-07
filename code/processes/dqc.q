@@ -34,8 +34,8 @@ init:{
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
-  update starttime:.z.d+starttime from `.dqe.configtable;
-  update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
+  update starttime:($(.z.D,.z.d)gmttime)+starttime from `.dqe.configtable;
+  update endtime:?[0W=endtime;0Wp;($(.z.D,.z.d)gmttime)+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
