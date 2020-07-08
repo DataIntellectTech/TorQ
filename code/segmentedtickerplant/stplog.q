@@ -28,9 +28,15 @@ logname[`none]:{[dir;tab;logfreq;dailyadj]
 
 // Custom mode
 // Periodic-only mode
-// TO DO - Add tabular-only mode, mixed periodic/tabular mode
+// Tabular-only mode
+// Custom function option
 logname[`custom]:{[dir;tab;logfreq;dailyadj]
-  ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
+  if[.stplg.customlogmode~`period;
+    :` sv(hsym dir;`$"customperiod",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])];
+  if[.stplg.customlogmode~`tabular;
+    :` sv(hsym dir;`$string[tab],"_",ssr[;;""]/[string .z.d;":.D"])];
+  if[.stplg.customlogmode~`custom;
+    :.stplg.lognamefunc[dir;tab;logfreq;dailyadj]];
  };
 
 ///////////////////////////////////////////////////////////////////////////////////////
