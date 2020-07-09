@@ -10,7 +10,7 @@ writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
 resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
-advancedres:([]procs;`$();funct:`$();table:`$();resultkeys:`$();resulttables:());
+advancedres:([]procs:`$();funct:`$();table:`$();resultkeys:`$();resulttables:());
 
 /- called at every EOD by .u.end
 init:{
