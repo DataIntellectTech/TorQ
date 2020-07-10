@@ -138,7 +138,6 @@ top() {
 
 stop() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
-  echo $1
   host=$(getfield "$procno" "host")
   if [[ $host == "localhost" || $host == `hostname -i`  ||
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
