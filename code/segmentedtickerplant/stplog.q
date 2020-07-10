@@ -18,7 +18,7 @@ logname:enlist[`]!enlist ()
 // Default stp mode is tabperiod
 // TP log rolled periodically (default 1 hr), 1 log per table
 logname[`tabperiod]:{[dir;tab;logfreq;dailyadj]
-  ` sv(hsym dir;`$string[tab],ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])
+  ` sv(hsym dir;`$string[tab],raze[string"du"$logfreq xbar .z.p+dailyadj]except".:")
  };
 
 // Standard TP mode - write all tables to single log, roll daily
@@ -26,17 +26,19 @@ logname[`none]:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",ssr[;;""]/[string .z.d;":.D"])
  };
 
+logname[`periodic]:{[dir;tab;logfreq;dailyadj]
+  ` sv(hsym dir;`$"periodic",raze[string"du"$logfreq xbar .z.p+dailyadj]except".:")
+ };
+
+logname[`tabular]:{[dir;tab;logfreq;dailyadj]
+  ` sv(hsym dir;`$string[tab],"_",[string .z.d]except".")
+ };
+
 // Custom mode
 // Periodic-only mode
-// Tabular-only mode
-// Custom function option
+// TO DO - Add tabular-only mode, mixed periodic/tabular mode
 logname[`custom]:{[dir;tab;logfreq;dailyadj]
-  if[.stplg.customlogmode~`period;
-    :` sv(hsym dir;`$"customperiod",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])];
-  if[.stplg.customlogmode~`tabular;
-    :` sv(hsym dir;`$string[tab],"_",ssr[;;""]/[string .z.d;":.D"])];
-  if[.stplg.customlogmode~`custom;
-    :.stplg.lognamefunc[dir;tab;logfreq;dailyadj]];
+  ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
  };
 
 ///////////////////////////////////////////////////////////////////////////////////////
