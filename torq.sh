@@ -280,7 +280,7 @@ runtop() {
   checkextrascsv "$*";
   if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $(echo $input|wc -w) -ne 1 ]]; then
     echo "ERROR: Cannot run top command for more than one process at a time"
-  else                                                                              # checks if extra flags/csv included
+  else                                                                              
     for p in $PROCS; do
       top "$p";
     done
