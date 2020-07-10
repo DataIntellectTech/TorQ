@@ -127,8 +127,18 @@ summary() {
   fi
  }
 
+top() {
+  pid=$(findproc "$1");
+  if [[ -z $pid ]]; then
+    echo "ERROR: Cannot run top because process is not running";
+  else
+    q top.q $pid;
+  fi      
+ }
+
 stop() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+  echo $1
   host=$(getfield "$procno" "host")
   if [[ $host == "localhost" || $host == `hostname -i`  ||
         ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
@@ -266,6 +276,17 @@ startprocs() {
   done
  }
 
+runtop() {
+  checkextrascsv "$*";
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $(echo $input|wc -w) -ne 1 ]]; then
+    echo "ERROR: Cannot run top command for more than one process at a time"
+  else                                                                              # checks if extra flags/csv included
+    for p in $PROCS; do
+      top "$p";
+    done
+  fi
+ }
+
 stopprocs() {
   if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
     cmd="kill -9"
@@ -341,6 +362,7 @@ usage() {
   printf -- "  qcon <processname> <username>:<password> to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
+  printf -- "  top <processname>                        to show top.q statistics for a single process"
   printf -- "Optional flags:\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
@@ -364,6 +386,9 @@ case $1 in
     echo Restarting $PROCS...
     stopprocs "$@";
     startprocs "$*";
+    ;;
+  top)
+    runtop "$@";
     ;;
   debug)
     rundebug "$@";
