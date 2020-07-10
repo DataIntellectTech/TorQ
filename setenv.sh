@@ -1,62 +1,37 @@
 #!/bin/bash
 
-# if running the kdb+tick example, change these to full paths
-# some of the kdb+tick processes will change directory, and these will no longer be valid
-
-# get absolute path to setenv.sh directory
 if [ "-bash" = $0 ]; then
   dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 else
   dirpath="$(cd "$(dirname "$0")" && pwd)"
 fi
 
-export TORQHOME=${dirpath}
-export KDBCONFIG=${TORQHOME}/config
-export KDBCODE=${TORQHOME}/code
-export KDBLOG=${TORQHOME}/logs
-export KDBSTPLOG=${TORQHOME}/stplogs
+export TORQHOME=$dirpath                                                                            # if running the kdb+tick example, change these to full paths
+export TORQDATA=$dirpath                                                                            # some of the kdb+tick processes will change directory, and these will no longer be valid
+export TORQAPPHOME=$dirpath
+
+export KDBLOG=${TORQDATA}/logs
 export KDBHTML=${TORQHOME}/html
 export KDBLIB=${TORQHOME}/lib
-export KDBHDB=${TORQHOME}/hdb
-export KDBWDB=${TORQHOME}/wdbhdb
-export KDBDQCDB=${TORQHOME}/dqe/dqcdb/database
-export KDBDQEDB=${TORQHOME}/dqe/dqedb/database
-export KDBTPLOG=${TORQHOME}/tplogs
+export KDBCONFIG=${TORQHOME}/config
+export KDBCODE=${TORQHOME}/code
 export KDBTESTS=${TORQHOME}/tests
+export KDBAPPCONFIG=${TORQAPPHOME}/appconfig                                                        # sets the application specific configuration directory
+export KDBAPPCODE=${TORQAPPHOME}/code
+export KDBHDB=${TORQDATA}/hdb
+export KDBWDB=${TORQDATA}/wdbhdb
+export KDBTPLOG=${TORQDATA}/tplogs
 
-# set rlwrap and qcon paths for use in torq.sh qcon flag functions
-export RLWRAP="rlwrap"
-export QCON="qcon"
+export KDBBASEPORT=6000                                                                             # set KDBBASEPORT to the default value for a TorQ Installation
+export KDBSTACKID="-stackid ${KDBBASEPORT}"
+export TORQPROCESSES=${KDBAPPCONFIG}/process.csv                                                    # set TORQPROCESSES to the default process csv
 
-# set the application specific configuration directory
-export KDBAPPCONFIG=${TORQHOME}/appconfig
-export KDBAPPCODE=${TORQHOME}/code
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l32
 
-# set KDBBASEPORT to the default value for a TorQ Installation
-export KDBBASEPORT=33939
+export DOGSTATSD_PORT=8125                                                                          # set DOGSTATSD_PORT to the default value for datadog daemon
+export DOGSTATSD_APIKEY=4f8c4802645g2d21t38622e76w5f4905					    # set DGSTATSD_APIKEY to default value
 
-# set TORQPROCESSES to the default process csv
-export TORQPROCESSES=${KDBAPPCONFIG}/process.csv
+export TORQMONIT=${TORQHOME}/logs/monit                                                             # set the folder for monit outputs
 
-# set DOGSTATSD_PORT to the default value for datadog daemon
-export DOGSTATSD_PORT=8125
-
-# if using the email facility, modify the library path for the email lib depending on OS
-# e.g. linux:
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$KDBLIB/l[32|64]
-# e.g. osx:
-# export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$KDBLIB/m[32|64]
-
-# Please input the API token obtained from IEX here
-export IEX_PUBLIC_TOKEN=""
-
-TORQSSLCERT=${KDBLOG}/torqsslcert.txt
-touch ${TORQSSLCERT}
-if [ -z "${SSL_CA_CERT_FILE}" ]; then
-  mkdir -p ${TORQHOME}/certs
-  curl -s  https://curl.haxx.se/ca/cacert.pm > ${TORQHOME}/certs/cabundle.pem
-  echo "`date`    The SSL securiity certificate has been downloaded to ${TORQHOME}/certs/cabundle.pem" </dev/null >>$TORQSSLCERT
-  export SSL_CA_CERT_FILE=${TORQHOME}/certs/cabundle.pem
-else
-  echo "`date`    The SSL security certificate already exists. If https requests fail it may be because of inappropriate certification." </dev/null >>$TORQSSLCERT
-fi
+export RLWRAP="rlwrap"                                                                              # set rlwrap path
+export QCON="qcon"                                                                                  # set qcon path
