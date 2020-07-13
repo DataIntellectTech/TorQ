@@ -10,7 +10,7 @@ writedownperiod:@[value;`writedownperiod;0D01:00:00];                           
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
 getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d).dqe.gmttime]}}];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // location of description of functions
 testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
 compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
@@ -35,8 +35,8 @@ init:{
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
-  update starttime:(`date$(.z.D,.z.d)gmttime)+starttime from `.dqe.configtable;
-  update endtime:?[0W=endtime;0Wp;($(.z.D,.z.d)gmttime)+endtime] from `.dqe.configtable;
+  update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from `.dqe.configtable;
+  update endtime:?[0W=endtime;0Wp;(`date$(.z.D,.z.d).dqe.gmttime)+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
