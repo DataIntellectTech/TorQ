@@ -132,7 +132,7 @@ top() {
   if [[ -z $pid ]]; then
     echo "ERROR: Cannot run top because process is not running";
   else
-    $QCMD top.q $pid;
+    $QCMD ${KDBCODE}/profiler/top.q $pid;
   fi      
  }
 
