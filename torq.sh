@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ "-bash" = $0 ]; then
   dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 else
