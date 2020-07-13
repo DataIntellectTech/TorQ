@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 if [ "-bash" = $0 ]; then
   dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 else
@@ -7,7 +8,7 @@ else
 fi
 
 if [ -z $SETENV ]; then
-  SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
+  SETENV=${dirpath}/setenv.sh                                                                       # set environment if not predefined
 fi
 
 if [ -z $RLWRAP ]; then
@@ -17,6 +18,10 @@ fi
 if [ -z $QCON ]; then
   QCON="qcon"                                                                                       # set environment if not predefined
 fi
+
+if [ -z $QCMD ]; then                                                                               # set environment if not predefined
+  QCMD="q"
+fi 
 
 if [ -f $SETENV ]; then                                                                             # check script exists
   . $SETENV                                                                                         # load the environment
@@ -61,11 +66,7 @@ startline() {
     a=$(parameter "$procno" "$p");                                                                  # get param
     sline="$sline$a";                                                                               # append to startup line
   done
-  qcmd=$(getfield "$procno" "qcmd")
-  if [ -z $qcmd ]; then                                                                             # if qcmd is undefined then default to q
-    qcmd="q"
-  fi
-  sline="$qcmd $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
+  sline="$QCMD $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
   echo "$sline"
  }
 
@@ -132,7 +133,7 @@ top() {
   if [[ -z $pid ]]; then
     echo "ERROR: Cannot run top because process is not running";
   else
-    q top.q $pid;
+    $QCMD top.q $pid;
   fi      
  }
 
