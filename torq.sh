@@ -361,7 +361,7 @@ usage() {
   printf -- "  qcon <processname> <username>:<password> to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
-  printf -- "  top <processname>                        to show top.q statistics for a single process"
+  printf -- "  top <processname>                        to show top.q statistics for a single process\n"
   printf -- "Optional flags:\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
