@@ -67,7 +67,7 @@ loadtimer:{[d]
 /- adds today's date to the time from config csv, before loading the queries to the timer
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
-  t:update starttime:(`date$(.z.D,.z.d)gmttime)+starttime from t;
+  t:update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
 
