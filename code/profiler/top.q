@@ -1,7 +1,7 @@
-if[`l64<>.z.o; -2"error: linux 64-bit is required";exit 0]
+if[`l64<>.z.o; -2"error: linux 64-bit is required";exit 1]
 if[4>.z.K;-2"error: KDB+ 4.0 or higher required, currently using KDB+ ", .Q.f[1;.z.K];exit 1]
-if[2=count .z.x;(`$"::",.z.x 0).z.i;system"l ",.z.x 1;exit 2]
-if[1<>count .z.x;-2"usage: q ",string[.z.f]," script.q|pid";exit 3]
+if[2=count .z.x;(`$"::",.z.x 0).z.i;system"l ",.z.x 1;exit 0]
+if[1<>count .z.x;-2"usage: q ",string[.z.f]," script.q|pid";exit 1]
 qcmd:$[""~getenv[`QCMD];"q ";getenv[`QCMD]," "]
 
 i:0p;T:([name:();file:();line:();col:();text:()]total:0#0;self:0#0)
