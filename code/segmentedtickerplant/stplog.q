@@ -11,7 +11,7 @@ createdld:{[name;date]
   ]
  };
 
-// Functions to generate log names in one of three modes //////////////////////////////
+// Functions to generate log names in one of five modes ///////////////////////////////
 
 logname:enlist[`]!enlist ()
 
@@ -26,11 +26,24 @@ logname[`none]:{[dir;tab;logfreq;dailyadj]
   ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",ssr[;;""]/[string .z.d;":.D"])
  };
 
-// Custom mode
-// Periodic-only mode
-// TO DO - Add tabular-only mode, mixed periodic/tabular mode
+// Periodic-only mode - write all tables to single log, roll periodically intraday
+logname[`periodic]:{[dir;tab;logfreq;dailyadj]
+  ` sv(hsym dir;`$"periodic",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"])
+ };
+
+// Tabular-only mode - write tables to separate logs, roll daily
+logname[`tabular]:{[dir;tab;logfreq;dailyadj]
+  ` sv(hsym dir;`$string[tab],"_",string[.z.d]except".")
+ };
+
+// Custom mode - mixed periodic/tabular mode
+// Tables are defined as periodic or tabular in config file stpcustom.csv
+// Tables not specified in csv default to tabperiod
 logname[`custom]:{[dir;tab;logfreq;dailyadj]
-  ` sv(hsym dir;`$"custom",ssr[;;""]/[-13_string logfreq xbar .z.p+dailyadj;":.D"]) 
+  $[tab in key custommode;
+    logname[custommode tab][dir;tab;logfreq;dailyadj];
+    logname[`tabperiod][dir;tab;logfreq;dailyadj]
+  ]
  };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -132,13 +145,14 @@ endofperiod:{
   .eodtime.currperiod:.eodtime.nextperiod;
   if[.z.p>.eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
-  rolllog[multilog;dldir;t;multilogperiod;0D01];
+  rolllog[multilog;dldir;rolltabs;multilogperiod;0D01];
  };
 
 endofday:{
   .stpps.end d;
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"];
   .eodtime.dailyadj:.eodtime.getdailyadjustment[];
+  .stpm.updmeta[multilog][`close;t;.z.p];
   closelog each t;
   init[];
  };
@@ -154,9 +168,10 @@ init:{
   i::0;
   @[`.stplg.msgcount;t;:;0];
   totalmsgcount::0;
+  rolltabs::$[multilog~`custom;t except where custommode=`tabular;t];
   .eodtime.currperiod:multilogperiod xbar .z.p;
   .eodtime.nextperiod:.eodtime.getperiod[.z.p;multilogperiod;.eodtime.currperiod];
-  createdld[`database;.z.d];
+  createdld[`database;d];
   openlog[multilog;dldir;;0D00:00:00.001;0D00]each t;
   .stplg.handles::exec tbl!handle from .stplg.currlog;
   .stpm.updmeta[multilog][`open;t;.z.p];
