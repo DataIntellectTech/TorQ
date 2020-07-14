@@ -22,8 +22,11 @@ $[`schemafile in key .proc.params;
 // TO DO - add function to load user-sepcified updtab funcs
 @[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
 
-// In none mode, revert to standard tickerplant logging, intraday rolling not required
-if[.stplg.multilog~`none;.stplg.multilogperiod:1D]
+// In none or tabular mode, intraday rolling not required
+if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D]
+
+// In custom mode, load logging type for each table
+if[.stplg.multilog~`custom;.stplg.custommode:1_(!) . ("SS";",")0: .stplg.customcsv]
 
 init:{[b]
   .u.upd:{[b;t;x]
@@ -44,7 +47,7 @@ init:{[b]
 
 // Initialise process
 
-// Creates log directory, opens all table logs, defines logging period
+// Create log directory, open all table logs, define logging period
 .stplg.init[]
 
 // Set update and publish modes
