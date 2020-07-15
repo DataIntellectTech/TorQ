@@ -7,13 +7,16 @@ before,0,0,q,.stplg.t:.stplg.t except `KUT`KUTR,1,,"Remove k4 tables from log ta
 before,0,0,q,testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy),1,,"Create test trade update"
 before,0,0,q,testquote:(10?`4;10?100.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3),1,,"Create
 test quote update"
-true,0,0,q,.stplg.currlog[`trade;`logname]~first exec logname from .stpm.metatable where `trade in/: tbls,1,,"Check logname saved to meta table"
-true,0,0,q,.stplg.currlog[`quote;`logname]~first exec logname from .stpm.metatable where `quote in/: tbls,1,,"Check logname saved to meta table"
+true,0,0,q,currlog[`trade;`logname]~first exec logname from .stpm.metatable where `trade in/: tbls,1,,"Check logname saved to meta table"
+true,0,0,q,currlog[`quote;`logname]~first exec logname from .stpm.metatable where `quote in/: tbls,1,,"Check logname saved to meta table"
+true,0,0,q,currlog[`heartbeat;`logname]~first exec logname from .stpm.metatable where `heartbeat in/: tbls,1,,"Check logname saved to meta table"
 true,0,0,q,(0#trade)~first (exec schema from .stpm.metatable where `trade in/: tbls)[`trade],1,,"Check schema saved to meta table"
 true,0,0,q,(0#quote)~first (exec schema from .stpm.metatable where `quote in/: tbls)[`quote],1,,"Check schema saved to meta table"
 true,0,0,q,all 0=.stpm.metatable[`msgcount],1,,"Check no records listed in log"
 true,0,0,q,`trade`trade_iex in .stpm.metatable[`tbls],1,,"Check both trade tables saved to single meta record"
 true,0,0,q,`quote in .stpm.metatable[`tbls],1,,"Check quote tables saved to separate meta records"
+true,0,0,q,`heartbeat in .stpm.metatable[`tbls],1,,"Check heartbeat saved to separate meta records"
+true,0,0,q,not any `logmsg in/: .stpm.metatable[`tbls],1,,"Check logmsg not in meta records"
 true,0,0,q,1<count .stpm.metatable,1,,"Check multiple meta records
 true,0,0,q,all ("v"$.z.p)="v"$.stpm.metatable[`start],1,,"Check correct start time listed for log"
 true,0,0,q,all null .stpm.metatable[`end],1,,"Check no end time listed for log"

@@ -10,12 +10,12 @@ metatable:([]seq:`int$();logname:`$();start:`timestamp$();end:`timestamp$();tbls
 updmeta:enlist[`]!enlist ()
 
 updmeta[`tabperiod]:{[x;t;p]
-  getmeta[x;p;;]'[enlist each t;.stplg.currlog[([]tbl:t)]`logname];
+  getmeta[x;p;;]'[enlist each t;`..currlog[([]tbl:t)]`logname];
   (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
  };
 
 updmeta[`none]:{[x;t;p]
-  getmeta[x;p;t;.stplg.currlog[first t]`logname];
+  getmeta[x;p;t;`..currlog[first t]`logname];
   (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
  };
 
