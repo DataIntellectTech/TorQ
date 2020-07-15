@@ -7,19 +7,26 @@ metatable:([]seq:`int$();logname:`$();start:`timestamp$();end:`timestamp$();tbls
 
 // Functions to update meta data for all logs in each logging mode
 // Meta is updated only when opening and closing logs
-updmeta.tabperiod:{[x;t;p]
-  getmeta[x;p;;]'[enlist each t;.stplg.currlog[([]tbl:t)]`logname];
+updmeta:enlist[`]!enlist ()
+
+updmeta[`tabperiod]:{[x;t;p]
+  getmeta[x;p;;]'[enlist each t;`..currlog[([]tbl:t)]`logname];
   (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
  };
 
-updmeta.custom:{[x;t;p]
-  getmeta[x;p;t;.stplg.currlog[first t]`logname];
+updmeta[`none]:{[x;t;p]
+  getmeta[x;p;t;`..currlog[first t]`logname];
   (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
  };
 
-updmeta.none:{[x;t;p]
-  getmeta[x;p;t;.stplg.currlog[first t]`logname];
-  (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
+updmeta[`periodic]:updmeta[`none]
+
+updmeta[`tabular]:updmeta[`tabperiod]
+
+updmeta[`custom]:{[x;t;p]
+  pertabs:where `periodic=.stplg.custommode;
+  updmeta[`periodic][x;t inter pertabs;p];
+  updmeta[`tabular][x;t except pertabs;p]
  };
 
 // Logname, start time, table names and schema populated on opening
