@@ -75,7 +75,9 @@ configtimer:{[]
 
 writedownengine:{
   if[0=count .dqe.tosavedown`.dqe.resultstab;:()];
+  if[0=count .dqe.tosavedown`.dqe.advancedres;:()];
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.advancedres];`.dqe;`advancedres];
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
@@ -93,6 +95,7 @@ writedownengine:{
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
+  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`advancedres;`.dqe;.dqe.tosavedown[`.dqe.advancedres]];
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
