@@ -288,7 +288,7 @@ with `system"q ..."`) as it is currently linux only
 running `.Q.prf0` otherwise it will throw a `binary mismatch` error.
 
 Assuming a process is running, you can run the code below in the command line.
-Note that this `top` currently only allows a single process as an argument and
+Note that this `top` function currently only allows a single process as an argument and
 multiple processes is not currently supported.
 
 ```
