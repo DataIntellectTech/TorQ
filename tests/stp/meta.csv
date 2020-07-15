@@ -6,8 +6,8 @@ before,0,0,q,quotemeta:last select from .stpm.metatable where `quote in/: tbls,1
 before,0,0,q,testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy),1,,"Create test trade update"
 before,0,0,q,testquote:(10?`4;10?100.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3),1,,"Create
 test quote update"
-true,0,0,q,.stplg.currlog[`trade;`logname]~trademeta[`logname],1,,"Check logname saved to meta table"
-true,0,0,q,.stplg.currlog[`quote;`logname]~quotemeta[`logname],1,,"Check logname saved to meta table"
+true,0,0,q,currlog[`trade;`logname]~trademeta[`logname],1,,"Check logname saved to meta table"
+true,0,0,q,currlog[`quote;`logname]~quotemeta[`logname],1,,"Check logname saved to meta table"
 true,0,0,q,(0#trade)~trademeta[`schema][`trade],1,,"Check schema saved to meta table"
 true,0,0,q,(0#quote)~quotemeta[`schema][`quote],1,,"Check schema saved to meta table"
 true,0,0,q,0=trademeta[`msgcount],1,,"Check no records listed in log"

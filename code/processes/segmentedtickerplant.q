@@ -15,28 +15,30 @@ $[`schemafile in key .proc.params;
  ]
 
 // Populate pub/sub tables list with schema tables
-.stpps.t:tables`.;
+.stpps.t:tables[`.]except `currlog;
 
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
 // TO DO - add function to load user-sepcified updtab funcs
 @[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
 
-// In none mode, revert to standard tickerplant logging, intraday rolling not required
-if[.stplg.multilog~`none;.stplg.multilogperiod:1D]
+// In none or tabular mode, intraday rolling not required
+if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D]
+
+// In custom mode, load logging type for each table
+if[.stplg.multilog~`custom;.stplg.custommode:1_(!) . ("SS";",")0: .stplg.customcsv]
 
 init:{[b]
   .u.upd:{[b;t;x]
     .stplg.totalmsgcount+:1;
     // Type check allows update messages to contain multiple tables/data
-    $[0h<type t;.stplg.upd[b]'[t;x];.stplg.upd[b][t;x]]
+    $[0h<type t;.stplg.upd[b]'[t;x];.stplg.upd[b][t;x]];
     @[`.stplg.msgcount;t;+;1];
   }[b;;];
   .z.ts:.stplg.zts[b];
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
     .stplg.openlogerr[.stplg.dldir];
-    .stplg.handles::.stplg.handles,exec tbl!handle from .stplg.currlog where tbl=`err;
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
@@ -44,7 +46,7 @@ init:{[b]
 
 // Initialise process
 
-// Creates log directory, opens all table logs, defines logging period
+// Create log directory, open all table logs, define logging period
 .stplg.init[]
 
 // Set update and publish modes
