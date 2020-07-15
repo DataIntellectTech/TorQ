@@ -15,10 +15,10 @@ if [ -z $RLWRAP ]; then
 fi
 
 if [ -z $QCON ]; then
-  QCON="qcon"                                                                                       # set environment if not predefined
+  QCON="qcon"                                                                                       # set default value if not already defined
 fi
 
-if [ -z $QCMD ]; then                                                                               # set environment if not predefined
+if [ -z $QCMD ]; then                                                                               # set default value if not already defined
   QCMD="q"
 fi 
 
