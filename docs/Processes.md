@@ -1256,7 +1256,7 @@ r result value passes the conditions specified by the resultchecker function.
 This example checks whether the trade table within the rdb is larger than 10.
 As this is true, the status has been set to 1h and no error message
 has been returned. This information is inserted into the `checkstatus` table, 
-which is the master table where all results are stored. 
+which is the primary table where all results are stored. 
 
     q)checkstatus
     checkid| family    metric     process lastrun                       nextrun                       status executiontime        totaltime            timerstatus running result

@@ -23,7 +23,7 @@ err[`size]:{"pm: returned value exceeds maximum permitted size"}
 / determine whether the system outputs booleans (permission check only) or evaluates query
 runmode:@[value;`runmode;1b]
 
-/ determine whether unlisted variables are auto-whitelisted
+/ determine whether unlisted variables are auto-allowlisted
 permissivemode:@[value; `permissivemode; 0b]
 
 / schema
