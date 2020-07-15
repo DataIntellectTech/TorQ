@@ -24,7 +24,7 @@ logname:enlist[`]!enlist ()
 // Default stp mode is tabperiod
 // TP log rolled periodically (default 1 hr), 1 log per table
 logname[`tabperiod]:{[dir;tab;p]
-   ` sv(hsym dir;`$string[tab],raze[string"du"$p]except".:")
+  ` sv(hsym dir;`$string[tab],raze[string"du"$p]except".:")
  };
 
 // Standard TP mode - write all tables to single log, roll daily
@@ -146,7 +146,7 @@ endofperiod:{
  };
 
 endofday:{
-  .stpps.end d;
+  .stpps.end .eodtime.d;
   if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";'"next roll is in the past"];
   .stpm.updmeta[multilog][`close;logtabs;.z.p];
   closelog each logtabs;
