@@ -7,7 +7,7 @@ else
 fi
 
 if [ -z $SETENV ]; then
-  SETENV=${dirpath}/setenv.sh                                                                       # set the environment if not predefined
+  SETENV=${dirpath}/setenv.sh                                                                       # set environment if not predefined
 fi
 
 if [ -z $RLWRAP ]; then
@@ -15,8 +15,12 @@ if [ -z $RLWRAP ]; then
 fi
 
 if [ -z $QCON ]; then
-  QCON="qcon"                                                                                       # set environment if not predefined
+  QCON="qcon"                                                                                       # set default value if not already defined
 fi
+
+if [ -z $QCMD ]; then                                                                               # set default value if not already defined
+  QCMD="q"
+fi 
 
 if [ -f $SETENV ]; then                                                                             # check script exists
   . $SETENV                                                                                         # load the environment
@@ -61,11 +65,7 @@ startline() {
     a=$(parameter "$procno" "$p");                                                                  # get param
     sline="$sline$a";                                                                               # append to startup line
   done
-  qcmd=$(getfield "$procno" "qcmd")
-  if [ -z $qcmd ]; then                                                                             # if qcmd is undefined then default to q
-    qcmd="q"
-  fi
-  sline="$qcmd $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
+  sline="$QCMD $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
   echo "$sline"
  }
 
@@ -125,6 +125,15 @@ summary() {
     port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
     printf "%s | %s | up | %s | %s" "$(date '+%H:%M:%S')" "$1" "$pid" "$port"                       # summary table row for running process
   fi
+ }
+
+top() {
+  pid=$(findproc "$1");
+  if [[ -z $pid ]]; then
+    echo "ERROR: Cannot run top because process is not running";
+  else
+    $QCMD ${KDBCODE}/profiler/top.q $pid;
+  fi      
  }
 
 stop() {
@@ -266,6 +275,17 @@ startprocs() {
   done
  }
 
+runtop() {
+  checkextrascsv "$*";
+  if [[ $(echo $PROCS | wc -w) -gt 1 ]] || [[ $(echo $input|wc -w) -ne 1 ]]; then
+    echo "ERROR: Cannot run top command for more than one process at a time"
+  else                                                                              
+    for p in $PROCS; do
+      top "$p";
+    done
+  fi
+ }
+
 stopprocs() {
   if [[ $(echo ${BASH_ARGV[*]} | grep -e -force) ]]; then                                           # check for force flag
     cmd="kill -9"
@@ -341,6 +361,7 @@ usage() {
   printf -- "  qcon <processname> <username>:<password> to qcon process\n"
   printf -- "  procs                                    to list all processes\n"
   printf -- "  summary                                  to view summary table\n"
+  printf -- "  top <processname>                        to show top.q statistics for a single process\n"
   printf -- "Optional flags:\n"
   printf -- "  -csv <fullcsvpath>                       to run a different csv file\n"
   printf -- "  -extras <args>                           to add/overwrite extras to the start line\n"
@@ -364,6 +385,9 @@ case $1 in
     echo Restarting $PROCS...
     stopprocs "$@";
     startprocs "$*";
+    ;;
+  top)
+    runtop "$@";
     ;;
   debug)
     rundebug "$@";
