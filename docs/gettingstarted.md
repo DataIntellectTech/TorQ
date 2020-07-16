@@ -278,14 +278,8 @@ Using the Code Profiler with torq.sh
 
 KDB 4.0 includes an experimental built-in call-stack snapshot primitive that allows
 building a sampling profiler.  The profiler uses the new function [`.Q.prf0`](https://code.kx.com/q/ref/dotq/#qprf0-code-profiler). 
-As of now, this function has the following requirements:
 
-- Must be running KDB+ 4.0 or higher
-- Currently implemented for x86_64 Linux only (kdb+ `l64`).
-- By default, processes can only profile their direct children (*i.e.* started
-with `system"q ..."`) as it is currently linux only
-- The process to be profiled must be started from the same binary as the one 
-running `.Q.prf0` otherwise it will throw a `binary mismatch` error.
+Requirements and documentation of the new code profiler by kx can be found [here](https://code.kx.com/q/kb/profiler/).
 
 Assuming a process is running, you can run the code below as an example in the command line.
 Note that this `top` function currently only allows a single process as an argument and

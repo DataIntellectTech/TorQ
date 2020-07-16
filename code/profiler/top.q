@@ -1,3 +1,5 @@
+// top.q by kx - https://code.kx.com/q/kb/profiler/
+
 if[`l64<>.z.o; -2"error: linux 64-bit is required";exit 1]
 if[4>.z.K;-2"error: KDB+ 4.0 or higher required, currently using KDB+ ", .Q.f[1;.z.K];exit 1]
 if[2=count .z.x;(`$"::",.z.x 0).z.i;system"l ",.z.x 1;exit 0]
