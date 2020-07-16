@@ -555,6 +555,79 @@ The modifications from the standard tick.q include:
 
 The tickerplant log file will be written to hdb/database.
 
+<a name="segmentedtickerplant"></a>
+
+Segmented Tickerplant
+---------------------
+
+The segmented tickerplant is an alternative to the standard tickerplant process 
+which affords greater flexibility to the user. Logging and publishing of data 
+can be configured in a variety of operating modes.
+
+# Logging
+
+Standard tickperplant set ups are designed such that updates for all tables 
+are logged to a single file which rolls on a daily basis. The key purpose 
+of the segmented tickerplant is to allow the user to instead log updates
+ to distinct files which roll periodically throughout the day. This 
+segmentation of the logged data facilitates efficient data recovery.
+
+The logging method that the segmented tickerplant will use is determined
+ by the value taken by the `multilog` flag in the settings directory.
+`multilog` can be set to one of five distinct modes:
+
+-   `tabperiod`: A single log file is generated for each table in the
+    tickerplant. All log files are rolled periodically (the length of
+    an intraday time period is specified by `multilogperiod`);
+
+-   `none`: Standard tickerplant logging, .i.e all tables write to a single
+    log which rolls at the end of each day;
+
+-   `periodic`: All tables write to a single log which rolls periodically;
+
+-   `tabular`: Tables write to separate log files which each roll daily;
+
+-   `custom`: Allows the user to specify the logging method on a table-
+    by-table basis. A subset of tables can be logged to a single,
+    periodic file, while the others can be written in tabular mode. User
+    can also request a particular table to be logged in tabperiod mode
+    or not be logged at all. Logging specifications for custom mode
+    are inputted through the stpcustom.csv file.
+
+# Processing Updates
+
+In addition to enhanced logging features, the segmented tickerplant affords
+the user greater flexibility in method used to process of updates. The process
+ is able to operate in three possible batching modes, specified by the 
+`batchmode` flag:
+
+-   `autobatch`: Updates are stored on the tickerplant and then published 
+    in batches by the timer function. The timer also initiates the disk-write 
+    for all updates in the batch to the appropriate log files;
+
+-   `defaultbatch`: Publish is performed in batches by the timer function,
+    while disk-write is performed immediately on every update;
+
+-   `immediate`: Publish and disk-write are both performed immediately for
+    all updates.
+
+The segmented tickerplant is also capable of processing updates which 
+contain multiple messages with data corresponding to different tables.
+
+# Subscriptions
+
+The final feature of the segmented tickerplant which can be configrued is
+ client subscriptions. In default mode, the tickerplant will publish all
+updates for each table. However, the client can subscribe to a subset of
+the tables, and can also request filtered data from the subscribed tables.
+This filtered subscription can be specified to publish certain rows from
+the updates (using a where clause) or a subset of columns from the table.
+
+The tables to subscribe to, and any filters to be applied, are specified
+ in the rdbsub.csv file in the settings directory. To apply these filters
+ on subscription, the rdb client must be set to `subfiltered` mode using 
+the flag in the settings.
+
 <a name="rdb"></a>
 
 Real Time Database (RDB) 

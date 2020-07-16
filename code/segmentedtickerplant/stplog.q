@@ -156,7 +156,7 @@ endofday:{
 
 ts:{
   if[.eodtime.nextperiod < x; endofperiod[]];
-  if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]];
+  if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[]];
  };
 
 init:{
