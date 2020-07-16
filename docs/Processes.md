@@ -1495,12 +1495,17 @@ checks and usages can be found in the directory `code/dqc`.
 
 **params** - The parameters that are used by the function. The Checker
 accepts **params** as a dictionary, with `comp` and `vars` being the two
-keys. `comp` should be assigned a boolean value - when it is `1b`,comparison
-is ON and the function is then used to compare two processes. When it is
-`0b`, comparison is OFF and the function is only used in one process. The
-`var` key should have a value of all the variables that are used by the
-function. Details of the variables used by checker functions can be found
-in `config/dqedetail.csv`.
+keys when function is only used on one process, and `comp`, `compallow`,
+`compproc`, and `vars` being the four keys when function is used to compare
+two processes. `comp` should be assigned a boolean value - when it is `1b`,
+comparison is ON and the function is then used to compare two processes.
+`compallow` would then be the percentage allowed for for the difference between
+the results that are returned from the two processes. `compproc` would be the
+process that you are comparing `proc` with. `vars` would be the variable used
+for the function provided. When it is `0b`, comparison is OFF and the function
+is only used in one process. The `var` key should have a value of all the
+variables that are used by the function. Details of the variables used by
+checker functions can be found in `config/dqedetail.csv`.
 
 **proc** - The process(es) that you would want the check function to be used
 for - in symbol datatype.
@@ -1579,7 +1584,7 @@ to run manually from the console.
 
 Below, we list all the built-in checks that we offer as part of the Data Quality Checker.
 
-- `.dqc.constructchkeck` - Checks if a construct exists.
+- `.dqc.constructcheck` - Checks if a construct exists.
 - `.dqc.tableticking` - Checks if a table has obtained records within a specified time period.
 - `.dqc.chkslowsub` - Checks queues on handles to make sure there are no slow subscribers.
 - `.dqc.tablecount` - Checks a table count against a number. This can be a `>`, `<` or `=` relationship.
@@ -1594,11 +1599,12 @@ Below, we list all the built-in checks that we offer as part of the Data Quality
 - `.dqc.xmarketalert` - Tests whether the bid price has exceeded in the ask price in market data.
 - `.dqc.dfilechk` - Checks the `.d` file in the latest date partition matches the previous date values.
 - `.dqc.rangechk` - Checks whether the values of columns of a table are within a given range.
-- `.dqc.tablecountcomp` - Counts the number of rows in a table.
+- `.dqc.tablecomp` - Counts the number of rows in a table, used for comparison between two processes
 - `.dqc.pctAvgDailyChange` - Checks if a function applied to a table is within the threshold limits of an n-day average.
-
-
-
+- `.dqc.symfilegrowth` - Checks if today's sym file count has grown more than a certain percentage
+- `.dqc.timdiff` - Checks if idfferences between time columns are over a certain limit
+- `.dqc.memoryusage` - Checks percentage of memory usage compared to max memory
+- `.dqc.refdatacheck` - Checks whether the referenced column of a table is in another column of another table
 
 **New Custom Check**
 To add custom checks, create a new q file in /code/dqc. The new q script
@@ -1644,15 +1650,41 @@ customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00
 To add a check that compares two processes, the check function would have to return
 a mixed listed with three atoms. The first two being the same as above, and the third being
 a numeric value. The numeric value would be what is compared between the two processes.
+
+Below is a sample of a qscript named customcheck.q, with the function customcheck,
+written in pseudo-code for reference to compare two processes:
+
+```
+\d .dqc
+
+customcheck:{[variable1;variable2]
+  $[variable1~variable2;
+    (1b;"Description if the function ran successfully";count variable1);
+    (0b;"Description if the function failed to run";avg variable2)]
+  }
+```
+
 Secondly, the line in dqcconfig.csv should be modified. As mentioned above, the `params`
 parameter would now have to be changed, and two additional dictionary keys would have to be
-added. As an example, if we were to run the function constructcheck comparing `hdb1` and `hdb2`,
+added. As an example, if we were to run the function customcheck comparing `hdb1` and `hdb2`,
+with there being no difference allowed between the two results returned from the two processes,
 the line would be the following:
 
 ```
 action,params,proc,mode,starttime,endtime,period
-constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
+customcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`abc;`def)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
 ```
+
+If we were to allow for 50% difference between the results returned from the two processes using
+the function customcheck, the line would be the following:
+
+```
+action,params,proc,mode,starttime,endtime,period
+customcheck,`comp`compallow`compproc`vars!(1b;50;`hdb1;(`abc;`def)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
+```
+
+
+
 
 Data Quality Engine (DQE)
 -------

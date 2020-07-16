@@ -1,23 +1,22 @@
+/ - default parameters
 \d .dqe
 
-configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];
-dqcdbdir:@[value;`dqcdbdir;`:dqcdb];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
-gmttime:@[value;`gmttime;1b];
-partitiontype:@[value;`partitiontype;`date];
-writedownperiod:@[value;`writedownperiod;0D01:00:00];
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb // set to all so that it connects to everything
-/.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
-
-/- determine the partition value
-getpartition:@[value;`getpartition;
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
+dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
+gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on UTC time or not
+partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
+writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
+getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
-detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
+    (`date^partitiontype)$(.z.D,.z.d).dqe.gmttime]}}];
+detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // location of description of functions
+testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
+compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
 
-testing:@[value;`.dqe.testing;0b];      /- testing varible for unit tests
 
-compcounter:([id:`long$()]counter:`long$();procs:();results:());
+/ - end of default parameters
 
 /- called at every EOD by .u.end
 init:{
@@ -36,8 +35,8 @@ init:{
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
-  update starttime:.z.d+starttime from `.dqe.configtable;
-  update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
+  update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from `.dqe.configtable;
+  update endtime:?[0W=endtime;0Wp;(`date$(.z.D,.z.d).dqe.gmttime)+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
@@ -94,7 +93,7 @@ initstatusupd:{[runtype;idnum;funct;params;rs]
   `.dqe.results insert (idnum;funct;parprint;rs[0];rs[1];.proc.cp[];0Np;0b;"";`started;runtype);
   }
 
-/- general function used to update a check in the results table
+/- updates a check in the results table
 updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   if[1b=params`comp;proc:params`compresproc];
   /- obtain count of checks that will be updated
@@ -109,9 +108,9 @@ updresultstab:{[runtype;idnum;end;res;des;status;params;proc]
   .lg.o[`updresultstab;"Updated check id ",(string idnum)," in the results table with status ",string status];
   }
 
-/- function to compare the checks
+/- compares the third atom of results when comparison is on
 chkcompare:{[runtype;idnum;params]
-  /- checks if all async check results have returned
+  /- checks if all async check results have returned - if not, exit the function
   if[params[`compcount]<>(d:.dqe.compcounter idnum)`counter;:()];
   .lg.o[`chkcompare;"comparison started with id ",string idnum];
   /- obtain all the check returns
@@ -141,7 +140,7 @@ chkcompare:{[runtype;idnum;params]
   .dqe.updresultstab[runtype;idnum;.proc.cp[];resbool;s;`complete;params;`];
   }
 
-/- function that updates the results table with the check result
+/- updates the results table with the check result
 postback:{[runtype;idnum;proc;params;result]
   .lg.o[`postback;"postback successful for id ",(string idnum)," from ",string proc];
   /- if comparision, add to compcounter table
@@ -163,7 +162,7 @@ postback:{[runtype;idnum;proc;params;result]
     .dqe.updresultstab[runtype;idnum;.proc.cp[];first result;result[1];`complete;params;proc]];
   }
 
-/- function that sends the check function over async
+/- sends the check function over async
 getresult:{[runtype;funct;params;idnum;proc;hand]
   .lg.o[`getresults;raze"Send function over to process: ",string proc];
   fvars:params[`vars] params`fnpar;
@@ -171,7 +170,7 @@ getresult:{[runtype;funct;params;idnum;proc;hand]
   .async.postback[hand;(funct,$[10h=type fvars;enlist fvars;fvars]);.dqe.postback[runtype;idnum;proc;params]];
   }
 
-/- function used to send other function to test processes
+/- sends check function to test processes
 runcheck:{[runtype;idnum;fn;params;rs]
   .lg.o[`runcheck;"Starting check run ",string idnum];
   params[`fnpar]:(value value fn)[1];
@@ -185,7 +184,9 @@ runcheck:{[runtype;idnum;fn;params;rs]
 
   /- set rs to a list
   rs:(),rs;
+  /- h would be assigned to a dictionary with the process' procname, proctype, and handle
   h:.dqe.gethandles[rs];
+  /- r would be assigned to a list with two atoms, containing process' procname and proctype
   r:.dqe.fillprocname[rs;h];
 
   .lg.o[`runcheck;"Checking if comparison check"];
@@ -193,7 +194,7 @@ runcheck:{[runtype;idnum;fn;params;rs]
     .dqe.initstatusupd[runtype;idnum;fn;params]'[r];
 
     .lg.o[`runcheck;"checking for processes that are not connectable"];
-    if[count select from .dqe.results where id=idnum,procschk=`,chkstatus=`started;
+    if[not any raze[r]in\:exec procname from .servers.SERVERS where .dotz.liveh w;
       .dqe.updresultstab[runtype;idnum;0Np;0b;"error:can't connect to process";`failed;params;`];
     ];
     /- checks if any procs didn't get handles
@@ -259,7 +260,7 @@ reruncheck:{[chkid]
 .dqe.currentpartition:.dqe.getpartition[];
 
 
-/- setting up .u.end for dqe
+/- setting up .u.end for dqc
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
@@ -276,12 +277,11 @@ reruncheck:{[chkid]
   /- clear .u.end timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
-  .dqe.currentpartition:pt+1;
-  /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
-    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
-    .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
-    ];
+  /- sets currentpartition to fit the partitiontype provided in settings
+  .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
+  /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
+  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]
