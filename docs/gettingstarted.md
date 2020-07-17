@@ -271,8 +271,6 @@ $ ./torq.sh start rdb1 -extras -T 60 -w 4000
 $ ./torq.sh start sort1 -extras -s -3
 ```
 
-<a name="profiler">
-
 Using the Code Profiler with torq.sh
 ------------------------------------
 
