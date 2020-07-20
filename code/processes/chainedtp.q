@@ -187,13 +187,13 @@ if[not `upd in key `.; upd:.ctp.upd];
 .ps.initialise[];                                                                   
 
 /- check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.ctp.tickerplanttypes;.ctp.tpconnsleepintv;.ctp.tpcheckcycles];
+.servers.startupdepcycles[.ctp.tickerplanttypes;.ctp.tpconnsleep;.ctp.tpcheckcycles];
 
 /- subscribe to tickerplant
 .ctp.subscribe[]; 
 
 /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
-if[not notpconnected[];
+if[not .ctp.notpconnected[];
     .ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto]];
 
 /- set timer for batch update publishing
