@@ -262,7 +262,8 @@ reruncheck:{[chkid]
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
-  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
+  /- save down results and config tables
+  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`results`configtable;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
   /- send message for DBs to reload
