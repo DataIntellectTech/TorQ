@@ -113,7 +113,7 @@ writedownadvanced:{
   /- clear writedown timer on resultstab
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];
   /- clear writedown timer on advancedres
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownadvanced in' funcparam];
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.advancedres in' funcparam];
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   .dqe.currentpartition:pt+1;
