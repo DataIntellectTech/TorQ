@@ -102,9 +102,7 @@ writedownadvanced:{
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
-  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each`resultstab`advancedres;
-  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
-  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`advancedres;`.dqe;.dqe.tosavedown[`.dqe.advancedres]];
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`resultstab`advancedres;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
