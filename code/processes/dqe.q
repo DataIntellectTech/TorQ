@@ -22,10 +22,10 @@ init:{
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
-  st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
+  st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
-  .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.advancedres;`);"Running periodic writedown on advancedres"];
+  .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownadvanced;`);"Running periodic writedown on advancedres"];
   .lg.o[`init;"initialization completed"];
   }
 
@@ -102,8 +102,9 @@ writedownadvanced:{
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
-  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `resultstab`advancedtab;
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each`resultstab`advancedres;
   .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`resultstab;`.dqe;.dqe.tosavedown[`.dqe.resultstab]];
+  .dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];`advancedres;`.dqe;.dqe.tosavedown[`.dqe.advancedres]];
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
@@ -113,7 +114,7 @@ writedownadvanced:{
   /- clear writedown timer on resultstab
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];
   /- clear writedown timer on advancedres
-  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.advancedres in' funcparam];
+  .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownadvanced in' funcparam];
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   .dqe.currentpartition:pt+1;
