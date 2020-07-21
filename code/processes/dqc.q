@@ -7,7 +7,6 @@ gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 writedownperiod:@[value;`writedownperiod;0D01:00:00];
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb`dqcdb // set to all so that it connects to everything
-/.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
 
 /- determine the partition value
 getpartition:@[value;`getpartition;
