@@ -266,6 +266,9 @@ reruncheck:{[chkid]
   {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`results`configtable;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- check list of handles to DQCDBs is non-empty, we need at least one to
+  /- notify DQCDB to reload
+  if[0=count hdbs;.lg.e[`.u.end; "No handles open to the DQCDB, cannot notify DQCDB to reload."]];
   /- send message for DBs to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   /- clear check function timers
