@@ -6,7 +6,7 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];
 gmttime:@[value;`gmttime;1b];
 partitiontype:@[value;`partitiontype;`date];
 writedownperiod:@[value;`writedownperiod;0D01:00:00];
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb // set to all so that it connects to everything
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb`dqcdb // set to all so that it connects to everything
 /.servers.CONNECTIONS:`ALL // set to all so that it connects to everything
 
 /- determine the partition value
@@ -36,8 +36,9 @@ init:{
   `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
-  update starttime:.z.d+starttime from `.dqe.configtable;
-  update endtime:?[0W=endtime;0Wp;.z.d+endtime] from `.dqe.configtable;
+  dt:(.z.D;.z.d)gmttime;
+  update starttime:dt+starttime from `.dqe.configtable;
+  update endtime:?[0W=endtime;0Wp;dt+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
