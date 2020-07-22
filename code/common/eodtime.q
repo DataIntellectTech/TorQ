@@ -17,16 +17,11 @@ adjtime:{[p]
      :exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(.eodtime.rolltimezone;.z.p);
      };
 
-// function to obtain next logging period
-getperiod:{[p;np;cp]
-     z:rolltimeoffset-adjtime[p];                           // convert rolltimeoffset from rolltimezone to UTC
-     z:`timespan$(mod) . "j"$z, 1D;                         // force time adjust to be between 0D and 1D
-     cp+$[z <= p;z+np;z]                                    // if past time already today, make it next period
-     };
-
 // function to get time (in UTC) of next roll after UTC timestamp, p
 getroll:{[p]
-     getperiod[p;1D;"d"$p]
+     z:rolltimeoffset-adjtime[p];                           // convert rolltimeoffset from rolltimezone to UTC
+     z:`timespan$(mod) . "j"$z, 1D;                         // force time adjust to be between 0D and 1D
+     ("d"$p) + $[z <= p;z+1D;z]                             // if past time already today, make it tomorrow
      };
 
 // function to determine the date (in rolltimezone) from UTC timestamp, p
@@ -38,5 +33,8 @@ getday:{[p]
 d:getday[.z.p];                                             // get current date when loading process, store in d
 nextroll:getroll[.z.p];                                     // get next roll when loading process, store in nextroll
 
-currperiod:0Np                                              // current logging period (to be set on start up of stp)
-
+// function to determine next logging period
+getperiod:{[mp;cp]
+     np:cp+mp;
+     $[np>d+1;1D xbar np;np]
+     };

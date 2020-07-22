@@ -82,7 +82,15 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			/-reset the upd function back to original upd
 			@[`.;`upd;:;origupd]];
 		if[replaylog&null details[1;1];
-			.lg.e[`subscribe;"replaylog set to true but TP not using log file"]];
+			if[`tickerplant=proc`proctype;
+				.lg.e[`subscribe;"replaylog set to true but TP not using log file"]];
+			if[`segmentedtickerplant=proc`proctype;
+				.lg.o[`subscribe;"replaying stp log file"];
+				logdetails:proc[`w](`.stplg.replaylog;subtabs);
+				origupd:@[value;`..upd;{{[x;y]}}];
+				@[`.;`upd;:;.sub.replayupd[origupd;subtabs;instrs]];
+				{[d]@[{-11!x;};d;{.lg.e[`subscribe;"could not replay the log file: ", x]}]}each logdetails;
+				@[`.;`upd;:;origupd]]];
 		/-insert the details into the SUBSCRIPTIONS table
 		.lg.o[`subscribe;"subscription successful"];
 		updatesubscriptions[proc;;instrs]each subtabs];
