@@ -12,7 +12,7 @@ A discussion on which method you should use for an end-of-day sort in TorQ.
 
 [ End-of-Day Parallel Sorting ]( http://www.aquaq.co.uk/q/end-of-day-parallel-sorting-in-torq/ )
 
-Details on how TorQ utilises sortslaves to vastly speed up the end-of-day sort.
+Details on how TorQ utilises sortworkers to vastly speed up the end-of-day sort.
 
 [ Broadcast Publish ]( http://www.aquaq.co.uk/q/kdb-3-4-broadcast-publish/ )
 

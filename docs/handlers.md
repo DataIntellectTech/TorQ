@@ -272,7 +272,7 @@ below.
 The permissions script can be set to have permissive mode enabled with
 permissivemode:1b (disabled by default). When enabled at script loading,
 this bypasses access checks on variables which are not listed in the
-access table, effectively auto-whitelisting any variables not listed in
+access table, effectively auto-allowlisting any variables not listed in
 the access table for all users, which may be useful in partly restricted
 development environments.
 

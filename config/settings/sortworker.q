@@ -1,4 +1,4 @@
-// Sort Slave config
+// Sort Worker config
 
 \d .wdb
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                        // location to save wdb data
@@ -21,10 +21,10 @@ mergenumtab:`quote`trade!10000 50000    // specify number of rows per table
 hdbdir:`:hdb                            // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile["sort.csv"]              // location of csv file
 gc:1b                                   // garbage collect at appropriate points (after each table save and after sorting data)
-tickerplanttypes:rdbtypes:hdbtypes:gatewaytypes:sorttypes:sortslavetypes:()     // sortslaves don't need these connections
+tickerplanttypes:rdbtypes:hdbtypes:gatewaytypes:sorttypes:sortworkertypes:()     // sortworkers don't need these connections
 
 // Server connection details
 \d .servers
-CONNECTIONS:()                          // sortslave doesn't need to connect to other processes
+CONNECTIONS:()                          // sortworker doesn't need to connect to other processes
 STARTUP:1b                                      // create connections
 

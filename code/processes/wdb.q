@@ -38,7 +38,7 @@ tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-num
 tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed 
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
-sortslavetypes:@[value;`sortslavetypes;`sortslave];                        /-list of sort types to look for upon a sort being called with slave process
+sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
 
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
 subsyms:@[value;`subsyms;`];                                               /-list of syms to subscription to
@@ -73,10 +73,10 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 
 / - end of default parameters
 
-/ - define .z.pd in order to connect to any slave processes
+/ - define .z.pd in order to connect to any worker processes
 .z.pd:{$[.z.K<3.3;
         `u#`int$();
-	`u#exec w from .servers.getservers[`proctype;sortslavetypes;()!();1b;0b]]
+	`u#exec w from .servers.getservers[`proctype;sortworkertypes;()!();1b;0b]]
         }
 
 /- fix any backslashes on windows
@@ -269,10 +269,10 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
   $[count[.z.pd[]]&0>system"s";
-    [.lg.o[`sort;"sorting on slave sort", string .z.p];
+    [.lg.o[`sort;"sorting on worker sort", string .z.p];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
-    [.lg.o[`sort;"sorting on master sort"];
+    [.lg.o[`sort;"sorting on main sort"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
     {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
   .lg.o[`sort;"finished sorting data"];
@@ -332,10 +332,10 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
   /- merge data from partitons
   $[(0 < count .z.pd[]) and ((system "s")<0);
-    [.lg.o[`merge;"merging on slave"];
+    [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
-    [.lg.o[`merge;"merging on master"];
+    [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
   /- if path exists, delete it
@@ -511,7 +511,7 @@ getsortparams:{[]
 .wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortslavetypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt] 

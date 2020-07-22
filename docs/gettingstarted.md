@@ -271,6 +271,33 @@ $ ./torq.sh start rdb1 -extras -T 60 -w 4000
 $ ./torq.sh start sort1 -extras -s -3
 ```
 
+Using the Code Profiler with torq.sh
+------------------------------------
+
+KDB 4.0 includes an experimental built-in call-stack snapshot primitive that allows
+building a sampling profiler.  The profiler uses the new function [`.Q.prf0`](https://code.kx.com/q/ref/dotq/#qprf0-code-profiler). 
+
+Requirements and documentation of the new code profiler by kx can be found [here](https://code.kx.com/q/kb/profiler/).
+
+Assuming a process is running, you can run the code below as an example in the command line.
+Note that this `top` function currently only allows a single process as an argument and
+multiple processes is not currently supported.
+
+```
+$ ./torq.sh top rdb1
+```
+
+This uses the `top.q` script given by kx (description found [here](https://code.kx.com/q/kb/profiler/))
+which will show an automatically updated display of functions most heavily 
+contributing to the running time. The display has the following fields:
+
+|Field                            |  Description|
+|---------------------------------| ----------------------------|
+|self                             |  the percentage of time spent in the function itself|
+|total                            |  percentage of time spent in the function including all descendants|
+|name                             |  the name of the function|
+|file                             |  the file path where the function is located|
+
 
 <a name="logging"></a>
 

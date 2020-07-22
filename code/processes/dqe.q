@@ -1,16 +1,18 @@
+/ - default parameters
 \d .dqe
 
-dqedbdir:@[value;`dqedbdir;`:dqedb];
-gmttime:@[value;`gmttime;1b];
-partitiontype:@[value;`partitiontype;`date];
-getpartition:@[value;`getpartition;
+dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
+gmttime:@[value;`gmttime;1b];                                                       // define whether the process is on UTC time or not
+partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
+getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
-writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];
+writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
 
-configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]];
-resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());
+configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
+resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());      // schema for the resultstab that shows query results
 advancedres:([]procs:`$();funct:`$();table:`$();resultkeys:`$();resulttables:());
+/ - end of default parameters
 
 /- called at every EOD by .u.end
 init:{
@@ -49,6 +51,7 @@ qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback successful for ",string first proc];
   }
 
+/- sends queries to test processes
 runquery:{[query;params;querytype;rs]
   temp:(`,(value value query)[1])!(::), params;
   .lg.o[`runquery;"Starting query run for ",string query];
@@ -68,9 +71,10 @@ loadtimer:{[d]
   .timer.once[d`starttime;functiontorun;("Running check on ",string d[`proc])]
   }
 
+/- adds today's date to the time from config csv, before loading the queries to the timer
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
-  t:update starttime:((.z.D;.z.d).dqe.gmttime)+starttime from t;
+  t:update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
 
