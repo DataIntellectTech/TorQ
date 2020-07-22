@@ -70,7 +70,7 @@ loadtimer:{[d]
 
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
-  t:update starttime:.z.d+starttime from t;
+  t:update starttime:((.z.D;.z.d)gmttime)+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
 
