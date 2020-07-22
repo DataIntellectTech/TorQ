@@ -105,6 +105,9 @@ writedownadvanced:{
   {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`resultstab`advancedres;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
+  /- check list of handles to DQEDBs is non-empty, we need at least one to
+  /- notify DQEDB to reload
+  if[0=count hdbs;.lg.e[`.u.end; "No handles open to the DQEDB, cannot notify DQEDB to reload."]];
   /- send message for DBs to reload
   .dqe.notifyhdb[.os.pth .dqe.dqedbdir]'[hdbs];
   /- clear check function timers
