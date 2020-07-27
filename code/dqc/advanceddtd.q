@@ -18,13 +18,15 @@ advancedperdtd:{[tab;func;vars;percentage]
   /- specified from the last two days
   listt:{?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;x));1b;()]}each -2#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
-  advancedreslist:{first listt[x]`resulttables}each (0;1);
+  advancedreslist:{first x`resulttables}each listt;
   /- changing the column name for the table two days ago
-  advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo) xcol advancedreslist[1];
+  advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo)xcol advancedreslist[1];
+  advancedreslist[0]:((-1_cols advancedreslist[0]),`bycountone)xcol advancedreslist[0];
   /- Joining the two tables for comparision
-  joinedadvancedres:advancedreslist[0] uj advancedreslist[1];
+  joinedadvancedres:advancedreslist[0]uj advancedreslist[1];
   /- Filing in zeros for both bycount columns
-  joinedadvancedres:update bycount:0^byocunt,bycounttwo:0^bycounttwo from joinedadvancedres;
+  joinedadvancedres:update bycountone:0^bycountone,bycounttwo:0^bycounttwo from joinedadvancedres;
   /- Getting the percentage difference from two days ago to today
-  joinedadvancedres:update percentages:100*(abs bycount-bycounttwo)%bycounttwo from joinedadvancedres;
+  joinedadvancedres:update percentages:100*(abs bycountone-bycounttwo)%bycounttwo from joinedadvancedres;
+  "The following sym, ex pairs have changed more than ",(string percentage),"%: ",exec(", "sv(string sym),'" ",'ex)from joinedadvancedres where percentages>percentage
   }
