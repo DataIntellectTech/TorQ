@@ -21,7 +21,7 @@ $[`schemafile in key .proc.params;
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
 // TO DO - add function to load type-sepcified updtab funcs
-@[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
+@[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p+.eodtime.dailyadj),x}];
 
 // In none or tabular mode, intraday rolling not required
 if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];

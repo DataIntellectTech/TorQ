@@ -153,6 +153,10 @@ subscribe:{[]
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
 		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		/-apply subscription filters to replayed data
+		if[subfiltered&replaylog;
+		  applyfilters[;subscribesyms]each subscribeto
+		];
 		/-setting subtables and tplogdate globals
 		@[`.rdb;;:;]'[key subinfo;value subinfo]]}
 	
@@ -170,6 +174,11 @@ loadsubfilters:{[]
 	.sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
 	.rdb.subscribeto:raze value flip key .sub.filterparams;
 	.rdb.subscribesyms:.sub.filterparams;}
+
+applyfilters:{[t;f]
+	filts:$[null f[t]`filts;();enlist parse string f[t]`filts];
+	columns:$[null f[t]`columns;();c!c:raze parse string f[t]`columns];
+	@[`.;t;:;?[t;filts;0b;columns]];}
 
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}

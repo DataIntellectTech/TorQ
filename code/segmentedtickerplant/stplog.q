@@ -98,7 +98,6 @@ totalmsgcount:0Ni
 
 // Functions to obtain logs for client replay ////////////////////////////////////////
 // replaylog called from client-side, returns nested list of logcounts and lognames
-
 replaylog:{[t]
   getlogs[replayperiod][t]
  }
@@ -125,9 +124,9 @@ getlogs[`day]:{[t]
 // Open log for a single table at start of logging period
 openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
-  h:$[not type key lname;
+  h:$[(not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
     [.[lname;();:;()];hopen lname];
-    exec first handle from `..currlog where logname=lname
+    h0
   ];
   `..currlog upsert (tab;lname;h);
  };
@@ -156,7 +155,6 @@ closelog:{[tab]
 rolllog:{[multilog;dir;tabs;p]
   .stpm.updmeta[multilog][`close;tabs;p];
   closelog each tabs;
-  i+::1;
   @[`.stplg.msgcount;tabs;:;0];
   {[m;d;t]
     .[openlog;(m;d;t;.eodtime.currperiod);
@@ -171,13 +169,16 @@ endofperiod:{[p]
   .eodtime.currperiod:.eodtime.nextperiod;
   if[p>.eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
+  i+::1;
   rolllog[multilog;dldir;rolltabs;p];
+  totalmsgcount::0;
  };
 
 endofday:{[p]
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
   .stpm.updmeta[multilog][`close;logtabs;p];
+  .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;
   .eodtime.d+:1;
   init[];
