@@ -148,18 +148,16 @@ subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
 		if[subfiltered;
-                  @[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];
-                ];
+			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
 		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		/-setting subtables and tplogdate globals
+		@[`.rdb;;:;]'[key subinfo;value subinfo];
 		/-apply subscription filters to replayed data
 		if[subfiltered&replaylog;
-		  applyfilters[;subscribesyms]each subscribeto
-		];
-		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[key subinfo;value subinfo]]}
-	
+			applyfilters[;subscribesyms]each subscribeto except errtables];];}
+
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
 		[.lg.o[`setpartition;"setting rdbpartition from date in tickerplant log file name :",string tplogdate];tplogdate];

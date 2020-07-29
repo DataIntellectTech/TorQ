@@ -48,8 +48,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-if all the tables have been subscribed to on specified instruments
 	if[0=count subtabs; :()];
 	/-if the requested tables aren't available, ignore them and log a message
-	if[count e:subtabs except utabs;
-		.lg.o[`subscribe;"tables ",("," sv string e)," are not available to be subscribed to, they will be ignored"];
+	if[count errtabs:subtabs except utabs;
+		.lg.o[`subscribe;"tables ",("," sv string errtabs)," are not available to be subscribed to, they will be ignored"];
 		subtabs:subtabs inter utabs;];
 	/-subscribe and get the details for the tables
 	/-if replaylog is false,dont try to get the log file details - they may not exist
@@ -97,7 +97,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 		:(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])];
 	if[`segmentedtickerplant=proc`proctype;
 		retdic:(`logdir`subtables)!(`$getenv[`KDBSTPLOG];details[0;;0]);
-		:retdic,{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];(first "D" $ -10 sublist string last details 1)^logdate)];
+		retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];(first "D" $ -10 sublist string last details 1)^logdate);
+		:retdic,`errtables`errmsg!(errtabs;string[errtabs],\:" table  not available to be subscribed to"),'(details[0;;0];details[0;;1])@\:where 10=type each details[0;;1]];
 	}
 
 /-wrapper function around upd which is used to only replay syms and tables from the log file that
@@ -106,7 +107,7 @@ replayupd:{[f;tabs;syms;t;x]
 	/-escape if the table is not one of the subscription tables
 	if[not (t in tabs) or tabs ~ `;:()];
 	/-if subscribing for all syms then call upd and then escape
-	if[syms ~ `; f[t;x];:()];
+	if[(syms ~ `)or 99=type syms; f[t;x];:()];
 	/-filter down on syms
 	/-assuming the the log is storing messages (x) as arrays as opposed to tables
 	c:cols[`. t];

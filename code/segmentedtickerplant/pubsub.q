@@ -101,8 +101,8 @@ closesub:{[h]
 // In sub filtered mode, y will contain tables to subscribe to and filters to apply
 .u.sub:{[x;y]
   if[not x in .stpps.t;
-    .lg.e[`rdb;"Table ",string[x]," not in list of stp pub/sub tables"];
-    :()
+    .lg.e[`rdb;m:"Table ",string[x]," not in list of stp pub/sub tables"];
+    :(x;m)
   ];
   if[y~`;:.stpps.suball[x]];
   if[not y~`;:.stpps.subfiltered[x;y]]
