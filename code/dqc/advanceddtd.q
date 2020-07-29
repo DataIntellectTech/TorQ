@@ -4,7 +4,7 @@ advancedsymdtd:{[tab;func;vars]
   /- List containing the advancedres table of the function and parameter specified from yesterday and two days ago
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
   /- List containing only the keys of the two tables from yesterday and two days ago
-  keyst:{key first x`resulttables}each listt;
+  keyst:{key first x`resultdata}each listt;
   /- a utility function for the conditional
   f:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y};
   /- if everything matches, then proceed to 1b on the result. if not, check what is missing from today/missing from yesterday
@@ -18,7 +18,7 @@ advancedperdtd:{[tab;func;vars;percentage]
   /- specified from the last two days
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
-  advancedreslist:{first x`resulttables}each listt;
+  advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the table two days ago
   advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo)xcol advancedreslist[1];
   advancedreslist[0]:((-1_cols advancedreslist[0]),`bycountone)xcol advancedreslist[0];
