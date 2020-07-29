@@ -16,7 +16,7 @@ advancedsymdtd:{[tab;func;vars]
 advancedperdtd:{[tab;func;vars;percentage]
   /- List containing the advancedres table of the function and parameter
   /- specified from the last two days
-  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars]each -2#.Q.PV;
+  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
   advancedreslist:{first x`resulttables}each listt;
   /- changing the column name for the table two days ago
