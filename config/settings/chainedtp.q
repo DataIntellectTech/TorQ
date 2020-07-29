@@ -2,7 +2,6 @@
 
 \d .ctp
 tickerplantname:`tickerplant1;	/- list of tickerplant names to try and make a connection to
-tickerplanttypes:`tickerplant;  /- list of tickerplant types to try and make a connection to
 pubinterval:0D00:00:00;       	/- publish batch updates at this interval, 0D00:00:00 for tick by tick
 tpconnsleep:10;			/- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:0b;             	/- create a log file

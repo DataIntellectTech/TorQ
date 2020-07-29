@@ -4,7 +4,6 @@
 
 /- user defined variables
 tickerplantname:@[value;`tickerplantname;`tickerplant1];        /- list of tickerplant names to try and make a connection to
-tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];       /- list of tickerplant types to try and make a connection to
 pubinterval:@[value;`pubinterval;0D00:00:00];                   /- publish batch updates at this interval
 tpconnsleep:@[value;`tpconnsleep;10];                           /- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:@[value;`createlogfile;0b];                       /- create a log file
@@ -187,7 +186,7 @@ if[not `upd in key `.; upd:.ctp.upd];
 .ps.initialise[];                                                                   
 
 /- check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.ctp.tickerplanttypes;.ctp.tpconnsleep;.ctp.tpcheckcycles];
+.servers.startupdepnamecycles[.ctp.tickerplantname;.ctp.tpconnsleep;.ctp.tpcheckcycles];
 
 /- subscribe to tickerplant
 .ctp.subscribe[]; 
