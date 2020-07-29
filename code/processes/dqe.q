@@ -11,7 +11,7 @@ writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];               
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
 resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());      // schema for the resultstab that shows query results
-advancedres:([]procs:`$();funct:`$();table:`$();resultkeys:`$();resulttables:());
+advancedres:([]procs:`$();funct:`$();table:`$();resultkeys:`$();resultdata:());
 / - end of default parameters
 
 /- called at every EOD by .u.end
