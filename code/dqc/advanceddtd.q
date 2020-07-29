@@ -24,10 +24,8 @@ advancedperdtd:{[tab;func;vars;percentage]
   advancedreslist[0]:((-1_cols advancedreslist[0]),`bycountone)xcol advancedreslist[0];
   /- Joining the two tables for comparision
   joinedadvancedres:advancedreslist[0]uj advancedreslist[1];
-  /- Filing in zeros for both bycount columns
-  joinedadvancedres:update bycountone:0^bycountone,bycounttwo:0^bycounttwo from joinedadvancedres;
   /- Getting the percentage difference from two days ago to today
-  joinedadvancedres:update percentages:100*(abs bycountone-bycounttwo)%bycounttwo from joinedadvancedres;
+  joinedadvancedres:update percentages:100*(abs (0^bycountone)-(0^bycounttwo))%bycounttwo from joinedadvancedres;
   /- a utility function for the conditional
   errorsym:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y}[key select from joinedadvancedres where percentages>percentage;vars];
   $[not count errorsym;
