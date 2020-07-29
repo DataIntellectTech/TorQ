@@ -26,7 +26,7 @@ advancedperdtd:{[tab;func;vars;percentage]
   joinedadvancedres:advancedreslist[0]uj advancedreslist[1];
   /- Getting the percentage difference from two days ago to today
   joinedadvancedres:update percentages:100*(abs (0^bycountone)-(0^bycounttwo))%bycounttwo from joinedadvancedres;
-  /- a utility function for the conditional
+  /- Create error message for the conditional below.
   errorsym:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y}[key select from joinedadvancedres where percentages>percentage;vars];
   $[not count errorsym;
     (1b;"No keys have exceeded more than ",(string percentage),"% from ",(string first -2# .Q.PV)," to ",string last .Q.PV);
