@@ -192,8 +192,7 @@ if[not `upd in key `.; upd:.ctp.upd];
 .ctp.subscribe[]; 
 
 /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
-if[not .ctp.notpconnected[];
-    .ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto]];
+.ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto];
 
 /- set timer for batch update publishing
 if[.ctp.pubinterval;
