@@ -66,7 +66,7 @@ zts[`autobatch]:{
     x:batch[t];
     if[count x;
       .stpps.pub[t]'[x];
-      `..loghandles[t] (`upd;t),/:x]
+      `..loghandles[t] (`upd;t),/:enlist each x]
   }each .stpps.t;
   batch::.stpps.t!();
   ts .z.p+.eodtime.dailyadj;
