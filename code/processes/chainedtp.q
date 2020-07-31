@@ -13,7 +13,7 @@ subscribesyms:@[value;`subscribesyms;`];                        /- list of syms 
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
 clearlogonsubscription:@[value;`clearlogonsubscription;0b];	/- clear logfile on subscription
-
+tpcheckcycles:@[value;`tpcheckcycles;0W];                       /- specify the number of times the process will check for an available tickerplant
 
 tph:0N;								/- setting tickerplant handle to null
 .u.icounts:.u.jcounts:(`symbol$())!0#0,();    /- initialise icounts & jcounts dict
@@ -134,17 +134,6 @@ refreshtp:{[d]
   .u.d:d;
   }
 
-/- initialises chained tickerplant
-initialise:{
-  /- connect to parent tickerplant process
-  .servers.startup[];
-  /- subscribe to the tickerplant
-  .ctp.subscribe[]; 
-  /- add subscribed table schemas to .ctp.tableschemas, used in cleartables
-  if[not notpconnected[]; 
-    .ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto]]
-  }
-
 /- returns true if tickerplant is not connected
 notpconnected:{[]
   0 = count select from .sub.SUBSCRIPTIONS where procname in .ctp.tickerplantname, active}
@@ -196,13 +185,14 @@ if[not `upd in key `.; upd:.ctp.upd];
 /- pubsub must be initialised sooner to enable tickerplant replay publishing to work
 .ps.initialise[];                                                                   
 
-/- check if the tickerplant has connected, blocks the process until a connection is established
-.ctp.initialise[];
-while[.ctp.notpconnected[];
-  /- while not connected make the process sleep for X seconds and then run the subscribe function again
-  .os.sleep[.ctp.tpconnsleep];
-  /- start chained tickerplant
-  .ctp.initialise[]];
+/- check if tickerplant is available and if not exit with error 
+.servers.startupdepnamecycles[.ctp.tickerplantname;.ctp.tpconnsleep;.ctp.tpcheckcycles];
+
+/- subscribe to tickerplant
+.ctp.subscribe[]; 
+
+/- add subscribed table schemas to .ctp.tableschemas, used in cleartables
+.ctp.tableschemas:{x!(0#)@'value@'x} (),$[any null .ctp.subscribeto;tables[`.];.ctp.subscribeto];
 
 /- set timer for batch update publishing
 if[.ctp.pubinterval;
