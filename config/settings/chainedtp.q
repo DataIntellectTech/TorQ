@@ -1,7 +1,7 @@
 / Chained Tickerplant
 
 \d .ctp
-tickerplantname:`tickerplant1;	/- list of tickerplant types to try and make a connection to
+tickerplantname:`tickerplant1;	/- list of tickerplant names to try and make a connection to
 pubinterval:0D00:00:00;       	/- publish batch updates at this interval, 0D00:00:00 for tick by tick
 tpconnsleep:10;			/- number of seconds between attempts to connect to the source tickerplant   
 createlogfile:0b;             	/- create a log file
@@ -11,6 +11,7 @@ subscribesyms:`;              	/- list of syms to subscription to
 replay:0b;                    	/- replay the tickerplant log file
 schema:1b;                    	/- retrieve schema from tickerplant
 clearlogonsubscription:0b;	/- clear logfile on subscription
+tpcheckcycles:0W;               /- specify the number of times the process will check for an available tickerplant
 
 \d .servers
 CONNECTIONS:`tickerplant 	/- list of connections to make at start up
