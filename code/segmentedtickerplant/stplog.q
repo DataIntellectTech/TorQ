@@ -58,15 +58,15 @@ upd:zts:batch:enlist[`]!enlist ()
 // If set to autobatch, publish and write to disk will be run in batches
 upd[`autobatch]:{[t;x]
   x:.stpps.updtab[t]@x;
-  @[`.stplg.batch;t;,;enlist (`upd;t;x)]
+  @[`.stplg.batch;t;,;enlist x]
  };
 
 zts[`autobatch]:{
   {[t]
     x:batch[t];
     if[count x;
-      .stpps.pub[t;x];
-      `..loghandles[t] x]
+      .stpps.pub[t]'[x];
+      `..loghandles[t] (`upd;t),/:x]
   }each .stpps.t;
   batch::.stpps.t!();
   ts .z.p+.eodtime.dailyadj;
