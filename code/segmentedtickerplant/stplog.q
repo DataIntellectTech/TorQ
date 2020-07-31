@@ -53,17 +53,22 @@ logname[`custom]:{[dir;tab;p]
 
 // Update and timer functions in three batch modes ////////////////////////////////////
 
-upd:zts:enlist[`]!enlist ()
+upd:zts:batch:enlist[`]!enlist ()
 
 // If set to autobatch, publish and write to disk will be run in batches
 upd[`autobatch]:{[t;x]
-  .stpps.upd[t;x];
+  x:.stpps.updtab[t]@x;
+  @[`.stplg.batch;t;,;enlist (`upd;t;x)]
  };
 
 zts[`autobatch]:{
-  {[t;x] .stpps.pub[t;x];
-  `..loghandles[t] enlist(`upd;t;x)}'[.stpps.t;value each .stpps.t];
-  @[`.;.stpps.t;:;.stpps.schemas[.stpps.t]];
+  {[t]
+    x:batch[t];
+    if[count x;
+      .stpps.pub[t;x];
+      `..loghandles[t] x]
+  }each .stpps.t;
+  batch::.stpps.t!();
   ts .z.p+.eodtime.dailyadj;
  };
 
@@ -194,6 +199,7 @@ init:{
   i::0;
   @[`.stplg.msgcount;t;:;0];
   totalmsgcount::0;
+  batch::t!();
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   .eodtime.currperiod:multilogperiod xbar .z.p+.eodtime.dailyadj;
