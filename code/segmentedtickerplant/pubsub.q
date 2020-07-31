@@ -11,7 +11,7 @@ t:`
 subrequestall:enlist[`]!enlist ()
 
 // Handles and conditions to publish filtered data
-subrequestfiltered:([tabname:`$()]handle:`int$();filts:`$();columns:`$())
+subrequestfiltered:([]tbl:`$();handle:`int$();filts:();columns:())
 
 // Function to send end of period messages to subscribers
 // Assumes that .u.endp has been defined on the client side
@@ -22,40 +22,40 @@ endp:{
 // Function to send end of day messages to subscribers      
 // Assumes that .u.end has been defined on the client side   
 end:{
-  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.endp;x;y);
+  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.end;x;y);
  };
 
 suball:{
-  delhandle[x].z.w;
-  :add[x];
+  delhandle[x;.z.w];
+  add[x];
+  :(x;schemas[x]);
  };
 
 subfiltered:{[x;y]
-  delhandlef[x].z.w;
-  if[11=type y;:selfiltered[x;y]];
-  if[99=type y;:addfiltered[x;y]];
+  delhandlef[x;.z.w];
+  if[11=type y;selfiltered[x;y]];
+  if[99=type y;addfiltered[x;y]];
+  :(x;schemas[x]);
  };
 
 // Add handle to subscriber in sub all mode
 add:{
-  if[not (count subrequestall x)>i:subrequestall[x;]?.z.w;
+  if[not (count subrequestall x)>i:subrequestall[x]?.z.w;
     subrequestall[x],:.z.w];
-  (x;$[99=type v:value x;v;0#v])
  };
 
 // Add handle to subscriber in sub filtered mode
+// Where clause and column filters are parsed before adding to subrequestfiltered table
 addfiltered:{[x;y]
-  if[not .z.w in subrequestfiltered[x]`handle;
-    @[`.stpps.subrequestfiltered;x;:;(enlist[`handle]!enlist .z.w),y[x]]];
-  (x;$[99=type v:value x;v;0#v])
+  filts:$[null y[x]`filts;();enlist parse string y[x]`filts];
+  columns:$[null y[x]`columns;();c!c:raze parse string y[x]`columns];
+  `.stpps.subrequestfiltered upsert (x;.z.w;filts;columns);
  };
 
 // Add handle for subscriber using old API (filter is list of syms)
 selfiltered:{[x;y]
-  if[not .z.w in subrequestfiltered[x]`handle;
-    y:`$"sym in ","`","`"sv string y;
-    @[`.stpps.subrequestfiltered;x;:;`handle`filts`columns!(.z.w;y;`)]];
-  (x;$[99=type v:value x;v;0#v])
+  filts:enlist (in;`sym;enlist y);
+  `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
 upd:{[t;x]
@@ -67,13 +67,11 @@ upd:{[t;x]
 pub:{[t;x]
   if[count x;
     if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
-    if[t in key subrequestfiltered;
-      w:subrequestfiltered[t];
-      query:"select ",string[w`columns]," from ",string[t]," where ",string[w`filts];
-      x:value query;
-      -25!((),w`handle;(`upd;t;x))
-    ]
-  ]
+    if[t in subrequestfiltered`tbl;
+      {[t;x]data:?[t;x`filts;0b;x`columns];-25!((),x`handle;(`upd;t;data))}
+      [t;]each select handle,filts,columns from subrequestfiltered where tbl=t
+    ];
+  ];
  };
 
 // Functions to add columns on updates
@@ -85,7 +83,7 @@ delhandle:{[t;h]
  };
 
 delhandlef:{[t;h]
-  delete from  `.stpps.subrequestfiltered where tabname=t,handle=h;
+  delete from  `.stpps.subrequestfiltered where tbl=t,handle=h;
  };
 
 // Remove all handles when connection closed
@@ -103,8 +101,9 @@ closesub:{[h]
 // In sub filtered mode, y will contain tables to subscribe to and filters to apply
 .u.sub:{[x;y]
   if[not x in .stpps.t;
-    .lg.e[`rdb;"Table ",string[x]," not in list of stp pub/sub tables"];
-    :()];
+    .lg.e[`rdb;m:"Table ",string[x]," not in list of stp pub/sub tables"];
+    :(x;m)
+  ];
   if[y~`;:.stpps.suball[x]];
   if[not y~`;:.stpps.subfiltered[x;y]]
  };

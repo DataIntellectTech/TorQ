@@ -11,28 +11,34 @@
 // Load schema
 $[`schemafile in key .proc.params;
   .proc.loadf[raze .proc.params[`schemafile],".q"];
-  [.lg.e[`stp;"schema file required"];exit]
+  [.lg.e[`stp;"schema file required"];exit 1]
  ]
 
 // Populate pub/sub tables list with schema tables
-.stpps.t:tables[`.]except `currlog;
+.stpps.t:tables[]except `currlog;
+.stpps.schemas:.stpps.t!value each .stpps.t;
 
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
-// TO DO - add function to load user-sepcified updtab funcs
-@[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p),x}];
+// TO DO - add function to load type-sepcified updtab funcs
+@[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p+.eodtime.dailyadj),x}];
 
 // In none or tabular mode, intraday rolling not required
-if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D]
+if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
 
 // In custom mode, load logging type for each table
-if[.stplg.multilog~`custom;.stplg.custommode:1_(!) . ("SS";",")0: .stplg.customcsv]
+if[.stplg.multilog~`custom;
+  @[{.stplg.custommode:1_(!) . ("SS";",")0: x};.stplg.customcsv;
+    {.lg.e[`stp;"failed to load custom mode csv"]}]
+ ];
 
 init:{[b]
   .u.upd:{[b;t;x]
-    .stplg.totalmsgcount+:1;
     // Type check allows update messages to contain multiple tables/data
-    $[0h<type t;.stplg.upd[b]'[t;x];.stplg.upd[b][t;x]];
+    $[0h<type t;
+      [.stplg.upd[b]'[t;x];.stplg.totalmsgcount+:count t];
+      [.stplg.upd[b][t;x];.stplg.totalmsgcount+:1]
+    ];
     @[`.stplg.msgcount;t;+;1];
   }[b;;];
   .z.ts:.stplg.zts[b];
@@ -46,7 +52,7 @@ init:{[b]
 
 // Initialise process
 
-// Create log directory, open all table logs, define logging period
+// Create log directory, open all table logs
 .stplg.init[]
 
 // Set update and publish modes

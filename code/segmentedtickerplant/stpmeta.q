@@ -34,7 +34,7 @@ updmeta[`custom]:{[x;t;p]
 // Sequence number increments by one on log period rollover
 getmeta:{[x;p;t;ln]
   if[x~`open;
-    s:((),t)!0#/:value each (),t;
+    s:((),t)!(),.stpps.schemas[t];
     `.stpm.metatable upsert (.stplg.i;ln;p;0Np;t;0;s;enlist ()!());
   ];
   if[x~`close;

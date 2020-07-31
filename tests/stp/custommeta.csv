@@ -18,11 +18,11 @@ true,0,0,q,`quote in .stpm.metatable[`tbls],1,,"Check quote tables saved to sepa
 true,0,0,q,`heartbeat in .stpm.metatable[`tbls],1,,"Check heartbeat saved to separate meta records"
 true,0,0,q,not any `logmsg in/: .stpm.metatable[`tbls],1,,"Check logmsg not in meta records"
 true,0,0,q,1<count .stpm.metatable,1,,"Check multiple meta records
-true,0,0,q,all ("v"$.z.p)="v"$.stpm.metatable[`start],1,,"Check correct start time listed for log"
+true,0,0,q,all ("v"$.z.p+.eodtime.dailyadj)="v"$.stpm.metatable[`start],1,,"Check correct start time listed for log"
 true,0,0,q,all null .stpm.metatable[`end],1,,"Check no end time listed for log"
 run,0,0,q,.u.upd[`trade;testtrade],1,,"Run trade update"
 run,0,0,q,.u.upd[`quote;testquote],1,,"Run quote update"
-run,0,0,q,.stplg.endofperiod[],1,,"Roll logs"
+run,0,0,q,.stplg.endofperiod[.z.p+.eodtime.dailyadj],1,,"Roll logs"
 run,0,0,q,"tabmeta:select from .stpm.metatable where seq=0",1,,"Save initial meta records"
 run,0,0,q,"tabmeta2:select from .stpm.metatable where seq=1",1,,"Save new meta records"
 true,0,0,q,`trade`trade_iex in tabmeta[`tbls],1,,"Check both trade tables saved to single meta record"
