@@ -57,7 +57,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	.lg.o[`subscribe;"getting details from the server"];
 	df:{(.u.sub\:[x;y];(.u`i`L);(.u `icounts);(.u `d))};
 	if[`segmentedtickerplant=proc`proctype;
-		df:{(.u.sub\:[x;y];.stplg.replaylog[x];(.stplg `msgcount)@x;(.eodtime `d))}];
+		df:{(.u.sub\:[x;y];.stplg.replaylog[x];x#.stplg `msgcount;(.eodtime `d))}];
 	details:@[proc`w;(df;subtabs;instrs);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
 	/-to be returned at end of function (null if there is no log)
 	logdate: 0Nd;
@@ -97,7 +97,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 		:(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])];
 	if[`segmentedtickerplant=proc`proctype;
 		retdic:(`logdir`subtables)!(`$getenv[`KDBSTPLOG];details[0;;0]);
-		retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];(first "D" $ -10 sublist string last details 1)^logdate);
+		retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];("D"$8#-12 sublist string d1 first where not null d1:details[1;;1])^logdate);
 		:retdic,`errtables`errmsg!(errtabs;string[errtabs],\:" table  not available to be subscribed to"),'(details[0;;0];details[0;;1])@\:where 10=type each details[0;;1]];
 	}
 
