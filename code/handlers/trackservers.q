@@ -331,6 +331,7 @@ startup:{
 
 // Check if required processes all connected
 reqprocsnotconn:{[requiredprocs;typeorname]
+    // parse of exec typeorname from .servers.SERVERS where .dotz.liveh[w]
     not all requiredprocs in ?[`.servers.SERVERS;enlist (`.dotz.liveh;`w);();typeorname]
   };
 
