@@ -41,7 +41,18 @@ find:{[path;match]
 	.lg.o[`alerter;"searching for ",path,"/",match];
 	files:@[system;findstring;()];
 	if[os=`win;files:,/:[path,"\\"; files]]; files};
-	
+
+processpcaps:{[file;path]
+	.lg.o[`alerter;"processing pcap file"];
+	.lg.o[`alerter;"decoding pcap file"];
+	table: .pcap.buildtable[hsym `$(path,"/",file)];
+	.lg.o[`alerter;"sending table to tickerplant"];
+	sendtoticketplant[table;table[cols table]]
+	}
+
+sendtotickerplant:{[t;x]
+	.servers.gethandlebytype[`tickerplant;`any](`.u.upd;t;x)
+	}
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
 skipall:{matches:raze find'[filealertercsv.path;filealertercsv.match];
