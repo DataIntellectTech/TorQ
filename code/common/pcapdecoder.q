@@ -15,8 +15,8 @@ buildtable:{[file]
   gettablerow[n;]\[{y>(first x[0])+40}[;filebytesize];(),0]    
   } read1 file;
  
- data: update No:i+1 from data;
- `No xcols data
+ data: update sym:` from data;
+ `time`sym xcols data
  }
 
 
