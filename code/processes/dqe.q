@@ -6,7 +6,7 @@ gmttime:@[value;`gmttime;1b];                                                   
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    -1+(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
