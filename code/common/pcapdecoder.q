@@ -16,7 +16,8 @@ buildtable:{[file]
   } read1 file;
  
  data: update No:i+1 from data;
- `No xcols data
+ data: update sym:` from data;
+ `time`sym`No xcols data
  }
 
 
