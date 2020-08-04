@@ -21,7 +21,7 @@ buildtable:{[file]
 
 
 gettablerow:{[n;x]  // data for a single row
- time:     gettime[n;x];
+ time:     first gettime[n;x];
  flags:    getflags[n;x];
  protocol: getprotocol[n;x];
  
@@ -38,13 +38,13 @@ gettablerow:{[n;x]  // data for a single row
  dest: ips[1];
 
  info: getinfo[n;x];
- srcport:  info[0] mod 65536;
- destport: info[1] mod 65536;
- seq:      info[2] mod 4294967296;
- ack:      info[3] mod 4294967296;
- win:      info[4] mod 65536;
- tsval:    info[5] mod 4294967296;
- tsecr:    info[6] mod 4294967296;
+ srcport:  first info[0] mod 65536;
+ destport: first info[1] mod 65536;
+ seq:      first info[2] mod 4294967296;
+ ack:      first info[3] mod 4294967296;
+ win:      first info[4] mod 65536;
+ tsval:    first info[5] mod 4294967296;
+ tsecr:    first info[6] mod 4294967296;
 
  // array containing starting point for next byte and dictionary of data for current packet
  (x[0] + length + 16;`time`src`dest`srcport`destport`protocol`flags`seq`ack`win`tsval`tsecr`length`len`data!(time;src;dest;srcport;destport;protocol;flags;seq;ack;win;tsval;tsecr;length;len;data))
