@@ -7,6 +7,8 @@ polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file 
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
+decodepcaps:@[value;`.fa.decodepcaps;1b]							// Whether to connect to tickerplant when the file alerter process starts
+tickerplanttypes:@[value;`.fa.tickerplanttypes;`tickerplant]					// List of tickerplant types to connect to
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
 
@@ -47,7 +49,7 @@ processpcaps:{[file;path]
 	.lg.o[`alerter;"decoding pcap file"];
 	table: .pcap.buildtable[hsym `$(path,"/",file)];
 	.lg.o[`alerter;"sending table to tickerplant"];
-	sendtoticketplant[table;table[cols table]]
+	sendtotickerplant[`packets;table[cols table]]
 	}
 
 sendtotickerplant:{[t;x]
@@ -182,3 +184,7 @@ loadcsv[];
 loadprocessed[alreadyprocessed];
 
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
+
+if[decodepcaps;
+	.servers.CONNECTIONS:tickerplanttypes;
+	.servers.startup[]]
