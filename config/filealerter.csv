@@ -1,1 +1,2 @@
 path,match,function,newonly,movetodirectory
+hsym `$(getenv $TORQHOME),*.pcap,processpcaps,1,
