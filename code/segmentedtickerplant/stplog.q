@@ -52,12 +52,17 @@ logname[`custom]:{[dir;tab;p]
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Update and timer functions in three batch modes ////////////////////////////////////
+// preserve pre-existing definitions
+upd:@[value;`.stplg.upd;enlist[`]!enlist ()];
+zts:@[value;`.stplg.zts;enlist[`]!enlist ()];
+batch:enlist[`]!enlist ()
 
-upd:zts:batch:enlist[`]!enlist ()
+// Functions to add columns on updates
+updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 
 // If set to autobatch, publish and write to disk will be run in batches
-upd[`autobatch]:{[t;x]
-  x:.stpps.updtab[t]@x;
+upd[`autobatch]:{[t;x;now]
+  x:.stplg.updtab[t] . (x;now);
   @[`.stplg.batch;t;,;enlist x]
  };
 
@@ -69,29 +74,27 @@ zts[`autobatch]:{
       `..loghandles[t] (`upd;t),/:enlist each x]
   }each .stpps.t;
   batch::.stpps.t!();
-  ts .z.p+.eodtime.dailyadj;
  };
 
 // Standard batch mode - publish in batches, write to disk immediately
-upd[`defaultbatch]:{[t;x]
-  x:.stpps.upd[t;x];
+upd[`defaultbatch]:{[t;x;now]
+  t insert x:.stplg.updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
  };
 
 zts[`defaultbatch]:{
-  .stpps.pub'[.stpps.t;value each .stpps.t];
-  @[`.;.stpps.t;:;.stpps.schemas[.stpps.t]];
-  ts .z.p+.eodtime.dailyadj;
+  // publish and clear all tables
+  .stpps.pubclear[.stpps.t];
  };
 
 // Immediate mode - publish and write immediately
 upd[`immediate]:{[t;x]
-  x:.stpps.updtab[t]@x;
+  x:.stpps.updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   .stpps.pub[t;x]
  };
 
-zts[`immediate]:{ts .z.p+.eodtime.dailyadj}
+zts[`immediate]:{}
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +102,10 @@ zts[`immediate]:{ts .z.p+.eodtime.dailyadj}
 msgcount:enlist[`]!enlist ()
 
 // Total messages received
-totalmsgcount:0Ni
+totalmsgcount:0
+
+// Sequence number
+seqnum:0
 
 // Functions to obtain logs for client replay ////////////////////////////////////////
 // replaylog called from client-side, returns nested list of logcounts and lognames
@@ -174,6 +180,7 @@ endofperiod:{[p]
   .eodtime.currperiod:.eodtime.nextperiod;
   if[p>.eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
+  getnextend[];
   i+::1;
   rolllog[multilog;dldir;rolltabs;p];
   totalmsgcount::0;
@@ -182,6 +189,7 @@ endofperiod:{[p]
 endofday:{[p]
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
+  getnextend[];
   .stpm.updmeta[multilog][`close;logtabs;p];
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;
@@ -189,7 +197,12 @@ endofday:{[p]
   init[];
  };
 
-ts:{
+// get the next end time to compare to
+getnextend:{nextend::min(.eodtime.nextroll;.eodtime.nextperiod)}
+
+checkends:{
+  // jump out early if don't have to do either 
+  if[.stplg.nextend > x; :()];
   if[.eodtime.nextperiod < x; endofperiod[x]];
   if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
  };
@@ -204,6 +217,7 @@ init:{
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   .eodtime.currperiod:multilogperiod xbar .z.p+.eodtime.dailyadj;
   .eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
+  getnextend[]; 
   createdld[`database;.eodtime.d];
   openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
   .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];

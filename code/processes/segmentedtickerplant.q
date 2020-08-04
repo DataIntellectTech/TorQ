@@ -7,6 +7,8 @@
 // Filtered - apply filters to published data, filters defined on client side
 
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
 // Load schema
 $[`schemafile in key .proc.params;
@@ -20,8 +22,8 @@ $[`schemafile in key .proc.params;
 
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
-// TO DO - add function to load type-sepcified updtab funcs
-@[`.stpps.updtab;.stpps.t;:;{(enlist(count first x)#.z.p+.eodtime.dailyadj),x}];
+// Preserve any prior definitions, but default all tables if not specified
+.stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
 
 // In none or tabular mode, intraday rolling not required
 if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
@@ -33,21 +35,32 @@ if[.stplg.multilog~`custom;
  ];
 
 init:{[b]
-  .u.upd:{[b;t;x]
+  if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
+  .stplg.updmsg:.stplg.upd[b];
+  .u.upd:{[t;x]
+    // snap the current time and check for period end
+    .stplg.checkends now:.z.p+.eodtime.dailyadj;
     // Type check allows update messages to contain multiple tables/data
     $[0h<type t;
-      [.stplg.upd[b]'[t;x];.stplg.totalmsgcount+:count t];
-      [.stplg.upd[b][t;x];.stplg.totalmsgcount+:1]
+      [.stplg.updmsg'[t;x;now];.stplg.totalmsgcount+:count t];
+      [.stplg.updmsg[t;x;now];.stplg.totalmsgcount+:1]
     ];
+    .stplg.seqnum+:1;
     @[`.stplg.msgcount;t;+;1];
-  }[b;;];
-  .z.ts:.stplg.zts[b];
+  };
+  // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
+  .stplg.ts:.stplg.zts[b];
+  .z.ts:{
+   .stplg.ts now:.z.p+.eodtime.dailyadj; 
+   .stplg.checkends now};
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
     .stplg.openlogerr[.stplg.dldir];
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
+  // default the timer if not set
+  if[not system"t"; system"t 1000"];
  };
 
 // Initialise process
