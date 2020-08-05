@@ -44,7 +44,8 @@ find:{[path;match]
 	files:@[system;findstring;()];
 	if[os=`win;files:,/:[path,"\\"; files]]; files};
 
-processpcaps:{[file;path]
+//-decodes pcap file and sends to tickerplant
+processpcaps:{[path;file]
 	.lg.o[`alerter;"processing pcap file"];
 	.lg.o[`alerter;"decoding pcap file"];
 	table: .pcap.buildtable[hsym `$(path,"/",file)];
