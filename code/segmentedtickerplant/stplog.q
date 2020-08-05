@@ -101,7 +101,7 @@ zts[`defaultbatch]:{
  };
 
 // Immediate mode - publish and write immediately
-upd[`immediate]:{[t;x]
+upd[`immediate]:{[t;x;now]
   x:.stpps.updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   @[`.stplg.msgcount;t;+;1];
