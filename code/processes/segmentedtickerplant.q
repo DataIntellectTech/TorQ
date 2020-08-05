@@ -12,7 +12,7 @@
 
 // Load schema
 $[`schemafile in key .proc.params;
-  .proc.loadf[raze .proc.params[`schemafile],".q"];
+  .proc.loadf[schemafile:raze .proc.params[`schemafile]];
   [.lg.e[`stp;"schema file required"];exit 1]
  ]
 
@@ -42,11 +42,10 @@ init:{[b]
     .stplg.checkends now:.z.p+.eodtime.dailyadj;
     // Type check allows update messages to contain multiple tables/data
     $[0h<type t;
-      [.stplg.updmsg'[t;x;now];.stplg.totalmsgcount+:count t];
-      [.stplg.updmsg[t;x;now];.stplg.totalmsgcount+:1]
+      .stplg.updmsg'[t;x;now];
+      .stplg.updmsg[t;x;now]
     ];
     .stplg.seqnum+:1;
-    @[`.stplg.msgcount;t;+;1];
   };
   // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
   .stplg.ts:.stplg.zts[b];
@@ -60,13 +59,16 @@ init:{[b]
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
   // default the timer if not set
-  if[not system"t"; system"t 1000"];
+  if[not system"t"; 
+   .lg.o[`timer;"defaulting timer to 1000ms"];
+    system"t 1000"];
  };
 
 // Initialise process
 
 // Create log directory, open all table logs
-.stplg.init[]
+// use name of schema to create directory
+.stplg.init[dbname:-2 _ last "/" vs schemafile]
 
 // Set update and publish modes
 init[.stplg.batchmode]

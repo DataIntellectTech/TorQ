@@ -22,7 +22,7 @@ endp:{
 // Function to send end of day messages to subscribers      
 // Assumes that .u.end has been defined on the client side   
 end:{
-  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.end;x;y);
+  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.end;x);
  };
 
 suball:{
