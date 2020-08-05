@@ -24,6 +24,7 @@ init:{
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
+  if[((.z.P,.z.p).dqe.gmttime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.gmttime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
@@ -123,11 +124,8 @@ writedownadvanced:{
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   .dqe.currentpartition:pt+1;
-  /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
-  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
-    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
-    .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
-    ];
+  /- sets .eodtime.nextroll to next day so .u.end would run at the correct time
+  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];

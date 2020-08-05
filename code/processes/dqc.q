@@ -44,7 +44,7 @@ init:{
   .dqe.tosavedown:()!();
   .lg.o[`.dqc.init; "Starting EOD writedown."];
   /- Checking if .eodtime.nextroll is correct
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]
+  if[((.z.P,.z.p).dqe.gmttime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.gmttime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   /- Log the start and end times.
@@ -285,7 +285,7 @@ reruncheck:{[chkid]
   .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
   /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
   .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
-  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"];
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]
