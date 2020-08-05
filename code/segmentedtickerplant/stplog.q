@@ -74,7 +74,7 @@ upd[`autobatch]:{[t;x;now]
 zts[`autobatch]:{
   {[t]
     if[count value t;
-      `..loghandles[t] enlist (`upd;t;flip value t);
+      `..loghandles[t] enlist (`upd;t;value flip value t);
       @[`.stplg.msgcount;t;+;1];
       @[`.stplg.rowcount;t;+;count value t];
       .stpps.pubclear[t]];
@@ -88,8 +88,6 @@ upd[`defaultbatch]:{[t;x;now]
   // track tmp counts, and add these after publish
   @[`.stplg.tmpmsgcount;t;+;1];
   @[`.stplg.tmprowcount;t;+;count first x];
-  // reset temp counts
-  .stplg.tmpmsgcount:.stplg.tmprowcount:()!();
  };
 
 zts[`defaultbatch]:{
@@ -98,11 +96,13 @@ zts[`defaultbatch]:{
   // after data has been published, updated the counts
   .stplg.msgcount+:.stplg.tmpmsgcount;
   .stplg.rowcount+:.stplg.tmprowcount;
+  // reset temp counts
+  .stplg.tmpmsgcount:.stplg.tmprowcount:()!();
  };
 
 // Immediate mode - publish and write immediately
 upd[`immediate]:{[t;x;now]
-  x:.stpps.updtab[t] . (x;now);
+  x:updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   @[`.stplg.msgcount;t;+;1];
   @[`.stplg.rowcount;t;+;count first x];
