@@ -20,6 +20,12 @@ $[`schemafile in key .proc.params;
 .stpps.t:tables[]except `currlog;
 .stpps.schemas:.stpps.t!value each .stpps.t;
 
+// amend the main schemas to not have any attributes
+{@[x;cols x;`#]}each .stpps.t;
+
+// store attribute free empty versions of the tables
+.stpps.schemasnoattributes:.stpps.t!value each .stpps.t
+
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
 // Preserve any prior definitions, but default all tables if not specified

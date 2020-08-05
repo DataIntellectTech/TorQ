@@ -71,7 +71,7 @@ pub:{[t;x]
 // publish and clear tables
 pubclear:{
  .stpps.pub'[x;value each x,:()];
- @[`.;x;:;.stpps.schemas[x]];
+ @[`.;x;:;.stpps.schemasnoattributes[x]];
  }
 
 // Remove handle from subscription meta
