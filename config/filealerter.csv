@@ -1,2 +1,2 @@
 path,match,function,newonly,movetodirectory
-{TORQHOME},*.pcap,processpcaps,1,
+{TORQPCAPS},*.pcap,processpcaps,1,
