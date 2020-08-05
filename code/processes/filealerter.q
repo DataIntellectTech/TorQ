@@ -9,6 +9,8 @@ skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all acti
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
 decodepcaps:@[value;`.fa.decodepcaps;1b]							// Whether to connect to tickerplant when the file alerter process starts
 tickerplanttypes:@[value;`.fa.tickerplanttypes;`tickerplant]					// List of tickerplant types to connect to
+tpconnsleepintv:@[value;`.fa.tpconnsleepintv;10]						// Number of seconds betweeen attmepts to connect to the tp
+tpcheckcycles:@[value;`.fa.tpcheckcycles;0W]							// Specify the number of times the process will check for an available tickerplant
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
 
@@ -187,5 +189,5 @@ loadprocessed[alreadyprocessed];
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
 
 if[decodepcaps;
-	.servers.CONNECTIONS:tickerplanttypes;
-	.servers.startup[]]
+	.servers.CONNECTIONS:distinct .servers.CONNECTIONS,tickerplanttypes;
+	.servers.startupdepcycles[tickerplanttypes;tpconnsleepintv;tpcheckcycles]]
