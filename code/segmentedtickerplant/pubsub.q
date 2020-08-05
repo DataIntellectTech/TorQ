@@ -22,7 +22,7 @@ endp:{
 // Function to send end of day messages to subscribers      
 // Assumes that .u.end has been defined on the client side   
 end:{
-  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.end;x;y);
+  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`.u.end;x);
  };
 
 suball:{
@@ -58,12 +58,6 @@ selfiltered:{[x;y]
   `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
-upd:{[t;x]
-  x:updtab[t]@x;
-  t insert x;
-  :x;
- };
-
 pub:{[t;x]
   if[count x;
     if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
@@ -74,8 +68,11 @@ pub:{[t;x]
   ];
  };
 
-// Functions to add columns on updates
-updtab:enlist[`]!enlist {(enlist(count first x)#.z.p),x}
+// publish and clear tables
+pubclear:{
+ .stpps.pub'[x;value each x,:()];
+ @[`.;x;:;.stpps.schemas[x]];
+ }
 
 // Remove handle from subscription meta
 delhandle:{[t;h]
@@ -92,7 +89,7 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
-.z.pc:{[f;x] f@x; closesub x}@[value;`.z.pc;{{}}]
+.z.pc:{[f;x] @[f;x;()]; closesub x}@[value;`.z.pc;{{}}]
 
 \d .
 
