@@ -118,12 +118,17 @@ debug() {
  }
 
 summary() {
-  if [[ -z $(findproc "$1") ]]; then                                                                # check process not running
-    printf "%s | %s | down |" "$(date '+%H:%M:%S')" "$1"                                            # summary table row for down process
-  else
-    pid=$((findproc "$1")|awk 'END{print}')
-    port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
-    printf "%s | %s | up | %s | %s" "$(date '+%H:%M:%S')" "$1" "$pid" "$port"                       # summary table row for running process
+  procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
+  host=$(getfield "$procno" "host")
+  if [[ $host == "localhost" || $host == `hostname -i`  ||                                          # check if process is configured to run on current host
+        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
+    if [[ -z $(findproc "$1") ]]; then                                                              # check process not running
+        printf "%s | %s | down |" "$(date '+%H:%M:%S')" "$1"                                        # summary table row for down process
+    else
+        pid=$((findproc "$1")|awk 'END{print}')
+        port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
+        printf "%s | %s | up | %s | %s" "$(date '+%H:%M:%S')" "$1" "$pid" "$port"                   # summary table row for running process
+    fi
   fi
  }
 
