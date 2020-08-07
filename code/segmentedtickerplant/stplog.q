@@ -188,7 +188,7 @@ endofperiod:{[p]
   .eodtime.currperiod:.eodtime.nextperiod;
   if[p>.eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
-  getnextend[];
+  getnextendUTC[];
   i+::1;
   rolllog[multilog;dldir;rolltabs;p];
  };
@@ -198,7 +198,7 @@ endofperiod:{[p]
 endofday:{[p]
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
-  getnextend[];
+  getnextendUTC[];
   .stpm.updmeta[multilog][`close;logtabs;p];
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;
@@ -207,12 +207,12 @@ endofday:{[p]
  };
 
 // get the next end time to compare to
-getnextend:{nextend::min(.eodtime.nextroll;.eodtime.nextperiod)}
+getnextendUTC:{nextendUTC::min(.eodtime.nextroll;.eodtime.nextperiod - .eodtime.dailyadj)}
 
 checkends:{
   // jump out early if don't have to do either 
-  if[nextend > x; :()];
-  if[.eodtime.nextperiod < x; endofperiod[x]];
+  if[nextendUTC > x; :()];
+  if[.eodtime.nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1]];
   if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
  };
 
@@ -223,7 +223,7 @@ init:{[dbname]
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   .eodtime.currperiod:multilogperiod xbar .z.p+.eodtime.dailyadj;
   .eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
-  getnextend[]; 
+  getnextendUTC[]; 
   createdld[dbname;.eodtime.d];
   openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
   // read in the meta table from disk 

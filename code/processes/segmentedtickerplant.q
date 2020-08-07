@@ -56,7 +56,7 @@ init:{[b]
   // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
   .stplg.ts:.stplg.zts[b];
   .z.ts:{
-    .stplg.ts now:.z.p+.eodtime.dailyadj; 
+    .stplg.ts now:.z.p; 
     .stplg.checkends now};
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
