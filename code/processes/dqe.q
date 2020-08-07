@@ -6,7 +6,7 @@ gmttime:@[value;`gmttime;1b];                                                   
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    -1+(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    `date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
@@ -24,7 +24,6 @@ init:{
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
-  if[((.z.P,.z.p).dqe.gmttime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.gmttime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
@@ -107,7 +106,8 @@ writedownadvanced:{
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
-  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`resultstab`advancedres;
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]-1;x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each(select from resultstab where table<>`;select from `advancedres where table<>`);
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each(select from resultstab where table=`;select from `advancedres where table=`);
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- check list of handles to DQEDBs is non-empty, we need at least one to
@@ -124,8 +124,11 @@ writedownadvanced:{
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   .dqe.currentpartition:pt+1;
-  /- sets .eodtime.nextroll to next day so .u.end would run at the correct time
-  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
+   /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
+  if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
+    .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
+    .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
+    ];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];
