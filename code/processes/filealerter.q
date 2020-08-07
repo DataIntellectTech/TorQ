@@ -7,7 +7,7 @@ polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file 
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
-decodepcaps:@[value;`.fa.decodepcaps;1b]							// Whether to connect to tickerplant when the file alerter process starts
+decodepcaps:@[value;`.fa.decodepcaps;0b]							// Whether to connect to tickerplant when the file alerter process starts
 tickerplanttypes:@[value;`.fa.tickerplanttypes;`tickerplant]					// List of tickerplant types to connect to
 tpconnsleepintv:@[value;`.fa.tpconnsleepintv;10]						// Number of seconds betweeen attmepts to connect to the tp
 tpcheckcycles:@[value;`.fa.tpcheckcycles;0W]							// Specify the number of times the process will check for an available tickerplant
