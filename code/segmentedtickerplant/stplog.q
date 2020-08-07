@@ -176,7 +176,7 @@ rolllog:{[multilog;dir;tabs;p]
   closelog each tabs;
   @[`.stplg.msgcount;tabs;:;0];
   {[m;d;t]
-    .[openlog;(m;d;t;.eodtime.currperiod);
+    .[openlog;(m;d;t;currperiod);
       {.lg.e[`stp;"failed to open log for table ",string[y],": ",x]}[;t]]
   }[multilog;dir;]each tabs;
   .stpm.updmeta[multilog][`open;tabs;p];
@@ -184,18 +184,21 @@ rolllog:{[multilog;dir;tabs;p]
 
 // Send close of period message to subscribers, update logging period times, roll logs
 endofperiod:{[p]
-  .stpps.endp . .eodtime`currperiod`nextperiod;
-  .eodtime.currperiod:.eodtime.nextperiod;
-  if[p>.eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
+  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 .stplg`currperiod`nextperiod];
+  .stpps.endp . .stplg`currperiod`nextperiod;
+  currperiod::nextperiod;
+  if[p>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];
   getnextendUTC[];
   i+::1;
   rolllog[multilog;dldir;rolltabs;p];
+  .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
  };
 
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
 endofday:{[p]
+  .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
   getnextendUTC[];
@@ -204,15 +207,16 @@ endofday:{[p]
   closelog each logtabs;
   .eodtime.d+:1;
   init[`. `dbname];
+  .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
  };
 
 // get the next end time to compare to
-getnextendUTC:{nextendUTC::min(.eodtime.nextroll;.eodtime.nextperiod - .eodtime.dailyadj)}
+getnextendUTC:{nextendUTC::min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
 
 checkends:{
   // jump out early if don't have to do either 
   if[nextendUTC > x; :()];
-  if[.eodtime.nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1]];
   if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
  };
 
@@ -221,8 +225,8 @@ init:{[dbname]
   @[`.stplg.msgcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
-  .eodtime.currperiod:multilogperiod xbar .z.p+.eodtime.dailyadj;
-  .eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
+  currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
+  nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
   createdld[dbname;.eodtime.d];
   openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;

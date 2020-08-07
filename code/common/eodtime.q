@@ -32,9 +32,3 @@ getday:{[p]
 
 d:getday[.z.p];                                             // get current date when loading process, store in d
 nextroll:getroll[.z.p];                                     // get next roll when loading process, store in nextroll
-
-// function to determine next logging period
-getperiod:{[mp;cp]
-     np:cp+mp;
-     $[np>d+1;1D xbar np;np]
-     };
