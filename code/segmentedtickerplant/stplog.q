@@ -141,8 +141,8 @@ getlogs[`day]:{[t]
 // Open log for a single table at start of logging period
 openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
-  h:$[(not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
-    [.[lname;();:;()];hopen lname];
+  h:$[(notexists:not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
+    [.[if[notexists;lname;();:;()]];hopen lname];
     h0
   ];
   `..currlog upsert (tab;lname;h);
