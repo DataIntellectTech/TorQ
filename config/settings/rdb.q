@@ -4,7 +4,8 @@
 ignorelist:`heartbeat`logmsg	//list of tables to ignore when saving to disk
 hdbtypes:`hdb    		//list of hdb types to look for and call in hdb reload
 hdbnames:()			//list of hdb names to search for and call in hdb reload
-tickerplanttypes:`tickerplant	//list of tickerplant types to try and make a connection to
+tickerplanttypes:`tickerplant`segmentedtickerplant
+				//list of tickerplant types to try and make a connection to
 gatewaytypes:`gateway		//list of gateway types to try and make a connection to
 checktpperiod:0D00:00:05	//how often to check for tickerplant connection
 onlyclearsaved:0b		//if true, eod writedown will only clear tables which have been successfully saved to disk
@@ -26,6 +27,7 @@ parvaluesrc:`log		//where to source the rdb partition value, can be log (from tp
 				//anything else will return a null date which is will be filled by pardefault                                             
 pardefault:.z.D			//if the src defined in parvaluesrc returns null, use this default date instead
 tpcheckcycles:0W                //specify the number of times the process will check for an available tickerplant
+subfiltered:0b
 
 \d .proc
 loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}
