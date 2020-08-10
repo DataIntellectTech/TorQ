@@ -14,6 +14,8 @@ resultstab:([]procs:`$();funct:`$();table:`$();column:`$();resvalue:`long$());  
 advancedres:([]procs:`$();funct:`$();table:`$();resultkeys:`$();resultdata:());
 / - end of default parameters
 
+dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb  // Get a list of all databases.
+
 /- called at every EOD by .u.end
 init:{
   .lg.o[`init;"searching for servers"];
@@ -101,13 +103,21 @@ writedownadvanced:{
 .dqe.currentpartition:.dqe.getpartition[];  /- initialize current partition
 
 
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb`dqcdb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
 
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
-  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]-1;x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each(select from resultstab where table<>`;select from `advancedres where table<>`);
-  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each(select from resultstab where table=`;select from `advancedres where table=`);
+  restemp1:select from .dqe.resultstab where procs in dbprocs;
+  restemp2:select from .dqe.resultstab where not procs in dbprocs;
+  advtemp1:select from .dqe.advancedres where procs in dbprocs;
+  advtemp2:select from .dqe.advancedres where not procs in dbprocs;
+  .dqe.resultstab:restemp1;
+  .dqe.advancedres:advtemp1;
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[]-1;x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`resultstab`advancedres;
+  .dqe.resultstab:restemp2;
+  .dqe.advancedres:advtemp2;
+  {.dqe.endofday[.dqe.dqedbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`resultstab`adnvacedres;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- check list of handles to DQEDBs is non-empty, we need at least one to
