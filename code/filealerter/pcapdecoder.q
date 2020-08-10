@@ -35,10 +35,12 @@ buildtable:{[file]
 // returns starting point of next packet and row data
 gettablerow:{[filebinary;x]  // data for a single row
  // x is a list containing starting binary point for packet (x[0]) and row of data for that packet (x[1])
- time:     first gettime[filebinary;x];
+ time:     gettime[filebinary;x];
  flags:    getflags[filebinary;x];
  protocol: getprotocol[filebinary;x];
- 
+ info:     getinfo[filebinary;x];
+ ips:      getips[filebinary;x];
+
  totallength: 0x0 sv datafromfile[filebinary;x;18;2];
  IPheader:    4*"J"$last string filebinary[x[0]+globheader+packetheader+16];
  TCPheader:   4* first "0123456789abcdef"?/:string filebinary[x[0]+globheader+packetheader+48];
@@ -47,19 +49,13 @@ gettablerow:{[filebinary;x]  // data for a single row
  length: first raze ((enlist "h";enlist 2)1: filebinary[x[0]+36 37]) mod 65536;
  data:   datafromfile[filebinary;x;length - len;len];
 
- ips: getips[filebinary;x];
- src:  ips[0];
- dest: ips[1];
-
- info: getinfo[filebinary;x];
- 
  // array containing starting point for next byte and dictionary of data for current packet
- (x[0] + length + 16;`time`src`dest`srcport`destport`protocol`flags`seq`ack`win`tsval`tsecr`length`len`data!(time;src;dest;info[`srcport];info[`destport];protocol;flags;info[`seq];info[`ack];info[`win];info[`tsval];info[`tsecr];length;len;data))
+ (x[0] + length + 16;`time`src`dest`srcport`destport`protocol`flags`seq`ack`win`tsval`tsecr`length`len`data!(time;ips[`src];ips[`dest];info[`srcport];info[`destport];protocol;flags;info[`seq];info[`ack];info[`win];info[`tsval];info[`tsecr];length;len;data))
  }
 
 
 gettime:{[filebinary;x]
- linuxtokdbtime ("iiii";4 4 4 4)1: packetheader#(globheader+x[0]) _ filebinary
+ first linuxtokdbtime ("iiii";4 4 4 4)1: packetheader#(globheader+x[0]) _ filebinary
  }
 
 linuxtokdbtime:{[time]
@@ -97,5 +93,6 @@ getinfo:{[filebinary;x]
 
 getips:{[filebinary;x]
  // ip data starts at 28th byte
- `$"." sv ' string 4 cut "i"$datafromfile[filebinary;x;28;8]
+ elements: `$"." sv ' string 4 cut "i"$datafromfile[filebinary;x;28;8];
+ `src`dest!elements
  } 
