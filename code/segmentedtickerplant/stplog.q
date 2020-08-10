@@ -142,8 +142,8 @@ getlogs[`day]:{[t]
 openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
   .lg.o[`openlog;"opening logfile: ",string lname];
-  h:$[(not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
-    [.[lname;();:;()];hopen lname];
+  h:$[(notexists:not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
+    [.[if[notexists;lname;();:;()]];hopen lname];
     h0
   ];
   `..currlog upsert (tab;lname;h);

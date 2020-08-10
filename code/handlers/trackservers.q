@@ -330,15 +330,22 @@ startup:{
     retry[]}
 
 // Check if required processes all connected
-reqprocsnotconn:{[requiredprocs] 
-    not all requiredprocs in exec proctype from .servers.SERVERS where .dotz.liveh[w]
+reqprocsnotconn:{[requiredprocs;typeorname]
+    // parse of exec typeorname from .servers.SERVERS where .dotz.liveh[w]
+    not all requiredprocs in ?[`.servers.SERVERS;enlist (`.dotz.liveh;`w);();typeorname]
   };
 
+// Check if required process types all connected
+reqproctypesnotconn:reqprocsnotconn[;`proctype];
+
+// Check if required process names all connected
+reqprocnamesnotconn:reqprocsnotconn[;`procname];
+
 // Block process until all required processes are connected
-startupdepcycles:{[requiredprocs;timeintv;cycles]
+startupdepcyclestypename:{[requiredprocs;typeornamefunc;timeintv;cycles]
   n:1;                                                                                                                  //variable used to check how many cycles have passed
   .servers.startup[];
-  while[.servers.reqprocsnotconn requiredprocs;                                                                         //check if requiredprocs are running
+  while[typeornamefunc requiredprocs;                                                                                   //check if requiredprocs are running
     if[n>cycles;
       b:((),requiredprocs)except(),exec proctype from .servers.SERVERS where .dotz.liveh w;
       .lg.e[`connectionreport;string[.proc.procname]," cannot connect to ",","sv string'[b]];                           //after "cycles" times output error and exit process.
@@ -349,7 +356,13 @@ startupdepcycles:{[requiredprocs;timeintv;cycles]
    ];
  };
 
-startupdependent:startupdepcycles[;;0W];
+// Block process until all required process types are connected
+startupdepcycles:startupdepcyclestypename[;.servers.reqproctypesnotconn;;];
+
+// Block process until all required process names are connected
+startupdepnamecycles:startupdepcyclestypename[;.servers.reqprocnamesnotconn;;];
+
+startupdependent:startupdepcyclestypename[;.servers.reqproctypesnotconn;;0W];
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 

@@ -36,3 +36,4 @@ export TORQMONIT=${TORQHOME}/logs/monit                                         
 
 export RLWRAP="rlwrap"                                                                              # set rlwrap path
 export QCON="qcon"                                                                                  # set qcon path
+export QCMD="q"                                                                                     # set qcmd path
