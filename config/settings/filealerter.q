@@ -12,3 +12,7 @@ tickerplanttypes:`tickerplant					// List of tickerplant types to connect to
 tpconnsleepintv:10						// Number of seconds betweeen attmepts to connect to the tp
 tpcheckcycles:0W						// Specify the number of times the process will check for an available tickerplant
 usemd5:1b 							// User configuration for whether to find the md5 hash of new files. usemd5 takes 1b (on) or 0b (off)
+
+\d .proc
+
+loadprocesscode:1b						// Whether to load the process specific code defined at ${KDBCODE}/{process type}
