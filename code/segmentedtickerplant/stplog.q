@@ -141,6 +141,7 @@ getlogs[`day]:{[t]
 // Open log for a single table at start of logging period
 openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
+  .lg.o[`openlog;"opening logfile: ",string lname];
   h:$[(not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
     [.[lname;();:;()];hopen lname];
     h0
@@ -165,8 +166,9 @@ badmsg:{[e;t;x]
  };
 
 closelog:{[tab]
-  if[null h:`..currlog[tab;`handle];.lg.o[`closelog;"No open handle to log file"];:()];
-  @[hclose;h;{.lg.e[`closelog;"Handle already closed"]}];
+  if[null h:`..currlog[tab;`handle];.lg.o[`closelog;"no open handle to log file"];:()];
+  .lg.o[`closelog;"closing log file ",string currlog[tab;`logname]];
+  @[hclose;h;{.lg.e[`closelog;"handle already closed"]}];
   update handle:0N from `..currlog where tbl=tab;
  };
 
@@ -182,16 +184,17 @@ rolllog:{[multilog;dir;tabs;p]
   .stpm.updmeta[multilog][`open;tabs;p];
  };
 
-// Send close of period message to subscribers, update logging period times, roll logs
-endofperiod:{[p]
-  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 .stplg`currperiod`nextperiod];
+// Send close of period message to subscribers, update logging period times
+// roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
+endofperiod:{[p;rolllogs]
+  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
   .stpps.endp . .stplg`currperiod`nextperiod;
   currperiod::nextperiod;
   if[p>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];
   getnextendUTC[];
   i+::1;
-  rolllog[multilog;dldir;rolltabs;p];
+  if[rolllogs;rolllog[multilog;dldir;rolltabs;p]];
   .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
  };
 
@@ -202,7 +205,7 @@ endofday:{[p]
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
   getnextendUTC[];
-  .stpm.updmeta[multilog][`close;logtabs;p];
+  .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;
   .eodtime.d+:1;
@@ -216,8 +219,8 @@ getnextendUTC:{nextendUTC::min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)
 checkends:{
   // jump out early if don't have to do either 
   if[nextendUTC > x; :()];
-  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1]];
-  if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1;not isendofday:.eodtime.nextroll < x]];
+  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
  };
 
 init:{[dbname]
