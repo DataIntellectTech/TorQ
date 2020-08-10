@@ -48,6 +48,7 @@ find:{[path;match]
 
 //-decodes pcap file and sends to tickerplant
 processpcaps:{[path;file]
+        if[not decodepcaps; :()];
 	.lg.o[`alerter;"processing pcap file"];
 	.lg.o[`alerter;"decoding pcap file"];
 	table: .pcap.buildtable[hsym `$(path,"/",file)];
