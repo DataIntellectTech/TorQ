@@ -12,5 +12,5 @@ true,0,0,q,.pcap.buildtable[pcapfile]~rdbhandle"select from packets",1,,"Check r
 run,0,0,q,processedtab:get hsym `$alreadyprocessed,1,,"Load in the already processed table"
 true,0,0,q,(1_string[pcapfile])~first exec filename from processedtab,1,,"Check the dummy pcap file is in the alreadyprocessed table"
 after,0,0,q,.os.deldir[alreadyprocessed],1,,"Delete filealerterprocessed folder from test folder"
-after,0,0,q,rdbhandle"quote:0#quote",,"Clear quote table"
-after,0,0,q,rdbhandle"packets:0#packets",,"Clear packets table"
+after,0,0,q,rdbhandle"quote:0#quote",1,,"Clear quote table"
+after,0,0,q,rdbhandle"packets:0#packets",1,,"Clear packets table"
