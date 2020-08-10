@@ -167,7 +167,7 @@ badmsg:{[e;t;x]
 
 closelog:{[tab]
   if[null h:`..currlog[tab;`handle];.lg.o[`closelog;"no open handle to log file"];:()];
-  .lg.o[`closelog;"closing log file ",string currlog[tab;`logname]];
+  .lg.o[`closelog;"closing log file ",string `..currlog[tab;`logname]];
   @[hclose;h;{.lg.e[`closelog;"handle already closed"]}];
   update handle:0N from `..currlog where tbl=tab;
  };
