@@ -6,7 +6,7 @@ before,0,0,q,.stplg.t:.stplg.t except `KUT`KUTR,1,,"Remove k4 tables from log ta
 before,0,0,q,testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy),1,,"Create test trade update"
 before,0,0,q,testquote:(10?`4;10?100.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3),1,,"Create test quote update"
 before,0,0,q,system"t 0",1,,"Turn off timer"
-before,0,0,q,init[`autobatch],1,,"Define batch timer and update functions in autobatch mode"
+before,0,0,q,init[`memorybatch],1,,"Define batch timer and update functions in memorybatch mode"
 before,0,0,q,traderep:0#trade,1,,"Create duplicate trade table to replay data into"
 before,0,0,q,quoterep:0#quote,1,,"Create duplicate quote table to replay data into"
 before,0,0,q,upd:{[t;x]if[t~`trade;`traderep insert x];if[t~`quote;`quoterep insert x]},1,,"Define replay function"
