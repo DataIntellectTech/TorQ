@@ -602,7 +602,7 @@ greater flexibility in the method used to process updates. The process
  is able to operate in three possible batching modes, specified by the 
 `batchmode` flag:
 
--   `autobatch`: Updates are stored on the tickerplant and then published 
+-   `memorybatch`: Updates are stored on the tickerplant and then published 
     in batches by the timer function. The timer also initiates the disk-write 
     for all updates in the batch to the appropriate log files;
 

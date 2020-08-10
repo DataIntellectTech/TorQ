@@ -65,13 +65,13 @@ seqnum:0
 // Functions to add columns on updates
 updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 
-// If set to autobatch, publish and write to disk will be run in batches
+// If set to memorybatch, publish and write to disk will be run in batches
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
-upd[`autobatch]:{[t;x;now]
+upd[`memorybatch]:{[t;x;now]
   t insert updtab[t] . (x;now);
  };
 
-zts[`autobatch]:{
+zts[`memorybatch]:{
   {[t]
     if[count value t;
       `..loghandles[t] enlist (`upd;t;value flip value t);
