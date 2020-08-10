@@ -4,7 +4,8 @@
 
 // Variables
 firstmessage:@[value;`firstmessage;0]			// the first message to execute
-autoreplay:@[value;`autoreplay;1b]                      // replay tplogs automatically set to 1b to be backward compatible.
+segmentedmode:@[value;`segmented;1b]		 // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
+autoreplay:@[value;`autoreplay;1b]      // replay tplogs automatically set to 1b to be backward compatible.
 lastmessage:@[value;`lastmessage;0W]			// the last message to replay
 messagechunks:@[value;`messagechunks;0W]		// the number of messages to replay at once
 schemafile:@[value;`schemafile;`]			// the schema file to load data in to
@@ -80,12 +81,11 @@ if[`.replay.usage in key .proc.params; -1 .proc.getusage[]; exit 0];
 // Check if some variables are null
 // some must be set
 .err.exitifnull each `.replay.schemafile`.replay.hdbdir, $[all null (tplogdir;tplogfile); `.replay.tplogfile; ()];
-
 if[basicmode and (messagechunks within (0;-1 + 0W));
  .err.ex[`replayinit; "if using basic mode, messagechunks must not be used (it should be set to 0W). basicmode will use .Q.hdpf to overwrite tables at the end of the replay";1]];
 if[not partitiontype in `date`month`year; .err.ex[`replayinit;"partitiontype must be one of `date`month`year";1]];
-
 if[messagechunks=0;.err.ex[`replayinit;"messagechunks value cannot be 0";2]];
+if[segmentedmode and (0<>firstmessage or 0W<>lastmessage);.err.ex[`replayinit;"firstmessage must be 0 and lastmessage must be 0W while in segmented mode"]]
 
 trackonly:messagechunks < 0 
 if[trackonly;.lg.o[`replayinit;"messagechunks value is negative - log replay progress will be tracked"]];
@@ -107,15 +107,18 @@ tablestoreplay:$[tablelist~enlist`all; tables[`.]; tablelist,()]
 .lg.o[`replayinit;"hdb directory is set to ",string hdbdir:hsym hdbdir];
 
 // get the list of log files to replay
+
 logstoreplay:$[not null tplogfile; 
-		[if[()~key hsym tplogfile; .err.ex[`replayinit;"specified tplogfile ",(string tplogfile)," does not exist";3]];
-		 enlist hsym tplogfile]; 
-		[.lg.o[`replayinit;"reading log files from directory ",string tplogdir];
-		 if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
-		 raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]];
+	[if[()~key hsym tplogfile; .err.ex[`replayinit;"specified tplogfile ",(string tplogfile)," does not exist";3]];
+	$[segmentedmode; raze ` sv' tplogfile,/:key tplogfile:hsym tplogfile; enlist hsym tplogfile]]; 
+	[.lg.o[`replayinit;"reading log files from directory ",string tplogdir];
+	if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
+	$[segmentedmode; `$raze (string pars),/:'string key each pars:hsym`$(string[tplogdir],"/"),/:string[key hsym tplogdir],'"/"; 
+    raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]]];
 
 if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]
 .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]
+
 
 // the path to the table to save
 pathtotable:{[h;p;t] `$(string .Q.par[h;partitiontype$p;t]),"/"}
@@ -205,12 +208,12 @@ replaylog:{[logfile]
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we wont replay the last message correctly
- -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile);
+ $[all "stpmeta" in string logfile;stpm:get logfile;-11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile)];
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
  // set compression level
- if[ 3= count compression;
+ if[3=count compression;
    .lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
    .z.zd:compression;
    .lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]];
@@ -231,7 +234,7 @@ realupd:{[f;t;x]
 	}[.replay.upd]
 
 // amend the upd function to filter based on the table list
-if[not tablelist~enlist `all; realupd:{[f;t;x] if[t in .replay.tablestoreplay; f[t;x]]}[realupd]]
+if[(not tablelist~enlist `all) and not segmentedmode; realupd:{[f;t;x] if[t in .replay.tablestoreplay; f[t;x]]}[realupd]]
 
 // amend to do chunked saves
 if[messagechunks < 0W; realupd:{[f;t;x] f[t;x]; checkcount[hdbdir;replaydate;1;tempdir]}[realupd]]
@@ -335,7 +338,6 @@ merge:{[dir;pt;tablename;mergelimits;h]
 \d .
 //load the sort csv
 .sort.getsortcsv[.replay.sortcsv]
-
 
 
 if[.replay.autoreplay;
