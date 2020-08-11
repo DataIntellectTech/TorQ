@@ -32,3 +32,20 @@ advancedperdtd:{[tab;func;vars;percentage]
     (1b;"No keys have exceeded more than ",(string percentage),"% from ",(string first -2# .Q.PV)," to ",string last .Q.PV);
     (0b;("The following keys ",ssr[string vars;".";", "]," have changed more than ",(string percentage),"%: ",errorsym))]
   }
+
+
+medianfunc:{[tab;func;vars]
+  /- List containing T+2,T+3,T+4
+  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
+  /- List containing only the advancedres tables from yesterday and two days ago
+  advancedreslist:{first x`resultdata}each listt;
+  /- changing the column name for the tables in advancedreslist
+  advancedreslist[2]:((-1_cols advancedreslist[2]),`bycountthree)xcol advancedreslist[2];
+  advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo)xcol advancedreslist[1];
+  advancedreslist[0]:((-1_cols advancedreslist[0]),`bycountone)xcol advancedreslist[0];
+  /- Joining the three tables
+  joinedadvancedres:advancedreslist[0]uj advancedreslist[1];
+  joinedadvancedres:joinedadvancedres uj advancedreslist[2];
+  joinedadvancedres:update medbycount: med (bycountone;bycounttwo;bycountthree) from joinedadvancedres;
+  /- here is where i wonder how to add dqe data currently to here
+  }
