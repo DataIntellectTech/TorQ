@@ -16,7 +16,7 @@ allcodes:(enlist 6)!(enlist `TCP);
 buildtable:{[file]
  // check that version number of input file is 2.4, if incorrect function exits
  pcapversioncheck: all 2 0 4 0 = read1(file;4;4);
- if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ", file, " is incorrect, so could not be decoded"];:()];
+ if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ",(1_ string file), " is incorrect, so could not be decoded"];:()];
 
  // if version is correct, gettablerow is iterated over each datapacket, extracting data
  data:1_ last each {[filebinary] // initial x and binary starting numbers removed from array list to make table
