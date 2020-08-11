@@ -214,7 +214,7 @@ endofday:{[p]
  };
 
 // get the next end time to compare to
-getnextendUTC:{nextendUTC::min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
+getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
 
 checkends:{
   // jump out early if don't have to do either 

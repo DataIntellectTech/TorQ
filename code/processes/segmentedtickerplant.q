@@ -45,11 +45,11 @@ init:{[b]
   .stplg.updmsg:.stplg.upd[b];
   .u.upd:{[t;x]
     // snap the current time and check for period end
-    .stplg.checkends now:.z.p+.eodtime.dailyadj;
+    if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
     // Type check allows update messages to contain multiple tables/data
     $[0h<type t;
-      .stplg.updmsg'[t;x;now];
-      .stplg.updmsg[t;x;now]
+      .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
+      .stplg.updmsg[t;x;now+.eodtime.dailyadj]
     ];
     .stplg.seqnum+:1;
   };
