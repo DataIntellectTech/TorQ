@@ -16,7 +16,7 @@ allcodes:(enlist 6)!(enlist `TCP);
 buildtable:{[file]
  // check that version number of input file is 2.4, if incorrect function exits
  pcapversioncheck: all 2 0 4 0 = read1(file;4;4);
- if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ",(1_string file), " is incorrect, so could not be decoded"];:()];
+ if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ", file, " is incorrect, so could not be decoded"];:()];
 
  // if version is correct, gettablerow is iterated over each datapacket, extracting data
  data:1_ last each {[filebinary] // initial x and binary starting numbers removed from array list to make table
@@ -44,7 +44,7 @@ gettablerow:{[filebinary;x]  // data for a single row
  TCPheader:   4* first "0123456789abcdef"?/:string filebinary[x[0]+globheader+packetheader+48];
  len:         (first first totallength - IPheader + TCPheader) mod 65536;
 
- length: first raze ((enlist "h";enlist 2)1: filebinary[x[0]+36 37]) mod 65536;
+ length: (0x0 sv reverse filebinary[x[0]+36 37]) mod 65536;
  data:   datafromfile[filebinary;x;length - len;len];
 
  // array containing starting point for next byte and dictionary of data for current packet
