@@ -14,21 +14,19 @@ allcodes:(enlist 6)!(enlist `TCP);
 
 // returns table of packet data
 buildtable:{[file]
- // check that version number of input file is 2.4
- pcapversioncheck: all 2 0 4 0 = "h"$4#4_read1 file;
+ // check that version number of input file is 2.4, if incorrect function exits
+ pcapversioncheck: all 2 0 4 0 = read1(file;4;4);
+ if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ",(1_string file), " is incorrect, so could not be decoded"];:()];
 
  // if version is correct, gettablerow is iterated over each datapacket, extracting data
- $[pcapversioncheck;[
-  data:1_ last each {[filebinary] // initial x and binary starting numbers removed from array list to make table
-   filebytesize: count filebinary;
-   // x here is a list containing starting binary point for packet (x[0]) and row of data for that packet (x[1])
-   gettablerow[filebinary;]\[{y>(first x[0])+40}[;filebytesize];(),0]    
-   } read1 file;
+ data:1_ last each {[filebinary] // initial x and binary starting numbers removed from array list to make table
+  filebytesize: count filebinary;
+  // x here is a list containing starting binary point for packet (x[0]) and row of data for that packet (x[1])
+  gettablerow[filebinary;]\[{y>(first x[0])+40}[;filebytesize];(),0]    
+  } read1 file;
  
-  data: update sym:` from data;
-  `time`sym xcols data];
-  .lg.o[`alerter;"pcap version number of ", file, " is incorrect, so could not be decoded"]
-  ]
+ data: update sym:` from data;
+ `time`sym xcols data
  }
 
 
@@ -50,7 +48,7 @@ gettablerow:{[filebinary;x]  // data for a single row
  data:   datafromfile[filebinary;x;length - len;len];
 
  // array containing starting point for next byte and dictionary of data for current packet
- (x[0] + length + 16;`time`src`dest`srcport`destport`protocol`flags`seq`ack`win`tsval`tsecr`length`len`data!(time;ips[`src];ips[`dest];info[`srcport];info[`destport];protocol;flags;info[`seq];info[`ack];info[`win];info[`tsval];info[`tsecr];length;len;data))
+ (x[0] + length + 16;`time xcols ips,info,`time`length`len`data!(time;length;len;data))
  }
 
 
