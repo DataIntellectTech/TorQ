@@ -4,7 +4,7 @@
 
 // Variables
 firstmessage:@[value;`firstmessage;0]			// the first message to execute
-segmentedmode:@[value;`segmented;1b]		 // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
+segmentedmode:@[value;`segmentedmode;1b]		 // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
 autoreplay:@[value;`autoreplay;1b]      // replay tplogs automatically set to 1b to be backward compatible.
 lastmessage:@[value;`lastmessage;0W]			// the last message to replay
 messagechunks:@[value;`messagechunks;0W]		// the number of messages to replay at once
@@ -85,7 +85,7 @@ if[basicmode and (messagechunks within (0;-1 + 0W));
  .err.ex[`replayinit; "if using basic mode, messagechunks must not be used (it should be set to 0W). basicmode will use .Q.hdpf to overwrite tables at the end of the replay";1]];
 if[not partitiontype in `date`month`year; .err.ex[`replayinit;"partitiontype must be one of `date`month`year";1]];
 if[messagechunks=0;.err.ex[`replayinit;"messagechunks value cannot be 0";2]];
-if[segmentedmode and (0<>firstmessage or 0W<>lastmessage);.err.ex[`replayinit;"firstmessage must be 0 and lastmessage must be 0W while in segmented mode"]]
+if[segmentedmode and ((0<>firstmessage) or 0W<>lastmessage);.err.ex[`replayinit;"firstmessage must be 0 and lastmessage must be 0W while in segmented mode"];1]
 
 trackonly:messagechunks < 0 
 if[trackonly;.lg.o[`replayinit;"messagechunks value is negative - log replay progress will be tracked"]];
@@ -107,17 +107,21 @@ tablestoreplay:$[tablelist~enlist`all; tables[`.]; tablelist,()]
 .lg.o[`replayinit;"hdb directory is set to ",string hdbdir:hsym hdbdir];
 
 // get the list of log files to replay
-
+// if segmentedmode is on, then logstoreplay will be a single logfile directory for a single date partition if -tplogfile is set
+// if -tplogdir is used, it will be a list of log file date partitions to be replayed contained in the stplogs directory
 logstoreplay:$[not null tplogfile; 
-	[if[()~key hsym tplogfile; .err.ex[`replayinit;"specified tplogfile ",(string tplogfile)," does not exist";3]];
-	$[segmentedmode; raze ` sv' tplogfile,/:key tplogfile:hsym tplogfile; enlist hsym tplogfile]]; 
-	[.lg.o[`replayinit;"reading log files from directory ",string tplogdir];
-	if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
-	$[segmentedmode; `$raze (string pars),/:'string key each pars:hsym`$(string[tplogdir],"/"),/:string[key hsym tplogdir],'"/"; 
-    raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]]];
+		[if[()~key hsym tplogfile; .err.ex[`replayinit;"specified tplogfile ",(string tplogfile)," does not exist";3]];
+		 enlist hsym tplogfile]; 
+		[.lg.o[`replayinit;"reading log files from directory ",string tplogdir];
+		 if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
+		 raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]];
 
-if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]
-.lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]
+// check if at least one log file exists in each stp log directory for segmentedmode
+// similar check for using regular tp
+$[segmentedmode;
+  (if[not any 0<count@'key each logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";1]]);
+  (if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]);
+  .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]]
 
 
 // the path to the table to save
@@ -189,6 +193,13 @@ finishreplay:{[h;p;td]
  // invoke any user defined post replay function
  .save.postreplay[h;p];
  }
+
+// takes in log file directories made with segmented tickerplant
+expandstplogs:{[logdirectories]
+  $[1=count logdirectories;
+    raze ` sv' logdirectories,/:key logdirectories:hsym logdirectories;
+    `$raze pars,/:'string key each `$pars:string[logdirectories],'"/"]
+ };
 
 replaylog:{[logfile]
  // set the upd function to be the initialupd function
@@ -342,6 +353,8 @@ merge:{[dir;pt;tablename;mergelimits;h]
 
 if[.replay.autoreplay;
   .lg.o[`replay;"replay starting from script by default"];
+  // expand stp log directories if using segmentedmode
+  if[.replay.segmentedmode;.replay.logstoreplay:.replay.expandstplogs[.replay.logstoreplay]];
   .replay.replaylog each .replay.logstoreplay;
   .lg.o[`replay;"replay complete"];
   if[.replay.exitwhencomplete; exit 0];
