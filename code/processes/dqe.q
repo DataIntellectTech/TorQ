@@ -21,6 +21,7 @@ init:{
   /- Open connection to discovery
   .servers.startupdependent[`dqedb;10];
   /- set timer to call EOD
+  if[gmttime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
@@ -139,6 +140,7 @@ writedownadvanced:{
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
     .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
     ];
+  if[gmttime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];
