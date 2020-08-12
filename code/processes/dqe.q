@@ -28,6 +28,7 @@ init:{
   .dqe.configtimer[];
   st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
+  if[((.z.T,z.t)gmttime)>st;st:1D+st;et:1D+et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownadvanced;`);"Running periodic writedown on advancedres"];
   .lg.o[`init;"initialization completed"];
