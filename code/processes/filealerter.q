@@ -7,10 +7,7 @@ polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file 
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
-decodepcaps:@[value;`.fa.decodepcaps;0b]							// Whether to parse PCAPs found by filealerter (causes connection to tp)
-tickerplanttypes:@[value;`.fa.tickerplanttypes;`tickerplant]					// List of tickerplant types to connect to
-tpconnsleepintv:@[value;`.fa.tpconnsleepintv;10]						// Number of seconds betweeen attmepts to connect to the tp
-tpcheckcycles:@[value;`.fa.tpcheckcycles;0W]							// Specify the number of times the process will check for an available tickerplant
+tickerplanttype:@[value;`.fa.tickerplanttype;`tickerplant]					// Type of tickerplant to connect to
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
 
@@ -48,16 +45,20 @@ find:{[path;match]
 
 //-decodes pcap file and sends to tickerplant
 processpcaps:{[path;file]
-	if[not decodepcaps; :()];
 	.lg.o[`alerter;"processing pcap file"];
 	.lg.o[`alerter;"decoding pcap file"];
 	table: .pcap.buildtable[hsym `$(path,"/",file)];
+	
+	.lg.o[`alerter;"checking connection to tickerplant"];
+	if[not tickerplanttype in .servers.SERVERS[`proctype]; .servers.startup[]];
+	if[not tickerplanttype in .servers.SERVERS[`proctype]; .lg.e[`alerter;"connection to tickerplant failed"]; :()];
+	
 	.lg.o[`alerter;"sending table to tickerplant"];
-	sendtotickerplant[`packets;table[cols table]]
+	sendtotickerplant[tickerplanttype;`packets;table[cols table]]
 	}
 
-sendtotickerplant:{[t;x]
-	.servers.gethandlebytype[`tickerplant;`any](`.u.upd;t;x)
+sendtotickerplant:{[type;t;x]
+	.servers.gethandlebytype[type;`any](`.u.upd;t;x)
 	}
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
@@ -189,6 +190,4 @@ loadprocessed[alreadyprocessed];
 
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
 
-if[decodepcaps;
-	.servers.CONNECTIONS:distinct .servers.CONNECTIONS,tickerplanttypes;
-	.servers.startupdepcycles[tickerplanttypes;tpconnsleepintv;tpcheckcycles]]
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,tickerplanttype
