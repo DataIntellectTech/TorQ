@@ -120,8 +120,8 @@ logstoreplay:$[not null tplogfile;
 // similar check for using regular tp
 $[segmentedmode;
   (if[not any 0<count@'key each logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";1]]);
-  (if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]);
-  .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]]
+  (if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]])];
+  .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]
 
 
 // the path to the table to save
