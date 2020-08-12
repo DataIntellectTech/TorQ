@@ -57,8 +57,8 @@ processpcaps:{[path;file]
 	sendtotickerplant[tickerplanttype;`packets;table[cols table]]
 	}
 
-sendtotickerplant:{[type;t;x]
-	.servers.gethandlebytype[type;`any](`.u.upd;t;x)
+sendtotickerplant:{[tptype;t;x]
+	.servers.gethandlebytype[tptype;`any](`.u.upd;t;x)
 	}
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
