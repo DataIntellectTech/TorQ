@@ -5,7 +5,7 @@
 configcsv:first .proc.getconfigfile["dqcconfig.csv"]
 dqcdbdir:hsym`$getenv[`KDBDQCDB]  // location to save dqc data
 hdbdir:hsym`$getenv[`KDBHDB]      // for locating the sym file
-gmttime:1b                        // define whether this process is on gmt time or not
+utctime:1b                        // define whether this process is on UTC time or not
 partitiontype:`date               // default partition type to date
 writedownperiod:0D00:05:00        // period for writedown
 getpartition:{@[value;`.dqe.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}
