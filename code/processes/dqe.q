@@ -2,11 +2,11 @@
 \d .dqe
 
 dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
-gmttime:@[value;`gmttime;1b];                                                       // define whether the process is on UTC time or not
+utctime:@[value;`utcime;1b];                                                       // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d)utctime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
@@ -19,6 +19,7 @@ init:{
   .lg.o[`init;"searching for servers"];
   /- Open connection to discovery
   .servers.startupdependent[`dqedb;10];
+  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   /- set timer to call EOD
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
@@ -67,7 +68,7 @@ loadtimer:{[d]
 /- adds today's date to the time from config csv, before loading the queries to the timer
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
-  t:update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from t;
+  t:update starttime:(`date$(.z.D,.z.d).dqe.utctime)+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
 
@@ -107,6 +108,7 @@ writedownengine:{
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
     .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
     ];
+  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];
