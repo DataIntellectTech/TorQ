@@ -29,7 +29,7 @@ logname[`tabperiod]:{[dir;tab;p]
 
 // Standard TP mode - write all tables to single log, roll daily
 logname[`none]:{[dir;tab;p]
-  ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",string[.z.d]except".")
+  ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
  };
 
 // Periodic-only mode - write all tables to single log, roll periodically intraday
@@ -39,7 +39,7 @@ logname[`periodic]:{[dir;tab;p]
 
 // Tabular-only mode - write tables to separate logs, roll daily
 logname[`tabular]:{[dir;tab;p]
-  ` sv(hsym dir;`$string[tab],"_",string[.z.d]except".")
+  ` sv(hsym dir;`$string[tab],"_",raze[string"dv"$p]except".:")
  };
 
 // Custom mode - mixed periodic/tabular mode
@@ -65,13 +65,13 @@ seqnum:0
 // Functions to add columns on updates
 updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 
-// If set to memorybatch, publish and write to disk will be run in batches
+// If set to autobatch, publish and write to disk will be run in batches
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
-upd[`memorybatch]:{[t;x;now]
+upd[`autobatch]:{[t;x;now]
   t insert updtab[t] . (x;now);
  };
 
-zts[`memorybatch]:{
+zts[`autobatch]:{
   {[t]
     if[count value t;
       `..loghandles[t] enlist (`upd;t;value flip value t);
@@ -141,9 +141,8 @@ getlogs[`day]:{[t]
 // Open log for a single table at start of logging period
 openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
-  .lg.o[`openlog;"opening logfile: ",string lname];
-  h:$[(notexists:not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
-    [.[if[notexists;lname;();:;()]];hopen lname];
+  h:$[(not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
+    [.[lname;();:;()];hopen lname];
     h0
   ];
   `..currlog upsert (tab;lname;h);
@@ -166,9 +165,8 @@ badmsg:{[e;t;x]
  };
 
 closelog:{[tab]
-  if[null h:`..currlog[tab;`handle];.lg.o[`closelog;"no open handle to log file"];:()];
-  .lg.o[`closelog;"closing log file ",string `..currlog[tab;`logname]];
-  @[hclose;h;{.lg.e[`closelog;"handle already closed"]}];
+  if[null h:`..currlog[tab;`handle];.lg.o[`closelog;"No open handle to log file"];:()];
+  @[hclose;h;{.lg.e[`closelog;"Handle already closed"]}];
   update handle:0N from `..currlog where tbl=tab;
  };
 
@@ -178,49 +176,44 @@ rolllog:{[multilog;dir;tabs;p]
   closelog each tabs;
   @[`.stplg.msgcount;tabs;:;0];
   {[m;d;t]
-    .[openlog;(m;d;t;currperiod);
+    .[openlog;(m;d;t;.eodtime.currperiod);
       {.lg.e[`stp;"failed to open log for table ",string[y],": ",x]}[;t]]
   }[multilog;dir;]each tabs;
   .stpm.updmeta[multilog][`open;tabs;p];
  };
 
-// Send close of period message to subscribers, update logging period times
-// roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
-endofperiod:{[p;rolllogs]
-  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-  .stpps.endp . .stplg`currperiod`nextperiod;
-  currperiod::nextperiod;
-  if[p>nextperiod::multilogperiod+currperiod;
+// Send close of period message to subscribers, update logging period times, roll logs
+endofperiod:{[p]
+  .stpps.endp . .eodtime`currperiod`nextperiod;
+  .eodtime.currperiod:.eodtime.nextperiod;
+  if[p>.eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
     system"t 0";'"next period is in the past"];
-  getnextendUTC[];
+  getnextend[];
   i+::1;
-  if[rolllogs;rolllog[multilog;dldir;rolltabs;p]];
-  .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
+  rolllog[multilog;dldir;rolltabs;p];
  };
 
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
 endofday:{[p]
-  .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end .eodtime.d;
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
-  getnextendUTC[];
-  .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
+  getnextend[];
+  .stpm.updmeta[multilog][`close;logtabs;p];
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;
   .eodtime.d+:1;
   init[`. `dbname];
-  .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
  };
 
 // get the next end time to compare to
-getnextendUTC:{nextendUTC::min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
+getnextend:{nextend::min(.eodtime.nextroll;.eodtime.nextperiod)}
 
 checkends:{
   // jump out early if don't have to do either 
-  if[nextendUTC > x; :()];
-  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1;not isendofday:.eodtime.nextroll < x]];
-  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
+  if[nextend > x; :()];
+  if[.eodtime.nextperiod < x; endofperiod[x]];
+  if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
  };
 
 init:{[dbname]
@@ -228,9 +221,9 @@ init:{[dbname]
   @[`.stplg.msgcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
-  currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
-  nextperiod::multilogperiod+currperiod;
-  getnextendUTC[]; 
+  .eodtime.currperiod:multilogperiod xbar .z.p+.eodtime.dailyadj;
+  .eodtime.nextperiod:.eodtime.getperiod[multilogperiod;.eodtime.currperiod];
+  getnextend[]; 
   createdld[dbname;.eodtime.d];
   openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
   // read in the meta table from disk 

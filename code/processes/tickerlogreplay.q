@@ -116,7 +116,7 @@ logstoreplay:$[not null tplogfile;
 		 if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
 		 raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]];
 
-// check if at least one log file exists in each stp log directory for segmentedmode
+// check if at least one log file exists in at least one stp log directory if in segmentedmode
 // similar check for using regular tp
 $[segmentedmode;
   (if[not any 0<count@'key each logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";1]]);
@@ -195,9 +195,9 @@ finishreplay:{[h;p;td]
  }
 
 // takes in log file directories made with segmented tickerplant
-expandstplogs:{[logdirectories]
-  $[1=count logdirectories;
-    raze ` sv' logdirectories,/:key logdirectories:hsym logdirectories;
+expandstplogs:{[logdirectories] // always a list
+  $[`~tplogdir;
+    raze ` sv' logdirectories,/:key logdirectories:hsym first logdirectories;
     `$raze pars,/:'string key each `$pars:string[logdirectories],'"/"]
  };
 
@@ -211,7 +211,8 @@ replaylog:{[logfile]
          @[`.;`upd;:;.replay.initialupd]];
 	@[`.;`upd;:;.replay.realupd]];
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
- .replay.replaydate:"D"$-10#string logfile;
+ // extract date from timestamp if stp, extract date from date if tp
+ $[segmentedmode;.replay.replaydate:"D"$-6_-12#string logfile;.replay.replaydate:"D"$-10#string logfile];
  if[ .replay.clean and (`$st:string .replay.replaydate) in key hdbdir;
     .lg.o[`replay;"HDB directory already contains ",st," partition. Deleting from the HDB directory"];
     .os.deldir .os.pth[.Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
