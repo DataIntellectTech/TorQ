@@ -16,13 +16,13 @@ allcodes:(enlist 6)!(enlist `TCP);
 buildtable:{[file]
  // check that version number of input file is 2.4, if incorrect function exits
  pcapversioncheck: all 2 0 4 0 = read1(file;4;4);
- if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ",(1_ string file), " is incorrect, so could not be decoded"];:()];
+ if[not pcapversioncheck;.lg.o[`alerter;"pcap version number of ", file, " is incorrect, so could not be decoded"];:()];
 
  // if version is correct, gettablerow is iterated over each datapacket, extracting data
  data:1_ last each {[filebinary] // initial x and binary starting numbers removed from array list to make table
   filebytesize: count filebinary;
-  // x here is a list containing starting binary point for packet (x[0]) and row of data for that packet (x[1])
-  gettablerow[filebinary;]\[{y>(first x[0])+40}[;filebytesize];(),0]    
+  // x here is a list containing starting binary point for packet (x[0]), the most recent win scaling factor (x[1]) and row of data for that packet (x[1])
+  gettablerow[filebinary;]\[{y>(first x[0])+40}[;filebytesize];(),0,1]
   } read1 file;
  
  data: update sym:` from data;
@@ -32,13 +32,14 @@ buildtable:{[file]
 
 // returns starting point of next packet and row data
 gettablerow:{[filebinary;x]  // data for a single row
- // x is a list containing starting binary point for packet (x[0]) and row of data for that packet (x[1])
- time:     gettime[filebinary;x];
- flags:    getflags[filebinary;x];
- protocol: getprotocol[filebinary;x];
- info:     getinfo[filebinary;x];
- ips:      getips[filebinary;x];
-
+ // x is a list containing starting binary point for packet (x[0]), the most recent win scaling factor (x[1]) and row of data for that packet (x[2])
+ time:           gettime[filebinary;x];
+ protocol:       getprotocol[filebinary;x];
+ ips:            getips[filebinary;x];
+ flags:          getflags[filebinary;x];
+ winscalefactor: $[`SYN in flags;"i"$ 2 xexp filebinary[globheader+packetheader+x[0]+75];x[1]];
+ info:           getinfo[filebinary;x;flags;winscalefactor];
+ 
  totallength: 0x0 sv datafromfile[filebinary;x;18;2];
  IPheader:    4*"J"$last string filebinary[x[0]+globheader+packetheader+16];
  TCPheader:   4* first "0123456789abcdef"?/:string filebinary[x[0]+globheader+packetheader+48];
@@ -48,7 +49,7 @@ gettablerow:{[filebinary;x]  // data for a single row
  data:   datafromfile[filebinary;x;length - len;len];
 
  // array containing starting point for next byte and dictionary of data for current packet
- (x[0] + length + 16;`time xcols ips,info,`time`length`len`data!(time;length;len;data))
+ (x[0] + length + 16;winscalefactor;`time xcols ips,info,`time`flags`length`len`data!(time;flags;length;len;data))
  }
 
 
@@ -78,7 +79,7 @@ getprotocol:{[filebinary;x]
  protocol: $[code in key allcodes; allcodes[code]; code] 
  }
 
-getinfo:{[filebinary;x]
+getinfo:{[filebinary;x;flags;windowscale]
  // grabs multiple sets of data starting at 36th byte
  elements: first each ((2 2 4 4 2 2 8 4 4;"hhii h ii")1: datafromfile[filebinary;x;36;32]);
  
@@ -86,6 +87,8 @@ getinfo:{[filebinary;x]
  elements[0 1 4]:   elements[0 1 4] mod 65536;        // 65536 = max. of unsigned short - 1
  elements[2 3 5 6]: elements[2 3 5 6] mod 4294967296; // 4294967296 = max of unsigned integer - 1
  
+ //multiplies window by window scaling from most recent SYN packet
+ if[not `SYN in flags;elements[4]:elements[4] * windowscale];
  `srcport`destport`seq`ack`win`tsval`tsecr!elements
  }
 
