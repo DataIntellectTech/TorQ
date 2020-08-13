@@ -4,7 +4,7 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
 dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
-utctime:@[value;`utctime;1b];                                                   // define wehter the process is on UTC time or not
+utctime:@[value;`utctime;1b];                                                   // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
 .servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
