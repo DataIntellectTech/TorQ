@@ -49,7 +49,7 @@ gettablerow:{[filebinary;x]  // data for a single row
  data:   datafromfile[filebinary;x;length - len;len];
 
  // array containing starting point for next byte and dictionary of data for current packet
- (x[0] + length + 16;winscalefactor;`time xcols ips,info,`time`flags`length`len`data!(time;flags;length;len;data))
+ (x[0] + length + 16;winscalefactor;`time xcols ips,info,`time`flags`protocol`length`len`data!(time;flags;protocol;length;len;data))
  }
 
 
@@ -88,7 +88,7 @@ getinfo:{[filebinary;x;flags;windowscale]
  elements[2 3 5 6]: elements[2 3 5 6] mod 4294967296; // 4294967296 = max of unsigned integer - 1
  
  //multiplies window by window scaling from most recent SYN packet
- if[not `SYN in flags;elements[4]:elements[4] * windowscale];
+ if[not `SYN in flags;"j"$elements[4]:elements[4] * windowscale];
  `srcport`destport`seq`ack`win`tsval`tsecr!elements
  }
 
