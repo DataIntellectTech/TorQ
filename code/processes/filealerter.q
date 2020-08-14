@@ -44,20 +44,21 @@ find:{[path;match]
 	if[os=`win;files:,/:[path,"\\"; files]]; files};
 
 //-decodes pcap file and sends to tickerplant
-processpcaps:{[path;file]
+processpcaps:{[path;file;pcaptab]
 	.lg.o[`alerter;"processing pcap file"];
 	.lg.o[`alerter;"decoding pcap file"];
 	table: .pcap.buildtable[hsym `$(path,"/",file)];
 	
 	.lg.o[`alerter;"checking connection to tickerplant"];
-	if[not tickerplanttype in .servers.SERVERS[`proctype]; .servers.startup[]];
-	if[not tickerplanttype in .servers.SERVERS[`proctype]; .lg.e[`alerter;"connection to tickerplant failed"]; :()];
-	
-	.lg.o[`alerter;"sending table to tickerplant"];
-	sendtotickerplant[tickerplanttype;`packets;table[cols table]]
+	sendtotickerplant[tickerplanttype;pcaptab;table[cols table]]
 	}
 
+sendpackets:processpcaps[;;`packets]
+
 sendtotickerplant:{[tptype;t;x]
+	if[.servers.gethandlebytype[tptype;`any]~`int$();
+		.lg.e[`alerter;"no connection to tickerplant, exiting sendtotickerplant"]; :()];
+ 	.lg.o[`alerter;"connection found, sending table to tickerplant"];
 	.servers.gethandlebytype[tptype;`any](`.u.upd;t;x)
 	}
 	
@@ -191,3 +192,4 @@ loadprocessed[alreadyprocessed];
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
 
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,tickerplanttype
+.servers.startup[]
