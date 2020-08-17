@@ -212,7 +212,7 @@ replaylog:{[logfile]
 	@[`.;`upd;:;.replay.realupd]];
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
  // extract date from timestamp if stp, extract date from date if tp
- $[segmentedmode;.replay.replaydate:"D"$-6_-12#string logfile;.replay.replaydate:"D"$-10#string logfile];
+ $[segmentedmode;.replay.replaydate:"D"$-6_-14#string logfile;.replay.replaydate:"D"$-10#string logfile];
  if[ .replay.clean and (`$st:string .replay.replaydate) in key hdbdir;
     .lg.o[`replay;"HDB directory already contains ",st," partition. Deleting from the HDB directory"];
     .os.deldir .os.pth[.Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
