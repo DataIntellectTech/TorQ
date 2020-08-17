@@ -153,7 +153,7 @@ errorlogname:@[value;`.stplg.errorlogname;`err]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:` sv(hsym dir;`$string[errorlogname],string[.eodtime.d]except".");
+  lname:hsym`$string[dir],"/",string[errorlogname],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:";
   if[not type key lname;.[lname;();:;()]];
   h:hopen lname;
   `..currlog upsert (errorlogname;lname;h);
