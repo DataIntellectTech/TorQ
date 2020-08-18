@@ -11,12 +11,12 @@ updmeta:enlist[`]!enlist ()
 
 updmeta[`tabperiod]:{[x;t;p]
   getmeta[x;p;;]'[enlist each t;`..currlog[([]tbl:t)]`logname];
-  (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
+  setmeta[.stplg.dldir;metatable];
  };
 
 updmeta[`none]:{[x;t;p]
   getmeta[x;p;t;`..currlog[first t]`logname];
-  (hsym`$string[.stplg.dldir],"/stpmeta") set metatable;
+  setmeta[.stplg.dldir;metatable];
  };
 
 updmeta[`periodic]:updmeta[`none]
@@ -40,5 +40,10 @@ getmeta:{[x;p;t;ln]
   if[x~`close;
     ![`.stpm.metatable;enlist (=;`logname;`ln);0b;`end`msgcount!(p;(sum;(`.stplg.msgcount;`t)))]
   ]
+ };
+
+setmeta:{[dir;mt]
+  t:(hsym`$string[dir],"/stpmeta");
+  .[{x set y};(t;mt);{.lg.e[`setmeta;"Failed to set metatable with error: ",x]}];
  };
 

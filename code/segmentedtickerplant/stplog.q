@@ -153,9 +153,9 @@ errorlogname:@[value;`.stplg.errorlogname;`err]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:hsym`$string[dir],"/",string[errorlogname],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:";
+  lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
   if[not type key lname;.[lname;();:;()]];
-  h:hopen lname;
+  h:@[{hopen x};lname;{.lg.e[`openlogerr;"failed to open handle to error log with error: ",x]}];
   `..currlog upsert (errorlogname;lname;h);
  };
 

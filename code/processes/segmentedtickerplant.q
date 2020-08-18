@@ -16,30 +16,34 @@ $[`schemafile in key .proc.params;
   [.lg.e[`stp;"schema file required"];exit 1]
  ]
 
+\d .stpps
 // Populate pub/sub tables list with schema tables
-.stpps.t:tables[]except `currlog;
-.stpps.schemas:.stpps.t!value each .stpps.t;
+t:tables[]except `currlog;
+schemas:.stpps.t!value each .stpps.t;
 
 // amend the main schemas to not have any attributes
-{@[x;cols x;`#]}each .stpps.t;
+{@[x;cols x;`#]}each t;
 
 // store attribute free empty versions of the tables
-.stpps.schemasnoattributes:.stpps.t!value each .stpps.t
+schemasnoattributes:t!value each t
 
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
 // Preserve any prior definitions, but default all tables if not specified
-.stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
+
+\d .stplg
+updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),updtab
 
 // In none or tabular mode, intraday rolling not required
-if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
+if[multilog in `none`tabular;multilogperiod:1D];
 
 // In custom mode, load logging type for each table
-if[.stplg.multilog~`custom;
-  @[{.stplg.custommode:1_(!) . ("SS";",")0: x};.stplg.customcsv;
+if[multilog~`custom;
+  @[{custommode:1_(!) . ("SS";",")0: x};customcsv;
     {.lg.e[`stp;"failed to load custom mode csv"]}]
  ];
-
+ 
+\d .
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .stplg.updmsg:.stplg.upd[b];

@@ -169,7 +169,7 @@ setpartition:{[]
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
 loadsubfilters:{[]
-	.sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
+	.sub.filterparams:@[{1!("SSS";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
 	.rdb.subscribeto:raze value flip key .sub.filterparams;
 	.rdb.subscribesyms:.sub.filterparams;}
 
