@@ -143,7 +143,7 @@ zip:{[FILE]
 
 \d .
 
-$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; zipdir:.unix.zipdir]]
+$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; tardir:.unix.tardir]]
 
 //-runner function
 hkrun:{[]
