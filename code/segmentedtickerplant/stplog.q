@@ -29,7 +29,7 @@ logname[`tabperiod]:{[dir;tab;p]
 
 // Standard TP mode - write all tables to single log, roll daily
 logname[`none]:{[dir;tab;p]
-  ` sv(hsym .stplg.dldir;`$string[.proc.procname],"_",string[.z.d]except".")
+  ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
  };
 
 // Periodic-only mode - write all tables to single log, roll periodically intraday
@@ -39,7 +39,7 @@ logname[`periodic]:{[dir;tab;p]
 
 // Tabular-only mode - write tables to separate logs, roll daily
 logname[`tabular]:{[dir;tab;p]
-  ` sv(hsym dir;`$string[tab],"_",string[.z.d]except".")
+  ` sv(hsym dir;`$string[tab],"_",raze[string"dv"$p]except".:")
  };
 
 // Custom mode - mixed periodic/tabular mode
@@ -153,7 +153,7 @@ errorlogname:@[value;`.stplg.errorlogname;`err]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:` sv(hsym dir;`$string[errorlogname],string[.eodtime.d]except".");
+  lname:hsym`$string[dir],"/",string[errorlogname],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:";
   if[not type key lname;.[lname;();:;()]];
   h:hopen lname;
   `..currlog upsert (errorlogname;lname;h);
