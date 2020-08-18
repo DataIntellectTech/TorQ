@@ -354,7 +354,7 @@ merge:{[dir;pt;tablename;mergelimits;h]
 
 if[.replay.autoreplay;
   // grab stp meta table before replaying logs if in segmentedmode
-  if[.replay.segmentedmode;.replay.stpm::get `:stpmeta];
+  // TO DO - define meta table here for replay flexibility
   .lg.o[`replay;"replay starting from script by default"];
   // expand stp log directories if using segmentedmode
   if[.replay.segmentedmode;.replay.logstoreplay:.replay.expandstplogs[.replay.logstoreplay]];
