@@ -75,12 +75,15 @@ kdbzip:{[FILE]
 
 //-locates files with path, matching string and age
 find:{[path;match;age;agemin]
+	$[path~getenv[`KDBSTPLOG],"/";
+		[fileordir::"directories";flag::"d"];
+		[fileordir::"files";flag::"f"]];
 	$[0=agemin;
-	files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mtime +",raze string z};(path;match;age);
+	matches:.[{.lg.o[`housekeeping;"Searching for ",fileordir,": ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type ",flag," -name \"",y,"\" -mtime +",raze string z};(path;match;age);
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
-	 files:.[{.lg.o[`housekeeping;"Searching for: ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type f -name \"",y,"\" -mmin +",raze string z};(path;match;age);
+	 matches:.[{.lg.o[`housekeeping;"Searching for ",fileordir,": ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type ",flag," -name \"",y,"\" -mmin +",raze string z};(path;match;age);
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}]];
-	$[(count files)=0;[.lg.o[`housekeeping;"No matching files located"];files]; files]}
+	$[(count matches)=0;[.lg.o[`housekeeping;"No matching ",fileordir," located"];matches]; matches]}
 
 
 //-removes files
@@ -91,6 +94,11 @@ rm:{[FILE]
 //-zips files
 zip:{[FILE]
 	@[{.lg.o[`housekeeping;"zipping ",x]; system "gzip ",x};FILE; {.lg.e[`housekeeping;"Failed to zip ",x," : ", y]}[FILE]]}
+
+//-creates a tar ball from a directory and removes original directory and files
+tardir:{[DIR]
+	@[{.lg.o[`housekeeping;"creating tar ball from ",x]; system "tar -czf ",x,".tar.gz ",x," --remove-files"};DIR; {.lg.e[`housekeeping;"Failed to create tar ball from ",x," : ", y]}[DIR]]}
+
 \d .
 //FUNCTIONS FOR WINDOWS
 \d .win
@@ -135,7 +143,7 @@ zip:{[FILE]
 
 \d .
 
-$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip;]]
+$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; zipdir:.unix.zipdir]]
 
 //-runner function
 hkrun:{[]
