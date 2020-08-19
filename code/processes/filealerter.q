@@ -53,8 +53,6 @@ processpcaps:{[path;file;pcaptab]
 	sendtotickerplant[tickerplanttype;pcaptab;table[cols table]]
 	}
 
-sendpackets:processpcaps[;;`packets]
-
 sendtotickerplant:{[tptype;t;x]
 	if[.servers.gethandlebytype[tptype;`any]~`int$();
 		.lg.e[`alerter;"no connection to tickerplant, exiting sendtotickerplant"]; :()];
