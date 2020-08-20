@@ -99,9 +99,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-return the names of the tables that have been subscribed for and
 	/-the date from the name of the tickerplant log file (assuming the tp log has a name like `: sym2014.01.01
 	/-plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
-	if[`default~tptype;
+	if[`default~.proc.tptype;
 		:(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])];
-	if[`segmented~tptype;
+	if[`segmented~.proc.tptype;
 		retdic:(`logdir`subtables)!(`$getenv[`KDBSTPLOG];details[0;;0]);
 		retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];("D"$8#-12 sublist string d1 first where not null d1:details[1;;1])^logdate);
 		:retdic,`errtables`errmsg!(errtabs;string[errtabs],\:" table  not available to be subscribed to"),'(details[0;;0];details[0;;1])@\:where 10=type each details[0;;1]];
