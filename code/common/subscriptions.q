@@ -62,7 +62,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-set the function to send to the server based on this
 	.lg.o[`subscribe;"getting details from the server"];
 	df:{(.u.sub\:[x;y];(.u`i`L);(.u `icounts);(.u `d))};
-	if[`segmentedtickerplant=proc`proctype;
+	if[`segmented~.proc.tptype;
 		df:{(.u.sub\:[x;y];.stplg.replaylog[x];x#.stplg `msgcount;(.eodtime `d))}];
 	details:@[proc`w;(df;subtabs;instrs);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
 	/-to be returned at end of function (null if there is no log)
