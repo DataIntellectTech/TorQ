@@ -1,5 +1,9 @@
 /-script to create subscriptions, e.g. to tickerplant
 
+\d .proc
+
+tptype:@[value;`tptype;`segmented];    // [segmented|default] tp type to determine subscription method
+
 \d .sub
 
 AUTORECONNECT:@[value;`AUTORECONNECT;1b];									//resubscribe to processes when they come back up
@@ -33,7 +37,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			[.servers.connectcustom:{x@y;.sub.autoreconnect[y]}[.servers.connectcustom]; .sub.reconnectinit:1b];
 			.lg.o[`subscribe;"autoreconnect was set to true but server functionality is disabled - unable to use autoreconnect"]]];
 	/-check the tables which are available on the server to subscribe to
-	utabs:@[proc`w;(key;`.u.w);()];
+	/-if using segmented tickerplant, use .u.w equivalent
+	if[`default~tpmode;utabs:@[proc`w;(key;`.u.w);()]];
+	if[`segmented~tpmode;utabs:@[proc`w;(key;`.stpps.subrequestall);()]];
 	subtabs:$[tabs~`;utabs;tabs];
 	/-make tabs a list if it isn't already
 	subtabs,:();
@@ -93,9 +99,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 	/-return the names of the tables that have been subscribed for and
 	/-the date from the name of the tickerplant log file (assuming the tp log has a name like `: sym2014.01.01
 	/-plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
-	if[`tickerplant=proc`proctype;
+	if[`default~tptype;
 		:(`subtables`tplogdate!(details[0;;0];(first "D" $ -10 sublist string last details 1)^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[1;0];details[2];details[3])];
-	if[`segmentedtickerplant=proc`proctype;
+	if[`segmented~tptype;
 		retdic:(`logdir`subtables)!(`$getenv[`KDBSTPLOG];details[0;;0]);
 		retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[1;];details[2];details[3];("D"$8#-12 sublist string d1 first where not null d1:details[1;;1])^logdate);
 		:retdic,`errtables`errmsg!(errtabs;string[errtabs],\:" table  not available to be subscribed to"),'(details[0;;0];details[0;;1])@\:where 10=type each details[0;;1]];
