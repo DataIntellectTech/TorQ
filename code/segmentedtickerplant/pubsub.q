@@ -15,9 +15,9 @@ subrequestfiltered:([]tbl:`$();handle:`int$();filts:();columns:())
 
 // Function to send end of period messages to subscribers
 // Assumes that .u.endp has been defined on the client side
-endp:{
-  (neg distinct raze union/[value subrequestall;exec handle from subrequestfiltered])@\:(`.u.endp;x;y);
- };
+// endp:{
+//   (neg distinct raze union/[value subrequestall;exec handle from subrequestfiltered])@\:(`.u.endp;x;y);
+//  };
 
 // Function to send end of day messages to subscribers      
 // Assumes that .u.end has been defined on the client side   
@@ -28,7 +28,7 @@ endp:{
 // combine endp and end
 // keep original available until tested
 end:{
-  (neg raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\: $[1<count x;`.u.endp;`.u.end],x
+  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\: $[1<count x;`.u.endp;`.u.end],x
  };
 
 suball:{
