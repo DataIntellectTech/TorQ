@@ -68,7 +68,7 @@ pub:{[t;x]
   if[count x;
     if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
     if[t in subrequestfiltered`tbl;
-      {[t;x]data:?[t;x`filts;0b;x`columns];-25!((),x`handle;(`upd;t;data))}
+      {[t;x]data:?[t;x`filts;0b;x`columns];neg[x`handle](`upd;t;data)}
       [t;]each select handle,filts,columns from subrequestfiltered where tbl=t
     ];
   ];
