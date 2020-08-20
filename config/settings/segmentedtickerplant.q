@@ -12,6 +12,7 @@ replayperiod:`day               // [period|day|prior]
 \d .proc
 
 loadprocesscode:1b        
+tptype:`segmented
 
 \d .eodtime
 
