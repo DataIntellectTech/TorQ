@@ -2,7 +2,7 @@
 \d .dqe
 
 dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
-utctime:@[value;`utcime;1b];                                                       // define whether the process is on UTC time or not
+utctime:@[value;`utctime;1b];                                                       // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
