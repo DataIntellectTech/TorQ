@@ -28,6 +28,8 @@ init:{
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
   if[((.z.Z,.z.z)utctime)>st;st:1D+st;et:1D+et];
+  .lg.o[`init;"start time of periodic writedown is: ",string st];
+  .lg.o[`init;"end time of periodic writedown is: ",string et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
   .lg.o[`init;"initialization completed"];
   }
@@ -103,6 +105,7 @@ writedownengine:{
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownengine in' funcparam];
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
+  .lg.o[`dqe;"removed functions from .timer.timer, .u.end continues"];
   .dqe.currentpartition:pt+1;
   /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
   if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
