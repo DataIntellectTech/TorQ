@@ -514,7 +514,7 @@ getsortparams:{[]
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
 /- setting the upd and .u.end functions as the .wdb versions
-.u.end:{[pt] 
+.u.end:{[pt;processdata] 
 	.wdb.endofday[.wdb.getpartition[]];
 	.wdb.currentpartition:pt+1;}
 	
