@@ -19,7 +19,7 @@ init:{
   .lg.o[`init;"searching for servers"];
   /- Open connection to discovery
   .servers.startupdependent[`dqedb;10];
-  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   /- set timer to call EOD
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
@@ -27,7 +27,7 @@ init:{
   .dqe.configtimer[];
   st:.dqe.writedownperiodengine+ min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
-  if[((.z.Z,.z.z)utctime)>st;st:1D+st;et:1D+et];
+  if[((.z.Z,.z.z).dqe.utctime)>st;st:(.z.Z,.z.z).dqe.utctime)+.dqe.writedownperiodengine];
   .lg.o[`init;"start time of periodic writedown is: ",string st];
   .lg.o[`init;"end time of periodic writedown is: ",string et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown"];
@@ -112,7 +112,7 @@ writedownengine:{
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
     .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
     ];
-  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];
