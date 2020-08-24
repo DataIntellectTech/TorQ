@@ -105,6 +105,3 @@ closesub:{[h]
   if[not y~`;:.stpps.subfiltered[x;y]]
  };
 
-//.servers.CONNECTIONS:distinct .servers.CONNECTIONS,`tickerplant
-//.servers.startup[]
-
