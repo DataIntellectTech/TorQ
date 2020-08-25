@@ -43,9 +43,9 @@ if[`hkusage in key .proc.params; -1 .hk.extrausage; exit 0]
 //-defines housekeeping
 csvloader:{[CSV]
 //-rethrows error if file doesn't exist, checks to see if correct columns exist in file
-	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***IB"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
-	housekeepingcsv::@[c;where (c:cols housekeepingcsv) in ``x;:;`agemin] xcol housekeepingcsv;
-	check:(all `function`path`match`exclude`age`agemin in (cols housekeepingcsv));
+	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***IBB"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
+	housekeepingcsv::@[cols hk;5 6;:;`agemin`checkfordirectory] xcol hk:housekeepingcsv;
+	check:(all `function`path`match`exclude`age`agemin`checkfordirectory in (cols housekeepingcsv));
 	//-if check shows incorrect columns, report error
 	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'`$"incorrect housekeeping csv layout"}[CSV]];
 		//-if correctly columned csv has nulls, report error and skip lines 
@@ -57,7 +57,7 @@ csvloader:{[CSV]
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
 	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
-	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin]])]}
+	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin];DICT[`checkfordirectory]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin];DICT[`checkfordirectory]])]}
 
 
 
@@ -74,10 +74,10 @@ kdbzip:{[FILE]
 \d .unix
 
 //-locates files with path, matching string and age
-find:{[path;match;age;agemin]
-	$[path~getenv[`KDBSTPLOG],"/";
-		[fileordir::"directories";flag::"d"];
-		[fileordir::"files";flag::"f"]];
+find:{[path;match;age;agemin;checkfordirectory]
+	$[0=checkfordirectory;
+		[fileordir::"files";flag::"f"];
+		[fileordir::"directories";flag::"d"]];
 	$[0=agemin;
 	matches:.[{.lg.o[`housekeeping;"Searching for ",fileordir,": ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type ",flag," -name \"",y,"\" -mtime +",raze string z};(path;match;age);
 	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
@@ -141,9 +141,13 @@ rm: {[FILE]
 zip:{[FILE]
 	.lg.e[`housekeeping;"zipping nyi for file ",FILE]}
 
+//tar directories NYI
+tardir:{[DIR]
+	.lg.e[`housekeeping;"tar nyi for directory ",DIR]}
+
 \d .
 
-$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; tardir:.unix.tardir]]
+$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip; tardir:.win.tardir];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; tardir:.unix.tardir]]
 
 //-runner function
 hkrun:{[]
