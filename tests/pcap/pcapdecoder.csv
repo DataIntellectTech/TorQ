@@ -6,7 +6,7 @@ before,0,0,q,"pcapfile:hsym `$testpcapfolder,""/dummy.pcap""",1,,"Handle to dumm
 before,0,0,q,tickerplanttype:`tickerplant,1,,"Change tickerplanttype from empty list back to default value"
 run,0,0,q,packets~.pcap.buildtable[pcapfile],1,,"Check buildtable produces the expected table from pcap file"
 run,0,0,q,tphandle:.servers.gethandlebytype[tickerplanttype;`any],1,,"Attempt to open handle to tickerplant"
-true,0,0,q,tphandle~`int$(),1,,"Check that there isn't a connection to tickerplant"
+true,0,0,q,not count tphandle,1,,"Check that there isn't a connection to tickerplant"
 true,0,0,q,()~sendtotickerplant[tickerplanttype;`quote;quote[cols[quote]]],1,,"Check sendtotickerplant runs without error with no connection to tp"
 run,0,0,q,".servers.CONNECTIONS:tickerplanttype,`rdb",1,,"Add tickerplanttype and rdb to connections"
 run,0,0,q,hclose first exec w from .servers.SERVERS where proctype=`discovery,1,,"Close connection to discovery"
