@@ -513,6 +513,7 @@ getsortparams:{[]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
+/- adds endofday to top level namespace so the segmentedtp can acces it
 endofday:.wdb.endofday;
 
 /- setting the upd and .u.end functions as the .wdb versions
