@@ -167,14 +167,14 @@ sub:{[subtabs;subsyms]
 \d .u
 
 /- publishes all tables then clears them, pass on .u.end to subscribers
-end:{[d;processdata]
+end:{[d]
   .lg.o[`end;"end of day invoked"];
   /- publish and clear all the tables 
   .ctp.publishalltables[];
   /- roll over the log you need a new log for next days data 
   .ctp.refreshtp[d+1];
   /- push endofday messages to subscribers
-  (neg union/[w[;;0]])@\:(`.u.end;d;processdata)
+  (neg union/[w[;;0]])@\:(`.u.end;d)
   }
 
 \d .

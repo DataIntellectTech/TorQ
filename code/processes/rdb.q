@@ -196,8 +196,11 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/-set u.end for the tickerplant to call at end of day
-.u.end:.rdb.endofday
+/- adds endofday to top level namespace so segmentedtp can access it
+endofday: .rdb.endofday
+
+/-set .u.end for the tickerplant to call at end of day
+.u.end:{[d] endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
@@ -208,11 +211,11 @@ reload:.rdb.reload
 .lg.o[`init;"searching for servers"];
 
 //check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[]; 
+//.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
+//.rdb.subscribe[]; 
 
 /-set the partition that is held in the rdb (for use by the gateway)
-.rdb.setpartition[]
+//.rdb.setpartition[]
 
 /-change timeout to zero before eod flush
 .timer.repeat[.eodtime.nextroll-00:01;0W;1D;
