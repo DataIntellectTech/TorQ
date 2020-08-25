@@ -80,7 +80,7 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date]
+endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
@@ -196,8 +196,11 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/-set u.end for the tickerplant to call at end of day
-.u.end:.rdb.endofday
+/- adds endofday to top level namespace so segmentedtp can access it
+endofday: .rdb.endofday
+
+/-set .u.end for the tickerplant to call at end of day
+.u.end:{[d] endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
