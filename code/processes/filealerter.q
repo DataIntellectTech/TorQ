@@ -54,9 +54,9 @@ processpcaps:{[path;file;pcaptab]
 	}
 
 sendtotickerplant:{[tptype;t;x]
-	if[.servers.gethandlebytype[tptype;`any]~`int$();
+	if[not count .servers.gethandlebytype[tptype;`any];
 		.lg.e[`alerter;"no connection to tickerplant, exiting sendtotickerplant"]; :()];
- 	.lg.o[`alerter;"connection found, sending table to tickerplant"];
+ 	.lg.o[`alerter;"connection found, sending ",string[t]," to tickerplant"];
 	.servers.gethandlebytype[tptype;`any](`.u.upd;t;x)
 	}
 	
