@@ -830,49 +830,57 @@ housekeeping csv file. These can either be set in the config file, or
 overridden via the command line. If these are not set, then default
 parameters are used; 12.00 and ‘KDBCONFIG/housekeeping.csv’
 respectively. The process is designed to run from a single csv file with
-five headings:
+seven headings:
 
 -   Function details the action that you wish to be carried out on the
-    files, initially, this can be rm (remove) and zip (zipping);
+      files or directories. Initially, this can be rm (remove) and zip 
+      (zipping) for files, and tardir (zipping) for directories;
 
--   Path specifies the directory that the files are in;
+-   Path specifies the directory that the files/directories are in;
 
--   Match provides the search string to the find function, files
+-   Match provides the search string to the find function, files/directories
       returned will have names that match this string;
 
 -   Exclude provides a second string to the find function, and these
-      files are excluded from the match list;
+      files/directories are excluded from the match list;
 
 -   Age is the ‘older than’ parameter, and the function will only be
-      carried out on files older than the age given (in days).
+      carried out on files/directories older than the age given (in days);
+
+-   Agemin switches the age measurement from days to minutes;
+
+-   Checkfordirectory specifies whether to search for directories, 
+      instead of files.
 
 An example csv file would be:
 
-    function,path,match,exclude,age
-    zip,./logs/,*.log,*tick*,2
-    rm,./logs/,*.log*,*tick*,4
-    zip,./logs/,*tick*,,1
-    rm,./logs/,*tick*,,3
+    function,path,match,exclude,age,agemin,checkfordirectory
+    zip,./logs/,*.log,*tick*,2,,
+    rm,./logs/,*.log*,*tick*,4,,
+    zip,./logs/,*tick*,,1,,
+    rm,./logs/,*tick*,,3,,
+    tardir,./stplogs/,database*,,1,,1
     
-    function path      match    exclude  age
-    ----------------------------------------
-    zip      "./logs/" "*.log"  "*tick*" 2
-    rm       "./logs/" "*.log*" "*tick*" 4
-    zip      "./logs/" "*tick*" ""       1
-    rm       "./logs/" "*tick*" ""       3
+    function path         match       exclude  age agemin checkfordirectory
+    -----------------------------------------------------------------------
+    zip      "./logs/"    "*.log"     "*tick*" 2   0      0
+    rm       "./logs/"    "*.log*"    "*tick*" 4   0      0
+    zip      "./logs/"    "*tick*"    ""       1   0      0
+    rm       "./logs/"    "*tick*"    ""       3   0      0
+    tardir   "./stplogs/" "database*" ""       1   0      1
 
 The process reads in the csv file, and passes it line by line to a
 ‘find’ function; providing a dictionary of values that can be used to
-locate the files required. The find function takes advantage of system
-commands to search for the files according to the specifications in the
+locate the files/directories required. The find function takes advantage of system
+commands to search for matches according to the specifications in the
 dictionary. A search is performed for both the match string and the
-exclude string, and cross referenced to produce a list of files that
-match the parameters given. The files are then each passed to a further
+exclude string, and cross referenced to produce a list of files/directories that
+match the parameters given. The matches are then each passed to a further
 set of system commands to perform the task of either zipping or
 removing. Note that an incomplete csv or non-existant path will throw an
 error.
 
-The remove and zipping functions form only basic implimentations of the
+The remove and zipping functions form only basic implementations of the
 housekeeping process; it is designed to be exended to include more
 actions than those provided. Any user function defined in the
 housekeeping code can be employed in the same fashion by providing the
