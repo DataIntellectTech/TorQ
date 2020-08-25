@@ -14,22 +14,18 @@ subrequestall:enlist[`]!enlist ()
 subrequestfiltered:([]tbl:`$();handle:`int$();filts:();columns:())
 
 // Function to send end of period messages to subscribers
-// Assumes that .u.endp has been defined on the client side
-// endp:{
-//   (neg distinct raze union/[value subrequestall;exec handle from subrequestfiltered])@\:(`.u.endp;x;y);
-//  };
+// Assumes that endofperiod has been defined on the client side in top level namespace
+endp:{
+  (neg allsubhandles[])@\:(`endofperiod;x;y;z);
+ };
 
 // Function to send end of day messages to subscribers      
-// Assumes that .u.end has been defined on the client side   
-// end:{
-//   (neg distinct raze union/[value subrequestall;exec handle from subrequestfiltered])@\:(`.u.end;x);
-//  };
-
-// combine endp and end
-// keep original available until tested
+// Assumes that endofday has been defined on the client side in top level namespace
 end:{
-  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\: $[1<count x;`.u.endp;`.u.end],x
+  (neg allsubhandles[])@\:(`endofday;x;y);
  };
+
+allsubhandles:{distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered]}
 
 suball:{
   delhandle[x;.z.w];
@@ -110,4 +106,3 @@ closesub:{[h]
   if[y~`;:.stpps.suball[x]];
   if[not y~`;:.stpps.subfiltered[x;y]]
  };
-

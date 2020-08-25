@@ -184,11 +184,16 @@ rolllog:{[multilog;dir;tabs;p]
   .stpm.updmeta[multilog][`open;tabs;p];
  };
 
+// creates dictionary of process data to be used at endofday/endofperiod
+endofdaydata:{
+  `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
+}
+
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
 endofperiod:{[p;rolllogs]
   .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-  .stpps.endp . .stplg`currperiod`nextperiod;
+  .stpps.endp[.stplg`currperiod;.stplg`nextperiod;endofdaydata[]];
   currperiod::nextperiod;
   if[p>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];
@@ -202,7 +207,7 @@ endofperiod:{[p;rolllogs]
 // create new and directory for the next day
 endofday:{[p]
   .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
-  .stpps.end .eodtime.d;
+  .stpps.end[.eodtime.d;endofdaydata[]];
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
   getnextendUTC[];
   .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
