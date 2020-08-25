@@ -38,8 +38,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			.lg.o[`subscribe;"autoreconnect was set to true but server functionality is disabled - unable to use autoreconnect"]]];
 	/-check the tables which are available on the server to subscribe to
 	/-if using segmented tickerplant, use .u.w equivalent
-	if[`default~tpmode;utabs:@[proc`w;(key;`.u.w);()]];
-	if[`segmented~tpmode;utabs:@[proc`w;(key;`.stpps.subrequestall);()]];
+	if[`default~.proc.tptype;utabs:@[proc`w;(key;`.u.w);()]];
+	if[`segmented~.proc.tptype;utabs:@[proc`w;`.stpps.t;()]];
 	subtabs:$[tabs~`;utabs;tabs];
 	/-make tabs a list if it isn't already
 	subtabs,:();
@@ -88,7 +88,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
 			/-the second element of details is a pair (log count;logfile)
 			/-or list of pairs for stp ((count 1;log 1);(count 2;log 2);..)
 			d:$[0=type details[1;0];details 1;enlist details 1];
-			{[d]@[{-11!x;};d;{.lg.e[`subscribe;"could not replay the log file: ", x]}]}each d;
+			{[d]@[{.lg.o[`subscribe;"replaying log file ",.Q.s1 x]; -11!x;};d;{.lg.e[`subscribe;"could not replay the log file: ", x]}]}each d;
 			/-reset the upd function back to original upd
 			@[`.;`upd;:;origupd]];
 		if[replaylog&null raze[details 1]1;

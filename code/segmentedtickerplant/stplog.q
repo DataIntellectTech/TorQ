@@ -143,7 +143,7 @@ openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
   .lg.o[`openlog;"opening logfile: ",string lname];
   h:$[(notexists:not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
-    [.[if[notexists;lname;();:;()]];hopen lname];
+    [if[notexists;.[lname;();:;()]];hopen lname];
     h0
   ];
   `..currlog upsert (tab;lname;h);
@@ -187,7 +187,7 @@ rolllog:{[multilog;dir;tabs;p]
 // creates dictionary of process data to be used at endofday/endofperiod
 endofdaydata:{
   `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
-}
+ }
 
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
