@@ -185,11 +185,6 @@ getpartition:{[] rdbpartition}
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
-// creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{[tabs]
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;tabs)
- }
-
 /-resets timeout to 0 before EOD writedown
 timeoutreset:{.rdb.timeout:system"T";system"T 0"};
 restoretimeout:{system["T ", string .rdb.timeout]};
@@ -201,11 +196,8 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/- adds dictionary parameter to endofdaydata
-endofday: {[d;tabs]
-	data: .rdb.endofdaydata[tabs];
-	.rdb.endofday[d;data]
- }
+/- adds endofday to top level namespace
+endofday: .rdb.endofday;
 
 /-set .u.end for the tickerplant to call at end of day
 .u.end:{[d] .rdb.endofday[d;()!()]}

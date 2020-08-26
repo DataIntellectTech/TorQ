@@ -502,11 +502,6 @@ getsortparams:{[]
 	];
 	};	
 
-// creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{[tabs]
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;tabs)
- }
-
 \d .
 
 /- get the sort attributes for each table
@@ -518,11 +513,8 @@ endofdaydata:{[tabs]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
-/- adds dictionary parameter to endofdaydata
-endofday: {[d;tabs]
-	data: .wdb.endofdaydata[tabs];
-	.wdb.endofday[d;data]
- }
+/-  adds endofday to top level namespace
+endofday: .wdb.endofday;
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]
