@@ -77,6 +77,12 @@ configtimer:{[]
 
 writedownengine:{
   if[0=count .dqe.tosavedown`.dqe.resultstab;:()];
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  restemp1:select from .dqe.resultstab where procs in dbprocs;
+  restemp2:select from .dqe.resultstab where not procs in dbprocs;
+  .dqe.resultstab:restemp1;
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[]-1;.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
+  .dqe.resultstab:restemp2;
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
