@@ -208,7 +208,7 @@ endofday: {[d]
  }
 
 /-set .u.end for the tickerplant to call at end of day
-.u.end:{[d] endofday[d;()!()]}
+.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
