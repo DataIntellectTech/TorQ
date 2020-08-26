@@ -16,13 +16,13 @@ subrequestfiltered:([]tbl:`$();handle:`int$();filts:();columns:())
 // Function to send end of period messages to subscribers
 // Assumes that endofperiod has been defined on the client side in top level namespace
 endp:{
-  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`endofperiod;x;y;z);
+  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`endofperiod;x;y);
  };
 
 // Function to send end of day messages to subscribers      
 // Assumes that endofday has been defined on the client side in top level namespace
 end:{
-  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`endofday;x;y);
+  (neg distinct raze union/[value subrequestall;exec handle from .stpps.subrequestfiltered])@\:(`endofday;x);
  };
 
 suball:{

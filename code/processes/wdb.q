@@ -501,6 +501,11 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
+
+// creates dictionary of process data to be used at endofday/endofperiod
+endofdaydata:{
+  `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
+ }
 	
 \d .
 
@@ -513,8 +518,11 @@ getsortparams:{[]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
-/- adds endofday to top level namespace so the segmentedtp can access it
-endofday:.wdb.endofday;
+/- adds dictionary parameter to endofdaydata
+endofday: {[d]
+	data: .wdb.endofdaydata[];
+	.wdb.endofday[d;data]
+ }
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]

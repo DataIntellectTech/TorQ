@@ -68,7 +68,9 @@ updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 // If set to memorybatch, publish and write to disk will be run in batches
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
 upd[`memorybatch]:{[t;x;now]
-  t insert updtab[t] . (x;now);
+  // only timestamps if not in CTP mode
+  if[not chainedtp; x: updtab[t] . (x;now)];
+  t insert x;
  };
 
 zts[`memorybatch]:{
@@ -83,7 +85,9 @@ zts[`memorybatch]:{
 
 // Standard batch mode - write to disk immediately, publish in batches
 upd[`defaultbatch]:{[t;x;now]
-  t insert x:.stplg.updtab[t] . (x;now);
+  // only timestamps if not in CTP mode
+  if[not chainedtp; x: updtab[t] . (x;now)];
+  t insert x;
   `..loghandles[t] enlist(`upd;t;x);
   // track tmp counts, and add these after publish
   @[`.stplg.tmpmsgcount;t;+;1];
@@ -102,7 +106,8 @@ zts[`defaultbatch]:{
 
 // Immediate mode - publish and write immediately
 upd[`immediate]:{[t;x;now]
-  x:updtab[t] . (x;now);
+  // only timestamps if not in CTP mode
+  if[not chainedtp; x: updtab[t] . (x;now)];
   `..loghandles[t] enlist(`upd;t;x);
   @[`.stplg.msgcount;t;+;1];
   @[`.stplg.rowcount;t;+;count first x];
@@ -184,16 +189,11 @@ rolllog:{[multilog;dir;tabs;p]
   .stpm.updmeta[multilog][`open;tabs;p];
  };
 
-// creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
-}
-
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
 endofperiod:{[p;rolllogs]
   .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-  .stpps.endp[.stplg`currperiod;.stplg`nextperiod;endofdaydata[]];
+  .stpps.endp[.stplg`currperiod;.stplg`nextperiod];
   currperiod::nextperiod;
   if[p>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];
@@ -207,7 +207,7 @@ endofperiod:{[p;rolllogs]
 // create new and directory for the next day
 endofday:{[p]
   .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
-  .stpps.end[.eodtime.d;endofdaydata[]];
+  .stpps.end[.eodtime.d];
   if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
   getnextendUTC[];
   .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
