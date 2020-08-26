@@ -186,8 +186,8 @@ notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
 // creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
+.rdb.endofdaydata:{[tabs]
+  `proctype`procname`tables!(.proc.proctype;.proc.procname;tabs)
  }
 
 /-resets timeout to 0 before EOD writedown
@@ -202,8 +202,8 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 upd:.rdb.upd
 
 /- adds dictionary parameter to endofdaydata
-endofday: {[d]
-	data: .rdb.endofdaydata[];
+endofday: {[d;tabs]
+	data: .rdb.endofdaydata[tabs];
 	.rdb.endofday[d;data]
  }
 

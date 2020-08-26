@@ -503,10 +503,10 @@ getsortparams:{[]
 	};	
 
 // creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;exec table from .sub.SUBSCRIPTIONS where proctype=`segmentedtickerplant)
+endofdaydata:{[tabs]
+  `proctype`procname`tables!(.proc.proctype;.proc.procname;tabs)
  }
-	
+
 \d .
 
 /- get the sort attributes for each table
@@ -519,8 +519,8 @@ endofdaydata:{
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
 /- adds dictionary parameter to endofdaydata
-endofday: {[d]
-	data: .wdb.endofdaydata[];
+endofday: {[d;tabs]
+	data: .wdb.endofdaydata[tabs];
 	.wdb.endofday[d;data]
  }
 
