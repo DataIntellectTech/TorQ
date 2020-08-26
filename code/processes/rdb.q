@@ -186,7 +186,7 @@ notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
 // creates dictionary of process data to be used at endofday/endofperiod
-.rdb.endofdaydata:{[tabs]
+endofdaydata:{[tabs]
   `proctype`procname`tables!(.proc.proctype;.proc.procname;tabs)
  }
 
