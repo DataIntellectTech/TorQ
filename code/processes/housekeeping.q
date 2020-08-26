@@ -147,7 +147,7 @@ tardir:{[DIR]
 
 \d .
 
-$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip; tardir:.win.tardir];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; tardir:.unix.tardir]]
+$[.z.o like "w*";[find:.win.find; rm:.win.rm;zip:.win.zip; tardir:.win.tardir;];[find:.unix.find; rm:.unix.rm;zip:.unix.zip; tardir:.unix.tardir;]]
 
 //-runner function
 hkrun:{[]
