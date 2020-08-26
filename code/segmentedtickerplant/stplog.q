@@ -57,7 +57,7 @@ upd:@[value;`.stplg.upd;enlist[`]!enlist ()];
 zts:@[value;`.stplg.zts;enlist[`]!enlist ()];
 
 // Number of update messages received for each table
-msgcount:rowcount:tmpmsgcount:tmprowcount:enlist[`]!enlist ()
+msgcount:rowcount:tmpmsgcount:tmprowcount:(`symbol$())!`long$()
 
 // Sequence number
 seqnum:0
@@ -128,9 +128,8 @@ getlogs[`period]:{[t]
 
 // If replayperiod set to `day, replay all of today's logs
 getlogs[`day]:{[t]
-  lnames:distinct uj/[{
-    select seq,tbls,logname,msgcount from .stpm.metatable where x in/: tbls
-    }each t];
+  // set the msgcount to 0Wj for all logs which have closed
+  lnames:select seq,tbls,logname,msgcount:0Wj from .stpm.metatable where any each tbls in\: t;
   // Meta table does not store counts for live logs, so these are populated here
   lnames:update msgcount:sum each .stplg.msgcount[tbls] from lnames where seq=.stplg.i;
   flip value exec `long$msgcount,logname from lnames
@@ -231,6 +230,7 @@ checkends:{
 init:{[dbname]
   t::tables[`.]except `currlog;
   @[`.stplg.msgcount;t;:;0];
+  @[`.stplg.rowcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
