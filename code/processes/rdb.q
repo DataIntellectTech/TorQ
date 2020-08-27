@@ -196,11 +196,11 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/- adds endofday to top level namespace so segmentedtp can access it
-endofday: .rdb.endofday
+/- adds endofday to top level namespace
+endofday: .rdb.endofday;
 
 /-set .u.end for the tickerplant to call at end of day
-.u.end:{[d] endofday[d;()!()]}
+.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
