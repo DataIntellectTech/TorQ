@@ -553,6 +553,13 @@ reloadnamecode:{
 	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 
+// execute system commands
+sys:{[cmd]
+	.lg.o[`system;"executing system command: ",cmd];
+	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];error};
+	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
+	};
+
 \d . 
 // Load configuration
 // TorQ loads configuration modules in the order: TorQ Default, Service Specific and then Application Specific

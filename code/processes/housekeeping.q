@@ -80,7 +80,7 @@ find:{[path;match;age;agemin;checkfordirectory]
 	dayormin:$[0=agemin;"mtime";"mmin"];
 	findmatches:{[path;match;age;fileordir;flag;dayormin] 
 			.lg.o[`housekeeping;"Searching for ",fileordir,": ",path,match];
-			system "/usr/bin/find ",path," -maxdepth 1 -type ",flag," -name \"",match,"\" -",dayormin," +",raze string age};
+			.proc.sys "/usr/bin/find ",path," -maxdepth 1 -type ",flag," -name \"",match,"\" -",dayormin," +",raze string age};
 	matches:.[findmatches;(path;match;age;fileordir;flag;dayormin);{.lg.e[`housekeeping;"Find function failed: ",x];()}];
 	if[0=count matches;.lg.o[`housekeeping;"No matching ",fileordir," located"]];
 	matches}
@@ -88,16 +88,16 @@ find:{[path;match;age;agemin;checkfordirectory]
 
 //-removes files
 rm:{[FILE]
-	@[{.lg.o[`housekeeping;"removing ",x]; system "/bin/rm -f ",x};FILE; {.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
+	@[{.lg.o[`housekeeping;"removing ",x]; .proc.sys "/bin/rm -f ",x};FILE; {.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
 
 
 //-zips files
 zip:{[FILE]
-	@[{.lg.o[`housekeeping;"zipping ",x]; system "/bin/gzip ",x};FILE; {.lg.e[`housekeeping;"Failed to zip ",x," : ", y]}[FILE]]}
+	@[{.lg.o[`housekeeping;"zipping ",x]; .proc.sys "/bin/gzip ",x};FILE; {.lg.e[`housekeeping;"Failed to zip ",x," : ", y]}[FILE]]}
 
 //-creates a tar ball from a directory and removes original directory and files
 tardir:{[DIR]
-	@[{.lg.o[`housekeeping;"creating tar ball from ",x]; system "/bin/tar -czf ",x,".tar.gz ",x," --remove-files"};DIR; {.lg.e[`housekeeping;"Failed to create tar ball from ",x," : ", y]}[DIR]]}
+	@[{.lg.o[`housekeeping;"creating tar ball from ",x]; .proc.sys "/bin/tar -czf ",x,".tar.gz ",x," --remove-files"};DIR; {.lg.e[`housekeeping;"Failed to create tar ball from ",x," : ", y]}[DIR]]}
 
 \d .
 //FUNCTIONS FOR WINDOWS
@@ -117,25 +117,25 @@ find:{[path;match;age;agemin]
         //searches for files and refines return to usable format
 	$[0=agemin;
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:winfilelist[PATH;match];
-		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; system "z 0";
+		.proc.sys "z 1";fulllist:winfilelist[PATH;match];
+		removelist:fulllist where ("D"${10#x} each fulllist)<.proc.cd[]-age; .proc.sys "z 0";
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err];
 	files:.[{[PATH;match;age].lg.o[`housekeeping;"Searching for: ", match];
-		system "z 1";fulllist:winfilelist[PATH;match];
-		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; system "z 0";
+		.proc.sys "z 1";fulllist:winfilelist[PATH;match];
+		removelist:fulllist where ({ts:("  " vs 17#x);("D"$ts[0]) + value ts[1]} each fulllist)<.proc.cp[]-`minute$age; .proc.sys "z 0";
 		{[path;x]path,last " " vs x} [PATH;] each removelist};(PATH;match;age);err]];
 	$[(count files)=0;
 	[.lg.o[`housekeeping;"No matching files located"];files]; files]}
 
 //defines full list of files based on Windows OS version
 winfilelist:{[path;match]
-	$[version in `w7`w8`w10;-2_(5_system "dir ",path,match);-5_(5_system "dir ",path,match, " /s")]
+	$[version in `w7`w8`w10;-2_(5_.proc.sys "dir ",path,match);-5_(5_.proc.sys "dir ",path,match, " /s")]
  }
 
 
 //removes files
 rm: {[FILE]
-	@[{.lg.o[`housekeeping;"removing ",x];system"del /F /Q ", x};FILE;{.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
+	@[{.lg.o[`housekeeping;"removing ",x];.proc.sys"del /F /Q ", x};FILE;{.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
 
 //zip not yet implemented on Windows
 zip:{[FILE]
