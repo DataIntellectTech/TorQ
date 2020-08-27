@@ -45,7 +45,7 @@ csvloader:{[CSV]
 //-rethrows error if file doesn't exist, checks to see if correct columns exist in file
 	housekeepingcsv::@[{.lg.o[`housekeeping;"Opening ",x];("S***IBB"; enlist ",") 0:"S"$x};CSV;{.lg.e[`housekeeping;"failed to open ",x," : ", y];'y}[CSV]];
 	housekeepingcsv::@[cols hk;5 6;:;`agemin`checkfordirectory] xcol hk:housekeepingcsv;
-	check:(all `function`path`match`exclude`age`agemin`checkfordirectory in (cols housekeepingcsv));
+	check:all `function`path`match`exclude`age`agemin`checkfordirectory in cols housekeepingcsv;
 	//-if check shows incorrect columns, report error
 	$[check~0b; [{.lg.e[`housekeeping;"The file ",x," has incorrect layout"];'`$"incorrect housekeeping csv layout"}[CSV]];
 		//-if correctly columned csv has nulls, report error and skip lines 
@@ -56,8 +56,9 @@ csvloader:{[CSV]
 
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
-	$[not DICT[`function] in key `.;.lg.e[`housekeeping;"Could not find function: ",string DICT[`function]];
-	(value DICT[`function]) each (find[.rmvr.removeenvvar [DICT[`path]];DICT[`match];DICT[`age];DICT[`agemin];DICT[`checkfordirectory]] except find[.rmvr.removeenvvar [DICT[`path]];DICT[`exclude];DICT[`age];DICT[`agemin];DICT[`checkfordirectory]])]}
+	if[not DICT[`function] in key `.;:.lg.e[`housekeeping;"Could not find function: ",string DICT`function]];
+	p:find[.rmvr.removeenvvar DICT`path;;DICT`age;DICT`agemin;DICT`checkfordirectory];
+	value[DICT`function] each p[DICT`match] except p DICT`exclude}
 
 
 
@@ -73,31 +74,30 @@ kdbzip:{[FILE]
 //FUNCTIONS FOR LINUX
 \d .unix
 
-//-locates files with path, matching string and age
+//-locates files or directories with path, matching string and age
 find:{[path;match;age;agemin;checkfordirectory]
-	$[0=checkfordirectory;
-		[fileordir::"files";flag::"f"];
-		[fileordir::"directories";flag::"d"]];
-	$[0=agemin;
-	matches:.[{.lg.o[`housekeeping;"Searching for ",fileordir,": ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type ",flag," -name \"",y,"\" -mtime +",raze string z};(path;match;age);
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}];
-	 matches:.[{.lg.o[`housekeeping;"Searching for ",fileordir,": ",x,y];system "/usr/bin/find ", x," -maxdepth 1 -type ",flag," -name \"",y,"\" -mmin +",raze string z};(path;match;age);
-	{.lg.e[`housekeeping;"Find function failed: ", x]; ()}]];
-	$[(count matches)=0;[.lg.o[`housekeeping;"No matching ",fileordir," located"];matches]; matches]}
+	$[0=checkfordirectory;[fileordir:"files";flag:"f"];[fileordir:"directories";flag:"d"]];
+	dayormin:$[0=agemin;"mtime";"mmin"];
+	findmatches:{[path;match;age;fileordir;flag;dayormin] 
+			.lg.o[`housekeeping;"Searching for ",fileordir,": ",path,match];
+			system "/usr/bin/find ",path," -maxdepth 1 -type ",flag," -name \"",match,"\" -",dayormin," +",raze string age};
+	matches:.[findmatches;(path;match;age;fileordir;flag;dayormin);{.lg.e[`housekeeping;"Find function failed: ",x];()}];
+	if[0=count matches;.lg.o[`housekeeping;"No matching ",fileordir," located"]];
+	matches}
 
 
 //-removes files
 rm:{[FILE]
-	@[{.lg.o[`housekeeping;"removing ",x]; system "rm -f ",x};FILE; {.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
+	@[{.lg.o[`housekeeping;"removing ",x]; system "/bin/rm -f ",x};FILE; {.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
 
 
 //-zips files
 zip:{[FILE]
-	@[{.lg.o[`housekeeping;"zipping ",x]; system "gzip ",x};FILE; {.lg.e[`housekeeping;"Failed to zip ",x," : ", y]}[FILE]]}
+	@[{.lg.o[`housekeeping;"zipping ",x]; system "/bin/gzip ",x};FILE; {.lg.e[`housekeeping;"Failed to zip ",x," : ", y]}[FILE]]}
 
 //-creates a tar ball from a directory and removes original directory and files
 tardir:{[DIR]
-	@[{.lg.o[`housekeeping;"creating tar ball from ",x]; system "tar -czf ",x,".tar.gz ",x," --remove-files"};DIR; {.lg.e[`housekeeping;"Failed to create tar ball from ",x," : ", y]}[DIR]]}
+	@[{.lg.o[`housekeeping;"creating tar ball from ",x]; system "/bin/tar -czf ",x,".tar.gz ",x," --remove-files"};DIR; {.lg.e[`housekeeping;"Failed to create tar ball from ",x," : ", y]}[DIR]]}
 
 \d .
 //FUNCTIONS FOR WINDOWS
@@ -137,13 +137,13 @@ winfilelist:{[path;match]
 rm: {[FILE]
 	@[{.lg.o[`housekeeping;"removing ",x];system"del /F /Q ", x};FILE;{.lg.e[`housekeeping;"Failed to remove ",x," : ", y]}[FILE]]}
 
-//zips files NYI
+//zip not yet implemented on Windows
 zip:{[FILE]
-	.lg.e[`housekeeping;"zipping nyi for file ",FILE]}
+	.lg.e[`housekeeping;"zipping not yet implemented for file ",FILE]}
 
-//tar directories NYI
+//tar not yet implemented on Windows
 tardir:{[DIR]
-	.lg.e[`housekeeping;"tar nyi for directory ",DIR]}
+	.lg.e[`housekeeping;"tar not yet implemented for directory ",DIR]}
 
 \d .
 
