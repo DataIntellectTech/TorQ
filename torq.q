@@ -556,7 +556,7 @@ reloadnamecode:{
 // execute system commands
 sys:{[cmd]
 	.lg.o[`system;"executing system command: ",cmd];
-	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];error};
+	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];system cmd};
 	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
 	};
 
