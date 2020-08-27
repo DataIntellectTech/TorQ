@@ -6,6 +6,8 @@
 // All - publish all data for table
 // Filtered - apply filters to published data, filters defined on client side
 
+chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tickerplant
+
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
@@ -72,9 +74,26 @@ init:{[b]
 
 // Initialise process
 
+///////////////////////////
+
+// CTP functions
+
+upd:{[t;x]
+  if[not chainedtp; :()];
+  
+  // extract data from incoming table as a list
+  x:flip value each x;
+  .u.upd[t;x]
+}
+
+/////////////////////////////
+
 // Create log directory, open all table logs
 // use name of schema to create directory
 .stplg.init[dbname:-2 _ last "/" vs schemafile]
 
 // Set update and publish modes
 init[.stplg.batchmode]
+
+/- subscribe to tickerplant
+if[chainedtp; subscribe[]]
