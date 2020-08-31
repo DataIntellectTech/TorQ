@@ -15,6 +15,8 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  
 testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
 compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
 
+/ - function for loading in config csv with multiple processes in one line
+duplicateconfig:{[t] update proc:raze[t `proc] from ((select from t)where count each t[`proc])};
 
 / - end of default parameters
 
@@ -31,9 +33,8 @@ init:{
   .dqe.compcounter[0N]:(0N;();());
 
   configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
-
   /- Set up configtable from csv
-  `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
+  `.dqe.configtable upsert .dqe.duplicateconfig[update ";"vs/:proc from (.dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"])];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
   update starttime:(`date$(.z.D,.z.d).dqe.utctime)+starttime from `.dqe.configtable;
