@@ -8,9 +8,24 @@
 
 chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tickerplant
 
+/ below variables only apply when process is set up as a Chained TP
+tickerplantname:@[value;`tickerplantname;`tickerplant1];        /- list of tickerplant names to try and make a connection to  
+createlogfile:@[value;`createlogfile;0b];                       /- allow chained tickerplant to create a log file
+logdir:@[value;`logdir;`:tplogs];                     	      	/- hdb directory containing tp logs for CTP
+subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
+subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
+replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
+schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
+
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/u.q"]
+
+if[chainedtp;[
+  .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
+  .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
+  ]];
 
 // Load schema
 $[`schemafile in key .proc.params;
@@ -44,6 +59,7 @@ if[.stplg.multilog~`custom;
 
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
+  .u.init[];
   .stplg.updmsg:.stplg.upd[b];
   .u.upd:{[t;x]
     // snap the current time and check for period end
@@ -84,8 +100,18 @@ upd:{[t;x]
   // extract data from incoming table as a list
   x:flip value each x;
   .u.upd[t;x]
-}
+ }
 
+/- subscribe to segmented tickerplant
+subscribe:{[]
+  s:.sub.getsubscriptionhandles[`;tickerplantname;()!()];
+  if[count s;
+      subproc:first s;
+      tph:subproc`w;
+      .lg.o[`subscribe;"subscribing to ", string subproc`procname];
+      .sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
+    ];
+  }
 /////////////////////////////
 
 // Create log directory, open all table logs
@@ -95,5 +121,7 @@ upd:{[t;x]
 // Set update and publish modes
 init[.stplg.batchmode]
 
-/- subscribe to tickerplant
+.servers.startup[];
+
+/- subscribe to segmented tickerplant
 if[chainedtp; subscribe[]]
