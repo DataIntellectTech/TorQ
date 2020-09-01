@@ -9,7 +9,7 @@
 chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tickerplant
 
 / below variables only apply when process is set up as a Chained TP
-tickerplantname:@[value;`tickerplantname;`tickerplant1];        /- list of tickerplant names to try and make a connection to  
+tickerplantname:@[value;`tickerplantname;`stp1];                /- tickerplant name to try and make a connection to  
 createlogfile:@[value;`createlogfile;0b];                       /- allow chained tickerplant to create a log file
 logdir:@[value;`logdir;`:tplogs];                     	      	/- hdb directory containing tp logs for CTP
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
@@ -20,7 +20,6 @@ schema:@[value;`schema;1b];                                     /- retrieve sche
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
-.proc.loadf[getenv[`KDBCODE],"/common/u.q"]
 
 if[chainedtp;[
   .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
@@ -59,7 +58,8 @@ if[.stplg.multilog~`custom;
 
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
-  .u.init[];
+  .u.init[.stpps.t];
+  //generatetablehandles[.stpps.t];
   .stplg.updmsg:.stplg.upd[b];
   .u.upd:{[t;x]
     // snap the current time and check for period end
@@ -90,9 +90,15 @@ init:{[b]
 
 // Initialise process
 
+\d .u
+init:{w::t!(count t::x)#()}          // altered definition of .u.init for tables in .stpps.t
+
+
 ///////////////////////////
 
 // CTP functions
+
+\d .
 
 upd:{[t;x]
   if[not chainedtp; :()];
