@@ -63,7 +63,7 @@ init:{[b]
   .stplg.updmsg:.stplg.upd[b];
   .u.upd:{[t;x]
     // snap the current time and check for period end
-    if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
+    if[.stplg.nextendUTC<now:.z.p and not chainedtp;.stplg.checkends now];
     // Type check allows update messages to contain multiple tables/data
     $[0h<type t;
       .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
@@ -75,7 +75,7 @@ init:{[b]
   .stplg.ts:.stplg.zts[b];
   .z.ts:{
     .stplg.ts now:.z.p; 
-    .stplg.checkends now};
+    if[not chainedtp;.stplg.checkends now]};
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
     .stplg.openlogerr[.stplg.dldir];
@@ -92,9 +92,6 @@ init:{[b]
 
 \d .u
 init:{w::t!(count t::x)#()}          // altered definition of .u.init for tables in .stpps.t
-
-
-///////////////////////////
 
 // CTP functions
 
@@ -118,7 +115,6 @@ subscribe:{[]
       .sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
     ];
   }
-/////////////////////////////
 
 // Create log directory, open all table logs
 // use name of schema to create directory
