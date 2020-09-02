@@ -22,7 +22,6 @@ init:{
   .servers.startupdependent[`dqedb;10];
   if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   /- set timer to call EOD
-  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
@@ -32,7 +31,6 @@ init:{
   if[((.z.Z,.z.z).dqe.utctime)>st;st:((.z.Z,.z.z).dqe.utctime)+.dqe.writedownperiodengine];
   .lg.o[`init;"start time of periodic writedown is: ",string st];
   .lg.o[`init;"end time of periodic writedown is: ",string et];
-  if[((.z.Z,.z.z)utctime)>st;st:1D+st;et:1D+et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownadvanced;`);"Running periodic writedown on advancedres"];
   .lg.o[`init;"initialization completed"];
