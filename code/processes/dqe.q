@@ -2,11 +2,11 @@
 \d .dqe
 
 dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
-gmttime:@[value;`gmttime;1b];                                                       // define whether the process is on UTC time or not
+utctime:@[value;`utctime;1b];                                                       // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d)utctime]}}];
 writedownperiodengine:@[value;`writedownperiodengine;0D01:00:00];                   // dqe periodically writes down to dqedb, writedownperiodengine determines the period between writedowns
 
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqengineconfig.csv"]]; // loading up the config csv file
@@ -20,15 +20,19 @@ init:{
   .lg.o[`init;"searching for servers"];
   /- Open connection to discovery
   .servers.startupdependent[`dqedb;10];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   /- set timer to call EOD
-  if[gmttime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Engine"];
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
   st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
-  if[((.z.Z,.z.z)gmttime)>st;st:1D+st;et:1D+et];
+  if[((.z.Z,.z.z).dqe.utctime)>st;st:((.z.Z,.z.z).dqe.utctime)+.dqe.writedownperiodengine];
+  .lg.o[`init;"start time of periodic writedown is: ",string st];
+  .lg.o[`init;"end time of periodic writedown is: ",string et];
+  if[((.z.Z,.z.z)utctime)>st;st:1D+st;et:1D+et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownadvanced;`);"Running periodic writedown on advancedres"];
   .lg.o[`init;"initialization completed"];
@@ -77,13 +81,21 @@ loadtimer:{[d]
 /- adds today's date to the time from config csv, before loading the queries to the timer
 configtimer:{[]
   t:.dqe.readdqeconfig[.dqe.configcsv;"S**SN"];
-  t:update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from t;
+  t:update starttime:(`date$(.z.D,.z.d).dqe.utctime)+starttime from t;
   {.dqe.loadtimer[x]}each t
   }
 
 writedownengine:{
   if[0=count .dqe.tosavedown`.dqe.resultstab;:()];
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  restemp1:select from .dqe.resultstab where procs in dbprocs;
+  restemp2:select from .dqe.resultstab where not procs in dbprocs;
+  restemp3:.dqe.resultstab;
+  .dqe.resultstab:restemp1;
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[]-1;.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
+  .dqe.resultstab:restemp2;
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
+  .dqe.resultstab:restemp3;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
@@ -135,13 +147,14 @@ writedownadvanced:{
   .timer.removefunc'[exec funcparam from .timer.timer where `.dqe.writedownadvanced in' funcparam];
   /- clear EOD timer
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
+  .lg.o[`dqe;"removed functions from .timer.timer, .u.end continues"];
   .dqe.currentpartition:pt+1;
    /- Checking whether .eodtime.nextroll is correct as it affects periodic writedown
   if[(`timestamp$.dqe.currentpartition)>=.eodtime.nextroll;
     .eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition];
     .lg.o[`dqe;"Moving .eodtime.nextroll to match current partition"]
     ];
-  if[gmttime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .lg.o[`dqe;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`dqe;".u.end finished"];

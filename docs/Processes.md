@@ -1634,7 +1634,7 @@ As an example, to run the customcheck above with the following settings -
 
 **params** - Not comparing two processes, and running with the two variables being
 `abc` and `def`.
-**proc** - running on the process `rdb1`.
+**proc** - running on the processes `rdb1` and `rdb2`.
 **mode** - the function being run repeatedly.
 **starttime** - 9AM.
 **endtime** - not specified.
@@ -1644,7 +1644,7 @@ The line in dqcconfig.csv should be:
 
 ```
 action,params,proc,mode,starttime,endtime,period
-customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1;`rdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
 ```
 
 To add a check that compares two processes, the check function would have to return
