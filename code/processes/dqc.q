@@ -46,7 +46,7 @@ init:{
   .dqe.tosavedown:()!();
   .lg.o[`.dqc.init; "Starting EOD writedown."];
   /- Checking if .eodtime.nextroll is correct
-  if[((.z.P,.z.p).dqe.gmttime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.gmttime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
+  if[((.z.P,.z.p).dqe.utctime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.utctime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   /- Log the start and end times.
