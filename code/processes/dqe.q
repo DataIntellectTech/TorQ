@@ -102,7 +102,7 @@ writedownengine:{
 
 writedownadvanced:{
   if[0=count .dqe.tosavedown`.dqe.advancedres;:()];
-dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
   advtemp1:select from .dqe.advancedres where procs in dbprocs;
   advtemp2:select from .dqe.advancedres where not procs in dbprocs;
   advtemp3:.dqe.advancedres;
