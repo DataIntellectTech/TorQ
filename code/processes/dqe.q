@@ -89,11 +89,11 @@ writedownengine:{
   restemp1:select from .dqe.resultstab where procs in dbprocs;
   restemp2:select from .dqe.resultstab where not procs in dbprocs;
   restemp3:.dqe.resultstab;
-  .dqe.resultstab:restemp1;
+  .dqe.resultstab::restemp1;
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[]-1;.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
-  .dqe.resultstab:restemp2;
+  .dqe.resultstab::restemp2;
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.resultstab];`.dqe;`resultstab];
-  .dqe.resultstab:restemp3;
+  .dqe.resultstab::restemp3;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
@@ -102,7 +102,15 @@ writedownengine:{
 
 writedownadvanced:{
   if[0=count .dqe.tosavedown`.dqe.advancedres;:()];
+dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  advtemp1:select from .dqe.advancedres where procs in dbprocs;
+  advtemp2:select from .dqe.advancedres where not procs in dbprocs;
+  advtemp3:.dqe.advancedres;
+  .dqe.advancedres::advtemp1;
+  .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[]-1;.dqe.tosavedown[`.dqe.advancedres];`.dqe;`advancedres];
+  .dqe.advancedres::advtemp2:
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.advancedres];`.dqe;`advancedres];
+  .dqe.resultstab::advtemp3;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
