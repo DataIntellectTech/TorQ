@@ -6,12 +6,15 @@ currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 // View of log file handles for faster lookups
 loghandles::exec tbl!handle from currlog
 
+.stplg.chainedtp:chainedtp;
+.stplg.createlogs:createlogs;
+
 \d .stplg
 
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  $[count dir:getenv[`KDBSTPLOG];
+  $[count dir:$[chainedtp;getenv[`KDBSCTPLOG];getenv[`KDBSTPLOG]];
     [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
@@ -243,13 +246,16 @@ init:{[dbname]
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
   createdld[dbname;.eodtime.d];
-  openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
-  // read in the meta table from disk 
-  .stpm.metatable:@[get;hsym`$string[.stplg.dldir],"/stpmeta";0#.stpm.metatable];
-  // set log sequence number to the max of what we've found
-  i::1+ -1|exec max seq from .stpm.metatable;
-  // add the info to the meta table
-  .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
+
+  if[createlogs;
+    openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
+    // read in the meta table from disk 
+    .stpm.metatable:@[get;hsym`$string[.stplg.dldir],"/stpmeta";0#.stpm.metatable];
+    // set log sequence number to the max of what we've found
+    i::1+ -1|exec max seq from .stpm.metatable;
+    // add the info to the meta table
+    .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
+    ]
  };
 
 \d .

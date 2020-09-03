@@ -10,8 +10,7 @@ chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tic
 
 / below variables only apply when process is set up as a Chained TP
 tickerplantname:@[value;`tickerplantname;`stp1];                /- tickerplant name to try and make a connection to  
-createlogfile:@[value;`createlogfile;0b];                       /- allow chained tickerplant to create a log file
-logdir:@[value;`logdir;`:tplogs];                     	      	/- hdb directory containing tp logs for CTP
+createlogs:@[value;`createlogs;1b];                       /- allow chained tickerplant to create a log file
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
@@ -20,6 +19,7 @@ schema:@[value;`schema;1b];                                     /- retrieve sche
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
+.proc.loadf[getenv[`KDBCODE],"/common/u.q"];
 
 if[chainedtp;[
   .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
