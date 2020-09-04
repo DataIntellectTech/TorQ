@@ -110,7 +110,7 @@ writedownadvanced:{
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[]-1;.dqe.tosavedown[`.dqe.advancedres];`.dqe;`advancedres];
   .dqe.advancedres::advtemp2:
   .dqe.savedata[.dqe.dqedbdir;.dqe.getpartition[];.dqe.tosavedown[`.dqe.advancedres];`.dqe;`advancedres];
-  .dqe.resultstab::advtemp3;
+  .dqe.advancedres::advtemp3;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqedb;
   /- send message for DBs to reload
