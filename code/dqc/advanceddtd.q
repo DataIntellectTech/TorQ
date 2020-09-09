@@ -41,7 +41,7 @@ medianfunc:{[tab;func;vars;n]
   /- List containing T+2,T+3,T+4
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each(neg n)#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
-  advancedreslist:{first x`resulttables}each listt;
+  advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the tables in advancedreslist
   /advancedreslist[2]:((-1_cols advancedreslist[2]),`bycountthree)xcol advancedreslist[2];
   /advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo)xcol advancedreslist[1];
