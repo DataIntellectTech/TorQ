@@ -1,7 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.stplg.multilog:`custom,1,,"Set custom logging mode"
 before,0,0,q,".stplg.custommode:1_(!) . (""SS"";"","")0: .stplg.customcsv",1,,"Load custom settings"
-before,0,0,q,.stplg.init[],1,,"Initialise period roll test"
+before,0,0,q,.stplg.init[dbname],1,,"Initialise period roll test"
 before,0,0,q,currper:.eodtime.currperiod,1,,"Save roll parameters"
 before,0,0,q,nextper:.eodtime.nextperiod,1,,"Save roll parameters"
 before,0,0,q,delete from `currlog where tbl in `KUT`KUTR,1,,"Remove k4 tables from log table"
