@@ -46,12 +46,12 @@ medianfunc:{[tab;func;vars;n]
   /advancedreslist[2]:((-1_cols advancedreslist[2]),`bycountthree)xcol advancedreslist[2];
   /advancedreslist[1]:((-1_cols advancedreslist[1]),`bycounttwo)xcol advancedreslist[1];
   /advancedreslist[0]:((-1_cols advancedreslist[0]),`bycountone)xcol advancedreslist[0];
-  first{((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
+  {advancedreslist[x]:((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
   /- Joining the three tables
   joinedadvancedres:(uj/)advancedreslist;
   /joinedadvancedres:advancedreslist[0]uj advancedreslist[1];
   /joinedadvancedres:joinedadvancedres uj advancedreslist[2];
   /joinedadvancedres:update medbycount: med (bycountone;bycounttwo;bycountthree) from joinedadvancedres;
-  joinedadvancedres:update medbycount:(med a each cols a:value joinedadvancedres)from joinedadvancedres;
+  joinedadvancedres:update medbycount:(med a each cols a:value joinedadvancedres) from joinedadvancedres;
   /- here is where i wonder how to add dqe data currently to here
   }
