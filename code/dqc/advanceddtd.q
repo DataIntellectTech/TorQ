@@ -39,7 +39,7 @@ advancedperdtd:{[tab;func;vars;percentage]
 // want to look back at.
 medianfunc:{[tab;func;vars;n]
   /- List containing T+1 to T+60
-  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]eachi -1+(neg n)#.Q.PV;
+  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(neg n)#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
   advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the tables in advancedreslist
