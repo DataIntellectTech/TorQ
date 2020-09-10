@@ -37,15 +37,20 @@ advancedperdtd:{[tab;func;vars;percentage]
 // table tab (eg `advancedres), the function func we want to look at (eg
 // `bycount), the vars we are querying (eg `sym) and the number of days n we
 // want to look back at.
-medianfunc:{[tab;func;vars;n]
-  /- List containing T+1 to T+60
+medianfunc:{[tab;func;vars;n;percentage]
+  /- List containing T+1 to T+n
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(neg n)#.Q.PV;
   /- List containing only the advancedres tables from yesterday and two days ago
   advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the tables in advancedreslist
   {advancedreslist[x]:((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
-  /- Joining the the tables from T+1 to T+60
+  /- Joining the the tables from T+1 to T+n
   joinedadvancedres:(uj/)advancedreslist;
   joinedadvancedres:update medbycount:(med a each cols a:value joinedadvancedres) from joinedadvancedres;
   /- here is where i wonder how to add dqe data currently to here
+  t:value joinedadvancedres;
+  joinedadvancedres:update perchange:100*abs(t[`bycount.0]-t[`medbycount])%t[`bycount.0] from joinedadvancedres;
+  $[all c:percentage>(value joinedadvancedres)[`perchange];
+    (1b;"Numbers today from the bycount did not exceed the provided percentage:",(string percentage),"%");
+    (0b;"The following syms had counts exceeding the percentage given in T+1: ",", "sv string ((flip 0!joinedadvancedres)`sym) [where not c])]
   }
