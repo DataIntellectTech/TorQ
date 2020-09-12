@@ -52,5 +52,5 @@ medianfunc:{[tab;func;vars;n;percentage]
   joinedadvancedres:update perchange:100*abs(t[`bycount.0]-t[`medbycount])%t[`bycount.0] from joinedadvancedres;
   $[all c:percentage>(value joinedadvancedres)[`perchange];
     (1b;"Numbers today from the bycount did not exceed the provided percentage:",(string percentage),"%");
-    (0b;"The following syms had counts exceeding the percentage given in T+1: ",", "sv string ((flip 0!joinedadvancedres)`sym) [where not c])]
+    (0b;"The following syms counts increased exceeded the given percentage compared to the median: ",(", "sv string ((flip 0!joinedadvancedres)`sym) [where not c])," by ",(", "sv string ((flip 0!joinedadvancedres)`perchange)[ where not c]),"percent, respectively")]
   }
