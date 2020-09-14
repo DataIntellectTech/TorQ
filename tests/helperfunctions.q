@@ -7,3 +7,7 @@ deadproccheck:{[proctype;procname]
 	pidnamepairs:.proc.sys "pgrep -lf \"stackid ",getenv[`KDBBASEPORT]," -proctype ",proctype," -procname ",procname,"\"";
 	not "q" in last each pidnamepairs
 	};
+
+opentorqhandle:{[port]
+	hopen `$"::",port,":admin:admin"	
+	};
