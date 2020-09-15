@@ -40,3 +40,4 @@ true,0,0,q,5~.tst.complexh"count trade",1,,"Check trade data has correctly repla
 true,0,0,q,enlist[`GOOG]~.tst.complexh"distinct exec sym from trade",1,,"Check trade data has correctly replayed in rdbcomplexfilt"
 true,0,0,q,5~.tst.complexh"count quote",1,,"Check quote data has correctly replayed in rdbcomplexfilt"
 true,0,0,q,.tst.complexh"all 50<exec bid from quote",1,,"Check quote data has correctly replayed in rdbcomplexfilt"
+after,0,0,q,stopproc["stpnone"],1,,"Stop segmentedtickerplant"
