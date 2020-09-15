@@ -4,6 +4,5 @@ localhost,{KDBBASEPORT}+101,rdb,rdball,${TORQHOME}/appconfig/passwords/accesslis
 localhost,{KDBBASEPORT}+102,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subscribesyms GOOG,q
 localhost,{KDBBASEPORT}+103,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -.rdb.subcsv ${KDBTESTS}/rdbsub.csv,q
 localhost,{KDBBASEPORT}+104,segmentedtickerplant,stpnone,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog none,q
-localhost,{KDBBASEPORT}+105,segmentedtickerplant,stptabular,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q-.stplg.multilog tabular,q
-localhost,{KDBBASEPORT}+106,segmentedtickerplant,stpmultilog,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabperiod,q
-localhost,{KDBBASEPORT}+107,test,test1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBTESTS}/stp/recovery/test.q,1,,q
+localhost,{KDBBASEPORT}+105,segmentedtickerplant,stptabular,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabular,q
+localhost,{KDBBASEPORT}+106,segmentedtickerplant,stptabperiod,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabperiod,q

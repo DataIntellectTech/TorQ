@@ -1,5 +1,5 @@
 startorstopproc:{[startorstop;procname;processcsv] 
-	.proc.sys "./torq.sh ",startorstop," ",procname," -csv ",processcsv
+	.proc.sys getenv[`TORQHOME],"/torq.sh ",startorstop," ",procname," -csv ",processcsv
 	};
 
 deadproccheck:{[proctype;procname]
