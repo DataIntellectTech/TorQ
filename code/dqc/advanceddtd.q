@@ -37,6 +37,27 @@ advancedperdtd:{[tab;func;vars;percentage]
 // table tab (eg `advancedres), the function func we want to look at (eg
 // `bycount), the vars we are querying (eg `sym) and the number of days n we
 // want to look back at.
+
+// For example, within the advancedres, there is a column resultdata that
+// contains tables queried by functions, in this example, bycount.
+// Example table from TorQ's sample data, hdb's quote table queried
+//  by bycount under col `sym
+/
+sym | bycount
+----| -------
+AAPL| 524305
+AIG | 526728
+AMD | 526464
+DELL| 526107
+DOW | 526888
+GOOG| 526224
+HPQ | 527033
+IBM | 527199
+INTC| 525194
+MSFT| 526112
+\
+// The medianfunc then return whehter the bycount data of T+1 is off
+// by the percentage to the median of bycounts over T+n.
 medianfunc:{[tab;func;vars;n;percentage]
   /- List containing T+1 to T+n
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(neg n)#.Q.PV;
