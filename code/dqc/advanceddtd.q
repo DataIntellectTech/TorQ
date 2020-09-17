@@ -74,7 +74,6 @@ medianfunc:{[tab;func;vars;n;percentage]
   /- Joining the the tables from T+1 to T+n
   joinedadvancedres:(uj/)advancedreslist;
   joinedadvancedres:update medbycount:(med a each cols a:value joinedadvancedres) from joinedadvancedres;
-  /- here is where i wonder how to add dqe data currently to here
   t:value joinedadvancedres;
   joinedadvancedres:update perchange:100*abs(t[`bycount.0]-t[`medbycount])%t[`bycount.0] from joinedadvancedres;
   $[all c:percentage>(value joinedadvancedres)[`perchange];
