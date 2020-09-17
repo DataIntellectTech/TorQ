@@ -35,8 +35,7 @@ advancedperdtd:{[tab;func;vars;percentage]
   /- Create error message for the conditional below.
   errorsym:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y}[key select from joinedadvancedres where percentages>percentage;vars];
   $[not count errorsym;
-    (1b;"No keys have exceeded more than ",(string percentage),"% from ",(string first -2# .Q.PV)," to ",string last .Q.PV);
-
+    (1b;"No keys have exceeded more than ",(string percentage),"% from ",{x," to ",y}. string -2#.Q.PV);
     (0b;("The following keys ",ssr[string vars;".";", "]," have changed more than ",(string percentage),"%: ",errorsym))]
   }
 
