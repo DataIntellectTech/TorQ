@@ -5,7 +5,7 @@
 
 advancedsymdtd:{[tab;func;vars]
   /- List containing the advancedres table of the function and parameter specified from the previous two partitions
-  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
+  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(-2#.Q.PV);
   /- List containing only the keys of the two tables from yesterday and two days ago
   keyst:{key first x`resultdata}each listt;
   /- a utility function for the conditional
@@ -22,7 +22,7 @@ advancedsymdtd:{[tab;func;vars]
 advancedperdtd:{[tab;func;vars;percentage]
   /- List containing the advancedres table of the function and parameter
   /- specified from the last two days
-  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
+  listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(-2#.Q.PV);
   /- List containing only the advancedres tables from yesterday and two days ago
   advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the table two days ago
@@ -36,6 +36,7 @@ advancedperdtd:{[tab;func;vars;percentage]
   errorsym:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y}[key select from joinedadvancedres where percentages>percentage;vars];
   $[not count errorsym;
     (1b;"No keys have exceeded more than ",(string percentage),"% from ",(string first -2# .Q.PV)," to ",string last .Q.PV);
+
     (0b;("The following keys ",ssr[string vars;".";", "]," have changed more than ",(string percentage),"%: ",errorsym))]
   }
 
