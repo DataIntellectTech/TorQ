@@ -67,7 +67,7 @@ MSFT| 526112
 medianfunc:{[tab;func;vars;n;percentage]
   /- List containing T+1 to T+n
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -1+(neg n)#.Q.PV;
-  /- List containing only the advancedres tables from yesterday and two days ago
+  /- List containing only the advancedres tables from T+1 to T+n
   advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the tables in advancedreslist
   {advancedreslist[x]:((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
