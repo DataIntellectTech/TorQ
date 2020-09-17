@@ -1,7 +1,10 @@
 \d .dqc
 
+// This function checks if sym has changed from the past two partitions
+// in tables of resultdata that are contained in the advancedres of dqe.
+
 advancedsymdtd:{[tab;func;vars]
-  /- List containing the advancedres table of the function and parameter specified from yesterday and two days ago
+  /- List containing the advancedres table of the function and parameter specified from the previous two partitions
   listt:{[tab;func;vars;dt]?[tab;((=;`funct;enlist func);(=;`resultkeys;enlist vars);(=;.Q.pf;dt));1b;()]}[tab;func;vars;]each -2#.Q.PV;
   /- List containing only the keys of the two tables from yesterday and two days ago
   keyst:{key first x`resultdata}each listt;
@@ -10,8 +13,11 @@ advancedsymdtd:{[tab;func;vars]
   /- if everything matches, then proceed to 1b on the result. if not, check what is missing from today/missing from yesterday
   $[(all b in a)and all(a:keyst 0)in b:keyst 1;
     (1b;"All keys from day ",(string last .Q.PV)," matched keys from ",string first -2#.Q.PV);
-    (0b;"Error: ",$[count mfy:a where not a in b;" ",f[mfy;vars]," missing from last day.";""],$[count mft:b where not b in a;" ",f[mft;vars]," missing from second last day.";""])]
+    (0b;"Error: ",$[count mfy:a where not a in b;" ",f[mfy;vars]," missing from T-1.";""],$[count mft:b where not b in a;" ",f[mft;vars]," missing from T-2.";""])]
   }
+
+// This function checks if count from tables of resultdata has changed
+// and past a certain percentage from the past two partitions.
 
 advancedperdtd:{[tab;func;vars;percentage]
   /- List containing the advancedres table of the function and parameter
