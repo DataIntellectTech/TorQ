@@ -73,7 +73,7 @@ medianfunc:{[tab;func;vars;n;percentage]
   {advancedreslist[x]:((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
   /- Joining the the tables from T+1 to T+n
   joinedadvancedres:(uj/)advancedreslist;
-  joinedadvancedres:update medbycount:(med a each cols a:value joinedadvancedres) from joinedadvancedres;
+  joinedadvancedres:update medbycount:med (value joinedadvancedres)each cols value joinedadvancedres from joinedadvancedres;
   t:value joinedadvancedres;
   joinedadvancedres:update perchange:100*abs(t[`bycount.0]-t[`medbycount])%t[`bycount.0] from joinedadvancedres;
   $[all c:percentage>(value joinedadvancedres)[`perchange];
