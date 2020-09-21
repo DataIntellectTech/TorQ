@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.stplg.multilog:`tabperiod,1,,"Set default logging mode"
+before,0,0,q,.stplg.init[dbname],1,,"Initialise period roll test"
+before,0,0,q,currper:.eodtime.currperiod,1,,"Save roll parameters"
+before,0,0,q,nextper:.eodtime.nextperiod,1,,"Save roll parameters"
+before,0,0,q,delete from `currlog where tbl in `KUT`KUTR,1,,"Remove k4 tables from log table"
+before,0,0,q,.stplg.endofperiod[.z.p+.eodtime.dailyadj],1,,"Roll logs into next period"
+true,0,0,q,.eodtime.nextperiod~.eodtime.currperiod+.stplg.multilogperiod,1,,"Check logging period times have been rolled"
+true,0,0,q,.eodtime.currperiod~nextper,1,,"Check logging period times have been rolled"
+true,0,0,q,("T"$-4#string currlog[`trade;`logname])=.eodtime.currperiod,1,,"Check log name has been rolled"
+after,0,0,q,.eodtime.currperiod:currper,1,,"Reset roll parameters"
+after,0,0,q,.eodtime.nextperiod:nextper,1,,"Reset roll parameters"
+after,0,0,q,"system""rm -r "",1_string[.stplg.dldir]",1,,"Clear log directory"
