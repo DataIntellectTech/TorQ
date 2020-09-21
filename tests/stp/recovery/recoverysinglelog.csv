@@ -1,5 +1,4 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,"system ""l "",getenv[`KDBTESTS],""/helperfunctions.q""",1,,"Make sure helper functions are loaded"
 before,0,0,q,"stptestlogs:getenv[`KDBTESTS],""/stp/recovery/singlelog""",1,,"Path to test segmented tickerplant logs"
 before,0,0,q,"processcsv:getenv[`KDBTESTS],""/stp/recovery/process.csv""",1,,"Path to test process csv"
 before,0,0,q,startproc:startorstopproc["start";;processcsv],1,,"Function to start a process"
