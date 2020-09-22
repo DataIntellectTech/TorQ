@@ -20,6 +20,15 @@ Then to launch the script.
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters described below
 
+Then to run the torq stack:
+
+`./deploy/bin/torq.sh start all`
+
+Check if the stack is up 
+
+`./deploy/bin/torq.sh summary`
+
+
 
 ## Parameters used:
 
