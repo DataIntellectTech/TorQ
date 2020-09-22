@@ -52,7 +52,8 @@ Can be used as follows:
 `installfile=/home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
 
 
-**data**
+**data** -
+
 Another optional parameter. That is if you want to have your database live in a different part of the system rather the place where the code lives. Can be used as follows:
 
 `data=/home/data/torq_data`
