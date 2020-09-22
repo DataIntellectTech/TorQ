@@ -1,10 +1,6 @@
 #!/bin/bash
 #Example usage:
-#sh installtorqapp.sh torq=/home/sroomus/TorQ/TorQ-3.6.0.tar.gz releasedir=/home/sroomus/deploy env=/home/sroomus/env_spec.sh data=/home/sroomus/datatemp instalfile=/home/sroomus/installfiles/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz
-
-
-#sh installtorqapp.sh torq=/home/sroomus/installfiles/TorQ/TorQ-master.tar.gz releasedir=/home/sroomus/deploy env=/home/sroomus/env_spec.sh instalfile=/home/sroomus/installfiles/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz 
-
+#sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=/home/sroomus/datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz
 
 #Creating variables from the definitions
 for ARGUMENT in "$@"
@@ -14,11 +10,11 @@ do
     VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
 
     case "$KEY" in
-            torq)    torq=${VALUE} ;;     
-            releasedir)    releasedir=${VALUE} ;;
-            env)    env=${VALUE} ;;
-            data)	data=${VALUE} ;;
-	    instalfile)    instalfile=${VALUE} ;;
+            torq)    torq=`realpath ${VALUE}` ;;     
+            releasedir)    releasedir=`realpath ${VALUE}` ;;
+            env)    env=`realpath ${VALUE}` ;;
+            data)	data=`realpath ${VALUE}` ;;
+	    installfile)    installfile=`realpath ${VALUE}` ;;
             *)   
     esac    
 
@@ -32,7 +28,7 @@ echo "============================================================="
 echo "torq = $torq"
 echo "releasedir = $releasedir"
 echo "env = $env"
-echo "instalfile = $instalfile"
+echo "installfile = $installfile"
 echo "data = $data " 
 echo ""
 echo "============================================================="
@@ -45,13 +41,24 @@ then
    echo "example usage can be seen first line of script"
    echo "exiting script"
    exit 1
+elif [ ! -f "$torq" ]
+then
+   echo "\$torq directory given doesn't exist"
+   echo "exiting"
+   exit 1
+
 fi
 
-if [ -z "$instalfile" ]
+if [ -z "$installfile" ]
 then
-   echo "\$instalfile var empty"
+   echo "\$installfile var empty"
    echo "example usage can be seen first line of script"
    echo "exiting script"
+   exit 1
+elif [ ! -f "$installfile" ]
+then
+   echo "\$installfile path given doesn't exist"
+   echo "exiting"
    exit 1
 fi
 
@@ -146,9 +153,9 @@ echo "UNZIPPING TORQAPP TO CORRECT PLACES"
 echo "============================================================="
 
 echo "Unzipping the TorQ addition package:"
-echo $instalfile
+echo $installfile
 echo "TorQ-APP version name/number:"
-app_version=`echo $instalfile | sed 's:.*-::' | sed 's:.tar.gz*.::'`
+app_version=`echo $installfile | sed 's:.*-::' | sed 's:.tar.gz*.::'`
 echo $app_version
 unzip_dir=$releasedir/TorQApp/$app_version/
 
@@ -162,8 +169,8 @@ then
 fi
 
 
-app_dir_name=`echo ${instalfile%???????} | sed 's:.*/::'`
-tar -xf $instalfile -C $unzip_dir
+app_dir_name=`echo ${installfile%???????} | sed 's:.*/::'`
+tar -xf $installfile -C $unzip_dir
 echo ""
 echo "Unzipping complete!"
 echo "New folder in TorQApp directory:"
@@ -227,8 +234,6 @@ sed -i "s|export TORQHOME=.*|export TORQHOME=$releasedir/TorQ/latest|" $released
 sed -i "s|export TORQAPPHOME=.*|export TORQAPPHOME=$releasedir/TorQApp/latest|" $releasedir/bin/setenv.sh
 
 sed -i "s|export TORQDATAHOME=.*|export TORQDATAHOME=$releasedir/data|" $releasedir/bin/setenv.sh
-
-sed -i "s|export KDBBASEPORT=6000.*|export KDBBASEPORT=1155|" $releasedir/bin/setenv.sh
 
 echo ""
 echo "============================================================="
