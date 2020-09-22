@@ -284,7 +284,7 @@ reruncheck:{[chkid]
   /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
   .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.utctime];
   if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
-  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"];
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]
