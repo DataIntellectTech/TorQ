@@ -1,2 +1,3 @@
+helperfunctions.q
 k4unit.q
 runtests.q

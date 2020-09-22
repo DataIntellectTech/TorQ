@@ -60,7 +60,7 @@ upd:@[value;`.stplg.upd;enlist[`]!enlist ()];
 zts:@[value;`.stplg.zts;enlist[`]!enlist ()];
 
 // Number of update messages received for each table
-msgcount:rowcount:tmpmsgcount:tmprowcount:enlist[`]!enlist ()
+msgcount:rowcount:tmpmsgcount:tmprowcount:(`symbol$())!`long$()
 
 // Sequence number
 seqnum:0
@@ -137,9 +137,8 @@ getlogs[`period]:{[t]
 
 // If replayperiod set to `day, replay all of today's logs
 getlogs[`day]:{[t]
-  lnames:distinct uj/[{
-    select seq,tbls,logname,msgcount from .stpm.metatable where x in/: tbls
-    }each t];
+  // set the msgcount to 0Wj for all logs which have closed
+  lnames:select seq,tbls,logname,msgcount:0Wj from .stpm.metatable where any each tbls in\: t;
   // Meta table does not store counts for live logs, so these are populated here
   lnames:update msgcount:sum each .stplg.msgcount[tbls] from lnames where seq=.stplg.i;
   flip value exec `long$msgcount,logname from lnames
@@ -152,7 +151,7 @@ openlog:{[multilog;dir;tab;p]
   lname:logname[multilog][dir;tab;p];
   .lg.o[`openlog;"opening logfile: ",string lname];
   h:$[(notexists:not type key lname)or null h0:exec first handle from `..currlog where logname=lname;
-    [.[if[notexists;lname;();:;()]];hopen lname];
+    [if[notexists;.[lname;();:;()]];hopen lname];
     h0
   ];
   `..currlog upsert (tab;lname;h);
@@ -162,9 +161,9 @@ errorlogname:@[value;`.stplg.errorlogname;`err]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:hsym`$string[dir],"/",string[errorlogname],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:";
+  lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
   if[not type key lname;.[lname;();:;()]];
-  h:hopen lname;
+  h:@[{hopen x};lname;{.lg.e[`openlogerr;"failed to open handle to error log with error: ",x]}];
   `..currlog upsert (errorlogname;lname;h);
  };
 
@@ -240,6 +239,7 @@ checkends:{
 init:{[dbname]
   t::tables[`.]except `currlog;
   @[`.stplg.msgcount;t;:;0];
+  @[`.stplg.rowcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;

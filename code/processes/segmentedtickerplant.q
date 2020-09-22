@@ -16,6 +16,9 @@ subscribesyms:@[value;`subscribesyms;`];                        /- list of syms 
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
 
+// subscribers use this to determine what type of process they are talking to
+tptype:`segmented
+
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
@@ -55,6 +58,12 @@ if[.stplg.multilog~`custom;
   @[{.stplg.custommode:1_(!) . ("SS";",")0: x};.stplg.customcsv;
     {.lg.e[`stp;"failed to load custom mode csv"]}]
  ];
+
+// functions used by subscribers
+tablelist:{.stpps.t}
+// subscribers who want to replay need this info 
+subdetails:{[tabs;instruments]
+ `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBSTPLOG)}
 
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];

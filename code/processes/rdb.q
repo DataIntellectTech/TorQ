@@ -80,7 +80,7 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date]
+endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
@@ -151,12 +151,12 @@ subscribe:{[]
 			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
-		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
 		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[key subinfo;value subinfo];
+		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
 		/-apply subscription filters to replayed data
 		if[subfiltered&replaylog;
-			applyfilters[;subscribesyms]each subscribeto except errtables];];}
+			applyfilters[;subscribesyms]each subtables];];}
 
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
@@ -169,7 +169,7 @@ setpartition:{[]
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
 loadsubfilters:{[]
-	.sub.filterparams:1!("SSS";enlist",")0: .rdb.subcsv;
+	.sub.filterparams:@[{1!("SSS";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
 	.rdb.subscribeto:raze value flip key .sub.filterparams;
 	.rdb.subscribesyms:.sub.filterparams;}
 
@@ -196,8 +196,11 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/-set u.end for the tickerplant to call at end of day
-.u.end:.rdb.endofday
+/- adds endofday to top level namespace
+endofday: .rdb.endofday;
+
+/-set .u.end for the tickerplant to call at end of day
+.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload

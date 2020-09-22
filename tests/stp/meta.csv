@@ -1,6 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.stplg.multilog:`tabperiod,1,,"Set default logging mode"
-before,0,0,q,.stplg.init[],1,,"Initialise stp script"
+before,0,0,q,.stplg.init[dbname],1,,"Initialise stp script"
 before,0,0,q,trademeta:last select from .stpm.metatable where `trade in/: tbls,1,,"Save trade table meta"
 before,0,0,q,quotemeta:last select from .stpm.metatable where `quote in/: tbls,1,,"Save quote table meta"
 before,0,0,q,testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy),1,,"Create test trade update"
