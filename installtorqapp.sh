@@ -72,7 +72,7 @@ fi
 
 if [ ! -d "$releasedir" ]
 then
-   echo "$releasedir directory doesn't exists"
+   echo "$releasedir directory doesn't exist"
    echo "making the releasedir"
    mkdir $releasedir		
 fi
@@ -80,20 +80,20 @@ fi
 #Making necessary structure for the deploy folder. 
 if [ ! -d "$releasedir/bin" ]
 then
-   echo "$releasedir/bin directory doesn't exists"
+   echo "$releasedir/bin directory doesn't exist"
    echo "making the bin directory"
    mkdir $releasedir/bin
 fi
 
 if [ ! -d "$releasedir/TorQ" ]
 then
-   echo "$releasedir/TorQ directory doesn't exists"
+   echo "$releasedir/TorQ directory doesn't exist"
    echo "making the TorQ directory"
    mkdir $releasedir/TorQ
 fi
 if [ ! -d "$releasedir/TorQApp" ]
 then
-   echo "$releasedir/TorQApp directory doesn't exists"
+   echo "$releasedir/TorQApp directory doesn't exist"
    echo "making the TorQApp directory"
    mkdir $releasedir/TorQApp
 fi
@@ -224,7 +224,7 @@ fi
 echo ""
 
 echo "============================================================="
-echo "doing necessary repalcements in torq.sh setenv.sh and processes"
+echo "doing necessary replacements in torq.sh setenv.sh and processes"
 echo "============================================================="
 
 sed -i "/^hostnames=/a cd $releasedir/TorQ/latest" $releasedir/bin/torq.sh
@@ -237,7 +237,7 @@ sed -i "s|export TORQDATAHOME=.*|export TORQDATAHOME=$releasedir/data|" $release
 
 echo ""
 echo "============================================================="
-echo "CHECKING ENVIRONMENT SPESIFIC FILE CHANGES"
+echo "CHECKING ENVIRONMENT SPECIFIC FILE CHANGES"
 echo "============================================================="
 
 
