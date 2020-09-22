@@ -1,6 +1,6 @@
 #!/bin/bash
 #Example usage:
-#sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=/home/sroomus/datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz
+#sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz
 
 #Creating variables from the definitions
 for ARGUMENT in "$@"
