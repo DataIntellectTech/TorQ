@@ -48,7 +48,7 @@ Which is the .tar.gz file from GitHub using:
 
 **releasedir** -
 
-Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one.
+Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions it has been deploy. 
 As follows:
 
 `releasedir=/home/user/deploy`
@@ -71,9 +71,11 @@ If the directory doesn't exist the script will make one. Also accepts a relative
 
 **env** -
 
-Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows:
+Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepst relative path):
 
 `env=/home/user/env_spec_dev.sh` 
+
+`env=env_spec_dev.sh
 
 Below is a user guide on how to set up the .sh script to have necessary replacements by the env parameter.
 For env parameter the env_spec script should look like this:
@@ -83,12 +85,15 @@ For env parameter the env_spec script should look like this:
 
 `find $1 -type f -name "*.sh" -exec sed -i "s/export KDBBASEPORT=.*/export KDBBASEPORT=7373/g" {} \;`
 
-Save this to env_spec.sh and add the parameter 
+Create an sh script env_spec_dev.sh and then add the parameter 
 
 `env=/home/user/env_spec_dev.sh`
 
 To the install script start line. 
 This will replace the KDBBASEPORT to a new value.
 Similar actions can be done with other variables.
+But requires user basic knowledege of sed commands. 
+The script will scan through the code in the TorQApp directory and the 
+bin directory from the deploy folder. 
 If DEV and UAT run on different data sources can replace them.
 This is essentially the environment-specific config file.
