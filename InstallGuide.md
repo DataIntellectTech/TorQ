@@ -75,7 +75,7 @@ Env is the environment-specific optional installation parameters. That is a sepa
 
 `env=/home/user/env_spec_dev.sh` 
 
-`env=env_spec_dev.sh
+`env=env_spec_dev.sh`
 
 Below is a user guide on how to set up the .sh script to have necessary replacements by the env parameter.
 For env parameter the env_spec script should look like this:
