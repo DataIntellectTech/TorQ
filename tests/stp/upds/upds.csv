@@ -1,0 +1,6 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+true,0,0,q,`seqnum in cols quote,1,,"Check sequence number is in schema of quote"
+true,0,0,q,not `seqnum in cols trade,1,,"Check sequence number is NOT in schema of trade"
+true,0,0,q,7h ~ type quote`seqnum,1,,"Check sequence numbers are of type long"
+true,0,0,q,not any null quote`seqnum,1,,"Check column is being filled with valid sequence numbers"
+true,0,0,q,not any 0 > deltas quote`seqnum,1,,"Check seq numbers are always ascending"
