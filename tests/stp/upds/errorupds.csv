@@ -1,0 +1,7 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+run,0,0,q,h:.servers.gethandlebytype[`segmentedtickerplant;`any],1,,"get handle to segmented tickerplant"
+run,0,0,q,h".stplg.errmode:1b",1,,"Ensure error mode is on in stp"
+run,0,0,q," stplogdata:get .Q.par[hsym `$getenv[`KDBSTPLOG];`$""database"", string .z.d;`$(last system""ls -R $KDBSTPLOG | grep err"")]",1,,"access latest error log file"
+true,0,0,q,all `trade = stplogdata[;1],1,,"Check only errors for trade table"
+true,0,0,q,all `upderr = stplogdata[;0],1,,"check all entries are errors"
+true,0,0,q,all (count cols trade) <> count each stplogdata[;2],1,,"length of data is different to schema, time and seqnum are not being added"
