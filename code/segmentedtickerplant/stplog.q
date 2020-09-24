@@ -238,6 +238,8 @@ init:{[dbname]
   getnextendUTC[]; 
   createdld[dbname;.eodtime.d];
   openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
+  // If appropriate, roll error log
+  if[.stplg.errmode;openlogerr[dldir]];
   // read in the meta table from disk 
   .stpm.metatable:@[get;hsym`$string[.stplg.dldir],"/stpmeta";0#.stpm.metatable];
   // set log sequence number to the max of what we've found

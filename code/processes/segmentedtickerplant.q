@@ -33,8 +33,6 @@ $[`schemafile in key .proc.params;
 // Default functions timestamp updates
 // Preserve any prior definitions, but default all tables if not specified
 .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
-.stplg.updtab[`quote]: {(enlist(count first x)#y),(enlist(count first x)#(`long$ .stplg.seqnum)),x}
-.stplg.updtab[`trade]: {(enlist(count first x)#(`long$1)),(enlist(count first x)#y),(enlist(count first x)#(`long$ .stplg.seqnum)),x} // PRODUCES LENGTH ERROR TO TEST THAT ERROR TPLOGS ARE FILLED
 
 // In none or tabular mode, intraday rolling not required
 if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
@@ -71,7 +69,7 @@ init:{[b]
     .stplg.checkends now};
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
-    .stplg.openlogerr[.stplg.dldir];
+    //.stplg.openlogerr[.stplg.dldir]; - this is being done in .stplg.init now
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
