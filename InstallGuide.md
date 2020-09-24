@@ -5,7 +5,7 @@
 
 **Installscript NEEDS TO BE CHANGED TO CORRECT PATH AFTERWARDS the merge with master**
 
-In your linux terminal run the following lines copying them in one by one:
+In your Linux terminal run the following lines copying them in one by one:
 
 `wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installscript/installtorqapp.sh`
 
@@ -33,7 +33,7 @@ Check if the stack is up
 ## Parameters used:
 
 **torq** - 
-Is a mandatory parameter that is the full path or relative path to the Torq installation. It can either be a Torq Directory where the version is already unzipped, that can be used when multiple TorQ APplication are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
+Is a mandatory parameter that is the full path or relative path to the Torq installation. It can either be a Torq Directory where the version is already unzipped, that can be used when multiple TorQ Application is used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
 Example usage in the script:
 
 `torq=/home/user/TorQ/TorQ-3.7.0`
@@ -48,7 +48,7 @@ Which is the .tar.gz file from GitHub using:
 
 **releasedir** -
 
-Is a mandatory parameter that is the full path or relative path to the directory you want to either create or exists that the installation will be executed to. 
+Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one.
 As follows:
 
 `releasedir=/home/user/deploy`
@@ -67,7 +67,7 @@ Another optional parameter. That is if you want to have your database live in a 
 
 `data=/home/data/torq_data`
 
-If the dictionary doesn't exist the script will make one. Also accepts a realtive path if necessary. 
+If the directory doesn't exist the script will make one. Also accepts a relative path if necessary. 
 
 **env** -
 
@@ -75,20 +75,20 @@ Env is the environment-specific optional installation parameters. That is a sepa
 
 `env=/home/user/env_spec_dev.sh` 
 
-Below is user guide how to set up the .sh script to have necessary replacements by the env parameter.
-For env paratmeter the env_spec script should look like this:
+Below is a user guide on how to set up the .sh script to have necessary replacements by the env parameter.
+For env parameter the env_spec script should look like this:
 `echo $1`
 
 `find $1 -type f -name "*.sh"`
 
 `find $1 -type f -name "*.sh" -exec sed -i "s/export KDBBASEPORT=.*/export KDBBASEPORT=7373/g" {} \;`
 
-Save this to env_spec.sh and add the paramter 
+Save this to env_spec.sh and add the parameter 
 
 `env=/home/user/env_spec_dev.sh`
 
-To install script start line. 
+To the install script start line. 
 This will replace the KDBBASEPORT to a new value.
 Similar actions can be done with other variables.
-If DEV and UAT run on different data sources can replace them. 
-This is essentialy the environment spesific config file.  
+If DEV and UAT run on different data sources can replace them.
+This is essentially the environment-specific config file.
