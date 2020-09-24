@@ -33,7 +33,7 @@ Check if the stack is up
 ## Parameters used:
 
 **torq** - 
-Is a mandatory parameter that is the full path or relative path to the Torq installation. It can either be a Torq Directory where the version is already unzipped, that can be used when multiple TorQ Application is used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
+Is a mandatory parameter that is the full path or relative path to the Torq installation. It can either be a Torq Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
 Example usage in the script:
 
 `torq=/home/user/TorQ/TorQ-3.7.0`
@@ -48,8 +48,8 @@ Which is the .tar.gz file from GitHub using:
 
 **releasedir** -
 
-Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions it has been deploy. 
-As follows:
+Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions the folder name has been deploy. 
+The releasedir parameter can be used as follows:
 
 `releasedir=/home/user/deploy`
 
@@ -63,7 +63,7 @@ Can be used as follows:
 
 **data** -
 
-Another optional parameter. That is if you want to have your database live in a different part of the system rather the place where the code lives. Can be used as follows:
+An optional parameter. That is if you want to have your database live in a different part of the system rather the place where the code lives. Can be used as follows:
 
 `data=/home/data/torq_data`
 
@@ -71,7 +71,7 @@ If the directory doesn't exist the script will make one. Also accepts a relative
 
 **env** -
 
-Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepst relative path):
+Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepts relative path):
 
 `env=/home/user/env_spec_dev.sh` 
 
@@ -79,21 +79,21 @@ Env is the environment-specific optional installation parameters. That is a sepa
 
 Below is a user guide on how to set up the .sh script to have necessary replacements by the env parameter.
 For env parameter the env_spec script should look like this:
+
 `echo $1`
 
 `find $1 -type f -name "*.sh"`
 
 `find $1 -type f -name "*.sh" -exec sed -i "s/export KDBBASEPORT=.*/export KDBBASEPORT=7373/g" {} \;`
 
-Create an sh script env_spec_dev.sh and then add the parameter 
+Create an sh script env_spec_dev.sh and then add the parameter to the install script start line. 
 
 `env=/home/user/env_spec_dev.sh`
 
-To the install script start line. 
 This will replace the KDBBASEPORT to a new value.
 Similar actions can be done with other variables.
 But requires user basic knowledege of sed commands. 
 The script will scan through the code in the TorQApp directory and the 
 bin directory from the deploy folder. 
-If DEV and UAT run on different data sources can replace them.
+If DEV and UAT run on different data sources then using env variable the install script can replace them with the correct server address.
 This is essentially the environment-specific config file.
