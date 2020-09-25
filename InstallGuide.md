@@ -20,7 +20,7 @@ Then to launch the script.
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters described below
 
-Then to run the torq stack:
+Then to run the TorQ stack:
 
 `./deploy/bin/torq.sh start all`
 
@@ -33,7 +33,7 @@ Check if the stack is up
 ## Parameters used:
 
 **torq** - 
-Is a mandatory parameter that is the full path or relative path to the Torq installation. It can either be a Torq Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
+Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
 Example usage in the script:
 
 `torq=/home/user/TorQ/TorQ-3.7.0`
@@ -48,14 +48,14 @@ Which is the .tar.gz file from GitHub using:
 
 **releasedir** -
 
-Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the Torq and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions the folder name has been deploy. 
+Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the TorQ and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions the folder name has been deploy. 
 The releasedir parameter can be used as follows:
 
 `releasedir=/home/user/deploy`
 
 **installfile** - 
 
-Is a mandatory parameter with the full path or relative path to the TorqApp installation file (ACCEPTS ONLY .tar.gz FILE). 
+Is a mandatory parameter with the full path or relative path to the TorQApp installation file (ACCEPTS ONLY .tar.gz FILE). 
 Can be used as follows:
 
 `installfile=/home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
@@ -63,7 +63,7 @@ Can be used as follows:
 
 **data** -
 
-An optional parameter. That is if you want to have your database live in a different part of the system rather the place where the code lives. Can be used as follows:
+An optional parameter. That is if you want to have your database live in a different part of the system rather than the place where the code lives. Can be used as follows:
 
 `data=/home/data/torq_data`
 
@@ -90,7 +90,7 @@ Create an sh script env_spec_dev.sh and then add the parameter to the install sc
 
 `env=/home/user/env_spec_dev.sh`
 
-This will replace the KDBBASEPORT to a new value.
+This will change the KDBBASEPORT to a new value.
 Similar actions can be done with other variables.
 But requires user basic knowledege of sed commands. 
 The script will scan through the code in the TorQApp directory and the 
