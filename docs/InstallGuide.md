@@ -113,9 +113,6 @@ For env parameter the env_spec script should look like this:
 
 `find $1 -type f -name "*.sh" -exec sed -i "s/export KDBBASEPORT=.*/export KDBBASEPORT=7373/g" {} \;`
 
-    $ . setenv.sh
-    $ q torq.q -debug -proctype testproc -procname test1 
-
 Create an sh script env_spec_dev.sh and then add the parameter to the install script start line. 
 
 `env=/home/user/env_spec_dev.sh`
