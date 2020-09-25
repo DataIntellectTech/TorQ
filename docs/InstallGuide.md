@@ -1,7 +1,7 @@
-TorQ-Application installation script. 
+Install Guide
 ===============
 
-## Usage instruction for a fresh Install
+## Usage instruction for a fresh TorQ Install
 
 
 In your Linux terminal run the following lines copying them in one by one:
