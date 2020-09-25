@@ -3,11 +3,10 @@
 
 ## Usage instruction for a fresh Install
 
-**Installscript NEEDS TO BE CHANGED TO CORRECT PATH AFTERWARDS the merge with master**
 
 In your Linux terminal run the following lines copying them in one by one:
 
-`wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installscript/installtorqapp.sh`
+`wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installtorqapp.sh`
 
 `wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz`
 
