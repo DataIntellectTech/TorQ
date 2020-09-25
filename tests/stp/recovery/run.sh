@@ -8,7 +8,8 @@ ${TORQHOME}/torq.sh start discovery1 -csv ${KDBTESTS}/stp/recovery/process.csv
   -proctype test -procname test1 \
   -test ${KDBTESTS}/stp/recovery -debug \
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/recovery/settings.q \
+  -results ${KDBTESTS}/stp/results/ \
   -procfile ${KDBTESTS}/stp/recovery/process.csv
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 -csv ${KDBTESTS}/stp/recovery/process.csv
+${TORQHOME}/torq.sh stop discovery1 rdball stprepperiod -csv ${KDBTESTS}/stp/recovery/process.csv

@@ -10,4 +10,4 @@ startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
 
 // Flag to save tests to disk
-.k4.savetodisk:0b;
+.k4.savetodisk:1b;
