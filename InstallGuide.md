@@ -28,11 +28,15 @@ Check if the stack is up
 
 `./deploy/bin/torq.sh summary`
 
+<table>
+<tr>
+<td> Command line parameter </td> <td> Explanation and usage </td>
+</tr>
+<tr>
+<td> torq </td>
+<td>
 
 
-## Parameters used:
-
-**torq** - 
 Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
 Example usage in the script:
 
@@ -46,22 +50,35 @@ Which is the .tar.gz file from GitHub using:
 
 `wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz`
 
-**releasedir** -
 
-Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the TorQ and TorQApp. If the directory doesn't exist then script creates one. It can be anything, as per previous AquaQ instructions the folder name has been deploy. 
+</td>
+</tr>
+<tr>
+<td> releasedir </td>
+<td>
+
+Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the TorQ and TorQApp. 
+If the directory doesn't exist then script creates one. It can be anything, 
+as per previous AquaQ instructions the folder name has been deploy. 
 The releasedir parameter can be used as follows:
 
 `releasedir=/home/user/deploy`
 
-**installfile** - 
+</td>
+<tr>
+<td> installfile </td>
+<td>
 
 Is a mandatory parameter with the full path or relative path to the TorQApp installation file (ACCEPTS ONLY .tar.gz FILE). 
 Can be used as follows:
 
 `installfile=/home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
 
-
-**data** -
+</td>
+</tr>
+<tr>
+<td> data </td>
+<td>
 
 An optional parameter. That is if you want to have your database live in a different part of the system rather than the place where the code lives. Can be used as follows:
 
@@ -69,7 +86,11 @@ An optional parameter. That is if you want to have your database live in a diffe
 
 If the directory doesn't exist the script will make one. Also accepts a relative path if necessary. 
 
-**env** -
+</td>
+</tr>
+<tr>
+<td> env </td>
+<td>
 
 Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepts relative path):
 
@@ -97,3 +118,14 @@ The script will scan through the code in the TorQApp directory and the
 bin directory from the deploy folder. 
 If DEV and UAT run on different data sources then using env variable the install script can replace them with the correct server address.
 This is essentially the environment-specific config file.
+
+</td>
+
+</tr>
+</table>
+
+
+
+
+
+
