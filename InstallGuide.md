@@ -28,6 +28,8 @@ Check if the stack is up
 
 `./deploy/bin/torq.sh summary`
 
+##Parameters used
+
 <table>
 <tr>
 <td> Command line parameter </td> <td> Explanation and usage </td>
