@@ -1,5 +1,5 @@
-## TorQ-Application installation script. 
-
+TorQ-Application installation script. 
+===============
 
 ## Usage instruction for a fresh Install
 
