@@ -126,6 +126,10 @@ This is essentially the environment-specific config file.
 </tr>
 </table>
 
+## Version control
+
+Currently works with TorQ v3.7.0 and higher and TorQ-FSP v1.9.0 and higer. 
+
 
 
 
