@@ -128,7 +128,9 @@ This is essentially the environment-specific config file.
 
 ## Version control
 
-Currently works with TorQ v3.7.0 and higher and TorQ-FSP v1.9.0 and higer. 
+The installtion script currently works with:
+- TorQ v3.7.0 or higher
+- TorQ-FSP v1.9.0 and higer. 
 
 
 
