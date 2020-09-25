@@ -9,6 +9,7 @@ ${TORQHOME}/torq.sh start discovery1 stp1 rdb1
   -test ${KDBTESTS}/stp/batching/ \
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/batching/settings.q \
   -results ${KDBTESTS}/stp/results/ \
+  -runtime $1 \
   -debug
 
 # Close other procs

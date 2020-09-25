@@ -5,5 +5,6 @@ ${TORQHOME}/torq.sh start discovery1 stp1 rdb1 -csv ${KDBTESTS}/stp/subfile/proc
   -test ${KDBTESTS}/stp/subfile/ -debug \
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/subfile/settings.q \
   -results ${KDBTESTS}/stp/results/ \
+  -runtime $1 \
   -csv ${KDBTESTS}/stp/subfile/process.csv
 ${TORQHOME}/torq.sh stop discovery1 stp1 rdb1 -csv ${KDBTESTS}/stp/subfile/process.csv

@@ -9,6 +9,7 @@ ${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt -csv ${KDBTESTS}/stp/
   -test ${KDBTESTS}/stp/tpvalidation -debug \
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/tpvalidation/settings.q \
   -results ${KDBTESTS}/stp/results/ \
+  -runtime $1 \
   -procfile ${KDBTESTS}/stp/tpvalidation/process.csv
 
 # Shut down procs

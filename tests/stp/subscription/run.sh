@@ -8,5 +8,6 @@ nohup q ${KDBTESTS}/stp/subscription/dummyclient.q -schemafile ${TORQHOME}/datab
   -proctype segmentedtickerplant \
   -procname stp1 \
   -test ${KDBTESTS}/stp/subscription \
+  -runtime $1 \
   -debug
 pkill -f dummyclient

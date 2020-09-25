@@ -9,6 +9,7 @@ ${TORQHOME}/torq.sh start discovery1 -csv ${KDBTESTS}/stp/recovery/process.csv
   -test ${KDBTESTS}/stp/recovery -debug \
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/recovery/settings.q \
   -results ${KDBTESTS}/stp/results/ \
+  -runtime $1 \
   -procfile ${KDBTESTS}/stp/recovery/process.csv
 
 # Shut down procs

@@ -10,6 +10,7 @@ ${TORQHOME}/torq.sh start discovery1 rdb1 stp1 -csv ${KDBTESTS}/stp/eod/process.
   -load ${KDBTESTS}/helperfunctions.q ${KDBTESTS}/stp/eod/settings.q \
   -results ${KDBTESTS}/stp/results/ \
   -procfile ${KDBTESTS}/stp/eod/process.csv \
+  -runtime $1 \
   -debug
 
 # Shut down procs

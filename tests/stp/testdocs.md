@@ -14,7 +14,7 @@ These shall be further explained below. One other file which may commonly be nee
 
 **Shell Script**
 
-The script `run.sh` is used to start all the processes needed for the subset of tests in the folder, as well as starting the test process and bringing down any processes left over at the end. An example script can be seen here:
+The script `run.sh` is used to start all the processes needed for the subset of tests in the folder, as well as starting the test process and bringing down any processes left over at the end. This script takes an optional timestamp argument which gets fed into the `-runtime` flag which is used for timestamping test runs. If this is not provided, any tests saved to disk will have a null timestamp for their runtime. An example script can be seen here:
 
 ```shell
 #!/bin/bash
