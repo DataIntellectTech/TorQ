@@ -9,6 +9,7 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
+tickerplantnames:@[value;`tickerplantnames;`tickerplant1];  //list of tickerplant names to try to make a connection to
 gatewaytypes:@[value;`gatewaytypes;`gateway]                //list of gateway types
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
@@ -145,7 +146,7 @@ dropfirstnrows:{[t]
 	};
 
 subscribe:{[]
-	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
+	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;tickerplantnames;()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
 		if[subfiltered;
 			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];

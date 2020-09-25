@@ -22,7 +22,6 @@ tptype:`segmented
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
-.proc.loadf[getenv[`KDBCODE],"/common/u.q"];
 
 if[chainedtp;[
   .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
@@ -68,7 +67,6 @@ subdetails:{[tabs;instruments]
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .u.init[.stpps.t];
-  //generatetablehandles[.stpps.t];
   .stplg.updmsg:.stplg.upd[b];
   .u.upd:{[t;x]
     // snap the current time and check for period end
@@ -108,7 +106,6 @@ init:{w::t!(count t::x)#()}          // altered definition of .u.init for tables
 
 upd:{[t;x]
   if[not chainedtp; :()];
-  
   // extract data from incoming table as a list
   x:flip value each x;
   .u.upd[t;x]
@@ -120,8 +117,14 @@ subscribe:{[]
   if[count s;
       subproc:first s;
       tph:subproc`w;
+      /- get tickerplant date - default to today's date
       .lg.o[`subscribe;"subscribing to ", string subproc`procname];
-      .sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
+      r:.sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
+      if[`d in key r;.u.d::r[`d]]; 
+      if[(`icounts in key r) & (not createlogs); /- dict r contains icounts & not using own logfile
+       subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
+	     .u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
+      ]
     ];
   }
 
@@ -134,5 +137,5 @@ init[.stplg.batchmode]
 
 .servers.startup[];
 
-/- subscribe to segmented tickerplant
-if[chainedtp; subscribe[]]
+/- subscribe to segmented tickerplant is mode is turned on
+if[chainedtp; if[chainedstpmode; subscribe[] ] ]
