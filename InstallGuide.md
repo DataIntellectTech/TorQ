@@ -18,7 +18,11 @@ Then to launch the script.
 `sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz env=`
 
 Where data parameter and env parameter are optional parameters.
-Full usage of the parameters described below
+Full usage of the parameters available in the table below.
+
+The folder structure after installation will look like this:
+
+<center><img src="docs/graphics/Installscript_folder_structure.png" width="600"></center>
 
 Then to run the TorQ stack:
 
@@ -27,6 +31,8 @@ Then to run the TorQ stack:
 Check if the stack is up 
 
 `./deploy/bin/torq.sh summary`
+
+
 
 ## Parameters used
 
