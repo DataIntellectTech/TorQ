@@ -6,15 +6,15 @@
 
 In your Linux terminal run the following lines copying them in one by one:
 
-`wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installtorqapp.sh`
+    wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installtorqapp.sh
 
-`wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz`
+    wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz
 
-`wget --content-disposition https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz`
+    wget --content-disposition https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz
 
 Then to launch the script.
 
-`sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz env=`
+    sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz env=
 
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters available in the table below.
@@ -25,12 +25,11 @@ The folder structure after installation will look like this:
 
 Then to run the TorQ stack:
 
-`./deploy/bin/torq.sh start all`
+    ./deploy/bin/torq.sh start all
 
 Check if the stack is up 
 
-`./deploy/bin/torq.sh summary`
-
+     ./deploy/bin/torq.sh summary
 
 
 ## Parameters used
@@ -113,6 +112,9 @@ For env parameter the env_spec script should look like this:
 `find $1 -type f -name "*.sh"`
 
 `find $1 -type f -name "*.sh" -exec sed -i "s/export KDBBASEPORT=.*/export KDBBASEPORT=7373/g" {} \;`
+
+    $ . setenv.sh
+    $ q torq.q -debug -proctype testproc -procname test1 
 
 Create an sh script env_spec_dev.sh and then add the parameter to the install script start line. 
 
