@@ -28,7 +28,7 @@ Check if the stack is up
 
 `./deploy/bin/torq.sh summary`
 
-##Parameters used
+## Parameters used
 
 <table>
 <tr>
