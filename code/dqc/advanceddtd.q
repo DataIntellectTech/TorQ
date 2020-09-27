@@ -70,7 +70,7 @@ medianfunc:{[tab;func;vars;n;percentage]
   /- List containing only the advancedres tables from T+1 to T+n
   advancedreslist:{first x`resultdata}each listt;
   /- changing the column name for the tables in advancedreslist
-  {advancedreslist[x]:((-1_cols advancedreslist[x]),.Q.dd[`bycount;`$string x])xcol advancedreslist[x]}each til n;
+  advancedreslist:{((-1_cols x[0]),.Q.dd[func;`$string x[1]])xcol x[0]}each flip(advancedreslist;til n);
   /- Joining the the tables from T+1 to T+n
   joinedadvancedres:(uj/)advancedreslist;
   joinedadvancedres:update medbycount:med (value joinedadvancedres)each cols value joinedadvancedres from joinedadvancedres;
