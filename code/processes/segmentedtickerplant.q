@@ -7,14 +7,16 @@
 // Filtered - apply filters to published data, filters defined on client side
 
 chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tickerplant
+.stplg.i:@[value;`.stplg.i;1]      /- default value for log seq number
 
 / below variables only apply when process is set up as a Chained TP
 tickerplantname:@[value;`tickerplantname;`stp1];                /- tickerplant name to try and make a connection to  
-createlogs:@[value;`createlogs;1b];                       /- allow chained tickerplant to create a log file
+createlogs:@[value;`createlogs;0b];                             /- allow chained tickerplant to create a log file
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
 schema:@[value;`schema;1b];                                     /- retrieve schema from tickerplant
+
 
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
@@ -122,8 +124,8 @@ subscribe:{[]
       r:.sub.subscribe[subscribeto;subscribesyms;schema;replay;subproc];
       if[`d in key r;.u.d::r[`d]]; 
       if[(`icounts in key r) & (not createlogs); /- dict r contains icounts & not using own logfile
-       subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
-	     .u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
+        subtabs:$[subscribeto~`;key r`icounts;subscribeto],();
+        .u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
       ]
     ];
   }
@@ -138,4 +140,4 @@ init[.stplg.batchmode]
 .servers.startup[];
 
 /- subscribe to segmented tickerplant is mode is turned on
-if[chainedtp; if[chainedstpmode; subscribe[] ] ]
+if[chainedtp; subscribe[] ]
