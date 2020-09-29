@@ -7,7 +7,6 @@
 // Filtered - apply filters to published data, filters defined on client side
 
 chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tickerplant
-.stplg.i:@[value;`.stplg.i;1]      /- default value for log seq number
 
 / below variables only apply when process is set up as a Chained TP
 tickerplantname:@[value;`tickerplantname;`stp1];                /- tickerplant name to try and make a connection to  

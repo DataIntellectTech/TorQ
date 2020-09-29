@@ -246,6 +246,7 @@ init:{[dbname]
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
   createdld[dbname;.eodtime.d];
+  i::1; /- default value for log seq number
 
   if[createlogs;
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
