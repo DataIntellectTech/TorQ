@@ -1,10 +1,9 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`rdb`segmentedtickerplant`tickerplant;
+.servers.CONNECTIONS:`rdb`segmentedtickerplant;
 .servers.USERPASS:`admin:admin;
 
 // Paths to process CSV and test STP log directory
-processcsv:getenv[`KDBTESTS],"/stp/tpvalidation/process.csv";
-stptestlogs:getenv[`KDBTESTS],"/stp/tpvalidation/singlelog";
+processcsv:getenv[`KDBTESTS],"/stp/periodend/process.csv";
 
 // Test updates
 testtrade:((5#`GOOG),5?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);

@@ -31,6 +31,8 @@ fi
 
 hostips=`hostname -I`
 hostnames=`hostname -A`
+#hostips=`ip -4 addr show scope global | grep inet | awk '{print $2}' | cut -d '/' -f 1`            # hostips for Arch based Linux distributions
+#hostnames=`getent hosts $hostips | awk '{print $2}'`                                               # hostnames for Arch based Linux distributions
 
 findcsvcol() {
   head -1 $CSVPATH | tr ',' '\012' | grep -wn $1 | cut -f 1 -d ':'                                  # find column number of inputted header name

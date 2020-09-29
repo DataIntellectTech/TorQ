@@ -5,6 +5,7 @@
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/recovery/process.csv";
 stptestlogs:getenv[`KDBTESTS],"/stp/recovery/singlelog";
+stporiglogs:getenv[`KDBSTPLOG];
 
 // Test updates
 testtrade:((5#`GOOG),5?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
@@ -13,3 +14,6 @@ testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
+
+// Flag to save tests to disk
+.k4.savetodisk:1b;

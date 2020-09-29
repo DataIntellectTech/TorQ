@@ -251,9 +251,9 @@ movetohdb:{[dw;hw;pt]
       not any a[dw]in(a:{key hsym`$x}) hw;
       [{[y;x] 
         $[not(b:`$last"/"vs x)in key y;
-          [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",y," with error: ",e]}[b;y;]];
-           .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",y]];
-          .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",y]];
+          [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",string[y]," with error: ",e]}[b;y;]];
+           .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",string[y]]];
+          .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",string[y]]];
         }[hsym`$hw]'[dw,/:"/",/:string key hsym`$dw];
         if[0=count key hsym`$dw;@[.os.deldir;dw;{[x;y].lg.e[`mvtohdb;"Failed to delete folder ",x," with error: ",y]}[dw]]]];
      .lg.e[`mvtohdb;raze"Table(s) ",string[(key hsym`$hw)inter(key hsym`$dw)]," is present in both location. Operation will be aborted to avoid corrupting the hdb"]]
