@@ -11,7 +11,7 @@ chainedtp:@[value;`chainedtp;0b];  /- sets process up as a chained segmented tic
 
 / below variables only apply when process is set up as a Chained TP
 tickerplantname:@[value;`tickerplantname;`stp1];                /- tickerplant name to try and make a connection to  
-createlogs:@[value;`createlogs;0b];                             /- allow chained tickerplant to create a log file
+createlogs:@[value;`createlogs;1b];                             /- allow chained tickerplant to create a log file
 subscribeto:@[value;`subscribeto;`];                            /- list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];                        /- list of syms to subscription to
 replay:@[value;`replay;0b];                                     /- replay the tickerplant log file
