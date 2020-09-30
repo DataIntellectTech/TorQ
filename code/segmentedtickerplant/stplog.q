@@ -103,6 +103,7 @@ zts[`defaultbatch]:{
 // Immediate mode - publish and write immediately
 upd[`immediate]:{[t;x;now]
   x:updtab[t] . (x;now);
+  lengthtest: t insert x;                       //// throws error if x has incorrect length
   `..loghandles[t] enlist(`upd;t;x);
   @[`.stplg.msgcount;t;+;1];
   @[`.stplg.rowcount;t;+;count first x];
