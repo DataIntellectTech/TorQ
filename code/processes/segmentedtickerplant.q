@@ -105,6 +105,8 @@ init:{[b]
     system"t 1000"];
  };
 
+// Initialise process
+
 \d .
 
 // Create log directory, open all table logs

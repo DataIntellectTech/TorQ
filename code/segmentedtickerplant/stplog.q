@@ -68,7 +68,7 @@ updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 // If set to memorybatch, publish and write to disk will be run in batches
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
 upd[`memorybatch]:{[t;x;now]
-  t insert x: updtab[t] . (x;now);
+  t insert updtab[t] . (x;now);
  };
 
 zts[`memorybatch]:{
@@ -83,7 +83,7 @@ zts[`memorybatch]:{
 
 // Standard batch mode - write to disk immediately, publish in batches
 upd[`defaultbatch]:{[t;x;now]
-  t insert x: updtab[t] . (x;now);
+  t insert x: .stplg.updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   // track tmp counts, and add these after publish
   @[`.stplg.tmpmsgcount;t;+;1];
