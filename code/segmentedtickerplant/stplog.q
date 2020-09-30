@@ -6,15 +6,12 @@ currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 // View of log file handles for faster lookups
 loghandles::exec tbl!handle from currlog
 
-.stplg.chainedtp:chainedtp;
-.stplg.createlogs:createlogs;
-
 \d .stplg
 
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  $[count dir:$[chainedtp;getenv[`KDBSCTPLOG];getenv[`KDBSTPLOG]];
+  $[count dir:$[.sctp.chainedtp;getenv[`KDBSCTPLOG];getenv[`KDBSTPLOG]];
     [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
@@ -72,7 +69,7 @@ updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
 upd[`memorybatch]:{[t;x;now]
   // only timestamps if not in CTP mode
-  if[not chainedtp; x: updtab[t] . (x;now)];
+  x: updtab[t] . (x;now);
   t insert x;
  };
 
@@ -89,7 +86,7 @@ zts[`memorybatch]:{
 // Standard batch mode - write to disk immediately, publish in batches
 upd[`defaultbatch]:{[t;x;now]
   // only timestamps if not in CTP mode
-  if[not chainedtp; x: updtab[t] . (x;now)];
+  x: updtab[t] . (x;now);
   t insert x;
   `..loghandles[t] enlist(`upd;t;x);
   // track tmp counts, and add these after publish
@@ -110,8 +107,7 @@ zts[`defaultbatch]:{
 // Immediate mode - publish and write immediately
 upd[`immediate]:{[t;x;now]
   // only timestamps if not in CTP mode
-  if[not chainedtp; x: updtab[t] . (x;now)];
-  t insert x;
+  x: updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   @[`.stplg.msgcount;t;+;1];
   @[`.stplg.rowcount;t;+;count first x];
@@ -248,7 +244,7 @@ init:{[dbname]
   createdld[dbname;.eodtime.d];
   i::1; /- default value for log seq number
 
-  if[createlogs;
+  if[value `..createlogs;
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
     // read in the meta table from disk 
     .stpm.metatable:@[get;hsym`$string[.stplg.dldir],"/stpmeta";0#.stpm.metatable];
