@@ -83,7 +83,7 @@ zts[`memorybatch]:{
 
 // Standard batch mode - write to disk immediately, publish in batches
 upd[`defaultbatch]:{[t;x;now]
-  t insert x: .stplg.updtab[t] . (x;now);
+  t insert x:.stplg.updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
   // track tmp counts, and add these after publish
   @[`.stplg.tmpmsgcount;t;+;1];
