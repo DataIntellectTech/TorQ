@@ -95,7 +95,7 @@ init:{[b]
   
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
-    .stplg.openlogerr[.stplg.dldir];
+    //.stplg.openlogerr[.stplg.dldir]; - this is being done in .stplg.init now
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
