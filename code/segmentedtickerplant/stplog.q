@@ -11,8 +11,8 @@ loghandles::exec tbl!handle from currlog
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  $[count dir:$[.sctp.chainedtp;getenv[`KDBSCTPLOG];getenv[`KDBSTPLOG]];
-    [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,date];
+  $[count dir:getenv[`KDBSTPLOG];
+    [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,"_",date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
  };
@@ -236,7 +236,7 @@ init:{[dbname]
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
-  createdld[dbname;.eodtime.d];
+  createdld[.proc.procname;.eodtime.d];
   i::1; /- default value for log seq number
 
   if[value `..createlogs;
