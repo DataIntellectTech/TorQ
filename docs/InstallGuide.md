@@ -64,8 +64,8 @@ Which is the .tar.gz file from GitHub using:
 <td>
 
 Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the TorQ and TorQApp. 
-If the directory doesn't exist then script creates one. It can be anything, 
-as per previous AquaQ instructions the folder name has been deploy. 
+If the directory doesn't exist then script creates one.
+It can be anything, if following the previously released instructions the folder name would be deploy.
 The releasedir parameter can be used as follows:
 
 `releasedir=/home/user/deploy`
@@ -86,7 +86,7 @@ Can be used as follows:
 <td> data </td>
 <td>
 
-An optional parameter. That is if you want to have your database live in a different part of the system rather than the place where the code lives. Can be used as follows:
+An optional parameter. That is if you want to have your data directory as defined by TORQDATAHOME live in a different part of the system rather than the place where the code lives. Can be used as follows:
 
 `data=/home/data/torq_data`
 
@@ -118,8 +118,7 @@ Create an sh script env_spec_dev.sh and then add the parameter to the install sc
 `env=/home/user/env_spec_dev.sh`
 
 This will change the KDBBASEPORT to a new value.
-Similar actions can be done with other variables.
-But requires user basic knowledege of sed commands. 
+Similar actions can be done with other variables, and required user basic knowledge of sed commands.
 The script will scan through the code in the TorQApp directory and the 
 bin directory from the deploy folder. 
 If DEV and UAT run on different data sources then using env variable the install script can replace them with the correct server address.
@@ -134,7 +133,7 @@ This is essentially the environment-specific config file.
 
 The installtion script currently works with:
 - TorQ v3.7.0 or higher
-- TorQ-FSP v1.9.0 and higer. 
+- TorQ-FSP v1.9.0 and higher. 
 
 
 
