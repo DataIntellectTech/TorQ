@@ -6,6 +6,8 @@
 // All - publish all data for table
 // Filtered - apply filters to published data, filters defined on client side
 
+createlogs:@[value;`createlogs;1b]; /- allow tickerplant to create a log file
+
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
 
