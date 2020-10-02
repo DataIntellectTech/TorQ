@@ -14,7 +14,7 @@ In your Linux terminal run the following lines copying them in one by one:
 
 Then to launch the script.
 
-    sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz env=
+    bash installtorqapp.sh --torq TorQ-3.7.0.tar.gz --releasedir deploy --data datatemp --installfile TorQ-Finance-Starter-Pack-1.9.0.tar.gz --env 
 
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters available in the table below.
@@ -46,11 +46,11 @@ Check if the stack is up
 Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. 
 Example usage in the script:
 
-`torq=/home/user/TorQ/TorQ-3.7.0`
+`--torq /home/user/TorQ/TorQ-3.7.0`
 
 Where TorQ-3.7.0 is unzipped directory from the latest release .tar.gz file. Or
 
-`torq=/home/user/TorQ/TorQ-3.7.0.tar.gz` 
+`--torq /home/user/TorQ/TorQ-3.7.0.tar.gz` 
 
 Which is the .tar.gz file from GitHub using:
 
@@ -68,7 +68,7 @@ If the directory doesn't exist then script creates one.
 It can be anything, if following the previously released instructions the folder name would be deploy.
 The releasedir parameter can be used as follows:
 
-`releasedir=/home/user/deploy`
+`--releasedir /home/user/deploy`
 
 </td>
 <tr>
@@ -78,7 +78,7 @@ The releasedir parameter can be used as follows:
 Is a mandatory parameter with the full path or relative path to the TorQApp installation file (ACCEPTS ONLY .tar.gz FILE). 
 Can be used as follows:
 
-`installfile=/home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
+`--installfile /home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
 
 </td>
 </tr>
@@ -88,7 +88,7 @@ Can be used as follows:
 
 An optional parameter. That is if you want to have your data directory as defined by TORQDATAHOME live in a different part of the system rather than the place where the code lives. Can be used as follows:
 
-`data=/home/data/torq_data`
+`--data /home/data/torq_data`
 
 If the directory doesn't exist the script will make one. Also accepts a relative path if necessary. 
 
@@ -100,9 +100,9 @@ If the directory doesn't exist the script will make one. Also accepts a relative
 
 Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepts relative path):
 
-`env=/home/user/env_spec_dev.sh` 
+`--env /home/user/env_spec_dev.sh` 
 
-`env=env_spec_dev.sh`
+`--env /env_spec_dev.sh`
 
 Below is a user guide on how to set up the .sh script to have necessary replacements by the env parameter.
 For env parameter the env_spec script should look like this:
@@ -115,7 +115,7 @@ For env parameter the env_spec script should look like this:
 
 Create an sh script env_spec_dev.sh and then add the parameter to the install script start line. 
 
-`env=/home/user/env_spec_dev.sh`
+`--env /home/user/env_spec_dev.sh`
 
 This will change the KDBBASEPORT to a new value.
 Similar actions can be done with other variables, and required user basic knowledge of sed commands.
