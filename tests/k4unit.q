@@ -69,18 +69,18 @@ KUltd:{ / (load test dir) - load all *.csv files in directory <x> into KUT
 KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	before:count KUTR;uf:exec asc distinct file from KUT;i:0;
 	if[.KU.VERBOSE;.lg.o[`k4unit;"start"]];
-	exec KUexec'[lang;code;repeat] from KUT where action=`beforeany;
+	KUerrparse[`beforeany;] exec KUexec'[lang;code;repeat],file from KUT where action=`beforeany;
 	do[count uf;
 		ufi:uf[i];KUTI:select from KUT where file=ufi;
 		if[.KU.VERBOSE;.lg.o[`k4unit;(string ufi)," ",(string exec count i from KUTI where action in `run`true`fail)," test(s)"]];
-		exec KUexec'[lang;code;repeat] from KUT where action=`beforeeach;
-		exec KUexec'[lang;code;repeat] from KUTI where action=`before;
+		KUerrparse[`beforeach;] exec KUexec'[lang;code;repeat],file from KUT where action=`beforeeach;
+		KUerrparse[`before;] exec KUexec'[lang;code;repeat],file from KUTI where action=`before;
 		/ preserve run,true,fail order
 		exec KUact'[action;lang;code;repeat;ms;bytes;file]from KUTI where action in`true`fail`run;
-		exec KUexec'[lang;code;repeat] from KUTI where action=`after;
-		exec KUexec'[lang;code;repeat] from KUT where action=`aftereach;
+		KUerrparse[`after;] exec KUexec'[lang;code;repeat],file from KUTI where action=`after;
+		KUerrparse[`aftereach;] exec KUexec'[lang;code;repeat],file from KUT where action=`aftereach;
 		i+:1];
-	exec KUexec'[lang;code;repeat] from KUT where action=`afterall;
+	KUerrparse[`afterall;] exec KUexec'[lang;code;repeat],file from KUT where action=`afterall;
 	if[.KU.VERBOSE;.lg.o[`k4unit;"end"]];
 	neg before-count KUTR}
 
@@ -90,8 +90,22 @@ KUpexec:{[prefix;lang;code;repeat;allowfail]
 
 KUfailed:{`FA1L~x}
 
+// If in error - it now returns the error as well as the offending code
 KUexec:{[lang;code;repeat]
-	value(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"]}
+	strexec:(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
+	@[value;strexec;{(`err;`$x;y)}[;code]]
+	}
+
+// Generate error logs from beforeeach, before, after and aftereach tests
+KUerrparse:{[action;out]
+	vals:1_' out where `err ~/: first each out:raze each flip value out;
+	.lg.e[`KUexecerr;] each KUerrparseinner[action;;;] .' vals;
+	}
+
+// Generate more detailed error messages
+KUerrparseinner:{[action;err;code;file] 
+	string[action]," error in file ",string[file]," - ",string[err],". Code: '",string[code],"'"
+	}
 
 KUact:{[action;lang;code;repeat;ms;bytes;file]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
