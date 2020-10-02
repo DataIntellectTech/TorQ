@@ -43,7 +43,7 @@ read, then it is a command line parameter.
 Installing TorQ
 ------------
 
-A guide on how to install TorQ using installation script [here](https://github.com/AquaQAnalytics/TorQ/tree/master/docs/InstallGuide.md).
+A guide on how to install TorQ using installation script [[here|Installation]].
 
 Using torq.q
 ------------
