@@ -58,9 +58,13 @@ Which is the .tar.gz file from GitHub using:
 
 
 </td>
+
 </tr>
+
 <tr>
+    
 <td> releasedir </td>
+
 <td>
 
 Is a mandatory parameter that is the full path or relative path to the deployment directory that will populate the TorQ and TorQApp. 
@@ -71,8 +75,11 @@ The releasedir parameter can be used as follows:
 `--releasedir /home/user/deploy`
 
 </td>
+
 <tr>
+    
 <td> installfile </td>
+
 <td>
 
 Is a mandatory parameter with the full path or relative path to the TorQApp installation file (ACCEPTS ONLY .tar.gz FILE). 
@@ -81,9 +88,13 @@ Can be used as follows:
 `--installfile /home/user/TorQ-FSP/TorQ-Finance-Starter-Pack-master.tar.gz`
 
 </td>
+
 </tr>
+
 <tr>
+    
 <td> data </td>
+
 <td>
 
 An optional parameter. That is if you want to have your data directory as defined by TORQDATAHOME live in a different part of the system rather than the place where the code lives. Can be used as follows:
@@ -93,9 +104,13 @@ An optional parameter. That is if you want to have your data directory as define
 If the directory doesn't exist the script will make one. Also accepts a relative path if necessary. 
 
 </td>
+
 </tr>
+
 <tr>
+    
 <td> env </td>
+
 <td>
 
 Env is the environment-specific optional installation parameters. That is a separate .sh script that can be configured for different environments like DEV/UAT/PROD. In the script, there are SED replacements for necessary variables. If this parameter is left empty or isn't included nothing happens. If you want to include it you have to insert the parameters as follows (also accepts relative path):
@@ -127,6 +142,7 @@ This is essentially the environment-specific config file.
 </td>
 
 </tr>
+
 </table>
 
 ## Version control
