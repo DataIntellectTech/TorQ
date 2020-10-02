@@ -1,24 +1,52 @@
 #!/bin/bash
 #Example usage:
-#sh installtorqapp.sh torq=TorQ-3.7.0.tar.gz releasedir=deploy data=/home/sroomus/datatemp installfile=TorQ-Finance-Starter-Pack-1.9.0.tar.gz
+#bash installtorqapp.sh --torq TorQ-3.7.0.tar.gz --releasedir deploy --data datatemp --installfile TorQ-Finance-Starter-Pack-1.9.0.tar.gz
+#or
+#bash installtorqapp.sh -t TorQ-3.7.0.tar.gz -r deploy -d datatemp -i TorQ-Finance-Starter-Pack-1.9.0.tar.gz
 
 #Creating variables from the definitions
-for ARGUMENT in "$@"
+POSITIONAL=()
+while [[ $# -gt 0 ]]
 do
+key="$1"
 
-    KEY=$(echo $ARGUMENT | cut -f1 -d=)
-    VALUE=$(echo $ARGUMENT | cut -f2 -d=)   
-
-    case "$KEY" in
-            torq)    torq=`realpath ${VALUE}` ;;     
-            releasedir)    releasedir=`realpath ${VALUE}` ;;
-            env)    env=`realpath ${VALUE}` ;;
-            data)	data=`realpath ${VALUE}` ;;
-	    installfile)    installfile=`realpath ${VALUE}` ;;
-            *)   
-    esac    
-
+case $key in
+    -t|--torq)
+    torq=`realpath "$2"`
+    shift # past argument
+    shift # past value
+    ;;
+    -r|--releasedir)
+    releasedir=`realpath "$2"`
+    shift # past argument
+    shift # past value
+    ;;
+    -i|--installfile)
+    installfile=`realpath "$2"`
+    shift # past argument
+    shift # past value
+    ;;
+    -d|--data)
+    data=`realpath "$2"`
+    shift # past argument
+    shift # past value
+    ;;
+    -e|--env)
+    env=`realpath "$2"`
+    shift # past argument
+    shift # past value
+    ;;
+    --default)
+    DEFAULT=YES
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
 done
+set -- "${POSITIONAL[@]}" # restore positional parameters
 
 
 echo ""
