@@ -43,7 +43,7 @@ read, then it is a command line parameter.
 Installing TorQ
 ------------
 
-A guide on how to install TorQ using installation script [[here|Installation]].
+A guide on how to install TorQ using installation script [[here|/InstallGuide.md]].
 
 Using torq.q
 ------------
