@@ -21,7 +21,7 @@ Full usage of the parameters available in the table below.
 
 The folder structure after installation will look like this:
 
-![Install_structure](graphics/Installscript_folder_structure.png)
+![Install_structure](../graphics/Installscript_folder_structure.png)
 
 Then to run the TorQ stack:
 
