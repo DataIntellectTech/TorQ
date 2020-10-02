@@ -13,6 +13,11 @@ tptype:`segmented
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
+if[.sctp.chainedtp;[
+  .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
+  .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
+  ]];
+
 // Load schema
 $[`schemafile in key .proc.params;
   .proc.loadf[schemafile:raze .proc.params[`schemafile]];
@@ -32,7 +37,10 @@ $[`schemafile in key .proc.params;
 // updtab stores functions to add/modify columns
 // Default functions timestamp updates
 // Preserve any prior definitions, but default all tables if not specified
-.stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
+$[.sctp.chainedtp;
+  .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
+  .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
+  ]
 
 // In none or tabular mode, intraday rolling not required
 if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
@@ -52,21 +60,39 @@ subdetails:{[tabs;instruments]
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .stplg.updmsg:.stplg.upd[b];
-  .u.upd:{[t;x]
-    // snap the current time and check for period end
-    if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
-    // Type check allows update messages to contain multiple tables/data
-    $[0h<type t;
-      .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
-      .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+  $[.sctp.chainedtp;
+    .u.upd:{[t;x]
+      now:.z.p;
+      // Type check allows update messages to contain multiple tables/data
+      $[0h<type t;
+        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
+        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+      ];
+      .stplg.seqnum+:1;
+      };
+    .u.upd:{[t;x]
+      // snap the current time and check for period end
+      if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
+      // Type check allows update messages to contain multiple tables/data
+      $[0h<type t;
+        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
+        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+      ];
+      .stplg.seqnum+:1;
+      }
     ];
-    .stplg.seqnum+:1;
-  };
   // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
   .stplg.ts:.stplg.zts[b];
-  .z.ts:{
-    .stplg.ts now:.z.p; 
-    .stplg.checkends now};
+  $[.sctp.chainedtp;
+    .z.ts:{
+      .stplg.ts now:.z.p;
+      };
+    .z.ts:{
+      .stplg.ts now:.z.p; 
+      .stplg.checkends now
+      }
+    ];
+  
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
     //.stplg.openlogerr[.stplg.dldir]; - this is being done in .stplg.init now
@@ -81,9 +107,14 @@ init:{[b]
 
 // Initialise process
 
+\d .
+
 // Create log directory, open all table logs
 // use name of schema to create directory
 .stplg.init[dbname:-2 _ last "/" vs schemafile]
 
 // Set update and publish modes
 init[.stplg.batchmode]
+
+/- subscribe to segmented tickerplant is mode is turned on
+if[.sctp.chainedtp; .servers.startup[]; .sctp.subscribe[] ]
