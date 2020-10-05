@@ -6,7 +6,7 @@
 // All - publish all data for table
 // Filtered - apply filters to published data, filters defined on client side
 
-createlogs:@[value;`createlogs;1b]; /- allow tickerplant to create a log file
+createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
 
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
@@ -118,5 +118,5 @@ init:{[b]
 // Set update and publish modes
 init[.stplg.batchmode]
 
-/- subscribe to segmented tickerplant is mode is turned on
+// subscribe to segmented tickerplant is mode is turned on
 if[.sctp.chainedtp; .servers.startup[]; .sctp.subscribe[] ]
