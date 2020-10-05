@@ -77,7 +77,9 @@ Check if the stack is up
 ## Version control
 
 The installtion script currently works with:
+
 - TorQ v3.7.0 or higher
+
 - TorQ-FSP v1.9.0 and higher. 
 
 
