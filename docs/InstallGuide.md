@@ -6,7 +6,7 @@ Install Guide
 
 In your Linux terminal run the following lines copying them in one by one:
 
-    wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/installtorqapp.sh
+    wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/master/installtorqapp.sh
 
     wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz
 
