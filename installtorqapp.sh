@@ -265,7 +265,7 @@ sed -i "s|export TORQDATAHOME=.*|export TORQDATAHOME=$releasedir/data|" $release
 
 echo ""
 echo "============================================================="
-echo "CHECKING ENVIRONMENT SPESIFIC FILE CHANGES"
+echo "CHECKING ENVIRONMENT SPECIFIC FILE CHANGES"
 echo "============================================================="
 
 
