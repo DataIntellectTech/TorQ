@@ -1,0 +1,677 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Monitoring - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#monitoring-torq" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Monitoring
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="./" title="Monitoring" class="md-nav__link md-nav__link--active">
+      Monitoring
+    </a>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/monit.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="monitoring-torq">Monitoring TorQ</h1>
+<p>There are lots of standard tools available to monitor a TorQ stack. It can be easily integrated with incumbent monitoring systems. We have outlined how to use two of our preferred options below- Monit and Datadog. Some of their features overlap and some are complementary. </p>
+<h1 id="monit">Monit</h1>
+<p><strong>Monit</strong> is a small open source utility for monitoring and managing UNIX systems. Monit's ease of use makes it the perfect tool for tracking the status of TorQ processes.</p>
+<h2 id="installation">Installation</h2>
+<p>Monit is included in most Unix distributions but can also be downloaded from <a href="https://mmonit.com/monit/#download">here</a>. This monit addition to TorQ allows the monit config files to be easily generated, based on the contents of the process.csv file. </p>
+<p>The basic monit directory which has been added to TorQ can be seen below: </p>
+<pre><code>${TORQHOME}
+|---monit
+    |---bin
+    |   |---monit.sh 
+    |---templates 
+        |---monitalert.cfg
+        |---monitrc
+        |---monittemplate.txt
+</code></pre>
+
+<p>It is important to mention that AquaQ will not offer support for <strong>monitalert.cfg</strong> and <strong>monitrc</strong>. Those two files have been added as an example on how <strong>monit</strong> can be configured to monitor your system and to offer an out-of-the-box configuration that you can use to test that <strong>monit</strong> works.  If the monit installation contains an updated version of monitrc, this should be used instead. </p>
+<h2 id="features">Features</h2>
+<p>Monit is only available for UNIX and it comes with a bash script that you can use to generate the configuration and start the processes. More details on how you use this script can be found below. </p>
+<p>We have also included a standard <strong>monitrc</strong> which will: </p>
+<ul>
+<li>Set the check interval to 30 seconds </li>
+<li>Set the location of the <strong>monit.log</strong> file </li>
+<li>Set the location of <strong>monit.state</strong> fsile </li>
+<li>Define the <strong>mail alert</strong> basic configuration </li>
+<li>Define the <strong>e-mail format</strong></li>
+<li>Set the <strong>interface port</strong> (11000) <strong>user</strong> and <strong>password</strong></li>
+<li>Set the location of the <strong>*.cfg</strong> files </li>
+</ul>
+<p>The <strong>monitalert.cfg</strong> it is only an example on how you can configure your own alerts for monitoring your UNIX system. There are no TorQ specific examples in this file. </p>
+<p>The only file which will be updated with future TorQ releases is the <strong>monittemplate.txt</strong> which generates the <strong>monitconfig.cfg</strong>. An example is included below: </p>
+<pre><code>check process tickerplant1
+  matching &quot;15000 -proctype tickerplant -procname tickerplant1&quot;
+    start program = &quot;/bin/bash -c '/home/USER/torqprodsupp/torqdev/deploy/torq.sh start tickerplant1'&quot;
+      with timeout 10 seconds
+    stop program = &quot;/bin/bash -c '/home/USER/torqprodsupp/torqdev/deploy/torq.sh stop tickerplant1'&quot;
+    every &quot;* * * * *&quot;
+    mode active
+</code></pre>
+
+<h2 id="usage-guide">Usage Guide</h2>
+<p>If you want to use <strong>monit</strong> to monitor your UNIX system and TorQ processes you must first generate the configuration files and then start <strong>monit</strong>. We will assume that you start with a fresh copy of TorQ. </p>
+<ol>
+<li>Install TorQ and the any optional customisations (e.g. the TorQ Finanace Starter Pack)</li>
+<li>Navigate to <strong>${TORQHOME}/monit/bin/</strong></li>
+<li>Execute:  </li>
+<li>bash monit.sh generate all - to generate all the config files </li>
+<li>bash monit.sh generate alert - to generate the alert configuration file</li>
+<li>bash monit.sh generate monitconfig - to generate the monitconfig.cfg </li>
+<li>bash monit.sh generate monitrc - to generate the monitrc file </li>
+</ol>
+<p>However, you can also use your own configuration files by either creating a new directory in monit called <strong>config</strong> and moving all the <em>.cfg files and the <strong>monitrc</strong> file in there or by modifying the last line in the monitrc to point to the folder where the </em>.cfg files can be found. </p>
+<ol>
+<li>Start monit by executing bash monit.sh start </li>
+</ol>
+<p>The start function also take a parameter <strong>("string")</strong> whch can specify the location of the <strong>monitrc</strong>.</p>
+<h1 id="datadog">Datadog</h1>
+<p>Datadog is a monitoring service for cloud-scale applications, providing
+monitoring of servers, databases, tools, and services, through a SaaS-based data
+analytics platform. This documentation provides a guideline on how to integrate TorQ and Datadog on
+a Linux host.</p>
+<div style="width:640px; height:360px; margin: 0 auto;">
+<iframe src="https://player.vimeo.com/video/378822571" width="640" height="360" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+
+<p></br></p>
+<p><strong>Note:</strong> The Datadog Agent used in this integration is version 7, and may not be backwards or forwards compatible with other versions. See the Datadog documentation for more detail. </p>
+<h2 id="installation_1">Installation</h2>
+<p>Please Note: At this time the integration of Datadog with TorQ is supported on a unix host. We have not yet provided instructions or functionality for the use of Datadog with TorQ on other operating systems.</p>
+<p>The Datadog Agent is software that runs on your host, collecting events and metrics from the host and sending them to Datadog, where you can analyze your monitoring and performance data. We have provided the functionality to monitor system metrics such as CPU and memory usage, report process errors to Datadog, perform data checks and visualise the results on a custom dashboard. The datadog agent can be installed <a href="https://www.datadoghq.com/">here</a>. Note that there are multiple price plans for Datadog, and the functionality available to you is dependent on your plan. </p>
+<p>A 14-day free trial is available, on which all the monitoring provided within this integration will work. </p>
+<p>Once you've set up an account with datadog, more information on getting started can be found <a href="https://docs.datadoghq.com/getting_started/agent/">here</a>. 
+An easy one-step install is provided as shown in the video above.</p>
+<p>Code is provided within TorQ to enable the integration of Datadog with a TorQ stack on a unix host. The directory layout of the relevant code is as shown below:</p>
+<pre><code>${TORQHOME}
+|---datadog
+    |---Example_TorQ_Monitoring_Dashboard.json
+    |---monitors
+    |---setupdatadog.sh
+</code></pre>
+
+<pre><code>${TORQHOME}
+|---code
+    |---common
+    |   |---datadog.q
+    |---monitor
+        |---datadogchecks.q
+</code></pre>
+
+<p>The <code>setupdatadog.sh</code> script is provided as a quick-start install to set up datadog on your host. It edits the config files required by datadog: </p>
+<ul>
+<li>Datadog.yaml, which contains the port number to listen on, and enables the agent to receive metrics and events from processes. </li>
+<li>Process.yaml, which determines which processes datadog will retrieve CPU and memory stats for. This file is generated using the process.csv, and by default all processes will be monitored. If you wish to monitor only certain processes, a "datadog" column can be added to the process.csv, and a value of 1 or 0 added to each of the processes (1 meaning monitored, 0 meaning not monitored).</li>
+</ul>
+<h2 id="features_1">Features</h2>
+<p><img alt="Simple Datadog Integration" src="../graphics/datadog1.png" /></p>
+<ul>
+<li>Send Metrics and Events</li>
+</ul>
+<p><a href="https://docs.datadoghq.com/metrics/">Metrics</a> are values sent from the system to quickly indicate the state of a process or the system itself. We have provided the functionality to send metrics from TorQ processes to the datadog agent, via the <code>.dg.sendmetric</code> function. </p>
+<pre><code>q) .dg.sendmetric[&quot;metric_name&quot;;metric_value]
+
+</code></pre>
+
+<p>The default configuration generated by <code>setupdatadog.sh</code> also automates the sending of process stats as metrics, using the process.yaml as a template for which processes to monitor. </p>
+<p><a href="https://docs.datadoghq.com/events/">Events</a> are sent in a similar way to Metrics, but indicate a noteworthy record of
+activity</p>
+<p>We can send an event from a TorQ process using the .dg.sendevent function:</p>
+<pre><code>.dg.sendevent[event_title;event_text;tags;alert_type]
+</code></pre>
+
+<p>This expects string arguments, and can accept any number of custom tags, and an
+alert type one of "error", "warning" or "success".</p>
+<ul>
+<li>Send Process Errors To Datadog</li>
+</ul>
+<p>We can utilise the sendevent functionality to track any TorQ process errors on datadog. TorQ provides a hook for extended logging, .lg.ext. We have provided the option to edit this to send errors and warnings to datadog as events:</p>
+<pre><code>enablelogging:{[]
+  .lg.ext:{[olddef;loglevel;proctype;proc;id;message;dict]
+  olddef[loglevel;proctype;proc;id;message;dict];
+  if[loglevel in `ERR`WARN;.dg.sendevent[string proc;message;string proctype;]$[loglevel=`ERR;&quot;error&quot;;&quot;warning&quot;]]}[@[value;`.lg.ext;{{[loglevel;proctype;proc;id;message;dict]}}]]
+ }
+</code></pre>
+
+<p>By default, this is not enabled, but should you wish to enable this and view process errors and warnings, you can change the value of .dg.enabled in <code>$TORQHOME/config/settings/default.q</code>.</p>
+<pre><code>.dg.enabled:1b
+</code></pre>
+
+<ul>
+<li>Automate checks using monitor process</li>
+</ul>
+<p>TorQ's <a href="http://aquaqanalytics.github.io/TorQ/Processes/#monitor">monitor</a> process lets us define a series of user-specific checks to be run at specified intervals on specified processes. 
+We have provided an example check (<strong>.dg.isok</strong>) and (<strong>.dg.sendresultmetric</strong>). </p>
+<p>The .dg.isok function is a simple check to see if a process is available and can be queried. The monitor process will execute this function within the processes it has been configured to monitor, and a value of 1b is returned if the process is available. Within the monitor process, the .dg.sendresultmetric result handler then sends this result to datadog as a metric, which can be displayed on the UI dashboard. </p>
+<p>Other checks can be added to provide more specific metrics to monitor, such as table record counts, e.g: </p>
+<pre><code>.dg.checkcount:{[table;day] count select from table where date=day}
+</code></pre>
+
+<p>No default monitor configuration is provided, but if you wish to add a check such as the above to be run by the monitor process, the <code>monitorconfig.csv</code> can be edited as shown: </p>
+<pre><code>family|metric|process|query|resultchecker|params|period|runtime
+datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresultmetric|`varname`cond!(`datadogcheck;`true)|0D00:01|0D00:00:00.5
+</code></pre>
+
+<h2 id="usage-guide_1">Usage Guide</h2>
+<p>If you wish to incorporate Datadog into your system as a monitoring tool, you can follow the instructions in the video above or the written instructions as follows. This will configure datadog according to default settings, and will not enable error logging or any monitoring functions unless configured by the user.  </p>
+<ol>
+<li>Install Datadog agent on your host according to instructions <a href="https://docs.datadoghq.com/getting_started/agent/?tab=datadogussite">here</a></li>
+<li>Set up required configuration on host:<ul>
+<li>(Optional) Change the port on which the agent listens, DOGSTATSD_PORT. This can be edited in the setenv.sh script in the $TORQHOME directory, and will default to port 8125.</li>
+<li>Execute <code>. setenv.sh</code> in the $TORHOME directory, to pick up any changes to DOGSTATSD_PORT</li>
+<li>Execute <code>. setupdatadog.sh</code>. This will edit the required datadog config files, datadog.yaml and process.yaml.</li>
+<li>Restart the datadog agent: <code>sudo service datadog-agent restart</code>. This ensures the updated config is used by the agent.</li>
+</ul>
+</li>
+</ol>
+<p>The agent is now reporting process stats, and these can be visualised on the datadog UI. For more detailed metrics and events, enable the error logging using <code>.dg.enabled:1b</code> and configure the monitor process to run some checks. </p>
+<h2 id="using-the-datadog-ui">Using the Datadog UI</h2>
+<p>You can visualise your metrics and events on a dashboard, and configure monitors and alerts. </p>
+<p>An example dashboard has been provided in <code>$TORQHOME/datadog/Example_TorQ_Monitoring_Dashboard.json.</code> This displays simple metrics such as process cpu %, process memory % and relative changes in these, as well as TorQ-specific process checks and a stream of any errors from TorQ processes. To import this into your datadog UI, go to the dashboards section <a href="https://app.datadoghq.com/dashboard/">here</a> And click <strong>add new screenboard</strong>. In the settings section, select <strong>import  dashboard json</strong> and copy and paste the json or browse your files to select the json dashboard you want to import. You will be prompted with whether or  not you want to replace whatever is on the screenboard - click yes. Your dashboard will then load and display as below. The appearance of the dashboard will depend on whether you've enabled the extended error logging, and configured the monitor process. </p>
+<p><img alt="Example Dashboard" src="../graphics/datadog2.png" /></p>
+<p>Alternatively, you can create your own custom dashboard according to the documentation <a href="https://docs.datadoghq.com/dashboards/">here</a></p>
+<p><strong>Monitors</strong> can be set up to track metrics and establish alerts based on critical changes. We've provided some example monitors, designed to notify if a process goes down, or system resources reach a limit. To import an example monitor, go to the "Monitors" section on your datadog account, click <strong>New Monitor</strong>, then <strong>Import Monitor</strong>, and copy and paste the JSON of the monitor you'd like to use into the text box provided, then click save. The monitor will then become available and start alerting.</p>
+<p>You can create custom monitors using the guidelines in the Datadog documentation
+<a href="https://docs.datadoghq.com/monitors/monitor_types/">here</a></p>
+<h2 id="monitoring-multiple-hosts">Monitoring Multiple Hosts</h2>
+<p>Depending on your datadog pricing plan, the option to monitor multiple hosts is provided. To integrate Datadog and TorQ across all hosts, you will need to install the agent on each host, and follow the installation instructions as above. If your TorQ setup is operating across different hosts, you will need to establish which processes to monitor on which host by configuring a "datadog" column in the process.csv as discussed earlier.</p>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../analyticslib/" title="Analytics Library" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Analytics Library
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../visualisation/" title="Visualisation" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Visualisation
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>

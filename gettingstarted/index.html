@@ -1,0 +1,1351 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Getting Started - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#getting-started" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Getting Started
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Getting Started
+      </label>
+    
+    <a href="./" title="Getting Started" class="md-nav__link md-nav__link--active">
+      Getting Started
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing-torq" class="md-nav__link">
+    Installing TorQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-torqq" class="md-nav__link">
+    Using torq.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-torqsh" class="md-nav__link">
+    Using torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    Environment Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-identification" class="md-nav__link">
+    Process Identification
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-processes-using-torqsh" class="md-nav__link">
+    Running processes using torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-code-profiler-with-torqsh" class="md-nav__link">
+    Using the Code Profiler with torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    Logging
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-loading" class="md-nav__link">
+    Configuration Loading
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-configuration-loading" class="md-nav__link">
+    Default Configuration Loading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-configuration-loading" class="md-nav__link">
+    Application Configuration Loading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-dependency" class="md-nav__link">
+    Application Dependency
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-loading" class="md-nav__link">
+    Code Loading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-errors" class="md-nav__link">
+    Initialization Errors
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing-torq" class="md-nav__link">
+    Installing TorQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-torqq" class="md-nav__link">
+    Using torq.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-torqsh" class="md-nav__link">
+    Using torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    Environment Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-identification" class="md-nav__link">
+    Process Identification
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-processes-using-torqsh" class="md-nav__link">
+    Running processes using torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-code-profiler-with-torqsh" class="md-nav__link">
+    Using the Code Profiler with torq.sh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging" class="md-nav__link">
+    Logging
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-loading" class="md-nav__link">
+    Configuration Loading
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#default-configuration-loading" class="md-nav__link">
+    Default Configuration Loading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-configuration-loading" class="md-nav__link">
+    Application Configuration Loading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-dependency" class="md-nav__link">
+    Application Dependency
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-loading" class="md-nav__link">
+    Code Loading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-errors" class="md-nav__link">
+    Initialization Errors
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/gettingstarted.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="getting-started">Getting Started</h1>
+<p>kdb+ is very customisable. Customisations are contained in q scripts (.q
+files), which define functions and variables which modify the behaviour
+of a process. Every q process can load a single q script, or a directory
+containing q scripts and/or q data files. Hooks are provided to enable
+the programmer to apply a custom function to each entry point of the
+process (.z.p*), to be invoked on the timer (.z.ts) or when a variable
+in the top level namespace is amended (.z.vs). By default none of these
+hooks are implemented.</p>
+<p>We provide a codebase and a single main script, torq.q. torq.q is
+essentially a wrapper for bespoke functionality which can load other
+scripts/directories, or can be sourced from other scripts. Whenever
+possible, torq.q should be invoked directly and used to load other
+scripts as required. torq.q will:</p>
+<ul>
+<li>
+<p>ensure the environment is set up correctly;</p>
+</li>
+<li>
+<p>define some common utility functions (such as logging);</p>
+</li>
+<li>
+<p>execute process management tasks, such as discovering the name and
+    type of the process, and re-directing output to log files;</p>
+</li>
+<li>
+<p>load configuration;</p>
+</li>
+<li>
+<p>load the shared code based;</p>
+</li>
+<li>
+<p>set up the message handlers;</p>
+</li>
+<li>
+<p>load any required bespoke scripts.</p>
+</li>
+</ul>
+<p>The behavior of torq.q is modified by both command line parameters and
+configuration. We have tried to keep as much as possible in
+configuration files, but if the parameter either has a global effect on
+the process or if it is required to be known before the configuration is
+read, then it is a command line parameter.</p>
+<p><a name="torq"></a></p>
+<h2 id="installing-torq">Installing TorQ</h2>
+<p>A guide on how to install TorQ using installation script <a href="/TorQ/InstallGuide/">here</a>.</p>
+<h2 id="using-torqq">Using torq.q</h2>
+<p>torq.q can be invoked directly from the command line and be set to
+source a specified file or directory. torq.q requires the 5 environment
+variables to be set (see section envvar). If using a unix
+environment, this can be done with the setenv.sh script. To start a
+process in the foreground without having to modify any other files (e.g.
+process.csv) you need to specify the type and name of the process as
+parameters. An example is below.</p>
+<pre><code>$ . setenv.sh
+$ q torq.q -debug -proctype testproc -procname test1
+</code></pre>
+<p>To specify the parent process type, do:</p>
+<pre><code>$ q torq.q -debug -parentproctype testparentproc -proctype testproc -procname test1
+</code></pre>
+<p>To load a file, do:</p>
+<pre><code>$ q torq.q -load myfile.q -debug -proctype testproc -procname test1
+</code></pre>
+<p>It can also be sourced from another script. If this is the case, some of
+the variables can be overridden, and the usage information can be
+modified or extended. Any variable that has a definition like below can
+be overridden from the loading script.</p>
+<pre><code>myvar:@[value;`myvar;1 2 3]
+</code></pre>
+<p>The available command line parameters are:</p>
+<table>
+<thead>
+<tr>
+<th>Cmd Line Param</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-procname x -proctype y</td>
+<td>The process name and process type</td>
+</tr>
+<tr>
+<td>-parentproctype x</td>
+<td>The parent process type</td>
+</tr>
+<tr>
+<td>-procfile x</td>
+<td>The name of the file to get the process information from</td>
+</tr>
+<tr>
+<td>-load x [y..z]</td>
+<td>The files or database directory to load</td>
+</tr>
+<tr>
+<td>-loaddir x [y..z]</td>
+<td>Load all .q, .k files in specified directories</td>
+</tr>
+<tr>
+<td>-localtime</td>
+<td>Sets processes running in local time rather than GMT for log messages, timer calls etc. The change is backwards compatible; without -localtime flag the process will print logs etc. in GMT but can also have a different .z.P</td>
+</tr>
+<tr>
+<td>-trap</td>
+<td>Any errors encountered during initialization when loading external files will be caught and logged, processing will continue</td>
+</tr>
+<tr>
+<td>-stop</td>
+<td>Stop loading the file if an error is encountered but do not exit</td>
+</tr>
+<tr>
+<td>-noredirect</td>
+<td>Do not redirect std out/std err to a file (useful for debugging)</td>
+</tr>
+<tr>
+<td>-noredirectalias</td>
+<td>Do not create an alias for the log files (aliases drop any suffix e.g. timestamp suffix)</td>
+</tr>
+<tr>
+<td>-noconfig</td>
+<td>Do not load configuration</td>
+</tr>
+<tr>
+<td>-nopi</td>
+<td>Reset the definition of .z.pi to the initial value (useful for debugging)</td>
+</tr>
+<tr>
+<td>-debug</td>
+<td>Equivalent to [-nopi -noredirect]</td>
+</tr>
+<tr>
+<td>-usage</td>
+<td>Print usage info and exit</td>
+</tr>
+<tr>
+<td>-onelog</td>
+<td>Writes all messages to stdout log file, note non-trapped errors will still be written to stderr log file</td>
+</tr>
+<tr>
+<td>-test x</td>
+<td>Use for unit testing. Pass the location of tests directory</td>
+</tr>
+</tbody>
+</table>
+<p>In addition any process variable in a namespace (.*.*) can be
+overridden from the command line. Any value supplied on the command line
+will take priority over any other predefined value (.e.g. in a
+configuration or wrapper). Variable names should be supplied with full
+qualification e.g. -.servers.HOPENTIMEOUT 5000.</p>
+<p><a name="env"></a></p>
+<h2 id="using-torqsh">Using torq.sh</h2>
+<p>torq.sh is a script that runs processes in torq with added functionality,
+one key enhancement is all the process configuration is now in one place.
+The default process file is located in $KDBCONFIG/process.csv. This 
+script is only available on Linux. It requires environment variables to 
+be set, similar to torq.q. A usage statement for the script can be seen 
+by running the following in a unix environment: <code>./torq.sh</code>.</p>
+<h2 id="environment-variables">Environment Variables</h2>
+<p>Five environment variables are required:</p>
+<table>
+<thead>
+<tr>
+<th>Environment Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KDBCONFIG</td>
+<td>The base configuration directory</td>
+</tr>
+<tr>
+<td>KDBCODE</td>
+<td>The base code directory</td>
+</tr>
+<tr>
+<td>KDBLOGS</td>
+<td>Where standard out/error and usage logs are written</td>
+</tr>
+<tr>
+<td>KDBHTML</td>
+<td>Contains HTML files</td>
+</tr>
+<tr>
+<td>KDBLIB</td>
+<td>Contains supporting library files</td>
+</tr>
+</tbody>
+</table>
+<p>torq.q will check for these and exit if they are not set. If torq.q is
+being sourced from another script, the required environment variables
+can be extended by setting .proc.envvars before loading torq.q.</p>
+<p><a name="procid"></a></p>
+<h2 id="process-identification">Process Identification</h2>
+<p>At the crux of AquaQ TorQ is how processes identify themselves. This is
+defined by two required variables - .proc.proctype and .proc.procname
+which are the type and name of the process respectively. An optional
+variable parentproctype allows an inital codebase and configuration to
+be loaded. The two required  values determine the code base and
+configuration loaded, and how they are connected to by other processes.
+If both of the required variables are not defined, TorQ will attempt
+to use the port number a process was started on to determine the code
+base and configuration loaded.</p>
+<p>The most important of these is the proctype. It is up to the user to
+define at what level to specify a process type. For example, in a
+production environment it would be valid to specify processes of type
+“hdb” (historic database) and “rdb” (real time database). It would also
+be valid to segregate a little more granularly based on approximate
+functionality, for example “hdbEMEA” and “hdbAmericas”. In this example
+it may be sensible to set the parentproctype as "hdb" and putting all
+shared code in the "hdb" configuration to be loaded first with the
+region-specific configuration being loaded after. The actual
+functionality of a process can be defined more specifically, but this
+will be discussed later. The procname value is used solely for
+identification purposes. A process can determine its type and name in a
+number of ways:</p>
+<ol>
+<li>
+<p>From the process file in the default location of
+    $KDBCONFIG/process.csv;</p>
+</li>
+<li>
+<p>From the process file defined using the command line parameter
+    -procfile;</p>
+</li>
+<li>
+<p>From the port number it is started on, by referring to the process
+    file for further process details;</p>
+</li>
+<li>
+<p>Using the command line parameters -proctype and -procname;</p>
+</li>
+<li>
+<p>By defining .proc.proctype and .proc.procname in a script which
+    loads torq.q.</p>
+</li>
+</ol>
+<p>For options 4 and 5, both parameters must be defined using that method
+or neither will be used (the values will be read from the process file).</p>
+<p>For option 3, TorQ will check the process file for any entries where the
+port matches the port number it has been started on, and deduce it’s
+proctype and procname based on this port number and the corresponding
+hostname entry.</p>
+<p>The process file has format as below.</p>
+<pre><code>aquaq$ cat config/process.csv 
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+aquaq,9997,rdb,rdb_europe_1,appconfig/passwords/accesslist.txt,1,1,3,,${KDBCODE}/processes/rdb.q,1,,q
+aquaq,9998,hdb,hdb_europe_1,appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
+aquaq,9999,hdb,hdb_europe_2,appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
+</code></pre>
+<p>The process will read the file and try to identify itself based on the
+host and port it is started on. The host can either be the value
+returned by .z.h, or the ip address of the server. If the process can
+not automatically identify itself it will exit, unless proctype and
+procname were both passed in as command line parameters. If both of
+these parameters are passed in then default configuration settings will
+be used.</p>
+<p>The parameters following procname set the following:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U</td>
+<td>Authentication requiring a usr:pwd file</td>
+</tr>
+<tr>
+<td>localtime</td>
+<td>Sets process running in local time rather than GMT</td>
+</tr>
+<tr>
+<td>g</td>
+<td>Garbage collection immediate (1) or deferred (0)</td>
+</tr>
+<tr>
+<td>T</td>
+<td>Timeout in seconds for client queries, 0 for no timeout</td>
+</tr>
+<tr>
+<td>w</td>
+<td>Workspace MB limit</td>
+</tr>
+<tr>
+<td>load</td>
+<td>Files or database directory to load</td>
+</tr>
+<tr>
+<td>startwithall</td>
+<td>Determine if process is started when all is specified</td>
+</tr>
+<tr>
+<td>extras</td>
+<td>Specify any additional parameters</td>
+</tr>
+<tr>
+<td>qcmd</td>
+<td>Allows different versions of q to be used or different command line options - rlwap, numactl</td>
+</tr>
+</tbody>
+</table>
+<p>Where U/g/T/w are standard q command line arguments and localtime and 
+load are TorQ command line parameters. </p>
+<h2 id="running-processes-using-torqsh">Running processes using torq.sh</h2>
+<p>torq.sh is able to start or stop processes seperately, in a batch or 
+all at once. Before a process is started/stopped the script will 
+check that the process is not already running before attempting to 
+start/stop a process, a time of when this is executed is printed to screen.</p>
+<pre><code>$ ./torq.sh start rdb1 hdb1 tickerplant1
+    15:42:00 | Starting rdb1...
+    15:42:00 | hdb1 already running
+    15:42:00 | Starting tickerplant1...
+
+$ ./torq.sh stop all
+    15:46:19 | Shutting down hdb1...
+    15:46:19 | Shutting down hdb2...
+</code></pre>
+
+<p>A status summary table of all the processes can be printed to screen, 
+the summary provides information on the time the process was checked, 
+process name, status and the port number and PID of that process.</p>
+<pre><code>$ ./torq.sh summary
+    TIME     | PROCESS        | STATUS | PORT   | PID
+    11:33:59 | discovery1     | up     | 41001  | 14426
+    11:33:59 | tickerplant1   | down   |
+</code></pre>
+
+<p>It is possible to view the underlying start code for all processes. 
+This is useful if another available command line parameter was required 
+for start up. </p>
+<pre><code>$ ./torq.sh print discovery1 
+    Start line for discovery1:
+    nohup q deploy/torq.q -procname discovery1 -stackid 41000 -proctype discovery -U appconfig/passwords/accesslist.txt -localtime 1 -g 0 -load deploy/code/processes/discovery.q -procfile deploy/appconfig/process.csv &lt;/dev/null &gt; deploy/logs/torqdiscovery1.txt 2&gt;&amp;1 &amp;
+</code></pre>
+
+<p>The debug command line parameter can be appended to the start line 
+straight from torq.sh to start a process in debug mode. Note it is only 
+possible to start one process at a time in debug mode.</p>
+<pre><code>$ ./torq.sh debug tickerplant1 
+</code></pre>
+
+<p>If a process name not present in the process.csv is used, the input 
+process name will return as an invalid input. To see a list of all the 
+processes in the process.csv see below.</p>
+<pre><code>$ ./torq.sh procs
+</code></pre>
+
+<p>A different process file can be used with this script from the command 
+line. The argument following the csv flag needs to be a full path to 
+the process.csv.</p>
+<pre><code>$ ./torq.sh start all -csv ${KDBAPPCONFIG}/process.csv
+</code></pre>
+
+<p>To add/override the default values in the g, T, w, or extras column the 
+extras flag can be used in this script. </p>
+<pre><code>$ ./torq.sh start rdb1 -extras -T 60 -w 4000
+$ ./torq.sh start sort1 -extras -s -3
+</code></pre>
+
+<h2 id="using-the-code-profiler-with-torqsh">Using the Code Profiler with torq.sh</h2>
+<p>KDB 4.0 includes an experimental built-in call-stack snapshot primitive that allows
+building a sampling profiler.  The profiler uses the new function <a href="https://code.kx.com/q/ref/dotq/#qprf0-code-profiler"><code>.Q.prf0</code></a>. </p>
+<p>Requirements and documentation of the new code profiler by kx can be found <a href="https://code.kx.com/q/kb/profiler/">here</a>.</p>
+<p>Assuming a process is running, you can run the code below as an example in the command line.
+Note that this <code>top</code> function currently only allows a single process as an argument and
+multiple processes is not currently supported.</p>
+<pre><code>$ ./torq.sh top rdb1
+</code></pre>
+
+<p>This uses the <code>top.q</code> script given by kx (description found <a href="https://code.kx.com/q/kb/profiler/">here</a>)
+which will show an automatically updated display of functions most heavily 
+contributing to the running time. The display has the following fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>self</td>
+<td>the percentage of time spent in the function itself</td>
+</tr>
+<tr>
+<td>total</td>
+<td>percentage of time spent in the function including all descendants</td>
+</tr>
+<tr>
+<td>name</td>
+<td>the name of the function</td>
+</tr>
+<tr>
+<td>file</td>
+<td>the file path where the function is located</td>
+</tr>
+</tbody>
+</table>
+<p><a name="logging"></a></p>
+<h2 id="logging">Logging</h2>
+<p>By default, each process will redirect output to a standard out log and
+a standard error log, and create aliases for them. These will be rolled
+at midnight on a daily basis. They are all written to the $KDBLOGS
+directory. The log files created are:</p>
+<table>
+<thead>
+<tr>
+<th>Log File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>out_[procname]_[date].log</td>
+<td>Timestamped out log</td>
+</tr>
+<tr>
+<td>err_[procname]_[date].log</td>
+<td>Timestamped error log</td>
+</tr>
+<tr>
+<td>out_[procname].log</td>
+<td>Alias to current log log</td>
+</tr>
+<tr>
+<td>err_[procname].log</td>
+<td>Alias to current error log</td>
+</tr>
+</tbody>
+</table>
+<p>The date suffix can be overridden by modifying the .proc.logtimestamp
+function and sourcing torq.q from another script. This could, for
+example, change the suffixing to a full timestamp.</p>
+<p>In the case where -onelog is flagged TorQ will attempt to redirect
+all output to the out log file, unfortunately this is not perfect.</p>
+<p>TorQ uses \1 and \2 to redirect stderr and stdout, onelog only
+overrides handled errors to the \1 redirect. This is because
+there are issuses with redirecting both to the same file, (the ordering
+of messages will be incorrect) the issue is with KDB+ rather than
+with TorQ.</p>
+<p>Because of this errors that are raised by KDB+ and unhandled are still
+directed to the err log file because \1 and \2 cannot be redirected to
+the same file.</p>
+<p><a name="config"></a></p>
+<h2 id="configuration-loading">Configuration Loading</h2>
+<h3 id="default-configuration-loading">Default Configuration Loading</h3>
+<p>Default process configuration is contained in q scripts, and stored in
+the $KDBCONFIG /settings directory. Each process tries to load all the
+configuration it can find and will attempt to load three configuration
+files in the below order:-</p>
+<ul>
+<li>
+<p>default.q: default configuration loaded by all processes. In a
+    standard installation this should contain the superset of
+    customisable configuration, including comments.</p>
+</li>
+<li>
+<p>[parentproctype].q: configuration for a specific parent process
+    type (only if parentproctype specified).</p>
+</li>
+<li>
+<p>[proctype].q: configuration for a specific process type.</p>
+</li>
+<li>
+<p>[procname].q: configuration for a specific named process.</p>
+</li>
+</ul>
+<p>The only one which should always be present is default.q. Each of the
+other scripts can contain a subset of the configuration variables, which
+will override anything loaded previously.</p>
+<h3 id="application-configuration-loading">Application Configuration Loading</h3>
+<p>Application specific configuration can be stored in a user defined
+directory and made visible to TorQ by setting the $KDBAPPCONFIG
+environment variable. If $KDBAPPCONFIG is set, then TorQ will search
+the $KDBAPPCONFIG/settings directory and load all configuration it can
+find. Application configuration will be loaded after all default
+configuration in the following order:-</p>
+<ul>
+<li>
+<p>default.q: Application default configuration loaded by all
+    processes.</p>
+</li>
+<li>
+<p>[[parentproctype]]{}.q : Application specific configuration for a
+    specific parent process type (only if parentproctype specified).</p>
+</li>
+<li>
+<p>[[proctype]]{}.q: Application specific configuration for a
+    specific process type.</p>
+</li>
+<li>
+<p>[[procname]]{}.q: Appliction specific configuration for a specific
+    named process.</p>
+</li>
+</ul>
+<p>All loaded configuration will override anything loaded previously. None
+of the above scripts are required to be present and can contain a subset
+of the default configuration variables from the default configuration
+directory.</p>
+<p>All configuration is loaded before code.</p>
+<h3 id="application-dependency">Application Dependency</h3>
+<p>TorQ will automatically check application version and dependency
+information. TorQ will check the $KDBAPPCONFIG directory for a dependency.csv
+file. This file should contain information in the format:</p>
+<table>
+<thead>
+<tr>
+<th>app</th>
+<th>version</th>
+<th>dependency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>app0</td>
+<td>1.0.0</td>
+<td>app1 1.1.1;app2 2.1.0</td>
+</tr>
+</tbody>
+</table>
+<p>TorQ will also search the $KDBCONFIG directory for the TorQ dependency.csv file.
+If any of the dependency versions exceed application versions, TorQ will exit
+and log the error. </p>
+<p>If no dependency files are supplied, TorQ will run as normal. However, if only an 
+application dependency file is supplied, TorQ will exit and log the error.</p>
+<p>Each version number can be up to 5 digits in length, separated by '.' and 
+the current kdb+ version will be automatically added with the format
+major.minor.yyyy.mm.dd</p>
+<p><a name="code"></a></p>
+<h2 id="code-loading">Code Loading</h2>
+<p>Code is loaded from the $KDBCODE directory. There is also a common
+codebase, a codebase for each process type, and a code base for each
+process name, contained in the following directories and loaded in this
+order:</p>
+<ul>
+<li>
+<p>$KDBCODE/common: shared codebase loaded by all processes;</p>
+</li>
+<li>
+<p>$KDBCODE/[parentproctype]: code for a specific parent process type
+    (only if parentproctype specified);</p>
+</li>
+<li>
+<p>$KDBCODE/[proctype]: code for a specific process type;</p>
+</li>
+<li>
+<p>$KDBCODE/[procname]: code for a specific process name;</p>
+</li>
+</ul>
+<p>For any directory loaded, the load order can be specified by adding
+order.txt to the directory. order.txt dictates the order that files in
+the directory are loaded. If a file is not in order.txt, it will still
+be loaded but after all the files listed in order.txt have been loaded.</p>
+<p>In addition to loading code form $KDBCODE, application specific code can be 
+saved in a user defined directory with the same structure as above, and made
+visible to TorQ by setting the $KDBAPPCODE environment variable.</p>
+<p>If this environment variable is set, TorQ will load codebase in the following order.</p>
+<ul>
+<li>
+<p>$KDBCODE/common: shared codebase loaded by all processes;</p>
+</li>
+<li>
+<p>$KDBAPPCODE/common: application specific code shared by all processes;</p>
+</li>
+<li>
+<p>$KDBCODE/[parentproctype]: code for a specific parent process type (only if
+    parentproctype specified);</p>
+</li>
+<li>
+<p>$KDBAPPCODE/[parentproctype]: application specific code for a specific parent
+    process type (only if parentproctype specified);</p>
+</li>
+<li>
+<p>$KDBCODE/[proctype]: code for a specific process type;</p>
+</li>
+<li>
+<p>$KDBAPPCODE/[proctype]: application specific code for a specific process type;</p>
+</li>
+<li>
+<p>$KDBCODE/[procname]: code for a specific process name;</p>
+</li>
+<li>
+<p>$KDBAPPCODE/[procname]: application specific code for a specific process name;</p>
+</li>
+</ul>
+<p>Additional directories can be loaded using the -loaddir command line
+parameter.</p>
+<p><a name="init"></a></p>
+<h2 id="initialization-errors">Initialization Errors</h2>
+<p>Initialization errors can be handled in different ways. The default
+action is any initialization error causes the process to exit. This is
+to enable fail-fast type conditions, where it is better for a process to
+fail entirely and immediately than to start up in an indeterminate
+state. This can be overridden with the -trap or -stop command line
+parameters. With -trap, the process will catch the error, log it, and
+continue. This is useful if, for example, the error is encountered
+loading a file of stored procedures which may not be invoked and can be
+reloaded later. With -stop the process will halt at the point of the
+error but will not exit. Both -stop and -trap are useful for debugging.</p>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../Overview/" title="About" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                About
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../InstallGuide/" title="Installation" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Installation
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>

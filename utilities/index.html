@@ -1,0 +1,3296 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Utilities - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#utilities" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Utilities
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Utilities
+      </label>
+    
+    <a href="./" title="Utilities" class="md-nav__link md-nav__link--active">
+      Utilities
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#apiq" class="md-nav__link">
+    api.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apidetailsq" class="md-nav__link">
+    apidetails.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timerq" class="md-nav__link">
+    timer.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asyncq" class="md-nav__link">
+    async.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cacheq" class="md-nav__link">
+    cache.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emailq" class="md-nav__link">
+    email.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#emails-with-ssl-certificates-from-windows" class="md-nav__link">
+    Emails with SSL certificates from Windows
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timezoneq" class="md-nav__link">
+    timezone.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compressq" class="md-nav__link">
+    compress.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataloaderq" class="md-nav__link">
+    dataloader.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscriptionsq" class="md-nav__link">
+    subscriptions.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pubsubq" class="md-nav__link">
+    pubsub.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kafkaq" class="md-nav__link">
+    kafka.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tplogutilsq" class="md-nav__link">
+    tplogutils.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoringchecksq" class="md-nav__link">
+    monitoringchecks.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heartbeatq" class="md-nav__link">
+    heartbeat.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rmvrq" class="md-nav__link">
+    rmvr.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#osq" class="md-nav__link">
+    os.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbwriteutilsq" class="md-nav__link">
+    dbwriteutils.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-and-attributes" class="md-nav__link">
+    Sorting and Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" class="md-nav__link">
+    Garbage Collection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-manipulation" class="md-nav__link">
+    Table Manipulation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helpq" class="md-nav__link">
+    help.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#htmlq" class="md-nav__link">
+    html.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eodtimeq" class="md-nav__link">
+    eodtime.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscribercutoffq" class="md-nav__link">
+    subscribercutoff.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datareplayq" class="md-nav__link">
+    datareplay.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modified-uq" class="md-nav__link">
+    Modified u.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-api" class="md-nav__link">
+    Full API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-table" class="md-nav__link">
+    API Table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafanaq" class="md-nav__link">
+    grafana.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-adaptor" class="md-nav__link">
+    Using the adaptor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations-assumptions" class="md-nav__link">
+    Limitations &amp; Assumptions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#apiq" class="md-nav__link">
+    api.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apidetailsq" class="md-nav__link">
+    apidetails.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timerq" class="md-nav__link">
+    timer.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asyncq" class="md-nav__link">
+    async.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cacheq" class="md-nav__link">
+    cache.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emailq" class="md-nav__link">
+    email.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#emails-with-ssl-certificates-from-windows" class="md-nav__link">
+    Emails with SSL certificates from Windows
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#timezoneq" class="md-nav__link">
+    timezone.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compressq" class="md-nav__link">
+    compress.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataloaderq" class="md-nav__link">
+    dataloader.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscriptionsq" class="md-nav__link">
+    subscriptions.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pubsubq" class="md-nav__link">
+    pubsub.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kafkaq" class="md-nav__link">
+    kafka.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tplogutilsq" class="md-nav__link">
+    tplogutils.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#monitoringchecksq" class="md-nav__link">
+    monitoringchecks.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heartbeatq" class="md-nav__link">
+    heartbeat.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rmvrq" class="md-nav__link">
+    rmvr.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#osq" class="md-nav__link">
+    os.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbwriteutilsq" class="md-nav__link">
+    dbwriteutils.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-and-attributes" class="md-nav__link">
+    Sorting and Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" class="md-nav__link">
+    Garbage Collection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#table-manipulation" class="md-nav__link">
+    Table Manipulation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helpq" class="md-nav__link">
+    help.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#htmlq" class="md-nav__link">
+    html.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eodtimeq" class="md-nav__link">
+    eodtime.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subscribercutoffq" class="md-nav__link">
+    subscribercutoff.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datareplayq" class="md-nav__link">
+    datareplay.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples:
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modified-uq" class="md-nav__link">
+    Modified u.q
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#full-api" class="md-nav__link">
+    Full API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-table" class="md-nav__link">
+    API Table
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grafanaq" class="md-nav__link">
+    grafana.q
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-adaptor" class="md-nav__link">
+    Using the adaptor
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limitations-assumptions" class="md-nav__link">
+    Limitations &amp; Assumptions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/utilities.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <p><a name="ut"></a></p>
+<h1 id="utilities">Utilities</h1>
+<p>We have provided several utility scripts, which either implement
+developer aids or standard operations which are useful across processes.</p>
+<p><a name="api.q"></a></p>
+<h2 id="apiq">api.q</h2>
+<p>This provides a mechanism for documenting and publishing
+function/variable/table or view definitions within the kdb+ process. It
+provides a search facility both by name and definition (in the case of
+functions). There is also a function for returning the approximate
+memory usage of each variable in the process in descending order.</p>
+<p>Definitions are added using the .api.add function. A variable can be
+marked as public or private, and given a description, parameter list and
+return type. The search functions will return all the values found which
+match the pattern irrespective of them having a pre-defined definition.</p>
+<p>Whether a value is public or private is defined in the definitions
+table. If not found then by default all values are private, except those
+which live in the .q or top level namespace.</p>
+<p>.api.f is used to find a function, variable, table or view based on a
+case-insensitive pattern search. If a symbol parameter is supplied, a
+wildcard search of *[suppliedvalue]* is done. If a string is
+supplied, the value is used as is, meaning other non-wildcard regex
+pattern matching can be done.</p>
+<pre><code class="no-highlight">
+    q).api.f`max                                                                                                                                                                                                                    
+    name                | vartype   namespace public descrip             ..
+    --------------------| -----------------------------------------------..
+    maxs                | function  .q        1      &quot;&quot;                  ..
+    mmax                | function  .q        1      &quot;&quot;                  ..
+    .clients.MAXIDLE    | variable  .clients  0      &quot;&quot;                  ..
+    .access.MAXSIZE     | variable  .access   0      &quot;&quot;                  ..
+    .cache.maxsize      | variable  .cache    1      &quot;The maximum size in..
+    .cache.maxindividual| variable  .cache    1      &quot;The maximum size in..
+    max                 | primitive           1      &quot;&quot;                  ..
+    q).api.f&quot;max*&quot;                                                                                                                                                                                                                  
+    name| vartype   namespace public descrip params return
+    ----| ------------------------------------------------
+    maxs| function  .q        1      &quot;&quot;      &quot;&quot;     &quot;&quot;    
+    max | primitive           1      &quot;&quot;      &quot;&quot;     &quot;&quot;    
+
+</code></pre>
+
+<p>.api.torqnamespaces is a variable which returns a symbol list of torq 
+namespaces.</p>
+<p>.api.exportconfig uses the table returned by .api.f` to give a table
+of the current values and descriptions of variables within the
+inputted namespace. This can be used to quickly see what configurable
+variables are currently set to.</p>
+<p>.api.exportallconfig is .api.exportconfig evaluated with all the
+available torqnamespaces and returns the same format as .api.exportconfig.</p>
+<p>.api.p is the same as .api.f, but only returns public functions. .api.u
+is as .api.p, but only includes user defined values i.e. it excludes q
+primitives and values found in the .q, .Q, .h and .o namespaces.
+.api.find is a more general version of .api.f which can be used to do
+case sensitive searches.</p>
+<p>.api.s is used to search function definitions for specific values.</p>
+<pre><code>q).api.s"*max*"                                                                                                                                                                                                                 
+function            definition                                       ..
+---------------------------------------------------------------------..
+.Q.w                "k){`used`heap`peak`wmax`mmap`mphy`syms`symw!(.\"..
+.clients.cleanup    "{if[count w0:exec w from`.clients.clients where ..
+.access.validsize   "{[x;y;z] $[superuser .z.u;x;MAXSIZE&gt;s:-22!x;x;'\..
+.servers.getservers "{[nameortype;lookups;req;autoopen;onlyone]\n r:$..
+.cache.add          "{[function;id;status]\n \n res:value function;\n..
+</code></pre>
+<p>.api.m is used to return the approximate memory usage of variables and
+views in the process, retrieved using -22!. Views will be re-evaluated
+if required. Use .api.mem[0b] if you do not want to evaluate and
+return views.</p>
+<pre><code>q).api.m[]                                                                                                                                                                                                                      
+variable          size    sizeMB
+--------------------------------
+.tz.t             1587359 2     
+.help.TXT         15409   0     
+.api.detail       10678   0     
+.proc.usage       3610    0     
+.proc.configusage 1029    0     
+..
+</code></pre>
+<p>.api.whereami[lambda] can be used to retrieve the name of a function
+given its definition. This can be useful in debugging.</p>
+<pre><code>q)g:{x+y}                                                                                                                                                                                                                                                                     
+q)f:{20 + g[x;10]}                                                                                                                                                                                                                                                            
+q)f[10]                                                                                                                                                                                                                                                                       
+40
+q)f[`a]                                                                                                                                                                                                                                                                       
+{x+y}
+`type
++
+`a
+10
+q)).api.whereami[.z.s]                                                                                                                                                                                                                                                        
+`..g
+</code></pre>
+<h2 id="apidetailsq">apidetails.q</h2>
+<p>This file in both the common and the handler directories is used to add to the api using the functions defined in api.q</p>
+<p><a name="tim"></a></p>
+<h2 id="timerq">timer.q</h2>
+<p>kdb+ provides a single timer function, .z.ts which is triggered with the
+frequency specified by -t. We have provided an extension to allow
+multiple functions to be added to the timer and fired when required. The
+basic concept is that timer functions are registered in a table, with
+.z.ts periodically checking the table and running whichever functions
+are required. This is not a suitable mechanism where very high frequency
+timers are required (e.g. sub 500ms).</p>
+<p>There are two ways a function can be added to a timer- either as a
+repeating timer, or to fire at a specific time. When a repeating timer
+is specified, there are three options as to how the timer can be
+rescheduled. Assuming that a timer function with period P is scheduled
+to fire at time T0, actually fires at time T1 and finishes at time T2,
+then</p>
+<ul>
+<li>
+<p>mode 0 will reschedule for T0+P;</p>
+</li>
+<li>
+<p>mode 1 will reschedule for T1+P;</p>
+</li>
+<li>
+<p>mode 2 will reschedule for T2+P.</p>
+</li>
+</ul>
+<p>Both mode 0 and mode 1 have the potential for causing the timer to back
+up if the finish time T2 is after the next schedule time. See
+.api.p“.timer.*”for more details.</p>
+<p><a name="async"></a></p>
+<h2 id="asyncq">async.q</h2>
+<p>kdb+ processes can communicate with each using either synchronous or
+asynchronous calls. Synchronous calls expect a response and so the
+server must process the request when it is received to generate the
+result and return it to the waiting client. Asynchronous calls do not
+expect a response so allow for greater flexibility. The effect of
+synchronous calls can be replicated with asynchronous calls in one of
+two ways (further details in section gateway):</p>
+<ul>
+<li>
+<p>deferred synchronous: the client sends an async request, then blocks
+    on the handle waiting for the result. This allows the server more
+    flexibility as to how and when the query is processed;</p>
+</li>
+<li>
+<p>asynchronous postback: the client sends an async request which is
+      wrapped in a function to be posted back to the client when the
+      result is ready. This allows the server flexibility as to how and
+      when the query is processed, and allows the client to continue
+      processing while the server is generating the result.</p>
+</li>
+</ul>
+<p>The code for both of these can get a little tricky, largely due to the
+amount of error trapping required. We have provided two functions to
+allow these methods to be used more easily. .async.deferred takes a list
+of handles and a query, and will return a two item list of
+(success;results).</p>
+<pre><code>q).async.deferred[3 5;({system"sleep 1";system"p"};())]                                                                                                                                                                                     
+1    1   
+9995 9996
+q).async.deferred[3 5;({x+y};1;2)]                                                                                                                                                                                                          
+1 1
+3 3
+q).async.deferred[3 5;({x+y};1;`a)]                                                                                                                                                                                                         
+0                         0                        
+"error: server fail:type" "error: server fail:type"
+q).async.deferred[3 5 87;({system"sleep 1";system"p"};())]                                                                                                                                                                                  
+1     1     0                                       
+9995i 9996i "error: comm fail: failed to send query"
+</code></pre>
+<p>.async.postback takes a list of handles, a query, and the name or lambda
+of the postback function to return the result to. It will immediately
+return a success vector, and the results will be posted back to the
+client when ready.</p>
+<pre><code>q).async.postback[3 5;({system"sleep 1";system"p"};());`showresult]                                                                                                                                                                         
+11b
+q)                                                                                                                                                                                                                                          
+q)9995i
+9996i
+
+q).async.postback[3 5;({x+y};1;2);`showresult]                                                                                                                                                                                              
+11b
+q)3
+3
+
+q).async.postback[3 5;({x+y};1;`a);`showresult]                                                                                                                                                                                             
+11b
+q)"error: server fail:type"
+"error: server fail:type"
+
+q).async.postback[3 5;({x+y};1;`a);showresult]                                                                                                                                                                                              
+11b
+q)"error: server fail:type"
+"error: server fail:type"
+
+q).async.postback[3 5 87;({x+y};1;2);showresult]                                                                                                                                                                                            
+110b
+q)3
+3
+</code></pre>
+<p>For more details, see .api.p“.async.*”.</p>
+<p><a name="cache"></a></p>
+<h2 id="cacheq">cache.q</h2>
+<p>cache.q provides a mechanism for storing function results in a cache and
+returning them from the cache if they are available and non stale. This
+can greatly boost performance for frequently run queries.</p>
+<p>The result set cache resides in memory and as such takes up space. It is
+up to the programmer to determine which functions are suitable for
+caching. Likely candidates are those where some or all of the following
+conditions hold:</p>
+<ul>
+<li>
+<p>the function is run multiple times with the same parameters (perhaps
+    different clients all want the same result set);</p>
+</li>
+<li>
+<p>the result set changes infrequently or the clients can accept
+      slightly out-of-date values;</p>
+</li>
+<li>
+<p>the result set is not too large and/or is relatively expensive to
+      produce. For example, it does not make sense to cache raw data
+      extracts.</p>
+</li>
+</ul>
+<p>The cache has a maximum size and a minimum size for any individual
+result set, both of which are defined in the configuration file. Size
+checks are done with -22! which will give an approximation (but
+underestimate) of the result set size. In the worst case the estimate
+could be half the size of the actual size.</p>
+<p>If a new result set is to be cached, the size is checked. Assuming it
+does not exceed the maximum individual size then it is placed in the
+cache. If the new cache size would exceed the maximum allowed space,
+other result sets are evicted from the cache. The current eviction
+policy is to remove the least recently accessed result sets until the
+required space is freed. The cache performance is tracked in a table.
+Cache adds, hits, fails, reruns and evictions are monitored.</p>
+<p>The main function to use the cache is .cache.execute[function;
+staletime]. If the function has been executed within the last
+staletime, then the result is returned from the cache. Otherwise the
+function is executed and placed in the cache.</p>
+<p>The function is run and the result placed in the cache:</p>
+<pre><code>q)\t r:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]                                                                                                                                                                     
+2023
+q)r                                                                                                                                                                                                                             
+3
+</code></pre>
+<p>The second time round, the result set is returned immediately from the
+cache as we are within the staletime value:</p>
+<pre><code>q)\t r1:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]                                                                                                                                                                    
+0
+q)r1                                                                                                                                                                                                                            
+3
+</code></pre>
+<p>If the time since the last execution is greater than the required stale
+time, the function is re-run, the cached result is updated, and the
+result returned:</p>
+<pre><code>q)\t r2:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:00]                                                                                                                                                                    
+2008
+q)r2                                                                                                                                                                                                                            
+3
+</code></pre>
+<p>The cache performance is tracked:</p>
+<pre><code>q).cache.getperf[]                                                                                                                                                                                                              
+time                          id status function                  
+------------------------------------------------------------------
+2013.11.06D12:41:53.103508000 2  add    {system"sleep 2"; x+y} 1 2
+2013.11.06D12:42:01.647731000 2  hit    {system"sleep 2"; x+y} 1 2
+2013.11.06D12:42:53.930404000 2  rerun  {system"sleep 2"; x+y} 1 2
+</code></pre>
+<p>See .api.p.cache.*for more details.</p>
+<p><a name="email"></a></p>
+<h2 id="emailq">email.q</h2>
+<p>A library file is provided to allow TorQ processes to send emails using
+an SMTP server. This is a wrapper around the standard libcurl library.
+The library file is currently available for Windows (32 bit), Linux (32
+and 64 bit) and OSX (32 and 64 bit). The associated q script contains
+two main methods for creating a connection and sending emails. The email
+library requires a modification to the path to find the required libs -
+see the top of email.q for details.</p>
+<p>The main connection method .email.connect takes a single dictionary
+parameter and returns 0i for success and -1i for failure.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Parameter</th>
+<th align="center">Req</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">url</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">URL of mail server e.g. smtp://mail.example.com</td>
+</tr>
+<tr>
+<td align="center">user</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Username of user to login as</td>
+</tr>
+<tr>
+<td align="center">password</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Password for user</td>
+</tr>
+<tr>
+<td align="center">usessl</td>
+<td align="center">N</td>
+<td align="center">boolean</td>
+<td align="center">Connect using SSL/TLS, defaults to false</td>
+</tr>
+<tr>
+<td align="center">from</td>
+<td align="center">N</td>
+<td align="center">symbol</td>
+<td align="center">Email from field, defaults to torq@aquaq.co.uk</td>
+</tr>
+<tr>
+<td align="center">debug</td>
+<td align="center">N</td>
+<td align="center">integer</td>
+<td align="center">Debug level. 0=no output, 1=normal output, 2=verbose output. Default is 1</td>
+</tr>
+</tbody>
+</table>
+<p>An example is:</p>
+<pre><code>q).email.connect[`url`user`password`from`usessl`debug!(`$"smtp://mail.example.com:80";`$"torquser@aquaq.co.uk";`hello;`$"torquser@aquaq.co.uk";0b;1i)]
+02 Jan 2015 11:45:19   emailConnect: url is set to smtp://mail.example.com:80
+02 Jan 2015 11:45:19   emailConnect: user is set to torquser@aquaq.co.uk
+02 Jan 2015 11:45:19   emailConnect: password is set
+02 Jan 2015 11:45:19   emailConnect: from is set torquser@aquaq.co.uk
+02 Jan 2015 11:45:19   emailConnect: trying to connect
+02 Jan 2015 11:45:19   emailConnect: connected, socket is 5
+0i
+</code></pre>
+<p>The email sending function .email.send takes a single dictionary
+parameter containing the details of the email to send. A connection must
+be established before an email can be sent. The send function returns an
+integer of the email length on success, or -1 on failure.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Parameter</th>
+<th align="center">Req</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">to</td>
+<td align="center">Y</td>
+<td align="center">symbol (list)</td>
+<td align="center">addresses to send to</td>
+</tr>
+<tr>
+<td align="center">subject</td>
+<td align="center">Y</td>
+<td align="center">char list</td>
+<td align="center">email subject</td>
+</tr>
+<tr>
+<td align="center">body</td>
+<td align="center">Y</td>
+<td align="center">list of char lists</td>
+<td align="center">email body</td>
+</tr>
+<tr>
+<td align="center">cc</td>
+<td align="center">N</td>
+<td align="center">symbol (list)</td>
+<td align="center">cc list</td>
+</tr>
+<tr>
+<td align="center">bodyType</td>
+<td align="center">N</td>
+<td align="center">symbol</td>
+<td align="center">type of email body. Can be `text or `html. Default is `text</td>
+</tr>
+<tr>
+<td align="center">debug</td>
+<td align="center">N</td>
+<td align="center">integer</td>
+<td align="center">Debug level. 0=no output, 1=normal output,2=verbose output. Default is 1</td>
+</tr>
+</tbody>
+</table>
+<p>An example is:</p>
+<pre><code>q).email.send[`to`subject`body`debug!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq");1i)]
+02 Jan 2015 12:39:29   sending email with subject: test email
+02 Jan 2015 12:39:29   email size in bytes is 16682
+02 Jan 2015 12:39:30   emailSend: email sent
+16682i
+</code></pre>
+<p>Note that if emails are sent infrequently the library must re-establish
+the connection to the mail server (this will be done automatically after
+the initial connection). In some circumstances it may be better to batch
+emails together to send, or to offload email sending to separate
+processes as communication with the SMTP server can take a little time.</p>
+<p>Two additional functions are available, .email.connectdefault and
+.email.senddefault. These are as above but will use the default
+configuration defined within the configuration files as the relevant
+parameters passed to the methods. In addition, .email.senddefault will
+automatically establish a connection.</p>
+<pre><code>q).email.senddefault[`to`subject`body!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
+2015.01.02D12:43:34.646336000|aquaq||discovery1|INF|email|sending email
+2015.01.02D12:43:35.743887000|aquaq||discovery1|INF|email|connection to mail server successful
+2015.01.02D12:43:37.250427000|aquaq|discovery1|INF|email|email sent
+16673i
+q).email.senddefault[`to`subject`body!(`$"test@aquaq.co.uk";"test email 2";("hi";"this is an email from torq"))]
+2015.01.02D12:43:48.115403000|aquaq|discovery1|INF|email|sending email
+2015.01.02D12:43:49.385807000|aquaq|discovery1|INF|email|email sent
+16675i
+q).email.senddefault[`to`subject`body!(`$"test@aquaq.co.uk";"test email 2";("hi";"this is an email from torq");`"$/home/ashortt/example.txt")]
+2015.01.02D12:43:48.115403000|aquaq|discovery1|INF|email|sending email
+2015.01.02D12:43:49.385807000|aquaq|discovery1|INF|email|email sent
+47338i
+</code></pre>
+<p>.email.test will attempt to establish a connection to the default
+configured email server and send a test email to the specified address.
+debug should be set to 2i (verbose) to extract the full information.</p>
+<pre><code>q).email.debug:2i
+q).email.test `$"test@aquaq.co.uk"
+...
+</code></pre>
+<p>A further function .email.sendviaservice can be used to send an email using the default mail server on a separate specified process and can be used to allow latency sensitive processes to offload this piece of functionality. </p>
+<p>The function takes two parameters a process and a dictionary which should follow  the same format as .email.send. The function uses the .async.postback Utility to send the email by calling .email.servicesend on the specified process. The postback function immediately returns a success boolean indicating that the the async request has been sent and when the function has been run on the server the results are posted back to the client function  email.servicecallback which logs the email status.</p>
+<pre><code>q).email.sendviaservice[`emailservice;`to`subject`body!(`$&quot;test@aquaq.co.uk&quot;;&quot;test email&quot;;(&quot;hi&quot;;&quot;this is an email from torq&quot;))]
+1b
+q)2019.01.04D12:02:57.641940000|gateway|gateway1|INF|email|Email sent successfully
+
+</code></pre>
+
+<p>Additionally functions are available within the email library. See
+.api.p.email.*for more details.</p>
+<h3 id="emails-with-ssl-certificates-from-windows">Emails with SSL certificates from Windows</h3>
+<p>If you wish to send emails via an account which requires authentication
+from Windows (e.g. Hotmail, Gmail) then you have to do a few extra steps
+as usessl must be true and Windows does not usually find the correct
+certificate. The steps are:</p>
+<ul>
+<li>
+<p>download
+    <a href="https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt">this</a>
+    and save it to your PC</p>
+</li>
+<li>
+<p>set</p>
+<pre><code>  CURLOPT_CAINFO=c:/path/to/cabundle_file/ca-bundle.crt
+</code></pre>
+</li>
+</ul>
+<p>More information is available
+<a href="http://richardwarrender.com/2007/05/the-secret-to-curl-in-php-on-windows/">here</a>
+and <a href="http://curl.haxx.se/docs/caextract.html">here</a></p>
+<p><a name="tz"></a></p>
+<h2 id="timezoneq">timezone.q</h2>
+<p>A slightly customised version of the timezone conversion functionality
+from code.kx. It loads a table of timezone information from
+$KDBCONFIG. See .api.p.tz.*for more details.</p>
+<p><a name="com"></a></p>
+<h2 id="compressq">compress.q</h2>
+<p>compress.q applies compression to any kdb+ database, handles all
+partition types including date, month, year, int, and can deal with top
+level splayed tables. It will also decompress files as required. Once
+the compression/decompression is complete, summary statistics are
+returned, with detailed statistics for each compressed or decompressed
+file held in a table.</p>
+<p>The utility is driven by the configuration specified within a csv file.
+Default parameters can be given, and these can be used to compress all
+files within the database. However, the compress.q utility also provides
+the flexibility to compress different tables with different compression
+parameters, and different columns within tables using different
+parameters. A function is provided which will return a table showing
+each file in the database to be compressed, and how, before the
+compression is performed.</p>
+<p>Compression is performed using the -19! operator, which takes 3
+parameters; the compression algorithm to use (0 - none, 1 - kdb+ IPC, 2
+- gzip), the compression blocksize as a power of 2 (between 12 and 19),
+  and the level of compression to apply (from 0 - 9, applicable only for
+  gzip). (For further information on -19! and the parameters used, see
+  code.kx.com.)</p>
+<p>The compressionconfig.csv file should have the following format:</p>
+<pre><code>table,minage,column,calgo,cblocksize,clevel
+default,20,default,2,17,6
+trades,20,default,1,17,0
+quotes,20,asize,2,17,7
+quotes,20,bsize,2,17,7
+</code></pre>
+<p>This file can be placed in the config folder, or a path to the file
+given at run time.</p>
+<p>The compression utility compresses all tables and columns present in the
+HDB but not specified in the driver file according the default
+parameters. In effect, to compress an entire HDB using the same
+compression parameters, a single row with name default would suffice. To
+specify that a particular table should be compressed in a certain
+different manner, it should be listed in the table. If default is given
+as the column for this table, then all of the columns of that table will
+be compressed accordingly. To specify the compression parameters for
+particular columns, these should be listed individually. For example,
+the file above will compress trades tables 20 days old or more with an
+algorithm of 1, and a blocksize of 17. The asize and bsize columns of
+any quotes tables older than 20 days old will be compressed using
+algorithm 2, blocksize 17 and level 7. All other files present will be
+compressed according to the default, using an algorithm 2, blocksize 17
+and compression level 6. To leave files uncompressed, you must specify
+them explicitly in the table with a calgo of 0. If the file is already
+compressed, note that an algorithm of 0 will decompress the file.</p>
+<p>This utility should be used with caution. Before running the compression
+it is recommended to run the function .cmp.showcomp, which takes three
+parameters - the path to the database, the path to the csv file, and the
+maximum age of the files to be compressed:</p>
+<pre><code>.cmp.showcomp[`:/full/path/to/HDB;.cmp.inputcsv;maxage]   
+        /- for using the csv file in the config folder
+.cmp.showcomp[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]    
+        /- to specify a file
+</code></pre>
+<p>This function produces a table of the files to be compressed, the
+parameters with which they will be compressed, and the current size of
+the file. Note that the current size column is calculated using hcount;
+on a file which is already compressed this returns the uncompressed
+length, i.e. this cannot be used as a signal as to whether the file is
+compressed already.</p>
+<pre><code>fullpath                        column table  partition  age calgo cblocksize clevel compressage currentsize
+-------------------------------------------------------------------------------------
+:/home/hdb/2013.11.05/depth/asize1 asize1 depth  2013.11.05 146 0     17         8      1           787960
+:/home/hdb/2013.11.05/depth/asize2 asize2 depth  2013.11.05 146 0     17         8      1           787960
+:/home/hdb/2013.11.05/depth/asize3 asize3 depth  2013.11.05 146 0     17         8      1           787960
+:/home/hdb/2013.11.05/depth/ask1   ask1   depth  2013.11.05 146 0     17         8      1           1575904
+....
+</code></pre>
+<p>To then run the compression function, use .cmp.compressmaxage with the
+same parameters as .cmp.showcomp (hdb path, csv path, maximum age of
+files):</p>
+<pre><code>.cmp.compressmaxage[`:/full/path/to/HDB;.cmp.inputcsv;maxage]   
+        /- for using the csv file in the config folder
+.cmp.compressmaxage[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]    
+        /- to specify a file
+</code></pre>
+<p>To run compression on all files in the database disregarding the maximum
+age of the files (i.e. from minage as specified in the configuration
+file to infinitely old), then use:</p>
+<pre><code>.cmp.docompression[`:/full/path/to/HDB;.cmp.inputcsv]   
+        /- for using the csv file in the config folder
+.cmp.docompression[`:/full/path/to/HDB;`:/full/path/to/csvfile]    
+        /- to specify a file
+</code></pre>
+<p>Logs are produced for each file which is compressed or decompressed.
+Once the utility is complete, the statistics of the compression are also
+logged. This includes the memory savings in MB from compression, the
+additional memory usage in MB for decompression, the total compression
+ratio, and the total decompression ratio:</p>
+<pre><code>|comp1|INF|compression|Memory savings from compression: 34.48MB. Total compression ratio: 2.51.
+|comp1|INF|compression|Additional memory used from de-compression: 0.00MB. Total de-compression ratio: .
+|comp1|INF|compression|Check .cmp.statstab for info on each file.
+</code></pre>
+<p>A table with the compressed and decompressed length for each individual
+file, in descending order of compression ratio, is also produced. This
+can be found in .cmp.statstab:</p>
+<pre><code>file                    algo compressedLength uncompressedLength compressionratio
+-----------------------------------------------------------------------------------
+:/hdb/2014.03.05/depth/asize1 2    89057            772600             8.675343
+:/hdb/2014.01.06/depth/asize1 2    114930           995532             8.662073
+:/hdb/2014.03.05/depth/bsize1 2    89210            772600             8.660464
+:/hdb/2014.03.12/depth/bsize1 2    84416            730928             8.658643
+:/hdb/2014.01.06/depth/bsize1 2    115067           995532             8.651759
+.....
+</code></pre>
+<p>A note for windows users - windows supports compression only with a
+compression blocksize of 16 or more.</p>
+<p><a name="data"></a></p>
+<h2 id="dataloaderq">dataloader.q</h2>
+<p>This script contains some utility functions to assist in loading data
+from delimited files (e.g. comma separated, tab delimited). It is a more
+generic version of <a href="http://code.kx.com/wiki/Cookbook/LoadingFromLargeFiles">the data loader example on
+code.kx</a>.
+The supplied functions allow data to be read in configurable size chunks
+and written out to the database. When all the data is written, the
+on-disk data is re-sorted and the attributes are applied. The main
+function is .loader.loadalldata which takes two parameters- a dictionary
+of loading parameters and a directory containing the files to read. The
+dictionary should/can have the following fields:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Parameter</th>
+<th align="center">Req</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">headers</td>
+<td align="center">Y</td>
+<td align="center">symbol list</td>
+<td align="center">Names of the header columns in the file</td>
+</tr>
+<tr>
+<td align="center">types</td>
+<td align="center">Y</td>
+<td align="center">char list</td>
+<td align="center">Data types to read from the file</td>
+</tr>
+<tr>
+<td align="center">separator</td>
+<td align="center">Y</td>
+<td align="center">char[list]</td>
+<td align="center">Delimiting character. Enlist it if first line of file is header data</td>
+</tr>
+<tr>
+<td align="center">tablename</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Name of table to write data to</td>
+</tr>
+<tr>
+<td align="center">dbdir</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Directory to write data to</td>
+</tr>
+<tr>
+<td align="center">symdir</td>
+<td align="center">N</td>
+<td align="center">symbol</td>
+<td align="center">Directory to enumerate against</td>
+</tr>
+<tr>
+<td align="center">partitiontype</td>
+<td align="center">N</td>
+<td align="center">symbol</td>
+<td align="center">Partitioning to use. Must be one of `date`month`year`int. Default is `date</td>
+</tr>
+<tr>
+<td align="center">partitioncol</td>
+<td align="center">N</td>
+<td align="center">symbol</td>
+<td align="center">Column to use to extract partition information.Default is `time</td>
+</tr>
+<tr>
+<td align="center">dataprocessfunc</td>
+<td align="center">N</td>
+<td align="center">function</td>
+<td align="center">Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y}</td>
+</tr>
+<tr>
+<td align="center">chunksize</td>
+<td align="center">N</td>
+<td align="center">int</td>
+<td align="center">Data size in bytes to read in one chunk. Default is 100 MB</td>
+</tr>
+<tr>
+<td align="center">compression</td>
+<td align="center">N</td>
+<td align="center">int list</td>
+<td align="center">Compression parameters to use e.g. 17 2 6. Default is empty list for no compression</td>
+</tr>
+<tr>
+<td align="center">gc</td>
+<td align="center">N</td>
+<td align="center">boolean</td>
+<td align="center">Whether to run garbage collection at appropriate points. Default is 0b (false)</td>
+</tr>
+<tr>
+<td align="center">filepattern</td>
+<td align="center">N</td>
+<td align="center">char[list]</td>
+<td align="center">Pattern used to only load certain files e.g. "<em>.csv",("</em>.csv","*.txt")</td>
+</tr>
+</tbody>
+</table>
+<p>Example usage:</p>
+<pre><code>.loader.loadallfiles[`headers`types`separator`tablename`dbdir!(`sym`time`price`volume;"SP  FI";",";`trade;`:hdb); `:TDC/toload]
+.loader.loadallfiles[`headers`types`separator`tablename`dbdir`dataprocessfunc`chunksize`partitiontype`partitioncol`compression`gc`filepattern!(`sym`time`price`volume;"SP  FI";enlist",";`tradesummary;`:hdb;{[p;t] select sum size, max price by date:time.date from t};`int$500*2 xexp 20;`month;`date;16 1 0;1b;("*.csv";"*.txt")); `:TDC/toload]
+</code></pre>
+<p><a name="sub"></a></p>
+<h2 id="subscriptionsq">subscriptions.q</h2>
+<p>The subscription utilities allow multiple subscriptions to different
+data sources to be managed and maintained. Automatic resubscriptions in
+the event of failure are possible, along as specifying whether the
+process will get the schema and replay the log file from the remote
+source (e.g. in the case of tickerplant subscriptions).</p>
+<p>.sub.getsubscriptionhandles is used to get a table of processes to
+subscribe to. It takes a process type and process name, where <code>()</code> or a null
+symbol can be used for all:</p>
+<pre><code>.sub.getsubscriptionhandles[`tickerplant;();()!()]      / all processes of type tickerplant
+.sub.getsubscriptionhandles[`;`rdb1;()!()]              / all processes called 'rdb1'
+.sub.getsubscriptionhandles[`;`;()!()]                  / all processes
+.sub.getsubscriptionhandles[();();()!()]                / nothing
+</code></pre>
+<p>.sub.subscribe is used to subscribe to a process for the supplied list
+of tables and instruments. For example, to subscribe to instruments A, B
+and C for the quote table from all tickerplants:</p>
+<pre><code>.sub.subscribe[`trthquote;`A`B;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
+</code></pre>
+<p>The subscription method uses backtick for “all” (which is the same as
+kdb+tick). To subscribe to all tables, all instruments, from all
+tickerplants:</p>
+<pre><code>.sub.subscribe[`;`;0b;0b] each .sub.getsubscriptionhandles[`tickerplant;();()!()]
+</code></pre>
+<p>See .api.p“.sub.*” for more details.</p>
+<p><a name="ps"></a></p>
+<h2 id="pubsubq">pubsub.q</h2>
+<p>pubsub.q is essentially a placeholder script to allow publish and
+subscribe functionality to be implemented. Licenced kdb+tick users can
+use the publish and subscribe functionality implemented in u.[k|q]. If
+u.[k|q] is placed in the common code directory and loaded before
+pubsub.q (make sure u.[k|q] is listed before pubsub.q in order.txt)
+then publish and subscribe will be implemented. You can also build out
+this file to add your own publish and subscribe routines as required.</p>
+<p><a name="kafka"></a></p>
+<h2 id="kafkaq">kafka.q</h2>
+<p>kafka.q provides q language bindings for Apache Kafka, a 'distributed streaming
+platform', a real time messaging system with persistent storage in message logs.</p>
+<p>The core functionality of Kafka – pub/sub messaging with persisted logs, will be
+familiar to most readers as the functionality offered by the kdb+ tick
+tickerplant. The tickerplant log allows the real time database and other
+consumers to replay a day’s events to recover state. An application architecture
+built around Kafka could dispense with a tickerplant component, and have RDBs
+and other real time clients query Kafka on startup for offsets, and play back
+the data they need. While not suitable for very low latency access to streaming
+data, it would carry some advantages for very high throughput applications,
+particularly those in the cloud:</p>
+<ul>
+<li>Kafka’s distributed nature should allow it to scale more transparently than
+splitting tickerplants by instrument universe or message type</li>
+<li>Replaying from offsets is the same interface as live pub/sub and doesn’t require
+filesystem access to the tickerplant log, so RDB’s and other consumer could be
+on a different server</li>
+</ul>
+<p>By default, the Kafka bindings will be loaded into all TorQ processes running on
+l64 systems (the only platform currently supported). An example of usage is
+shown here (this assumes a local running instance of kafka - instructions for
+this are available on the <a href="https://github.com/AquaQAnalytics/kafkaq">kafkaq</a> github 
+repo):</p>
+<pre><code>q).kafka.initconsumer[`localhost:9092;()]
+q).kafka.initproducer[`localhost:9092;()]
+q)kupd / print default definition for incoming data - ignore key, print message
+as ascii
+{[k;x] -1 `char$x;}
+q).kafka.subscribe[`test;0] / subscribe to topic test, partition 0
+q)pub:{.kafka.publish[`test;0;`;`byte$x]} / define pub to publish text input to topic
+test on partition 0 with no key defined
+q)pub&quot;hello world&quot;
+q)hello world
+
+</code></pre>
+
+<p>Limitations of the current implementation:</p>
+<ul>
+<li>Only l64 supported</li>
+<li>Single consumer thread subscribed to one topic at a time</li>
+</ul>
+<p><a name="tp"></a></p>
+<h2 id="tplogutilsq">tplogutils.q</h2>
+<p>tplogutils.q contains functions for recovering tickerplant log files.
+Under certain circumstances the tickerplant log file can become corrupt
+by having an invalid sequence of bytes written to it. A log file can be
+recovered using a simple recovery method. However, this will only
+recover messages up to the first invalid message. The recovery functions
+defined in tplogutils.q allow all valid messages to be recovered from
+the tickerplant log file.</p>
+<p><a name="mon"></a></p>
+<h2 id="monitoringchecksq">monitoringchecks.q</h2>
+<p>monitoringchecks.q implements a set of standard, basic monitoring
+checks. They include checks to ensure:</p>
+<ul>
+<li>
+<p>table sizes are increasing during live capture</p>
+</li>
+<li>
+<p>the HDB data saves down correctly</p>
+</li>
+<li>
+<p>the allocated memory of a process does not increase past a certain
+      size</p>
+</li>
+<li>
+<p>the size of the symbol list in memory doesn’t grow to big</p>
+</li>
+<li>
+<p>the process does not have too much on its pending subscriber queue</p>
+</li>
+</ul>
+<p>These checks are intended to be run by the reporter process on a
+schedule, and any alerts emailed to an appropriate recipient list.</p>
+<p><a name="hb"></a></p>
+<h2 id="heartbeatq">heartbeat.q</h2>
+<p>heartbeat.q implements heartbeating, and relies on both timer.q and
+pubsub.q. A table called heartbeat will be published periodically,
+allowing downstream processes to detect the availability of upstream
+components. The heartbeat table contains a heartbeat time and counter.
+The heartbeat script contains functions to handle and process heartbeats
+and manage upstream process failures. See .api.p.hb.*for details.</p>
+<h2 id="rmvrq">rmvr.q</h2>
+<p>This file contains a function which can be used to convert environment variable paths into a full path from the root directory.</p>
+<h2 id="osq">os.q</h2>
+<p>A file with various q functions to perform system operations. This will detect your operating system and will perform the correct commands depending on what you are using.</p>
+<p>This is a modification of a script developed by Simon Garland.</p>
+<p><a name="wu"></a></p>
+<h2 id="dbwriteutilsq">dbwriteutils.q</h2>
+<p>This contains a set of utility functions for writing data to historic
+databases.</p>
+<h3 id="sorting-and-attributes">Sorting and Attributes</h3>
+<p>The sort utilities allow the sort order and attributes of tables to be
+globally defined. This helps to manage the code base when the data can
+potentially be written from multiple locations (e.g. written from the
+RDB, loaded from flat file, replayed from the tickerplant log). The
+configuration is defined in a csv which defaults to $KDBCONFG/sort.csv.
+The default setup is that every table is sorted by sym and time, with a
+p attribute on sym (this is the standard kdb+ tick configuration).</p>
+<pre><code>aquaq$ tail config/sort.csv 
+tabname,att,column,sort
+default,p,sym,1
+default,,time,1
+</code></pre>
+<p>As an example, assume we have an optiontrade table which we want to be
+different from the standard set up. We would like the table to be sorted
+by optionticker and then time, with a p attribute on optionticker. We
+also have a column called underlyingticker which we can put an attribute
+on as it is derived from optionticker (so there is an element of
+de-normalisation present in the table). We also have an exchange field
+which we would like to put a g attribute on. All other tables we want to
+be sorted and parted in the standard way. The configuration file would
+look like this (sort order is derived from the order within the file
+combined with the sort flag being set to true):</p>
+<pre><code>aquaq$ tail config/sort.csv                
+tabname,att,column,sort
+default,p,sym,1
+default,,time,1
+optiontrade,p,optionticker,1
+optiontrade,,exchtime,1
+optiontrade,p,underlyingticker,0
+optiontrade,g,exchange,0
+</code></pre>
+<p>To invoke the sort utilities, supply a list of (tablename; partitions)
+e.g.</p>
+<pre><code>q).sort.sorttab(`trthtrade;`:hdb/2014.11.20/trthtrade`:hdb/2014.11.20/trthtrade)
+2014.12.03D09:56:19.214006000|aquaq|test|INF|sort|sorting the trthtrade table
+2014.12.03D09:56:19.214045000|aquaq|test|INF|sorttab|No sort parameters have been specified for : trthtrade. Using default parameters
+2014.12.03D09:56:19.214057000|aquaq|test|INF|sortfunction|sorting :hdb/2014.11.19/trthtrade/ by these columns : sym, time
+2014.12.03D09:56:19.219716000|aquaq|test|INF|applyattr|applying p attr to the sym column in :hdb/2014.11.19/trthtrade/
+2014.12.03D09:56:19.220846000|aquaq|test|INF|sortfunction|sorting :hdb/2014.11.20/trthtrade/ by these columns : sym, time
+2014.12.03D09:56:19.226008000|aquaq|test|INF|applyattr|applying p attr to the sym column in :hdb/2014.11.20/trthtrade/
+2014.12.03D09:56:19.226636000|aquaq|test|INF|sort|finished sorting the trthtrade table
+</code></pre>
+<p>A different sort configuration file can be loaded with</p>
+<pre><code>.sort.getsortcsv[`:file]
+</code></pre>
+<h3 id="garbage-collection">Garbage Collection</h3>
+<p>The garbage collection utility prints some debug information before and
+after the garbage collection.</p>
+<pre><code>q).gc.run[]                                                                                                                                                      
+2014.12.03D10:22:51.688435000|aquaq|test|INF|garbagecollect|Starting garbage collect. mem stats: used=2 MB; heap=1984 MB; peak=1984 MB; wmax=0 MB; mmap=0 MB; mphy=16384 MB; syms=0 MB; symw=0 MB
+2014.12.03D10:22:53.920656000|aquaq|test|INF|garbagecollect|Garbage collection returned 1472MB. mem stats: used=2 MB; heap=512 MB; peak=1984 MB; wmax=0 MB; mmap=0 MB; mphy=16384 MB; syms=0 MB; symw=0 MB
+</code></pre>
+<h3 id="table-manipulation">Table Manipulation</h3>
+<p>The table manipulation utilities allow table manipulation routines to be
+defined in a single place. This is useful when data can be written from
+mutliple different processes e.g. RDB, WDB, or tickerplant log replay.
+Instead of having to create a separate definition of customised
+manipulation in each process, it can be done in a single location and
+invokved in each process.</p>
+<p><a name="help"></a></p>
+<h2 id="helpq">help.q</h2>
+<p>The standard help.q from code.kx provides help utilities in the console.
+This should be kept up to date with
+[<a href="http://code.kx.com/wsvn/code/kx/kdb+/d/help.q">code.kx</a>].</p>
+<pre><code>q)help`                                                                                                                                                                                                                         
+adverb    | adverbs/operators
+attributes| data attributes
+cmdline   | command line parameters
+data      | data types
+define    | assign, define, control and debug
+dotz      | .z locale contents
+errors    | error messages
+save      | save/load tables
+syscmd    | system commands
+temporal  | temporal - date &amp; time casts
+verbs     | verbs/functions
+</code></pre>
+<p><a name="html"></a></p>
+<h2 id="htmlq">html.q</h2>
+<p>An HTML utility has been added to accompany the HTML5 front end for the
+Monitoring process. It includes functions to format dates, tables to csv
+to configure the HTML file to work on the correct process. It is
+accessible from the <code>.html</code> namespace.</p>
+<p><a name="eodtime"></a></p>
+<h2 id="eodtimeq">eodtime.q</h2>
+<p>This script provides functionality for managing timezones. TorQ can be 
+configured to timestamp data in a specific timezone, while also being
+configured to perform the end of day rollover in another timezone, at a
+configurable time.</p>
+<p>These options are handled by three settings:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Setting</th>
+<th align="center">Req</th>
+<th align="center">Type</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.eodtime.rolltimeoffset</td>
+<td align="center">Y</td>
+<td align="center">timespan</td>
+<td align="center">Offset from default midnight roll time</td>
+</tr>
+<tr>
+<td align="center">.eodtime.rolltimezone</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Time zone in which to rollover</td>
+</tr>
+<tr>
+<td align="center">.eodtime.datatimezone</td>
+<td align="center">Y</td>
+<td align="center">symbol</td>
+<td align="center">Time zone in which to timestamp data in TP</td>
+</tr>
+</tbody>
+</table>
+<p>The default configuration sets both timezones to GMT and has the rollover
+performed at midnight.</p>
+<p>A table containing the valid timezones is loaded into TorQ processes as .tz.t</p>
+<p>An example configuration where data is stamped in GMT, but the rollover
+occurs at 5PM New York time would be:</p>
+<pre><code>.eodtime.rolltimeoffset:-0D07:00:00.000000000; // 5 PM i.e. 7 hours before midnight
+.eodtime.rolltimezone:`$"America/New_YorK";    // roll in NYC time
+.eodtime.datatimezone:`$"GMT";                 // timestamp in GMT
+</code></pre>
+<p>Note that the rolltimeoffset can be negative - this will cause the rollover to happen 
+"yesterday", meaning that at the rolltime, the trading date will become the day <em>after</em>
+the calendar date. Where this is positive, the rollover occurs "today" and so the trading
+date will become the current calendar date.</p>
+<h2 id="subscribercutoffq">subscribercutoff.q</h2>
+<p>This script is used to provide functionality for cutting off any slow subscribers on any
+TorQ processes. The script will periodically check (time between checks set in .subcut.checkfreq.
+Default is 1 minute) the byte size of the queue for all the handles on the process to see if
+they have exceeded a set cut-off point (set in the variable .subcut.maxsize) and will only
+cut-off the handle if it exceeds this limit a set number of times in a row (default is 3
+and set in the .subcut.breachlimit variable). This gives clients a chance to tidy up their
+behavior and will avoid cutting off clients if they happened to have a spike just before the
+check was performed. The .subcut.state variable is used to keep track of the handles and the 
+number of times they have exceeded the size limit in a row. </p>
+<p>To enable this functionality the .subcut.enabled flag must be set to true and 
+the timer.q script must be loaded on the desired processes. By default the chained 
+tickerplant is the only processes with the functionality enabled. </p>
+<h2 id="datareplayq">datareplay.q</h2>
+<p>The datareplay utility provides functionality for generating tickerplant function calls from historcial
+data which can be executed by subscriber functions. This can be used to test a known data-set against a 
+subscriber for testing or debugging purposes.</p>
+<p>It can load this data from the current TorQ session, or from a remote hdb if given its connection handle.</p>
+<p>It can also chunk the data by time increments (as if the tickerplant was in batch mode), and can also generate
+calls to a custom timer function for the same time increments (defaults to .z.ts).</p>
+<p>The functions provided by this utility are made available in the .datareplay namespace.</p>
+<p>The utility is mainly used via the tabesToDataStreamFunction, which accepts a dictionary parameter with the following
+fields:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Key</th>
+<th align="center">Example Value</th>
+<th align="center">Description</th>
+<th align="center">Required</th>
+<th align="center">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">tabs</td>
+<td align="center"><code>`trade`quote or `trade</code></td>
+<td align="center">List of tables to include</td>
+<td align="center">Yes</td>
+<td align="center">N/A</td>
+</tr>
+<tr>
+<td align="center">sts</td>
+<td align="center">2014.04.04D07:00:00.000</td>
+<td align="center">Start timestamp for data</td>
+<td align="center">Yes</td>
+<td align="center">N/A</td>
+</tr>
+<tr>
+<td align="center">ets</td>
+<td align="center">2014.04.04D16:30:00.000</td>
+<td align="center">End of timestamp for data</td>
+<td align="center">Yes</td>
+<td align="center">N/A</td>
+</tr>
+<tr>
+<td align="center">syms</td>
+<td align="center"><code>`AAPL`IBM</code></td>
+<td align="center">List of symbols to include</td>
+<td align="center">No</td>
+<td align="center">All syms</td>
+</tr>
+<tr>
+<td align="center">where</td>
+<td align="center"><code>,(=;`src;,`L)</code></td>
+<td align="center">Custom where clause in functional form</td>
+<td align="center">No</td>
+<td align="center">none</td>
+</tr>
+<tr>
+<td align="center">timer</td>
+<td align="center">1b</td>
+<td align="center">Generate timer function flag</td>
+<td align="center">No</td>
+<td align="center">0b</td>
+</tr>
+<tr>
+<td align="center">h</td>
+<td align="center">5i</td>
+<td align="center">Handle to hdb process</td>
+<td align="center">No</td>
+<td align="center">0i (self)</td>
+</tr>
+<tr>
+<td align="center">interval</td>
+<td align="center">0D00:00:01.00</td>
+<td align="center">Time interval used to chunk data, bucketed by timestamp if no time interval set</td>
+<td align="center">No</td>
+<td align="center">None</td>
+</tr>
+<tr>
+<td align="center">tc</td>
+<td align="center"><code>`data_time</code></td>
+<td align="center">Name of time column to cut on</td>
+<td align="center">No</td>
+<td align="center"><code>`time</code></td>
+</tr>
+<tr>
+<td align="center">timerfunc</td>
+<td align="center">.z.ts</td>
+<td align="center">Timer function to use if `timer parameter is set</td>
+<td align="center">No</td>
+<td align="center">.z.ts</td>
+</tr>
+</tbody>
+</table>
+<p>When the timer flag is set, the utility will interleave timer function calls in the message column at intervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requires a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.</p>
+<p>If the interval is set the messages will be aggregated into chunks based on the interval value, if no interval is specified, the data will be bucketed by timestamp (one message chunk per distinct timestamp per table).</p>
+<p>If no connection handle is specified (h parameter), the utility will retrieve the data from the process the utility is running on, using handle 0.</p>
+<p>The where parameter allows for the use of a custom where clause when extracting data, which can be useful when the dataset is large and only certain data is required, for example if only data where <code>src=`L</code> is required. The where clause(s) are required to be in functional form, for example <code>enlist (=;`src;,`L)</code> or <code>((=;`src;enlist `L);(&gt;;`size;100))</code> (note, that if only one custom where clause is included it is required to be enlisted).</p>
+<p>It is possible to get the functional form of a where clause by running parse on a mock select string like below:</p>
+<pre><code>q)parse "select from t where src=`L,size&gt;100"
+?
+`t
+,((=;`src;,`L);(&gt;;`size;100))
+0b
+()
+</code></pre>
+<p>The where clause is then the 3rd item returned in the parse tree.</p>
+<h2 id="examples">Examples:</h2>
+<p>Extract all data between sts and ets from the trades table in the current process.</p>
+<pre><code>q)input
+tabs| `trades
+sts | 2014.04.21D07:00:00.000000000
+ets | 2014.05.02D17:00:00.000000000
+q).datareplay.tablesToDataStream input
+time                          msg                                            ..
+-----------------------------------------------------------------------------..
+2014.04.21D08:00:23.478000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+2014.04.21D08:00:49.511000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+2014.04.21D08:01:45.623000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+2014.04.21D08:02:41.346000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+..
+q)first .datareplay.tablesToDataStream input
+time| 2014.04.21D08:00:23.478000000
+msg | (`upd;`trades;`sym`time`src`price`size!(`YHOO;2014.04.21D08:00:23.47800..
+</code></pre>
+<p>Extract all data between sts and ets from the trades table from a remote hdb handle=3i.</p>
+<pre><code>q)input
+tabs| `trades
+sts | 2014.04.21D07:00:00.000000000
+ets | 2014.05.02D17:00:00.000000000
+h   | 3i
+q).datareplay.tablesToDataStream input
+time                          msg                                            ..
+-----------------------------------------------------------------------------..
+2014.04.21D08:00:07.769000000 `upd `trades `sym`time`src`price`size!(`IBM;201..
+2014.04.21D08:00:13.250000000 `upd `trades `sym`time`src`price`size!(`NOK;201..
+2014.04.21D08:00:19.070000000 `upd `trades `sym`time`src`price`size!(`MSFT;20..
+2014.04.21D08:00:23.678000000 `upd `trades `sym`time`src`price`size!(`YHOO;20..
+..
+q)first .datareplay.tablesToDataStream input
+time| 2014.04.21D08:00:07.769000000
+msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
+</code></pre>
+<p>Same as above but including quote table and with interval of 10 minutes:</p>
+<pre><code>q)input
+tabs    | `quotes`trades
+sts     | 2014.04.21D07:00:00.000000000
+ets     | 2014.05.02D17:00:00.000000000
+h       | 3i
+interval| 0D00:10:00.000000000
+q).datareplay.tablesToDataStream input
+time                          msg                                            ..
+-----------------------------------------------------------------------------..
+2014.04.21D08:09:47.600000000 `upd `trades +`sym`time`src`price`size!(`YHOO`A..
+2014.04.21D08:09:55.210000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+2014.04.21D08:19:39.467000000 `upd `trades +`sym`time`src`price`size!(`CSCO`N..
+2014.04.21D08:19:49.068000000 `upd `quotes +`sym`time`src`bid`ask`bsize`asize..
+..
+q)first .datareplay.tablesToDataStream input
+time| 2014.04.21D08:09:47.600000000
+msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
+</code></pre>
+<p>All messages from trades where <code>src=`L</code> bucketed in 10 minute intervals interleaved with calls to the function <code>`vwap</code>.</p>
+<pre><code>q)input
+tabs     | `trades
+h        | 3i
+sts      | 2014.04.21D08:00:00.000000000
+ets      | 2014.05.02D17:00:00.000000000
+where    | ,(=;`src;,`L)
+timer    | 1b
+timerfunc| `vwap
+interval | 0D00:10:00.000000000
+q).datareplay.tablesToDataStream input
+time                          msg                                            ..
+-----------------------------------------------------------------------------..
+2014.04.21D08:00:00.000000000 (`vwap;2014.04.21D08:00:00.000000000)          ..
+2014.04.21D08:09:46.258000000 (`upd;`trades;+`sym`time`src`price`size!(`AAPL`..
+2014.04.21D08:10:00.000000000 (`vwap;2014.04.21D08:10:00.000000000)          ..
+2014.04.21D08:18:17.188000000 (`upd;`trades;+`sym`time`src`price`size!(`AAPL`..
+..
+</code></pre>
+<h2 id="modified-uq">Modified u.q</h2>
+<p>Starting in kdb+ v3.4, the new broadcast feature has some performance
+benefits. It works by serialising a message once before sending it
+asynchronously to a list of subscribers whereas the previous method
+would serialise it separately for each subscriber. To take advantage of
+this, we’ve modified u.q. This can be turned off by setting .u.broadcast
+to false. It is enabled by default, but will only override default
+publishing if the kdb+ version being used is 3.4 or after.</p>
+<p><a name="api"></a></p>
+<h2 id="full-api">Full API</h2>
+<p>The full public api can be found by running</p>
+<pre><code>q).api.u`                                                                                                                                                                                                                       
+name             | vartype  namespace public descrip                 ..
+-----------------| --------------------------------------------------..
+.proc.createlog  | function .proc     1      "Create the standard out..
+.proc.rolllogauto| function .proc     1      "Roll the standard out/e..
+.proc.loadf      | function .proc     1      "Load the specified file..
+.proc.loaddir    | function .proc     1      "Load all the .q and .k ..
+.lg.o            | function .lg       1      "Log to standard out"   ..
+..
+</code></pre>
+<p>Combined with the commented configuration file, this should give a good
+overview of the functionality available. A description of the individual
+namespaces is below- run .api.u namespace*to list the functions.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Namespace</th>
+<th align="center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">.proc</td>
+<td align="center">Process API</td>
+</tr>
+<tr>
+<td align="center">.lg</td>
+<td align="center">Standard out/error logging API</td>
+</tr>
+<tr>
+<td align="center">.err</td>
+<td align="center">Error throwing API</td>
+</tr>
+<tr>
+<td align="center">.usage</td>
+<td align="center">Usage logging API</td>
+</tr>
+<tr>
+<td align="center">.access</td>
+<td align="center">Permissions API</td>
+</tr>
+<tr>
+<td align="center">.clients</td>
+<td align="center">Client tracking API</td>
+</tr>
+<tr>
+<td align="center">.servers</td>
+<td align="center">Server tracking API</td>
+</tr>
+<tr>
+<td align="center">.async</td>
+<td align="center">Async communication API</td>
+</tr>
+<tr>
+<td align="center">.timer</td>
+<td align="center">Timer API</td>
+</tr>
+<tr>
+<td align="center">.cache</td>
+<td align="center">Caching API</td>
+</tr>
+<tr>
+<td align="center">.tz</td>
+<td align="center">Timezone conversions API</td>
+</tr>
+<tr>
+<td align="center">.checks</td>
+<td align="center">Monitoring API</td>
+</tr>
+<tr>
+<td align="center">.cmp</td>
+<td align="center">Compression API</td>
+</tr>
+<tr>
+<td align="center">.ps</td>
+<td align="center">Publish and Subscribe API</td>
+</tr>
+<tr>
+<td align="center">.hb</td>
+<td align="center">Heartbeating API</td>
+</tr>
+<tr>
+<td align="center">.loader</td>
+<td align="center">Data Loader API</td>
+</tr>
+<tr>
+<td align="center">.sort</td>
+<td align="center">Data sorting and attribute setting API</td>
+</tr>
+<tr>
+<td align="center">.sub</td>
+<td align="center">Subscription API</td>
+</tr>
+<tr>
+<td align="center">.gc</td>
+<td align="center">Garbage Collection API</td>
+</tr>
+<tr>
+<td align="center">.tplog</td>
+<td align="center">Tickerplant Log Replay API</td>
+</tr>
+<tr>
+<td align="center">.api</td>
+<td align="center">API management API</td>
+</tr>
+</tbody>
+</table>
+<h2 id="api-table">API Table</h2>
+<table>
+<thead>
+<tr>
+<th>name</th>
+<th>vartype</th>
+<th>namespace</th>
+<th>descrip</th>
+<th>params</th>
+<th>return</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.proc.createlog</td>
+<td>function</td>
+<td>.proc</td>
+<td>Create the standard out and standard err log files. Redirect to them</td>
+<td>[string: log directory; string: name of the log file;mixed: timestamp suffix for the file (can be null); boolean: suppress the generation of an alias link]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.rolllogauto</td>
+<td>function</td>
+<td>.proc</td>
+<td>Roll the standard out/err log files</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.loadf</td>
+<td>function</td>
+<td>.proc</td>
+<td>Load the specified file</td>
+<td>[string: filename]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.loaddir</td>
+<td>function</td>
+<td>.proc</td>
+<td>Load all the .q and .k files in the specified directory. If order.txt is found in the directory, use the ordering found in that file</td>
+<td>[string: name of directory]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.getattributes</td>
+<td>function</td>
+<td>.proc</td>
+<td>Called by external processes to retrieve the attributes (advertised functionality) of this process</td>
+<td>[]</td>
+<td>dictionary of attributes</td>
+</tr>
+<tr>
+<td>.proc.override</td>
+<td>function</td>
+<td>.proc</td>
+<td>Override configuration varibles with command line parameters.  For example, if you set -.servers.HOPENTIMEOUT 5000 on the command line and call this function, then the command line value will be used</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.proc.overrideconfig</td>
+<td>function</td>
+<td>.proc</td>
+<td>Override configuration varibles with values in supplied parameter dictionary. Generic version of .proc.override</td>
+<td>[dictionary: command line parameters.  .proc.params should be used]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.o</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard out</td>
+<td>[symbol: id of log message; string: message]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.e</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard err</td>
+<td>[symbol: id of log message; string: message]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.l</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to either standard error or standard out, depending on the log level</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.err</td>
+<td>function</td>
+<td>.lg</td>
+<td>Log to standard err</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.lg.ext</td>
+<td>function</td>
+<td>.lg</td>
+<td>Extra function invoked in standard logging function .lg.l.  Can be used to do more with the log message, e.g. publish externally</td>
+<td>[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.ex</td>
+<td>function</td>
+<td>.err</td>
+<td>Log to standard err, exit</td>
+<td>[symbol: id of log message; string: message; int: exit code]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.usage</td>
+<td>function</td>
+<td>.err</td>
+<td>Throw a usage error and exit</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.param</td>
+<td>function</td>
+<td>.err</td>
+<td>Check a dictionary for a set of required parameters. Print an error and exit if not all required are supplied</td>
+<td>[dict: parameters; symbol list: the required param values]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.err.env</td>
+<td>function</td>
+<td>.err</td>
+<td>Check if a list of required environment variables are set.  If not, print an error and exit</td>
+<td>[symbol list: list of required environment variables]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.rolllogauto</td>
+<td>function</td>
+<td>.usage</td>
+<td>Roll the .usage txt files</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.readlog</td>
+<td>function</td>
+<td>.usage</td>
+<td>Read and return a usage log file as a table</td>
+<td>[string: name of log file]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.usage.logtodisk</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to log to disk</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.logtomemory</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to log to .usage.usage</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.ignore</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to check the ignore list for functions to ignore</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.ignorelist</td>
+<td>variable</td>
+<td>.usage</td>
+<td>the list of functions to ignore</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.logroll</td>
+<td>variable</td>
+<td>.usage</td>
+<td>whether to automatically roll the log file</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.usage.usage</td>
+<td>table</td>
+<td>.usage</td>
+<td>log of messages through the message handlers</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.clients.clients</td>
+<td>table</td>
+<td>.clients</td>
+<td>table containing client handles and session values</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.sub.getsubscriptionhandles</td>
+<td>function</td>
+<td>.sub</td>
+<td>Connect to a list of processes of a specified type</td>
+<td>[symbol: process type to match; symbol: process name to match; dictionary:attributes of process]</td>
+<td>table of process names, types and the handle connected on</td>
+</tr>
+<tr>
+<td>.sub.subscribe</td>
+<td>function</td>
+<td>.sub</td>
+<td>Subscribe to a table or list of tables and specified instruments</td>
+<td>[symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle</td>
+<td></td>
+</tr>
+<tr>
+<td>.pm.adduser</td>
+<td>function</td>
+<td>.pm</td>
+<td>Adds a user to be permissioned as well as setting their password and the method used to hash it.</td>
+<td>[symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addgroup</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a group which will have access to certain tables and variables</td>
+<td>[symbol: the name of the group; string: a description of the group]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addrole</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a role which will have access to certain functions</td>
+<td>[symbol: the name of the role; string: a description of the role]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.addtogroup</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a user to a group, giving them access to all of its variables</td>
+<td>[symbol: the name of the user to add; symbol: group the user is to be added to]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.assignrole</td>
+<td>function</td>
+<td>.pm</td>
+<td>Assign a user a role, giving them access to all of its functions</td>
+<td>[symbol: the name of the user to add; symbol: role the user is to be assigned to]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.grantaccess</td>
+<td>function</td>
+<td>.pm</td>
+<td>Give a group access to a variable</td>
+<td>[symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.grantfunction</td>
+<td>function</td>
+<td>.pm</td>
+<td>Give a role access to a function</td>
+<td>symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.createvirtualtable</td>
+<td>function</td>
+<td>.pm</td>
+<td>Create a virtual table that a group might be able to access instead of the full table</td>
+<td>[symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.pm.cloneuser</td>
+<td>function</td>
+<td>.pm</td>
+<td>Add a new user that is identical to another user</td>
+<td>[symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.addsuperuser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a super user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.addpoweruser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a power user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.adddefaultuser</td>
+<td>function</td>
+<td>.access</td>
+<td>Add a default user</td>
+<td>[symbol: user]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.readpermissions</td>
+<td>function</td>
+<td>.access</td>
+<td>Read the permissions from a directory</td>
+<td>[string: directory containing the permissions files]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.access.USERS</td>
+<td>table</td>
+<td>.access</td>
+<td>Table of users and their types</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.servers.opencon</td>
+<td>function</td>
+<td>.servers</td>
+<td>open a connection to a process using the default timeout. If no user:pass supplied, the default one will be added if set</td>
+<td>[symbol: the host:port[:user:pass]]</td>
+<td>int: the process handle, null if the connection failed</td>
+</tr>
+<tr>
+<td>.servers.addh</td>
+<td>function</td>
+<td>.servers</td>
+<td>open a connection to a server, store the connection details</td>
+<td>[symbol: the host:port:user:pass connection symbol]</td>
+<td>int: the server handle</td>
+</tr>
+<tr>
+<td>.servers.addw</td>
+<td>function</td>
+<td>.servers</td>
+<td>add the connection details of a process behind the handle</td>
+<td>[int: server handle]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.addnthawc</td>
+<td>function</td>
+<td>.servers</td>
+<td>add the details of a connection to the table</td>
+<td>[symbol: process name; symbol: process type; hpup: host:port:user:pass connection symbol; dict: attributes of the process; int: handle to the process;boolean: whether to check the handle is valid on insert</td>
+<td>int: the handle of the process</td>
+</tr>
+<tr>
+<td>.servers.getservers</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a table of servers which match the given criteria</td>
+<td>[symbol: pick the server based on the name value or the type value.  Can be either `procname`proctype; symbol(list): lookup values. ` for any; dict: requirements dictionary; boolean: whether to automatically open dead connections for the specified lookup values; boolean: if only one of each of the specified lookup values is required (means dead connections aren't opened if there is one available)]</td>
+<td>table: processes details and requirements matches</td>
+</tr>
+<tr>
+<td>.servers.gethandlebytype</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a server handle for the supplied type</td>
+<td>[symbol: process type; symbol: selection criteria. One of `roundrobin`any`last]</td>
+<td>int: handle of server</td>
+</tr>
+<tr>
+<td>.servers.gethpbytype</td>
+<td>function</td>
+<td>.servers</td>
+<td>get a server hpup connection symbol for the supplied type</td>
+<td>[symbol: process type; symbol: selection criteria. One of `roundrobin`any`last]</td>
+<td>symbol: h:p:u:p connection symbol of server</td>
+</tr>
+<tr>
+<td>.servers.startup</td>
+<td>function</td>
+<td>.servers</td>
+<td>initialise all the connections.  Must processes should call this during initialisation</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.refreshattributes</td>
+<td>function</td>
+<td>.servers</td>
+<td>refresh the attributes registered with the discovery service.  Should be called whenever they change e.g. end of day for an HDB</td>
+<td>[]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.servers.SERVERS</td>
+<td>table</td>
+<td>.servers</td>
+<td>table containing server handles and session values</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.timer.repeat</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a repeating timer with default next schedule</td>
+<td>[timestamp: start time; timestamp: end time; timespan: period; mixedlist: (function and argument list); string: description string]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.once</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a one-off timer to fire at a specific time</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); string: description string]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.remove</td>
+<td>function</td>
+<td>.timer</td>
+<td>Delete a row from the timer schedule</td>
+<td>[int: timer id to delete]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.removefunc</td>
+<td>function</td>
+<td>.timer</td>
+<td>Delete a specific function from the timer schedule</td>
+<td>[mixedlist: (function and argument list)]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.rep</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a repeating timer - more flexibility than .timer.repeat</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); short: scheduling algorithm for next timer; string: description string; boolean: whether to check if this new function is already present on the schedule]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.one</td>
+<td>function</td>
+<td>.timer</td>
+<td>Add a one-off timer to fire at a specific time - more flexibility than .timer.once</td>
+<td>[timestamp: execute time; mixedlist: (function and argument list); string: description string; boolean: whether to check if this new function is already present on the schedule]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.timer.timer</td>
+<td>table</td>
+<td>.timer</td>
+<td>The table containing the timer information</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.cache.execute</td>
+<td>function</td>
+<td>.cache</td>
+<td>Check the cache for a valid result set, return the results if found, execute the function, cache it and return if not</td>
+<td>[mixed: function or string to execute;timespan: maximum allowable age of cache item if found in cache]</td>
+<td>mixed: result of function</td>
+</tr>
+<tr>
+<td>.cache.getperf</td>
+<td>function</td>
+<td>.cache</td>
+<td>Return the performance statistics of the cache</td>
+<td>[]</td>
+<td>table: cache performance</td>
+</tr>
+<tr>
+<td>.cache.maxsize</td>
+<td>variable</td>
+<td>.cache</td>
+<td>The maximum size in MB of the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.cache.maxindividual</td>
+<td>variable</td>
+<td>.cache</td>
+<td>The maximum size in MB of an individual item in the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.tz.dg</td>
+<td>function</td>
+<td>.tz</td>
+<td>default from GMT. Convert a timestamp from GMT to the default timezone</td>
+<td>[timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.lg</td>
+<td>function</td>
+<td>.tz</td>
+<td>local from GMT. Convert a timestamp from GMT to the specified local timezone</td>
+<td>[symbol (list): timezone ids;timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.gd</td>
+<td>function</td>
+<td>.tz</td>
+<td>GMT from default. Convert a timestamp from the default timezone to GMT</td>
+<td>[timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.gl</td>
+<td>function</td>
+<td>.tz</td>
+<td>GMT from local. Convert a timestamp from the specified local timezone to GMT</td>
+<td>[symbol (list): timezone ids; timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.ttz</td>
+<td>function</td>
+<td>.tz</td>
+<td>Convert a timestamp from a specified timezone to a specified destination timezone</td>
+<td>[symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]</td>
+<td>timestamp atom or list</td>
+</tr>
+<tr>
+<td>.tz.default</td>
+<td>variable</td>
+<td>.tz</td>
+<td>Default timezone</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.tz.t</td>
+<td>table</td>
+<td>.tz</td>
+<td>Table of timestamp information</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.email.connectdefault</td>
+<td>function</td>
+<td>.email</td>
+<td>connect to the default mail server specified in configuration</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>.email.senddefault</td>
+<td>function</td>
+<td>.email</td>
+<td>connect to email server if not connected. Send email using default settings</td>
+<td>[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be `html, default is `text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. `none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]</td>
+<td>size in bytes of sent email. -1 if failure</td>
+</tr>
+<tr>
+<td>.email.test</td>
+<td>function</td>
+<td>.email</td>
+<td>send a test email</td>
+<td>[symbol(list):email address to send test email to]</td>
+<td>size in bytes of sent email. -1 if failure</td>
+</tr>
+<tr>
+<td>.hb.addprocs</td>
+<td>function</td>
+<td>.hb</td>
+<td>Add a set of process types and names to the heartbeat table to actively monitor for heartbeats.  Processes will be automatically added and monitored when the heartbeats are subscribed to, but this is to allow for the case where a process might already be dead and so can't be subscribed to</td>
+<td>[symbol(list): process types; symbol(list): process names]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.processwarning</td>
+<td>function</td>
+<td>.hb</td>
+<td>Callback invoked if any process goes into a warning state.  Default implementation is to do nothing - modify as required</td>
+<td>[table: processes currently in warning state]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.processerror</td>
+<td>function</td>
+<td>.hb</td>
+<td>Callback invoked if any process goes into an error state. Default implementation is to do nothing - modify as required</td>
+<td>[table: processes currently in error state]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.storeheartbeat</td>
+<td>function</td>
+<td>.hb</td>
+<td>Store a heartbeat update.  This function should be added to you update callback when a heartbeat is received</td>
+<td>[table: the heartbeat table data to store]</td>
+<td></td>
+</tr>
+<tr>
+<td>.hb.warningperiod</td>
+<td>function</td>
+<td>.hb</td>
+<td>Return the warning period for a particular process type.  Default is to return warningtolerance * publishinterval. Can be overridden as required</td>
+<td>[symbollist: the process types to return the warning period for]</td>
+<td>timespan list of warning period</td>
+</tr>
+<tr>
+<td>.hb.errorperiod</td>
+<td>function</td>
+<td>.hb</td>
+<td>Return the error period for a particular process type.  Default is to return errortolerance * publishinterval. Can be overridden as required</td>
+<td>[symbollist: the process types to return the error period for]</td>
+<td>timespan list of error period</td>
+</tr>
+<tr>
+<td>.rdb.moveandclear</td>
+<td>function</td>
+<td>.rdb</td>
+<td>Move a variable (table) from one namespace to another, deleting its contents.  Useful during the end-of-day roll down for tables you do not want to save to the HDB</td>
+<td>[symbol: the namespace to move the table from; symbol:the namespace to move the variable to; symbol: the name of the variable]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.api.f</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a function/variable/table/view in the current process</td>
+<td>[string:search string]</td>
+<td>table of matching elements</td>
+</tr>
+<tr>
+<td>.api.p</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a public function/variable/table/view in the current process</td>
+<td>[string:search string]</td>
+<td>table of matching public elements</td>
+</tr>
+<tr>
+<td>.api.u</td>
+<td>function</td>
+<td>.api</td>
+<td>Find a non-standard q public function/variable/table/view in the current process.  This excludes the .q, .Q, .h, .o namespaces</td>
+<td>[string:search string]</td>
+<td>table of matching public elements</td>
+</tr>
+<tr>
+<td>.api.s</td>
+<td>function</td>
+<td>.api</td>
+<td>Search all function definitions for a specific string</td>
+<td>[string: search string]</td>
+<td>table of matching functions and definitions</td>
+</tr>
+<tr>
+<td>.api.find</td>
+<td>function</td>
+<td>.api</td>
+<td>Generic method for finding functions/variables/tables/views. f,p and u are based on this</td>
+<td>[string: search string; boolean (list): public flags to include; boolean: whether the search is context senstive</td>
+<td>table of matching elements</td>
+</tr>
+<tr>
+<td>.api.search</td>
+<td>function</td>
+<td>.api</td>
+<td>Generic method for searching all function definitions for a specific string. s is based on this</td>
+<td>[string: search string; boolean: whether the search is context senstive</td>
+<td>table of matching functions and definitions</td>
+</tr>
+<tr>
+<td>.api.add</td>
+<td>function</td>
+<td>.api</td>
+<td>Add a function to the api description table</td>
+<td>[symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]</td>
+<td>null</td>
+</tr>
+<tr>
+<td>.api.fullapi</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the full function api table</td>
+<td>[]</td>
+<td>api table</td>
+</tr>
+<tr>
+<td>.api.m</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required</td>
+<td>[]</td>
+<td>memory usage table</td>
+</tr>
+<tr>
+<td>.api.mem</td>
+<td>function</td>
+<td>.api</td>
+<td>Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required</td>
+<td>[boolean:return views]</td>
+<td>memory usage table</td>
+</tr>
+<tr>
+<td>.api.whereami</td>
+<td>function</td>
+<td>.api</td>
+<td>Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]</td>
+<td>function definition</td>
+<td>symbol: the name of the current function</td>
+</tr>
+<tr>
+<td>.ps.publish</td>
+<td>function</td>
+<td>.ps</td>
+<td>Publish a table of data</td>
+<td>[symbol: name of table; table: table of data]</td>
+<td></td>
+</tr>
+<tr>
+<td>.ps.subscribe</td>
+<td>function</td>
+<td>.ps</td>
+<td>Subscribe to a table and list of instruments</td>
+<td>[symbol(list): table name. ` for all; symbol(list): symbols to subscribe to. ` for all]</td>
+<td>mixed type list of table names and schemas</td>
+</tr>
+<tr>
+<td>.ps.initialise</td>
+<td>function</td>
+<td>.ps</td>
+<td>Initialise the pubsub routines.  Any tables that exist in the top level can be published</td>
+<td>[]</td>
+<td></td>
+</tr>
+<tr>
+<td>.async.deferred</td>
+<td>function</td>
+<td>.async</td>
+<td>Use async messaging to simulate sync communication</td>
+<td>[int(list): handles to query; query]</td>
+<td>(boolean list:success status; result list)</td>
+</tr>
+<tr>
+<td>.async.postback</td>
+<td>function</td>
+<td>.async</td>
+<td>Send an async message to a process and the results will be posted back within the postback function call</td>
+<td>[int(list): handles to query; query; postback function]</td>
+<td>boolean list: successful send status</td>
+</tr>
+<tr>
+<td>.cmp.showcomp</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Show which files will be compressed and how; driven from csv file</td>
+<td>[`:/path/to/database; `:/path/to/configcsv; maxagefilestocompress]</td>
+<td>table of files to be compressed</td>
+</tr>
+<tr>
+<td>.cmp.compressmaxage</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress</td>
+<td>[`:/path/to/database; `:/path/to/configcsv; maxagefilestocompress]</td>
+<td></td>
+</tr>
+<tr>
+<td>.cmp.docompression</td>
+<td>function</td>
+<td>.cmp</td>
+<td>Run compression on files using parameters specified in configuration csv file</td>
+<td>[`:/path/to/database; `:/path/to/configcsv]</td>
+<td></td>
+</tr>
+<tr>
+<td>.loader.loadallfiles</td>
+<td>function</td>
+<td>.loader</td>
+<td>Generic loader function to read a directory of files in chunks and write them out to disk</td>
+<td>[dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol).  Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)]</td>
+<td></td>
+</tr>
+<tr>
+<td>.sort.sorttab</td>
+<td>function</td>
+<td>.sort</td>
+<td>Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)</td>
+<td>[2 item list of (tablename e.g. `trade; partitions to sort and apply attributes to e.g. `:/hdb/2000.01.01/trade`:hdb/2000.01.02/trade)]</td>
+<td></td>
+</tr>
+<tr>
+<td>.sort.getsortcsv</td>
+<td>function</td>
+<td>.sort</td>
+<td>Read in the sort csv from the specified location</td>
+<td>[symbol: the location of the file e.g. `:config/sort.csv]</td>
+<td></td>
+</tr>
+<tr>
+<td>.gc.run</td>
+<td>function</td>
+<td>.gc</td>
+<td>Run garbage collection, print debug info before and after</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>.mem.objsize</td>
+<td>function</td>
+<td>.mem</td>
+<td>Returns the calculated memory size in bytes used by an object.  It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)</td>
+<td>[q object]</td>
+<td>size of the object in bytes</td>
+</tr>
+<tr>
+<td>.tplog.check</td>
+<td>function</td>
+<td>.tplog</td>
+<td>Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle</td>
+<td>[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]</td>
+<td>handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt</td>
+</tr>
+</tbody>
+</table>
+<h2 id="grafanaq">grafana.q</h2>
+<p>Grafana is an open source analytics platform, used to display time-series data
+from a web application. Currently it supports a variety of data sources
+including Graphite, InfluxDb &amp; Prometheus with users including the likes of 
+Paypal, Ebay, Intel and Booking.com.  However, there is no in-built support for
+direct analysis of data from kdb+. Thus, using the 
+<a href="https://github.com/grafana/simple-json-datasource">SimpleJSON data source</a>,
+we have engineered an adaptor to allow visualisation of kdb+ data.</p>
+<h3 id="requirements">Requirements</h3>
+<p>Grafana v5.2.2+
+(Tested on Kdb v3.5+)</p>
+<h3 id="getting-started">Getting Started</h3>
+<ol>
+<li>
+<p>Download and set up Grafana. This is well explained on the 
+<a href="https://grafana.com/get">Grafana website</a>, where you have the option to either
+download the software locally or let Grafana host it for you. For the purpose 
+of this document, we host the software locally.</p>
+</li>
+<li>
+<p>Pull down this repository with the adaptor already installed in code/common.</p>
+</li>
+<li>
+<p>In your newly installed Grafana folder (eg.grafana-5.2.2/) run the command:
+    <code>./bin/grafana-server web</code>.
+This will start your Grafana server. If you would like to alter the port which 
+this is run on, this can be changed in:
+    <code>/grafana-5.2.2/conf/custom.ini</code>, Where custom.ini should be a copy of defaults.ini.</p>
+</li>
+<li>
+<p>You can now open the Grafana server in your web browser where you will be 
+greeted with a login page to fill in appropriately.</p>
+</li>
+<li>
+<p>Once logged in, navigate to the configurations-&gt;plugin section where you 
+will find the simple JSON adaptor, install this.</p>
+</li>
+<li>
+<p>Upon installation of the JSON you can now set-up your datasource. </p>
+</li>
+<li>
+<p>Host your data on a port accesible to Grafana, eg. the RDB.</p>
+</li>
+<li>
+<p>In the "add new datasource" panel, enter the details for the port in which 
+your data is hosted, making the type SimpleJSON.</p>
+</li>
+<li>
+<p>Run the test button on the bottom of your page, this should succeed and you 
+are ready to go!</p>
+</li>
+</ol>
+<h3 id="using-the-adaptor">Using the adaptor</h3>
+<p>As the adaptor is part of the TorQ framework it will automatically be loaded 
+into TorQ sessions. From this point onwards you can proceed to use Grafana as 
+it is intended, with the only difference coming in the form of the queries. Use 
+cases and further examples of the queries can be seen in our blogpost:
+<a href="https://www.aquaq.co.uk/q/ask-shall-receive-grafana-kdb-adaptor/">The Grafana-KDB Adaptor</a>.
+For information and examples of how to execute server side functions in queries, please
+read our followup blogpost on the subject: <a href="https://www.aquaq.co.uk/kdb/grafana-kdb-adaptor-update/">Grafana kdb+ Adaptor Update</a>. 
+Here you can see examples of graphs, tables, heatmaps and single statistics. 
+The best explanation of the inputs allowed in the query section can be seen pictorially here:</p>
+<p><img alt="GrafanaQueries" src="https://github.com/AquaQAnalytics/TorQ/blob/master/docs/graphics/grafana_chart.png?raw=true" /></p>
+<p>Upon opening the query box, in the metrics tab, the user will be provided with 
+a populated drop down of all possible options. Server functions are not included
+in the dropdown, but can be called by entering the letter f followed by the value
+of <code>.grafana.del</code> (see below) before their function call. Due to the limitations
+of the JSON messages, it is not possible for our adaptor to distinguish between panels. 
+Consequently, every possible option is returned for each panel, the user can
+reduce these choices by simply entering the first letter of their panel type, 
+g for graph, t for table and o for other (heatmap or single stat). From here, 
+you can follow the above diagram to specify your type of query.</p>
+<h3 id="limitations-assumptions">Limitations &amp; Assumptions</h3>
+<p>This adaptor has been built to allow visualisation of real-time and historical 
+data. It is capable of handling static and timeseries data.  In addition, the 
+drop-down options have been formed such that only one query is possible per 
+panel. If more than one query on a specfic panel is made it will throw an error. 
+To get around this, we added the options of including all "syms" in queries so 
+the options can be filtered out in the legend. </p>
+<p>Table queries should work for any table format supplied to the adaptor. However, 
+time series data is limited by the requriment of a time column, in our adaptor 
+we assume this column to be called time. This assumption can be modified to fit 
+your data in the settings (config/settings/defualt.q) file which dictates the 
+following lines at the start of the script:</p>
+<pre><code>// user defined column name of time column
+timecol:@[value;`.grafana.timecol;`time];
+// user defined column name of sym column
+sym:@[value;`.grafana.sym;`sym];
+// user defined date range to find syms from
+timebackdate:@[value;`.grafana.timebackdate;2D];
+// user defined number of ticks to return
+ticks:@[value;`.grafana.ticks;1000];
+// user defined query argument deliminator
+del:@[value;`.grafana.del;&quot;.&quot;];
+
+</code></pre>
+
+<p><code>.grafana.timecol</code> represents the name of the time column and thus can be 
+reassigned if your time column has a different name, eg. date. One more common 
+modification could be changing the variable <code>.grafana.sym</code> which defines 
+the name of the the sym column, which is normally referenced in financial data. 
+However if the data is non-financial this could be tailored to represent another 
+identifier such as name or postcode. This column is used to populate the drop 
+down options in the query selector. </p>
+<p><code>.grafana.timebackdate</code> is a user definable variable which dictates how 
+far back into a hdb the adaptor will look to gather options for distinct syms to 
+populate the dropdowns. It is important to note that this should be increased if 
+all your required syms are not in the last 2 days. Optionally a user could hard
+code this list or implement their own search function to limit interrogation of 
+the database. <code>.grafana.ticks</code> can be defined so that only n rows from the
+end of the table will be queried. This can be left as large as the user likes,
+but is included for managing large 
+partitioned tables. </p>
+<p>One final important variable is <code>.grafana.del</code>, this dictates the delimeter 
+between options in the drop down menus. This has significant repercussions if 
+one of your columns includes full stops, eg. email adresses. As a result we have 
+left this as definable so that the user can alter this to a non-disruptive value 
+for their data eg./.</p>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../InstallGuide/" title="Installation" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Installation
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../handlers/" title="Handlers" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Handlers
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>

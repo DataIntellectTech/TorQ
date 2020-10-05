@@ -1,9 +1,0 @@
-u.q
-u.k
-api.q
-apidetails.q
-timer.q
-pubsub.q
-subscriptions.q
-timezone.q
-eodtime.q

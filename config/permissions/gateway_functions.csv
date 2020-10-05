@@ -1,5 +1,0 @@
-func,default,power,userlist
-`.gw.asyncexec,1,1,
-`.gw.asyncexecjpt,1,1,
-`.gw.syncexec,1,1,
-`.gw.syncexecj,1,1,

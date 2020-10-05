@@ -1,0 +1,1355 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Analytics Library - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#analytics-library" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Analytics Library
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Analytics Library
+      </label>
+    
+    <a href="./" title="Analytics Library" class="md-nav__link md-nav__link--active">
+      Analytics Library
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-usage" class="md-nav__link">
+    General Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffill" class="md-nav__link">
+    ffill
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-13" class="md-nav__link">
+    Example 1.3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pivot" class="md-nav__link">
+    pivot
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11_1" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12_1" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intervals" class="md-nav__link">
+    intervals
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rack" class="md-nav__link">
+    rack
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_2" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11_2" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12_2" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-13_1" class="md-nav__link">
+    Example 1.3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-usage" class="md-nav__link">
+    General Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ffill" class="md-nav__link">
+    ffill
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-13" class="md-nav__link">
+    Example 1.3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pivot" class="md-nav__link">
+    pivot
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_1" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11_1" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12_1" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intervals" class="md-nav__link">
+    intervals
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rack" class="md-nav__link">
+    rack
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples_2" class="md-nav__link">
+    Examples
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-11_2" class="md-nav__link">
+    Example 1.1
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-12_2" class="md-nav__link">
+    Example 1.2
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-13_1" class="md-nav__link">
+    Example 1.3
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/analyticslib.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="analytics-library">Analytics Library</h1>
+<p>A set of analytical functions is provided for the simplification of common operations. This set of tools is targeted at new kdb+ developers or business users. Data visualization would be an example application of this library, as an effective visualization of data incurs various manipulations of data sets. For example, a user wishes to produce a 15 minute bucketed sample of a time series, and forward fill it, then pivot it. All of the above can be achieved with the functions defined below. </p>
+<h2 id="general-usage">General Usage</h2>
+<p>These set of function are defined in the <code>.al</code> namespace. All of the functions below have an input parameter in the form of a dictionary. The specifics of each dictionary are detailed in the <em>usage</em> section of each function. </p>
+<p>This set of utilities also includes a general set of error traps which were designed to give informative errors specific to each function. For example if a dictionary has not been provided then the error would be:</p>
+<pre><code>q).al.pivot[123]
+'Input parameter must be a dictionary with keys:
+        -table
+        -by
+        -piv
+        -var
+</code></pre>
+
+<p>These error traps and messages are to guide the user in the correct use of the utilities and are designed to be as informative as possible.</p>
+<h2 id="ffill">ffill</h2>
+<h3 id="usage">Usage</h3>
+<p>This script contains the utility to dynamically forward fill a given table keyed by given columns.</p>
+<p>Input is a dictionary containing:</p>
+<ul>
+<li>table: Table to be forward filled</li>
+<li>by: List of column names to key the table (optional)</li>
+<li>keycols: List of columns names to be forward filled (optional)</li>
+</ul>
+<p>OR </p>
+<ul>
+<li>Table</li>
+</ul>
+<p>This utility is equivalent to:  <code>update fills col1, fills col2 ... by col2 from table</code></p>
+<p>If you have a large data set or just a table with multiple columns typing this statement out can be quite laborious.
+With this utility you simply specify the table or parameter dictionary and pass it to the function.
+This utility also has the added functionality of being able to forward fill mixed list columns, i.e. strings.</p>
+<h3 id="examples">Examples</h3>
+<h4 id="example-11">Example 1.1</h4>
+<p>By specifying the <code>by</code> condition in the input dictionary the function can forward fill keyed by specific column, for example:</p>
+<pre><code>q)table
+time         sym  ask bid asize bsize a id
+------------------------------------------
+00:00:38.184 AMD  121 12  3     30    a 1
+00:01:25.332 AMD  121 3   3     30    b 4
+00:09:37.574 AAPL 63  32  3     30    b 3
+00:21:24.796 AAPL 63      12            4
+00:38:39.521 AAPL 121 3   5           a 3
+00:40:41.670 MSFT 63  3   4     20    c 4
+00:48:08.048 MSFT 63            40      3
+00:48:39.290 IBM  63  3   12    40    d 2
+00:57:47.067 AAPL     24  3     30      2
+01:08:00.945 AAPL 121 12  3     20    b 3
+
+</code></pre>
+
+<p>We can create the input dictionary in the following way to specify the by clause of the <code>ffill</code> utility:</p>
+<pre><code>q)args:(`table`by)!(table;`sym)
+</code></pre>
+
+<p>Passing this to the function we can see the result:</p>
+<pre><code>q).al.ffill args
+time         sym  ask bid asize bsize a id
+------------------------------------------
+00:00:38.184 AMD  121 12  3     30    a 1
+00:01:25.332 AMD  121 3   3     30    b 4
+00:09:37.574 AAPL 63  32  3     30    b 3
+00:21:24.796 AAPL 63  32  12    30    b 4
+00:38:39.521 AAPL 121 3   5     30    a 3
+00:40:41.670 MSFT 63  3   4     20    c 4
+00:48:08.048 MSFT 63  3   4     40    c 3
+00:48:39.290 IBM  63  3   12    40    d 2
+00:57:47.067 AAPL 121 24  3     30    a 2
+01:08:00.945 AAPL 121 12  3     20    b 3
+
+</code></pre>
+
+<h4 id="example-12">Example 1.2</h4>
+<p>By specifying the <code>keycols</code> condition in the input dictionary the function can forward fill only specific columns, for example:</p>
+<p>Using the data set below we can create an input specifying which column we want to forward fill:</p>
+<pre><code>q)table
+time                          sym  src price size mode
+------------------------------------------------------
+2018.02.13D08:02:09.322000000 AAPL N   32    513  &quot;A&quot;
+2018.02.13D08:03:23.511000000 AAPL N   32    344  &quot;&quot;
+2018.02.13D08:06:35.424000000 AAPL N   32    1933 &quot;B&quot;
+2018.02.13D08:13:03.067000000 AAPL N   76    1009 &quot;B&quot;
+2018.02.13D08:15:09.130000000 AAPL O   43    5199 &quot;B&quot;
+2018.02.13D08:22:21.528000000 AAPL N   76    427  &quot;A&quot;
+2018.02.13D08:23:46.489000000 AAPL N         7918 &quot;B&quot;
+2018.02.13D08:26:34.645000000 AAPL N   43    420  &quot;&quot;
+2018.02.13D08:27:41.633000000 AAPL N         5391 &quot;A&quot;
+2018.02.13D08:28:00.078000000 AAPL N   54    713  &quot;A&quot;
+2018.02.13D08:28:39.200000000 AAPL N         8117 &quot;C&quot;
+2018.02.13D08:32:21.651000000 AAPL N   43    178  &quot;A&quot;
+
+q)args:(`table`keycols)!(table;`price)
+q).al.ffill args
+time                          sym  src price size mode
+------------------------------------------------------
+2018.02.13D08:02:09.322000000 AAPL N   32    513  &quot;A&quot;
+2018.02.13D08:03:23.511000000 AAPL N   32    344  &quot;&quot;
+2018.02.13D08:06:35.424000000 AAPL N   32    1933 &quot;B&quot;
+2018.02.13D08:13:03.067000000 AAPL N   76    1009 &quot;B&quot;
+2018.02.13D08:15:09.130000000 AAPL O   43    5199 &quot;B&quot;
+2018.02.13D08:22:21.528000000 AAPL N   76    427  &quot;A&quot;
+2018.02.13D08:23:46.489000000 AAPL N   76    7918 &quot;B&quot;
+2018.02.13D08:26:34.645000000 AAPL N   43    420  &quot;&quot;
+2018.02.13D08:27:41.633000000 AAPL N   43    5391 &quot;A&quot;
+2018.02.13D08:28:00.078000000 AAPL N   54    713  &quot;A&quot;
+2018.02.13D08:28:39.200000000 AAPL N   54    8117 &quot;C&quot;
+2018.02.13D08:32:21.651000000 AAPL N   43    178  &quot;A&quot;
+
+
+</code></pre>
+
+<p>Note that without specifying the <code>by</code> condition the column was forward filled as it sits in the table.</p>
+<h4 id="example-13">Example 1.3</h4>
+<p>Passing just a table into the function will forward fill all columns, for example:</p>
+<pre><code>q)table
+time         sym  ask bid asize bsize a id
+------------------------------------------
+00:00:38.184 AMD  121 12  3     30    a 1
+00:01:25.332 AMD  121 3   3     30    b 4
+00:09:37.574 AAPL 63  32  3     30    b 3
+00:21:24.796 AAPL 63      12            4
+00:38:39.521 AAPL 121 3   5           a 3
+00:40:41.670 MSFT 63  3   4     20    c 4
+00:48:08.048 MSFT 63            40      3
+00:48:39.290 IBM  63  3   12    40    d 2
+00:57:47.067 AAPL     24  3     30      2
+01:08:00.945 AAPL 121 12  3     20    b 3
+
+q).al.ffill table
+time         sym  ask bid asize bsize a id
+------------------------------------------
+00:00:38.184 AMD  121 12  3     30    a 1
+00:01:25.332 AMD  121 3   3     30    b 4
+00:09:37.574 AAPL 63  32  3     30    b 3
+00:21:24.796 AAPL 63  32  12    30    b 4
+00:38:39.521 AAPL 121 3   5     30    a 3
+00:40:41.670 MSFT 63  3   5     20    a 4
+00:48:08.048 MSFT 63  3   4     40    c 3
+00:48:39.290 IBM  63  3   12    40    c 2
+00:57:47.067 AAPL 63  24  3     30    c 2
+01:08:00.945 AAPL 121 12  3     20    b 3
+
+</code></pre>
+
+<h2 id="pivot">pivot</h2>
+<p>A pivot table is a design tool used to reorganize and summarize selected columns and rows of data to gain a better understanding of the data being provided. An indepth explanation of how to pivot a table is available <a href="http://code.kx.com/q/cookbook/pivoting-tables/">here</a>.</p>
+<p>This is a modified version of code available on <a href="http://code.kx.com/q/cookbook/pivoting-tables/#a-very-general-pivot-function-and-an-example">code.kx</a></p>
+<h3 id="usage_1">Usage</h3>
+<p>This script contains the utility to pivot a table, specifying the keyed columns, the columns you wish to pivot around and the values you wish to expose. Note that this method always produces the last value for the grouping. To circumvent this you can do your own aggregation on the table before using the pivot function. For example you can create a column to calculate the sum: <code>update totsum:sum price by sym,src from table</code> and then pivot the data.</p>
+<p>This utility takes a dictionary as input with the following parameters:</p>
+<ul>
+<li>table: The table you want to pivot</li>
+<li>by:  The keyed columns</li>
+<li>piv:     The pivot columns</li>
+<li>var:     The variables you want to see</li>
+<li>f:   The function to create your column names (optional)</li>
+<li>g:   The function to sort your column names (optional)</li>
+</ul>
+<p>The optional function f is a function of var and piv which creates column names for your
+pivoted table.
+The optional function g is a function of the keyed columns, piv and the return of f, which
+sorts the columns in ascending order.</p>
+<h3 id="examples_1">Examples</h3>
+<h4 id="example-11_1">Example 1.1</h4>
+<p>We have a table of quotes:</p>
+<pre><code>q)quote
+date       sym  time         side level price    size
+-----------------------------------------------------
+2009.01.05 bafc 09:30:00.619 B    0     88.31803 96
+2009.01.05 oljg 09:30:15.770 A    2     24.72941 14
+2009.01.05 mgab 09:30:30.993 B    0     33.80173 2
+2009.01.05 cflm 09:30:45.457 A    4     13.08412 98
+2009.01.05 jgjm 09:31:00.668 B    0     80.2705  26
+2009.01.05 cnkk 09:31:15.988 A    1     23.27025 38
+..
+</code></pre>
+
+<p>We can key the table by date,sym and time, pivot around both side and level showing price 
+and size at each time. The input dictionary is created in the following way:</p>
+<pre><code>args:(`table`by`piv`var)!(quote;`date`sym`time;`side`level;`price`size);
+</code></pre>
+
+<p>Here we are specifying the arguments for f and g as the default functions:</p>
+<pre><code>// create _ separated column headers
+f:{[v;P] `$&quot;_&quot; sv' string (v,()) cross P}
+// return the headers in order
+g:{[k;P;c] k,asc c}
+</code></pre>
+
+<p>The pivot function is then called and the output can be seen below:</p>
+<pre><code>q).al.pivot[args]
+date       sym  time        | price_A_0 price_A_1 price_A_2 price_A_3 price_A_4 price_B_0 price_B_1 price_B_2  price_B_3 price_B_4 size_A_0 size_A_1 size_A_2 size_A_3 size_A_4 size_B_0 size_B_1 size_B_2 size_B_3 size_B_4
+----------------------------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2009.01.05 bafc 09:30:00.619|                                                   88.31803                                                                                        96
+2009.01.05 bafc 10:05:30.395|                                                                                            60.77025                                                                                   73
+2009.01.05 bafc 10:11:00.990|                                                                       0.03195086                                                                                    71
+2009.01.05 bafc 10:41:00.031|                                                             68.8886                                                                                        60
+2009.01.05 bafc 10:41:15.924|                     4.926275                                                                                           56
+2009.01.05 bafc 11:06:30.361|                                                             84.28182                                                                                       10
+2009.01.05 bafc 11:52:30.361|                                                   8.733561                                                                                        7
+..
+</code></pre>
+
+<h4 id="example-12_1">Example 1.2</h4>
+<p>We have the following table showing some FX data:</p>
+<pre><code>q)t
+sym    time  price size lp   region
+-----------------------------------
+EURGBP 09:00 1     870  UBS  LON
+EURGBP 09:07 7     296  BARX LON
+EURGBP 09:19 3     850  BARX LON
+EURGBP 09:27 1     540  HSBC NYC
+EURUSD 09:31 4     995  UBS  LON
+AUDUSD 09:38 0     396  HSBC NYC
+EURUSD 09:41 6     152  UBS  LON
+EURUSD 09:42 4     317  HSBC NYC
+EURGBP 09:43 6     670  HSBC LON
+EURGBP 09:47 7     345  BARX NYC
+..
+</code></pre>
+
+<p>We want to see the different prices each liquidity provider has for each currency pair. For this we need to pivot the table t by sym around the lp's to show the various prices. We first create out parameter dictionary:</p>
+<pre><code>args:(`table`by`piv`var)!(t;`sym;`lp;`price`size)
+</code></pre>
+
+<p>We then pass the dictionary into the pivot utility:</p>
+<pre><code>q).al.pivot[args]
+sym   | price_BARX price_HSBC price_UBS
+------| -------------------------------
+EURGBP| 7          1          1
+EURUSD| 8          4          4
+AUDUSD| 4          0          0
+
+</code></pre>
+
+<p>Another way to manipulate the same data would be to key the table by sym and lp (i.e. currency pair and liquidity provider) and pivot by region to show both price and size. Setting up this dictionary and passing it to the pivot function we see the result below:</p>
+<pre><code>q)args:(`table`by`piv`v)!(t;`sym`lp;`region;`price`size)
+q).al.pivot[args]
+sym    lp  | price_LON price_NYC size_LON size_NYC
+-----------| -------------------------------------
+EURGBP UBS | 1         3         870      32
+EURGBP BARX| 7         7         296      345
+EURGBP HSBC| 6         1         670      540
+EURUSD UBS | 4         1         995      494
+AUDUSD HSBC| 5         0         879      396
+EURUSD HSBC| 1         4         459      317
+EURUSD BARX| 6         8         62       299
+AUDUSD BARX| 4         2         817      716
+AUDUSD UBS | 3         0         744      217
+
+</code></pre>
+
+<h2 id="intervals">intervals</h2>
+<p>The intervals.q utility in the .al namespace is used to output a
+list of equally spaced intervals between given start and end points.</p>
+<h3 id="usage_2">Usage</h3>
+<p>Input is a dictionary containing:</p>
+<ul>
+<li>start: Starting integer number</li>
+<li>end: Ending integer number</li>
+<li>interval: Interval spacing between values</li>
+<li>round: Toggle rounding to nearest specified interval (optional)</li>
+</ul>
+<p>Parameters should be passed in the form of a dictionary, where start
+and end must be of the same type and interval can be either a long int
+or of the same type as start and end (i.e if start:09:00 and end:12:00,
+and intervals of 5 minutes were required interval could equal 00:05 or 5)</p>
+<p>Allowed data types are:</p>
+<ul>
+<li>date </li>
+<li>month </li>
+<li>time </li>
+<li>minute </li>
+<li>second </li>
+<li>timestamp </li>
+<li>timespan </li>
+<li>integer </li>
+<li>short </li>
+<li>long</li>
+</ul>
+<h3 id="example">Example</h3>
+<p>Using minute datatype:</p>
+<pre><code>q)params:`start`end`interval`round!(09:32;12:00;00:30;0b)
+q).al.intervals[params]
+09:32 10:02 10:32 11:02 11:32
+</code></pre>
+
+<p>or with round applied.</p>
+<pre><code>q)params:`start`end`interval`round!(09:32;12:00;00:30;1b)
+q).al.intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+</code></pre>
+
+<p>by default round is set to 1b, hence the result above can be
+obtained without inputting a value for round via:</p>
+<pre><code>q)params:`start`end`interval!(09:32;12:00;00:30)
+q).al.intervals[params]
+09:30 10:00 10:30 11:00 11:30 12:00
+</code></pre>
+
+<pre><code>q)params:`start`end`interval!(2001.04.07;2001.05.01;5)
+q).al.intervals[params]
+2001.04.05 2001.04.10 2001.04.15 2001.04.20 2001.04.25 2001.04.30
+</code></pre>
+
+<p>and without rounding</p>
+<pre><code>q)params:`start`end`interval`round!(2001.04.07;2001.05.01;5;0b)
+q).al.intervals[params]
+2001.04.07 2001.04.12 2001.04.17 2001.04.22 2001.04.27
+</code></pre>
+
+<pre><code>q)params:`start`end`interval!(00:20:30 01:00:00 00:10:00)
+q).al.intervals[params]
+00:20:00 00:30:00 00:40:00 00:50:00 01:00:00
+</code></pre>
+
+<pre><code>q)params:`start`end`interval`round!(00:20:30 01:00:00 00:10:00)
+q).al.intervals[params]
+00:20:30 00:30:30 00:40:30 00:50:30
+</code></pre>
+
+<pre><code>q)params:`start`end`interval!(00:01:00.000000007;00:05:00.000000001;50000000000)
+q).al.intervals[params]
+0D00:00:50.000000000 0D00:01:40.000000000 0D00:02:30.000000000 0D00:03:20.000000000 0D00:04:10.000000000 0D00:05:00.000000000
+</code></pre>
+
+<h2 id="rack">rack</h2>
+<p>The rack utility gives the user the ability to create a rack table
+(the cross product of distinct values at the input).</p>
+<h3 id="usage_3">Usage</h3>
+<p>Input is be a dictionary containing:</p>
+<ul>
+<li>table: Keyed or unkeyed in memory table</li>
+<li>keycols:  The columns of the table you want to create the rack from.</li>
+<li>base: This is an additional table, against which the rack can be created (optional)</li>
+<li>timeseries.start: Start time to create a timeseries rack (optional)</li>
+<li>timeseries.end: End time to create a time series rack (optional)</li>
+<li>timeseries.interval: The interval for the time racking (optional)</li>
+<li>timeseries.round: Should rounding be carried out when creating the timeseries (optional)</li>
+<li>fullexpansion: Determines whether the required columns of input table will be expanded themselves or not. (optional, default is 0b)</li>
+</ul>
+<p>A timeseries is optional but if it is required then start, end, and interval must be specified as a dictionary called 'timeseries' (round remains optional with a default value of 1b).
+Keyed tables can be provided, these will be unkeyed by the function and crossed as standard unkeyed tables.</p>
+<p>Full expansion in this case refers to the level to which the data is crossed with itself and the user-defined intervals. For example were full expansion disabled then the table would be crossed with the user defined intervals and then crossed with the base. If full expansion is enabled then all of the table columns are crossed with each other before being crossed with the intervals and then the base. Allowing for a more in depth and detailed representation of the data.</p>
+<h3 id="examples_2">Examples</h3>
+<h4 id="example-11_2">Example 1.1</h4>
+<ul>
+<li>no fullexpansion, only table and keycols specified</li>
+</ul>
+<pre><code>q)t
+sym exch price
+--------------
+a   nyse 1
+b   nyse 2
+a   cme  3
+
+q)k
+`sym`exch
+
+create a dictionary
+q)dic:`table`keycols!(t;k)
+
+q).al.rack[dic]
+sym exch
+--------
+a   nyse
+b   nyse
+a   cme
+</code></pre>
+
+<p>(simplest case, only returns unaltered keycols)</p>
+<h4 id="example-12_2">Example 1.2</h4>
+<ul>
+<li>timeseries,fullexpansion specified, table is a keyed table</li>
+</ul>
+<pre><code>q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!09:00 12:00 01:00
+fullexpansion| 1b
+
+q).al.rack[dic]
+sym exch interval
+-----------------
+a   nyse 09:00
+a   nyse 10:00
+a   nyse 11:00
+a   nyse 12:00
+a   cme  09:00
+a   cme  10:00
+a   cme  11:00
+a   cme  12:00
+b   nyse 09:00
+b   nyse 10:00
+b   nyse 11:00
+b   nyse 12:00
+b   cme  09:00
+b   cme  10:00
+b   cme  11:00
+b   cme  12:00
+</code></pre>
+
+<h4 id="example-13_1">Example 1.3</h4>
+<ul>
+<li>timeseries,fullexpansion specified,base specified, table is keyed</li>
+</ul>
+<pre><code>q)dic
+table        | (+(,`sym)!,`a`b`a)!+`exch`price!(`nyse`nyse`cme;1 2 3)
+keycols      | `sym`exch
+timeseries   | `start`end`interval!00:00:00 02:00:00 00:30:00
+base         | +(,`base)!,`buy`sell`buy`sell
+fullexpansion| 1b
+
+q).al.rack[dic]
+base sym exch interval
+----------------------
+buy  a   nyse 00:00:00
+buy  a   nyse 00:30:00
+buy  a   nyse 01:00:00
+buy  a   nyse 01:30:00
+buy  a   nyse 02:00:00
+buy  a   cme  00:00:00
+buy  a   cme  00:30:00
+buy  a   cme  01:00:00
+buy  a   cme  01:30:00
+buy  a   cme  02:00:00
+buy  b   nyse 00:00:00
+buy  b   nyse 00:30:00
+buy  b   nyse 01:00:00
+buy  b   nyse 01:30:00
+buy  b   nyse 02:00:00
+buy  b   cme  00:00:00
+buy  b   cme  00:30:00
+buy  b   cme  01:00:00
+buy  b   cme  01:30:00
+buy  b   cme  02:00:00
+</code></pre>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../Processes/" title="Processes" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Processes
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../monit/" title="Monitoring" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Monitoring
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>
