@@ -82,8 +82,6 @@ The installtion script currently works with:
 
 - TorQ-FSP v1.9.0 and higher. 
 
+- TorQ-Crypto v1.0.0 and higher.
 
-
-
-
-
+- TorQ-TAQ v1.0.0 and higher
