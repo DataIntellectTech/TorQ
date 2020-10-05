@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start procs
-${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt -csv ${KDBTESTS}/stp/tpvalidation/process.csv
+${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt wdball wdbsymfilt wdbtabfilt -csv ${KDBTESTS}/stp/tpvalidation/process.csv
 
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
@@ -13,4 +13,4 @@ ${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt -csv ${KDBTESTS}/stp/
   -procfile ${KDBTESTS}/stp/tpvalidation/process.csv
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 tp1 rdball rdbsymfilt -csv ${KDBTESTS}/stp/tpvalidation/process.csv
+${TORQHOME}/torq.sh stop discovery1 tp1 rdball rdbsymfilt wdball wdbsymfilt wdbtabfilt -csv ${KDBTESTS}/stp/tpvalidation/process.csv
