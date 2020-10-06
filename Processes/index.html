@@ -2832,8 +2832,12 @@ of a process.</p>
 <p><strong>querytype</strong> - Whether the query is ran for a <code>table</code> or <code>other</code>.</p>
 <p><strong>starttime</strong> - What time should the query start.</p>
 <p>The daily statistics of other TorQ processes are saved to the <code>resultstab</code>
-table in <code>dqe</code> namespace, which would be saved to Data Quality Engine
-Database (DQEDB).</p>
+and the <code>advancedres</code> tables in <code>dqe</code> namespace, which would be saved to
+Data Quality Engine Database (DQEDB). The <code>resultstab</code> table contains the
+results of simple qeuries that return intger values that is reflected by
+the column <code>resvalue</code>. The <code>advancedres</code> table contains the results of
+advanced queries that return whole tables, which is reflected by the column
+"resultdata".</p>
 <p>Example of <code>resultstab</code> is shown below:</p>
 <pre><code>    date       procs funct        table     column resvalue
     -------------------------------------------------------
@@ -2853,6 +2857,20 @@ not performed on a table, the section is left blank.</p>
 <p><strong>column</strong> - Column of the table that the function ran on. If 
 the query did not specify the column, the section is left blank.</p>
 <p><strong>resvalue</strong> - The value returned from the function that was ran.</p>
+<p>Example of <code>advancedres</code> is shown below:</p>
+<pre><code>    date       procs funct      table resultkeys resultdata
+    ---------------------------------------------------------
+    2020.07.22 hdb1  bycount    quote sym        (+(,`sym)!,`AAPL`AIG`AMD`DELL`DOW`GOOG`HPQ`IBM`INTC`MSFT)!+(,`i)!,209356 208544 209003 208687 208420 209706 208319 207438 207455 209588    
+</code></pre>
+
+<p><strong>date</strong> - Date that the data was saved.</p>
+<p><strong>procs</strong> - The process that the query function was running on.</p>
+<p><strong>funct</strong> - The query function that was used.</p>
+<p><strong>table</strong> - Table that the function ran on. If the query was
+not performed on a table, the section is left blank.</p>
+<p><strong>resultkeys</strong> - Keys or variables used to generate the result table,
+or the table in resultdata.</p>
+<p><strong>resultdata</strong> - The table retrned from the function that was ran.</p>
 <p><strong>New Custom Queries</strong>
 To add custom queries, create a new q file in /code/dqe. The new q script
 should be under the namespace dqe, and should contain the function. The function
