@@ -14,5 +14,5 @@ reclogs:.Q.dd[logdir;] each l where not (l:key logdir:.Q.dd[resdir;`logs]) like 
 logerr:err!read0 each err:reclogs where reclogs like "*err*";
 
 // Display output
-system "c 25 160";
+system "c 25 150";
 show each ("Test results:";results;"Test errors:";errors;"Logged errors:";logerr);

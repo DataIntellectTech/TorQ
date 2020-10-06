@@ -39,7 +39,7 @@ show "k4unit Test Errors"
 show KUerr
 
 // Log any outstanding errors in run, true or fail tests
-errtab:`action`err`code`file xcols update err:`unknown from select action,code,file from KUTR where not valid;
+errtab:`action`err`code`file`csvline xcols update err:`unknown from select action,code,file,csvline from KUTR where not valid;
 .lg.e[`KUexecerr;] each KUerrparseinner .' value each errtab;
 
 // If enabled and if this is a TorQ process, write results to disk
