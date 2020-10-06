@@ -38,10 +38,6 @@ show KUTR
 show "k4unit Test Errors"
 show KUerr
 
-// Log any outstanding errors in run, true or fail tests
-errtab:`action`err`code`file`csvline xcols update err:`unknown from select action,code,file,csvline from KUTR where not valid;
-.lg.e[`KUexecerr;] each KUerrparseinner .' value each errtab;
-
 // If enabled and if this is a TorQ process, write results to disk
 if[.k4.savetodisk & (last "/" vs .z.X 1) like "torq*";
   args:(KUTR;KUerr),({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];

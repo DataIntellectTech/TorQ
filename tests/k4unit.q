@@ -88,11 +88,14 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 
 KUpexec:{[prefix;lang;code;repeat;allowfail]
 	s:(string lang),")",prefix,$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
-	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]}
+	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];
+	//$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]
+	$[.KU.DEBUG & allowfail;value s;@[value;s;{(`err;`$x;y)}[;code]]]
+	}
 
 KUfailed:{`FA1L~x}
 
-// If in error - it now returns the error as well as the offending code
+// If in error - it now returns the error as well as the offending code - basically the same function as KUpexec?
 KUexec:{[lang;code;repeat]
 	strexec:(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	@[value;strexec;{(`err;`$x;y)}[;code]]
@@ -102,6 +105,12 @@ KUexec:{[lang;code;repeat]
 KUerrparse:{[action;out]
 	vals:1_' out where `err ~/: first each out:raze each flip value out;
 	.lg.e[`KUexecerr;] each KUerrparseinner[action;;;;] .' vals;
+	if[action in `run`true`fail;:1b]
+	}
+
+// Generate error logs from run, true and fail tests
+KUrunerr:{[action;out]
+	$[(not `fail~action) & `err~first out;[.lg.e[`KUexecerr;] KUerrparseinner[action;] . 1_out;1b];0b]
 	}
 
 // Generate more detailed error messages
@@ -112,13 +121,15 @@ KUerrparseinner:{[action;err;code;file;line]
 KUact:{[action;lang;code;repeat;ms;bytes;file;line]
 	msx:0;bytesx:0j;ok:okms:okbytes:valid:0b;
 	if[action=`run;
-		failed:KUfailed r:KUpexec["\\ts ";lang;code;repeat;1b];msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
-		ok:not failed;okms:$[ms;not msx>ms;1b];okbytes:$[bytes;not bytesx>bytes;1b];valid:not failed];
+		r:KUpexec["\\ts ";lang;code;repeat;1b];failed:KUrunerr[action;r,file,line];
+		msx:`int$$[failed;0;r 0];bytesx:`long$$[failed;0;r 1];
+		ok:not failed;okms:$[ms;not msx>ms;1b];okbytes:$[bytes;not bytesx>bytes;1b];valid:not failed
+		];
 	if[action=`true;
-		failed:KUfailed r:KUpexec["";lang;code;repeat;1b];
+		r:KUpexec["";lang;code;repeat;1b];failed:KUrunerr[action;r,file,line];
 		ok:$[failed;0b;r~1b];okms:okbytes:1b;valid:not failed];
 	if[action=`fail;
-		failed:KUfailed r:KUpexec["";lang;code;repeat;0b];
+		r:KUpexec["";lang;code;repeat;0b];failed:not KUrunerr[action;r,file,line];
 		ok:failed;okms:okbytes:valid:1b];
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z;line);
 	}
