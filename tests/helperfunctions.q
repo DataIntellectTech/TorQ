@@ -20,6 +20,6 @@ isalive:{[proc] any "q" in' @[system;"pgrep -lf ",proc;" "]};
 
 // Have slightly more fluid handle opening mechanic - update: force it to open a new handle each time
 gethandle:{[name] 
-	update w:0Ni from `.servers.SERVERS where procname=name;
+	.z.pc exec first w from .servers.SERVERS where procname=name;
 	exec first w from .servers.getservers[`procname;name;()!();1b;1b]
 	};

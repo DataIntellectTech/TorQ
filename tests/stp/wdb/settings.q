@@ -1,10 +1,10 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`wdb`rdb`segmentedtickerplant`tickerplant;
+.servers.CONNECTIONS:`wdb`segmentedtickerplant`tickerplant;
 .servers.USERPASS:`admin:admin;
 
 // Paths to process CSV and test STP log directory
-processcsv:getenv[`KDBTESTS],"/stp/tpvalidation/process.csv";
-temphdbdir:hsym `$getenv[`KDBTESTS],"/stp/tpvalidation/tmphdb/";
+processcsv:getenv[`KDBTESTS],"/stp/wdb/process.csv";
+temphdbdir:hsym `$getenv[`KDBTESTS],"/stp/wdb/tmphdb/";
 testlogdb:"testlog";
 
 // Test updates
@@ -14,10 +14,6 @@ testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
-
-// Get rid of some of the more egregious magic numbers
-tincrease:10 5 10 5;
-qincrease:10 0 10 0 10;
 
 // Flag to save tests to disk
 .k4.savetodisk:1b;
