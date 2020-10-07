@@ -63,10 +63,6 @@ generateschemas:{
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
     ]
-
-  // Create log directory, open all table logs
-  // use name of schema to create directory
-  .stplg.init[dbname:-2 _ last "/" vs schemafile]
   }
 
 
@@ -132,3 +128,7 @@ if[.sctp.chainedtp; .servers.startup[]; .sctp.subscribe[] ]
 // produces schema dicts/tables and upd functions
 // executed after .sctp.subscribe since the SCTP grabs the schemas from the STP
 generateschemas[];
+
+// Create log directory, open all table logs
+// use name of schema to create directory
+.stplg.init[dbname::-2 _ last "/" vs schemafile]
