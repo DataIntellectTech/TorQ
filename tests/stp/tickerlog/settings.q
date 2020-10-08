@@ -1,1 +1,3 @@
-.k4.savetodisk:1b;
+testdir:":",(getenv `KDBTESTS),"/stp/tickerlog/";
+
+.k4.savetodisk:0b;
