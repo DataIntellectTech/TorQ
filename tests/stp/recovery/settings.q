@@ -16,6 +16,5 @@ testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#
 startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
 
-// Flags to log stdout/err to disk and to save tests to disk
-.k4.outlogging:1b;
+// Flag to save tests to disk
 .k4.savetodisk:1b;

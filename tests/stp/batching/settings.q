@@ -12,6 +12,5 @@ trade:flip `time`sym`price`size`stop`cond`ex`side!"PSFIBCCS" $\: ();
 // Local upd function
 upd:{[t;x] t insert x};
 
-// Flags to log stdout/err to disk and to save tests to disk
-.k4.outlogging:1b;
+// Flag to save tests to disk
 .k4.savetodisk:1b;

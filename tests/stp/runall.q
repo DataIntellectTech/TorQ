@@ -1,11 +1,8 @@
-// Get all directories containing a run.sh script, construct shell commands
+// Get all directories containing a run.sh script, construct shell commands, run with the -q command
 rundirs:(key `:.) where `run.sh in' key each hsym each key `:.;
 runtime:string .z.p;
 command:{"./",string[x],"/run.sh -r ",y}[;runtime] each rundirs;
-
-// Run with the -q flag by default but if the -stop flag is passed into this script, run with -s
-command:command ,\: $[`stop in key .Q.opt .z.x;" -s";" -q"];
-{show "Executing ",x;system x} each command;
+{show "Executing ",x;system x} each command ,\: " -q";
 
 // Load in results and error CSVs
 files:.Q.dd[resdir;] each f where (f:key resdir:.Q.dd[`:results;`$string .z.d]) like "*.csv";

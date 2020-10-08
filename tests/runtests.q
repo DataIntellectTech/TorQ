@@ -28,23 +28,14 @@
 // Grab relevant command-line arguments
 clargs:({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];
 
-// Set up results and logging directories
-if[.k4.outlogging;
-  if[`stop in key .Q.opt .z.x;.lg.e[`setup;"Cannot have logging and stop mode both enabled!"]];
-  .[.k4.setup;clargs 0 2;{.lg.e[`test;"Error: ",x]}]
-  ];
+// Set up results and logging directories if not in debug mode
+if[not `debug in key .Q.opt .z.x;.[.k4.setup;clargs 0 2;{.lg.e[`test;"Error: ",x]}]];
 
 // Load & run tests, show results
 KUltd each hsym`$.proc.params[`test];
 KUrt[];
-
-show "k4unit Test Results"
-show KUTR
-show "k4unit Test Errors"
-show KUerr
+show each ("k4unit Test Results";KUTR;"k4unit Test Errors";KUerr);
 
 // If enabled write results to disk
-if[.k4.savetodisk;
-  .[.k4.writeres;(KUTR;KUerr),clargs;{.lg.e[`test;"Error: ",x]}];
-  exit 0
-  ];
+if[.k4.savetodisk;.[.k4.writeres;(KUTR;KUerr),clargs;{.lg.e[`test;"Error: ",x]}]];
+if[not `debug in key .Q.opt .z.x;exit 0];
