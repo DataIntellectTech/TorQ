@@ -22,5 +22,6 @@ liketabs:string[`err`periodic`quote`stpmeta`heartbeat] ,\: "*";
 testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
 testquote:(10?`4;10?100.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3);
 
-// Flag to save tests to disk
+// Flags to log stdout/err to disk and to save tests to disk
+.k4.outlogging:1b;
 .k4.savetodisk:1b;

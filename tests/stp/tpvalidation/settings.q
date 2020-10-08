@@ -19,5 +19,6 @@ stopproc:startorstopproc["stop";;processcsv];
 tincrease:10 5 10 5;
 qincrease:10 0 10 0 10;
 
-// Flag to save tests to disk
+// Flags to log stdout/err to disk and to save tests to disk
+.k4.outlogging:1b;
 .k4.savetodisk:1b;

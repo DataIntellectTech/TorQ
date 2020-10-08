@@ -9,5 +9,6 @@ processcsv:getenv[`KDBTESTS],"/stp/eod/process.csv";
 startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
 
-// Flag to save tests to disk
+// Flags to log stdout/err to disk and to save tests to disk
+.k4.outlogging:1b;
 .k4.savetodisk:1b;

@@ -89,11 +89,8 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 KUpexec:{[prefix;lang;code;repeat;allowfail]
 	s:(string lang),")",prefix,$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
 	if[1<.KU.VERBOSE;.lg.o[`k4unit;s]];
-	//$[.KU.DEBUG&allowfail;value s;@[value;s;`FA1L]]
 	$[.KU.DEBUG & allowfail;value s;@[value;s;{(`err;`$x;y)}[;code]]]
 	}
-
-KUfailed:{`FA1L~x}
 
 // If in error - it now returns the error as well as the offending code - basically the same function as KUpexec?
 KUexec:{[lang;code;repeat]

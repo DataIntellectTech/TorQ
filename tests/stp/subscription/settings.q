@@ -14,5 +14,9 @@ quote:flip `time`sym`bid`ask`bsize`asize`mode`ex`src!"PSFFJJCCS" $\: ();
 upd:{[t;x] t insert x};
 upderr:{[t;x].tst.err:x};
 
-// Flag to save tests to disk
+// Test db name
+testlogdb:"testlog";
+
+// Flags to log stdout/err to disk and to save tests to disk
+.k4.outlogging:1b;
 .k4.savetodisk:1b;

@@ -12,5 +12,6 @@ testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#
 // End period function to send to subs
 endp:{[x;y;z] .tst.endp:@[{1+value x};`.tst.endp;0]};
 
-// Flag to save tests to disk
+// Flags to log stdout/err to disk and to save tests to disk
+.k4.outlogging:1b;
 .k4.savetodisk:1b;
