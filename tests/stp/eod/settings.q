@@ -8,6 +8,3 @@ processcsv:getenv[`KDBTESTS],"/stp/eod/process.csv";
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
 stopproc:startorstopproc["stop";;processcsv];
-
-// Flag to save tests to disk
-.k4.savetodisk:1b;

@@ -16,6 +16,3 @@ upderr:{[t;x].tst.err:x};
 
 // Test db name
 testlogdb:"testlog";
-
-// Flag to save tests to disk
-.k4.savetodisk:1b;

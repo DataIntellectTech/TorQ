@@ -5,6 +5,3 @@ mv2:" " sv enlist["mv"],@[getenv each `TORQHOME`KDBAPPCONFIG;0;,;"/rdbsub.csv"];
 
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
-
-// Flag to save tests to disk
-.k4.savetodisk:1b;

@@ -11,6 +11,3 @@ trade:flip `time`sym`price`size`stop`cond`ex`side!"PSFIBCCS" $\: ();
 
 // Local upd function
 upd:{[t;x] t insert x};
-
-// Flag to save tests to disk
-.k4.savetodisk:1b;
