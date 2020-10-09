@@ -14,8 +14,8 @@
   if[not -11h=type key hsym `$ef:respath,"/",errfile;system "touch ",ef;.lg.o[testname;"Creating file ",ef]];
 
   // Timestamp tests
-  res:`runtime xcols update runtime:first rtime from delete time from res;
-  err:`runtime xcols update runtime:first rtime from delete time from err;
+  res:`runtime xcols update runtime:first rtime from delete timestamp from res;
+  err:`runtime xcols update runtime:first rtime from delete timestamp from err;
 
   // Write test results and errors to these files
   .lg.o[testname;"Writing ",string[count KUTR]," results rows and ",string[count KUerr]," error rows"];
@@ -23,24 +23,19 @@
   hclose abs neg[hopen hsym `$ef] $[hcount hsym `$ef;1;0]_csv 0: err;
   };
 
-// Set up results and logging directories
-if[.k4.savetodisk & (last "/" vs .z.X 1) like "torq*";
-  args:({x,string[.z.d],"/"};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`test];
-  .[.k4.setup;args;{.lg.e[`test;"Error: ",x]}]
-  ];
+//-- SCRIPT START --//
+
+// Grab relevant command-line arguments
+clargs:({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];
+
+// Set up results and logging directories if not in debug mode
+if[not `debug in key .Q.opt .z.x;.[.k4.setup;clargs 0 2;{.lg.e[`test;"Error: ",x]}]];
 
 // Load & run tests, show results
 KUltd each hsym`$.proc.params[`test];
 KUrt[];
+show each ("k4unit Test Results";KUTR;"k4unit Test Errors";KUerr);
 
-show "k4unit Test Results"
-show KUTR
-show "k4unit Test Errors"
-show KUerr
-
-// If enabled and if this is a TorQ process, write results to disk
-if[.k4.savetodisk & (last "/" vs .z.X 1) like "torq*";
-  args:(KUTR;KUerr),({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];
-  .[.k4.writeres;args;{.lg.e[`test;"Error: ",x]}];
-  exit 0
-  ];
+// If enabled write results to disk
+if[.k4.savetodisk;.[.k4.writeres;(KUTR;KUerr),clargs;{.lg.e[`test;"Error: ",x]}]];
+if[not `debug in key .Q.opt .z.x;exit 0];

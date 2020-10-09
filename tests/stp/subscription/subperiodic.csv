@@ -1,6 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,stpHandle".stplg.multilog:`periodic",1,,"Change logging type"
-before,0,0,q,stpHandle".stplg.init[dbname]",1,,"Init STP log script"
+before,0,0,q,stpHandle(`.stplg.init;testlogdb),1,,"Create test stplog test directory"
 before,0,0,q,stpHandle"init[`defaultbatch]",1,,"Init STP main script"
 before,0,0,q,currlog:stpHandle"currlog",1,,"Get STP log table"
 before,0,0,q,met:stpHandle".stpm.metatable",1,,"Get STP meta table"

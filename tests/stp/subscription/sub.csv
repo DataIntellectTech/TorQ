@@ -1,7 +1,9 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.servers.startup[],1,,"Get connection management set up"
+before,0,0,q,system "sleep 1",1,,"Wait a sec"
 before,0,0,q,rdbHandles:`all`sym`complex!gethandle each `rdball`rdbsymfilt`rdbcomplexfilt,1,,"Open handle to RDBs"
 before,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to STP"
+before,0,0,q,stpHandle(`.stplg.init;testlogdb),1,,"Create test stplog test directory"
 before,0,0,q,currlog:stpHandle"currlog",1,,"Get STP log table"
 before,0,0,q,met:stpHandle".stpm.metatable",1,,"Get STP meta table"
 before,0,0,q,t1:(value rdbHandles) @\: "count trade",1,,"Get initial trade table counts"

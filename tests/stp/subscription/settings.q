@@ -14,5 +14,8 @@ quote:flip `time`sym`bid`ask`bsize`asize`mode`ex`src!"PSFFJJCCS" $\: ();
 upd:{[t;x] t insert x};
 upderr:{[t;x].tst.err:x};
 
+// Test db name
+testlogdb:"testlog";
+
 // Flag to save tests to disk
 .k4.savetodisk:1b;
