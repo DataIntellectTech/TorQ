@@ -123,7 +123,12 @@ init:{[b]
 init[.stplg.batchmode]
 
 // subscribe to segmented tickerplant is mode is turned on
-if[.sctp.chainedtp; .servers.startup[]; .sctp.subscribe[] ]
+if[.sctp.chainedtp;
+  endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
+  endofday:{[x;y] .stplg.endofday[x;y]};
+  .servers.startup[]; 
+  .sctp.subscribe[] 
+  ]
 
 // produces schema dicts/tables and upd functions
 // executed after .sctp.subscribe since the SCTP grabs the schemas from the STP
@@ -131,4 +136,4 @@ generateschemas[];
 
 // Create log directory, open all table logs
 // use name of schema to create directory
-.stplg.init[dbname::-2 _ last "/" vs schemafile]
+.stplg.init[dbname::(string .proc.procname),"_"]

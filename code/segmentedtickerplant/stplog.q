@@ -190,32 +190,54 @@ endofdaydata:{
 
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
-endofperiod:{[p;rolllogs]
-  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-  .stpps.endp[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[]];
-  currperiod::nextperiod;
-  if[p>nextperiod::multilogperiod+currperiod;
-    system"t 0";'"next period is in the past"];
-  getnextendUTC[];
-  i+::1;
-  if[rolllogs;rolllog[multilog;dldir;rolltabs;p]];
-  .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
- };
+$[.sctp.chainedtp;
+  endofperiod:{[x;y;z]
+    .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+    .stpps.pubclear[.stplg.t];
+    .lg.o[`endofperiod;"passing on endofperiod message to subscribers"];
+    .stpps.endp[x;y;z];
+    if[value `..createlogs;rolllog[multilog;dldir;rolltabs;.z.p+.eodtime.dailyadj]];
+    .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
+    };
+  endofperiod:{[p;rolllogs]
+    .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
+    .stpps.endp[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[]];
+    currperiod::nextperiod;
+    if[p>nextperiod::multilogperiod+currperiod;
+      system"t 0";'"next period is in the past"];
+    getnextendUTC[];
+    i+::1;
+    if[rolllogs;rolllog[multilog;dldir;rolltabs;p]];
+    .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
+    }
+  ]
 
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
-endofday:{[p]
-  .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
-  .stpps.end[.eodtime.d;.stplg.endofdaydata[]];
-  if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
-  getnextendUTC[];
-  .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
-  .stpm.metatable:0#.stpm.metatable;
-  closelog each logtabs;
-  .eodtime.d+:1;
-  init[`. `dbname];
-  .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
- };
+$[.sctp.chainedtp;
+  endofday:{[x;y]
+    .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+    .stpps.pubclear[.stplg.t];
+    p:.z.p+.eodtime.dailyadj;
+    .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
+    .stpps.end[x;y];
+    if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
+    if[value `..createlogs; closelog each logtabs]
+    .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
+    };
+  endofday:{[p]
+    .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
+    .stpps.end[.eodtime.d;.stplg.endofdaydata[]];
+    if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
+    getnextendUTC[];
+    .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
+    .stpm.metatable:0#.stpm.metatable;
+    closelog each logtabs;
+    .eodtime.d+:1;
+    init[`. `dbname];
+    .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
+    }
+  ]
 
 // get the next end time to compare to
 getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
