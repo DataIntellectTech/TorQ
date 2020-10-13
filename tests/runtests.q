@@ -27,7 +27,7 @@
 //-- SCRIPT START --//
 
 // Grab relevant command-line arguments
-clargs:({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];  // not all these may exist
+clargs:({x,string[.z.d],"/"};{"P"$x};{`$last "/" vs x}) @' first each (.Q.opt .z.x)[`results`runtime`test];
 
 // Set up results and logging directories if not in debug mode and results directory defined
 if[01b~`debug`results in key .Q.opt .z.x;.[.k4.setup;clargs 0 2;{.lg.e[`test;"Error: ",x]}]];
