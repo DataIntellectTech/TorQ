@@ -18,6 +18,3 @@ stopproc:startorstopproc["stop";;processcsv];
 // Get rid of some of the more egregious magic numbers
 tincrease:10 5 10 5;
 qincrease:10 0 10 0 10;
-
-// Flag to save tests to disk
-.k4.savetodisk:1b;

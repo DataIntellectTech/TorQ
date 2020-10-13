@@ -1,11 +1,15 @@
-// Get all directories containing a run.sh script, construct shell commands, run with the -q command
-rundirs:(key `:.) where `run.sh in' key each hsym each key `:.;
+// Pass in two flags: rundir and resdir
+run:first hsym `$(.Q.opt .z.x)`rundir;
+res:first hsym `$(.Q.opt .z.x)`resdir;
+
+// Find all the run scripts, generate strings and execute
+rundirs:dirs where `run.sh in' key each dirs:.Q.dd[run;] each key run;
 runtime:string .z.p;
-command:{"./",string[x],"/run.sh -r ",y}[;runtime] each rundirs;
-{show "Executing ",x;system x} each command ,\: " -q";
+command:{1_string[x],"/run.sh -r ",y}[;runtime] each rundirs;
+{show "Executing ",x;system x} each command ,\: " -wq";
 
 // Load in results and error CSVs
-files:.Q.dd[resdir;] each f where (f:key resdir:.Q.dd[`:results;`$string .z.d]) like "*.csv";
+files:.Q.dd[resdir;] each f where (f:key resdir:.Q.dd[res;`$string .z.d]) like "*.csv"
 errors:0:[("PSIISSBSJJBBBI";enlist csv);first files];
 results:0:[("PSIISSBSJJBBBBI";enlist csv);last files];
 

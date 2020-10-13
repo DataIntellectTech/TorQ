@@ -1,17 +1,7 @@
 #!/bin/bash
 
-# Parse command line arguments -d:debug mode, -s:stop/debug mode, -q:quiet mode, -r:runtime
-# If no flags are passed custom logs will be generated in runtests.q
-while getopts ":dsqr:" opt; do
-  case $opt in
-    d ) debug="-debug" ;;
-    s ) debug="-debug";stop="-stop" ;;
-    q ) quiet="-q" ;;
-    r ) run=$OPTARG ;;
-    \?) echo "Usage: run.sh [-d] [-s] [-q] [-r runtimestamp]" && exit 1 ;;
-    : ) echo "$OPTARG requires an argument" && exit 1 ;;
-  esac
-done
+# Handle command-line arguments
+source $KDBTESTS/flagparse.sh
 
 # Path to test directory
 testpath=${KDBTESTS}/stp/wdb
@@ -27,7 +17,7 @@ ${TORQHOME}/torq.sh start discovery1 -csv ${testpath}/process.csv
   -results ${KDBTESTS}/stp/results/ \
   -runtime $run \
   -procfile ${testpath}/process.csv \
-  $debug $stop $quiet
+  $debug $stop $write $quiet
 
 # Shut down procs
 ${TORQHOME}/torq.sh stop discovery1 -csv ${testpath}/process.csv
