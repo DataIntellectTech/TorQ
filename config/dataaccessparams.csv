@@ -1,0 +1,13 @@
+parameter,required,formatfunction,description
+starttime,1,.dataaccess.gettimecolumntype,startime - see timecolumn
+endtime,1,.dataaccess.gettimecolumntype,endime - see timecolumn
+timecolumn,1,.dataaccess.issymbol,column to apply (startime;endime) filter to
+instruments,0,.dataaccess.allsymbols,instruments of interest - see tableproperties.csv
+columns,0,.dataaccess.allsymbols,table columns to return - assumed all if not present
+grouping,0,.dataaccess.allsymbols,columns to group by -  no grouping assumed if not present
+aggregations,0,.dataaccess.checkaggregations,dictionary of aggregations - e.g `last`max`wavg!(`mid,`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+timebar,0,.dataaccess.checktimebar,list of (time column to group on;size;type - nanosecond,second,minute,hour,timespan)
+filters,0,.dataaccess.checkfilterformat,a dictionary of columns + conditions in string format
+freeformwhere,0,.dataaccess.isstring,where clause in string format
+freeformby,0,.dataaccess.isstring,by clause in string format
+freeformcolumn,0,.dataaccess.isstring,select clause in string format

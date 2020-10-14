@@ -1,0 +1,2 @@
+.dataaccess.tablepropertiesconfig:.dataaccessutils.readtableproperties .dataaccess.tablepropertiespath;
+.dataaccess.dataaccessconfig:.dataaccessutils.readdataaccess .dataaccess.dataaccessparamspath;
