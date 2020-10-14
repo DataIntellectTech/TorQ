@@ -91,7 +91,10 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
-.z.pc:{[f;x] @[f;x;()]; closesub x}@[value;`.z.pc;{{}}]
+.z.pc:{[f;x]
+   @[f;x;()]; closesub x;
+   if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 0]
+   }@[value;`.z.pc;{{}}];
 
 \d .
 
