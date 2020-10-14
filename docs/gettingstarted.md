@@ -40,6 +40,11 @@ read, then it is a command line parameter.
 
 <a name="torq"></a>
 
+Installing TorQ
+------------
+
+A guide on how to install TorQ using installation script [here](/TorQ/InstallGuide/).
+
 Using torq.q
 ------------
 
