@@ -1,4 +1,4 @@
 \d .dataaccess
 
-tablepropertiesconfig:.dataaccessutils.readtableproperties tablepropertiespath;
-dataaccessconfig:.dataaccessutils.readdataaccess dataaccessparamspath;
+tablepropertiesconfig:readtableproperties tablepropertiespath;
+checkinputsconfig:readcheckinputs checkinputspath;
