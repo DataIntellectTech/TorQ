@@ -21,4 +21,7 @@ true,0,0,q,(neg[tcount]_meta1)~(neg[tcount]_meta2),1,,"Check only the last few m
 true,0,0,q,all (now+adj)=exec neg[tcount]#end from meta2,1,,"Check meta rows have been filled in as expected"
 true,0,0,q,eod2~eod1+1,1,,"Check the internal date has incremented"
 true,0,0,q,all not null exec handle from stpHandle"currlog",1,,"Check no null handles"
+run,0,0,q,kill9proc["stp1"],1,,"STP Dies"
+true,0,0,q,deadproccheck["segmentedtickerplant";"stp1"],1,,"Check STP is dead"
+true,0,0,q,deadproccheck["segmentedchainedtickerplant";"sctp1"],1,,"Check SCTP also dies"
 after,0,0,q,"system ""rm -rf "",1_string dir2",1,,"Delete newly created log directory"
