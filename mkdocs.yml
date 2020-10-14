@@ -4,6 +4,7 @@ pages:
     - Home: index.md
     - About: Overview.md
     - Getting Started: gettingstarted.md
+    - Installation: InstallGuide.md
     - Utilities: utilities.md
     - Handlers: handlers.md
     - Connection Management: conn.md

@@ -1716,7 +1716,7 @@ As an example, to run the customcheck above with the following settings -
 
 **params** - Not comparing two processes, and running with the two variables being
 `abc` and `def`.
-**proc** - running on the process `rdb1`.
+**proc** - running on the processes `rdb1` and `rdb2`.
 **mode** - the function being run repeatedly.
 **starttime** - 9AM.
 **endtime** - not specified.
@@ -1726,7 +1726,7 @@ The line in dqcconfig.csv should be:
 
 ```
 action,params,proc,mode,starttime,endtime,period
-customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+customcheck,`comp`vars!(0b;(`abc;`def)),`rdb1;`rdb2,repeat,09:00:00.000000000,0Wn,0D00:10:00
 ```
 
 To add a check that compares two processes, the check function would have to return
@@ -1801,8 +1801,12 @@ of a process.
 
 
 The daily statistics of other TorQ processes are saved to the `resultstab`
-table in `dqe` namespace, which would be saved to Data Quality Engine
-Database (DQEDB).
+and the `advancedres` tables in `dqe` namespace, which would be saved to
+Data Quality Engine Database (DQEDB). The `resultstab` table contains the
+results of simple qeuries that return intger values that is reflected by
+the column `resvalue`. The `advancedres` table contains the results of
+advanced queries that return whole tables, which is reflected by the column
+"resultdata".
 
 Example of `resultstab` is shown below:
 
@@ -1832,6 +1836,27 @@ the query did not specify the column, the section is left blank.
 **resvalue** - The value returned from the function that was ran.
 
 
+Example of `advancedres` is shown below:
+
+```
+    date       procs funct      table resultkeys resultdata
+    ---------------------------------------------------------
+    2020.07.22 hdb1  bycount    quote sym        (+(,`sym)!,`AAPL`AIG`AMD`DELL`DOW`GOOG`HPQ`IBM`INTC`MSFT)!+(,`i)!,209356 208544 209003 208687 208420 209706 208319 207438 207455 209588    
+```
+
+**date** - Date that the data was saved.
+
+**procs** - The process that the query function was running on.
+
+**funct** - The query function that was used.
+
+**table** - Table that the function ran on. If the query was
+not performed on a table, the section is left blank.
+
+**resultkeys** - Keys or variables used to generate the result table,
+or the table in resultdata.
+
+**resultdata** - The table retrned from the function that was ran.
 
 
 

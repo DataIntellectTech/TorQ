@@ -4,17 +4,19 @@
 configcsv:@[value;`.dqe.configcsv;first .proc.getconfigfile["dqcconfig.csv"]];  // loading up the config csv file
 dqcdbdir:@[value;`dqcdbdir;`:dqcdb];                                            // location of dqcdb database
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // csv file that contains information regarding dqc checks
-gmttime:@[value;`gmttime;1b];                                                   // define wehter the process is on UTC time or not
+utctime:@[value;`utctime;1b];                                                   // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb`dqcdb                       // set to only the processes it needs
 getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d).dqe.gmttime]}}];
+    (`date^partitiontype)$(.z.D,.z.d).dqe.utctime]}}];
 detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  // location of description of functions
 testing:@[value;`.dqe.testing;0b];                                              // testing varible for unit tests, default to 0b
 compcounter:([id:`long$()]counter:`long$();procs:();results:());                // table that results return to when a comparison is being performed
 
+/ - function for loading in config csv with multiple processes in one line
+duplicateconfig:{[t] update proc:raze[t `proc] from ((select from t)where count each t[`proc])};
 
 / - end of default parameters
 
@@ -24,19 +26,19 @@ init:{
   /- Open connection to discovery. Retry until connected to dqe.
   .servers.startupdependent[`dqedb; 30];
   /- set timer to call EOD
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];
   /- add dqe functions to .api.detail
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];
   .dqe.compcounter[0N]:(0N;();());
 
   configtable:([] action:`$(); params:(); proc:(); mode:`$(); starttime:`timespan$(); endtime:`timespan$(); period:`timespan$())
-
   /- Set up configtable from csv
-  `.dqe.configtable upsert .dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"];
+  `.dqe.configtable upsert .dqe.duplicateconfig[update ";"vs/:proc from (.dqe.readdqeconfig[.dqe.configcsv;"S**SNNN"])];
   update checkid:til count .dqe.configtable from `.dqe.configtable;
   /- from timespan to timestamp
-  update starttime:(`date$(.z.D,.z.d).dqe.gmttime)+starttime from `.dqe.configtable;
-  update endtime:?[0W=endtime;0Wp;(`date$(.z.D,.z.d).dqe.gmttime)+endtime] from `.dqe.configtable;
+  update starttime:(`date$(.z.D,.z.d).dqe.utctime)+starttime from `.dqe.configtable;
+  update endtime:?[0W=endtime;0Wp;(`date$(.z.D,.z.d).dqe.utctime)+endtime] from `.dqe.configtable;
 
   .dqe.loadtimer'[.dqe.configtable];
 
@@ -44,7 +46,7 @@ init:{
   .dqe.tosavedown:()!();
   .lg.o[`.dqc.init; "Starting EOD writedown."];
   /- Checking if .eodtime.nextroll is correct
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]
+  if[((.z.P,.z.p).dqe.utctime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.utctime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   /- Log the start and end times.
@@ -263,9 +265,13 @@ reruncheck:{[chkid]
 /- setting up .u.end for dqc
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
-  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
+  /- save down results and config tables
+  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`results`configtable;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- check list of handles to DQCDBs is non-empty, we need at least one to
+  /- notify DQCDB to reload
+  if[0=count hdbs;.lg.e[`.u.end; "No handles open to the DQCDB, cannot notify DQCDB to reload."]];
   /- send message for DBs to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   /- clear check function timers
@@ -278,10 +284,11 @@ reruncheck:{[chkid]
   .timer.removefunc'[exec funcparam from .timer.timer where `.u.end in' funcparam];
   delete configtable from `.dqe;
   /- sets currentpartition to fit the partitiontype provided in settings
-  .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.gmttime;
+  .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.utctime;
   /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
-  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.gmttime];
-  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.utctime];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"];
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]

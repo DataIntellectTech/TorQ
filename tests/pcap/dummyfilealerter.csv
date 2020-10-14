@@ -1,0 +1,2 @@
+path,match,function,newonly,movetodirectory
+{KDBTESTS}/pcap,*.pcap,sendpackets,1,

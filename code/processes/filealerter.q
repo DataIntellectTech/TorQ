@@ -7,6 +7,7 @@ polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file 
 alreadyprocessed:@[value;`.fa.alreadyprocessed;.proc.getconfigfile["filealerterprocessed"]]	// The location of the table on disk to store the information about files which have already been processed
 skipallonstart:@[value;`.fa.skipallonstart;0b]							// Whether to skip all actions when the file alerter process starts up (so only "new" files after the processes starts will be processed) 
 moveonfail:@[value;`.fa.moveonfail;0b]								// If the processing of a file fails (by any action) then whether to move it or not regardless
+tickerplanttype:@[value;`.fa.tickerplanttype;`tickerplant]					// Type of tickerplant to connect to
 os:$[like[string .z.o;"w*"];`win;`lin]
 usemd5:@[value; `.fa.usemd5; 1b]								// Protected evaluation, returns value of usemd5 (from .fa namespace) or on fail, returns 1b
 
@@ -41,7 +42,23 @@ find:{[path;match]
 	.lg.o[`alerter;"searching for ",path,"/",match];
 	files:@[system;findstring;()];
 	if[os=`win;files:,/:[path,"\\"; files]]; files};
+
+//-decodes pcap file and sends to tickerplant
+processpcaps:{[path;file;pcaptab]
+	.lg.o[`alerter;"processing pcap file"];
+	.lg.o[`alerter;"decoding pcap file"];
+	table: .pcap.buildtable[hsym `$(path,"/",file)];
 	
+	.lg.o[`alerter;"checking connection to tickerplant"];
+	sendtotickerplant[tickerplanttype;pcaptab;table[cols table]]
+	}
+
+sendtotickerplant:{[tptype;t;x]
+	if[not count .servers.gethandlebytype[tptype;`any];
+		.lg.e[`alerter;"no connection to tickerplant, exiting sendtotickerplant"]; :()];
+ 	.lg.o[`alerter;"connection found, sending ",string[t]," to tickerplant"];
+	.servers.gethandlebytype[tptype;`any](`.u.upd;t;x)
+	}
 	
 //-finds all matches to files in the csv and adds them to the already processed table	
 skipall:{matches:raze find'[filealertercsv.path;filealertercsv.match];
@@ -171,3 +188,6 @@ loadcsv[];
 loadprocessed[alreadyprocessed];
 
 .timer.rep[.proc.cp[];0Wp;polltime;(`FArun`);0h;"run filealerter";1b]
+
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,tickerplanttype
+.servers.startup[]
