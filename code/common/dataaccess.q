@@ -10,7 +10,7 @@ init:{
   .lg.o[`.dataaccess.init;"running .dataaccess.init[]"];
   .dataaccess.tablepropertiespath:first .proc.getconfigfile["tableproperties.csv"];         //- config defining any non standard attribute/primary time columns
   .dataaccess.checkinputspath:first .proc.getconfigfile["checkinputs.csv"];                 //- The name of the input csv to drive what gets done
-  additionalscripts:getenv[`KDBCODE],"/common/dataaccess";                                  //- load all q scripts in this path
+  additionalscripts:getenv[`KDBCODE],"/dataaccess";                                         //- load all q scripts in this path
   .proc.loaddir additionalscripts;
   tablepropertiesconfig:readtableproperties[tablepropertiespath;"sssss"];
   checkinputsconfig:readcheckinputs[checkinputspath;"sbs*"];

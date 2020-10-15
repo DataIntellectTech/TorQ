@@ -1,0 +1,7 @@
+parameter,parametervalue
+tablename,`trade
+starttime,2000.01.01D
+endtime,2000.01.02D
+timecolumn,`time
+instruments,`AAPL`GOOG
+columns,`invalid1`invalid2

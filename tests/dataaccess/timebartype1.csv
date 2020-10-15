@@ -1,0 +1,9 @@
+parameter,parametervalue
+tablename,`trade
+starttime,2000.01.01D
+endtime,2000.01.02D
+timecolumn,`time
+instruments,`AAPL`GOOG
+columns,`time`sym
+aggregations,`max`min!(`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+timebar,(`time;10f;`nanosecond)
