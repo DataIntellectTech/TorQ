@@ -1,8 +1,8 @@
 \d .dataaccess
 
 //- utils for reading in config
-readtableproperties:{[path] readcsv[path;"sssss"]};
-readcheckinputs:{[path] readcsv[path;"sbs*"]};
+readtableproperties:{[path;types] readcsv[path;types]};
+readcheckinputs:{[path;types] readcsv[path;types]};
 
 readcsv:{[path;types]
   if[not pathexists path:hsym path;'path];
