@@ -9,24 +9,24 @@ checkinputs:{[dict]
 checkdictionary:{[dict]
   if[not isdictionary dict;'`$"Input parameter must be a dictionary"];
   if[not checkkeytype dict;'`$"keys must be of type 11h"];
-  if[not checkrequiredparams dict;'`$"required params missing:",.Q.s getrequiredparams[]except key dict];
-  if[not checkparamnames dict;'`$"invalid param names:",.Q.s key[dict]except getvalidparams[]];
+  if[not checkrequiredparams dict;'`$.dataaccess.formatstring["required params missing:{}";.dataaccess.getrequiredparams[]except key dict]];
+  if[not checkparamnames dict;'`$.dataaccess.formatstring["invalid param names:{}";key[dict]except .dataaccess.getvalidparams[]]];
   :dict;
  };
 
 isdictionary:{[dict]99h~type dict};
 checkkeytype:{[dict]11h~type key dict};
-checkrequiredparams:{[dict]all getrequiredparams[]in key dict};
-checkparamnames:{[dict]all key[dict]in getvalidparams[]};
+checkrequiredparams:{[dict]all .dataaccess.getrequiredparams[]in key dict};
+checkparamnames:{[dict]all key[dict]in .dataaccess.getvalidparams[]};
 
 //- run check on each parameter
 checkeachparam:{[dict]
-  config:select from tablepropertiesconfig where parameter in key dict;
+  config:select from .dataaccess.checkinputsconfig where parameter in key dict;
   :checkparam/[dict;config];
  };
 
 //- extract parameter specific function from confing - to check the input
-checkparam:{[dict;config] config[`checkfunction][dict;formatfunction`parameter]};
+checkparam:{[dict;config] config[`checkfunction][dict;config`parameter]};
 
 //- generic function to takes in an atom/list of valid types and compare it against input types 
 checktype:{[validtypes;dict;parameter]
@@ -58,7 +58,13 @@ casttimecolumn:{[dict;parameter]
 //- todo: make a function to check if time column exists in table
 checktimecolumn:{[dict;parameter]
   dict:issymbol[dict;parameter];
+  checktimeorder[dict;parameter];
   :dict; //- in future it may be worth having config/a function to get the meta of the input table i.e columnexists[dict`tablename;dict`timecolumn]
+ };
+
+checktimeorder:{[dict;parameter]
+  if[dict[`starttime]>dict`endtime;'`$"starttime>endtime"];
+  dict;
  };
 
 issymbol:{[dict;parameter]:checktype[-11h;dict;parameter]};
