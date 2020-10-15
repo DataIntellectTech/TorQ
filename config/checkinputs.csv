@@ -1,7 +1,8 @@
-parameter,required,formatfunction,description
-starttime,1,.dataaccess.gettimecolumntype,startime - see timecolumn
-endtime,1,.dataaccess.gettimecolumntype,endime - see timecolumn
-timecolumn,1,.dataaccess.issymbol,column to apply (startime;endime) filter to
+parameter,required,checkfunction,description
+tablename,1,.dataaccess.isvalidtable,table to query
+starttime,1,.dataaccess.checktimecolumntype,startime - see timecolumn
+endtime,1,.dataaccess.checktimecolumntype,endime - see timecolumn
+timecolumn,1,.dataaccess.checktimecolumn,column to apply (startime;endime) filter to
 instruments,0,.dataaccess.allsymbols,instruments of interest - see tableproperties.csv
 columns,0,.dataaccess.allsymbols,table columns to return - assumed all if not present
 grouping,0,.dataaccess.allsymbols,columns to group by -  no grouping assumed if not present

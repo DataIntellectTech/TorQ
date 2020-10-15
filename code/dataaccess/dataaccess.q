@@ -1,2 +1,4 @@
-.dataaccess.tablepropertiesconfig:.dataaccessutils.readtableproperties .dataaccess.tablepropertiespath;
-.dataaccess.dataaccessconfig:.dataaccessutils.readdataaccess .dataaccess.dataaccessparamspath;
+\d .dataaccess
+
+tablepropertiesconfig:readtableproperties[tablepropertiespath;"sssss"];
+checkinputsconfig:readcheckinputs[checkinputspath;"sbs*"];
