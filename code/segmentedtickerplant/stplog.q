@@ -191,12 +191,16 @@ endofdaydata:{
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
 $[.sctp.chainedtp;
-  endofperiod:{[x;y;z]
+  endofperiod:{[currentpd;nextpd;data]
     .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
     .stpps.pubclear[.stplg.t];
     .lg.o[`endofperiod;"passing on endofperiod message to subscribers"];
-    .stpps.endp[x;y;z];
-    if[value `..createlogs;rolllog[multilog;dldir;rolltabs;.z.p+.eodtime.dailyadj]];
+    .stpps.endp[currentpd;nextpd;data];
+    currperiod::nextperiod;
+    if[(.z.p+.eodtime.dailyadj)>nextperiod::multilogperiod+currperiod;
+      system"t 0";'"next period is in the past"];
+    getnextendUTC[];
+    if[value `..createlogs;i+::1;rolllog[multilog;dldir;rolltabs;currentpd]];
     .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
     };
   endofperiod:{[p;rolllogs]
@@ -215,14 +219,16 @@ $[.sctp.chainedtp;
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
 $[.sctp.chainedtp;
-  endofday:{[x;y]
+  endofday:{[date;data]
     .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
     .stpps.pubclear[.stplg.t];
     p:.z.p+.eodtime.dailyadj;
     .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
-    .stpps.end[x;y];
+    .stpps.end[date;data];
     if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
-    if[value `..createlogs; closelog each logtabs]
+    if[value `..createlogs; closelog each logtabs];
+    .eodtime.d+:1;
+    init[`. `dbname];
     .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
     };
   endofday:{[p]
