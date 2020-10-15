@@ -7,7 +7,7 @@ detailcsv:@[value;`.dqe.detailcsv;first .proc.getconfigfile["dqedetail.csv"]];  
 utctime:@[value;`utctime;1b];                                                   // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                    // set type of partition (defaults to `date)
 writedownperiod:@[value;`writedownperiod;0D01:00:00];                           // dqc periodically writes down to dqcdb, writedownperiod determines the period between writedowns
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb                             // set to connect to tickerplant, rdb, hdb, dqe, and dqedb
+.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqe`dqedb`dqcdb                       // set to only the processes it needs
 getpartition:@[value;`getpartition;                                             // determines the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d).dqe.utctime]}}];
@@ -26,7 +26,7 @@ init:{
   /- Open connection to discovery. Retry until connected to dqe.
   .servers.startupdependent[`dqedb; 30];
   /- set timer to call EOD
-  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
   .timer.once[.eodtime.nextroll;(`.u.end;.dqe.getpartition[]);"Running EOD on Checker"];
   /- add dqe functions to .api.detail
   .api.add .'value each .dqe.readdqeconfig[.dqe.detailcsv;"SB***"];
@@ -46,7 +46,7 @@ init:{
   .dqe.tosavedown:()!();
   .lg.o[`.dqc.init; "Starting EOD writedown."];
   /- Checking if .eodtime.nextroll is correct
-  if[.z.p>.eodtime.nextroll:.eodtime.getroll[.z.p];system"t 0";.lg.e[`init; "Next roll is in the past."]]
+  if[((.z.P,.z.p).dqe.utctime)>.eodtime.nextroll:.eodtime.getroll[((.z.P,.z.p).dqe.utctime)];system"t 0";.lg.e[`init; "Next roll is in the past."]]
   st:.dqe.writedownperiod+exec min starttime from .dqe.configtable;
   et:.eodtime.nextroll-.dqe.writedownperiod;
   /- Log the start and end times.
@@ -265,9 +265,13 @@ reruncheck:{[chkid]
 /- setting up .u.end for dqc
 .u.end:{[pt]
   .lg.o[`end; "Starting dqc end of day process."];
-  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[]];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]}each `results`configtable;
+  /- save down results and config tables
+  {.dqe.endofday[.dqe.dqcdbdir;.dqe.getpartition[];x;`.dqe;.dqe.tosavedown[` sv(`.dqe;x)]]}each`results`configtable;
   /- get handles for DBs that need to reload
   hdbs:distinct raze exec w from .servers.SERVERS where proctype=`dqcdb;
+  /- check list of handles to DQCDBs is non-empty, we need at least one to
+  /- notify DQCDB to reload
+  if[0=count hdbs;.lg.e[`.u.end; "No handles open to the DQCDB, cannot notify DQCDB to reload."]];
   /- send message for DBs to reload
   .dqe.notifyhdb[.os.pth .dqe.dqcdbdir]'[hdbs];
   /- clear check function timers
@@ -283,8 +287,8 @@ reruncheck:{[chkid]
   .dqe.currentpartition:(`date^.dqe.partitiontype)$(.z.D,.z.d).dqe.utctime;
   /- sets .eodtime.nextroll to the next day so .u.end would run at the correct time
   .eodtime.nextroll:.eodtime.getroll[`timestamp$(.z.D,.z.d).dqe.utctime];
-  if[utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
-  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"]
+  if[.dqe.utctime=1b;.eodtime.nextroll:.eodtime.getroll[`timestamp$.dqe.currentpartition]+(.z.T-.z.t)];
+  .lg.o[`dqc;"Moving .eodtime.nextroll to match current partition"];
   .lg.o[`dqc;".eodtime.nextroll set to ",string .eodtime.nextroll];
   .dqe.init[];
   .lg.o[`end; "Finished dqc end of day process."]

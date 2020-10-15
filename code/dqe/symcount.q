@@ -1,7 +1,7 @@
 \d .dqe
-/- distinct symbols count in a table t and a column col. Works on partitioned 
+/- distinct symbols count in a table tab and a column col. Works on partitioned 
 /- tables in an hdb
-symcount:{[t;col]
-  .lg.o[`symcount;"Counting distinct symbols each day in column ",(string col)," of table ",string t];
-  (enlist t)!enlist count ?[t; enlist(=;.Q.pf;last .Q.PV); 1b; {x!x}enlist col]
+symcount:{[tab;col]
+  .lg.o[`symcount;"Counting distinct symbols each day in column ",(string col)," of table ",string tab];
+  (enlist tab)!enlist count ?[tab; enlist(=;.Q.pf;last .Q.PV); 1b; {x!x}enlist col]
   }
