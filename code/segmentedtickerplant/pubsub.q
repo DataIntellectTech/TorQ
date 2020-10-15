@@ -93,7 +93,7 @@ closesub:{[h]
 
 .z.pc:{[f;x]
    @[f;x;()]; closesub x;
-   if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 0]
+   if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]
    }@[value;`.z.pc;{{}}];
 
 \d .

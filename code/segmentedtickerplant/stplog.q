@@ -200,7 +200,7 @@ $[.sctp.chainedtp;
     if[(.z.p+.eodtime.dailyadj)>nextperiod::multilogperiod+currperiod;
       system"t 0";'"next period is in the past"];
     getnextendUTC[];
-    if[value `..createlogs;i+::1;rolllog[multilog;dldir;rolltabs;currentpd]];
+    if[value `..createlogs;i+::1;rolllog[multilog;dldir;rolltabs;nextpd]];
     .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
     };
   endofperiod:{[p;rolllogs]

@@ -22,6 +22,9 @@ subscribe:{[]
         .u.jcounts::.u.icounts::$[0=count r`icounts;()!();subtabs!enlist [r`icounts]subtabs];
       ]
     ];
+  
+  //grabs stp handle
+  `.sctp.tph set exec first w from .servers.SERVERS where procname=.sctp.tickerplantname;
   }
 
 \d .
