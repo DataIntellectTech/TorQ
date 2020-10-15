@@ -12,6 +12,7 @@ before,0,0,q,mstarts:stpHandle"neg[count .stpps.t]#exec start from .stpm.metatab
 before,0,0,q,mseq:stpHandle"exec last seq from .stpm.metatable",1,,"Get most recent sequence number"
 before,0,0,q,period:`curr`next!stpHandle".stplg[`currperiod`nextperiod]",1,,"Get current and next roll periods"
 before,0,0,q,system "sleep 11",1,,"Wait for a full period"
+true,0,0,q,all 0 = sctpHandle"count each `. .stpps.t",1,,"Check tables have been flushed"
 run,0,0,q,mends:(stpHandle"neg[2*count .stpps.t]#exec end from .stpm.metatable") except 0Np,1,,"Get previous period end times"
 run,0,0,q,currlog:stpHandle"currlog",1,,"Get currlog table"
 true,0,0,q,all 0=(value rdbHandles) @\: (`.tst.endp),1,,"Check the endofperiod function has been triggered once on all subs"
