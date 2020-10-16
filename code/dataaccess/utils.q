@@ -16,6 +16,22 @@ spliltcolumns:{[x;columns;types]@[x;columns;spliltandcast;types]};
 spliltandcast:{[x;typ]typ$"|"vs/:x};
 
 
+//- read in meta info
+enrichtableproperties:{[tableproperties]
+  //- in future this will loop through a list of processes - for now just take meta from current process
+  keycols:`proctype`tablename;
+  metainfo:keycols xkey .dataaccess.getmetainfo[];
+  tableproperties:union[key metainfo;key tableproperties]#tableproperties:keycols xkey tableproperties;
+  :0!tableproperties lj metainfo;
+ };
+
+getmetainfo:{
+  metas:meta each tables`;
+  metas:flip each`columns`types`attributes xcol/:`c`t`a#/:0!/:metas;
+  metas:@[metas;`proctype`tablename;:;(.proc.proctype;tables`)];
+  :`proctype`tablename xcols metas;
+ };
+  
 //- misc utils
 getvalidparams:{[]checkinputsconfig`parameter};
 getrequiredparams:{[]exec parameter from checkinputsconfig where required};

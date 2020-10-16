@@ -12,8 +12,8 @@ init:{
   .dataaccess.checkinputspath:first .proc.getconfigfile["checkinputs.csv"];                 //- The name of the input csv to drive what gets done
   additionalscripts:getenv[`KDBCODE],"/dataaccess";                                         //- load all q scripts in this path
   .proc.loaddir additionalscripts;
-  tablepropertiesconfig:readtableproperties[tablepropertiespath;"sssss"];
-  checkinputsconfig:readcheckinputs[checkinputspath;"sbs*"];
+  .dataaccess.tablepropertiesconfig:.dataaccess.enrichtableproperties readtableproperties[.dataaccess.tablepropertiespath;"sssss"];
+  .dataaccess.checkinputsconfig:readcheckinputs[.dataaccess.checkinputspath;"sbs*"];
   .lg.o[`.dataaccess.init;"running .dataaccess.init[] - finished"];
  };
 

@@ -1,4 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.dataaccess.init[],1,,"run init function //- temporary while hdb is being loaded in"
 before,0,0,q,"testdataaccessfolder:hsym`$getenv[`KDBTESTS],""/dataaccess""",1,,"Path to dummy dataaccess tests folder"
 before,0,0,q,.proc.loadf string .Q.dd[testdataaccessfolder;`utils.q],1,,"load utils"
 before,0,0,q,"errors:1!.dataaccess.readcsv[` sv testdataaccessfolder,`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"

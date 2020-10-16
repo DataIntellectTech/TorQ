@@ -6,15 +6,15 @@ invalidparamnames,required params missing:`invalidname1`invalidname2
 invalidcomb1,"parameter:`columns cannot be used in combination with parameter(s):,`aggregations"
 invalidcomb2,parameter:`aggregations cannot be used in combination with parameter(s):`timebar`freeformby`freeformcolumn
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
-tableexists,todo
+tableexists,table:`invalidtablename doesn't exist
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
-timecolumnexists,todo
+timecolumnexists,"`trade doesn't contain ,`invalidtimecolumn - validcolumns:`cond`date`ex`price`side`size`stop`sym`time"
 checktimeorder,starttime>endtime
 instrumenttype,`instruments input type incorrect - valid type(s):11 -11h - input type:0h
 columntypes,`columns input type incorrect - valid type(s):11 -11h - input type:0h
-columnsexist,todo
+columnsexist,`trade doesn't contain `invalid1`invalid2 - validcolumns:`cond`date`ex`price`side`size`stop`sym`time
 aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
