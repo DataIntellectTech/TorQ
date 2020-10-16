@@ -3,6 +3,8 @@ nondictinput,Input parameter must be a dictionary
 nonsymbolkey,keys must be of type 11h
 requiredparamsmissing,"required params missing:,`tablename"
 invalidparamnames,required params missing:`invalidname1`invalidname2
+invalidcomb1,"parameter:`columns cannot be used in combination with parameter(s):,`aggregations"
+invalidcomb2,parameter:`aggregations cannot be used in combination with parameter(s):`timebar`freeformby`freeformcolumn
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 tableexists,todo
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h

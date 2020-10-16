@@ -2,7 +2,8 @@
 
 checkinputs:{[dict]
   dict:checkdictionary dict;
-  dict:checkeachparam[dict];
+  dict:checkinvalidcombinations dict;
+  dict:checkeachparam dict;
   :dict;
  };
 
@@ -18,6 +19,16 @@ isdictionary:{[dict]99h~type dict};
 checkkeytype:{[dict]11h~type key dict};
 checkrequiredparams:{[dict]all .dataaccess.getrequiredparams[]in key dict};
 checkparamnames:{[dict]all key[dict]in .dataaccess.getvalidparams[]};
+
+checkinvalidcombinations:{[dict]
+  parameters:key dict;
+  invalidcombinations:select parameter,invalidpairs:invalidpairs inter\:parameters from .dataaccess.checkinputsconfig where parameter in parameters;
+  invalidcombinations:select from invalidcombinations where 0<>count'[invalidpairs];
+  if[0=count invalidcombinations;:dict];
+  checkeachcombination'[invalidcombinations];
+ };
+
+checkeachcombination:{[invalidcombination]'`$.dataaccess.formatstring["parameter:{parameter} cannot be used in combination with parameter(s):{invalidpairs}";invalidcombination]};
 
 //- run check on each parameter
 checkeachparam:{[dict]

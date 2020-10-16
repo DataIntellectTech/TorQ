@@ -2,7 +2,7 @@
 
 //- utils for reading in config
 readtableproperties:{[path;types] readcsv[path;types]};
-readcheckinputs:{[path;types] readcsv[path;types]};
+readcheckinputs:{[path;types] spliltcolumns[readcsv[path;types];`invalidpairs;`]};
 
 readcsv:{[path;types]
   if[not pathexists path:hsym path;'path];
@@ -11,6 +11,9 @@ readcsv:{[path;types]
 
 pathexists:{[path] path~key path};
 
+spliltcolumns:{[x;columns;types]@[x;columns;spliltandcast;types]};
+
+spliltandcast:{[x;typ]typ$"|"vs/:x};
 
 
 //- misc utils
