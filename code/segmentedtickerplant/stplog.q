@@ -222,11 +222,16 @@ $[.sctp.chainedtp;
   endofday:{[date;data]
     .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
     .stpps.pubclear[.stplg.t];
-    p:.z.p+.eodtime.dailyadj;
+    p:.z.p;
     .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
     .stpps.end[date;data];
     if[p>.eodtime.nextroll:.eodtime.getroll[p];system"t 0";'"next roll is in the past"];
-    if[value `..createlogs; closelog each logtabs];
+    if[value `..createlogs; 
+      getnextendUTC[];
+      .stpm.updmeta[multilog][`close;logtabs;p+.eodtime.dailyadj];
+      .stpm.metatable:0#.stpm.metatable;
+      closelog each logtabs
+      ];
     .eodtime.d+:1;
     init[`. `dbname];
     .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
