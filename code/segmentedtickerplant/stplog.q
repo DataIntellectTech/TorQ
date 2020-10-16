@@ -267,7 +267,7 @@ init:{[dbname]
   i::1; // default value for log seq number
 
   if[value `..createlogs;
-    createdld[.proc.procname;.eodtime.d];
+    createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
     // If appropriate, roll error log
     if[.stplg.errmode;openlogerr[dldir]];

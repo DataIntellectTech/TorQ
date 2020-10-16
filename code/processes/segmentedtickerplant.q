@@ -136,4 +136,4 @@ generateschemas[];
 
 // Create log directory, open all table logs
 // use name of schema to create directory
-.stplg.init[`dbname set (string .proc.procname),"_"]
+.stplg.init[`dbname set (string .proc.procname)]
