@@ -3,7 +3,7 @@
 checkinputs:{[dict]
   dict:checkdictionary dict;
   dict:checkeachparam[dict];
-  dict;
+  :dict;
  };
 
 checkdictionary:{[dict]
@@ -32,7 +32,7 @@ checkparam:{[dict;config] config[`checkfunction][dict;config`parameter]};
 checktype:{[validtypes;dict;parameter]
   inputtype:type dict parameter;
   if[not any validtypes~\:inputtype;'`$.dataaccess.formatstring["{parameter} input type incorrect - valid type(s):{validtypes} - input type:{inputtype}";`parameter`validtypes`inputtype!(parameter;validtypes;inputtype)]];
-  dict;
+  :dict;
  };
 
 //- check if table exists + param is of type symbol
@@ -51,7 +51,7 @@ checktimecolumntype:{[dict;parameter]
 //- todo:cast column type to valid value (currently just casts to itself)
 casttimecolumn:{[dict;parameter]
   columntype:type dict parameter; //- in future it may be worth having config/a function to get the meta of the input table i.e getcolumntype[dict`tablename;dict`timecolumn]
-  :@[dict;parameter;columntype$];
+  :dict;
  };
 
 //- check param is of type symbol
@@ -67,6 +67,11 @@ checktimeorder:{[dict;parameter]
   dict;
  };
 
+columnsexist:{[dict;parameter]
+  dict:allsymbols[dict;parameter];
+  :dict; //- add a test to check if columns exist i.e columnsexists[dict`tablename;dict`columns]
+ }
+
 issymbol:{[dict;parameter]:checktype[-11h;dict;parameter]};
 allsymbols:{[dict;parameter]:checktype[11 -11h;dict;parameter]};
 
@@ -77,11 +82,11 @@ checkaggregations:{[dict;parameter]
   input:dict parameter;
   if[not 99h~type input;'`$"aggregations parameter must be of type dict - example:",example];
   if[not 11h~abs type key input;'`$"aggregations parameter key must be of type 11h - example:",example];
-  if[not all 11h~/:abs type'[get input];'`$"aggregation parameter values must be of type symbol - example:",example];
+  if[not all 11h~/:abs raze type''[get input];'`$"aggregations parameter values must be of type symbol - example:",example];
   columns:(union/)get input; //- todo: check requested columns are valid - columnsexists[dict`tablename;columns]
   validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum; //- these functions support 'map reduce' - in future custom functions could be added
   inputfuncs:key input;
-  if[any not inputfuncs in validfuncs;'`$.dataaccess.formatstring["invalid functions passed to aggregation parameter: {}";inputfuncs except validfuncs]];
+  if[any not inputfuncs in validfuncs;'`$.dataaccess.formatstring["invalid functions passed to aggregation parameter:{}";inputfuncs except validfuncs]];
   :dict;
  };
 
@@ -97,7 +102,7 @@ checktimebar:{[dict;parameter]
  };
 
 checkfilterformat:{[dict;parameter]
-  //- not sure how this will work
+  if[not 0h~type first dict parameter;'`$"filter parameter passed incorrectly - example ((=;date;.z.d-1);(=;`sym;1#`AAPL))"];
   :dict;
  };
 
