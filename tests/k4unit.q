@@ -105,9 +105,18 @@ KUerrparse:{[action;out]
 	if[action in `run`true`fail;:1b]
 	}
 
-// Generate error logs from run, true and fail tests
+// Handle test runs including error handling
 KUrunerr:{[action;out]
-	$[(not `fail~action) & `err~first out;[.lg.e[`KUexecerr;] KUerrparseinner[action;] . 1_out;1b];0b]
+	$[`err~first out;
+		// For run and true tests, log the error and signal the test failed, for fail tests signal no error
+		$[action~`fail;0b;
+			action in `run`true;[.lg.e[`KUexecerr;] KUerrparseinner[action;] . 1_out;1b]];
+		// For true and fail tests add error string for 'stop mode' if it is activated
+		$[action~`run;0b;
+			action~`fail;$[.proc.stop;'string[action]," test failure in file ",string[out 1]," on line ",string out 2;1b];
+			action~`true;$[first out;0b;$[.proc.stop;'string[action]," test failure in file ",string[out 1]," on line ",string out 2;1b]]
+			]
+		]
 	}
 
 // Generate more detailed error messages
