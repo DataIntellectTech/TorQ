@@ -12,7 +12,7 @@ loghandles::exec tbl!handle from currlog
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
   $[count dir:getenv[`KDBSTPLOG];
-    [.os.md dir;.os.md dldir::hsym`$raze dir,"/",string name,"_",date];
+    [.os.md dir;.os.md dldir::hsym`$raze dir,"/", string name,"_",date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
  };
@@ -117,7 +117,15 @@ zts[`immediate]:{}
 // replaylog called from client-side, returns nested list of logcounts and lognames
 replaylog:{[t]
   getlogs[replayperiod][t]
- }
+  }
+
+// alternative replay allows for 'pass through logging'
+// if SCTP not producing logs, subscribers replay from STP log files
+if[.sctp.chainedtp & not value `..createlogs;
+  replaylog:{[t]
+    .sctp.tph (`.stplg.getlogs[.stplg.replayperiod]; t)
+    }
+  ]
 
 getlogs:enlist[`]!enlist ()
 
@@ -200,7 +208,8 @@ $[.sctp.chainedtp;
     if[(.z.p+.eodtime.dailyadj)>nextperiod::multilogperiod+currperiod;
       system"t 0";'"next period is in the past"];
     getnextendUTC[];
-    if[value `..createlogs;i+::1;rolllog[multilog;dldir;rolltabs;nextpd]];
+    i+::1;
+    if[value `..createlogs;rolllog[multilog;dldir;rolltabs;nextpd]];
     .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
     };
   endofperiod:{[p;rolllogs]
