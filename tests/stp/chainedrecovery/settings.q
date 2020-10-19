@@ -6,7 +6,8 @@
 processcsv:getenv[`KDBTESTS],"/stp/chainedrecovery/process.csv";
 stptestlogs:getenv[`KDBTESTS],"/stp/chainedrecovery/testlog";
 stporiglogs:getenv[`KDBSTPLOG];
-testlogdb:"testlog";
+teststpdb:"teststplog";
+testsctpdb:"testsctplog";
 
 // Test updates
 testtrade:((5#`GOOG),5?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
