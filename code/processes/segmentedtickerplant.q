@@ -127,7 +127,7 @@ if[.sctp.chainedtp;
   endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
   endofday:{[x;y] .stplg.endofday[x;y]};
   .servers.startup[]; 
-  .sctp.subscribe[];
+  .sctp.subscribe[]
   ]
 
 // produces schema dicts/tables and upd functions
