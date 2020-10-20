@@ -1,4 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-run,0,0,q,,1,,"Zipping log dir"
-run,0,0,q,system ,1,,"unzipping log dir"
-run,0,0,q,,1,,"testing if zipped log dir = original log dir"
+run,0,0,q,tardir raze(getenv `KDBTESTS;"/stp/housekeeping/testlog/testlog"),1,,"Zipping log dir"
+run,0,0,q,system "tar -xf $KDBTESTS/stp/housekeeping/testlog/testlog.tar.gz $KDBTESTS/stp/housekeeping/testlog/testlog -P",1,,"unzipping log dir"
+true,0,0,q,null system "diff $KDBTESTS/stp/housekeeping/testlog/testlog $KDBTESTS/stp/housekeeping/testlog/teststpnone",1,,"testing if zipped log dir = original log dir"
+after,0,0,q,system "rm -r $KDBTESTS/stp/housekeeping/testlog/testlog*",1,,"Removing test files"
