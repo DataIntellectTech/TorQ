@@ -14,7 +14,7 @@ ${TORQHOME}/torq.sh start discovery1 rdball rdbsymfilt rdbonetab stp1 -csv ${tes
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
-  -results ${KDBTESTS}/stp/results/ \
+  -testresults ${KDBTESTS}/stp/results/ \
   -procfile ${testpath}/process.csv \
   -runtime $run \
   $debug $stop $write $quiet

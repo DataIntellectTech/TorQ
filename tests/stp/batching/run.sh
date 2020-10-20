@@ -15,7 +15,7 @@ ${TORQHOME}/torq.sh start discovery1 stp1 rdb1
   -schemafile ${TORQHOME}/database.q \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
-  -results ${KDBTESTS}/stp/results/ \
+  -testresults ${KDBTESTS}/stp/results/ \
   -runtime $run \
   $debug $stop $write $quiet
 

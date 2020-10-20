@@ -13,7 +13,8 @@ opentorqhandle:{[port]
 	};
 
 // Kill process dead with -9
-kill9proc:{[proc] a:"q" in' b:@[system;"pgrep -u $USER -lf ",proc;" "];system "kill -9 ",first " " vs first b where a};
+//kill9proc:{[proc] a:"q" in' b:@[system;"pgrep -lf ",proc," -u ",string .z.u;" "];system "kill -9 ",first " " vs first b where a};
+kill9proc:{[proc] a:"q" in' b:@[system;"pgrep -lf ",proc," -u $USER";" "];system "kill -9 ",first " " vs first b where a};
 
 // Returns boolean true if process is alive
 isalive:{[proc] any "q" in' @[system;"pgrep -lf ",proc;" "]};

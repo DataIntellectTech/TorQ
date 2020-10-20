@@ -14,7 +14,7 @@ ${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt wdball wdbsymfilt wdb
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
-  -results ${KDBTESTS}/stp/results/ \
+  -testresults ${KDBTESTS}/stp/results/ \
   -runtime $run \
   -procfile ${testpath}/process.csv \
   $debug $stop $write $quiet
