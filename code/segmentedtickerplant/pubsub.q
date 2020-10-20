@@ -91,6 +91,7 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
+// Kills SCTP if STP dies (condition defined in both STP and SCTP, only relevant in SCTP)
 .z.pc:{[f;x]
    @[f;x;()]; closesub x;
    if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]
