@@ -15,7 +15,7 @@ tptype:`segmented
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
-$[.sctp.chainedtp;[
+$[not null .sctp.sctploggingmode;[
   .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
   .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
   schemafile:""
@@ -59,7 +59,7 @@ generateschemas:{
   // updtab stores functions to add/modify columns
   // Default functions timestamp updates
   // Preserve any prior definitions, but default all tables if not specified
-  $[.sctp.chainedtp;
+  $[not null .sctp.sctploggingmode;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
     ]
@@ -69,7 +69,7 @@ generateschemas:{
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .stplg.updmsg:.stplg.upd[b];
-  $[.sctp.chainedtp;
+  $[not null .sctp.sctploggingmode;
     .u.upd:{[t;x]
       now:.z.p;
       // Type check allows update messages to contain multiple tables/data
@@ -92,7 +92,7 @@ init:{[b]
     ];
   // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
   .stplg.ts:.stplg.zts[b];
-  $[.sctp.chainedtp;
+  $[not null .sctp.sctploggingmode;
     .z.ts:{
       .stplg.ts now:.z.p;
       };
@@ -123,7 +123,7 @@ init:{[b]
 init[.stplg.batchmode]
 
 // subscribe to segmented tickerplant is mode is turned on
-if[.sctp.chainedtp;
+if[not null .sctp.sctploggingmode;
   endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
   endofday:{[x;y] .stplg.endofday[x;y]};
   .servers.startup[]; 
@@ -136,5 +136,4 @@ generateschemas[];
 
 // Create log directory, open all table logs
 // use name of schema to create directory
-`dbname set (string .proc.procname);
-.stplg.init[dbname]
+.stplg.init[string .proc.procname]
