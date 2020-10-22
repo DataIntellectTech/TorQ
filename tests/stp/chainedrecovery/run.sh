@@ -30,4 +30,4 @@ ${TORQHOME}/torq.sh start discovery1 -csv ${testpath}/process.csv
   $debug $stop $quiet
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 rdball stprepperiod stp1 stptabperiod rdb1 -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh stop discovery1 stp1 stptabperiod rdball rdbsymfilt rdbcomplexfilt -csv ${testpath}/process.csv
