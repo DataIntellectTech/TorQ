@@ -8,8 +8,13 @@
 .feed.sym:`AMD`AIG`AAPL`DELL`DOW`GOOG`HPQ`INTL`IBM`MSFT;
 .feed.mode:" ABHILNORYZ";
 .feed.cond:" 89ABCEGJKLNOPRTWZ";
-.feed.ex:"NO";
+.feed.ex:10b;
 .feed.src:`BARX`GETGO`SUN`DB;
 .feed.side:`buy`sell;
+.feed.maxprice:100.0;
+.feed.maxsize:50;
 .feed.bulkrows:1000;
 .feed.looptime:00:01;
+
+// Create bulk update
+.feed.bulk:.feed.bulkrows ?' .feed[`sym`maxprice`maxsize`src`ex`cond`mode`side];

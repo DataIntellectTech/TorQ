@@ -9,7 +9,7 @@ ${TORQHOME}/torq.sh start all -csv ${localpath}/process.csv
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
   -proctype observer -procname observer1 \
-  -load ${localpath}/observer.q ${localpath}/settings/observer.q \
+  -load ${localpath}/settings/observer.q ${localpath}/observer.q \
   -procfile ${localpath}/process.csv \
   -noredirect
 

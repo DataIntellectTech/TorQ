@@ -1,40 +1,27 @@
 // Main script for the feeder process
 
-// Define publisher functions
-
-// appends timestamp when feed is called and when consumer upd is called
-// use: feedtimetp each til 1000000
-feedsingletp:{
-  curtime:.z.p;
-  (neg h)(`.u.upd;`timing0;(`a;curtime));(neg h)(::)
+// Send a single message
+.feed.pub.single:{
+  .feed.asyncpubhandle(`.u.upd;`singleupd;(`sym;.z.p))[::];
  };
 
-feedsinglestp:{
-  curtime:.z.p;
-  (neg h)(`.u.upd;`timing1;(`a;curtime));(neg h)(::)
+// Send multiple messages
+.feed.pub.bulk:{
+  .feed.asyncpubhandle(`.u.upd;`bulkupd;.feed.bulk,enlist .feed.bulkrows#.z.p)[::];
  };
 
-// appends timestamp when feed is called and when consumer upd is called
-// fills with dummy trade data to test sending through 100k message one at a time
-// use: feeddatatp each til 10
-feedbulktp:{
-  curtime:.z.p;
-  (neg h)(`.u.upd;`timingdata0;flip (flip t[maxn]),'curtime);(neg h)(::)
- };
-
-feedbulkstp:{
-  curtime:.z.p;
-  (neg h)(`.u.upd;`timingdata1;flip (flip t[maxn]),'curtime);(neg h)(::)
- };
-
-// Run publisher function in a loop for 1 minute
+// Run publisher function in a loop for 1 minute & signal to Observer when done
 .feed.run:{
-  // run pub function in a while loop
+  now:.z.p;
+  while[.z.p<now+.feed.looptime;.feed.publish[]];
+  .feed.observerhandle(`.observer.runcomplete);
   };
 
-// Process init function - to be triggered from Observer
-.feed.init:{
+// Process init function - triggered from Observer
+.feed.init:{[mode]
   .proc.loadf first (.Q.opt .z.x)[`config];
   .servers.startup[];
-  // get handles to observer and (S)TP
+  .feed.asyncpubhandle:neg .servers.gethandlebytype[`segmentedtickerplant`tickerplant;`any];
+  .feed.observerhandle:.servers.gethandlebytype[`observer;`any];
+  .feed.publish:.feed.pub[mode];
   };
