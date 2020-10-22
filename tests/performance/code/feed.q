@@ -1,4 +1,4 @@
-// Main script for the feeder process
+// Main script for the feed process
 
 // Send a single message
 .feed.pub.single:{
@@ -17,7 +17,6 @@
   .lg.o[`run;"Start of run"];
   now:.z.p;
   while[.z.p<now + .feed.looptime;.feed.publish[]];
-  .lg.o[`run;"End of run"];
   .feed.asyncobserverhandle:neg .servers.gethandlebytype[`observer;`any];
   .feed.asyncobserverhandle(`.observer.runcomplete;::);
   };

@@ -35,14 +35,6 @@
   system["mv returntab2.csv ","timingstats/",string[name2],".csv"];
  };
 
-// Switching modes can't be in the run function, it needs to be triggered by the feed
-// I need to redesign this, since this process has sync and async components to it
-/ I kickoff - the stuff runs, feed signals that its done
-/ I wait 1 sec, grab the data and clear the table, and this function kicks off the next run
-/ I keep track of what has been done with a list which gets built with each run finished
-/ This list is cleared with an initial kickoff
-/ Always start with single, followed by bulk
-
 / Need to figure out vanilla TP still
 
 // Do an initial run to kick things off
@@ -52,23 +44,29 @@
   .observer.run . first .observer.scenarios;
  };
 
-// Initialise procs and begin run, then add params to completed list
+// Run each test scenario
 .observer.run:{[batch;mode]
   .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," publishing mode."];
-  (neg each .observer[`tickhandle`feedhandle`conshandle]) @' ((`init;batch);(`.feed.init;mode);(`.consumer.init;mode;batch));
-  (neg each .observer[`tickhandle`feedhandle`conshandle]) @\: (::);
-  neg[.observer.feedhandle](`.feed.run;::)(::);
+
+  // Initialise each process, tell the feed to start publishing, update the completed tests list
+  (neg .observer[`tickhandle`feedhandle`conshandle]) @' ((`init;batch);(`.feed.init;mode);(`.consumer.init;mode;batch));
+  (neg .observer[`tickhandle`feedhandle`conshandle]) @\: (::);
+  neg[.observer.feedhandle] @/: ((`.feed.run;::);(::));
   .observer.completed,:enlist batch,mode;
  };
 
-// When the feed signals, wait for 5 seconds, then grab the results and begin the next run
+// When the feed finishes publishing, it will signal this function to run
 .observer.runcomplete:{
   .lg.o[`runcomplete;"Collecting data"];
+
+  // Gather and clear data from the consumer, then run the next test if there is one
   system "sleep 1";
   .observer.results,:.observer.conshandle(`.consumer.results);
   .observer.conshandle(`.consumer.cleartable;::);
-  .lg.o[`runcomplete;"Finished collecting data"];
-  $[count sc:.observer.scenarios except .observer.completed;.observer.run . first sc;:()];
+  $[count sc:.observer.scenarios except .observer.completed;
+    .observer.run . first sc;
+    .lg.o[`runcomplete;"Performance test complete."]
+    ];
  };
 
 // Observer init function

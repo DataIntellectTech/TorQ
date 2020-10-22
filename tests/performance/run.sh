@@ -4,14 +4,14 @@
 localpath=$KDBTESTS/performance
 
 # Start procs
-${TORQHOME}/torq.sh start discovery1 feed1 stp1 consumer1 -csv ${localpath}/process.csv
+${TORQHOME}/torq.sh start discovery1 feed1 stp1 consumer1 -csv ${localpath}/settings/process.csv
 
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
   -proctype observer -procname observer1 \
-  -load ${localpath}/settings/observer.q ${localpath}/observer.q \
-  -procfile ${localpath}/process.csv \
+  -load ${localpath}/settings/observer.q ${localpath}/code/observer.q \
+  -procfile ${localpath}/settings/process.csv \
   -noredirect
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 feed1 stp1 consumer1 -csv ${localpath}/process.csv
+${TORQHOME}/torq.sh stop discovery1 feed1 stp1 consumer1 -csv ${localpath}/settings/process.csv
