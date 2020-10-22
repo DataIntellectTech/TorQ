@@ -18,6 +18,7 @@
 
 // Clear results table
 .consumer.cleartable:{
+  .lg.o[`clear;"Clearing local results table..."];
   delete from `.consumer.results;
  };
 

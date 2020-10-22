@@ -45,36 +45,42 @@
 
 / Need to figure out vanilla TP still
 
-// Just do the initial run to kick things off
+// Do an initial run to kick things off
 .observer.startrun:{
+  .lg.o[`startrun;"Beginning performance test run."]
   .observer.completed:();
-  .observer.run[first .observer.tplist;`single];
+  .observer.run . first .observer.scenarios;
  };
 
-// Add current modes to a list of completed scenarios, initialise and begin the run
+// Initialise procs and begin run, then add params to completed list
 .observer.run:{[batch;mode]
+  .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," publishing mode."];
+  (neg each .observer[`tickhandle`feedhandle`conshandle]) @' ((`init;batch);(`.feed.init;mode);(`.consumer.init;mode;batch));
+  (neg each .observer[`tickhandle`feedhandle`conshandle]) @\: (::);
+  neg[.observer.feedhandle](`.feed.run;::)(::);
   .observer.completed,:enlist batch,mode;
-  .observer.tickhandle(`init;batch);
-  .observer.feedhandle(`.feed.init;mode);
-  .observer.conshandle(`.consumer.init;mode;batch);
-  .observer.feedhandle(`.feed.publish;::);
  };
 
-// When the feed signals, wait for 1 sec, then grab the results and begin the next run
+// When the feed signals, wait for 5 seconds, then grab the results and begin the next run
 .observer.runcomplete:{
+  .lg.o[`runcomplete;"Collecting data"];
   system "sleep 1";
   .observer.results,:.observer.conshandle(`.consumer.results);
-  .observer.conshandle(`.consumer.cleartable);
+  .observer.conshandle(`.consumer.cleartable;::);
+  .lg.o[`runcomplete;"Finished collecting data"];
   $[count sc:.observer.scenarios except .observer.completed;.observer.run . first sc;:()];
  };
 
 // Observer init function
 .observer.init:{
+  .lg.o[`init;"Setting up process..."];
+  .proc.readprocfile .proc.file;
   .servers.startup[];
   .observer.feedhandle:.servers.gethandlebytype[`feed;`any];
   .observer.conshandle:.servers.gethandlebytype[`consumer;`any];
   .observer.tickhandle:.servers.gethandlebytype[`segmentedtickerplant`tickerplant;`any];
   };
 
-// Call init function
+// Call init function & begin tests if autorun mode is on
 .observer.init[];
+if[.observer.autorun;.observer.startrun[]];

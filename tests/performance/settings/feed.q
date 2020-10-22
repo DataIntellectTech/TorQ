@@ -1,6 +1,6 @@
 // Server settings
 .servers.enabled:1b;
-.servers.CONNECTIONS:`tickerplant`segmentedtickerplant;
+.servers.CONNECTIONS:`tickerplant`segmentedtickerplant`observer;
 .servers.USERPASS:`admin:admin;
 .servers.HOPENTIMEOUT:30000;
 
@@ -14,7 +14,7 @@
 .feed.maxprice:100.0;
 .feed.maxsize:50;
 .feed.bulkrows:1000;
-.feed.looptime:00:01;
+.feed.looptime:00:00:05;
 
 // Create bulk update
 .feed.bulk:.feed.bulkrows ?' .feed[`sym`maxprice`maxsize`src`ex`cond`mode`side];
