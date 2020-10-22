@@ -121,7 +121,7 @@ replaylog:{[t]
 
 // alternative replay allows for 'pass through logging'
 // if SCTP not producing logs, subscribers replay from STP log files
-if[.sctp.sctploggingmode=`parent;
+if[.sctp.loggingmode=`parent;
   replaylog:{[t]
     .sctp.tph (`.stplg.replaylog; t)
     }
@@ -198,20 +198,22 @@ endofdaydata:{
 
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
-$[not null .sctp.sctploggingmode;
-  endofperiod:{[currentpd;nextpd;data]
+endofperiod:{[pORcurrentpd;rolllogsORnextpd;data]
+  $[.sctp.chainedtp;[
     p:.eodtime.dailyadj+now:.z.p;
     // rolllogs determines whether logs are rolled (shouldnt roll if end of day is also triggered)
     rolllogs: not .eodtime.nextroll < now;
     .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
     .stpps.pubclear[.stplg.t];
-    periodrollover[currentpd;nextpd;data;rolllogs;p;nextpd];
-    };
-  endofperiod:{[p;rolllogs]
     .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-    periodrollover[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[];rolllogs;p;p];
-    }
-  ]
+    // here pORcurrentpd = currentpd, rolllogsORnextpd = nextpd
+    periodrollover[pORcurrentpd;rolllogsORnextpd;data;rolllogs;p;rolllogsORnextpd];
+    ];
+    // here pORcurrentpd = p, rolllogsORnextpd = rolllogs
+    [.lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
+    periodrollover[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[];rolllogsORnextpd;pORcurrentpd;pORcurrentpd];]
+    ]
+  };
 
 periodrollover:{[currentpd;nextpd;data;rolllogs;p;period]
   .lg.o[`endofperiod;"passing on endofperiod message to subscribers"];
@@ -227,17 +229,16 @@ periodrollover:{[currentpd;nextpd;data;rolllogs;p;period]
 
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
-$[not null .sctp.sctploggingmode;
-  endofday:{[date;data]
+endofday:{[pORdate;data]
+  $[.sctp.chainedtp;[
     .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
     .stpps.pubclear[.stplg.t];
     p:.z.p;
-    dayrollover[date;data;p]
-    };
-  endofday:{[p]
-    dayrollover[.eodtime.d;.stplg.endofdaydata[];p]
-    }
-  ]
+    dayrollover[pORdate;data;p] // here pORdate = date
+    ];
+    dayrollover[.eodtime.d;.stplg.endofdaydata[];pORdate] // here pORdate = p
+    ]
+  }
 
 dayrollover:{[date;data;p]
   .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
@@ -253,14 +254,15 @@ dayrollover:{[date;data;p]
   .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
  }
 
+
 // get the next end time to compare to
 getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
 
 checkends:{
   // jump out early if don't have to do either 
   if[nextendUTC > x; :()];
-  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1;not isendofday:.eodtime.nextroll < x]];
-  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1;not isendofday:.eodtime.nextroll < x;0]];
+  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x;0]];
  };
 
 init:{[dbname]
@@ -274,7 +276,7 @@ init:{[dbname]
   getnextendUTC[]; 
   i::1; // default value for log seq number
 
-  if[(value `..createlogs) or .sctp.sctploggingmode=`create;
+  if[(value `..createlogs) or .sctp.loggingmode=`create;
     createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
     // If appropriate, roll error log
