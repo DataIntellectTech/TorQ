@@ -1,7 +1,7 @@
 \d .sctp
 
 chainedtp:@[value;`chainedtp;0b]                     // switches between STP and SCTP codebase
-loggingmode:@[value;`loggingmode;`]                  // [none|create|parent] determines whether SCTP creates its own logs, uses STP logs or does neither
+loggingmode:@[value;`loggingmode;`none]              // [none|create|parent] determines whether SCTP creates its own logs, uses STP logs or does neither
 tickerplantname:@[value;`tickerplantname;`stp1];     // tickerplant name to try and make a connection to  
 subscribeto:@[value;`subscribeto;`];                 // list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];             // list of syms to subscription to
