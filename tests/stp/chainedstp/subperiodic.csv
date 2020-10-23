@@ -1,7 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,sctpHandle".stplg.multilog:`periodic",1,,"Change logging type"
 before,0,0,q,sctpHandle"init[`defaultbatch]",1,,"Init SCTP main script"
-before,0,0,q,sctpHandle".sctp.sctploggingmode:`create",1,,"Configure the SCTP to create logs"
+before,0,0,q,sctpHandle".sctp.loggingmode:`create",1,,"Configure the SCTP to create logs"
 before,0,0,q,sctpHandle(`.stplg.init;testsctpdb),1,,"Create test stplog test directory"
 before,0,0,q,currlog:sctpHandle"currlog",1,,"Get SCTP log table"
 before,0,0,q,met:sctpHandle".stpm.metatable",1,,"Get SCTP meta table"
