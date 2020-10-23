@@ -11,9 +11,14 @@
 // Bulk update UPD
 .consumer.upd.bulk:{[t;x]
   now:.z.p;
-  res:1#select time,feedtime from $[0h~type x;enlist .consumer.bulkcols!first each x;x];
+  res:select time,feedtime from $[0h~type x;.consumer.bulkcols !/: .consumer.getfirstrows flip x;.consumer.getfirstrows x];
   res:update consumertime:now,feedtotp:time-feedtime,tptoconsumer:now-time,feedtoconsumer:now-feedtime,batching:.consumer.batching,pubmode:`bulk from res;
   `.consumer.results upsert res;
+ };
+
+// Get first row from each bulk update
+.consumer.getfirstrows:{
+  x .consumer.bulkrows*til (count x) div .consumer.bulkrows
  };
 
 // Clear results table
@@ -26,8 +31,8 @@
 .consumer.init:{[mode;batch]
   .proc.loadf first (.Q.opt .z.x)[`config];
   .servers.startup[];
-  .consumer.tphandle:.servers.gethandlebytype[`segmentedtickerplant`tickerplant;`any];
-  .consumer.tphandle @/: {(`.u.sub;x;`)} each `singleupd`bulkupd;
+  .consumer.tphandle:.servers.gethandlebytype[$[`vanilla~batch;`tickerplant;`segmentedtickerplant];`any];
   .consumer.batching:batch;
+  .consumer.tphandle @/: {(`.u.sub;x;`)} each `singleupd`bulkupd;
   `upd set .consumer.upd[mode];
   };

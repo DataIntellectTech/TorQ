@@ -46,11 +46,14 @@
 
 // Run each test scenario
 .observer.run:{[batch;mode]
-  .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," publishing mode."];
+  .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," message publishing mode."];
 
-  // Initialise each process, tell the feed to start publishing, update the completed tests list
-  (neg .observer[`tickhandle`feedhandle`conshandle]) @' ((`init;batch);(`.feed.init;mode);(`.consumer.init;mode;batch));
-  (neg .observer[`tickhandle`feedhandle`conshandle]) @\: (::);
+  // Initialise the feed and consumer processes and, if necessary, the STP (vanilla TP doesn't need setting up)
+  neg[.observer.feedhandle] @/: ((set;`.feed.bulkrows;.observer.bulkrows);(`.feed.init;mode;batch);(::));
+  neg[.observer.conshandle] @/: ((set;`.consumer.bulkrows;.observer.bulkrows);(`.consumer.init;mode;batch);(::));
+  if[not `vanilla~batch;neg[.observer.stphandle] @/: ((`init;batch);(::))];
+
+  // Tell the feed to start publishing and add to the list of completed scenarios
   neg[.observer.feedhandle] @/: ((`.feed.run;::);(::));
   .observer.completed,:enlist batch,mode;
  };
@@ -69,14 +72,14 @@
     ];
  };
 
-// Observer init function
+// Set handle from procfile, open handles to feed, consumer and STP
 .observer.init:{
   .lg.o[`init;"Setting up process..."];
   .proc.readprocfile .proc.file;
   .servers.startup[];
   .observer.feedhandle:.servers.gethandlebytype[`feed;`any];
   .observer.conshandle:.servers.gethandlebytype[`consumer;`any];
-  .observer.tickhandle:.servers.gethandlebytype[`segmentedtickerplant`tickerplant;`any];
+  .observer.stphandle:.servers.gethandlebytype[`segmentedtickerplant;`any];
   };
 
 // Call init function & begin tests if autorun mode is on
