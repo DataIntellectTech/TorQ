@@ -7,7 +7,6 @@
 // Filtered - apply filters to published data, filters defined on client side
 
 createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
-.sctp.tph:@[value;`.sctp.tph;-1];   // placeholder tp handle value in stp process
 
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
