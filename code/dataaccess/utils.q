@@ -22,7 +22,8 @@ enrichtableproperties:{[tableproperties]
   keycols:`proctype`tablename;
   metainfo:keycols xkey .dataaccess.getmetainfo[];
   tableproperties:union[key metainfo;key tableproperties]#tableproperties:keycols xkey tableproperties;
-  :0!tableproperties lj metainfo;
+  tableproperties:0!tableproperties lj metainfo;
+  :@[tableproperties;`attributecolumn`instrumentcolumn;`sym^];
  };
 
 getmetainfo:{
@@ -46,4 +47,13 @@ formatstring:{[str;params]
   params:where[abs[type each params]within 1 19]#params;
   params:-1_/:.Q.s each params;
   ssr/[str;"{",'string[key params],'"}";get params]
+ };
+
+//- extract table property from .dataaccess.tablepropertiesconfig
+//- atm .dataaccess.tablepropertiesconfig has separate rows for the rdb/hdb - use `any to retieve whichever comes first
+gettableproperty:{[tn;proctyp;property]
+  tableproperties:select from tablepropertiesconfig where tablename=tn;
+  if[not property in cols tableproperties;'`$"gettableproperty:invalid property"];
+  if[not proctyp=`any;tableproperties:select from tableproperties where proctype=proctyp];
+  :tableproperties[0;property];
  };

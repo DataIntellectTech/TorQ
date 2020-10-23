@@ -1,6 +1,6 @@
 parameter,parametervalue
 tablename,`trade
-starttime,2000.01.01D
-endtime,2000.01.02D
+starttime,0D+.z.d-3
+endtime,.z.p
 timecolumn,`time
 timebar,"(`time;10;""nanosecond"")"

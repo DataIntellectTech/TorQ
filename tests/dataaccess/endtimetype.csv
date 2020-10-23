@@ -1,5 +1,5 @@
 parameter,parametervalue
 tablename,`trade
-starttime,2000.01.01D00:00
+starttime,0D+.z.d-300:00
 endtime,23:59
 timecolumn,`time

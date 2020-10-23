@@ -54,8 +54,7 @@ tableexists:{[dict;parameter]
 columnsexist:{[dict;parameter;columns]
   validcolumns:exec`#asc(union/)columns from .dataaccess.tablepropertiesconfig where tablename=dict`tablename;
   invalidcolumns:except[(),columns;validcolumns];
-  dict,:`validcolumns`invalidcolumns!(validcolumns;invalidcolumns);
-  if[count invalidcolumns;'`$.dataaccess.formatstring["{tablename} doesn't contain {invalidcolumns} - validcolumns:{validcolumns}";dict]];
+  if[count invalidcolumns;'`$.dataaccess.formatstring["{tablename} doesn't contain {invalidcolumns} - validcolumns:{validcolumns}";dict,`validcolumns`invalidcolumns!(validcolumns;invalidcolumns)]];
   :dict;
  };
 
@@ -93,7 +92,7 @@ checktimeorder:{[dict;parameter]
 
 checkcolumnsexist:{[dict;parameter]
   dict:allsymbols[dict;parameter];
-  :columnsexist[dict;parameter;dict`columns];
+  :columnsexist[dict;parameter;dict parameter];
  }
 
 issymbol:{[dict;parameter]:checktype[-11h;dict;parameter]};
@@ -119,7 +118,7 @@ checktimebar:{[dict;parameter]
   if[not(3=count input)&0h~type input;'`$"timebar parameter must be a list of length 3"];
   input:`timecol`size`bucket!input;
   if[not -11h~type input`timecol;'`$"first argument of timebar must be have type -11h"];
-  :columnsexist[dict;parameter;dict`timecolumn];
+  dict:columnsexist[dict;parameter;dict`timecolumn];
   if[not any -6 -7h~\:type input`size;'`$"type of the second argument of timebar must be either -6h or -7h"];
   if[not -11h~type input`bucket;'`$"third argument of timebar must be of type -11h"];
   if[not input[`bucket]in`nanosecond`second`minute`hour`timespan;'`$"third argument of timebar must be one of:`nanosecond`second`minute`hour`timespan"];
@@ -127,7 +126,7 @@ checktimebar:{[dict;parameter]
  };
 
 checkfilterformat:{[dict;parameter]
-  if[not 0h~type first dict parameter;'`$"filter parameter passed incorrectly - example ((=;date;.z.d-1);(=;`sym;1#`AAPL))"];
+  if[not 0h~type first dict parameter;'`$"filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))"];
   :dict;
  };
 

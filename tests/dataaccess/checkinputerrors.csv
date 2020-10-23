@@ -4,7 +4,7 @@ nonsymbolkey,keys must be of type 11h
 requiredparamsmissing,"required params missing:,`tablename"
 invalidparamnames,required params missing:`invalidname1`invalidname2
 invalidcomb1,"parameter:`columns cannot be used in combination with parameter(s):,`aggregations"
-invalidcomb2,parameter:`aggregations cannot be used in combination with parameter(s):`timebar`freeformby`freeformcolumn
+invalidcomb2,"parameter:`aggregations cannot be used in combination with parameter(s):,`freeformcolumn"
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 tableexists,table:`invalidtablename doesn't exist
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
@@ -15,6 +15,7 @@ checktimeorder,starttime>endtime
 instrumenttype,`instruments input type incorrect - valid type(s):11 -11h - input type:0h
 columntypes,`columns input type incorrect - valid type(s):11 -11h - input type:0h
 columnsexist,`trade doesn't contain `invalid1`invalid2 - validcolumns:`cond`date`ex`price`side`size`stop`sym`time
+groupingtype,`grouping input type incorrect - valid type(s):11 -11h - input type:0h
 aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
@@ -25,7 +26,7 @@ timebartype0,first argument of timebar must be have type -11h
 timebartype1,type of the second argument of timebar must be either -6h or -7h
 timebartype2,third argument of timebar must be of type -11h
 timebarinvalid,third argument of timebar must be one of:`nanosecond`second`minute`hour`timespan
-filterformat,filter parameter passed incorrectly - example ((=;date;.z.d-1);(=;`sym;1#`AAPL))
+filterformat,filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))
 freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
 freeformbytype,`freeformby input type incorrect - valid type(s):10h - input type:-11h
 freeformcolumntype,`freeformcolumn input type incorrect - valid type(s):10h - input type:-11h
