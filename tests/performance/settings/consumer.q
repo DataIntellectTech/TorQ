@@ -6,11 +6,8 @@
 .servers.USERPASS:`admin:admin;
 
 // Process settings
-.consumer.tickerplanttypes:`tickerplant`segmentedtickerplant;
-.consumer.gatewatypes:`none;
-.consumer.replaylog:0b;
-.consumer.tpmode:`timingstpautobatch;
-.consumer.updmode:`singlestp;
+.consumer.singlecols:`time`sym`feedtime;
+.consumer.bulkcols:`time`sym`price`size`src`ex`cond`mode`side`feedtime;
 
 // Results table schema
-.consumer.results:`time`feedtime`consumertime`feedtotp`tptoconsumer`feedtoconsumer!"PPPNNN" $\: ();
+.consumer.results:flip `time`feedtime`consumertime`feedtotp`tptoconsumer`feedtoconsumer`batching`pubmode!"PPPNNNSS" $\: ();

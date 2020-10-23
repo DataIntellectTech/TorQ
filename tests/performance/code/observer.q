@@ -2,7 +2,7 @@
 
 // function to get all the above stats together:
 // takes in [timingtp or timingstp or timingdatatp or timingdatastp; name choice of timing csv; name choice of msg count csv]
-.obs.getstats:{[tab;name1;name2]
+.observer.getstats:{[tab;name1;name2]
   // get middle 30 seconds of data as the sample
   t:select from tab where time within ((((first tab)`time)+15000000000);((first tab)`time)+45000000000);
   // get tp -> consumer and feed -> consumer times
@@ -35,9 +35,50 @@
   system["mv returntab2.csv ","timingstats/",string[name2],".csv"];
  };
 
+/ Need to figure out vanilla TP still
+
+// Do an initial run to kick things off
+.observer.startrun:{
+  .lg.o[`startrun;"Beginning performance test run."]
+  .observer.completed:();
+  .observer.run . first .observer.scenarios;
+ };
+
+// Run each test scenario
+.observer.run:{[batch;mode]
+  .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," publishing mode."];
+
+  // Initialise each process, tell the feed to start publishing, update the completed tests list
+  (neg .observer[`tickhandle`feedhandle`conshandle]) @' ((`init;batch);(`.feed.init;mode);(`.consumer.init;mode;batch));
+  (neg .observer[`tickhandle`feedhandle`conshandle]) @\: (::);
+  neg[.observer.feedhandle] @/: ((`.feed.run;::);(::));
+  .observer.completed,:enlist batch,mode;
+ };
+
+// When the feed finishes publishing, it will signal this function to run
+.observer.runcomplete:{
+  .lg.o[`runcomplete;"Collecting data"];
+
+  // Gather and clear data from the consumer, then run the next test if there is one
+  system "sleep 1";
+  .observer.results,:.observer.conshandle(`.consumer.results);
+  .observer.conshandle(`.consumer.cleartable;::);
+  $[count sc:.observer.scenarios except .observer.completed;
+    .observer.run . first sc;
+    .lg.o[`runcomplete;"Performance test complete."]
+    ];
+ };
+
 // Observer init function
 .observer.init:{
+  .lg.o[`init;"Setting up process..."];
+  .proc.readprocfile .proc.file;
   .servers.startup[];
   .observer.feedhandle:.servers.gethandlebytype[`feed;`any];
   .observer.conshandle:.servers.gethandlebytype[`consumer;`any];
+  .observer.tickhandle:.servers.gethandlebytype[`segmentedtickerplant`tickerplant;`any];
   };
+
+// Call init function & begin tests if autorun mode is on
+.observer.init[];
+if[.observer.autorun;.observer.startrun[]];
