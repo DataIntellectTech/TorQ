@@ -13,7 +13,7 @@ getwhereclause:{[queryparams]
   :datefilter,whereclause;
  };
 
-//- if we have filters otf (=;`sym;1#`APPL) or (in;`sym;`APPL`GOOG), where `sym is the column with the attribute - put them to the fron
+//- if we have filters otf (=;`sym;1#`APPL) or (in;`sym;`APPL`GOOG), where `sym is the column with the attribute - put them to the front
 reorderbyattributecolumn:{[queryparams;whereclause]
   where1:where any(=;in)~/:\:first'[whereclause];
   if[0=count where1;:whereclause];
