@@ -20,8 +20,8 @@ reorderbyattributecolumn:{[queryparams;whereclause]
   attributecolumn:.dataaccess.gettableproperty[queryparams`tablename;`any;`attributecolumn]; //- atm .dataaccess.tablepropertiesconfig has separate rows for the rdb/hdb - use `any to retieve whichever comes first
   where2:where1 inter where attributecolumn~/:whereclause[;1];
   if[0=count where2;:whereclause];
-  attribureindex:first where2;
-  :@[whereclause;0,attribureindex;:;whereclause attribureindex,0];
+  attributeindex:first where2;
+  :@[whereclause;0,attributeindex;:;whereclause attributeindex,0];
  };
 
 getbyclause:{[queryparams]
