@@ -7,7 +7,7 @@ instruments,0,.checkinputs.allsymbols,,instruments of interest - see tableproper
 columns,0,.checkinputs.checkcolumnsexist,aggregations,table columns to return - assumed all if not present
 grouping,0,.checkinputs.checkcolumnsexist,,columns to group by -  no grouping assumed if not present
 aggregations,0,.checkinputs.checkaggregations,columns|freeformcolumn,dictionary of aggregations - e.g `last`max`wavg!(`mid,`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-timebar,0,.checkinputs.checktimebar,,list of (time column to group on;size;type - nanosecond,second,minute,hour,timespan)
+timebar,0,.checkinputs.checktimebar,,list of (time column to group on;size;type - `nanosecond`second`minute`hour`day)
 filters,0,.checkinputs.checkfilterformat,,a dictionary of columns + conditions in string format
 freeformwhere,0,.checkinputs.isstring,,where clause in string format
 freeformby,0,.checkinputs.isstring,,by clause in string format

@@ -18,6 +18,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractfreeformwhere[inputparams;queryparams];
   queryparams:extractfreeformby[inputparams;queryparams];
   queryparams:extractfreeformselect[inputparams;queryparams];
+  queryparams:jointableproperties[inputparams;queryparams];
   :queryparams;
  };
 
@@ -35,15 +36,15 @@ extractattributecolumn:{[inputparams;queryparams]
   :@[queryparams;`attributecolumn;:;attributecolumn];
  };
 
-extracttimefilter:{[inputparams;queryparams;typ]
-  x:inputparams typ;
-  if[not x`validrange;:queryparams];
-  timefilter:exec enlist(within;timecolumn;x`starttime`endtime)from inputparams;
-  :@[queryparams;`timefilter;:;timefilter];
+extracttimefilter:{[inputparams;queryparams;procparams;proctype;procvalidrange;proctimefilter]
+  procspecificparams:inputparams procparams;
+  timecolumn:inputparams`timecolumn;
+  additionalkeys:(proctype;procvalidrange;proctimefilter);
+  :queryparams,exec additionalkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procspecificparams;
  };
 
-extracthdbtimefilter:extracttimefilter[;;`hdb];
-extractrdbtimefilter:extracttimefilter[;;`rdb];
+extracthdbtimefilter:extracttimefilter[;;`hdbparams;`proctypehdb;`hdbvalidrange;`hdbtimefilter];
+extractrdbtimefilter:extracttimefilter[;;`rdbparams;`proctyperdb;`rdbvalidrange;`rdbtimefilter];
 
 extractinstrumentfilter:{[inputparams;queryparams]
   if[not`instruments in key inputparams;:queryparams];
@@ -77,8 +78,19 @@ extracteachaggregation:{[func;columns](`$string[func],raze .[string(),columns;(:
 
 extracttimebar:{[inputparams;queryparams]
   if[not`timebar in key inputparams;:queryparams];
-  timebar:inputparams`timebar;
-  :@[queryparams;`filters;:;enlist[timebar 0]!enlist timebar];
+  timebar:`timecol`size`bucket!inputparams`timebar;
+  timebucket:exec size*.checkinputs.timebarmap bucket from timebar;
+  :@[queryparams;`timebar;:;timebar[1#`timecol]!enlist(.eqp.xbarfunc;timebucket;timebar`timecol)];
+ };
+
+xbarfunc:{[n;x]
+  typ:type x;
+  timebucket:n*0D00:00.000000001;
+  if[typ~12h;:timebucket xbar x];
+  if[typ in 13 14h;:timebucket xbar 0D+`date$x];
+  if[typ~15h;:timebucket xbar`timespan$x];
+  if[typ in 16 17 18 19h;:timebucket xbar`timespan$x];
+  '`$"timebar type error"; //- type checks in checkinputs functions should stop it reaching here
  };
 
 extractfilters:{[inputparams;queryparams]
@@ -103,3 +115,5 @@ extractfreeformselect:{[inputparams;queryparams]
   selectclause:parse["select ",inputparams[`freeformselect]," from x"][4];
   :@[queryparams;`freeformselect;:;selectclause];
  };
+
+jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};

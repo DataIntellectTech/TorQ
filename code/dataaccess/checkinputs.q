@@ -162,7 +162,7 @@ checkaggregations:{[dict;parameter]
  };
 
 //- check for a list of length 3
-//- (timecolumn - symbol;time bar size - int/long;one of:`nanosecond`second`minute`hour`timespan)
+//- (timecolumn - symbol;time bar size - int/long;see key timebarmap)
 checktimebar:{[dict;parameter]
   input:dict parameter;
   if[not(3=count input)&0h~type input;'`$"timebar parameter must be a list of length 3"];
@@ -172,9 +172,11 @@ checktimebar:{[dict;parameter]
   dict:checkcolumntype[dict;parameter;input`timecol;-12 -13 -14 -15 -16 -17 -18 -19h];
   if[not any -6 -7h~\:type input`size;'`$"type of the second argument of timebar must be either -6h or -7h"];
   if[not -11h~type input`bucket;'`$"third argument of timebar must be of type -11h"];
-  if[not input[`bucket]in`nanosecond`second`minute`hour`timespan;'`$"third argument of timebar must be one of:`nanosecond`second`minute`hour`timespan"];
+  if[not input[`bucket]in key timebarmap;'`$.dataaccess.formatstring["third argument of timebar must be one of:{validargs}";enlist[`validargs]!enlist key timebarmap]];
   :dict;
  };
+
+timebarmap:`nanosecond`second`minute`hour`day!1 1000000000 60000000000 3600000000000 86400000000000;
 
 checkfilterformat:{[dict;parameter]
   if[not 0h~type first dict parameter;'`$"filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))"];

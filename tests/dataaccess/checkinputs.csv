@@ -30,7 +30,7 @@ true,0,0,q,checkreturnederror[`timebarcount],,1,,"timebar parameter must be a li
 true,0,0,q,checkreturnederror[`timebararg0],,1,,"first argument of timebar must be have type -11h"
 true,0,0,q,checkreturnederror[`timebararg1],,1,,"type of the second argument of timebar must be either -6h or -7h"
 true,0,0,q,checkreturnederror[`timebararg2],,1,,"third argument of timebar must be of type -11h"
-true,0,0,q,checkreturnederror[`timebarinvalid],,1,,"third argument of timebar must be one of:`nanosecond`second`minute`hour`timespan"
+true,0,0,q,checkreturnederror[`timebarinvalid],,1,,"third argument of timebar must be one of:`nanosecond`second`minute`hour`day"
 true,0,0,q,checkreturnederror[`timebarexists],,1,,"timecolumn does not exist"
 true,0,0,q,checkreturnederror[`timebartype],,1,,"timecolumn must be of valid type"
 true,0,0,q,checkreturnederror[`filterformat],,1,,"check that first argument of filterformat has type 0h - avoid (=;`cond;"J")"
@@ -39,3 +39,4 @@ true,0,0,q,checkreturnederror[`freeformbytype],,1,,",freeformbytype must be a st
 true,0,0,q,checkreturnederror[`freeformcolumntype],,1,,"freeformcolumntype must be a string"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput1,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput2,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
+true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput3,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"

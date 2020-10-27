@@ -27,7 +27,7 @@ timebarcount,timebar parameter must be a list of length 3
 timebararg0,first argument of timebar must be have type -11h
 timebararg1,type of the second argument of timebar must be either -6h or -7h
 timebararg2,third argument of timebar must be of type -11h
-timebarinvalid,third argument of timebar must be one of:`nanosecond`second`minute`hour`timespan
+timebarinvalid,third argument of timebar must be one of:`nanosecond`second`minute`hour`day
 timebarexists,"parameter:`timebar - table:`xdaily on process:`dailyrdb doesn't contain:,`invalidcolumn - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
 timebartype,"parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
 filterformat,filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))

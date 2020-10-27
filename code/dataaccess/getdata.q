@@ -8,5 +8,5 @@ getdata:{[inputparams]
  };
 
 executequery:{[query]
-  :get query; //- just executes on hdb for the moment
+  :get query[0;`query];
  };
