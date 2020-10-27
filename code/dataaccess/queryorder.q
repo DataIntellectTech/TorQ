@@ -7,17 +7,17 @@ orderquery:{[queryparams]enlist[?],(gettablename;getwhereclause;getbyclause;gets
 gettablename:{[queryparams]queryparams`tablename};
 
 getwhereclause:{[queryparams]
-  datefilter:queryparams`datefilter;
+  partitionfilter:queryparams`partitionfilter;
   whereclause:extractkeys[queryparams;`instrumentfilter`timefilter`filters`freeformwhere];
   whereclause:reorderbyattributecolumn[queryparams;whereclause];
-  :datefilter,whereclause;
+  :partitionfilter,whereclause;
  };
 
 //- if we have filters otf (=;`sym;1#`APPL) or (in;`sym;`APPL`GOOG), where `sym is the column with the attribute - put them to the front
 reorderbyattributecolumn:{[queryparams;whereclause]
   where1:where any(=;in)~/:\:first'[whereclause];
   if[0=count where1;:whereclause];
-  attributecolumn:.dataaccess.gettableproperty[queryparams`tablename;`any;`attributecolumn]; //- atm .dataaccess.tablepropertiesconfig has separate rows for the rdb/hdb - use `any to retieve whichever comes first
+  attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn]; 
   where2:where1 inter where attributecolumn~/:whereclause[;1];
   if[0=count where2;:whereclause];
   attributeindex:first where2;

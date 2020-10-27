@@ -1,6 +1,6 @@
 parameter,parametervalue
-tablename,`trade
-starttime,0D+.z.d-3
+tablename,`xdaily
+starttime,2000.01.010D
 endtime,.z.p
 timecolumn,`time
 timebar,"(`time;10;""nanosecond"")"

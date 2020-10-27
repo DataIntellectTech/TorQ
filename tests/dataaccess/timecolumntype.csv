@@ -1,5 +1,5 @@
 parameter,parametervalue
-tablename,`trade
-starttime,0D+.z.d-3
-endtime,2000.01.02D
+tablename,`xdaily
+starttime,2000.01.010D
+endtime,.z.p
 timecolumn,"""time"""

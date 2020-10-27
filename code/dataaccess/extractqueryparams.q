@@ -1,13 +1,14 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`datefilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();());
+queryparams:`tablename`partitionfilter`attributecolumn`hdbtimefilter`rdbtimefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();();());
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
-  queryparams:extractdatefilter[inputparams;queryparams];
+  queryparams:extractpartitionfilter[inputparams;queryparams];
   queryparams:extractattributecolumn[inputparams;queryparams];
-  queryparams:extracttimefilter[inputparams;queryparams];
+  queryparams:extracthdbtimefilter[inputparams;queryparams];
+  queryparams:extractrdbtimefilter[inputparams;queryparams];
   queryparams:extractinstrumentfilter[inputparams;queryparams];
   queryparams:extractcolumns[inputparams;queryparams];
   queryparams:extractgrouping[inputparams;queryparams];
@@ -22,25 +23,31 @@ extractqueryparams:{[inputparams;queryparams]
 
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
-extractdatefilter:{[inputparams;queryparams]
-  dates:`date$inputparams`starttime`endtime;
-  datefilter:exec enlist(within;`date;dates)from inputparams;
-  :@[queryparams;`datefilter;:;datefilter];
+extractpartitionfilter:{[inputparams;queryparams]
+  partitionfield:.dataaccess.gettableproperty[inputparams;`partitionfield];
+  partitionrange:partitionfield$inputparams`starttime`endtime;
+  partitionfilter:exec enlist(within;partitionfield;partitionrange)from inputparams;
+  :@[queryparams;`partitionfilter;:;partitionfilter];
  };
 
 extractattributecolumn:{[inputparams;queryparams]
-  attributecolumn:.dataaccess.gettableproperty[inputparams`tablename;`any;`attributecolumn]; //- atm .dataaccess.tablepropertiesconfig has separate rows for the rdb/hdb - use `any to retieve whichever comes first
+  attributecolumn:.dataaccess.gettableproperty[inputparams;`attributecolumn];
   :@[queryparams;`attributecolumn;:;attributecolumn];
  };
 
-extracttimefilter:{[inputparams;queryparams]
-  timefilter:exec enlist(within;timecolumn;(starttime;endtime))from inputparams;
+extracttimefilter:{[inputparams;queryparams;typ]
+  x:inputparams typ;
+  if[not x`validrange;:queryparams];
+  timefilter:exec enlist(within;timecolumn;x`starttime`endtime)from inputparams;
   :@[queryparams;`timefilter;:;timefilter];
  };
 
+extracthdbtimefilter:extracttimefilter[;;`hdb];
+extractrdbtimefilter:extracttimefilter[;;`rdb];
+
 extractinstrumentfilter:{[inputparams;queryparams]
   if[not`instruments in key inputparams;:queryparams];
-  instrumentcolumn:.dataaccess.gettableproperty[inputparams`tablename;`any;`instrumentcolumn]; //- atm .dataaccess.tablepropertiesconfig has separate rows for the rdb/hdb - use `any to retieve whichever comes first
+  instrumentcolumn:.dataaccess.gettableproperty[inputparams;`instrumentcolumn]; 
   instruments:enlist inputparams`instruments;
   filterfunc:$[1=count first instruments;=;in];
   instrumentfilter:enlist(filterfunc;instrumentcolumn;instruments);
