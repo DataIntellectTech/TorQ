@@ -1,8 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.dataaccess.init[],1,,"run init function //- temporary while hdb is being loaded in"
-before,0,0,q,"testdataaccessfolder:hsym`$getenv[`KDBTESTS],""/dataaccess""",1,,"Path to dummy dataaccess tests folder"
-before,0,0,q,.proc.loadf string .Q.dd[testdataaccessfolder;`utils.q],1,,"load utils"
-before,0,0,q,"errors:1!.dataaccess.readcsv[` sv testdataaccessfolder,`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"
+before,0,0,q,.dataaccess.init[],1,,"run init function"
+before,0,0,q,"errors:1!.dataaccess.readcsv[` sv checkinputsfolder,`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"
 true,0,0,q,checkreturnederrorcustom[`nondictinput;`],1,,"non dict input should be flagged"
 true,0,0,q,checkreturnederrorcustom[`nonsymbolkey;"ab"!"ab"],1,,"non symbol key should be flagged"
 true,0,0,q,checkreturnederror[`requiredparamsmissing],1,,"parameters with requied:1b must be included - see config/checkinputs.csv"

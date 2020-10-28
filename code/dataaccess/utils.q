@@ -1,8 +1,8 @@
 \d .dataaccess
 
 //- utils for reading in config
-readtableproperties:{[path;types] readcsv[path;types]};
-readcheckinputs:{[path;types] spliltcolumns[readcsv[path;types];`invalidpairs;`]};
+readtableproperties:{[] enrichtableproperties readcsv[first .proc.getconfigfile"tableproperties.csv";"sssssssss"]};
+readcheckinputs:{[] spliltcolumns[readcsv[first .proc.getconfigfile"checkinputs.csv";"sbs*"];`invalidpairs;`]};
 
 readcsv:{[path;types]
   if[not pathexists path:hsym path;'path];
@@ -18,35 +18,29 @@ spliltandcast:{[x;typ]typ$"|"vs/:x};
 
 //- read in meta info
 enrichtableproperties:{[tableproperties]
-  //- in future this will loop through a list of processes - for now just take meta from current process
-  metainfo:`tablename xkey joinmetainfo[getlivemetainfo[];gethistmetainfo[]];
+  metainfo:joinmetainfo[getlivemetainfo[tableproperties];gethistmetainfo[tableproperties]];
   tableproperties:union[key metainfo;key tableproperties]#tableproperties: `tablename xkey tableproperties;
   tableproperties:0!tableproperties lj metainfo;
   :`tablename xkey@[tableproperties;`attributecolumn`instrumentcolumn;`sym^];
  };
 
-gethistmetainfo:{[]
-  x:0!update proctypehdb:.proc.proctype,proctyperdb:`,partitionfield:.dataaccess.getpartitiontype[]from getmetainfo[];
-  newcols:@[cols x;cols[x]?`tablemeta;:;`hdbtablemeta];
-  :`tablename xkey newcols xcol x;
+getmetainfo:{[tableproperties;procfield;procmetafield]
+  :raze getmetainfoforproc[procfield;procmetafield]'[key x;get x:tableproperties group tableproperties procfield];
  };
 
-getlivemetainfo:{[]
-  //x:0!update proctypehdb:`,proctyperdb:.proc.proctype from getmetainfo[];
-  x:0!update proctypehdb:`,proctyperdb:`$ssr[string .proc.proctype;"hdb";"rdb"],tablemeta:![;enlist(=;`columns;1#`date);0b;`symbol$()]each tablemeta from .dataaccess.getmetainfo[];  //temp code
-  newcols:@[cols x;cols[x]?`tablemeta;:;`rdbtablemeta];
-  :`tablename xkey newcols xcol x;
+getmetainfoforproc:{[procfield;procmetafield;proctype;tableproperties] 
+  :.servers.gethandlebytype[proctype;`any](getmetainforemote;procfield;procmetafield);
  };
 
-getmetainfo:{[]
-  metas:meta each tables`.;
-  metas:([]tablemeta:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:metas);
-  :([]tablename:tables`),'metas;
+gethistmetainfo:getmetainfo[;`proctypehdb;`hdbparams];
+getlivemetainfo:getmetainfo[;`proctyperdb;`rdbparams];
+
+getmetainforemote:{[procfield;procmetafield]
+  columns:(`tablename;procfield;`partitionfield;procmetafield);
+  :1!flip columns!(tables`;.proc.proctype;$[()~key`.Q.pf;`;.Q.pf];([]metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;proctype:.proc.proctype));
  };
 
-joinmetainfo:{[livemetainfo;histmetainfo] `hdbtablemeta`rdbtablemeta _/:update metainfo:([]hdb:hdbtablemeta;rdb:rdbtablemeta)from livemetainfo^histmetainfo};
-
-getpartitiontype:{[]$[()~key`.Q.pf;`;.Q.pf]};
+joinmetainfo:{[livemetainfo;histmetainfo] livemetainfo^histmetainfo};
 
 //- misc utils
 getvalidparams:{[]checkinputsconfig`parameter};
@@ -67,11 +61,9 @@ formatstring:{[str;params]
 //- join table properties for a given table onto input params
 jointableproperties:{[inputparams]
   tableproperties:.dataaccess.tablepropertiesconfig inputparams`tablename;
-  inputparams[`hdbparams]:exec proctype:proctypehdb,metainfo:metainfo`hdb from tableproperties;
-  inputparams[`rdbparams]:exec proctype:proctyperdb,metainfo:metainfo`rdb from tableproperties;
-  inputparams[`tableproperties]:`proctypehdb`proctyperdb`metainfo _tableproperties;
-  inputparams:.[inputparams;(`tableproperties;`rollover`offset);.Q.dd[`.dataaccess]];
-  :inputparams;
+  inputparams[`hdbparams`rdbparams]:tableproperties`hdbparams`rdbparams;
+  inputparams[`tableproperties]:`hdbparams`rdbparams _tableproperties;
+  :.[inputparams;(`tableproperties;`rollover`offset);.Q.dd[`.dataaccess]];
  };
 
 //- extract from subdict of inputparams

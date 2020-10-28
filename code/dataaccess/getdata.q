@@ -8,5 +8,5 @@ getdata:{[inputparams]
  };
 
 executequery:{[query]
-  :get query[0;`query];
+  :exec raze .servers.gethandlebytype\:[proctype;`any]@'query from query;
  };

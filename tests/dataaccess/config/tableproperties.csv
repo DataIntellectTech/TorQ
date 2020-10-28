@@ -1,0 +1,4 @@
+proctypehdb,proctyperdb,tablename,timecolumn,attributecolumn,instrumentcolumn,timezone,rollover,offset
+dailyhdb,dailyrdb,xdaily,time,sym,sym,UTC,defaultrollover,defaultoffset
+monthlyhdb,monthlyrdb,xmonthly,time,sym,sym,UTC,defaultrollover,defaultoffset
+yearlyhdb,yearlyrdb,xyearly,time,sym,sym,UTC,defaultrollover,defaultoffset

@@ -5,7 +5,7 @@
 orderquery:{[queryparams]
   query:([]proctype:`$();query:());
   if[queryparams`hdbvalidrange;query,:getprocqueryorder[queryparams;`proctypehdb;`hdbtimefilter]];
-  if[queryparams`rdbvalidrange;query,:getprocqueryorder[queryparams;`proctyperdb;`rdbtimefilter]];
+  if[queryparams`rdbvalidrange;query,:getprocqueryorder[@[queryparams;`partitionfilter;:;()];`proctyperdb;`rdbtimefilter]];
   :query;
  };
 
