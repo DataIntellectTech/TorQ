@@ -11,3 +11,6 @@
 
 // Size of bulk updates
 .observer.bulkrows:1000;
+
+// Write results to disk
+.observer.savetodisk:1b;
