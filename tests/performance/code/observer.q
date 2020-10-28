@@ -70,9 +70,9 @@
   .observer.conshandle(`.consumer.cleartable;::);
   $[count sc:.observer.scenarios except .observer.completed;
     .observer.run . first sc;
-    .lg.o[`runcomplete;"Generating Performance Stats"];
-    .observer.getstats[.observer.results;] each .observer.scenarios;
-    .lg.o[`runcomplete;"Performance test complete."]
+    {.lg.o[`runcomplete;"Generating Performance Stats"];
+      .observer.getstats[.observer.results;] each .observer.scenarios;
+      .lg.o[`runcomplete;"Performance test complete."]}[]
     ];
  };
 
