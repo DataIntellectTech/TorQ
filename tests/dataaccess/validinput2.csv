@@ -1,9 +1,0 @@
-parameter,parametervalue
-tablename,`trade
-starttime,2000.01.01
-endtime,2000.01.02
-timecolumn,`time
-instruments,`AAPL`GOOG
-aggregations,`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-filters,((=;date;.z.d-1);(=;`sym;1#`AAPL))
-freeformwhere,"""price<100,size<10"""

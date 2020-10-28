@@ -1,5 +1,0 @@
-parameter,parametervalue
-tablename,`trade
-starttime,2000.01.01D00:00
-endtime,23:59
-timecolumn,`time

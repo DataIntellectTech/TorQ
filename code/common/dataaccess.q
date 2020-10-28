@@ -3,17 +3,16 @@
 
 \d .dataaccess
 
-isenabled:{[]"b"$0^first first .proc.params`dataaccess};
+isenabled:{[]"B"$first first .proc.params`dataaccess};
 enabled:@[isenabled;`;0n];
 
 init:{
   .lg.o[`.dataaccess.init;"running .dataaccess.init[]"];
-  .dataaccess.tablepropertiespath:first .proc.getconfigfile["tableproperties.csv"];         //- config defining any non standard attribute/primary time columns
-  .dataaccess.checkinputspath:first .proc.getconfigfile["checkinputs.csv"];                 //- The name of the input csv to drive what gets done
   additionalscripts:getenv[`KDBCODE],"/dataaccess";                                         //- load all q scripts in this path
   .proc.loaddir additionalscripts;
-  .dataaccess.tablepropertiesconfig:.dataaccess.enrichtableproperties readtableproperties[.dataaccess.tablepropertiespath;"sssss"];
-  .dataaccess.checkinputsconfig:readcheckinputs[.dataaccess.checkinputspath;"sbs*"];
+  .servers.startup[];
+  .dataaccess.tablepropertiesconfig:readtableproperties[];
+  .dataaccess.checkinputsconfig:readcheckinputs[];
   .lg.o[`.dataaccess.init;"running .dataaccess.init[] - finished"];
  };
 

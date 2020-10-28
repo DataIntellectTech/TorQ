@@ -1,3 +1,1 @@
-proctype,tablename,timecolumn,attributecolumn,instrumentcolumn
-hdb,quote_iex,srctime,ex,ex
-rdb,quote_iex,srctime,ex,ex
+proctypehdb,proctyperdb,tablename,timecolumn,attributecolumn,instrumentcolumn,timezone,rollover,offset
