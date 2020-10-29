@@ -1,7 +1,7 @@
 parameter,parametervalue
 tablename,`xdaily
 starttime,2000.01.01
-endtime,.z.d
+endtime,2000.01.06
 timecolumn,`time
 instruments,`AUDUSD`EURUSD
 grouping,`sym`source

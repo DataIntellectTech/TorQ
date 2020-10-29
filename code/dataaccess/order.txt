@@ -1,3 +1,0 @@
-utils.q
-dataaccessparams.q
-dataaccess.q

@@ -63,7 +63,7 @@ jointableproperties:{[inputparams]
   tableproperties:.dataaccess.tablepropertiesconfig inputparams`tablename;
   inputparams[`hdbparams`rdbparams]:tableproperties`hdbparams`rdbparams;
   inputparams[`tableproperties]:`hdbparams`rdbparams _tableproperties;
-  :.[inputparams;(`tableproperties;`rollover`offset);.Q.dd[`.dataaccess]];
+  :.[inputparams;(`tableproperties;`getrollover`getpartitionrange);.Q.dd[`.dataaccess]];
  };
 
 //- extract from subdict of inputparams
@@ -75,10 +75,3 @@ extractfromsubdict:{[inputparams;subdict;property]
 gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tableproperties key in inputparams
 gethdbparams:extractfromsubdict[;`hdbparams;];             //- extract from `hdbparams key in inputparams
 getrdbparams:extractfromsubdict[;`rdbparams;];             //- extract from `rdbparams key in inputparams
-
-
-//- rollover times between rdb and hdb
-.dataaccess.defaultrollover:{[].z.d+0D};
-
-//- offset times for non-primary time columns
-.dataaccess.defaultoffset:{[timecolumn;primarytimecolumn;daterange]@[daterange;1;+;not timecolumn~primarytimecolumn]};

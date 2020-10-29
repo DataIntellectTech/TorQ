@@ -2,7 +2,7 @@ params:([proctype:`dailyhdb`monthlyhdb`yearlyhdb`dailyrdb`monthlyrdb`yearlyrdb]
   func:`generatehdb`generatehdb`generatehdb`generaterdb`generaterdb`generaterdb;
   partitiontype:`date`month`year`date`month`year;
   hdbname:`dailyhdb`monthlyhdb`yearlyhdb```;
-  n:5 5 5 6 6 6;
+  n:5 5 5 5 5 5;
   tablename:`xdaily`xmonthly`xyearly`xdaily`xmonthly`xyearly;
   nrecord:10 10 10 10 10 10
  );
@@ -24,13 +24,13 @@ generaterdb:{[x]setinmemory[x]. exec .getrange[partitiontype][n]from x};
 
 generatedata:{[x;start;end]
   end:end-1;
-  difference:(end-start)%-1+x`nrecord;
+  difference:(end-start)%x`nrecord;
   timestamp:start+til[x`nrecord]*difference;
   syms:`AUDUSD`EURUSD`USDCHF;
   sym:`p#syms where 3#x`nrecord;
   source:(`$"source",/:string til nsyms:count syms)where 3#x`nrecord;
   id:"x",/:string til count source;
-  offset:til[nsyms]*difference%2*nsyms;
+  offset:til[nsyms]*difference%nsyms;
   time:raze timestamp+/:offset;
   sourcetime:raze timestamp+/:2*offset;
   price:raze 100+x[`nrecord]?/:10*1+til nsyms;

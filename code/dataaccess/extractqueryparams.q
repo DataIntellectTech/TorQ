@@ -25,8 +25,12 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
+  getpartitionrangefunc:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
+  timecolumn:inputparams`timecolumn;
+  primarytimecolumn:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
   partitionfield:.dataaccess.gettableproperty[inputparams;`partitionfield];
-  partitionrange:partitionfield$inputparams`starttime`endtime;
+  hdbtimerange:inputparams[`hdbparams]`starttime`endtime;
+  partitionrange:getpartitionrangefunc[timecolumn;primarytimecolumn;partitionfield;hdbtimerange];
   partitionfilter:exec enlist(within;partitionfield;partitionrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partitionfilter];
  };

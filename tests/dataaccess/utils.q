@@ -1,6 +1,8 @@
 testfolder:hsym`$getenv[`KDBTESTS],"/dataaccess";
 checkinputsfolder:hsym`$getenv[`KDBTESTS],"/dataaccess/checkinputs";
 
+.proc.loadf each 1_/:string .Q.dd/:[testfolder;`settings.q`customfuncs.q];
+
 //- read dictionary of params from csv named according to the test {testname}.csv
 gettestparams:{[test]exec parameter!get each parametervalue from .dataaccess.readcsv[`$string[checkinputsfolder],"/",string[test],".csv";"s*"]};
 
