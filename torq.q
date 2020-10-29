@@ -470,7 +470,7 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  @[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]];
+  @[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]];
   // if we got this far, file is loaded
   loadedf,:enlist x;
   .lg.o[`fileload;"successfully loaded ",x]
@@ -551,6 +551,13 @@ reloadprocesscode:{
 reloadnamecode:{
 	// Load procname code from each directory if it exists
 	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
+
+// execute system commands
+sys:{[cmd]
+	.lg.o[`system;"executing system command: ",cmd];
+	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];'error};
+	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
 	};
 
 \d . 
