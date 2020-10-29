@@ -19,12 +19,14 @@
   medbot:`timespan$med each exec feedtotp,tptoconsumer,feedtoconsumer from bot;
   drift:medtop-medbot;
   statstime:`med`avg`max`drift,'3 cut medians,averages,maximums,value drift;
+  // Rows per update
+  multi:?[`bulk=scenario[1];.observer.bulkrows;1];
   // get number of messages stats in mid 30 seconds sample
   seconds:1_select count i by time.second from t;
-  maxmps:max seconds;         // max messages per second
-  medmps:med seconds;         // median messages per second
-  avgmps:avg seconds;         // average messages per second
-  totalmsg: count t;          // total messages sent in middle 30 seconds sample
+  maxmps:multi*max seconds;         // max messages per second
+  medmps:multi*med seconds;         // median messages per second
+  avgmps:multi*avg seconds;         // average messages per second
+  totalmsg:multi*count t;          // total messages sent in middle 30 seconds sample
   // set tables of statistics
   `returntab1 set `stat xkey flip (`stat`feedtotp`tptoconsumer`feedtoconsumer)!flip statstime;
   `returntab2 set flip (`totalmsg`maxmps`medmps`avgmps)!totalmsg,value each (maxmps;medmps;avgmps);
