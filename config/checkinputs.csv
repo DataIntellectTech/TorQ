@@ -2,7 +2,7 @@ parameter,required,checkfunction,invalidpairs,description
 tablename,1,.checkinputs.isvalidtable,,table to query
 starttime,1,.checkinputs.checktimetype,,startime - see timecolumn
 endtime,1,.checkinputs.checktimetype,,endime - see timecolumn
-timecolumn,1,.checkinputs.checktimecolumn,,column to apply (startime;endime) filter to
+timecolumn,0,.checkinputs.checktimecolumn,,column to apply (startime;endime) filter to
 instruments,0,.checkinputs.allsymbols,,instruments of interest - see tableproperties.csv
 columns,0,.checkinputs.checkcolumnsexist,aggregations,table columns to return - assumed all if not present
 grouping,0,.checkinputs.checkcolumnsexist,,columns to group by -  no grouping assumed if not present

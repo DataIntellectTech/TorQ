@@ -8,7 +8,9 @@
 checkinputs:{[dict]
   dict:checkdictionary dict;
   dict:checkinvalidcombinations dict;
-  dict:checkeachparam dict;
+  dict:checkeachparam[dict;1b];
+  dict:filldefaulttimecolumn dict;
+  dict:checkeachparam[dict;0b];
   :dict;
  };
 
@@ -25,6 +27,12 @@ checkkeytype:{[dict]11h~type key dict};
 checkrequiredparams:{[dict]all .dataaccess.getrequiredparams[]in key dict};
 checkparamnames:{[dict]all key[dict]in .dataaccess.getvalidparams[]};
 
+filldefaulttimecolumn:{[dict]
+  defaulttimecolumn:.dataaccess.gettableproperty[dict;`primarytimecolumn];
+  if[`timecolumn in key dict;:dict];
+  if[not`timecolumn in key dict;:@[dict;`timecolumn;:;defaulttimecolumn]];
+ };
+
 checkinvalidcombinations:{[dict]
   parameters:key dict;
   xinvalidpairs:select parameter,invalidpairs:invalidpairs inter\:parameters from .dataaccess.checkinputsconfig where parameter in parameters;
@@ -35,10 +43,10 @@ checkinvalidcombinations:{[dict]
 
 checkeachpair:{[invalidpair]'`$.dataaccess.formatstring["parameter:{parameter} cannot be used in combination with parameter(s):{invalidpairs}";invalidpair]};
 
-//- loop through inpute parameters
+//- loop through input parameters
 //- execute parameter specific checks
-checkeachparam:{[dict]
-  config:select from .dataaccess.checkinputsconfig where parameter in key dict;
+checkeachparam:{[dict;isrequired]
+  config:select from .dataaccess.checkinputsconfig where parameter in key dict,required=isrequired;
   :checkparam/[dict;config];
  };
 
@@ -110,7 +118,7 @@ checktimeorder:{[dict;parameter]
  };
 
 splitinputtime:{[dict]
-  rollovertime:.dataaccess.gettableproperty[dict;`rollover][];
+  rollovertime:.dataaccess.gettableproperty[dict;`getrollover][];
   dict:update hdbparams:.checkinputs.extracttimerangehdb[hdbparams;starttime;endtime;rollovertime-1]from dict;
   dict:update rdbparams:.checkinputs.extracttimerangerdb[rdbparams;starttime;endtime;rollovertime]from dict;
   :dict;

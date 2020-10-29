@@ -1,1 +1,1 @@
-proctypehdb,proctyperdb,tablename,timecolumn,attributecolumn,instrumentcolumn,timezone,rollover,offset
+proctypehdb,proctyperdb,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,getrollover,getpartitionrange
