@@ -67,8 +67,64 @@ The other main update is how updates are published to subscribers. Again, there 
 
   Put stuff in here when we have the numbers
 
+defaultbatch bulk
+totalmsg,maxmps,medmps,avgmps
+19246000,3075000,2802500,2780333
+
+defaultbatch single
+totalmsg,maxmps,medmps,avgmps
+11060295,118005,116269.5,115044.4
+
+immediate bulk
+totalmsg,maxmps,medmps,avgmps
+254857000,3179000,2910000,2634094
+
+immediate single
+totalmsg,maxmps,medmps,avgmps
+6878760,87060,72034.5,71280.44
+
+memorybatch bulk
+totalmsg,maxmps,medmps,avgmps
+267751000,3167000,3032500,2770146
+
+memory batch single
+totalmsg,maxmps,medmps,avgmps
+18210031,195388,190664.5,189420.8
+
+Vanilla TP bulk
+totalmsg,maxmps,medmps,avgmps
+374452000,4004000,3943500,3868667
+
+Vanilla TP single
+totalmsg,maxmps,medmps,avgmps
+20122971,213974,211568,208786.4
+
+Data above is from a 2 minute sample size, Won't want to keep much of this in the end but anything that is kept should be formatted better.
+
+Through batching the data at the tickerplant the performance of the tickerplant can be improved significantly. By batching your data you can reduce the number of updates needed to be sent is reduced and the rows sent to sent to subscribers per second is increased. The performance of the batching modes on the STP have similar performance to one another and minor performance costs compared to a standard tickerplant. 
+
 **Error Trapping**
 
 If the `.stplg.errmode` Boolean variable is set to true, an error log is opened on start up and the `.u.upd` function is wrapped in an error trap, so that if a bad message is received, it is not published but instead sent to the error log. The advantage of this is that bad updates are not sent through or replayed into the subscribers, which could cause issues, and they are easier to find and debug.
 
 Note to self - what are the performance impacts of this? Add a line to the performance tests to just run again in other error mode
+
+**Time Zone Behaviour**
+- Stamping, rolling and offsets.
+- 
+
+One of the most important jobs of a tickerplant is to add the time value to the data it recieves before it's sent to any subscribers. This is a very important job to maintain data quality in your system so that users can trust it. 
+A difference of time zones for processes may cause issues for eod processes.
+
+**Chained STP**
+- Changes to regular TP.
+A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. 
+Can have different tickerplants in a chain in different modes, e.g. top level has no batching and chained STP has memory batching, allows greater flexability.
+
+**Customisation and Flexability**
+- Different UPDs for different tables using .stplg.updtab[`tabname]:updfunction. Allows a user to 
+- Sequence numbering for tables (Don't know what is meant by this)
+- Any other useful examples of customisation.
+
+This STP framework allows increased customisation for your system for example an STP can have different upd functions for different tables using the code .stplg.updtab[`tabname]:updfunction.
+
