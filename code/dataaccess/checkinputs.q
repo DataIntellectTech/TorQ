@@ -9,6 +9,7 @@ checkinputs:{[dict]
   dict:checkdictionary dict;
   dict:checkinvalidcombinations dict;
   dict:checkeachparam[dict;1b];
+  dict:connectionavailable dict;
   dict:filldefaulttimecolumn dict;
   dict:checkeachparam[dict;0b];
   :dict;
@@ -52,6 +53,14 @@ checkeachparam:{[dict;isrequired]
 
 //- extract parameter specific function from confing - to check the input
 checkparam:{[dict;config] config[`checkfunction][dict;config`parameter]};
+
+//- check connection is available
+connectionavailable:{[dict]
+  required:dict[`tableproperties;`proctypehdb`proctyperdb]except`;
+  missing:exec required except proctype from .dataaccess.procmetainfo;
+  if[count missing;'`$.dataaccess.formatstring["no process of type:{missing} required to access {tablename}";`tablename`missing!(dict`tablename;missing)]];
+  :dict;
+ };
 
 //- generic function to takes in an atom/list of valid types and compare it against input types 
 checktype:{[validtypes;dict;parameter]
