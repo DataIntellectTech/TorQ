@@ -13,7 +13,7 @@ generatehdb:{[x]
   loadhdb x`hdbdir;
  };
 
-updatehdbdir:{[x]update hdbdir:` sv(testfolder;`hdb;hdbname)from x};
+updatehdbdir:{[x]update hdbdir:` sv(testpath;hdbname)from x};
 loadhdb:{[hdbdir]system "l ",1_string hdbdir};
 
 generaterdb:{[x]setinmemory[x]. exec .getrange[partitiontype][n]from x};

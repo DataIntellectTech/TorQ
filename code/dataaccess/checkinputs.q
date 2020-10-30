@@ -106,7 +106,7 @@ checktimetype:{[dict;parameter]:checktype[-12 -14 -15h;dict;parameter]};
 //- check the given `timecolumn has valid type (e.g don't pass timecolumn:`sym)
 checktimecolumn:{[dict;parameter]
   dict:issymbol[dict;parameter];
-  checktimeorder[dict;parameter];
+  dict:checktimeorder[dict;parameter];
   dict:splitinputtime dict;
   dict:columnsexist[dict;parameter;dict`timecolumn];
   :checkcolumntype[dict;parameter;dict`timecolumn;-12 -14 -15h];
@@ -114,7 +114,7 @@ checktimecolumn:{[dict;parameter]
 
 checktimeorder:{[dict;parameter]
   if[dict[`starttime]>dict`endtime;'`$"starttime>endtime"];
-  dict;
+  :dict;
  };
 
 splitinputtime:{[dict]
