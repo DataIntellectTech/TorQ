@@ -1,0 +1,95 @@
+2020.10.29D21:35:05.962722000|homer|test|test1|INF|logging|creating alias using command ln -sf out_checkinputs_2020_10_29_21_35_05_960266000.log /home/mmeenagh1/FSP/data-access/tests/dataaccess/results/2020.10.29//logs//out_checkinputs.log
+################################################################################
+#                                                                              #
+#                                 TorQ v3.7.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.9.0                       #
+#                                                                              #
+################################################################################
+2020.10.29D21:35:05.965422000|homer|test|test1|INF|k4unit|start
+2020.10.29D21:35:05.965448000|homer|test|test1|INF|k4unit|:/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 37 test(s)
+2020.10.29D21:35:05.965470000|homer|test|test1|INF|.dataaccess.init|running .dataaccess.init[]
+2020.10.29D21:35:05.965479000|homer|test|test1|INF|fileload|loading q and k files from directory /home/mmeenagh1/FSP/data-access/code/dataaccess
+2020.10.29D21:35:05.965530000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/checkinputs.q
+2020.10.29D21:35:05.966359000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/checkinputs.q
+2020.10.29D21:35:05.966370000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/customfuncs.q
+2020.10.29D21:35:05.966441000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/customfuncs.q
+2020.10.29D21:35:05.966449000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/extractqueryparams.q
+2020.10.29D21:35:05.966966000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/extractqueryparams.q
+2020.10.29D21:35:05.966976000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/getdata.q
+2020.10.29D21:35:05.967045000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/getdata.q
+2020.10.29D21:35:05.967053000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/queryorder.q
+2020.10.29D21:35:05.967267000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/queryorder.q
+2020.10.29D21:35:05.967276000|homer|test|test1|INF|fileload|loading /home/mmeenagh1/FSP/data-access/code/dataaccess/utils.q
+2020.10.29D21:35:05.967656000|homer|test|test1|INF|fileload|successfully loaded /home/mmeenagh1/FSP/data-access/code/dataaccess/utils.q
+2020.10.29D21:35:05.967874000|homer|test|test1|INF|conn|attempting to connect to discovery services
+2020.10.29D21:35:05.967903000|homer|test|test1|INF|conn|attempting to open handle to :homer:29901
+2020.10.29D21:35:05.968464000|homer|test|test1|INF|conn|connection to :homer:29901 successful
+2020.10.29D21:35:05.969356000|homer|test|test1|INF|conn|registering with discovery services
+2020.10.29D21:35:05.969366000|homer|test|test1|INF|conn|requesting processes from discovery service
+2020.10.29D21:35:05.969372000|homer|test|test1|INF|conn|querying discovery services for processes of types dailyhdb monthlyhdb yearlyhdb dailyrdb monthlyrdb yearlyrdb
+2020.10.29D21:35:05.970547000|homer|test|test1|INF|conn|attempting to open handle to :homer:29902
+2020.10.29D21:35:05.971085000|homer|test|test1|INF|conn|connection to :homer:29902 successful
+2020.10.29D21:35:05.971093000|homer|test|test1|INF|conn|attempting to open handle to :homer:29903
+2020.10.29D21:35:05.971630000|homer|test|test1|INF|conn|connection to :homer:29903 successful
+2020.10.29D21:35:05.971638000|homer|test|test1|INF|conn|attempting to open handle to :homer:29904
+2020.10.29D21:35:05.972056000|homer|test|test1|INF|conn|connection to :homer:29904 successful
+2020.10.29D21:35:05.972063000|homer|test|test1|INF|conn|attempting to open handle to :homer:29905
+2020.10.29D21:35:05.972574000|homer|test|test1|INF|conn|connection to :homer:29905 successful
+2020.10.29D21:35:05.972580000|homer|test|test1|INF|conn|attempting to open handle to :homer:29906
+2020.10.29D21:35:05.973198000|homer|test|test1|INF|conn|connection to :homer:29906 successful
+2020.10.29D21:35:05.973205000|homer|test|test1|INF|conn|attempting to open handle to :homer:29907
+2020.10.29D21:35:05.973613000|homer|test|test1|INF|conn|connection to :homer:29907 successful
+2020.10.29D21:35:05.978539000|homer|test|test1|INF|k4unit|end
+"k4unit Test Results"
+action ms bytes lang code                                              repeat file                                                                          msx bytesx ok okms okbytes valid timestamp               csvline
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+true   0  0     q    checkreturnederrorcustom[`nondictinput;`]         1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1  1    1       1     2020.10.29T21:35:05.977 4      
+true   0  0     q    checkreturnederrorcustom[`nonsymbolkey;"ab"!"ab"] 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1  1    1       1     2020.10.29T21:35:05.977 5      
+true   0  0     q    checkreturnederror[`requiredparamsmissing]        1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.977 6      
+true   0  0     q    checkreturnederror[`invalidcomb1]                 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.977 7      
+true   0  0     q    checkreturnederror[`invalidcomb2]                 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.977 8      
+true   0  0     q    checkreturnederror[`tablenametypeerror]           1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.977 9      
+true   0  0     q    checkreturnederror[`tableexists]                  1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 10     
+true   0  0     q    checkreturnederror[`starttimetype]                1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 11     
+true   0  0     q    checkreturnederror[`endtimetype]                  1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 12     
+true   0  0     q    checkreturnederror[`timecolumntype]               1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 13     
+true   0  0     q    checkreturnederror[`timecolumnexists]             1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 14     
+true   0  0     q    checkreturnederror[`invalidtimecolumn]            1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 15     
+true   0  0     q    checkreturnederror[`checktimeorder]               1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 16     
+true   0  0     q    checkreturnederror[`instrumenttype]               1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 17     
+true   0  0     q    checkreturnederror[`columntypes]                  1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 18     
+true   0  0     q    checkreturnederror[`columnsexist]                 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 19     
+true   0  0     q    checkreturnederror[`groupingtype]                 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 20     
+true   0  0     q    checkreturnederror[`aggregationdict]              1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      0  1    1       0     2020.10.29T21:35:05.978 21     
+..
+"k4unit Test Errors"
+action ms bytes lang code                                       repeat file                                                                          msx bytesx okms okbytes valid timestamp               csvline
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+true   0  0     q    checkreturnederror[`requiredparamsmissing] 1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.977 6      
+true   0  0     q    checkreturnederror[`invalidcomb1]          1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.977 7      
+true   0  0     q    checkreturnederror[`invalidcomb2]          1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.977 8      
+true   0  0     q    checkreturnederror[`tablenametypeerror]    1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.977 9      
+true   0  0     q    checkreturnederror[`tableexists]           1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 10     
+true   0  0     q    checkreturnederror[`starttimetype]         1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 11     
+true   0  0     q    checkreturnederror[`endtimetype]           1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 12     
+true   0  0     q    checkreturnederror[`timecolumntype]        1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 13     
+true   0  0     q    checkreturnederror[`timecolumnexists]      1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 14     
+true   0  0     q    checkreturnederror[`invalidtimecolumn]     1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 15     
+true   0  0     q    checkreturnederror[`checktimeorder]        1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 16     
+true   0  0     q    checkreturnederror[`instrumenttype]        1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 17     
+true   0  0     q    checkreturnederror[`columntypes]           1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 18     
+true   0  0     q    checkreturnederror[`columnsexist]          1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 19     
+true   0  0     q    checkreturnederror[`groupingtype]          1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 20     
+true   0  0     q    checkreturnederror[`aggregationdict]       1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 21     
+true   0  0     q    checkreturnederror[`aggregationkey]        1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 22     
+true   0  0     q    checkreturnederror[`aggregationvalues]     1      :/home/mmeenagh1/FSP/data-access/tests/dataaccess/checkinputs/checkinputs.csv 0   0      1    1       0     2020.10.29T21:35:05.978 23     
+..
