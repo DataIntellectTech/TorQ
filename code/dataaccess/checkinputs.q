@@ -153,10 +153,10 @@ convertstringtype:{[x]`short$(-1 1)[x~upper x]*.Q.t?lower x};
 issymbol:{[dict;parameter]:checktype[-11h;dict;parameter]};
 allsymbols:{[dict;parameter]:checktype[11 -11h;dict;parameter]};
 
-//- sould be otf: `last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+//- sould be otf: `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 //- returns columns: `lastMid`maxMid`maxMid`maxBidprice`maxAskprice`wavgAsksizeAskprice`wavgBidsizeBidprice
 checkaggregations:{[dict;parameter]
-  example:"`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))";
+  example:"`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))";
   input:dict parameter;
   if[not 99h~type input;'`$"aggregations parameter must be of type dict - example:",example];
   if[not 11h~abs type key input;'`$"aggregations parameter key must be of type 11h - example:",example];

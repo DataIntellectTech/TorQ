@@ -17,9 +17,9 @@ instrumenttype,`instruments input type incorrect - valid type(s):11 -11h - input
 columntypes,`columns input type incorrect - valid type(s):11 -11h - input type:0h
 columnsexist,parameter:`columns - table:`xdaily on process:`dailyrdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize
 groupingtype,`grouping input type incorrect - valid type(s):11 -11h - input type:0h
-aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`mid;`mid`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 aggregationcolumnsexist,"parameter:`aggregations - table:`xdaily on process:`dailyrdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
 invalidaggregationfuncs,invalid functions passed to aggregation parameter:`invalid1`invalid2
 timebarargstype,timebar parameter must be a list of length 3
