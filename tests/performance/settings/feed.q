@@ -13,7 +13,6 @@
 .feed.side:`buy`sell;
 .feed.maxprice:100.0;
 .feed.maxsize:50;
-.feed.bulkrows:1000;
 .feed.looptime:00:00:10;
 
 // Create bulk update
