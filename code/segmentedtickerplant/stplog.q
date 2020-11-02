@@ -198,21 +198,14 @@ endofdaydata:{
 
 // Send close of period message to subscribers, update logging period times
 // roll logs if flag is specified - we don't want to roll logs if end-of-day is also going to be triggered
-endofperiod:{[pORcurrentpd;rolllogsORnextpd;data]
-  $[.sctp.chainedtp;[
-    p:.eodtime.dailyadj+now:.z.p;
-    // rolllogs determines whether logs are rolled (shouldnt roll if end of day is also triggered)
-    rolllogs: not .eodtime.nextroll < now;
-    .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-    .stpps.pubclear[.stplg.t];
-    .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-    // here pORcurrentpd = currentpd, rolllogsORnextpd = nextpd
-    periodrollover[pORcurrentpd;rolllogsORnextpd;data;rolllogs;p;rolllogsORnextpd];
-    ];
-    // here pORcurrentpd = p, rolllogsORnextpd = rolllogs
-    [.lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-    periodrollover[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[];rolllogsORnextpd;pORcurrentpd;pORcurrentpd];]
-    ]
+endofperiod:{[currentpd;nextpd;data]
+  p:.eodtime.dailyadj+now:.z.p;
+  // rolllogs determines whether logs are rolled (shouldnt roll if end of day is also triggered)
+  rolllogs: not .eodtime.nextroll < now;
+  .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+  .stpps.pubclear[.stplg.t];
+  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
+  periodrollover[currentpd;nextpd;data;rolllogs;p;nextpd];
   };
 
 periodrollover:{[currentpd;nextpd;data;rolllogs;p;period]
@@ -229,15 +222,11 @@ periodrollover:{[currentpd;nextpd;data;rolllogs;p;period]
 
 // send end of day to subscribers, close out current logs, roll the day, 
 // create new and directory for the next day
-endofday:{[pORdate;data]
-  $[.sctp.chainedtp;[
-    .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-    .stpps.pubclear[.stplg.t];
-    p:.z.p;
-    dayrollover[pORdate;data;p] // here pORdate = date
-    ];
-    dayrollover[.eodtime.d;.stplg.endofdaydata[];pORdate] // here pORdate = p
-    ]
+endofday:{[date;data]
+  .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+  .stpps.pubclear[.stplg.t];
+  p:.z.p;
+  dayrollover[date;data;p]
   }
 
 dayrollover:{[date;data;p]
@@ -250,10 +239,9 @@ dayrollover:{[date;data;p]
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;                                         // close current day logs
   .eodtime.d+:1;                                                 // increment current day
-  init[string `. `.proc.procname];                               // reinitialise process
+  init[string .proc.procname];                                   // reinitialise process
   .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
  }
-
 
 // get the next end time to compare to
 getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailyadj)}
@@ -261,8 +249,8 @@ getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailya
 checkends:{
   // jump out early if don't have to do either 
   if[nextendUTC > x; :()];
-  if[nextperiod < x1:x+.eodtime.dailyadj; endofperiod[x1;not isendofday:.eodtime.nextroll < x;0]];
-  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"];endofday[x;0]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; periodrollover[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[];not isendofday:.eodtime.nextroll < x;x1;x1]];
+  if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; dayrollover[.eodtime.d;.stplg.endofdaydata[];x]];
  };
 
 init:{[dbname]
