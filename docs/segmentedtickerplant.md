@@ -137,6 +137,13 @@ Different processes can have different time zone settings to time stamp for diff
 - Changes to regular TP.
 A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. 
 Can have different tickerplants in a chain in different modes, e.g. top level has no batching and chained STP has memory batching, allows greater flexability.
+There are 3 different logging modes for the Chained STP:
+
+- None: Chained STP does not create or access any log files.
+
+- Create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
+
+- Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
 
 **Customisation and Flexability**
 - Different UPDs for different tables 
