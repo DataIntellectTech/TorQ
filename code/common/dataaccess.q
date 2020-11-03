@@ -18,7 +18,7 @@ metainfo:([tablename:`$()]partitionfield:`$();hdbparams:();rdbparams:());
 initnewconnection:{[tablepropertiespath;connectiontab]
   .lg.o[`.dataaccess.init;"running .dataaccess.initnewconnection"];
   .proc.loaddir getenv[`KDBCODE],"/dataaccess";
-  .servers.startup[];
+  .servers.retry[];
   if[not validtablepropertiespath[];resettablepropertiespath tablepropertiespath];
   if[()~key`.dataaccess.tablepropertiesconfig;`.dataaccess.tablepropertiesconfig set readtableproperties tablepropertiespath];
   if[()~key`.dataaccess.checkinputsconfig;`.dataaccess.checkinputsconfig set readcheckinputs checkinputspath];
