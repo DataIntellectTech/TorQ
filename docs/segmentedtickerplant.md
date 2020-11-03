@@ -42,24 +42,29 @@ The default TP logging behaviour is to write all updates to disk in a single log
 
   This mode is essentially the default TP behaviour, where all ticks across all tables for a given day are stored in a single file, eg. `database20201026154808`. This is the simplest form of logging as everything is in one place.
 
+```
     logdir/
     ├── testlogday1
     └── testlogday2
+```
 
 - Periodic:
 
   In this mode all the updates are stored in a the same file but the logs are rolled according to a custom period, set with `.stplg.multilogperiod`. For example, if the period is set to an hour a new log file will be created every hour and stored in a daily partitioned directory. This means that if a subscriber goes down, only the last hour of logs need to be replayed rather than everything so far that day, and that any log file corruptions will only affect that time period of data rather than the whole day.
 
+```
     logdir/
     ├── periodic20201026000000    
     ├── periodic20201026010000
     ├── periodic20201026020000
     └── stpmeta
+```
 
 - Tabular:
 
   This mode is similar to the default behaviour except that each table has its own log file which is rolled daily in the form `trade20201026154808`. This has similar benefits to the previous case where only the ticks for individual tables need to be replayed for the day, and that any file mishaps are confined to a single table's worth of updates.
 
+```
     logdir/
     ├── err20201006204546
     ├── logmsg_20201006204546
@@ -69,11 +74,13 @@ The default TP logging behaviour is to write all updates to disk in a single log
     ├── stpmeta
     ├── trade_20201006204546
     └── trade_iex_20201006204546
+```
 
 - Tabperiod:
 
   As the name suggests this mode combines the behaviour of the tabular and periodic logging modes, whereby each table has its own log file, each of which are rolled periodically as defined in the process. This adds the flexibility of both those modes when it comes to replays and file corruption too.
 
+```
     logdir/
     ├── err20201006204518
     ├── err20201006204520
@@ -90,6 +97,7 @@ The default TP logging behaviour is to write all updates to disk in a single log
     ├── trade20201006204520
     ├── trade_iex20201006204518
     └── trade_iex20201006204520
+```
 
 - Custom:
 
