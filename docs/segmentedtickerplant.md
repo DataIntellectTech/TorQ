@@ -10,6 +10,23 @@ The idea behind the STP was to create a process which retained all the functiona
 
 What has been added are multiple logging modes, which allow the logs to be split and partitioned, and subscription modes, which alter how the data is batched and published, as well as error handling, which sends bad messages to a separate file.
 
+**Starting a Segmented Tickerplant process**
+
+Starting an STP process is similar to starting a tickerplant, we need to have an updated process.csv that contains a line for the STP process like the one below. Optional flags such as `-.stplg.batchmode` and `-.stplg.errmode` can be added to change settings for the process.
+
+localhost,{KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -.stplg.batchmode immediate -.stplg.errmode 0 -t 1,q
+
+The process can either be started using:
+
+bash torq.sh start stp1 -csv path/to/process.csv
+
+or:
+
+q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -procfile path/to/proces.csv -load ${KDBCODE}/processes/segmentedtickerplant.q 
+
+Useful flags for STP process:
+ * include some flags that users would find useful such as -t or -.stplg.batchmode and explain what they are briefly and give an example input.
+
 **Logging Modes**
 
 The default TP logging behaviour is to write all updates to disk in a single log file. This can be unwieldy as the whole file needs to be played through when a process starts, which can be slow as the number of ticks increases, and if the file is corrupted all the data is impacted. To add more flexibility, the following logging modes have been added which are set with the `.stplg.multilog` variable:
@@ -110,11 +127,11 @@ If the `.stplg.errmode` Boolean variable is set to true, an error log is opened 
 Note to self - what are the performance impacts of this? Add a line to the performance tests to just run again in other error mode
 
 **Time Zone Behaviour**
-- Stamping, rolling and offsets.
-- 
+- Stamping, rolling and offsets. 
 
 One of the most important jobs of a tickerplant is to add the time value to the data it recieves before it's sent to any subscribers. This is a very important job to maintain data quality in your system so that users can trust it. 
 A difference of time zones for processes may cause issues for eod processes.
+Different processes can have different time zone settings to time stamp for different data from different markets and to roll over correctly at the end of day. One system could have different processes handling US or EU data.
 
 **Chained STP**
 - Changes to regular TP.
@@ -122,9 +139,11 @@ A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain
 Can have different tickerplants in a chain in different modes, e.g. top level has no batching and chained STP has memory batching, allows greater flexability.
 
 **Customisation and Flexability**
-- Different UPDs for different tables using .stplg.updtab[`tabname]:updfunction. Allows a user to 
-- Sequence numbering for tables (Don't know what is meant by this)
-- Any other useful examples of customisation.
+- Different UPDs for different tables 
+ New functionality added is to enable the use of different upd functions in one ticker plant process for each table. This can be done a new variable `.stplg.updtab`. This is a dictionary that contains the upd functions for each table. Changes can be made to this like so:
 
-This STP framework allows increased customisation for your system for example an STP can have different upd functions for different tables using the code .stplg.updtab[`tabname]:updfunction.
+`.stplg.updtab[\`tabname]:updfunction`
+
+This allows a system to have a greater degree of flexability without necessitating additional processes. For example a table containing stats on updates can be created using this functionality to create a unique upd function for this. 
+ A table can be created including the sequence number which is the number of messages sent out by the stp and is updated in the upd function.
 
