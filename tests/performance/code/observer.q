@@ -1,45 +1,5 @@
-// REDO DIS
-
-// function to get all the above stats together:
-// takes in [timingtp or timingstp or timingdatatp or timingdatastp; name choice of timing csv; name choice of msg count csv]
-.observer.getstats:{[tab;scenario]
-  // get middle 90% of data as the sample
-  tab:select from tab where batching=scenario[0], pubmode=scenario[1];
-  looptime:.observer.feedhandle ".feed.looptime";
-  t:select from tab where time within ((((first tab)`time)+"v"$0.1*looptime);((first tab)`time)+"v"$0.9*looptime); 
-  // get tp -> consumer and feed -> consumer times
-  midtimes:value exec feedtotp,tptoconsumer,feedtoconsumer from t;
-  medians:`timespan$med each midtimes;
-  averages:`timespan$avg each midtimes;
-  maximums:`timespan$max each midtimes;
-  // drift calculation
-  top:(floor (count tab)*.10)#tab;           // get first 10% of sample
-  bot:(neg floor (count tab)*.10)#tab;       // get last 10% of sample  
-  medtop:`timespan$med each exec feedtotp,tptoconsumer,feedtoconsumer from top;
-  medbot:`timespan$med each exec feedtotp,tptoconsumer,feedtoconsumer from bot;
-  drift:medtop-medbot;
-  statstime:`med`avg`max`drift,'3 cut medians,averages,maximums,value drift;
-  // Rows per update
-  multi:?[`bulk=scenario[1];.observer.bulkrows;1];
-  // get number of messages stats in mid 30 seconds sample
-  seconds:1_select count i by time.second from t;
-  maxmps:multi*max seconds;         // max messages per second
-  medmps:multi*med seconds;         // median messages per second
-  avgmps:multi*avg seconds;         // average messages per second
-  totalmsg:multi*count t;          // total messages sent in middle 30 seconds sample
-  // set tables of statistics
-  `returntab1 set `stat xkey flip (`stat`feedtotp`tptoconsumer`feedtoconsumer)!flip statstime;
-  `returntab2 set flip (`totalmsg`maxmps`medmps`avgmps)!totalmsg,value each (maxmps;medmps;avgmps);
-  // save stats tables
-  statsdir:(getenv `KDBTESTS),"/performance/";
-  if[not `timingstats in key `$":",statsdir; system "mkdir ", statsdir, "timingstats"];
-  tab1name:`$":",statsdir,"timingstats/",string[scenario[0]],string[scenario[1]],"_",string[.z.p],"_1.csv";
-  tab2name:`$":",statsdir,"timingstats/",string[scenario[0]],string[scenario[1]],"_",string[.z.p],"_2.csv";
-  if[.observer.savetodisk;hsym[tab1name] 0: csv 0: returntab1];
-  if[.observer.savetodisk;hsym[tab2name] 0: csv 0: returntab2];
- };
-
-/ Need to figure out vanilla TP still
+// Main script for Observer process
+// This process orchestrates the performance tests, collects the results and performs post-processing
 
 // Do an initial run to kick things off
 .observer.startrun:{
@@ -52,10 +12,13 @@
 .observer.run:{[batch;mode]
   .lg.o[`run;"Running tests with a ",string[batch]," tickerplant and ",string[mode]," message publishing mode."];
 
-  // Initialise the feed and consumer processes and, if necessary, the STP (vanilla TP doesn't need setting up)
+  // Initialise the feed and consumer processes and the tickerplants
   neg[.observer.feedhandle] @/: ((set;`.feed.bulkrows;.observer.bulkrows);(`.feed.init;mode;batch);(::));
   neg[.observer.conshandle] @/: ((set;`.consumer.bulkrows;.observer.bulkrows);(`.consumer.init;mode;batch);(::));
-  if[not `vanilla~batch;neg[.observer.stphandle] @/: ((`init;batch);(::))];
+  $[batch like "vanilla*";
+    if[`vanillabatch~batch;.observer.tphandle(system;.observer.tpreset)];
+    neg[.observer.stphandle] @/: ((`init;batch);(::))
+   ];
   
   // Tell the feed to start publishing and add to the list of completed scenarios
   neg[.observer.feedhandle] @/: ((`.feed.run;::);(::));
@@ -64,21 +27,57 @@
 
 // When the feed finishes publishing, it will signal this function to run
 .observer.runcomplete:{
+  // Gather and clear data from the consumer, then run the next test if there is one, if not, begin post-processing
   .lg.o[`runcomplete;"Collecting data"];
-
-  // Gather and clear data from the consumer, then run the next test if there is one
   system "sleep 1";
   .observer.results,:.observer.conshandle(`.consumer.results);
   .observer.conshandle(`.consumer.cleartable;::);
   $[count sc:.observer.scenarios except .observer.completed;
     .observer.run . first sc;
-    {.lg.o[`runcomplete;"Generating Performance Stats"];
-      .observer.getstats[.observer.results;] each .observer.scenarios;
-      .lg.o[`runcomplete;"Performance test complete."]}[]
+    .observer.postprocess[]
     ];
  };
 
-// Set handle from procfile, open handles to feed, consumer and STP
+// Post-process performance test results
+.observer.postprocess:{
+  // Perform post-processing, set to root namespace and optionally return
+  .lg.o[`postprocess;"Beginning post-processing..."];
+  output:.observer.postprocessinner[.observer.results;.observer.feedhandle(`.feed.looptime);] each .observer.scenarios;
+  stats1:raze first each output;
+  stats2:raze last each output;
+  `transit`mps set' (stats1;stats2);
+  .lg.o[`postprocess;"Post-processing complete..."];
+  if[not .observer.savetodisk;:(stats1;stats2)];
+
+  // Save results to disk if applicable
+  .lg.o[`postprocess;"Saving results to disk..."];
+  if[not `results in key hsym `$.observer.perfdir;system "mkdir ",.observer.perfdir,"/results"];
+  (hsym `$.observer.perfdir,"/results/transit_",ssr[string .z.p;"[D.:]";"_"],".csv") 0: csv 0: stats1;
+  (hsym `$.observer.perfdir,"/results/mps_",ssr[string .z.p;"[D.:]";"_"],".csv") 0: csv 0: stats2;
+  .lg.o[`postprocess;"Complete."];
+ };
+
+// Extract statistics from a given scenario
+.observer.postprocessinner:{[tab;looptime;scenario]
+  // Select out each scenario and take the middle 80%
+  tab:select from tab where batching=first scenario,pubmode=last scenario;
+  midtab:select from tab where time within (("v"$(0.1;0.9) */: looptime) + exec first time from tab);
+
+  // Get transit time stats and find the 'drift' between the first and last 10% of the results
+  vals:"n"$'(med;avg;max) @/:\: value exec feedtotp,tptoconsumer,feedtoconsumer from midtab;
+  slices:((::;neg) @\: (floor count[tab]*0.1)) #\: tab;
+  drift:"n"$value (-/) ?[;();();cl!med ,/: cl:`feedtotp`tptoconsumer`feedtoconsumer] each slices;
+
+  // Get high-level stats per second with bulk multiplier
+  seconds:$[`bulk=last scenario;.observer.bulkrows;1]*select count i by time.second from midtab;   // 1_???
+  
+  // Conglomerate transit time stats into a keyed table and grab message per second data from table and return
+  stats1:`stats xcols update stats:`med`avg`max`drift,batching:first scenario,mode:last scenario from cl !/: vals,enlist drift;
+  stats2:select maxmps:max x,medmps:med x,avgmps:avg x,batching:first scenario,mode:last scenario from seconds;
+  :(stats1;stats2)
+ };
+
+// Set handle from procfile, open handles to feed, consumer, STP and TP
 .observer.init:{
   .lg.o[`init;"Setting up process..."];
   .proc.readprocfile .proc.file;
@@ -86,8 +85,11 @@
   .observer.feedhandle:.servers.gethandlebytype[`feed;`any];
   .observer.conshandle:.servers.gethandlebytype[`consumer;`any];
   .observer.stphandle:.servers.gethandlebytype[`segmentedtickerplant;`any];
+  .observer.tphandle:.servers.gethandlebytype[`tickerplant;`any];
+  
+  // If auto-run is on, begin tests
+  if[.observer.autorun;.observer.startrun[]];
   };
 
-// Call init function & begin tests if autorun mode is on
+// Call init function
 .observer.init[];
-if[.observer.autorun;.observer.startrun[]];

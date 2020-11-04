@@ -13,7 +13,7 @@
 .feed.side:`buy`sell;
 .feed.maxprice:100.0;
 .feed.maxsize:50;
-.feed.looptime:00:00:10;
+.feed.looptime:00:00:30;
 
 // Create bulk update
 .feed.bulk:.feed.bulkrows ?' .feed[`sym`maxprice`maxsize`src`ex`cond`mode`side];
