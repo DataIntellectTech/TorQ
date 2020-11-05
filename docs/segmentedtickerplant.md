@@ -14,18 +14,25 @@ What has been added are multiple logging modes, which allow the logs to be split
 
 Starting an STP process is similar to starting a tickerplant, we need to have an updated process.csv that contains a line for the STP process like the one below. Optional flags such as `-.stplg.batchmode` and `-.stplg.errmode` can be added to change settings for the process.
 
-localhost,{KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -.stplg.batchmode immediate -.stplg.errmode 0 -t 1,q
+`localhost,{KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -.stplg.batchmode immediate -.stplg.errmode 0 -t 1,q`
 
 The process can either be started using:
 
-bash torq.sh start stp1 -csv path/to/process.csv
+`bash torq.sh start stp1 -csv path/to/process.csv`
 
 or:
 
-q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -procfile path/to/proces.csv -load ${KDBCODE}/processes/segmentedtickerplant.q 
+`q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -procfile path/to/proces.csv -load ${KDBCODE}/processes/segmentedtickerplant.q`
+
+Useful configuration settings for STP processes:
+ * .stplg.batchmode - Specifies the batch mode for the STP process
+   .stplg.batchmode:`immediate 
+ * .stplg.errmode   - Enables error trapping mode for the process.
+   .stplg.errmode:1b 
+ * 
 
 Useful flags for STP process:
- * include some flags that users would find useful such as -t or -.stplg.batchmode and explain what they are briefly and give an example input.
+ *
 
 **Logging Modes**
 
@@ -35,19 +42,62 @@ The default TP logging behaviour is to write all updates to disk in a single log
 
   This mode is essentially the default TP behaviour, where all ticks across all tables for a given day are stored in a single file, eg. `database20201026154808`. This is the simplest form of logging as everything is in one place.
 
+```
+    logdir/
+    ├── testlogday1
+    └── testlogday2
+```
+
 - Periodic:
 
   In this mode all the updates are stored in a the same file but the logs are rolled according to a custom period, set with `.stplg.multilogperiod`. For example, if the period is set to an hour a new log file will be created every hour and stored in a daily partitioned directory. This means that if a subscriber goes down, only the last hour of logs need to be replayed rather than everything so far that day, and that any log file corruptions will only affect that time period of data rather than the whole day.
 
-  The files take the form `periodic20201026000`, `periodic202010260100`, `periodic202010260200`...
+```
+    logdir/
+    ├── periodic20201026000000    
+    ├── periodic20201026010000
+    ├── periodic20201026020000
+    └── stpmeta
+```
 
 - Tabular:
 
   This mode is similar to the default behaviour except that each table has its own log file which is rolled daily in the form `trade20201026154808`. This has similar benefits to the previous case where only the ticks for individual tables need to be replayed for the day, and that any file mishaps are confined to a single table's worth of updates.
 
+```
+    logdir/
+    ├── err20201006204546
+    ├── logmsg_20201006204546
+    ├── packets_20201006204546
+    ├── quote_20201006204546
+    ├── quote_iex_20201006204546
+    ├── stpmeta
+    ├── trade_20201006204546
+    └── trade_iex_20201006204546
+```
+
 - Tabperiod:
 
   As the name suggests this mode combines the behaviour of the tabular and periodic logging modes, whereby each table has its own log file, each of which are rolled periodically as defined in the process. This adds the flexibility of both those modes when it comes to replays and file corruption too.
+
+```
+    logdir/
+    ├── err20201006204518
+    ├── err20201006204520
+    ├── logmsg20201006204518
+    ├── logmsg20201006204520
+    ├── packets20201006204518
+    ├── packets20201006204520
+    ├── quote20201006204518
+    ├── quote20201006204520
+    ├── quote_iex20201006204518
+    ├── quote_iex20201006204520
+    ├── stpmeta
+    ├── trade20201006204518
+    ├── trade20201006204520
+    ├── trade_iex20201006204518
+    └── trade_iex20201006204520
+```
 
 - Custom:
 
@@ -82,8 +132,21 @@ The other main update is how updates are published to subscribers. Again, there 
 
 - Performance:
 
-  Put stuff in here when we have the numbers
+Performance data below is collected from an STP  is from a 2 minute sample size
 
+|STP batch mode|Feed mode|Average mps|Max mps|
+|--------------|---------|-----------|-------|
+|vanilla TP|single|||
+|vanilla TP|bulk|||
+|immediate|single|||
+|immediate|bulk|||
+|defaultbatch|single|||
+|defaultbatch|bulk|||
+|memorybatch|single|||
+|memorybatch|bulk|||
+
+```
+This will be deleted when better stats are added above.
 defaultbatch bulk
 totalmsg,maxmps,medmps,avgmps
 19246000,3075000,2802500,2780333
@@ -115,8 +178,7 @@ totalmsg,maxmps,medmps,avgmps
 Vanilla TP single
 totalmsg,maxmps,medmps,avgmps
 20122971,213974,211568,208786.4
-
-Data above is from a 2 minute sample size, Won't want to keep much of this in the end but anything that is kept should be formatted better.
+```
 
 Through batching the data at the tickerplant the performance of the tickerplant can be improved significantly. By batching your data you can reduce the number of updates needed to be sent is reduced and the rows sent to sent to subscribers per second is increased. The performance of the batching modes on the STP have similar performance to one another and minor performance costs compared to a standard tickerplant. 
 
@@ -127,14 +189,11 @@ If the `.stplg.errmode` Boolean variable is set to true, an error log is opened 
 Note to self - what are the performance impacts of this? Add a line to the performance tests to just run again in other error mode
 
 **Time Zone Behaviour**
-- Stamping, rolling and offsets. 
-
 One of the most important jobs of a tickerplant is to add the time value to the data it recieves before it's sent to any subscribers. This is a very important job to maintain data quality in your system so that users can trust it. 
 A difference of time zones for processes may cause issues for eod processes.
 Different processes can have different time zone settings to time stamp for different data from different markets and to roll over correctly at the end of day. One system could have different processes handling US or EU data.
 
 **Chained STP**
-- Changes to regular TP.
 A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. 
 Can have different tickerplants in a chain in different modes, e.g. top level has no batching and chained STP has memory batching, allows greater flexability.
 When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. 
@@ -148,11 +207,11 @@ There are 3 different logging modes for the Chained STP:
 - Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
 
 **Customisation and Flexability**
-- Different UPDs for different tables 
  New functionality added is to enable the use of different upd functions in one ticker plant process for each table. This can be done a new variable `.stplg.updtab`. This is a dictionary that contains the upd functions for each table. Changes can be made to this like so:
 
-`.stplg.updtab[\`tabname]:updfunction`
+``.stplg.updtab[`tabname]:updfunction``
 
 This allows a system to have a greater degree of flexability without necessitating additional processes. For example a table containing stats on updates can be created using this functionality to create a unique upd function for this. 
  A table can be created including the sequence number which is the number of messages sent out by the stp and is updated in the upd function.
+
 

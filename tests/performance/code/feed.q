@@ -2,13 +2,13 @@
 
 // Send a single message
 .feed.pub.single:{
-  .feed.asyncpubhandle(`.u.upd;`singleupd;(`sym;.z.p));
+  .feed.asyncpubhandle(`.u.upd;`updates;.feed.singleupd,.z.p);
   .feed.asyncpubhandle(::);
  };
 
 // Send multiple messages
 .feed.pub.bulk:{
-  .feed.asyncpubhandle(`.u.upd;`bulkupd;.feed.bulk,enlist .feed.bulkrows#.z.p);
+  .feed.asyncpubhandle(`.u.upd;`updates;.feed.bulkupd,enlist .feed.bulkrows#.z.p);
   .feed.asyncpubhandle(::);
  };
 
@@ -25,6 +25,9 @@
 .feed.init:{[mode;batch]
   .proc.loadf first (.Q.opt .z.x)[`config];
   .servers.startup[];
-  .feed.asyncpubhandle:neg .servers.gethandlebytype[$[`vanilla~batch;`tickerplant;`segmentedtickerplant];`any];
+  .feed.asyncpubhandle:neg .servers.gethandlebytype[$[batch like "vanilla*";`tickerplant;`segmentedtickerplant];`any];
   .feed.publish:.feed.pub[mode];
+  .feed.batchmode:batch,mode;
+  .feed.bulkupd:.feed.bulk,flip 2 cut (2*.feed.bulkrows)#.feed.batchmode;
+  .feed.singleupd:first each .feed.bulkupd;
   };

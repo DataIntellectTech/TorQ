@@ -6,8 +6,9 @@
 .servers.USERPASS:`admin:admin;
 
 // Process settings
-.consumer.singlecols:`time`sym`feedtime;
-.consumer.bulkcols:`time`sym`price`size`src`ex`cond`mode`side`feedtime;
+.consumer.singlecols:`time`batch`mode`feedtime;
+.consumer.bulkcols:`time`sym`price`size`src`ex`cond`mode1`side`batch`mode`feedtime;
+.consumer.whereclause:((=;`mode;enlist `single);(=;`mode;enlist `bulk));
 
 // Results table schema
-.consumer.results:flip `time`feedtime`consumertime`feedtotp`tptoconsumer`feedtoconsumer`batching`pubmode!"PPPNNNSS" $\: ();
+.consumer.results:flip `batching`pubmode`time`feedtime`consumertime`feedtotp`tptoconsumer`feedtoconsumer!"SSPPPNNN" $\: ();
