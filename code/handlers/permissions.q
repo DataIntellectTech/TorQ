@@ -132,14 +132,22 @@ dotqf:{[u;q;b;pr]
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b;pr]}
 
-lamq:{[u;e;l;b;pr]
+/ flatten an arbitrary data structure, maintaining any strings
+flatten:{raze $[10h=type x;enlist enlist x;1=count x;x;.z.s'[x]]}
+
+/ string non-strings, maintain strings
+str:{$[10h=type x;;string]x}'
+
+lamq:{[u;e;b;pr]
   / get names of all defined variables to look for references to in expression
   rt:raze .api.varnames[;"v";1b]'[.api.allns[]];
   / allow public tables to always be accessed
   rt:rt except distinct exec object from access where entity=`public;
-  pq:(raze `$distinct {-4!x} (raze/)(s:raze each string e) ,' " ");
-  rqt:rt where rt in pq;
-  prohibited: rqt where not achk[u;;`read;pr] each rqt;
+  / flatten expression & tokenize to extract any possible variable references
+  pq:`$distinct -4!raze(str flatten e),'" ";
+  / filter expression tokens to those matching defined variables
+  rqt:rt inter pq;
+  prohibited:rqt where not achk[u;;`read;pr] each rqt;
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
 
@@ -167,7 +175,7 @@ mainexpr:{[u;e;b;pr]
   / .q keywords
   if[xdq e;:dotqf[u;e;b;pr]];
   / lambdas
-  if[any lam:100=type each raze e; :lamq[u;ie;lam;b;pr]];
+  if[any 100=type each raze e; :lamq[u;ie;b;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
@@ -231,7 +239,9 @@ init:{
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
   .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
-  .z.pp:.z.ph:{'"pm: HTTP requests not permitted"};
+  .z.pp:{'"pm: HTTP POST requests not permitted"};
+  // from V3.5 2019.11.23, .h.val is used in .z.ph to evaluate request; below that disallow .z.ph
+  $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.z.ph:{'"pm: HTTP GET requests not permitted"}];
   .z.ws:{'"pm: websocket access not permitted"};
   .z.pw:login;
   .z.pc:{droppublic[y];@[x;y]}.z.pc;
