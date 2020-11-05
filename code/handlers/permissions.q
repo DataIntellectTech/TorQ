@@ -50,10 +50,12 @@ removegroup:{[n]groupinfo::.[groupinfo;();_;n]}
 addrole:{[n;d]roleinfo,:(n;d)}
 removerole:{[n]roleinfo::.[roleinfo;();_;n]}
 addtogroup:{[u;g]
-  if[u=g;'"pm: cannot have username match group name"];
+  if[not g in key groupinfo;'"pm: no such group, .pm.addgroup first"];
   if[not (u;g) in usergroup;usergroup,:(u;g)];}
 removefromgroup:{[u;g]if[(u;g) in usergroup;usergroup::.[usergroup;();_;usergroup?(u;g)]]}
-assignrole:{[u;r]if[not (u;r) in userrole;userrole,:(u;r)];}
+assignrole:{[u;r]
+  if[not r in key roleinfo;'"pm: no such role, .pm.addrole first"];
+  if[not (u;r) in userrole;userrole,:(u;r)];}
 unassignrole:{[u;r]if[(u;r) in userrole;userrole::.[userrole;();_;userrole?(u;r)]]}
 addfunction:{[f;g]if[not (f;g) in functiongroup;functiongroup,:(f;g)];}
 removefunction:{[f;g]if[(f;g) in functiongroup;functiongroup::.[functiongroup;();_;functiongroup?(f;g)]]}
