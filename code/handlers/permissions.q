@@ -39,13 +39,19 @@ virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
 publictrack:([name:`symbol$()] handle:`int$())
 
 / api
-adduser:{[u;a;h;p]user,:(u;a;h;p)}
+adduser:{[u;a;h;p]
+  if[u in key groupinfo;'"pm: cannot add user with same name as existing group"];
+  user,:(u;a;h;p)}
 removeuser:{[u]user::.[user;();_;u]}
-addgroup:{[n;d]groupinfo,:(n;d)}
+addgroup:{[n;d]
+  if[n in key user;'"pm: cannot add group with same name as existing user"];
+  groupinfo,:(n;d)}
 removegroup:{[n]groupinfo::.[groupinfo;();_;n]}
 addrole:{[n;d]roleinfo,:(n;d)}
 removerole:{[n]roleinfo::.[roleinfo;();_;n]}
-addtogroup:{[u;g]if[not (u;g) in usergroup;usergroup,:(u;g)];}
+addtogroup:{[u;g]
+  if[u=g;'"pm: cannot have username match group name"];
+  if[not (u;g) in usergroup;usergroup,:(u;g)];}
 removefromgroup:{[u;g]if[(u;g) in usergroup;usergroup::.[usergroup;();_;usergroup?(u;g)]]}
 assignrole:{[u;r]if[not (u;r) in userrole;userrole,:(u;r)];}
 unassignrole:{[u;r]if[(u;r) in userrole;userrole::.[userrole;();_;userrole?(u;r)]]}
@@ -127,7 +133,10 @@ dotqf:{[u;q;b;pr]
   p[u;q;b;pr]}
 
 lamq:{[u;e;l;b;pr]
-  rt:(distinct exec object from access where entity<>`public); / allow public tables 
+  / get names of all defined variables to look for references to in expression
+  rt:raze .api.varnames[;"v";1b]'[.api.allns[]];
+  / allow public tables to always be accessed
+  rt:rt except distinct exec object from access where entity=`public;
   pq:(raze `$distinct {-4!x} (raze/)(s:raze each string e) ,' " ");
   rqt:rt where rt in pq;
   prohibited: rqt where not achk[u;;`read;pr] each rqt;
