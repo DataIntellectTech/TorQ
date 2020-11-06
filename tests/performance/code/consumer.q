@@ -3,7 +3,6 @@
 // Main UPD for all updates
 upd:{[t;x]
   now:.z.p;
-  // res:$[0h~type x;.consumer.bulkcols !/: flip x;x];
   res:raze (::;.consumer.getfirstrows) @' ?[x;;0b;()] each enlist each .consumer.whereclause;
   res:select time,feedtime,batching:batch,pubmode:mode from res;
   res:update consumertime:now,feedtotp:time-feedtime,tptoconsumer:now-time,feedtoconsumer:now-feedtime from res;
