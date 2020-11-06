@@ -4,7 +4,7 @@
 localpath=$KDBTESTS/performance
 
 # Start procs
-${TORQHOME}/torq.sh start discovery1 feed1 stp1 tp1 consumer1 -csv ${localpath}/settings/process.csv
+${TORQHOME}/torq.sh start discovery1 feed1 stp1 tp1 consumer1 tick1 -csv ${localpath}/settings/process.csv
 
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
@@ -14,4 +14,4 @@ ${TORQHOME}/torq.sh start discovery1 feed1 stp1 tp1 consumer1 -csv ${localpath}/
   -debug
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 feed1 stp1 tp1 consumer1 -csv ${localpath}/settings/process.csv
+${TORQHOME}/torq.sh stop discovery1 feed1 stp1 tp1 consumer1 tick1 -csv ${localpath}/settings/process.csv

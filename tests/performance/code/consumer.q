@@ -3,8 +3,8 @@
 // Main UPD for all updates
 upd:{[t;x]
   now:.z.p;
-  res:$[0h~type x;.consumer.bulkcols !/: flip x;x];
-  res:raze (::;.consumer.getfirstrows) @' ?[res;;0b;()] each enlist each .consumer.whereclause;
+  // res:$[0h~type x;.consumer.bulkcols !/: flip x;x];
+  res:raze (::;.consumer.getfirstrows) @' ?[x;;0b;()] each enlist each .consumer.whereclause;
   res:select time,feedtime,batching:batch,pubmode:mode from res;
   res:update consumertime:now,feedtotp:time-feedtime,tptoconsumer:now-time,feedtoconsumer:now-feedtime from res;
   `.consumer.results upsert `batching`pubmode xcols res;
@@ -25,6 +25,10 @@ upd:{[t;x]
 .consumer.init:{[mode;batch]
   .proc.loadf first (.Q.opt .z.x)[`config];
   .servers.startup[];
-  .consumer.tphandle:.servers.gethandlebytype[$[batch like "vanilla*";`tickerplant;`segmentedtickerplant];`any];
+  tptype:$[batch like "vanilla*";`tickerplant;
+           batch like "tick*";`tick;
+           `segmentedtickerplant
+   ];
+  .consumer.tphandle:.servers.gethandlebytype[tptype;`any];
   .consumer.tphandle(`.u.sub;`updates;`);
   };
