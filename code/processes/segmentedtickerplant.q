@@ -53,8 +53,9 @@ generateschemas:{
   // amend the main schemas to not have any attributes
   {@[x;cols x;`#]}each .stpps.t;
 
-  // store attribute free empty versions of the tables
+  // store attribute free empty versions of the tables and get a dictionary of their column names
   .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+  .stpps.tabcols:.stpps.t!cols each .stpps.t;
 
   // updtab stores functions to add/modify columns
   // Default functions timestamp updates
