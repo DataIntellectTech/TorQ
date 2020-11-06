@@ -18,6 +18,9 @@ comment,,,,,,,test lambda expressions with nested structures
 run,,,q,e:({x};({x[`i]+x[`j]+value y};`i`j!1 2;"345")),,,create nested lambda structure with dict/string etc.
 true,,,q,348=value .pm.expr[`bob;e],,,contains no references to defined variables so can be run by anyone
 
+comment,,,,,,,test lambda expression with dict arg
+true,,,q,3=.pm.expr[`bob;({x[`i]+x[`j]};`i`j!1 2)],,,lambda expression with dict arg
+
 comment,,,,,,,test groups/users with same name
 fail,,,q,.pm.addtogroup[`tom;`tom],,,can't have group & username matching
 fail,,,q,.pm.addtogroup[`tom;`group2],,,can't add to a group that doesn't exist

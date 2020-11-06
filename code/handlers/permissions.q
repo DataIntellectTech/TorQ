@@ -176,8 +176,8 @@ mainexpr:{[u;e;b;pr]
   if[isq e; :query[u;e;b;pr]];
   / .q keywords
   if[xdq e;:dotqf[u;e;b;pr]];
-  / lambdas
-  if[any 100=type each raze e; :lamq[u;ie;b;pr]];
+  / lambdas - value any dict args before razing
+  if[any 100=type each raze @[e;where 99h=type'[e];value]; :lamq[u;ie;b;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
