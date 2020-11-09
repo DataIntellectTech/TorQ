@@ -43,9 +43,15 @@ The default TP logging behaviour is to write all updates to disk in a single log
   This mode is essentially the default TP behaviour, where all ticks across all tables for a given day are stored in a single file, eg. `database20201026154808`. This is the simplest form of logging as everything is in one place.
 
 ```
-    logdir/
-    ├── testlogday1
-    └── testlogday2
+    stplogs
+    ├──stp1_2020.11.05/
+    │  ├── err20201105000000
+    │  ├── stpmeta
+    │  └── stp1_20201105000000
+    └──stp2_2020.11.06
+       ├── err20201106000000
+       ├── stpmeta
+       └── stp1_20201106000000
 ```
 
 - Periodic:
@@ -53,11 +59,19 @@ The default TP logging behaviour is to write all updates to disk in a single log
   In this mode all the updates are stored in a the same file but the logs are rolled according to a custom period, set with `.stplg.multilogperiod`. For example, if the period is set to an hour a new log file will be created every hour and stored in a daily partitioned directory. This means that if a subscriber goes down, only the last hour of logs need to be replayed rather than everything so far that day, and that any log file corruptions will only affect that time period of data rather than the whole day.
 
 ```
-    logdir/
-    ├── periodic20201026000000    
-    ├── periodic20201026010000
-    ├── periodic20201026020000
-    └── stpmeta
+    stplogs
+    ├──stp1_2020.11.05/
+    │  ├── err20201105000000
+    │  ├── periodic20201105000000
+    │  ├── periodic20201105010000
+    │  ├── periodic20201105020000
+    │  └── stpmeta
+    └──stp2_2020.11.06
+       ├── err20201106000000
+       ├── periodic20201106000000
+       ├── periodic20201106010000
+       ├── periodic20201106020000
+       └── stpmeta
 ```
 
 - Tabular:
@@ -65,38 +79,65 @@ The default TP logging behaviour is to write all updates to disk in a single log
   This mode is similar to the default behaviour except that each table has its own log file which is rolled daily in the form `trade20201026154808`. This has similar benefits to the previous case where only the ticks for individual tables need to be replayed for the day, and that any file mishaps are confined to a single table's worth of updates.
 
 ```
-    logdir/
-    ├── err20201006204546
-    ├── logmsg_20201006204546
-    ├── packets_20201006204546
-    ├── quote_20201006204546
-    ├── quote_iex_20201006204546
-    ├── stpmeta
-    ├── trade_20201006204546
-    └── trade_iex_20201006204546
+    stplogs/
+    ├── stp1_2020.11.05
+    │   ├── err20201105000000
+    │   ├── logmsg_20201105000000
+    │   ├── packets_20201105000000
+    │   ├── quote_20201105000000
+    │   ├── quote_iex_20201105000000
+    │   ├── stpmeta
+    │   ├── trade_20201105000000
+    │   └── trade_iex_20201105000000
+    └── stp1_2020.11.06
+        ├── err20201106000000
+        ├── logmsg_20201106000000
+        ├── packets_20201106000000
+        ├── quote_20201106000000
+        ├── quote_iex_20201106000000
+        ├── stpmeta
+        ├── trade_20201106000000
+        └── trade_iex_20201106000000
 ```
 
-- Tabperiod:
+- Tabperiod (default):
 
   As the name suggests this mode combines the behaviour of the tabular and periodic logging modes, whereby each table has its own log file, each of which are rolled periodically as defined in the process. This adds the flexibility of both those modes when it comes to replays and file corruption too.
 
 ```
-    logdir/
-    ├── err20201006204518
-    ├── err20201006204520
-    ├── logmsg20201006204518
-    ├── logmsg20201006204520
-    ├── packets20201006204518
-    ├── packets20201006204520
-    ├── quote20201006204518
-    ├── quote20201006204520
-    ├── quote_iex20201006204518
-    ├── quote_iex20201006204520
-    ├── stpmeta
-    ├── trade20201006204518
-    ├── trade20201006204520
-    ├── trade_iex20201006204518
-    └── trade_iex20201006204520
+    stplogs/
+    ├── stp1_2020.11.05
+    │   ├── err20201105000000
+    │   ├── err20201105010000
+    │   ├── logmsg_20201105000000
+    │   ├── logmsg_20201105010000
+    │   ├── packets_20201105000000
+    │   ├── packets_20201105010000
+    │   ├── quote_20201105000000
+    │   ├── quote_20201105010000
+    │   ├── quote_iex_20201105000000
+    │   ├── quote_iex_20201105010000
+    │   ├── stpmeta
+    │   ├── trade_20201105000000
+    │   ├── trade_20201105010000
+    │   ├── trade_iex_20201105000000
+    │   └── trade_iex_20201105010000
+    └── stp1_2020.11.06
+        ├── err20201106000000
+        ├── err20201106010000
+        ├── logmsg_20201106000000
+        ├── logmsg_20201106010000
+        ├── packets_20201106000000
+        ├── packets_20201106010000
+        ├── quote_20201106000000
+        ├── quote_20201106010000
+        ├── quote_iex_20201106000000
+        ├── quote_iex_20201106010000
+        ├── stpmeta
+        ├── trade_20201106000000
+        ├── trade_20201106010000
+        ├── trade_iex_20201106000000
+        └── trade_iex_20201106010000
 ```
 
 - Custom:
@@ -114,6 +155,25 @@ The default TP logging behaviour is to write all updates to disk in a single log
 
   Here we have the trade and trade_iex tables both being saved to the same periodic log file, the quote and quote_iex tables both having their own daily log file and the heartbeat table having a periodic log file all to itself. This mode may be advantageous in the case where some tables receive far more updates than others, so they can have more rigorously partitioned logs, and the sparser tables can be pooled together. There is some complexity associated with this mode, as there can be different log files rolling at different times.
 
+ New logging modes can be added to your system through easy additions, a update function (`.stplg.upd`) and a timing function (`.stplg.zts`) are needed for this. The memory batch upd and zts code for example:
+
+```
+.stplg.upd[`memorybatch]:{[t;x;now]
+  t insert updtab[t] . (x;now);
+ };
+
+zts[`memorybatch]:{
+  {[t]
+    if[count value t;
+      `..loghandles[t] enlist (`upd;t;value flip value t);
+      @[`.stplg.msgcount;t;+;1];
+      @[`.stplg.rowcount;t;+;count value t];
+      .stpps.pubclear[t]];
+  }each .stpps.t;
+ };
+```
+  Each of these logging modes use a extra table called stpmeta which contains information about the files present in this logs directory. This table contains the pathway to the log (logname), the tables that are present in this file (tbls), the message count (msgcount) and the schema.  
+
 **Batching Modes**
 
 The other main update is how updates are published to subscribers. Again, there are named modes which are set with the `.stplg.batchmode` variable and these allow the user to be flexible with process latency and throughput by altering the `.u.upd` and `.z.ts` functions:
@@ -130,55 +190,22 @@ The other main update is how updates are published to subscribers. Again, there 
 
   In this mode, neither logging nor publishing happens immediately but everything is held in memory until the timer function is called, at which point the update is logged and published. High overall message throughput is possible with this mode, but there is a risk that some messages aren't logged in the case of STP failure.
 
+
+
 - Performance:
 
 Performance data below is collected from an STP  is from a 2 minute sample size
 
 |STP batch mode|Feed mode|Average mps|Max mps|
 |--------------|---------|-----------|-------|
-|vanilla TP|single|||
+|vanilla TP|single|78004.42|84971|
 |vanilla TP|bulk|||
-|immediate|single|||
+|immediate|single|100617.5|108229|
 |immediate|bulk|||
-|defaultbatch|single|||
+|defaultbatch|single|99465.77|109733|
 |defaultbatch|bulk|||
-|memorybatch|single|||
+|memorybatch|single|164552.1|179107|
 |memorybatch|bulk|||
-
-```
-This will be deleted when better stats are added above.
-defaultbatch bulk
-totalmsg,maxmps,medmps,avgmps
-19246000,3075000,2802500,2780333
-
-defaultbatch single
-totalmsg,maxmps,medmps,avgmps
-11060295,118005,116269.5,115044.4
-
-immediate bulk
-totalmsg,maxmps,medmps,avgmps
-254857000,3179000,2910000,2634094
-
-immediate single
-totalmsg,maxmps,medmps,avgmps
-6878760,87060,72034.5,71280.44
-
-memorybatch bulk
-totalmsg,maxmps,medmps,avgmps
-267751000,3167000,3032500,2770146
-
-memory batch single
-totalmsg,maxmps,medmps,avgmps
-18210031,195388,190664.5,189420.8
-
-Vanilla TP bulk
-totalmsg,maxmps,medmps,avgmps
-374452000,4004000,3943500,3868667
-
-Vanilla TP single
-totalmsg,maxmps,medmps,avgmps
-20122971,213974,211568,208786.4
-```
 
 Through batching the data at the tickerplant the performance of the tickerplant can be improved significantly. By batching your data you can reduce the number of updates needed to be sent is reduced and the rows sent to sent to subscribers per second is increased. The performance of the batching modes on the STP have similar performance to one another and minor performance costs compared to a standard tickerplant. 
 
@@ -209,9 +236,27 @@ There are 3 different logging modes for the Chained STP:
 **Customisation and Flexability**
  New functionality added is to enable the use of different upd functions in one ticker plant process for each table. This can be done a new variable `.stplg.updtab`. This is a dictionary that contains the upd functions for each table. Changes can be made to this like so:
 
-``.stplg.updtab[`tabname]:updfunction``
+```
+.stplg.updtab[`tabname]:updfunction
+
+q) .stplg.updtab
+quote   | {(enlist(count first x)#y),x}
+trade   | {(enlist(count first x)#y),x}
+tabname | updfunction
+...
+```
 
 This allows a system to have a greater degree of flexability without necessitating additional processes. For example a table containing stats on updates can be created using this functionality to create a unique upd function for this. 
  A table can be created including the sequence number which is the number of messages sent out by the stp and is updated in the upd function.
 
+```
+Example of sequence numbering for upd function
 
+.stplg.seqnum
+
+.stplg.upd[`seqnum]:{[t;x;now]
+  t insert updtab[t] . (x;now);
+ };
+```
+
+Easy to add own new logging mode, just need to add a update function (`.stplg.upd`) and a timing function (`.stplg.zts`). 
