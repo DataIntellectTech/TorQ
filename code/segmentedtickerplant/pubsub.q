@@ -91,7 +91,12 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
-.z.pc:{[f;x] @[f;x;()]; closesub x}@[value;`.z.pc;{{}}]
+// Added condition that kills SCTP if STP dies
+.z.pc:{[f;x] @[f;x;()]; closesub x;
+  if[.sctp.chainedtp;
+    if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]
+    ]
+  }@[value;`.z.pc;{{}}];
 
 \d .
 
