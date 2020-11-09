@@ -2,7 +2,7 @@
 
 // Server settings
 .servers.enabled:1b;
-.servers.CONNECTIONS:`tickerplant`segmentedtickerplant`feed;
+.servers.CONNECTIONS:`tickerplant`segmentedtickerplant`feed`tick;
 .servers.USERPASS:`admin:admin;
 
 // Process settings

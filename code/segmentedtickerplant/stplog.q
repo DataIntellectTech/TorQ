@@ -104,8 +104,9 @@ zts[`defaultbatch]:{
 upd[`immediate]:{[t;x;now]
   x:updtab[t] . (x;now);
   `..loghandles[t] enlist(`upd;t;x);
+  x:$[0h>type last x;enlist;flip] .stpps.tabcols[t]!x;
   @[`.stplg.msgcount;t;+;1];
-  @[`.stplg.rowcount;t;+;count first x];
+  @[`.stplg.rowcount;t;+;count x];
   .stpps.pub[t;x]
  };
 

@@ -2,7 +2,7 @@
 
 // Send a single message
 .feed.pub.single:{
-  .feed.asyncpubhandle(`.u.upd;`updates;.feed.singleupd,.z.p);
+  .feed.asyncpubhandle(`.u.upd;`updates;.feed.singleupd,enlist 1#.z.p);
   .feed.asyncpubhandle(::);
  };
 
@@ -25,9 +25,13 @@
 .feed.init:{[mode;batch]
   .proc.loadf first (.Q.opt .z.x)[`config];
   .servers.startup[];
-  .feed.asyncpubhandle:neg .servers.gethandlebytype[$[batch like "vanilla*";`tickerplant;`segmentedtickerplant];`any];
+  tptype:$[batch like "vanilla*";`tickerplant;
+           batch like "tick*";`tick;
+           `segmentedtickerplant
+   ];
+  .feed.asyncpubhandle:neg .servers.gethandlebytype[tptype;`any];
   .feed.publish:.feed.pub[mode];
   .feed.batchmode:batch,mode;
   .feed.bulkupd:.feed.bulk,flip 2 cut (2*.feed.bulkrows)#.feed.batchmode;
-  .feed.singleupd:first each .feed.bulkupd;
+  .feed.singleupd:flip enlist first each .feed.bulkupd;
   };
