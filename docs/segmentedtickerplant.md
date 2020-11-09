@@ -155,7 +155,7 @@ The default TP logging behaviour is to write all updates to disk in a single log
 
   Here we have the trade and trade_iex tables both being saved to the same periodic log file, the quote and quote_iex tables both having their own daily log file and the heartbeat table having a periodic log file all to itself. This mode may be advantageous in the case where some tables receive far more updates than others, so they can have more rigorously partitioned logs, and the sparser tables can be pooled together. There is some complexity associated with this mode, as there can be different log files rolling at different times.
 
- New logging modes can be added to your system through easy additions, a update function (`.stplg.upd`) and a timing function (`.stplg.zts`) are needed for this. The memory batch upd and zts code for example:
+  New logging modes can be added to your system through easy additions, a update function (`.stplg.upd`) and a timing function (`.stplg.zts`) are needed for this. The memory batch upd and zts code for example:
 
 ```
 .stplg.upd[`memorybatch]:{[t;x;now]
@@ -190,24 +190,49 @@ The other main update is how updates are published to subscribers. Again, there 
 
   In this mode, neither logging nor publishing happens immediately but everything is held in memory until the timer function is called, at which point the update is logged and published. High overall message throughput is possible with this mode, but there is a risk that some messages aren't logged in the case of STP failure.
 
+- Performance stats:
 
+Performance data below is collected from an STP  is from a 2 minute sample size. For batched data we batched the same data that was sent for single updates but in batches of 100 rows of data.
 
-- Performance:
-
-Performance data below is collected from an STP  is from a 2 minute sample size
 
 |STP batch mode|Feed mode|Average mps|Max mps|
 |--------------|---------|-----------|-------|
-|vanilla TP|single|78004.42|84971|
-|vanilla TP|bulk|||
-|immediate|single|100617.5|108229|
-|immediate|bulk|||
-|defaultbatch|single|99465.77|109733|
-|defaultbatch|bulk|||
-|memorybatch|single|164552.1|179107|
-|memorybatch|bulk|||
+|vanilla TP immediate|single|75211.81|82582|
+|vanilla TP immediate|bulk|1775813|2034100|
+|vanilla TP batch|single|98413.48|112476|
+|vanilla TP batch|bulk|1805003|1993700|
+|immediate|single|89092.55|96659|
+|immediate|bulk|1803027|2034700|
+|default batch|single|99465.77|109733|
+|default batch|bulk|1899106|2167500|
+|memory batch|single|173587.3|184969|
+|memory batch|bulk|2115197|2473200|
+
 
 Through batching the data at the tickerplant the performance of the tickerplant can be improved significantly. By batching your data you can reduce the number of updates needed to be sent is reduced and the rows sent to sent to subscribers per second is increased. The performance of the batching modes on the STP have similar performance to one another and minor performance costs compared to a standard tickerplant. 
+
+- New Batching modes:
+  New batching modes can be added to your system through two easy additions, a update function (`.stplg.upd`) and a timing function (`.stplg.zts`) are needed for this. Here is the memory batch upd and zts code for example:
+
+```
+\d .stplg
+
+upd[`memorybatch]:{[t;x;now]
+  t insert updtab[t] . (x;now);
+ };
+
+zts[`memorybatch]:{
+  {[t]
+    if[count value t;
+      `..loghandles[t] enlist (`upd;t;value flip value t);
+      @[`.stplg.msgcount;t;+;1];
+      @[`.stplg.rowcount;t;+;count value t];
+      .stpps.pubclear[t]];
+  }each .stpps.t;
+ };
+
+\d .
+```
 
 **Error Trapping**
 
@@ -221,10 +246,9 @@ A difference of time zones for processes may cause issues for eod processes.
 Different processes can have different time zone settings to time stamp for different data from different markets and to roll over correctly at the end of day. One system could have different processes handling US or EU data.
 
 **Chained STP**
-A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. 
-Can have different tickerplants in a chain in different modes, e.g. top level has no batching and chained STP has memory batching, allows greater flexability.
-When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. 
-Also, the Chained STP process is dependent on the Segmented TP. Therefore, if the connection to the STP dies, the ChainedSTP process will die.
+A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. Also, the Chained STP process is dependent on the Segmented TP. Therefore, if the connection to the STP dies, the ChainedSTP process will die. 
+
+With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different logging mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability. 
 There are 3 different logging modes for the Chained STP:
 
 - None: Chained STP does not create or access any log files.
@@ -252,11 +276,10 @@ This allows a system to have a greater degree of flexability without necessitati
 ```
 Example of sequence numbering for upd function
 
-.stplg.seqnum
+.stplg.seqnum is the variable that the sequence number is stored under
 
-.stplg.upd[`seqnum]:{[t;x;now]
-  t insert updtab[t] . (x;now);
+.stplg.upd[`seqnum]:{
+    (enlist(count first x)#y),(enlist(count first x)#(`long$ .stplg.seqnum)),x
  };
 ```
 
-Easy to add own new logging mode, just need to add a update function (`.stplg.upd`) and a timing function (`.stplg.zts`). 
