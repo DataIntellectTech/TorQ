@@ -201,34 +201,35 @@ endofdaydata:{
 endofperiod:{[currentpd;nextpd;data]
   .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
-  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!.stplg`currperiod`nextperiod];
-  .stpps.endp[currentpd;nextpd;data];            // sends endofperiod message to subscribers
-  currperiod::nextpd;                            // increments current period
-  periodrollover[data]
+  .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!(currentpd;nextpd)];
+  .stpps.endp[currentpd;nextpd;data];                   // sends endofperiod message to subscribers
+  currperiod::nextpd;                                   // increments current period
+  if[.sctp.loggingmode=`create;periodrollover[data]]    // logs only rolled if in create mode
   };
 
 // stp runs function to send out end of period messages and roll logs
-stpeoperiod:{[currentpd;nextpd;data]
-  .lg.o[`endofperiod;"passing on endofperiod message to subscribers"];
+// eop log roll is stopped if eod is also going to be triggered (roll is not stopped in SCTP)
+stpeoperiod:{[currentpd;nextpd;data;rolllogs]
+  .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
   .stpps.endp[currentpd;nextpd;data];                      // sends endofperiod message to subscribers
   currperiod::nextperiod;                                  // increments current period
   if[(data`p)>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];            // timer off
   getnextendUTC[];                                         // grabs next end time
-  periodrollover[data]
+  if[rolllogs;periodrollover[data]];                       // roll if appropriate
+  .lg.o[`stpeoperiod;"end of period complete, new values for current and next period are ",.Q.s1 (currentpd;nextpd)];
   }
 
 // common eop log rolling logic for STP and SCTP
 periodrollover:{[data]
   i+::1;  // increments log seq number
   rolllog[multilog;dldir;rolltabs;data`p];
-  .lg.o[`endofperiod;"end of period complete, new values for current and next period are ",.Q.s1 .stplg`currperiod`nextperiod];
   }
 
 // endofday function defined in SCTP
 // passes on eod messages to subscribers and rolls logs
 endofday:{[date;data]
-  .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+  .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
   .stpps.end[date;data];  // sends endofday message to subscribers
   dayrollover[data];
@@ -236,7 +237,7 @@ endofday:{[date;data]
 
 // STP runs function to send out eod messages and roll logs
 stpeod:{[date;data]
-  .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
+  .lg.o[`stpeod;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];                                         // sends endofday message to subscribers
   if[(data`p)>.eodtime.nextroll:.eodtime.getroll[data`p];
     system"t 0";'"next roll is in the past"];                    // timer off
@@ -251,7 +252,7 @@ dayrollover:{[data]
   closelog each logtabs;                                                // close current day logs
   .eodtime.d+:1;                                                        // increment current day
   init[string .proc.procname];                                          // reinitialise process
-  .lg.o[`endofday;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
+  .lg.o[`dayrollover;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
   }
 
 // get the next end time to compare to
@@ -260,7 +261,7 @@ getnextendUTC:{nextendUTC::-1+min(.eodtime.nextroll;nextperiod - .eodtime.dailya
 checkends:{
   // jump out early if don't have to do either 
   if[nextendUTC > x; :()];
-  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[],(enlist `p)!enlist x1]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[],(enlist `p)!enlist x1;not isendofday:.eodtime.nextroll < x]];
   if[isendofday;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; stpeod[.eodtime.d;.stplg.endofdaydata[],(enlist `p)!enlist x]];
  };
 
