@@ -192,22 +192,25 @@ The other main update is how updates are published to subscribers. Again, there 
 
 - Performance stats:
 
-Performance data below is collected from an STP  is from a 2 minute sample size. For batched data we batched the same data that was sent for single updates but in batches of 100 rows of data.
+Performance data below is collected from an STP  is from a 2 minute sample size. For batched data we batched the same data that was sent for single updates but in batches of 100 rows of data. 
 
-
+Single row updates:
 |STP batch mode|Feed mode|Average mps|Max mps|
 |--------------|---------|-----------|-------|
 |vanilla TP immediate|single|75211.81|82582|
-|vanilla TP immediate|bulk|1775813|2034100|
 |vanilla TP batch|single|98413.48|112476|
-|vanilla TP batch|bulk|1805003|1993700|
 |immediate|single|89092.55|96659|
-|immediate|bulk|1803027|2034700|
 |default batch|single|99465.77|109733|
-|default batch|bulk|1899106|2167500|
 |memory batch|single|173587.3|184969|
-|memory batch|bulk|2115197|2473200|
 
+Batched updates:
+|STP batch mode|Feed mode|Average mps|Max mps|
+|--------------|---------|-----------|-------|
+|vanilla TP immediate|bulk|1775813|2034100|
+|vanilla TP batch|bulk|1805003|1993700|
+|immediate|bulk|1803027|2034700|
+|default batch|bulk|1899106|2167500|
+|memory batch|bulk|2115197|2473200|
 
 Through batching the data at the tickerplant the performance of the tickerplant can be improved significantly. By batching your data you can reduce the number of updates needed to be sent is reduced and the rows sent to sent to subscribers per second is increased. The performance of the batching modes on the STP have similar performance to one another and minor performance costs compared to a standard tickerplant. 
 
