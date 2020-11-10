@@ -169,7 +169,9 @@ The other main update is how updates are published to subscribers. Again, there 
 
 **Performance Comparison**
 
-A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP and a KX Tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes. The results for single updates can be seen below:
+A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP and a KX Tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes. 
+
+These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results for single updates can be seen below:
 
 | Process    | Batch Mode    | Max mps | Average mps |
 | ---------- | ------------- | :-----: | :---------: |
