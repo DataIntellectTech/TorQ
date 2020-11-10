@@ -157,7 +157,7 @@ openlog:{[multilog;dir;tab;p]
   `..currlog upsert (tab;lname;h);
  };
 
-errorlogname:@[value;`.stplg.errorlogname;`err]
+errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
