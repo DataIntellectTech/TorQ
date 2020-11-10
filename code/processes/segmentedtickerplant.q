@@ -36,13 +36,11 @@ if[.stplg.multilog~`custom;
     {.lg.e[`stp;"failed to load custom mode csv"]}]
  ];
 
-
 // functions used by subscribers
 tablelist:{.stpps.t}
 // subscribers who want to replay need this info 
 subdetails:{[tabs;instruments]
  `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBSTPLOG)}
-
 
 generateschemas:{
   // Populate pub/sub tables list with schema tables
@@ -114,7 +112,6 @@ init:{[b]
    .lg.o[`timer;"defaulting timer to 1000ms"];
     system"t 1000"];
  };
-
 
 // Initialise process
 
