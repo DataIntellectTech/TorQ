@@ -128,7 +128,7 @@ if[.sctp.chainedtp;
   endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
   endofday:{[x;y] .stplg.endofday[x;y]};
   .servers.startup[]; 
-  .sctp.subscribe[] 
+  .sctp.subscribe[]
   ]
 
 // produces schema dicts/tables and upd functions
@@ -137,4 +137,4 @@ generateschemas[];
 
 // Create log directory, open all table logs
 // use name of schema to create directory
-.stplg.init[dbname::(string .proc.procname),"_"]
+.stplg.init[string .proc.procname]
