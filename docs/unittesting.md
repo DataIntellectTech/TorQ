@@ -182,9 +182,9 @@ ${TORQHOME}/torq.sh stop discovery1 stp1 wdball wdbsymfilt wdbtabfilt -csv ${tes
 Near the end we have four variables which are optional flags that will be added by the flag parser script. We now have plenty of options when it comes to running the script:
 
 ```shell
-./run.sh -d  									# Run in debug mode
-./run.sh -s										# Run in debug and stop mode
-./run.sh -r 2020.10.12D16:34:44.261143000 -wq	# Run in quiet mode, pass in a runtime and write results to disk
+./run.sh -d  									                  # Run in debug mode
+./run.sh -s										                  # Run in debug and stop mode
+./run.sh -r 2020.10.12D16:34:44.261143000 -wq	  # Run in quiet mode, pass in a runtime and write results to disk
 ```
 
 ### Running Multiple Test Sets
