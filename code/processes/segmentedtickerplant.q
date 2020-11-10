@@ -6,6 +6,8 @@
 // All - publish all data for table
 // Filtered - apply filters to published data, filters defined on client side
 
+createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
+
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
 
@@ -13,26 +15,17 @@ tptype:`segmented
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
-// Load schema
-$[`schemafile in key .proc.params;
-  .proc.loadf[schemafile:raze .proc.params[`schemafile]];
-  [.lg.e[`stp;"schema file required"];exit 1]
- ]
-
-// Populate pub/sub tables list with schema tables
-.stpps.t:tables[]except `currlog;
-.stpps.schemas:.stpps.t!value each .stpps.t;
-
-// amend the main schemas to not have any attributes
-{@[x;cols x;`#]}each .stpps.t;
-
-// store attribute free empty versions of the tables
-.stpps.schemasnoattributes:.stpps.t!value each .stpps.t
-
-// updtab stores functions to add/modify columns
-// Default functions timestamp updates
-// Preserve any prior definitions, but default all tables if not specified
-.stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
+$[.sctp.chainedtp;[
+  .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
+  .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
+  schemafile:""
+  ];
+  // Load schema
+  $[`schemafile in key .proc.params;
+    .proc.loadf[schemafile:raze .proc.params[`schemafile]];
+    [.lg.e[`stp;"schema file required"];exit 1]
+   ]
+  ];
 
 // In none or tabular mode, intraday rolling not required
 if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
@@ -49,27 +42,68 @@ tablelist:{.stpps.t}
 subdetails:{[tabs;instruments]
  `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBSTPLOG)}
 
+generateschemas:{
+  // Populate pub/sub tables list with schema tables
+  //stpHandle: exec w from .servers.SERVERS where proctype=`segmentedtickerplant
+  .stpps.t:tables[]except `currlog;
+  .stpps.schemas:.stpps.t!value each .stpps.t;
+
+  // amend the main schemas to not have any attributes
+  {@[x;cols x;`#]}each .stpps.t;
+
+  // store attribute free empty versions of the tables and get a dictionary of their column names
+  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+  .stpps.tabcols:.stpps.t!cols each .stpps.t;
+
+  // updtab stores functions to add/modify columns
+  // Default functions timestamp updates
+  // Preserve any prior definitions, but default all tables if not specified
+  $[.sctp.chainedtp;
+    .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
+    .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
+    ]
+  }
+
+
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .stplg.updmsg:.stplg.upd[b];
-  .u.upd:{[t;x]
-    // snap the current time and check for period end
-    if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
-    // Type check allows update messages to contain multiple tables/data
-    $[0h<type t;
-      .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
-      .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+  $[.sctp.chainedtp;
+    .u.upd:{[t;x]
+      now:.z.p;
+      // Type check allows update messages to contain multiple tables/data
+      $[0h<type t;
+        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
+        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+      ];
+      .stplg.seqnum+:1;
+      };
+    .u.upd:{[t;x]
+      // snap the current time and check for period end
+      if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
+      // Type check allows update messages to contain multiple tables/data
+      $[0h<type t;
+        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
+        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
+      ];
+      .stplg.seqnum+:1;
+      }
     ];
-    .stplg.seqnum+:1;
-  };
   // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
   .stplg.ts:.stplg.zts[b];
-  .z.ts:{
-    .stplg.ts now:.z.p; 
-    .stplg.checkends now};
+  $[.sctp.chainedtp;
+    .z.ts:{
+      .stplg.ts now:.z.p;
+      };
+    .z.ts:{
+      .stplg.ts now:.z.p; 
+      .stplg.checkends now
+      }
+    ];
+  
   // Error mode - write failed updates to separate TP log
   if[.stplg.errmode;
-    .stplg.openlogerr[.stplg.dldir];
+    //.stplg.openlogerr[.stplg.dldir]; - this is being done in .stplg.init now
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
   ];
@@ -81,9 +115,23 @@ init:{[b]
 
 // Initialise process
 
-// Create log directory, open all table logs
-// use name of schema to create directory
-.stplg.init[dbname:-2 _ last "/" vs schemafile]
+\d .
 
 // Set update and publish modes
 init[.stplg.batchmode]
+
+// subscribe to segmented tickerplant is mode is turned on
+if[.sctp.chainedtp;
+  endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
+  endofday:{[x;y] .stplg.endofday[x;y]};
+  .servers.startup[]; 
+  .sctp.subscribe[]
+  ]
+
+// produces schema dicts/tables and upd functions
+// executed after .sctp.subscribe since the SCTP grabs the schemas from the STP
+generateschemas[];
+
+// Create log directory, open all table logs
+// use name of schema to create directory
+.stplg.init[string .proc.procname]

@@ -24,7 +24,7 @@ autoreplay:1b                           // start replaying logs at the end of th
 clean:1b				                // clean existing folders on start up. Needed if a replay screws up and we are replaying by chunk or multiple tp logs
 upd:{[t;x] insert[t;x]}                 // default upd function used for replaying data
 
-sortcsv:`:config/sort.csv               //location of  sort csv file
+sortcsv:`$":",(getenv `TORQHOME),"/config/sort.csv"               //location of  sort csv file
 
 compression:()                          //specify the compress level, empty list if no required
 partandmerge:0b                         //setting to do a replay where the data is partitioned and then merged on disk
