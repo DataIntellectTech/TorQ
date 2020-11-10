@@ -29,3 +29,9 @@ fail,,,q,.pm.adduser[`group1;`local;`md5;md5"fail"],,,can't add user matching gr
 fail,,,q,.pm.assignrole[`tom;`role1],,,can't assign role that doesn't exist
 run,,,q,.pm.addrole[`role1;"test role"],,,create test role
 run,,,q,.pm.assignrole[`tom;`role1],,,can assign role that does exist
+
+comment,,,,,,,test calls where first item is a primitive
+run,,,q,.pm.grantfunction[.pm.ALL;`role1;{1b}],,,grant all function permission in order to use count
+run,,,q,y:1 2 3,,,variable to be counted
+true,,,q,3=.pm.expr[`tom;"count y"],,,should be able to count variable
+true,,,q,3=.pm.expr[`tom;"count 1 2 3"],,,should be able to count non-variable

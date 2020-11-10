@@ -153,7 +153,7 @@ lamq:{[u;e;b;pr]
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
 
-exe:{if[(100<abs type first x); v:val x]; v:valp x;
+exe:{v:$[(100<abs type first x);val;valp]x;
   if[maxsize<-22!v; 'err[`size][]]; v} 
 
 qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
