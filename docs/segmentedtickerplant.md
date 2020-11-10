@@ -199,6 +199,29 @@ The first obvious thing to be noticed is that batching the updates results in gr
 
 When writing the code for these STP modes some compromise was taken between performance and maintenance. All the UPD functions are written in a standard way and have certain common elements abstracted away in namespaces, which does technically reduce performance. Also the effort made to ensure backwards compatibility means that certain left-field options were not taken advantage of, for example, sending enlisted lists from the Immediate mode rather than converting them to tables first. We will see later on how custom modes can be defined which can be more tailored to a given application.
 
+**Subscriptions**
+
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the process is unchanged: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a list of symbols or a keyed table of conditions as the second:
+
+```q
+// Subscribe to everything
+handletoSTP(`.u.sub;`;`)
+
+// Subscribe GOOG and AAPL symbols in the trade table
+handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
+
+// Subscribe to all tables but with custom conditions
+handletoSTP(`.u.sub;`;conditions)
+...
+q) show conditions
+tabname| filts     columns
+-------| -----------------
+trade  | sym=`GOOG
+quote  | bid>50.0
+```
+
+The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type.
+
 **Error Trapping**
 
 If the `.stplg.errmode` Boolean variable is set to true, an error log is opened on start up and the `.u.upd` function is wrapped in an error trap, so that if a bad message is received, it is not published but instead sent to the error log. The advantage of this is that bad updates are not sent through or replayed into the subscribers, which could cause issues, and they are easier to find and debug.
