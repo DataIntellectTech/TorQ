@@ -35,6 +35,7 @@
 .pm.grantfunction[`postback;`systemuser;{1b}]
 .pm.grantfunction[`killhandle;`systemuser;{1b}]
 .pm.grantfunction[`$string(!:);`systemuser;{1b}]
+.pm.grantfunction[`checkresulthandler;`systemuser;{1b}]
 
 .pm.addgroup[`systemuser;"full access to data"]
 .pm.grantaccess[`trade;`systemuser;`read]
