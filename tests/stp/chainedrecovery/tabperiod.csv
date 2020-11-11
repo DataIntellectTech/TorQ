@@ -9,7 +9,7 @@ before,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to segmented tickerplant
 before,0,0,q,sctpHandle:gethandle[`stptabperiod1],1,,"Open handle to SCTP"
 before,0,0,q,sctpparHandle:gethandle[`stptabperiod2],1,,"Open handle to parent logging SCTP"
 before,0,0,q,sctpHandle".sctp.loggingmode:`create",1,,"Let SCTP create logs"
-beflore,0,0,q,stpHandle(`.stplg.init;teststpdb),1,,"Switch test stplog directory"
+before,0,0,q,stpHandle(`.stplg.init;teststpdb),1,,"Switch test stplog directory"
 before,0,0,q,sctpHandle(`.stplg.init;testsctpdb),1,,"Switch test sctplog directory"
 before,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,,"Send first updates to STP"
 before,0,0,q,.proc.sys "sleep 2",1,,"Sleep for 2 seconds"

@@ -15,8 +15,8 @@ upd:{[t;x] t insert x};
 upderr:{[t;x] .tst.err:x};
 
 // Couple of pre-defined strings
-db:"database",string .z.d;
-liketabs:string[`err`periodic`quote`stpmeta`heartbeat] ,\: "*";
+db:"stp1_",string .z.d;
+liketabs:string[`segmentederrorlogfile`periodic`quote`stpmeta`heartbeat] ,\: "*";
 
 // Test trade and quote updates
 testtrade:(10?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
