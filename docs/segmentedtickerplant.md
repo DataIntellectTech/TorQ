@@ -169,39 +169,41 @@ The other main update is how updates are published to subscribers. Again, there 
 
 **Performance Comparison**
 
-A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP and a KX Tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes. 
+A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP and a KX Tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes.
 
-These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results for single updates can be seen below:
+These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results below show the median and average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below:
 
-| Process    | Batch Mode    | Max mps | Average mps |
-| ---------- | ------------- | :-----: | :---------: |
-| STP        | Default batch | 109,000 |   103,000   |
-| STP        | Immediate     | 97,000  |   89,000    |
-| STP        | Memory batch  | 185,000 |   174,000   |
-| Vanilla TP | Immediate     | 83,000  |   75,000    |
-| Vanilla TP | Batch         | 112,000 |   98,000    |
-| Tick       | Immediate     | 95,000  |   87,000    |
-| Tick       | Batch         | 111,000 |   103,000   |
+| Process | Batch Mode    | Median mps | Average mps |
+| ------- | ------------- | :--------: | :---------: |
+| STP     | Default batch |    103k    |    103k     |
+| STP     | Immediate     |    93k     |     89k     |
+| STP     | Memory batch  |    181k    |    174k     |
+| TorQ TP | Immediate     |    80k     |     75k     |
+| TorQ TP | Batch         |    110k    |     98k     |
+| Tick    | Immediate     |    87k     |     87k     |
+| Tick    | Batch         |    109k    |    103k     |
 
-And the following are for batched updates:
+And the following are for batched updates (note that each message contains 100 ticks):
 
-| Process    | Batching Mode |  Max mps  | Average mps |
-| ---------- | ------------- | :-------: | :---------: |
-| STP        | Default batch | 2,167,000 |  1,899,000  |
-| STP        | Immediate     | 2,035,000 |  1,803,000  |
-| STP        | Memory batch  | 2,473,000 |  2,115,000  |
-| Vanilla TP | Immediate     | 2,034,000 |  1,776,000  |
-| Vanilla TP | Batch         | 1,994,000 |  1,805,000  |
-| Tick       | Immediate     | 1,941,000 |  1,722,000  |
-| Tick       | Batch         | 2,050,000 |  1,872,000  |
+| Process | Batching Mode | Median mps | Average mps |
+| ------- | ------------- | :--------: | :---------: |
+| STP     | Default batch |    20k     |     19k     |
+| STP     | Immediate     |    19k     |     18k     |
+| STP     | Memory batch  |    21k     |     21k     |
+| TorQ TP | Immediate     |    19k     |     18k     |
+| TorQ TP | Batch         |    19k     |     18k     |
+| Tick    | Immediate     |    20k     |     17k     |
+| Tick    | Batch         |    20k     |     19k     |
 
 The first obvious thing to be noticed is that batching the updates results in greater performance as there are fewer IPC operations and disk writes, and while some insight can be gleaned from these figures the single update results provide a better comparison of the actual process code performance. The memory batching mode is the clear leader in terms of raw performance as it does not write to disk on every update. The three 'default' batching modes are roughly equivalent in terms of performance and all have similar functionality. The three Immediate modes bring up the rear in terms of raw throughput, though the STP version is the performance leader here as it stores table column names in a dictionary which can be easily accessed rather than having to read the columns of a table in the root namespace.
+
+In this set up each message contained either one or 100 ticks, each of which had 11 fields, and there was one feed pushing to one TP which had one simple subscriber and varying these figures will impact performance. Increasing the fields in each tick or the number of ticks in a message will results in more costly IPC and IO operations which will decrease performance. Having more subscribers and increasing the complexity of subscriptions, ie. having complex where clause conditions on the subscription, will also reduce performance. These are all things worth bearing in mind as one builds an application.
 
 When writing the code for these STP modes some compromise was taken between performance and maintenance. All the UPD functions are written in a standard way and have certain common elements abstracted away in namespaces, which does technically reduce performance. Also the effort made to ensure backwards compatibility means that certain left-field options were not taken advantage of, for example, sending enlisted lists from the Immediate mode rather than converting them to tables first. We will see later on how custom modes can be defined which can be more tailored to a given application.
 
 **Subscriptions**
 
-Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the process is unchanged: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a list of symbols or a keyed table of conditions as the second:
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the process is unchanged: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a list of symbols or a keyed table of conditions as the second. It should be noted that any heavy processing of incoming data should generally not be done in the STP, so any conditions applied in the subscription should be computationally inexpensive.
 
 ```q
 // Subscribe to everything
@@ -220,7 +222,7 @@ trade  | sym=`GOOG
 quote  | bid>50.0
 ```
 
-The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type.
+The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
 
 **Error Trapping**
 
