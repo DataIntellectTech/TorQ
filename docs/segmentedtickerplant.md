@@ -246,6 +246,14 @@ There are 3 different logging modes for the Chained STP:
 
 - Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
 
+The 'parent' logging mode is useful when all Torq processes have access to the same disk. In this case, the subscriber can access the logs of the STP, saving the SCTP from needing to log independently.
+
+![Simple kdb+tick Setup](graphics/parent2.png)
+
+The 'create' logging mode should be used when the chained STP is running on a separate host to the STP. In this case, RDB2 does not have access to the STP logs and so cannot be replayed through the SCTP. Therefore, the chained STP needs to create its own logs for the subscriber to replay from.
+
+![Simple kdb+tick Setup](graphics/create2.png)
+
 **Customisation and Flexibility**
 
 The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary like so:
