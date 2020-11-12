@@ -151,6 +151,17 @@ The default TP logging behaviour is to write all updates to disk in a single log
 
   Here we have the trade and trade_iex tables both being saved to the same periodic log file, the quote and quote_iex tables both having their own daily log file and the heartbeat table having a periodic log file all to itself. This mode may be advantageous in the case where some tables receive far more updates than others, so they can have more rigorously partitioned logs, and the sparser tables can be pooled together. There is some complexity associated with this mode, as there can be different log files rolling at different times.
 
+  Note that each of the new logging modes includes a q object saved in the directory called stpmeta, this is a table that contains information on the stp logs present in the directory. The table stpmeta contains multiple columns including:
+
+- seq, the order of the logfiles, for periodic data all files for the same time period have the same seq number
+- logname, pathway to the logfile
+- start, the time and date that the logfile was created
+- end, the time and date that the logfile was closed
+- tbls, the tables present in each logfile
+- msgcount, the count of the messages in each logfile
+- schema, schemas for each of the tables in the tbls column
+- additional, any additional information about the logfile
+
 **Batching Modes**
 
 The other main update is how updates are published to subscribers. Again, there are named modes which are set with the `.stplg.batchmode` variable and these allow the user to be flexible with process latency and throughput by altering the `.u.upd` and `.z.ts` functions:
@@ -224,6 +235,24 @@ quote  | bid>50.0
 
 The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
 
+It is easy for a subscriber to subscribe to a STP process it follows the same process as subscribing to a TP through `.u.sub` however some changes have been made. Each subscriber connecting to the STP needs to be updated to search for a process of type segmentedtickerplant instead of tickerplant through changing `.servers.CONNECTIONS` in the settings config file for that process.
+
+```
+// For single connections e.g. $TORQHOME/appconfig/settings/rdb.q
+.servers.CONNECTIONS:enlist `segmentedtickerplant
+
+// For multiple connections e.g. $TORQHOME/appconfig/settings/wdb.q 
+.servers.CONNECTIONS:`segmentedtickerplant`sort`gateway`rdb`hdb
+```
+
+The STP sets these functions in subscriber processes (these vary from process to process and by STP batching mode):
+- upd[t;x;now]
+  Called for updates from the STP. Arguments are t (the table the data is for), x (the data to be inserted) and now (the current time .z.p)
+- endofperiod[currentpd;nextpd;data]
+  Called at the end of a period for periodic STP modes. Takes 3 arguments currentpd (the current period), nextpd (the next period) and data (a table containing some basic information on the stp process and the current time on the stp)
+- endofday[date;data]
+  Called at the end of day for all modes. Takes 2 arguments date (current date) and data (a table containing some basic information on the stp process and the current time on the stp)
+
 **Error Trapping**
 
 If the `.stplg.errmode` Boolean variable is set to true, an error log is opened on start up and the `.u.upd` function is wrapped in an error trap, so that if a bad message is received, it is not published but instead sent to the error log. The advantage of this is that bad updates are not sent through or replayed into the subscribers, which could cause issues, and they are easier to find and debug.
@@ -250,16 +279,18 @@ There are 3 different logging modes for the Chained STP:
 
 **Customisation and Flexibility**
 
-The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary like so:
+The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary in the segmentedtickerplant settings config file:
 
 ```q
+// In file $TORQHOME/appconfig/settings/segmentedtickerplant.q
 // Apply a sequence number to 'tabname'
-q).stplg.updtab[`tabname]:{(enlist(count first x)#y),(enlist(count first x)#(`long$ .stplg.seqnum)),x}
+.stplg.updtab[`tabname]:{((count first x)#'(y;.stplg.seqnum),x}
 
+// In the STP process
 q) .stplg.updtab
 quote   | {(enlist(count first x)#y),x}
 trade   | {(enlist(count first x)#y),x}
-tabname | {(enlist(count first x)#y),(enlist(count first x)#(`long$ .stplg.seqnum)),x}
+tabname | {((count first x)#'(y;.stplg.seqnum),x}
 ...
 ```
 
