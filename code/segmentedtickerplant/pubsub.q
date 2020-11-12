@@ -91,6 +91,18 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
+// Set up table and schema information
+init:{
+  // Grab tables from root namespace and store their attributes
+  .stpps.t:tables[] except `currlog;
+  .stpps.schemas:.stpps.t!value each .stpps.t;
+
+  // Strip attributes from tables and store new schemas and a dictionary of table column names
+  {@[x;cols x;`#]}each .stpps.t;
+  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+  .stpps.tabcols:.stpps.t!cols each .stpps.t;
+ };
+
 // Added condition that kills SCTP if STP dies
 .z.pc:{[f;x] @[f;x;()]; closesub x;
   if[.sctp.chainedtp;
