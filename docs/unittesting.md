@@ -2,13 +2,13 @@
 
 ### Introduction
 
-Unit testing is a software validation methodology where individual modules or 'units' of source code are tested to determine whether they work as intended. TorQ makes use of the [k4unit](https://code.kx.com/q/kb/unit-tests/) framework from Kx, where tests are written in CSV files and loaded into a Q process along with the testing code and are run line by line, with the results being stored in a table. This framework, when combined with the functionality of TorQ processes, yields a flexible and user-friendly testing framework.
+Unit testing is a software validation methodology where individual modules or 'units' of source code are tested to determine whether they work as intended. TorQ's unit testing framework has been designed to be user-friendly and includes lots of useful features such as debugging and integration testing. We shall see that, using this framework, it is straightforward to test both small units of code as well as larger pieces of application functionality.
 
 ### Test Basics
 
 **My First Test**
 
-In order to write and run a basic test, in a new folder create a CSV file with some basic tests in it, like the following:
+Tests are written in the style of Kx's [k4unit](https://code.kx.com/q/kb/unit-tests/), where tests are written in CSV files and loaded into a Q process along with the testing code and are run line by line, with the results being stored in a table. In order to write and run a basic test, in a new folder create a CSV file with some basic tests in it, like the following:
 
 ```
 action,ms,bytes,lang,code,repeat,minver,comment
@@ -202,9 +202,56 @@ q runall.q -rundir /path/to/top/test/folder/ -resdir /path/to/results/folder/
 
 ### Debugging Tests
 
-In the scenario where there are a large number of tests spread across several folders, you can use the run-all mechanic to test them all. However, say there is an error in one of the test files. Normally, this would be fairly difficult to track down and deal with, but the features of this framework make it much easier. At the end of the run, three things will be shown on the console, a results table, a fails table and dictionary of error logs and any errors in them. Any tests that fail will be displayed in the fails table and any code errors that occur will be logged to disk and displayed in the dictionary, and both of these sources contain the file the test was in, the line number it is on and the code itself. This information may be enough to solve the issue, but if not, we can examine the tests themselves. 
+In the scenario where there are a large number of tests spread across several folders, you can use the run-all mechanic to test them all. However, say there is an error in one of the test files. Normally, this would be fairly difficult to track down and deal with, but the features of this framework make it much easier. At the end of the run, three things will be shown on the console, a results table, a failures table and dictionary of error logs and any errors in them. Any tests that fail will be displayed in the fails table and any code errors that occur will be logged to disk and displayed in the dictionary, and both of these sources contain the file the test was in, the line number it is on and the code itself. 
 
-Since we know what file the test errors/failures are coming from we can execute the run script in its folder with the `-d` flag, which will put all the logs for the process out onto the screen so we can see what is happening, and then the process remains alive at the end so we can debug in the process. The other option is to run the script with the `-s` flag, where you will be thrown out to the q prompt whenever the tests hit an error or a failed test, which will allow you to debug the code at the point where it appears in the testing order.
+A demo folder has been prepared which contains a code error and a test failure. All the tests in the folder were run as follows:
+
+```shell
+q runall.q -rundir demo -resdir demo/results
+```
+
+When the tests finish running the results are displayed on the console. There are various failed tests and an entry appears in our error logs which can be expanded out:
+
+```
+...
+"Logged errors:"
+:demo/results/2020.11.11/logs/err_eod.log| ()
+:demo/results/2020.11.11/logs/err_wdb.log| ,"2020.11.11D16:37:21.716171000|aquaq-184|test|test1|ERR|KUexecerr|run error in file :/ho.."
+...
+q) raze value errors
+"2020.11.11D16:37:21.716171000|aquaq-184|test|test1|ERR|KUexecerr|run error in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 8 - stHandle. Code: 'stHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))'"
+```
+
+The script has read the file `demo/results/2020.11.11/logs/err_wdb.log` and from the message within we can see that there is a code error in a 'run' command in the file `/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv` on line 8, and the offending piece of code is also displayed. This may be enough information for us to solve the issue, but if not we can dig deeper. 
+
+We can see that the error is coming from the WDB tests, and so we run those in debug mode in the following way:
+
+```shell
+./demo/wdb/run.sh -d
+```
+
+This runs the tests and displays the error message we saw earlier before outputting our test results and failures and leaving us in the q session. By examining the error message and being able to access the q session we can see that the variable `stHandle` should in fact be `stpHandle` and this typo is causing the error. Once this is fixed, it can be run again and the error doesn't appear any more. There is still one test failing, however:
+
+```
+q) select action,code,csvline from KUerr
+action code                                               csvline
+-----------------------------------------------------------------
+true   (t1+1 5)~t2:wdbHandles[`all`sym] @\: "count trade" 10
+```
+
+The best way to debug this would be to be able to exit the tests as this line is being run and be able to examine it from there. We can do this by invoking the stop mode in our test script:
+
+```shell
+./demo/wdb/run.sh -s
+```
+
+This throws us out to the q prompt at this point in the tests with the following error:
+
+```
+'failed to load /home/mpotter/kdbCode/segtp/deploy/tests/runtests.q : true test failure in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 10
+```
+
+We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
 ### Notes on Best Practice
 
@@ -214,3 +261,4 @@ Here are some recommendations on making test development more straightforward:
 - Run the tests from a 'blank' test process where possible, as this ensures that test code and process code don't get in each other's way
 - Put any variable or function declarations in a settings file so as not to clutter the test code
 - If there are a large number of tests, split into folders of related tests
+- Try to keep test output isolated from the rest of the application, ie. any logs or HDB data should be output to a separate testing location and cleared afterwards if appropriate
