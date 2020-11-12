@@ -1,0 +1,19 @@
+parameter,parametervalue
+tablename,`xdaily
+partitionfilter,enlist(within;`date;2000.01.01 2000.01.04)
+attributecolumn,`sym
+hdbtimefilter,enlist(within;`time;2000.01.01D00:00:00.000000000 2000.01.04D23:59:59.999999999)
+rdbtimefilter,enlist(within;`time;2000.01.05D00:00:00.000000000 2000.01.05D10:00:00.000000000)
+instrumentfilter,enlist(=;`sym;,`AUDUSD)
+columns,`bidprice`bidsize`askprice`asksize!`bidprice`bidsize`askprice`asksize
+grouping,()
+aggregations,()
+filters,((like;`source;"source?");(<;`sourcetime;0Wp))
+freeformwhere,((<;`bidprice;0w);(<;`bidsize;0w))
+freeformby,`sym`source!`sym`source
+freeformselect,()
+proctypehdb,`dailyhdb
+hdbvalidrange,1b
+proctyperdb,`dailyrdb
+rdbvalidrange,1b
+tableproperties,`proctypehdb`proctyperdb`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partitionfield!`dailyhdb`dailyrdb`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`date

@@ -1,0 +1,4 @@
+proctypehdb,proctyperdb,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,getrollover,getpartitionrange
+dailyhdb,dailyrdb,xdaily,time,sym,sym,UTC,testfuncrollover,testfuncpartitionrange
+monthlyhdb,monthlyrdb,xmonthly,time,sym,sym,UTC,testfuncrollover,testfuncpartitionrange
+yearlyhdb,yearlyrdb,xyearly,time,sym,sym,UTC,testfuncrollover,testfuncpartitionrange

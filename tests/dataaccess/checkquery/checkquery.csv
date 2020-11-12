@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
+before,0,0,q,.servers.startup[],1,,"Get connection management set up"
+true,0,0,q,.eqp.extractqueryparams[.checkinpus.checkinputs gettestparams`testqueryparams1;.eqp.queryparams]~(?;`xdaily;((within;`date;2000.01.01 2000.01.04);(=;`sym;enlist`AUDUSD);(within;`time;2000.01.01D00:00:00.000000000 2000.01.04D23:59:59.999999999);(like;`source;"source?");(<;`sourcetime;0Wp);(<;`bidprice;0w);(<;`bidsize;0w));`sym`source!`sym`source;`bidprice`bidsize`askprice`asksize!`bidprice`bidsize`askprice`asksize),1,,".eqp.extractqueryparams runs successfully and produces the correct dictionary"
