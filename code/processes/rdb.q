@@ -196,8 +196,9 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/- adds endofday to top level namespace
+/- adds endofday and endofperiod functions to top level namespace
 endofday: .rdb.endofday;
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod."]};
 
 /-set .u.end for the tickerplant to call at end of day
 .u.end:{[d] .rdb.endofday[d;()!()]}
