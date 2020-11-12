@@ -265,20 +265,6 @@ This mode is really designed for development/testing purposes, it shouldn't be n
 
 A key tickerplant function is to timestamp the incoming data before it gets published to the rest of the system. In order to maintain applications and data in different time zones, such as a UK-based application which processes US data, the STP works with the `.eodtime` namespace variables in much the same way as other TorQ processes. The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
 
-**Chained STP**
-
-A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. Also, the Chained STP process is dependent on the Segmented TP. Therefore, if the connection to the STP dies, the ChainedSTP process will die. 
-
-With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different logging mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability.
-
-There are 3 different logging modes for the Chained STP:
-
-- None: Chained STP does not create or access any log files.
-
-- Create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
-
-- Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
-
 **Customisation and Flexibility**
 
 The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary in the segmentedtickerplant settings config file:
@@ -324,6 +310,28 @@ zts[`defaultbatch]:{
 ```
 
 Once this is done, simply update `.stplg.batchmode` with the name of the new mode and start the process.
+
+**Chained STP**
+
+A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. Also, the Chained STP process is dependent on the Segmented TP. Therefore, if the connection to the STP dies, the ChainedSTP process will die. 
+
+With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different batching mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability.
+
+There are 3 different logging modes for the Chained STP:
+
+- None: Chained STP does not create or access any log files.
+
+- Create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
+
+- Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
+
+The 'parent' logging mode is useful when all of the Torq processes have access to the same disk. In this case, the subscriber can access the logs of the STP and the data is replayed through the Chained STP. This prevents the SCTP from needing to create duplicate logs and so saves on storage. This replay would look like the following:
+
+<img src="graphics/parent3.png" width="350">
+
+The 'create' logging mode should be used when the chained STP is running on a separate host to the STP, as illustrated in the diagram below. Here RDB1 may access the STP logs as they are running on the same host. However, RDB2 does not have access to the STP logs and so they cannot be replayed through the SCTP. Therefore, the chained STP needs to create its own logs for RDB2 to access.
+
+<img src="graphics/create2.png" width="800">
 
 **Other Notes**
 

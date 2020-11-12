@@ -42,29 +42,16 @@ tablelist:{.stpps.t}
 subdetails:{[tabs;instruments]
  `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBSTPLOG)}
 
+// Generate table and schema information and set up default table UPD functions
 generateschemas:{
-  // Populate pub/sub tables list with schema tables
-  //stpHandle: exec w from .servers.SERVERS where proctype=`segmentedtickerplant
-  .stpps.t:tables[]except `currlog;
-  .stpps.schemas:.stpps.t!value each .stpps.t;
-
-  // amend the main schemas to not have any attributes
-  {@[x;cols x;`#]}each .stpps.t;
-
-  // store attribute free empty versions of the tables and get a dictionary of their column names
-  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
-  .stpps.tabcols:.stpps.t!cols each .stpps.t;
-
-  // updtab stores functions to add/modify columns
-  // Default functions timestamp updates
-  // Preserve any prior definitions, but default all tables if not specified
+  .stpps.init[];
   $[.sctp.chainedtp;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
     ]
   }
 
-
+// Initialise UPD and ZTS behaviour based on batching mode (b)
 init:{[b]
   if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
   .stplg.updmsg:.stplg.upd[b];
