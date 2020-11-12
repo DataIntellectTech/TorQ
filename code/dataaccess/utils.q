@@ -63,8 +63,8 @@ jointableproperties:{[inputparams]
 
 //- extract from subdict of inputparams
 extractfromsubdict:{[inputparams;subdict;property]
-  if[not property in key inputparams subdict;'`$"gettableproperty:invalid property"];
-  :inputparams[subdict;property];
+  if[not property in key inputparams subdict;`$"gettableproperty:invalid property"];
+  :inputparams[subdict,property];
  };
 
 gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tableproperties key in inputparams
