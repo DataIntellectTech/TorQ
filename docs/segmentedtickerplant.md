@@ -6,7 +6,17 @@ A key component of the TorQ framework has always been the Tickerplant (TP) proce
 
 **Segmented Tickerplant**
 
-The idea behind the STP was to create a process which retained all the functionality of the Tickerplant while adding flexibility in terms of logging and subscriptions. It is entirely backwards compatible, meaning that any processes that depend on a TP can equally utilise an STP without painful code changes. It can still be used to create Chained Tickerplants (CTPs), is still performance conscious and still timestamps the incoming data before publishing it to its subscribers.
+The idea behind the STP was to create a process which retained all the functionality of the Tickerplant while adding flexibility in terms of logging, publishing and subscriptions. The functionality of the STP is almost fully backwardly compatible with a few minor (and we believe seldom utilised) exceptions. We have introduced:
+
+- ability to create more granular log files
+- a new batch publication mode
+- ability to easily introduce custom table modifications upon message receipt
+- more flexible subscriptions
+- error handling for easier debugging when developing data feeds
+- performance improvements for several use cases
+- faster restart
+
+All the TorQ based subscriber processes (e.g. RDB and WDB), and any subscribers that use the TorQ subscription library, can switch between the TP and STP. For the minor modifications that must be made to data consumers, please see section XXXX.
 
 What has been added are multiple logging modes, which allow the logs to be split and partitioned, and subscription modes, which alter how the data is batched and published, as well as error handling, which sends bad messages to a separate file and customisation options.
 
