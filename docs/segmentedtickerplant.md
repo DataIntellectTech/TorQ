@@ -228,7 +228,9 @@ When writing the code for these STP modes some compromise was taken between perf
 
 **Subscriptions**
 
-Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the process is unchanged: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a list of symbols or a keyed table of conditions as the second. It should be noted that any heavy processing of incoming data should generally not be done in the STP, so any conditions applied in the subscription should be computationally inexpensive.
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published. 
+
+Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
 
 ```q
 // Subscribe to everything
