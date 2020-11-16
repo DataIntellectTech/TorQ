@@ -84,7 +84,7 @@ To add more flexibility, the following logging modes have been added which are s
 
 - Tabular:
 
-  This mode is similar to the default behaviour except that each table has its own log file which is rolled daily in the form `trade20201026154808`. This has similar benefits to the previous case where only the ticks for individual tables need to be replayed for the day, and that any file mishaps are confined to a single table's worth of updates.
+  This mode is similar to the default behaviour except that each table has its own log file which is rolled daily in the form `tradeYYYYMMDDHHMMSS`. This allows for more granular log file management, and prioritisation of data recovery.
   
   ```
    stplogs/
