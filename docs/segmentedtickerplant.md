@@ -291,7 +291,7 @@ The key variable used is `.eodtime.dailyadj` but more information on setting up 
 
 **Per Table Customisation**
 
-The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary in the segmentedtickerplant settings config file:
+Each table has its own upd function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary in the segmentedtickerplant settings config file. The default behaviour is for every update to automatically have the current timestamp applied to it.
 
 ```q
 // In file $TORQHOME/appconfig/settings/segmentedtickerplant.q
