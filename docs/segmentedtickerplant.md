@@ -277,7 +277,15 @@ This mode is really designed for development/testing purposes, it shouldn't be n
 
 **Time Zone Behaviour**
 
-A key tickerplant function is to timestamp the incoming data before it gets published to the rest of the system. In order to maintain applications and data in different time zones, such as a UK-based application which processes US data, the STP works with the `.eodtime` namespace variables in much the same way as other TorQ processes. The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
+A key tickerplant function is to timestamp the incoming data before it gets published to the rest of the system. Similar to the existing TP, the STP allows definition of 
+
+- the timezone that data is timestamped at upon arrival
+- the timezone that the STP executes it's end-of-day roll in 
+- the offset from midnight that the STP executes its end-of-day roll in
+
+This allows for more complex configurations, such as an Foreign Exchange data capture system which timestamps data in UTC but rolls at 5 PM EST. 
+
+The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
 
 **Customisation and Flexibility**
 
