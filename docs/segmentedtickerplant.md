@@ -337,7 +337,10 @@ Once this is done, simply update `.stplg.batchmode` with the name of the new mod
 
 **Chained STP**
 
-A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain of TPs hence the name. This is useful for systems that need to behave differently for different subscribers, for example if you have a slow subscriber. When using the Chained STP, all endofday/endofperiod messages still originate from the STP and are merely passed on to subscribers through the Chained STP. Also, the Chained STP process is dependent on the Segmented TP. Therefore, if the connection to the STP dies, the ChainedSTP process will die. 
+A chained tickerplant (CTP) is a TP that is subscribed to another TP. This is useful for the following:
+
+- protecting the main TP by offloading publication load. Examples would be distributing data to multiple consumers, or executing complex subscription filtering logic.
+- distributing a system across multiple hosts where data is pushed once across a host boundary and then further distributed within that host. The CTP can also be used to create a local version of the TP log files within that host.
 
 With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different batching mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability.
 
