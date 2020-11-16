@@ -284,12 +284,8 @@ A chained tickerplant (TP) is a TP that is subscribed to another TP like a chain
 
 With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different batching mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability.
 
-There are 3 different logging modes for the Chained STP:
-
 - None: Chained STP does not create or access any log files.
-
 - Create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
-
 - Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
 
 The 'parent' logging mode is useful when all of the Torq processes have access to the same disk. In this case, the subscriber can access the logs of the STP and the data is replayed through the Chained STP. This prevents the SCTP from needing to create duplicate logs and so saves on storage. This replay would look like the following:
@@ -300,8 +296,10 @@ The 'create' logging mode should be used when the chained STP is running on a se
 
 <img src="graphics/create2.png" width="800">
 
-**Other Notes**
+**Backward Compatibility**
 
 Not everything about the STP is exactly the same as the TP, a couple of things have been changed:
 
 - All updates must be lists of lists, meaning that single updates must be enlisted.
+- Consumers must have endofday[currentdate;DATA], endofperiod[currentperiod;nextperiod;DATA] and upd[newdata;table] defined in order to successfully subscribe to the STP (.u.end is no longer used). Here DATA is a dictionary of metadata about the STP containing the STP name and type, subscribable tables and the time at which the message was sent from the STP.
+- First two columns in tables do not have to be time and sym 
