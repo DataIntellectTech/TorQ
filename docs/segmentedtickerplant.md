@@ -289,7 +289,7 @@ This allows for more complex configurations, such as an Foreign Exchange data ca
 
 The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
 
-**Customisation and Flexibility**
+**Per Table Customisation**
 
 The STP has been designed with customisation in mind. To this end here are a couple of ways to tailor the process to suit a particular application. The first is utilising the fact that each table has its own UPD function, meaning that some additional processing, such as adding a sequence number or a time-zone offset, can be done in the STP itself rather than needing to be done in a separate process. This is done by altering the `.stplg.updtab` dictionary in the segmentedtickerplant settings config file:
 
