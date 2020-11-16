@@ -306,7 +306,7 @@ tabname | {((count first x)#'(y;.stplg.seqnum),x}
 ...
 ```
 
-A second way that the process can be tailored is to make custom batching modes. The batching behaviour depends on two functions: `.u.upd` and `.z.ts`. The former is called every time an update arrives in the STP and the latter whenever the timer function is called (eg. if the process is started with `-t 1000`, this will be called every second). In the default batching mode, `.u.upd` inserts the update into a local table and writes it to the log file, and `.z.ts` publishes the contents of the local table before clearing it. To customise these functions, the `.stplg.upd` and `.stplg.zts` dictionaries will need to be customised. For example, the default batching code looks like the following:
+The batching behaviour depends on two functions: `.u.upd` and `.z.ts`. The former is called every time an update arrives in the STP and the latter whenever the timer function is called (e.g. if the process is started with `-t 1000`, this will be called every second). In the default batching mode, `.u.upd` inserts the update into a local table and writes it to the log file, and `.z.ts` publishes the contents of the local table before clearing it. To customise these functions, the `.stplg.upd` and `.stplg.zts` dictionaries will need to be customised. For example, the default batching code looks like the following:
 
 ```q
 \d .stplg
