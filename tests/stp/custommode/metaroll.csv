@@ -1,6 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.servers.startup[],1,,"Set up connection management"
-before,0,0,q,stpHandle(setenv;`KDBSTPLOG;tstlogs),1,,"Change STP logging directory"
+before,0,0,q,stpHandle(setenv;`KDBTPLOG;tstlogs),1,,"Change STP logging directory"
 before,0,0,q,stpHandle"delete from `.stpm.metatable",1,,"Delete meta table"
 before,0,0,q,stpHandle"init[`defaultbatch]",1,,"Re-init STP"
 before,0,0,q,stpHandle".stplg.init[string .proc.procname]",1,,"Re-init STP"
@@ -22,7 +22,6 @@ true,0,0,q,all "v"$nowadj="v"$metatab[`start],1,,"Check correct start time liste
 true,0,0,q,all null metatab[`end],1,,"Check no end time listed for log"
 run,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,,"Send trade and quote updates to STP"
 run,0,0,q,system "sleep 1",1,,"Wait for update to publish"
-comment,0,0,q,stpHandle".stplg.endofperiod[.z.p+.eodtime.dailyadj;1b]",1,,"Roll logs"
 run,0,0,q,"eodata:(stpHandle(`.stplg.endofdaydata;::)),(!/) enlist each (`p;.z.p+.eodtime.dailyadj)",1,,"Get eod data"
 run,0,0,q,stpHandle(`.stplg.stpeoperiod;`.stplg.currperiod;`.stplg.nextperiod;eodata;1b),1,,"Roll logs"
 run,0,0,q,meta0:stpHandle"select from .stpm.metatable where seq=0",1,,"Save initial meta records"
@@ -38,5 +37,5 @@ true,0,0,q,period[`next]~stpHandle".stplg.currperiod",1,,"Check period rolled co
 true,0,0,q,all ("T"$-6#'string exec logname from clog where tbl in `trade`heartbeat)="t"$period[`next],1,,"Check trade/heartbeat log names rolled"
 true,0,0,q,qlog~clog[`quote;`logname],1,,"Check quote log not rolled"
 true,0,0,q,not (~/) exec logname from clog where tbl in `trade`quote,1,,"Check trade and quote writing to different logs"
-after,0,0,q,stpHandle(setenv;`KDBSTPLOG;deflogs),1,,"Change STP logging directory to default"
+after,0,0,q,stpHandle(setenv;`KDBTPLOG;deflogs),1,,"Change STP logging directory to default"
 after,0,0,q,"system""rm -r "",tstlogs",1,,"Clear log directory"
