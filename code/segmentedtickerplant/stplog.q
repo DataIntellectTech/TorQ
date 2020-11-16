@@ -11,7 +11,7 @@ loghandles::exec tbl!handle from currlog
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  $[count dir:getenv[`KDBSTPLOG];
+  $[count dir:getenv[`KDBTPLOG];
     [.os.md dir;.os.md dldir::hsym`$raze dir,"/", string name,"_",date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]

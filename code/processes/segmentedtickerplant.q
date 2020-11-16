@@ -40,7 +40,7 @@ if[.stplg.multilog~`custom;
 tablelist:{.stpps.t}
 // subscribers who want to replay need this info 
 subdetails:{[tabs;instruments]
- `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBSTPLOG)}
+ `schemalist`logfilelist`rowcounts`date`logdir!(.u.sub\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)}
 
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
