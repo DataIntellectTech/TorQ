@@ -247,13 +247,15 @@ It is easy for a subscriber to subscribe to a STP process it follows the same pr
 .servers.CONNECTIONS:`segmentedtickerplant`sort`gateway`rdb`hdb
 ```
 
-The STP sets these functions in subscriber processes (these vary from process to process and by STP batching mode):
-- upd[t;x;now]
+The STP requires these functions to be defined in subscriber processes (the definitions will be unique to the requirements of each subscriber):
+- upd[t;x]
   Called for updates from the STP. Arguments are t (the table the data is for), x (the data to be inserted) and now (the current time .z.p)
 - endofperiod[currentpd;nextpd;data]
-  Called at the end of a period for periodic STP modes. Takes 3 arguments currentpd (the current period), nextpd (the next period) and data (a table containing some basic information on the stp process and the current time on the stp)
+  Called at the end of a period for periodic STP modes. Takes 3 arguments currentpd (the current period), nextpd (the next period) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
 - endofday[date;data]
-  Called at the end of day for all modes. Takes 2 arguments date (current date) and data (a table containing some basic information on the stp process and the current time on the stp)
+  Called at the end of day for all modes. Takes 2 arguments date (current date) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
+
+The data dictionary contains the STP name and type, list of subscribable tables in STP and the time at which the message is sent from the STP. In order to add further information to data, simply add additional elements in the endofdaydata function defined in code/segmentedtickerplant/stplg.q script.
 
 **Error Trapping**
 
