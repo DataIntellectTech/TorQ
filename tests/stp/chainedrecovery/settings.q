@@ -5,7 +5,7 @@
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/chainedrecovery/process.csv";
 stptestlogs:getenv[`KDBTESTS],"/stp/chainedrecovery/testlog";
-stporiglogs:getenv[`KDBSTPLOG];
+stporiglogs:getenv[`KDBTPLOG];
 teststpdb:"teststplog";
 testsctpdb:"testsctplog";
 

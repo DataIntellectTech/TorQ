@@ -4,7 +4,7 @@
 
 // Paths to process CSV and test/default STP log directory
 tstlogs:getenv[`KDBTESTS],"/stp/custommode/tstlogs";
-deflogs:getenv[`KDBSTPLOG];
+deflogs:getenv[`KDBTPLOG];
 
 // Trade and quote schemas
 trade:flip `time`sym`price`size`stop`cond`ex`side!"PSFIBCCS" $\: ();

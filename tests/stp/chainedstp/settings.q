@@ -9,7 +9,7 @@ testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/chainedstp/process.csv";
 stptestlogs:getenv[`KDBTESTS],"/stp/chainedstp/testlog";
-stporiglogs:getenv[`KDBSTPLOG];
+stporiglogs:getenv[`KDBTPLOG];
 teststpdb:"teststpdb";
 testsctpdb:"testsctpdb";
 

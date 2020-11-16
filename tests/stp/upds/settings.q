@@ -5,7 +5,7 @@
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/upds/process.csv";
 stptestlogs:getenv[`KDBTESTS],"/stp/recovery/testlog";
-stporiglogs:getenv[`KDBSTPLOG];
+stporiglogs:getenv[`KDBTPLOG];
 testlogdb:"testlogdb";
 
 // Test updates
