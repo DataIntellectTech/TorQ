@@ -27,8 +27,8 @@ $[.sctp.chainedtp;[
    ]
   ];
 
-// In none or tabular mode, intraday rolling not required
-if[.stplg.multilog in `none`tabular;.stplg.multilogperiod:1D];
+// In singular or tabular mode, intraday rolling not required
+if[.stplg.multilog in `singular`tabular;.stplg.multilogperiod:1D];
 
 // In custom mode, load logging type for each table
 if[.stplg.multilog~`custom;

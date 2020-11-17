@@ -28,7 +28,7 @@ logname[`tabperiod]:{[dir;tab;p]
  };
 
 // Standard TP mode - write all tables to single log, roll daily
-logname[`none]:{[dir;tab;p]
+logname[`singular]:{[dir;tab;p]
   ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
  };
 
@@ -43,7 +43,7 @@ logname[`tabular]:{[dir;tab;p]
  };
 
 // Custom mode - mixed periodic/tabular mode
-// Tables are defined as periodic, tabular, tabperiod or none in config file stpcustom.csv
+// Tables are defined as periodic, tabular, tabperiod or singular in config file stpcustom.csv
 // Tables not specified in csv are not logged
 logname[`custom]:{[dir;tab;p]
   logname[custommode tab][dir;tab;p]
@@ -271,7 +271,7 @@ init:{[dbname]
   @[`.stplg.msgcount;t;:;0];
   @[`.stplg.rowcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
-  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
+  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`singular;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
