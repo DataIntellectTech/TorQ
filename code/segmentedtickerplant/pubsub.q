@@ -116,6 +116,7 @@ init:{
 // Subscriber will call with null y parameter in sub all mode
 // In sub filtered mode, y will contain tables to subscribe to and filters to apply
 .u.sub:{[x;y]
+  if[x~`;:.u.sub[;y] each .stpps.t];
   if[not x in .stpps.t;
     .lg.e[`rdb;m:"Table ",string[x]," not in list of stp pub/sub tables"];
     :(x;m)
