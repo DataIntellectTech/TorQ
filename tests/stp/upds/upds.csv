@@ -39,4 +39,4 @@ true,0,0,q,rdbHandle"not any null quote`seqnum",1,,"Check column is being filled
 true,0,0,q,rdbHandle"not any 0 > deltas quote`seqnum",1,,"Check seq numbers are always ascending"
 true,0,0,q,rdbHandle"10 ~ count quote",1,,"Check count of quote table"
 after,0,0,q,rdbHandle"delete from `quote",1,,"Clear quote table
-after,0,0,q,".os.deldir getenv[`KDBSTPLOG],""/"", testlogdb,""_"",string .z.d",1,,"Delete test segmented tickerplant logs"
+after,0,0,q,".os.deldir getenv[`KDBTPLOG],""/"", testlogdb,""_"",string .z.d",1,,"Delete test segmented tickerplant logs"
