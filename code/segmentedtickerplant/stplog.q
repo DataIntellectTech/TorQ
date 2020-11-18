@@ -271,7 +271,7 @@ init:{[dbname]
   @[`.stplg.msgcount;t;:;0];
   @[`.stplg.rowcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
-  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
+  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`singular;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
