@@ -16,24 +16,18 @@ spliltcolumns:{[x;columns;types]@[x;columns;spliltandcast;types]};
 spliltandcast:{[x;typ]typ$"|"vs/:x};
 
 
-//- functions to:
-//- (i) .dataaccess.procmetainfo - keeps track of metas for each connected proc (.z.pc will drop from this table)
-//- (ii) .dataaccess.metainfo - mapping from tablename to metainfo (derived from .dataaccess.procmetainfo);
-getprocmetainfo:{[connectiontab] `procname`proctype xkey .dataaccess.geteachprocmetainfo each .dataaccess.joinprocfields connectiontab};
-getmetainfo:{[procmetainfo] exec uj/[metainfo]from procmetainfo};
+//- functions:
+//- (i) .dataaccess.getmetainfo - mapping from tablename to metainfo (derived from .dataaccess.procmetainfo);
 
-joinprocfields:{[connectiontab]
-  procfieldmap:exec([]proctype:proctypehdb,proctyperdb)!([]procfield:(,)[count[proctypehdb]#`proctypehdb;count[proctyperdb]#`proctyperdb])from .dataaccess.tablepropertiesconfig;
-  :#[`procname`proctype`w;connectiontab]lj update procmetafield:`hdbparams`rdbparams `proctypehdb`proctyperdb?procfield from procfieldmap;
- };
-
-geteachprocmetainfo:{[connectiondict]`procfield`procmetafield _update metainfo:w(.dataaccess.getprocmetainforemote;procfield;procmetafield)from connectiondict}; 
-
-getprocmetainforemote:{[procfield;procmetafield]
-  partitionfield:$[()~key`.Q.pf;`;.Q.pf];
-  metainfo:([]metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;proctype:.proc.proctype);
-  if[`~partitionfield;:1!flip(`tablename;procmetafield)!(tables`;metainfo)];
-  if[not`~partitionfield;:1!flip(`tablename;`partitionfield;procmetafield)!(tables`;partitionfield;metainfo)];
+getmetainfo:{[metafield]
+  partfield:$[()~key`.Q.pf;`;.Q.pf];
+  metas:([]metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;proctype:.proc.proctype);
+  if[`~partfield;
+     :1!flip(`tablename;metafield)!(tables[`]except`metas;metas)
+  ];
+  if[not`~partfield;
+     :1!flip(`tablename;`partfield;metafield)!(tables[`]except`metas;partfield;metas)
+  ];
  };
 
 //- misc utils
