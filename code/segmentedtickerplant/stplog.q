@@ -24,26 +24,26 @@ logname:@[value;`.stplg.logname;enlist[`]!enlist ()];
 // Default stp mode is tabperiod
 // TP log rolled periodically (default 1 hr), 1 log per table
 logname[`tabperiod]:{[dir;tab;p]
-  ` sv(hsym dir;`$string[tab],raze[string"dv"$p]except".:")
+  ` sv hsym[dir],`$raze/[string (.proc.procname;"_";tab;"dv"$p)] except ".:"
  };
 
 // Standard TP mode - write all tables to single log, roll daily
-logname[`singular]:{[dir;tab;p]
+logname[`none]:{[dir;tab;p]
   ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
  };
 
 // Periodic-only mode - write all tables to single log, roll periodically intraday
 logname[`periodic]:{[dir;tab;p]
-  ` sv(hsym dir;`$"periodic",raze[string"dv"$p]except".:")
+  ` sv hsym[dir],`$raze/[string (.proc.procname;"_periodic";"dv"$p)] except ".:"
  };
 
 // Tabular-only mode - write tables to separate logs, roll daily
 logname[`tabular]:{[dir;tab;p]
-  ` sv(hsym dir;`$string[tab],"_",raze[string"dv"$p]except".:")
+  ` sv hsym[dir],`$raze/[string (.proc.procname;"_";tab;"dv"$p)] except ".:"
  };
 
 // Custom mode - mixed periodic/tabular mode
-// Tables are defined as periodic, tabular, tabperiod or singular in config file stpcustom.csv
+// Tables are defined as periodic, tabular, tabperiod or none in config file stpcustom.csv
 // Tables not specified in csv are not logged
 logname[`custom]:{[dir;tab;p]
   logname[custommode tab][dir;tab;p]
@@ -157,7 +157,7 @@ openlog:{[multilog;dir;tab;p]
   `..currlog upsert (tab;lname;h);
  };
 
-errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
+errorlogname:`$"_" sv string .proc.procname,@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
@@ -271,7 +271,7 @@ init:{[dbname]
   @[`.stplg.msgcount;t;:;0];
   @[`.stplg.rowcount;t;:;0];
   logtabs::$[multilog~`custom;key custommode;t];
-  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`singular;t];
+  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`none;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[]; 
