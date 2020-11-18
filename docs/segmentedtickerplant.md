@@ -20,26 +20,6 @@ All the TorQ based subscriber processes (e.g. RDB and WDB), and any subscribers 
 
 What has been added are multiple logging modes, which allow the logs to be split and partitioned, and subscription modes, which alter how the data is batched and published, as well as error handling, which sends bad messages to a separate file and customisation options.
 
-**Starting a Segmented Tickerplant process**
-
-Starting an STP process is similar to starting a tickerplant, we need to have an updated process.csv that contains a line for the STP process like the one below. Optional flags such as `-.stplg.batchmode` and `-.stplg.errmode` can be added to change settings for the process.
-
-```
-localhost,${KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -.stplg.batchmode immediate -.stplg.errmode 0 -t 1,q
-```
-
-The process can either be started using:
-
-```shell
-bash torq.sh start stp1
-```
-
-or:
-
-```shell
-q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -load ${KDBCODE}/processes/segmentedtickerplant.q
-```
-
 **Logging Modes**
 
 The default TP logging behaviour is to write all updates to disk in a single log file which is rolled on a daily basis. The log file may become large. A consumer of the data must replay all the data from the log file, even if only a subset is required. Additionally, when the TP restarts, it must count through the log file in full to ensure that it has the correct message number. 
@@ -194,6 +174,26 @@ There are named modes which are set with the `.stplg.batchmode` variable and the
 
   In this mode, neither logging nor publishing happens immediately but everything is held in memory until the timer function is called, at which point the update is logged and published. High overall message throughput is possible with this mode, but there is a risk that some messages aren't logged in the case of STP failure. Also note that the the ordering of messages from different tables in the log file will not align with arrival order.
 
+**Starting a Segmented Tickerplant process**
+
+Starting an STP process is similar to starting a tickerplant, we need to have an updated process.csv that contains a line for the STP process like the one below. Optional flags such as `-.stplg.batchmode` and `-.stplg.errmode` can be added to change settings for the process.
+
+```
+localhost,${KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -.stplg.batchmode immediate -.stplg.errmode 0 -t 1,q
+```
+
+The process can either be started using:
+
+```shell
+bash torq.sh start stp1
+```
+
+or:
+
+```shell
+q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -load ${KDBCODE}/processes/segmentedtickerplant.q
+```
+
 **Subscriptions**
 
 Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published. 
@@ -219,14 +219,10 @@ quote  | bid>50.0
 
 The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
 
-It is easy for a subscriber to subscribe to a STP process it follows the same process as subscribing to a TP through `.u.sub` however some changes have been made. Each subscriber connecting to the STP needs to be updated to search for a process of type segmentedtickerplant instead of tickerplant through changing `.servers.CONNECTIONS` in the settings config file for that process.
+It is easy for a subscriber to subscribe to a STP process. It follows the same process as subscribing to a TP through `.u.sub` however some changes have been made. Each subscriber connecting to the STP needs to be updated to search for the STP instead of the original tickerplant. This is done using `.servers.CONNECTIONS` in the settings config file for that process, for example:
 
 ```
-// For single connections e.g. $TORQHOME/appconfig/settings/rdb.q
 .servers.CONNECTIONS:enlist `segmentedtickerplant
-
-// For multiple connections e.g. $TORQHOME/appconfig/settings/wdb.q 
-.servers.CONNECTIONS:`segmentedtickerplant`sort`gateway`rdb`hdb
 ```
 
 The STP requires these functions to be defined in subscriber processes (the definitions will be unique to the requirements of each subscriber):
@@ -273,6 +269,8 @@ trade   | {(enlist(count first x)#y),x}
 tabname | {((count first x)#'(y;.stplg.seqnum),x}
 ...
 ```
+
+**Custom Batching Modes**
 
 The batching behaviour depends on two functions: `.u.upd` and `.z.ts`. The former is called every time an update arrives in the STP and the latter whenever the timer function is called (e.g. if the process is started with `-t 1000`, this will be called every second). In the default batching mode, `.u.upd` inserts the update into a local table and writes it to the log file, and `.z.ts` publishes the contents of the local table before clearing it. To customise these functions, the `.stplg.upd` and `.stplg.zts` dictionaries will need to be customised. For example, the default batching code looks like the following:
 
@@ -333,9 +331,9 @@ And the following are for batched updates (note that each message contains 100 t
 
 The first obvious thing to be noticed is that batching the updates results in greater performance as there are fewer IPC operations and disk writes, and while some insight can be gleaned from these figures the single update results provide a better comparison of the actual process code performance. The memory batching mode is the clear leader in terms of raw performance as it does not write to disk on every update. The three 'default' batching modes are roughly equivalent in terms of performance and all have similar functionality. The three Immediate modes bring up the rear in terms of raw throughput, though the STP version is the performance leader here as it stores table column names in a dictionary which can be easily accessed rather than having to read the columns of a table in the root namespace.
 
-In this set up each message contained either one or 100 ticks, each of which had 11 fields, and there was one feed pushing to one TP which had one simple subscriber and varying these figures will impact performance. Increasing the fields in each tick or the number of ticks in a message will results in more costly IPC and IO operations which will decrease performance. Having more subscribers and increasing the complexity of subscriptions, ie. having complex where clause conditions on the subscription, will also reduce performance. These are all things worth bearing in mind as one builds an application.
+In this set up each message contained either one or 100 ticks, each of which had 11 fields, and there was one feed pushing to one TP which had one simple subscriber and varying these figures will impact performance. Here the size of a single tick is 141 bytes and the 100-tick update is 6137 bytes. Increasing the fields in each tick or the number of ticks in a message will results in more costly IPC and IO operations which will decrease performance. Having more subscribers and increasing the complexity of subscriptions, ie. having complex where clause conditions on the subscription, will also reduce performance. These are all things worth bearing in mind as one builds an application.
 
-When writing the code for these STP modes some compromise was taken between performance and maintenance. All the UPD functions are written in a standard way and have certain common elements abstracted away in namespaces, which does technically reduce performance. Also the effort made to ensure backwards compatibility means that certain left-field options were not taken advantage of, for example, sending enlisted lists from the Immediate mode rather than converting them to tables first. We will see later on how custom modes can be defined which can be more tailored to a given application.
+When writing the code for these STP modes some compromise was taken between performance and maintenance. All the UPD functions are written in a standard way and have certain common elements abstracted away in namespaces, which does technically reduce performance. We will see later on how custom modes can be defined which can be more tailored to a given application.
 
 **Chained STP**
 
@@ -344,11 +342,11 @@ A chained tickerplant (CTP) is a TP that is subscribed to another TP. This is us
 - protecting the main TP by offloading publication load. Examples would be distributing data to multiple consumers, or executing complex subscription filtering logic.
 - distributing a system across multiple hosts where data is pushed once across a host boundary and then further distributed within that host. The CTP can also be used to create a local version of the TP log files within that host.
 
-With these new changes to the tickerplant, we have added new features to chained tickerplants as well. Under a typical tick system there is one TP log for the main TP for each day, if a CTP goes down or needs to replay data the replay must happen from the main TP. A chained STP can have it's own log file and be in a different batching mode than the main TP, e.g. top level has no batching and chained STP has memory batching, to allow greater flexability.
+The CTP inherits functionality from the STP- essentially, the code can be run in "chained" mode. In this case it subscribes to an STP, and forwards data. Timings (e.g. end-of-day, end-of-period) are driven from the STP. A chained STP can be in a different batching mode from the STP. The main choice is around what type of logging, if any, the CTP is required to do:
 
-- None: Chained STP does not create or access any log files.
-- Create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
-- Parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
+- none: Chained STP does not create or access any log files.
+- create: Chained STP creates its own log files independent of the STP logs. Subscribers then access the chained STP log files during replays
+- parent: STP logs are passed to subscribers during replays. Chained STP does not create any logs itself 
 
 The 'parent' logging mode is useful when all of the Torq processes have access to the same disk. In this case, the subscriber can access the logs of the STP and the data is replayed through the Chained STP. This prevents the SCTP from needing to create duplicate logs and so saves on storage. This replay would look like the following:
 
