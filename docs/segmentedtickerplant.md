@@ -16,9 +16,7 @@ The idea behind the STP was to create a process which retained all the functiona
 - performance improvements for several use cases
 - faster restart
 
-All the TorQ based subscriber processes (e.g. RDB and WDB), and any subscribers that use the TorQ subscription library, can switch between the TP and STP. For the minor modifications that must be made to data consumers, please see section XXXX.
-
-What has been added are multiple logging modes, which allow the logs to be split and partitioned, and subscription modes, which alter how the data is batched and published, as well as error handling, which sends bad messages to a separate file and customisation options.
+All the TorQ based subscriber processes (e.g. RDB and WDB), and any subscribers that use the TorQ subscription library, can switch between the TP and STP. For the minor modifications that must be made to data consumers, please see the Subscriptions section.
 
 **Logging Modes**
 
@@ -158,6 +156,8 @@ Note that in this mode, and all other logging modes, a new log file will be crea
 - schema, schemas for each of the tables in the tbls column
 - additional, any additional information about the logfile
 
+Note that both end and msgcount are informative and not guaranteed, and the STP doesn't have any dependency on them. If the STP is shutdown or dies, then they will not be populated.
+
 **Batching Modes**
 
 There are named modes which are set with the `.stplg.batchmode` variable and these allow the user to be flexible with process latency and throughput by altering the `.u.upd` and `.z.ts` functions:
@@ -211,12 +211,13 @@ handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
 handletoSTP(`.u.sub;`;conditions)
 ...
 q) show conditions
-tabname| filts    columns
--------| -------------------------
-trade  |          ,`time`sym`price
-quote  | bid>50.0 `
-
+tabname| filts            columns
+-------| --------------------------------
+trade  | `                `time`sym`price
+quote  | `bid<200`bid>100 `
 ```
+
+Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
 
 The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
 
@@ -308,27 +309,27 @@ A custom performance stack was set up comprising a feed, a consumer, an STP, a v
 
 These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results below show the median and average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below. It should be noted that the message rates achieved will be dependent on hardware configuration. The purpose of the testing below is to demonstrate the relative performance between the different implementations and batching modes.
 
-| Process | Batch Mode    | Median mps | Average mps |
-| ------- | ------------- | :--------: | :---------: |
-| STP     | Default batch |    103k    |    103k     |
-| STP     | Immediate     |    93k     |     89k     |
-| STP     | Memory batch  |    181k    |    174k     |
-| TorQ TP | Immediate     |    80k     |     75k     |
-| TorQ TP | Batch         |    110k    |     98k     |
-| Tick    | Immediate     |    87k     |     87k     |
-| Tick    | Batch         |    109k    |    103k     |
+| Process | Batch Mode    | Median mps |
+| ------- | ------------- | :--------: |
+| STP     | Default batch |    103k    |
+| STP     | Immediate     |    93k     |
+| STP     | Memory batch  |    181k    |
+| TorQ TP | Immediate     |    80k     |
+| TorQ TP | Batch         |    110k    |
+| Tick    | Immediate     |    87k     |
+| Tick    | Batch         |    109k    |
 
 And the following are for batched updates (note that each message contains 100 ticks):
 
-| Process | Batching Mode | Median mps | Average mps |
-| ------- | ------------- | :--------: | :---------: |
-| STP     | Default batch |    20k     |     19k     |
-| STP     | Immediate     |    19k     |     18k     |
-| STP     | Memory batch  |    21k     |     21k     |
-| TorQ TP | Immediate     |    19k     |     18k     |
-| TorQ TP | Batch         |    19k     |     18k     |
-| Tick    | Immediate     |    20k     |     17k     |
-| Tick    | Batch         |    20k     |     19k     |
+| Process | Batching Mode | Median mps |
+| ------- | ------------- | :--------: |
+| STP     | Default batch |    20k     |
+| STP     | Immediate     |    19k     |
+| STP     | Memory batch  |    21k     |
+| TorQ TP | Immediate     |    19k     |
+| TorQ TP | Batch         |    19k     |
+| Tick    | Immediate     |    20k     |
+| Tick    | Batch         |    20k     |
 
 The first obvious thing to be noticed is that batching the updates results in greater performance as there are fewer IPC operations and disk writes, and while some insight can be gleaned from these figures the single update results provide a better comparison of the actual process code performance. The memory batching mode is the clear leader in terms of raw performance as it does not write to disk on every update. The three 'default' batching modes are roughly equivalent in terms of performance and all have similar functionality. The three Immediate modes bring up the rear in terms of raw throughput, though the STP version is the performance leader here as it stores table column names in a dictionary which can be easily accessed rather than having to read the columns of a table in the root namespace.
 
