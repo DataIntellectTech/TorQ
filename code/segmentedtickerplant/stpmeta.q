@@ -14,12 +14,12 @@ updmeta[`tabperiod]:{[x;t;p]
   setmeta[.stplg.dldir;metatable];
  };
 
-updmeta[`none]:{[x;t;p]
+updmeta[`singular]:{[x;t;p]
   getmeta[x;p;t;`..currlog[first t]`logname];
   setmeta[.stplg.dldir;metatable];
  };
 
-updmeta[`periodic]:updmeta[`none]
+updmeta[`periodic]:updmeta[`singular]
 
 updmeta[`tabular]:updmeta[`tabperiod]
 

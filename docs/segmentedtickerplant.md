@@ -211,10 +211,11 @@ handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
 handletoSTP(`.u.sub;`;conditions)
 ...
 q) show conditions
-tabname| filts     columns
--------| -----------------
-trade  | sym=`GOOG
-quote  | bid>50.0
+tabname| filts    columns
+-------| -------------------------
+trade  |          ,`time`sym`price
+quote  | bid>50.0 `
+
 ```
 
 The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
