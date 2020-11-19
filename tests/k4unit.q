@@ -17,7 +17,6 @@ KUT:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$
 / KUTR <-> KUnit Test Results
 / KUrtf`:filename.csv / refresh expected <ms> and <bytes> based on observed results in KUTR
 KUTR:flip `action`ms`bytes`lang`code`repeat`file`msx`bytesx`ok`okms`okbytes`valid`timestamp`csvline!"SIJSSISIJBBBBZI" $\: ();
-//KUTR:([]action:`symbol$();ms:`int$();bytes:`long$();lang:`symbol$();code:`symbol$();repeat:`int$();file:`symbol$();msx:`int$();bytesx:`long$();ok:`boolean$();okms:`boolean$();okbytes:`boolean$();valid:`boolean$();timestamp:`datetime$())
 / look at KUTR in browser or q session
 / select from KUTR where not ok // KUerr
 / select from KUTR where not okms // KUslow
@@ -62,9 +61,10 @@ KUltf:{ / (load test file) - load tests in csv file <x> into KUT
 	/KUT,:update file:x,action:lower action,lang:`q^lower lang,ms:0^ms,bytes:0j,repeat:1|repeat from `action`ms`lang`code`repeat`comment xcol("SISSI*";enlist .KU.DELIM)0:x:hsym x;
 	neg before-count KUT}
 
-KUltd:{ / (load test dir) - load all *.csv files in directory <x> into KUT except process.csv
+KUltd:{ / (load test dir) - load all *.csv files in directory <x> which conform to k4unit into KUT
 	before:count KUT;
-	files:(` sv)each(x,'key x);KUltf each files where 1=sum (lower files) like/: ("*process.csv";"*.csv");
+	files:f where (lower[f:(` sv) each (x,'key x)] like "*.csv");
+	KUltf each files where all each `action`lang`code in/: `$csv vs' first each read0 each files;
 	neg before-count KUT}
 
 KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
@@ -92,11 +92,8 @@ KUpexec:{[prefix;lang;code;repeat;allowfail]
 	$[.KU.DEBUG & allowfail;value s;@[value;s;{(`err;`$x;y)}[;code]]]
 	}
 
-// If in error - it now returns the error as well as the offending code - basically the same function as KUpexec?
-KUexec:{[lang;code;repeat]
-	strexec:(string lang),")",$[1=repeat;string code;"do[",(string repeat),";",(string code),"]"];
-	@[value;strexec;{(`err;`$x;y)}[;code]]
-	}
+// If in error - it now returns the error as well as the offending code
+KUexec:KUpexec["";;;;1b]
 
 // Generate error logs from beforeeach, before, after and aftereach tests
 KUerrparse:{[action;out]
