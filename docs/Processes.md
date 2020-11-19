@@ -912,7 +912,7 @@ The 'create' logging mode should be used when the chained STP is running on a se
 
 <img src="graphics/create2.png" width="800">
 
-**Backward Compatibility**
+### Backward Compatibility
 
 Not everything about the STP is exactly the same as the TP, a couple of things have been changed:
 
