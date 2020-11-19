@@ -157,11 +157,12 @@ openlog:{[multilog;dir;tab;p]
   `..currlog upsert (tab;lname;h);
  };
 
-errorlogname:`$"_" sv string .proc.procname,@[value;`.stplg.errorlogname;`segmentederrorlogfile]
+errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
+  lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;`$"_" sv string .proc.procname,errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
+  // lname:`$"_" sv string .proc.procname,lname;
   if[not type key lname;.[lname;();:;()]];
   h:@[{hopen x};lname;{.lg.e[`openlogerr;"failed to open handle to error log with error: ",x]}];
   `..currlog upsert (errorlogname;lname;h);
