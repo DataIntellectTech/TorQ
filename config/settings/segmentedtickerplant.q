@@ -3,11 +3,11 @@
 \d .stplg
   
 multilog:`tabperiod;            // [tabperiod|none|periodic|tabular|custom]
-multilogperiod:0D01;
-errmode:1b;
+multilogperiod:0D01;            // Length of period for STP periodic logging modes
+errmode:1b;                     // Enable error mode for STP
 batchmode:`defaultbatch;        // [memorybatch|defaultbatch|immediate]
-customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];
 replayperiod:`day               // [period|day|prior]
+customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
 
 \d .proc
 
