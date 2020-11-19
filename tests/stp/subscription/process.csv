@@ -3,4 +3,4 @@ localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords
 localhost,{KDBBASEPORT}+101,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q,q
 localhost,{KDBBASEPORT}+102,rdb,rdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 localhost,{KDBBASEPORT}+103,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subscribesyms GOOG,q
-localhost,{KDBBASEPORT}+104,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -.rdb.subcsv ${KDBTESTS}/rdbsub.csv,q
+localhost,{KDBBASEPORT}+104,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -.rdb.subcsv ${KDBTESTS}/stp/subscription/rdbsub.csv,q
