@@ -131,7 +131,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
  // plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
  logdate:0Nd;
  if[tptype=`standard;
-   :(`subtables`tplogdate!(details[`schemalist][;0];(first "D" $ -10 sublist string last first details[`logfilelist])^logdate)),{(where 101 = type each x)_x}(`i`icounts`d)!(details[`logfilelist][0;0];details[`rowcounts];details[`date])];
+   d:(`subtables`tplogdate!(details[`schemalist][;0];(first "D" $ -10 sublist string last first details[`logfilelist])^logdate));
+   :d,{(where 101 = type each x)_x}(`i`icounts`d)!(details[`logfilelist][0;0];details[`rowcounts];details[`date])];
  if[tptype~`segmented;
    retdic:`logdir`subtables!(details[`logdir];details[`schemalist][;0]);
    retdic,:{(where 101 = type each x)_x}(`i`icounts`d`tplogdate)!(details[`logfilelist];details[`rowcounts];details[`date];details[`date]);
