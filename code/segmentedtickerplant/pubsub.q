@@ -49,8 +49,8 @@ add:{
 // Add handle to subscriber in sub filtered mode
 // Where clause and column filters are parsed before adding to subrequestfiltered table
 addfiltered:{[x;y]
-  filts:$[null y[x]`filts;();enlist parse string y[x]`filts];
-  columns:$[null y[x]`columns;();c!c:raze parse string y[x]`columns];
+  filts::$[all null y[x]`filts;(); y[x]`filts];
+  columns::$[all null y[x]`columns;();c!c: y[x]`columns];
   `.stpps.subrequestfiltered upsert (x;.z.w;filts;columns);
  };
 
