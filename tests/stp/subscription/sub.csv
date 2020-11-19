@@ -26,6 +26,7 @@ true,0,0,q,not any first[raze ah]=fh:stpHandle"exec handle from .stpps.subreques
 true,0,0,q,"all `rdbsymfilt`rdbcomplexfilt in stpHandle @/: fh ,\: `.proc.procname",1,,"Check filtered table contains corect RDBs"
 true,0,0,q,(t1+10 5 5)~(value rdbHandles) @\: "count trade",1,,"Check trade update was correctly published"
 true,0,0,q,(q1+10 0 5)~(value rdbHandles) @\: "count quote",1,,"Check quote update was correctly published"
+true,0,0,q,`time`sym ~ (rdbHandles`complex)"cols trade",1,,"check published cols are restricted"
 true,0,0,q,"(10+q2,t2)~count each (trade;quote)",1,,"Check updates were correctly saved to disk"
 true,0,0,q,all `GOOG=rdbHandles[`sym]"exec distinct sym from trade",1,,"Check sym update"
 true,0,0,q,0=count rdbHandles[`complex]"select from quote where bid<50",1,,"Check complex update"
