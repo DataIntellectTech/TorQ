@@ -293,7 +293,7 @@ Hopefully not. The core of AquaQ TorQ is a script called torq.q and we
 have tried to make it as descriptive as possible, so perhaps that will
 suffice. The first place to look will be in the config files, the main
 one being \$KDBCONFIG/settings/default.q. This should contain a lot of
-information on what can be modified. In addition:
+information on what can be modified. There is also a cheatsheet contained within the documentation. In addition:
 
 -   We have added a load of usage information:
 
