@@ -6,7 +6,7 @@ The purpose of this cheatsheet is to provide a very condensed guide to the bits 
 Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. 
 
 ### .usage.usage
-.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for `.u.upd or `upd messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
+.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for `` `.u.upd`` or `` `upd`` messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
 
 If a query blocks a process and makes it unresponsive, it will have an entry (status="b") in the log file on disk.  
 
