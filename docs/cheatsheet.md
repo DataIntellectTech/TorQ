@@ -1,8 +1,7 @@
 # Cheat Sheet
 
-The purpose of this cheatsheet is to provide a very condensed guide to the bits you need to know about TorQ to either debug a running process, or to extend a TorQ stack. It does not replace the main body of documentation, and ordering is presumed order-of-relevance. The below uses the default configuration of TorQ and TorQ Finance Starter Pack, though a lot of it is configurable. 
+The purpose of this cheatsheet is to provide a very condensed guide to the bits you need to know about TorQ to either debug a running process, or to extend a TorQ stack. It does not replace the main body of documentation, and ordering is presumed order-of-relevance. The below uses the default configuration of TorQ and TorQ Finance Starter Pack, though a lot of it is configurable. It's probably a good idea to read the [About](http://aquaqanalytics.github.io/TorQ/Overview/) section at least. 
 ## Debugging Running Processes
-
 Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. 
 
 ### .usage.usage
@@ -17,16 +16,18 @@ If a query blocks a process and makes it unresponsive, it will have an entry (st
 select from .usage.usage where time within ... 
 ```
 
-Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
+Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what the slow parts are. 
+
+[More info on usage logs.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
 
 ### .timer.timer
 .timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. [More info.](http://aquaqanalytics.github.io/TorQ/utilities/#timerq)
 
 ### Log Files 
-Log files are stored in the log directory specified by KDBLOG. Each process creates 3 log files: 
- - an out log (out_*) with standard log messages
- - an error log file (err_*) with errors
- - a usage log file (usage_*) with a log of every request that hits the process. 
+Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: 
+- an out log (out_* ) with standard log messages
+- an error log file (err_* ) with errors
+- a usage log file (usage_* ) with a log of every request that hits the process. 
 
 The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter. 
 
@@ -165,4 +166,4 @@ How TorQ [manages connections](http://aquaqanalytics.github.io/TorQ/conn/) is im
 
 TorQ uses the fail fast principle (if you are going to fail, may as well do it as quickly as possible). This helps avoid processes starting up in inconsistent or unexpected states. If running a process with the -debug option, add the -stop or -trap options to stop at, or trap and continue through, start up errors. 
 
-Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 100 lines or so). Everythign after the switch into the root namespace is relevant. 
+Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 100 lines or so). Everything after the switch into the root namespace is relevant. 
