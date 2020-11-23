@@ -1,0 +1,846 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Cheat Sheat - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#cheat-sheet" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Cheat Sheat
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Cheat Sheat
+      </label>
+    
+    <a href="./" title="Cheat Sheat" class="md-nav__link md-nav__link--active">
+      Cheat Sheat
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-running-processes" class="md-nav__link">
+    Debugging Running Processes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usageusage" class="md-nav__link">
+    .usage.usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timertimer" class="md-nav__link">
+    .timer.timer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-files" class="md-nav__link">
+    Log Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clientsclients" class="md-nav__link">
+    .clients.clients
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serversservers" class="md-nav__link">
+    .servers.SERVERS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-stopping-and-debugging-processes" class="md-nav__link">
+    Starting, Stopping and Debugging Processes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    Deploying
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifying-existing-installations" class="md-nav__link">
+    Modifying Existing Installations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-custom-processes" class="md-nav__link">
+    Adding Custom Processes
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-running-processes" class="md-nav__link">
+    Debugging Running Processes
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usageusage" class="md-nav__link">
+    .usage.usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timertimer" class="md-nav__link">
+    .timer.timer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#log-files" class="md-nav__link">
+    Log Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clientsclients" class="md-nav__link">
+    .clients.clients
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serversservers" class="md-nav__link">
+    .servers.SERVERS
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-stopping-and-debugging-processes" class="md-nav__link">
+    Starting, Stopping and Debugging Processes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying" class="md-nav__link">
+    Deploying
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modifying-existing-installations" class="md-nav__link">
+    Modifying Existing Installations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-custom-processes" class="md-nav__link">
+    Adding Custom Processes
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/cheatsheet.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="cheat-sheet">Cheat Sheet</h1>
+<p>The purpose of this cheatsheet is to provide a very condensed guide to the bits you need to know about TorQ to either debug a running process, or to extend a TorQ stack. It does not replace the main body of documentation, and ordering is presumed order-of-relevance. The below uses the default configuration of TorQ and TorQ Finance Starter Pack, though a lot of it is configurable. </p>
+<h2 id="debugging-running-processes">Debugging Running Processes</h2>
+<p>Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. </p>
+<h3 id="usageusage">.usage.usage</h3>
+<p>.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for <code>`.u.upd</code> or <code>`upd</code> messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). </p>
+<p>If a query blocks a process and makes it unresponsive, it will have an entry (status="b") in the log file on disk.  </p>
+<p>.usage.usage can be queried like any other kdb+ table to diagnose problems e.g. </p>
+<pre><code>100 sublist `timer xdesc .usage.usage
+select from .usage.usage where time within ... 
+</code></pre>
+
+<p>Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. <a href="http://aquaqanalytics.github.io/TorQ/handlers/#logusageq">More info.</a></p>
+<h3 id="timertimer">.timer.timer</h3>
+<p>.timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. <a href="http://aquaqanalytics.github.io/TorQ/utilities/#timerq">More info.</a></p>
+<h3 id="log-files">Log Files</h3>
+<p>Log files are stored in the log directory specified by KDBLOG. Each process creates 3 log files: 
+ - an out log (out_<em>) with standard log messages
+ - an error log file (err_</em>) with errors
+ - a usage log file (usage_*) with a log of every request that hits the process. </p>
+<p>The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter. </p>
+<h3 id="clientsclients">.clients.clients</h3>
+<p>This shows inbound connections (connections created into this process). It may have interesting information about connection open/close. If it has a lot of rows it means some clients are connecting and disconnecting frequently. <a href="http://aquaqanalytics.github.io/TorQ/handlers/#trackclientsq">More info.</a></p>
+<h3 id="serversservers">.servers.SERVERS</h3>
+<p>This shows outbound connections (connections created by this process to other processes). It's useful for tracking connections which have died. </p>
+<h2 id="starting-stopping-and-debugging-processes">Starting, Stopping and Debugging Processes</h2>
+<p>95% of TorQ installations in production run on Linux, and the below applies to Linux only. Use the torq.sh script to start/stop/debug processes. <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#using-torqsh">Become familiar with torq.sh, it has some very handy utilities.</a></p>
+<pre><code>newdeploy$ ./deploy/bin/torq.sh 
+Arguments:
+  start all|&lt;processname(s)&gt;               to start all|process(es)
+  stop all|&lt;processname(s)&gt;                to stop all|process(es)
+  print all|&lt;processname(s)&gt;               to view default startup lines
+  debug &lt;processname(s)&gt;                   to debug a single process
+  qcon &lt;processname&gt; &lt;username&gt;:&lt;password&gt; to qcon process
+  procs                                    to list all processes
+  summary                                  to view summary table
+  top &lt;processname&gt;                        to show top.q statistics for a single process
+Optional flags:
+  -csv &lt;fullcsvpath&gt;                       to run a different csv file
+  -extras &lt;args&gt;                           to add/overwrite extras to the start line
+  -csv &lt;fullcsvpath&gt; -extras &lt;args&gt;        to run both
+  -force                                   to force stop process(es) using kill -9
+</code></pre>
+
+<p><strong>It is very, very difficult to try to debug a running kdb+ process remotely. Do not do this.</strong> Use torq.sh to stop the process and run it in the foreground in a test environment. </p>
+<pre><code>torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh stop rdb1
+09:45:40 | Shutting down rdb1...
+torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh debug rdb1
+09:45:45 | Executing...
+q /home/torquser/newdeploy/deploy/TorQ/latest/torq.q -stackid 43100 -proctype rdb -procname rdb1 -U /home/torquser/newdeploy/deploy/TorQApp/latest/appconfig/passwords/accesslist.txt -localtime 1 -g 1 -T 180 -load /home/torquser/newdeploy/deploy/TorQ/latest/code/processes/rdb.q  -procfile /home/torquser/newdeploy/deploy/TorQApp/latest/appconfig/process.csv  -debug
+KDB+ 4.0 2020.06.18 Copyright (C) 1993-2020 Kx Systems
+l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 AquaQ #59946
+(::;::)
+################################################################################
+#                                                                              #
+#                                 TorQ v3.8.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.9.1                       #
+#                                                                              #
+################################################################################
+2020.11.23D09:45:45.294308000|homer|torq|/home/torquser/newdeploy/deploy/TorQ/latest/torq.q_3407_0|INF|init|trap mode (initialisation errors will be caught and thrown, rather than causing an exit) is set to 0
+2020.11.23D09:45:45.294327000|homer|torq|/home/torquser/newdeploy/deploy/TorQ/latest/torq.q_3407_0|INF|init|stop mode (initialisation errors cause the process loading to stop) is set to 0
+2020.11.23D09:45:45.294815000|homer|torq|/home/torquser/newdeploy/deploy/TorQ/latest/torq.q_3407_0|INF|init|attempting to read required process parameters proctype,procname from file /home/torquser/newdeploy/deploy/TorQApp/latest/appconfig/process.csv
+2020.11.23D09:45:45.295076000|homer|torq|/home/torquser/newdeploy/deploy/TorQ/latest/torq.q_3407_0|INF|readprocfile|port set to 43102
+2020.11.23D09:45:45.295109000|homer|torq|/home/torquser/newdeploy/deploy/TorQ/latest/torq.q_3407_0|INF|init|read in process parameters of proctype=rdb; procname=rdb1
+2020.11.23D09:45:45.295616000|homer|rdb|rdb1|INF|fileload|config file /home/torquser/newdeploy/deploy/TorQ/latest/config/settings/default.q found
+2020.11.23D09:45:45.295627000|homer|rdb|rdb1|INF|fileload|loading /home/torquser/newdeploy/deploy/TorQ/latest/config/settings/default.q
+2020.11.23D09:45:45.296164000|homer|rdb|rdb1|INF|fileload|successfully loaded /home/torquser/newdeploy/deploy/TorQ/latest/config/settings/default.q
+... snip ...
+2020.11.23D09:45:47.432583000|homer|rdb|rdb1|INF|setpartition|rdbpartition contains - 2020.11.23
+2020.11.23D09:45:47.432643000|homer|rdb|rdb1|INF|fileload|successfully loaded /home/torquser/newdeploy/deploy/TorQ/latest/code/processes/rdb.q
+2020.11.23D09:45:47.432670000|homer|rdb|rdb1|INF|init|Resetting .z.pi to kdb+ default value
+################################################################################
+#                                                                              #
+#                                 TorQ v3.8.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.9.1                       #
+#                                                                              #
+################################################################################
+q)
+</code></pre>
+
+<h2 id="deploying">Deploying</h2>
+<p>Deployments should be very simple on Linux <a href="http://aquaqanalytics.github.io/TorQ/InstallGuide/">using the installation script</a>. </p>
+<pre><code class="bash"># pull in latest TorQ FSP install script 
+wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/master/installlatest.sh
+# execute it
+bash installlatest.sh 
+# It will finish with a message like below:
+=============================================================
+INSTALLATION COMPLETE
+=============================================================
+Installation is finished. For a regular installation, run it as follows in the working directory: ./deploy/bin/torq.sh start all
+# you may need to change the value of KDBBASEPORT held in deploy/bin/setenv.sh to avoid conflicts with other TorQ stacks if running on a shared host
+# once done execute start line and check it:
+torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh start all
+08:28:02 | Starting discovery1...
+08:28:02 | Starting tickerplant1...
+... snip ...
+08:28:06 | Starting dqe1...
+08:28:06 | Starting dqedb1...
+torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh summary
+TIME      |  PROCESS        |  STATUS  |  PID    |  PORT
+08:28:30  |  discovery1     |  up      |  23221  |  43101
+08:28:30  |  tickerplant1   |  up      |  23333  |  43100
+08:28:30  |  rdb1           |  up      |  23443  |  43102
+08:28:30  |  hdb1           |  up      |  23553  |  43103
+... snip ...
+</code></pre>
+
+<h2 id="modifying-existing-installations">Modifying Existing Installations</h2>
+<p>We always try to esnure new versions of TorQ are backwardly compatible. Try to avoid modifying TorQ itself and instead make application specific modifications. The installation script deploys TorQ in a structure which keeps TorQ and the application separate, and this should be adhered to whenever possible. </p>
+<p>To modify the config for a process, do it either in the <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#configuration-loading">config directory</a> or as a command line start up parameter as- almost all config variables that are defined in a config file and exists in a non-root namespace can be overridden from the command line. </p>
+<p>To make a process load additional files, you can:</p>
+<ul>
+<li>append the additional files to the -load parameter on the start line</li>
+<li>append a set of directories of files using -loaddir on the start line</li>
+<li>place the files in one of the directories that is <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#code-loading">loaded by default on start up</a></li>
+</ul>
+<p>Start line modifications can be made in process.csv and will be picked up by torq.sh. Of these approaches, the latter is probably preferable. </p>
+<h2 id="adding-custom-processes">Adding Custom Processes</h2>
+<p>When adding custom processes to TorQ it is important to <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#process-identification">understand the significance of proctype</a>. In a nutshell, only processes which do exactly the same thing should have the same proctype. If two processes do roughly the same thing then -parentproctype can be used to share common functionality. Also there isn't any formal association between proctype and code name file name e.g. a process that loads code/processes/rdb.q can have any proctype we like. </p>
+<p>How TorQ <a href="http://aquaqanalytics.github.io/TorQ/conn/">manages connections</a> is important. Avoid using hopen, use TorQ connection management.</p>
+<p>TorQ uses the fail fast principle (if you are going to fail, may as well do it as quickly as possible). This helps avoid processes starting up in inconsistent or unexpected states. If running a process with the -debug option, add the -stop or -trap options to stop at, or trap and continue through, start up errors. </p>
+<p>Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 100 lines or so). Everythign after the switch into the root namespace is relevant. </p>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../Overview/" title="About" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                About
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../gettingstarted/" title="Getting Started" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Getting Started
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2020 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>

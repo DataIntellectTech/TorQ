@@ -263,6 +263,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../cheatsheet/" title="Cheat Sheat" class="md-nav__link">
+      Cheat Sheat
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
       Getting Started
     </a>
@@ -947,31 +959,31 @@ process while still controlling access to itself.</p>
 </thead>
 <tbody>
 <tr>
-<td>User</td>
+<td>user</td>
 <td>Username, locality, encryption type and password hash</td>
 </tr>
 <tr>
-<td>Usergroup</td>
+<td>usergroup</td>
 <td>User and their group.</td>
 </tr>
 <tr>
-<td>Userrole</td>
+<td>userrole</td>
 <td>User and role.</td>
 </tr>
 <tr>
-<td>Functiongroup</td>
+<td>functiongroup</td>
 <td>Functions and their group</td>
 </tr>
 <tr>
-<td>Function</td>
+<td>function</td>
 <td>Function names, the roles which can access them, and a lambda checking the parameters those roles can use.</td>
 </tr>
 <tr>
-<td>Access</td>
+<td>access</td>
 <td>Variable names, the groups which can access them, and the read or write access level.</td>
 </tr>
 <tr>
-<td>Virtualtable</td>
+<td>virtualtable</td>
 <td>Virtual table name, main table name, and the where clause it enforces on access to that table.</td>
 </tr>
 </tbody>
@@ -981,7 +993,8 @@ group/role name and a string describing each group and role. A user can
 belong to multiple groups, and have multiple roles. In particular the
 schema supports group hierarchy, where a user group can be listed as a
 user in the group table, and inherit all the permissions from another
-other group, effectively inheriting the second group itself.</p>
+other group, effectively inheriting the second group itself. Note that
+a group cannot have the same name as an individual user.</p>
 <p>A user belonging to a group listed in the access table will have the
 specified level of access (read or write) to that group’s variables,
 e.g.</p>
@@ -1355,7 +1368,7 @@ to have a single point for system diagnostic statistics.</p>
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy 2018 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+            Copyright &copy 2020 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
           </div>
         
         powered by
