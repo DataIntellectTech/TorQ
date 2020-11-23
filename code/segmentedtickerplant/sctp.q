@@ -27,8 +27,16 @@ subscribe:{[]
 
 \d .
 
+// Make the SCTP die if the main STP dies
+.z.pc:{[f;x] 
+  @[f;x;()];
+  if[.sctp.chainedtp;
+    if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]
+    ]
+  } @[value;`.z.pc;{{}}];
+
+// Extract data from incoming table as a list
 upd:{[t;x]
-  // extract data from incoming table as a list
   x:flip value each x;
   .u.upd[t;x]
  }
