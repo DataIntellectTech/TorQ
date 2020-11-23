@@ -17,7 +17,7 @@ If a query blocks a process and makes it unresponsive, it will have an entry (st
 select from .usage.usage where time within ... 
 ```
 
-Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
+Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
 
 ### .timer.timer
 .timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. [More info.](http://aquaqanalytics.github.io/TorQ/utilities/#timerq)
