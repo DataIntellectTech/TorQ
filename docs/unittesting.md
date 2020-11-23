@@ -34,11 +34,13 @@ A similar scenario is when the test code is loaded into a 'production' TorQ proc
 ```
 action,ms,bytes,lang,code,repeat,minver,comment
 true,0,0,q,`segmentedtickerplant~.rdb.tickerplanttypes,1,,"Check the TP type"
-true,0,0,q,all (null;{-11h=type x}) @' .rdb.subscribeto,1,,"Check RDB is subscribed to null symbol (all tables)"
-true,0,0,q,1~count key .rdb.subcsv,1,,"Check that the subcsv exists"
+true,0,0,q,`~.rdb.subscribeto,1,,"Check RDB is subscribed to null symbol (all tables)"
+true,0,0,q,0~count heartbeat,1,,"Check heartheat table is empty"
+run,0,0,q,.rdb.upd[`heartbeat;(.z.p;`test;`rdb1;1;1i;`testhost;1i)],1,,"Call RDB UPD function"
+true,0,0,q,1~count heartbeat,1,,"Check that a row has been added to the heartbeat table"
 ```
 
-These tests simply check that certain process variables have been set properly, and these are triggered similarly to the previous set, except that an RDB process is used to load in the tests rather than a 'blank' test process:
+These tests simply check that certain process variables have been set properly and test the UPD function, and these are triggered similarly to the previous set, except that an RDB process is used to load in the tests rather than a 'blank' test process. Here, the `-proctype` is an RDB, which loads in the code in `${KDBCODE}/processes/rdb.q` as well as any code in the `${KDBCODE}/rdb/` folder, so that the process logic can be tested. The `procname` can be anything you want:
 
 ```shell
 $ q ${TORQHOME}/torq.q -proctype rdb -procname rdb1 -test /path/to/my/tests -debug
@@ -251,14 +253,15 @@ This throws us out to the q prompt at this point in the tests with the following
 'failed to load /home/mpotter/kdbCode/segtp/deploy/tests/runtests.q : true test failure in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 10
 ```
 
-We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
+We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is afixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
 ### Notes on Best Practice
 
 Here are some recommendations on making test development more straightforward:
 
 - Use TorQ connection management when dealing with multiple processes
-- Run the tests from a 'blank' test process where possible, as this ensures that test code and process code don't get in each other's way
+- When just unit testing one process in isolation, run the tests from an instance of that process
+- When performing integration tests that examine the interaction of multiple processes, run the tests from a 'blank' process where possible, as this ensures that test code and process code don't get in each other's way
 - Put any variable or function declarations in a settings file so as not to clutter the test code
 - If there are a large number of tests, split into folders of related tests
 - Try to keep test output isolated from the rest of the application, ie. any logs or HDB data should be output to a separate testing location and cleared afterwards if appropriate
