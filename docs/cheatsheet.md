@@ -6,7 +6,7 @@ The purpose of this cheatsheet is to provide a very condensed guide to the bits 
 Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. 
 
 ### .usage.usage
-.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for `.u.upd or `upd messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
+.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for `` `.u.upd`` or `` `upd`` messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
 
 If a query blocks a process and makes it unresponsive, it will have an entry (status="b") in the log file on disk.  
 
@@ -17,7 +17,7 @@ If a query blocks a process and makes it unresponsive, it will have an entry (st
 select from .usage.usage where time within ... 
 ```
 
-Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
+Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what slow parts are. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#logusageq)
 
 ### .timer.timer
 .timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. [More info.](http://aquaqanalytics.github.io/TorQ/utilities/#timerq)
@@ -117,18 +117,18 @@ q)
 
 Deployments should be very simple on Linux [using the installation script](http://aquaqanalytics.github.io/TorQ/InstallGuide/). 
 
-```
-// pull in latest TorQ FSP install script 
+```bash
+# pull in latest TorQ FSP install script 
 wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/master/installlatest.sh
-// execute it
+# execute it
 bash installlatest.sh 
-// It will finish with a message like below:
+# It will finish with a message like below:
 =============================================================
 INSTALLATION COMPLETE
 =============================================================
 Installation is finished. For a regular installation, run it as follows in the working directory: ./deploy/bin/torq.sh start all
-// you may need to change the value of KDBBASEPORT held in deploy/bin/setenv.sh to avoid conflicts with other TorQ stacks if running on a shared host
-// once done execute start line and check it:
+# you may need to change the value of KDBBASEPORT held in deploy/bin/setenv.sh to avoid conflicts with other TorQ stacks if running on a shared host
+# once done execute start line and check it:
 torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh start all
 08:28:02 | Starting discovery1...
 08:28:02 | Starting tickerplant1...
