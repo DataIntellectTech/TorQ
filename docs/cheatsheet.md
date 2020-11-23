@@ -25,6 +25,7 @@ Note that this table is not especially helpful for gateway queries which are exe
 
 ### Log Files 
 Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: 
+
 - an out log (out_ ) with standard log messages
 - an error log file (err_ ) with errors
 - a usage log file (usage_ ) with a log of every request that hits the process. 
