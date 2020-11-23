@@ -5,7 +5,7 @@ The purpose of this cheatsheet is to provide a very condensed guide to the bits 
 Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. 
 
 ### .usage.usage
-.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_* file which is rolled daily. Every query and timer function call is logged, except for `` `.u.upd`` or `` `upd`` messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
+.usage.usage is used to track the queries that are executed against the process and is usually the first place to look for problems. Data is stored in memory for 24 hours and also persisted to disk in a usage_ file which is rolled daily. Every query and timer function call is logged, except for `` `.u.upd`` or `` `upd`` messages as this would bloat the log file considerably. Queries are logged before they are executed (status="b") and after (status="c" (complete) or status="e" (error)). 
 
 If a query blocks a process and makes it unresponsive, it will have an entry (status="b") in the log file on disk.  
 
@@ -25,9 +25,9 @@ Note that this table is not especially helpful for gateway queries which are exe
 
 ### Log Files 
 Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: 
-- an out log (out_* ) with standard log messages
-- an error log file (err_* ) with errors
-- a usage log file (usage_* ) with a log of every request that hits the process. 
+- an out log (out_ ) with standard log messages
+- an error log file (err_ ) with errors
+- a usage log file (usage_ ) with a log of every request that hits the process. 
 
 The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter. 
 
