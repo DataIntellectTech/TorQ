@@ -238,6 +238,7 @@ The STP requires these functions to be defined in subscriber processes (the defi
 The data dictionary contains the STP name and type, list of subscribable tables in STP and the time at which the message is sent from the STP. In order to add further information to data, simply add additional elements in the endofdaydata function defined in code/segmentedtickerplant/stplg.q script.
 
 **Non-kdb+ Process Subscriptions**
+
 If a non-kdb+ process wishes to subscribe to a STP, a mechanism has been implemented to allow this. The `subtable` and `subtablefiltered` functions are defined on the top level:
 
 ```q
