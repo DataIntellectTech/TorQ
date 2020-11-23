@@ -628,10 +628,12 @@ select from .usage.usage where time within ...
 <h3 id="timertimer">.timer.timer</h3>
 <p>.timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. <a href="http://aquaqanalytics.github.io/TorQ/utilities/#timerq">More info.</a></p>
 <h3 id="log-files">Log Files</h3>
-<p>Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: 
-- an out log (out_ ) with standard log messages
-- an error log file (err_ ) with errors
-- a usage log file (usage_ ) with a log of every request that hits the process. </p>
+<p>Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: </p>
+<ul>
+<li>an out log (out_ ) with standard log messages</li>
+<li>an error log file (err_ ) with errors</li>
+<li>a usage log file (usage_ ) with a log of every request that hits the process. </li>
+</ul>
 <p>The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter. </p>
 <h3 id="clientsclients">.clients.clients</h3>
 <p>This shows inbound connections (connections created into this process). It may have interesting information about connection open/close. If it has a lot of rows it means some clients are connecting and disconnecting frequently. <a href="http://aquaqanalytics.github.io/TorQ/handlers/#trackclientsq">More info.</a></p>
