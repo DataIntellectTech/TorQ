@@ -117,18 +117,18 @@ q)
 
 Deployments should be very simple on Linux [using the installation script](http://aquaqanalytics.github.io/TorQ/InstallGuide/). 
 
-```
-// pull in latest TorQ FSP install script 
+```bash
+# pull in latest TorQ FSP install script 
 wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/master/installlatest.sh
-// execute it
+# execute it
 bash installlatest.sh 
-// It will finish with a message like below:
+# It will finish with a message like below:
 =============================================================
 INSTALLATION COMPLETE
 =============================================================
 Installation is finished. For a regular installation, run it as follows in the working directory: ./deploy/bin/torq.sh start all
-// you may need to change the value of KDBBASEPORT held in deploy/bin/setenv.sh to avoid conflicts with other TorQ stacks if running on a shared host
-// once done execute start line and check it:
+# you may need to change the value of KDBBASEPORT held in deploy/bin/setenv.sh to avoid conflicts with other TorQ stacks if running on a shared host
+# once done execute start line and check it:
 torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh start all
 08:28:02 | Starting discovery1...
 08:28:02 | Starting tickerplant1...
