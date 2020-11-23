@@ -57,7 +57,7 @@ Optional flags:
   -force                                   to force stop process(es) using kill -9
 ```
 
-It is very, very difficult to try to debug a running process remotely. Do not do this. Use torq.sh to stop the process and run it in the foreground in a test environment. 
+**It is very, very difficult to try to debug a running kdb+ process remotely. Do not do this.** Use torq.sh to stop the process and run it in the foreground in a test environment. 
 
 ```
 torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh stop rdb1
@@ -155,7 +155,7 @@ To make a process load additional files, you can:
 - append a set of directories of files using -loaddir on the start line
 - place the files in one of the directories that is [loaded by default on start up](http://aquaqanalytics.github.io/TorQ/gettingstarted/#code-loading)
 
-The latter is probably preferable. 
+Start line modifications can be made in process.csv and will be picked up by torq.sh. Of these approaches, the latter is probably preferable. 
 
 ## Adding Custom Processes
 
@@ -165,4 +165,4 @@ How TorQ [manages connections](http://aquaqanalytics.github.io/TorQ/conn/) is im
 
 TorQ uses the fail fast principle (if you are going to fail, may as well do it as quickly as possible). This helps avoid processes starting up in inconsistent or unexpected states. If running a process with the -debug option, add the -stop or -trap options to stop at, or trap and continue through, start up errors. 
 
-Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 50 lines or so).
+Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 100 lines or so). Everythign after the switch into the root namespace is relevant. 
