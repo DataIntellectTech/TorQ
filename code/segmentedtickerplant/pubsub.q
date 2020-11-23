@@ -35,9 +35,8 @@ suball:{
 
 subfiltered:{[x;y]
   delhandlef[x;.z.w];
-  if[11=type y;selfiltered[x;y]];
-  if[99=type y;addfiltered[x;y]];
-  :(x;schemas[x]);
+  val:![11 99h;(selfiltered;addfiltered)][type y] . (x;y);
+  $[all raze null val;(x;schemas[x]);val]
  };
 
 // Add handle to subscriber in sub all mode
@@ -46,17 +45,24 @@ add:{
     subrequestall[x],:.z.w];
  };
 
-// Add handle to subscriber in sub filtered mode
-// Where clause and column filters are parsed before adding to subrequestfiltered table
+// Parse columns and where clause from keyed table, run test query and add to subrequestfiltered table if it passes
 addfiltered:{[x;y]
-  filts::$[all null y[x]`filts;(); y[x]`filts];
-  columns::$[all null y[x]`columns;();c!c: y[x]`columns];
-  `.stpps.subrequestfiltered upsert (x;.z.w;filts;columns);
+  filters:$[all null y[x;`filters];();parse each csv vs y[x;`filters]];
+  columns:$[all null y[x;`columns];();c!c:parse each csv vs y[x;`columns]];
+  if[`error~first test:.[?;(.stpps.schemas[x];filters;0b;columns);{(`error;x)}];
+    .lg.e[`addfiltered;"Invalid query parameters provided: ",last test];
+    :test
+   ];
+  `.stpps.subrequestfiltered upsert (x;.z.w;filters;columns);
  };
 
 // Add handle for subscriber using old API (filter is list of syms)
 selfiltered:{[x;y]
   filts:enlist (in;`sym;enlist y);
+  if[`error~first test:.[?;(.stpps.schemas[x];filts;0b;());{(`error;x)}];
+    .lg.e[`addfiltered;"Invalid query parameters provided: ",last test];
+    :test
+   ];
   `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
@@ -103,12 +109,8 @@ init:{
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
  };
 
-// Added condition that kills SCTP if STP dies
-.z.pc:{[f;x] @[f;x;()]; closesub x;
-  if[.sctp.chainedtp;
-    if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]
-    ]
-  }@[value;`.z.pc;{{}}];
+// Call closesub function on disconnect
+.z.pc:{[f;x] @[f;x;()]; closesub x}@[value;`.z.pc;{{}}];
 
 \d .
 
@@ -118,9 +120,22 @@ init:{
 .u.sub:{[x;y]
   if[x~`;:.u.sub[;y] each .stpps.t];
   if[not x in .stpps.t;
-    .lg.e[`rdb;m:"Table ",string[x]," not in list of stp pub/sub tables"];
+    .lg.e[`sub;m:"Table ",string[x]," not in list of stp pub/sub tables"];
     :(x;m)
   ];
-  if[y~`;:.stpps.suball[x]];
-  if[not y~`;:.stpps.subfiltered[x;y]]
+  $[y~`;.stpps.suball[x];.stpps.subfiltered[x;y]]
+ };
+
+// Allow a non-kdb+ subscriber to subscribe with strings for simple conditions - return string to subscriber
+subtable:{[tab;syms]
+  .lg.o[`subtable;"Received a simple string subscription request."];
+  val:.[.u.sub;(`$tab;$[count syms;::;first] `$csv vs syms);{:(`error;"Error: ",x)}];
+  $[`error~first val;last val;"Subscription successful!"]
+ };
+
+// Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return string to subscriber
+subtablefiltered:{[tab;filters;columns]
+  .lg.o[`subtablefiltered;"Received a complex string subscription request."];
+  val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
+  $[`error~first val;"Invalid query parameters provided: ",last val;"Subscription successful!"]
  };

@@ -169,14 +169,14 @@ setpartition:{[]
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
 loadsubfilters:{[]
-	.sub.filterparams:@[{1!("SSS";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
+	.sub.filterparams:@[{1!("S**";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
 	.rdb.subscribeto:raze value flip key .sub.filterparams;
 	.rdb.subscribesyms:.sub.filterparams;}
 
 applyfilters:{[t;f]
-	filts:$[null f[t]`filts;();enlist parse string f[t]`filts];
-	columns:$[null f[t]`columns;();c!c:raze parse string f[t]`columns];
-	@[`.;t;:;?[t;filts;0b;columns]];}
+	filters:$[all null f[t]`filters;();parse each csv vs f[t]`filters];
+	columns:$[all null f[t]`columns;();c!c:parse each csv vs f[t]`columns];
+	@[`.;t;:;?[t;filters;0b;columns]];}
 
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}
@@ -198,7 +198,7 @@ upd:.rdb.upd
 
 /- adds endofday and endofperiod functions to top level namespace
 endofday: .rdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod."]};
 
 /-set .u.end for the tickerplant to call at end of day
 .u.end:{[d] .rdb.endofday[d;()!()]}

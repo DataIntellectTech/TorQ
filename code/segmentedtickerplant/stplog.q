@@ -8,6 +8,9 @@ loghandles::exec tbl!handle from currlog
 
 \d .stplg
 
+// Name of error log file
+errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
+
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
@@ -157,8 +160,6 @@ openlog:{[multilog;dir;tab;p]
   `..currlog upsert (tab;lname;h);
  };
 
-errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
-
 // Error log for failed updates in error mode
 openlogerr:{[dir]
   lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;`$"_" sv string .proc.procname,errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
@@ -194,9 +195,7 @@ rolllog:{[multilog;dir;tabs;p]
  };
 
 // creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:{
-  `proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)
- }
+endofdaydata:@[value;`.stplg.endofdaydata;{`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)}]
 
 // endofperiod function defined in SCTP
 // passes on eop messages to subscribers and rolls logs
@@ -294,3 +293,10 @@ init:{[dbname]
 
 \d .
 
+// Close logs on clean exit
+.z.exit:{
+  if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
+  .lg.o[`stpexit;"Exiting process and closing off log files."];
+  .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
+  .stplg.closelog each .stpps.t;
+ }

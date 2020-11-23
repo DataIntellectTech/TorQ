@@ -198,7 +198,7 @@ q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -load ${KDBCO
 
 Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published. 
 
-Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
+Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP where appropriate.
 
 ```q
 // Subscribe to everything
@@ -211,13 +211,13 @@ handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
 handletoSTP(`.u.sub;`;conditions)
 ...
 q) show conditions
-tabname| filts            columns
--------| --------------------------------
-trade  | `                `time`sym`price
-quote  | `bid<200`bid>100 `
+tabname| filts                columns
+-------| ---------------------------------------
+trade  | "sym=`GOOG,price>90" "time,sym,price"
+quote  | "bid>50.0"           ""
 ```
 
-Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
+The conditions in the conditions table are given as string containing comma-separated lists as would be found in a qSQL select statement. Here, subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is greater than 50 for all columns, and for the trade table, only ticks where the sym is `GOOG` and the price is greater than 90 are received, and then only the time, sym and price columns. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
 
 The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
 
@@ -228,14 +228,40 @@ It is easy for a subscriber to subscribe to a STP process. It follows the same p
 ```
 
 The STP requires these functions to be defined in subscriber processes (the definitions will be unique to the requirements of each subscriber):
-- upd[t;x]
+- `upd[t;x]`
   Called for updates from the STP. Arguments are t (the table the data is for), x (the data to be inserted) and now (the current time .z.p)
-- endofperiod[currentpd;nextpd;data]
+- `endofperiod[currentpd;nextpd;data]`
   Called at the end of a period for periodic STP modes. Takes 3 arguments currentpd (the current period), nextpd (the next period) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
-- endofday[date;data]
+- `endofday[date;data]`
   Called at the end of day for all modes. Takes 2 arguments date (current date) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
 
 The data dictionary contains the STP name and type, list of subscribable tables in STP and the time at which the message is sent from the STP. In order to add further information to data, simply add additional elements in the endofdaydata function defined in code/segmentedtickerplant/stplg.q script.
+
+**Non-kdb+ Process Subscriptions**
+If a non-kdb+ process wishes to subscribe to a STP, a mechanism has been implemented to allow this. The `subtable` and `subtablefiltered` functions are defined on the top level:
+
+```q
+subtable[tab;syms]
+subtablefiltered[tab;filters;columns]
+```
+
+These functions accept string arguments, one for the table and a comma-separated list for the syms, filters and columns:
+
+```q
+// Subscribe for all tables and syms
+subtable["";""]
+
+// Subscribe for a single table and a subset of syms
+subtable["trade";"AMZN,MSFT"]
+
+// Subscribe for one table with a where clause and all columns
+subtablefiltered["trade";"sym in `GOOG`IBM,price>90";""]
+
+// Subscribe for a table with a where clause and restricted columns
+subtablefiltered["trade";"sym in `GOOG`IBM,price>90";"time,sym,price"]
+```
+
+It should be noted that these functions do not allow replaying of logs and do not return the table schemas as `.u.sub` does, they will return a string indicating successful subscription or an error.
 
 **Error Trapping**
 
