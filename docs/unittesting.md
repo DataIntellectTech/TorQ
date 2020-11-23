@@ -253,7 +253,7 @@ This throws us out to the q prompt at this point in the tests with the following
 'failed to load /home/mpotter/kdbCode/segtp/deploy/tests/runtests.q : true test failure in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 10
 ```
 
-We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is afixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
+We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
 ### Notes on Best Practice
 
