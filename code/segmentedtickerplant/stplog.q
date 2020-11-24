@@ -31,7 +31,7 @@ logname[`tabperiod]:{[dir;tab;p]
  };
 
 // Standard TP mode - write all tables to single log, roll daily
-logname[`none]:{[dir;tab;p]
+logname[`singular]:{[dir;tab;p]
   ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
  };
 

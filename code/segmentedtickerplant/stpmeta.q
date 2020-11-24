@@ -38,7 +38,7 @@ getmeta:{[x;p;t;ln]
     `.stpm.metatable upsert (.stplg.i;ln;p;0Np;t;0;s;enlist ()!());
   ];
   if[x~`close;
-    update end:p, msgcount:sum(.stpmlg.msgcount;t) from .stpm.metatable where logname = ln
+    update end:p,msgcount:sum .stplg.msgcount[t] from `.stpm.metatable where logname = ln
   ]
  };
 
