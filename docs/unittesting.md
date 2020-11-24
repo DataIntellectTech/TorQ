@@ -40,7 +40,7 @@ run,0,0,q,.rdb.upd[`heartbeat;(.z.p;`test;`rdb1;1;1i;`testhost;1i)],1,,"Call RDB
 true,0,0,q,1~count heartbeat,1,,"Check that a row has been added to the heartbeat table"
 ```
 
-These tests simply check that certain process variables have been set properly and test the UPD function, and these are triggered similarly to the previous set, except that an RDB process is used to load in the tests rather than a 'blank' test process. Here, the `-proctype` is an RDB, which loads in the code in `${KDBCODE}/processes/rdb.q` as well as any code in the `${KDBCODE}/rdb/` folder, so that the process logic can be tested. The `procname` can be anything you want:
+These tests simply check that certain process variables have been set properly and test the UPD function, and these are triggered similarly to the previous set, except that an RDB process is used to load in the tests rather than a 'blank' test process. Here, the `-proctype` is an RDB, which loads in the code in the `${KDBCODE}/rdb/` folder as well as any common code, so that the process logic can be tested. The `procname` can be anything you want:
 
 ```shell
 $ q ${TORQHOME}/torq.q -proctype rdb -procname rdb1 -test /path/to/my/tests -debug
@@ -253,7 +253,7 @@ This throws us out to the q prompt at this point in the tests with the following
 'failed to load /home/mpotter/kdbCode/segtp/deploy/tests/runtests.q : true test failure in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 10
 ```
 
-We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is afixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
+We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
 ### Notes on Best Practice
 
