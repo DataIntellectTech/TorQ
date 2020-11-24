@@ -32,7 +32,7 @@ writedownmode:`default                                                          
 mergenumrows:100000                                                                         // default number of rows for merge process
 mergenumtab:`quote`trade!10000 50000                                                        // specify number of rows per table
 
-tpconnsleepintv:5                                                                           // number of seconds between attempts to connect to the tp
+tpconnsleepintv:10                                                                          // number of seconds between attempts to connect to the tp
 upd:insert                                                                                  // value of the upd function
 replay:1b                                                                                   // replay the tickerplant log file
 schema:1b                                                                                   // retrieve schema from tickerplant
@@ -47,7 +47,7 @@ permitreload:1b                                                                 
 compression:()                                                                              // specify the compress level, empty list if no required
 gc:1b                                                                                       // garbage collect at appropriate points (after each table save and after sorting data)
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
-tpcheckcycles:3                                                                             // number of attempts to connect to tp before process is killed
+tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
 // Server connection details
 \d .servers
