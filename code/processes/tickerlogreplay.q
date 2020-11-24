@@ -127,7 +127,7 @@ createemptytable:{[h;p;t;td]
  if[(not (path:pathtotable[dest;p;t]) in .replay.emptytabs) and .replay.emptytables;
   .lg.o[`replay;"creating empty table ",(string t)," at ",string path];
   .replay.emptytabs,:path;
-  savetabdatatrapped[h;p;t;0#value t;0b]]}
+  savetabdatatrapped[h;p;t;0#value t;0b;td]]}
 
 savetabdata:{[h;p;t;data;UPSERT;td]
  $[partandmerge;path:pathtotable[td;p;t];path:pathtotable[h;p;t]];
@@ -249,7 +249,7 @@ mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 
 // post replay function for merge replay, invoked after all the tables have been written down for a given log file
 postreplaymerge:{[td;p;h] 
-
+ .os.md[.os.pth[string .Q.par[td;p;`]]]; // ensures directory exists before removed
  mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();	
  // merge the tables from each partition in the tempdir together
  merge[td;p;;mergelimits;h] each tabsincountorder[.replay.tablestoreplay];

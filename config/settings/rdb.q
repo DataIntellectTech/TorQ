@@ -16,7 +16,7 @@ upd:insert			//value of upd
 hdbdir:`:hdb			//the location of the hdb directory
 replaylog:1b			//replay the tickerplant log file
 schema:1b			//retrieve the schema from the tickerplant
-tpconnsleepintv:10		//number of seconds between attempts to connect to the tp                                                                 
+tpconnsleepintv:5		//number of seconds between attempts to connect to the tp                                                                 
 gc:1b				//if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
 sortcsv:hsym first .proc.getconfigfile["sort.csv"]	//location of csv file
 reloadenabled:0b		//if true, the RDB will not save when .u.end is called but
@@ -25,7 +25,7 @@ parvaluesrc:`log		//where to source the rdb partition value, can be log (from tp
 				//tab (from the the first value in the time column of the table that is subscribed for)
 				//anything else will return a null date which is will be filled by pardefault                                             
 pardefault:.z.D			//if the src defined in parvaluesrc returns null, use this default date instead
-tpcheckcycles:0W                //specify the number of times the process will check for an available tickerplant
+tpcheckcycles:3                //specify the number of times the process will check for an available tickerplant
 
 \d .proc
 loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}
