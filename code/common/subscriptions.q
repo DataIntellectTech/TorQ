@@ -1,9 +1,5 @@
 /-script to create subscriptions, e.g. to tickerplant
 
-\d .proc
-
-tptype:@[value;`tptype;`segmented];    // [segmented|default] tp type to determine subscription method
-
 \d .sub
 
 AUTORECONNECT:@[value;`AUTORECONNECT;1b];									//resubscribe to processes when they come back up

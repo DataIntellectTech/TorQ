@@ -3,31 +3,31 @@
 \d .replay
 
 // Variables
-firstmessage:@[value;`firstmessage;0]                    // the first message to execute
-segmentedmode:@[value;`segmentedmode;1b]                 // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
-autoreplay:@[value;`autoreplay;1b]                       // replay tplogs automatically set to 1b to be backward compatible.
-lastmessage:@[value;`lastmessage;0W]                     // the last message to replay
-messagechunks:@[value;`messagechunks;0W]                 // the number of messages to replay at once
-schemafile:@[value;`schemafile;`]                        // the schema file to load data in to
-tablelist:@[value;`tablelist;enlist `all]                // the tables to replay into (to allow subsets of tp logs to be replayed).  `all means all
-hdbdir:@[value;`hdbdir;`]                                // the hdb directory to write to	
-tplogfile:@[value;`tplogfile;`]                          // the tp log file to replay.  Only this or tplogdir should be used (not both)
-tplogdir:@[value;`tplogdir;`]                            // the tp log directory to read the log files from.  Only this or tplogfile should be used (not both)
-partitiontype:@[value;`partitiontype;`date]              // the partitioning of the database.  Can be date, month or year (int would have to be handled bespokely)
-emptytables:@[value;`emptytables;1b]                     // whether to overwrite any tables at start up
-sortafterreplay:@[value;`sortafterreplay;1b]             // whether to re-sort the data and apply attributes at the end of the replay.  Sort order is determined by the sortcsv (:config/sort.csv)
-basicmode:@[value;`basicmode;0b]                         // do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
-exitwhencomplete:@[value;`exitwhencomplete;1b]           // exit when the replay is complete
-checklogfiles:@[value;`checklogfiles;0b]                 // check if the log file is corrupt, if it is then write a new "good" file and replay it instead
-gc:@[value;`gc;1b]                                       // garbage collect at appropriate points (after each table save and after the full log replay)
-upd:@[value;`upd;{{[t;x] insert[t;x]}}]                  // default upd function used for replaying data
-clean:@[value;`clean;1b]                                 // clean existing folders on start up. Needed if a replay     screws up and we are replaying by chunk or multiple tp logs
-sortcsv:@[value;`sortcsv;hsym first .proc.getconfigfile["sort.csv"]]    //location of  sort csv file
-compression:@[value;`compression;()];                                   //specify the compress level, empty list if no required
-partandmerge:@[value;`partandmerge;0b];                                 //setting to do a replay where the data is partitioned and then merged on disk
-tempdir:@[value;`tempdir;`:tempmergedir];                               //location to save data for partandmerge replay
-mergenumrows:@[value;`mergenumrows;10000000];                           //default number of rows for merge process
-mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             //specify number of rows per table for merge process
+firstmessage:@[value;`firstmessage;0]                                   // the first message to execute
+segmentedmode:@[value;`segmentedmode;1b]                                // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
+autoreplay:@[value;`autoreplay;1b]                                      // replay tplogs automatically set to 1b to be backward compatible.
+lastmessage:@[value;`lastmessage;0W]                                    // the last message to replay
+messagechunks:@[value;`messagechunks;0W]                                // the number of messages to replay at once
+schemafile:@[value;`schemafile;`]                                       // the schema file to load data in to
+tablelist:@[value;`tablelist;enlist `all]                               // the tables to replay into (to allow subsets of tp logs to be replayed).  `all means all
+hdbdir:@[value;`hdbdir;`]                                               // the hdb directory to write to	
+tplogfile:@[value;`tplogfile;`]                                         // the tp log file to replay.  Only this or tplogdir should be used (not both)
+tplogdir:@[value;`tplogdir;`]                                           // the tp log directory to read the log files from.  Only this or tplogfile should be used (not both)
+partitiontype:@[value;`partitiontype;`date]                             // the partitioning of the database.  Can be date, month or year (int would have to be handled bespokely)
+emptytables:@[value;`emptytables;1b]                                    // whether to overwrite any tables at start up
+sortafterreplay:@[value;`sortafterreplay;1b]                            // whether to re-sort the data and apply attributes at the end of the replay.  Sort order is determined by the sortcsv (:config/sort.csv)
+basicmode:@[value;`basicmode;0b]                                        // do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
+exitwhencomplete:@[value;`exitwhencomplete;1b]                          // exit when the replay is complete
+checklogfiles:@[value;`checklogfiles;0b]                                // check if the log file is corrupt, if it is then write a new "good" file and replay it instead
+gc:@[value;`gc;1b]                                                      // garbage collect at appropriate points (after each table save and after the full log replay)
+upd:@[value;`upd;{{[t;x] insert[t;x]}}]                                 // default upd function used for replaying data
+clean:@[value;`clean;1b]                                                // clean existing folders on start up. Needed if a replay     screws up and we are replaying by chunk or multiple tp logs
+sortcsv:@[value;`sortcsv;hsym first .proc.getconfigfile["sort.csv"]]    // location of  sort csv file
+compression:@[value;`compression;()];                                   // specify the compress level, empty list if no required
+partandmerge:@[value;`partandmerge;0b];                                 // setting to do a replay where the data is partitioned and then merged on disk
+tempdir:@[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
+mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]         // a dict of table!function used to manipuate tables at EOD save
