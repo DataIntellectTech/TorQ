@@ -30,7 +30,15 @@ Log files are stored in the log directory specified by the environment variable 
 - an error log file (err_ ) with errors
 - a usage log file (usage_ ) with a log of every request that hits the process. 
 
-The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter. 
+The error log file should be empty. Don't ignore the out_ log file, there is a lot of information in there which can be used to debug. One thing that is a bit awkward is that if there is an error then the error log message timestamp has to be matched off against the out message log messages. You can force a process to write to a single log file if the process is started with the -onelog command line parameter, or use system commands similar to below to sync them up when required.
+
+```
+# format the out and err logs into a single output sorted on time
+sort -nk1 out_log err_log 
+
+# combine into a single output, show the last n rows of output before an error 
+sort -nk1 out_log err_log | grep -B n ERR 
+``` 
 
 ### .clients.clients
 This shows inbound connections (connections created into this process). It may have interesting information about connection open/close. If it has a lot of rows it means some clients are connecting and disconnecting frequently. [More info.](http://aquaqanalytics.github.io/TorQ/handlers/#trackclientsq)
