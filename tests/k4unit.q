@@ -5,7 +5,7 @@
 
 \d .KU
 VERBOSE:@[value;`.KU.VERBOSE;1];                // 0 - no logging to console, 1 - log filenames, >1 - log tests
-DEBUG:@[value;`.KU.DEBUG;0];                    // 0 - trap errors, 1 - suspend if errors (except action=`fail)
+DEBUG:$[`stop in key .Q.opt .z.x;1;0];          // 0 - trap errors, 1 - suspend if errors (except action=`fail)
 DELIM:@[value;`.KU.DELIM;","];                  // csv delimiter
 SAVEFILE:@[value;`.KU.SAVEFILE;`:KUTR.csv];     // test results savefile
 \d .
