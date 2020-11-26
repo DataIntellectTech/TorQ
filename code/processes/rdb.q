@@ -9,6 +9,7 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
+nulltickerplant:@[value;`nulltickerplant;0b];               //allows rdb to start without connecting or subscribing to tickerplant
 gatewaytypes:@[value;`gatewaytypes;`gateway]                //list of gateway types
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
@@ -190,11 +191,17 @@ reload:.rdb.reload
 /-load the sort csv
 .sort.getsortcsv[.rdb.sortcsv]
 
+if[.rdb.nulltickerplant;
+    // removes tp from connection list if in nulltickerplant mode
+    .servers.CONNECTIONS:.servers.CONNECTIONS except .rdb.tickerplanttypes;
+    .rdb.tplogdate:.z.d; // defines tplogdate for setpartition
+    ]
+
 .lg.o[`init;"searching for servers"];
 
-//check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[]; 
+//check if tickerplant is available and if not exit with error
+.servers.startupdepcycles[.servers.CONNECTIONS;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
+.rdb.subscribe[];
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
