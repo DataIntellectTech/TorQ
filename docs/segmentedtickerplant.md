@@ -96,7 +96,6 @@ Note that in this mode, and all other logging modes, a new log file will be crea
   stplogs/
       ├── stp1_2020.11.05
       │   ├── stp1_segmentederrorlogfile20201105000000
-      │   ├── stp1_segmentederrorlogfile20201105010000
       │   ├── stp1_logmsg_20201105000000
       │   ├── stp1_logmsg_20201105010000
       │   ├── stp1_packets_20201105000000
@@ -112,7 +111,6 @@ Note that in this mode, and all other logging modes, a new log file will be crea
       │   └── stp1_trade_iex_20201105010000
       └── stp1_2020.11.06
           ├── stp1_segmentederrorlogfile20201106000000
-          ├── stp1_segmentederrorlogfile20201106010000
           ├── stp1_logmsg_20201106000000
           ├── stp1_logmsg_20201106010000
           ├── stp1_packets_20201106000000
