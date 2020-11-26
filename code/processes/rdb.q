@@ -199,9 +199,9 @@ if[.rdb.nulltickerplant;
 
 .lg.o[`init;"searching for servers"];
 
-//check if tickerplant is available and if not exit with error
+//check if tickerplant is available and if not exit with error 
 .servers.startupdepcycles[.servers.CONNECTIONS;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[];
+.rdb.subscribe[]; 
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
