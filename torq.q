@@ -470,7 +470,7 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  @[system;"l ",x;{.lg.e[`fileload;"failed to load",x," : ",y]}[x]];
+  @[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]];
   // if we got this far, file is loaded
   loadedf,:enlist x;
   .lg.o[`fileload;"successfully loaded ",x]
@@ -551,6 +551,13 @@ reloadprocesscode:{
 reloadnamecode:{
 	// Load procname code from each directory if it exists
 	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
+	};
+
+// execute system commands
+sys:{[cmd]
+	.lg.o[`system;"executing system command: ",cmd];
+	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];'error};
+	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
 	};
 
 \d . 
@@ -655,8 +662,10 @@ if[count .proc.initlist;.proc.init[]]
 // set start time of the process
 .proc.starttimeUTC:.z.p
 
-if[`test in key .proc.params;
-        $[0<count[getenv[`KDBTESTS]];
-                .proc.loaddir getenv[`KDBTESTS];
-                .lg.e[`init;"environment variable KDBTESTS undefined"]]
-        ]
+// Load in testing code if started in test mode
+if[(`test in key .proc.params);
+	$[count getenv `KDBTESTS;
+		system each "l " ,/: getenv[`KDBTESTS] ,/: ("/k4unit.q";"/runtests.q");
+		.lg.e[`init;"environment variable KDBTESTS undefined"]
+		]
+ ];
