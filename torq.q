@@ -662,8 +662,10 @@ if[count .proc.initlist;.proc.init[]]
 // set start time of the process
 .proc.starttimeUTC:.z.p
 
-if[`test in key .proc.params;
-        $[0<count[getenv[`KDBTESTS]];
-                .proc.loaddir getenv[`KDBTESTS];
-                .lg.e[`init;"environment variable KDBTESTS undefined"]]
-        ]
+// Load in testing code if started in test mode
+if[(`test in key .proc.params);
+	$[count getenv `KDBTESTS;
+		system each "l " ,/: getenv[`KDBTESTS] ,/: ("/k4unit.q";"/runtests.q");
+		.lg.e[`init;"environment variable KDBTESTS undefined"]
+		]
+ ];
