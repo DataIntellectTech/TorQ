@@ -15,7 +15,7 @@ errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
   $[count dir:getenv[`KDBTPLOG];
-    [.os.md dir;.os.md dldir::hsym`$raze dir,"/", string name,"_",date];
+    [.os.md dir;.os.md .stplg.dldir:hsym`$raze dir,"/", string name,"_",date];
     [.lg.e[`stp;"log directory not defined"];exit]
   ]
  };
@@ -195,7 +195,8 @@ rolllog:{[multilog;dir;tabs;p]
  };
 
 // creates dictionary of process data to be used at endofday/endofperiod
-endofdaydata:@[value;`.stplg.endofdaydata;{`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)}]
+endofdaydatadef:{`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)};
+endofdaydata:@[value;`.stplg.endofdaydata;{.stplg.endofdaydatadef}];
 
 // endofperiod function defined in SCTP
 // passes on eop messages to subscribers and rolls logs

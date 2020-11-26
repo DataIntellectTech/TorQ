@@ -109,9 +109,11 @@ init:{
   .stpps.t:(tables[] where 98h=type each value each tables[]) except `currlog;
   .stpps.schemas:.stpps.t!value each .stpps.t;
 
-  // Strip attributes from tables and store new schemas and a dictionary of table column names
-  {@[x;cols x;`#]} each .stpps.t;
-  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+  // Strip attributes from tables and store new schemas if process is an STP and a dictionary of table column names
+  if[`segmentedtickerplant~.proc.proctype;
+    {@[x;cols x;`#]} each .stpps.t;
+    .stpps.schemasnoattributes:.stpps.t!value each .stpps.t
+    ];  
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
  };
 

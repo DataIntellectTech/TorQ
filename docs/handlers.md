@@ -233,13 +233,13 @@ The access schema consists of 7 control tables:
 
   |**Name**       | **Descriptions**|
   |---------------| ------------------------------------------------------------------------------------------------------------|
-  |User           |Username, locality, encryption type and password hash|
-  |Usergroup      |User and their group.|
-  |Userrole       |User and role.|
-  |Functiongroup  |Functions and their group|
-  |Function       |Function names, the roles which can access them, and a lambda checking the parameters those roles can use.|
-  |Access         |Variable names, the groups which can access them, and the read or write access level.|
-  |Virtualtable   |Virtual table name, main table name, and the where clause it enforces on access to that table.|
+  |user           |Username, locality, encryption type and password hash|
+  |usergroup      |User and their group.|
+  |userrole       |User and role.|
+  |functiongroup  |Functions and their group|
+  |function       |Function names, the roles which can access them, and a lambda checking the parameters those roles can use.|
+  |access         |Variable names, the groups which can access them, and the read or write access level.|
+  |virtualtable   |Virtual table name, main table name, and the where clause it enforces on access to that table.|
 
   
 In addition to groupinfo and roleinfo tables, which contain the
@@ -247,7 +247,8 @@ group/role name and a string describing each group and role. A user can
 belong to multiple groups, and have multiple roles. In particular the
 schema supports group hierarchy, where a user group can be listed as a
 user in the group table, and inherit all the permissions from another
-other group, effectively inheriting the second group itself.
+other group, effectively inheriting the second group itself. Note that
+a group cannot have the same name as an individual user.
 
 A user belonging to a group listed in the access table will have the
 specified level of access (read or write) to that group’s variables,
