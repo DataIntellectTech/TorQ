@@ -39,15 +39,23 @@ virtualtable:([name:`symbol$()]table:`symbol$();whereclause:())
 publictrack:([name:`symbol$()] handle:`int$())
 
 / api
-adduser:{[u;a;h;p]user,:(u;a;h;p)}
+adduser:{[u;a;h;p]
+  if[u in key groupinfo;'"pm: cannot add user with same name as existing group"];
+  user,:(u;a;h;p)}
 removeuser:{[u]user::.[user;();_;u]}
-addgroup:{[n;d]groupinfo,:(n;d)}
+addgroup:{[n;d]
+  if[n in key user;'"pm: cannot add group with same name as existing user"];
+  groupinfo,:(n;d)}
 removegroup:{[n]groupinfo::.[groupinfo;();_;n]}
 addrole:{[n;d]roleinfo,:(n;d)}
 removerole:{[n]roleinfo::.[roleinfo;();_;n]}
-addtogroup:{[u;g]if[not (u;g) in usergroup;usergroup,:(u;g)];}
+addtogroup:{[u;g]
+  if[not g in key groupinfo;'"pm: no such group, .pm.addgroup first"];
+  if[not (u;g) in usergroup;usergroup,:(u;g)];}
 removefromgroup:{[u;g]if[(u;g) in usergroup;usergroup::.[usergroup;();_;usergroup?(u;g)]]}
-assignrole:{[u;r]if[not (u;r) in userrole;userrole,:(u;r)];}
+assignrole:{[u;r]
+  if[not r in key roleinfo;'"pm: no such role, .pm.addrole first"];
+  if[not (u;r) in userrole;userrole,:(u;r)];}
 unassignrole:{[u;r]if[(u;r) in userrole;userrole::.[userrole;();_;userrole?(u;r)]]}
 addfunction:{[f;g]if[not (f;g) in functiongroup;functiongroup,:(f;g)];}
 removefunction:{[f;g]if[(f;g) in functiongroup;functiongroup::.[functiongroup;();_;functiongroup?(f;g)]]}
@@ -126,15 +134,26 @@ dotqf:{[u;q;b;pr]
   p:$[null p:dotqd qf;dotqd`;p];
   p[u;q;b;pr]}
 
-lamq:{[u;e;l;b;pr]
-  rt:(distinct exec object from access where entity<>`public); / allow public tables 
-  pq:(raze `$distinct {-4!x} (raze/)(s:raze each string e) ,' " ");
-  rqt:rt where rt in pq;
-  prohibited: rqt where not achk[u;;`read;pr] each rqt;
+/ flatten an arbitrary data structure, maintaining any strings
+flatten:{raze $[10h=type x;enlist enlist x;1=count x;x;.z.s'[x]]}
+
+/ string non-strings, maintain strings
+str:{$[10h=type x;;string]x}'
+
+lamq:{[u;e;b;pr]
+  / get names of all defined variables to look for references to in expression
+  rt:raze .api.varnames[;"v";1b]'[.api.allns[]];
+  / allow public tables to always be accessed
+  rt:rt except distinct exec object from access where entity=`public;
+  / flatten expression & tokenize to extract any possible variable references
+  pq:`$distinct -4!raze(str flatten e),'" ";
+  / filter expression tokens to those matching defined variables
+  rqt:rt inter pq;
+  prohibited:rqt where not achk[u;;`read;pr] each rqt;
   if[count prohibited;'" | " sv .pm.err[`selt] each prohibited];
   $[b; :exe e; :1b]}
 
-exe:{if[(100<abs type first x); v:val x]; v:valp x;
+exe:{v:$[(100<abs type first x);val;valp]x;
   if[maxsize<-22!v; 'err[`size][]]; v} 
 
 qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
@@ -157,8 +176,8 @@ mainexpr:{[u;e;b;pr]
   if[isq e; :query[u;e;b;pr]];
   / .q keywords
   if[xdq e;:dotqf[u;e;b;pr]];
-  / lambdas
-  if[any lam:100=type each raze e; :lamq[u;ie;lam;b;pr]];
+  / lambdas - value any dict args before razing
+  if[any 100=type each raze @[e;where 99h=type'[e];value]; :lamq[u;ie;b;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
@@ -221,8 +240,11 @@ droppublic:{[w]
 init:{
   .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
   .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
-  .z.pi:{$[x~enlist"\n";.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}; 
-  .z.pp:.z.ph:{'"pm: HTTP requests not permitted"};
+  // skip permissions for empty lines in q console/qcon
+  .z.pi:{$[x in (1#"\n";"");.Q.s value x;.Q.s $[.z.w=0;value;req]@x]};
+  .z.pp:{'"pm: HTTP POST requests not permitted"};
+  // from V3.5 2019.11.23, .h.val is used in .z.ph to evaluate request; below that disallow .z.ph
+  $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.z.ph:{'"pm: HTTP GET requests not permitted"}];
   .z.ws:{'"pm: websocket access not permitted"};
   .z.pw:login;
   .z.pc:{droppublic[y];@[x;y]}.z.pc;
