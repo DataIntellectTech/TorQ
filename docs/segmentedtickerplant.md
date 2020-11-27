@@ -217,7 +217,7 @@ quote  | "bid>50.0"           ""
 
 The conditions in the conditions table are given as string containing comma-separated lists as would be found in a qSQL select statement. Here, subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is greater than 50 for all columns, and for the trade table, only ticks where the sym is `GOOG` and the price is greater than 90 are received, and then only the time, sym and price columns. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
 
-The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
+The subscription logic is contained in the `${KDBCODE}/common/pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish. The publishing and subscription functions are also incorporated into the `.ps` namespace in this file.
 
 It is easy for a subscriber to subscribe to a STP process. It follows the same process as subscribing to a TP through `.u.sub` however some changes have been made. Each subscriber connecting to the STP needs to be updated to search for the STP instead of the original tickerplant. This is done using `.servers.CONNECTIONS` in the settings config file for that process, for example:
 
@@ -237,27 +237,27 @@ The data dictionary contains the STP name and type, list of subscribable tables 
 
 **Non-kdb+ Process Subscriptions**
 
-If a non-kdb+ process wishes to subscribe to a STP, a mechanism has been implemented to allow this. The `subtable` and `subtablefiltered` functions are defined on the top level:
+If a non-kdb+ process wishes to subscribe to a STP, a mechanism has been implemented to allow this. The `.ps.subtable` and `.ps.subtablefiltered` functions are defined on the top level:
 
 ```q
-subtable[tab;syms]
-subtablefiltered[tab;filters;columns]
+.ps.subtable[tab;syms]
+.ps.subtablefiltered[tab;filters;columns]
 ```
 
 These functions accept string arguments, one for the table and a comma-separated list for the syms, filters and columns:
 
 ```q
 // Subscribe for all tables and syms
-subtable["";""]
+.ps.subtable["";""]
 
 // Subscribe for a single table and a subset of syms
-subtable["trade";"AMZN,MSFT"]
+.ps.subtable["trade";"AMZN,MSFT"]
 
 // Subscribe for one table with a where clause and all columns
-subtablefiltered["trade";"sym in `GOOG`IBM,price>90";""]
+.ps.subtablefiltered["trade";"sym in `GOOG`IBM,price>90";""]
 
 // Subscribe for a table with a where clause and restricted columns
-subtablefiltered["trade";"sym in `GOOG`IBM,price>90";"time,sym,price"]
+.ps.subtablefiltered["trade";"sym in `GOOG`IBM,price>90";"time,sym,price"]
 ```
 
 It should be noted that these functions do not allow replaying of logs and do not return the table schemas as `.u.sub` does, they will return a string indicating successful subscription or an error.
