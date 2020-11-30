@@ -4,20 +4,20 @@
 
 orderquery:{[queryparams]
   query:([]proctype:`$();query:());
-  if[queryparams`hdbvalidrange;query,:getprocqueryorder[queryparams;`proctypehdb;`hdbtimefilter]];
-  if[queryparams`rdbvalidrange;query,:getprocqueryorder[@[queryparams;`partitionfilter;:;()];`proctyperdb;`rdbtimefilter]];
+  if[queryparams`hdbvalidrange;query,:getprocqueryorder[queryparams]];
+  if[queryparams`rdbvalidrange;query,:getprocqueryorder[@[queryparams;`partitionfilter;:;()];]];
   :query;
  };
 
-getprocqueryorder:{[queryparams;proctype;proctimefilter]
-  :`proctype`query!(queryparams proctype;enlist[?],(gettablename;getwhereclause;getbyclause;getselectclause).\:(queryparams;proctimefilter));
+getprocqueryorder:{[queryparams]
+    :`proctype`query!(queryparams`proctype;enlist[?],(gettable;getwhere;getby;getselect)\:queryparams);
  };
 
-gettablename:{[queryparams;proctimefilter]queryparams`tablename};
+gettable:{[queryparams]queryparams`tablename};
 
-getwhereclause:{[queryparams;proctimefilter]
+getwhere:{[queryparams]
   partitionfilter:queryparams`partitionfilter;
-  whereclause:extractkeys[queryparams;`instrumentfilter,proctimefilter,`filters`freeformwhere];
+  whereclause:extractkeys[queryparams;`instrumentfilter`timefilter`filters`freeformwhere];
   whereclause:reorderbyattributecolumn[queryparams;whereclause];
   :partitionfilter,whereclause;
  };
@@ -33,14 +33,14 @@ reorderbyattributecolumn:{[queryparams;whereclause]
   :@[whereclause;0,attributeindex;:;whereclause attributeindex,0];
  };
 
-getbyclause:{[queryparams;proctimefilter]
+getby:{[queryparams]
   byclause:extractkeys[queryparams;`timebar`grouping`freeformby];
   if[()~byclause;:0b];
   byclause:inter[`date,queryparams`attributecolumn;key byclause]xcols byclause; //- group on `date`sym first (if they exist), then timecol, then remaining args
   :byclause;
  };
 
-getselectclause:{[queryparams;proctimefilter] extractkeys[queryparams;`columns`aggregations`freeformselect]};
+getselect:{[queryparams] extractkeys[queryparams;`columns`aggregations`freeformselect]};
 
 extractkeys:{[queryparams;k]
   k:k inter key queryparams;

@@ -17,17 +17,12 @@ spliltandcast:{[x;typ]typ$"|"vs/:x};
 
 
 //- functions:
-//- (i) .dataaccess.getmetainfo - mapping from tablename to metainfo (derived from .dataaccess.procmetainfo);
+//- (i) .dataaccess.getmetainfo - mapping from tablename to metainfo;
 
-getmetainfo:{[metafield]
+getmetainfo:{
   partfield:$[()~key`.Q.pf;`;.Q.pf];
-  metas:([]metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;proctype:.proc.proctype);
-  if[`~partfield;
-     :1!flip(`tablename;metafield)!(tables[`]except`metas;metas)
-  ];
-  if[not`~partfield;
-     :1!flip(`tablename;`partfield;metafield)!(tables[`]except`metas;partfield;metas)
-  ];
+  metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;
+  :1!flip(`tablename`partfield`metas`proctype)!(tables`.;partfield;metainfo;.proc.proctype);
  };
 
 //- misc utils
@@ -50,7 +45,8 @@ formatstring:{[str;params]
 jointableproperties:{[inputparams]
   tableproperties:.dataaccess.tablepropertiesconfig inputparams`tablename;
   metainfo:.dataaccess.metainfo inputparams`tablename;
-  inputparams[`hdbparams`rdbparams]:metainfo`hdbparams`rdbparams;
+  //inputparams[`hdbparams`rdbparams]:metainfo`hdbparams`rdbparams;
+  inputparams[`metainfo]:metainfo
   inputparams[`tableproperties]:tableproperties,enlist[`partitionfield]#metainfo;
   :.[inputparams;(`tableproperties;`getrollover`getpartitionrange);.Q.dd[`.dataaccess]];
  };
@@ -62,5 +58,3 @@ extractfromsubdict:{[inputparams;subdict;property]
  };
 
 gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tableproperties key in inputparams
-gethdbparams:extractfromsubdict[;`hdbparams;];             //- extract from `hdbparams key in inputparams
-getrdbparams:extractfromsubdict[;`rdbparams;];             //- extract from `rdbparams key in inputparams

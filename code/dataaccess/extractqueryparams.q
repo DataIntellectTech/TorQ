@@ -1,14 +1,13 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`partitionfilter`attributecolumn`hdbtimefilter`rdbtimefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();();());
+queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();();());
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
   queryparams:extractpartitionfilter[inputparams;queryparams];
   queryparams:extractattributecolumn[inputparams;queryparams];
-  queryparams:extracthdbtimefilter[inputparams;queryparams];
-  queryparams:extractrdbtimefilter[inputparams;queryparams];
+  queryparams:extracttimefilter[inputparams;queryparams];
   queryparams:extractinstrumentfilter[inputparams;queryparams];
   queryparams:extractcolumns[inputparams;queryparams];
   queryparams:extractgrouping[inputparams;queryparams];
@@ -29,8 +28,8 @@ extractpartitionfilter:{[inputparams;queryparams]
   timecolumn:inputparams`timecolumn;
   primarytimecolumn:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
   partitionfield:.dataaccess.gettableproperty[inputparams;`partitionfield];
-  hdbtimerange:inputparams[`hdbparams]`starttime`endtime;
-  partitionrange:getpartitionrangefunc[timecolumn;primarytimecolumn;partitionfield;hdbtimerange];
+  timerange:inputparams[`metainfo]`starttime`endtime;
+  partitionrange:getpartitionrangefunc[timecolumn;primarytimecolumn;partitionfield;timerange];
   partitionfilter:exec enlist(within;partitionfield;partitionrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partitionfilter];
  };
@@ -40,15 +39,12 @@ extractattributecolumn:{[inputparams;queryparams]
   :@[queryparams;`attributecolumn;:;attributecolumn];
  };
 
-extracttimefilter:{[inputparams;queryparams;procparams;proctype;procvalidrange;proctimefilter]
-  procspecificparams:inputparams procparams;
+extracttimefilter:{[inputparams;queryparams]
+  procmeta:inputparams`metainfo;
   timecolumn:inputparams`timecolumn;
-  additionalkeys:(proctype;procvalidrange;proctimefilter);
-  :queryparams,exec additionalkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procspecificparams;
+  addkeys:`proctype`validrange`timefilter;
+  :queryparams,exec dddkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procmeta;
  };
-
-extracthdbtimefilter:extracttimefilter[;;`hdbparams;`proctypehdb;`hdbvalidrange;`hdbtimefilter];
-extractrdbtimefilter:extracttimefilter[;;`rdbparams;`proctyperdb;`rdbvalidrange;`rdbtimefilter];
 
 extractinstrumentfilter:{[inputparams;queryparams]
   if[not`instruments in key inputparams;:queryparams];
