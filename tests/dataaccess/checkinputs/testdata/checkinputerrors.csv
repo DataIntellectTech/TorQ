@@ -1,0 +1,36 @@
+test,error
+nondictinput,Input parameter must be a dictionary
+nonsymbolkey,keys must be of type 11h
+requiredparamsmissing,"required params missing:,`tablename"
+invalidparamnames,required params missing:`invalidname1`invalidname2
+invalidcomb1,"parameter:`columns cannot be used in combination with parameter(s):,`aggregations"
+invalidcomb2,"parameter:`aggregations cannot be used in combination with parameter(s):,`freeformcolumn"
+tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
+tableexists,table:`invalidtablename doesn't exist
+starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
+endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
+timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
+timecolumnexists,"parameter:`timecolumn - table:`xdaily on process:`dailyrdb doesn't contain:,`date - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
+invalidtimecolumn,"parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
+checktimeorder,starttime>endtime
+instrumenttype,`instruments input type incorrect - valid type(s):11 -11h - input type:0h
+columntypes,`columns input type incorrect - valid type(s):11 -11h - input type:0h
+columnsexist,parameter:`columns - table:`xdaily on process:`dailyrdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize
+groupingtype,`grouping input type incorrect - valid type(s):11 -11h - input type:0h
+aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+aggregationcolumnsexist,"parameter:`aggregations - table:`xdaily on process:`dailyrdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
+invalidaggregationfuncs,invalid functions passed to aggregation parameter:`invalid1`invalid2
+timebarargstype,timebar parameter must be a list of length 3
+timebarcount,timebar parameter must be a list of length 3
+timebararg0,first argument of timebar must be have type -11h
+timebararg1,type of the second argument of timebar must be either -6h or -7h
+timebararg2,third argument of timebar must be of type -11h
+timebarinvalid,third argument of timebar must be one of:`nanosecond`second`minute`hour`day
+timebarexists,"parameter:`timebar - table:`xdaily on process:`dailyrdb doesn't contain:,`invalidcolumn - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
+timebartype,"parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
+filterformat,filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))
+freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
+freeformbytype,`freeformby input type incorrect - valid type(s):10h - input type:-11h
+freeformcolumntype,`freeformcolumn input type incorrect - valid type(s):10h - input type:-11h

@@ -1,0 +1,8 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+2,dailyhdb,dailyhdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype hdb,q
+localhost,{KDBBASEPORT}+3,monthlyhdb,monthlyhdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype hdb,q
+localhost,{KDBBASEPORT}+4,yearlyhdb,yearlyhdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype hdb,q
+localhost,{KDBBASEPORT}+5,dailyrdb,dailyrdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype rdb,q
+localhost,{KDBBASEPORT}+6,monthlyrdb,monthlyrdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype rdb,q
+localhost,{KDBBASEPORT}+7,yearlyrdb,yearlyrdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/reconnection/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-parentproctype rdb,q
