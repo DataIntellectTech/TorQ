@@ -1,0 +1,2 @@
+proctypehdb,proctyperdb,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,getrollover,getpartitionrange
+hdb,rdb,trade,time,sym,sym,,defaultrollover,defaultpartitionrange
