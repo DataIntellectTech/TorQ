@@ -39,6 +39,7 @@ suball:{
 // Make a filtered subscription
 subfiltered:{[x;y]
   delhandlef[x;.z.w];
+  // Different handling for requests passed in as a sym list or a keyed table
   val:![11 99h;(selfiltered;addfiltered)][type y] . (x;y);
   $[all raze null val;(x;schemas[x]);val]
  };
@@ -49,24 +50,24 @@ add:{
     subrequestall[x],:.z.w];
  };
 
-// Parse columns and where clause from keyed table, run test query and add to subrequestfiltered table if it passes
+// Error trap function for parsing string filters
+errparse:{.lg.e[`addfiltered;m:y," error: ",x];'m};
+
+// Parse columns and where clause from keyed table, spit out errors if any stage fails
 addfiltered:{[x;y]
-  filters:$[all null y[x;`filters];();parse each csv vs y[x;`filters]];
-  columns:$[all null y[x;`columns];();c!c:parse each csv vs y[x;`columns]];
-  if[`error~first test:.[?;(.stpps.schemas[x];filters;0b;columns);{(`error;x)}];
-    .lg.e[`addfiltered;"Invalid query parameters provided: ",last test];
-    :test
-   ];
+  // Use dummy queries to produce where and column clauses
+  filters:raze $[all null f:y[x;`filters];();@[parse;"select from t where ",f;.stpps.errparse[;"Filter"]]] 2;
+  columns:last $[all null c:y[x;`columns];();@[parse;"select ",c," from t";.stpps.errparse[;"Column"]]];
+
+  // Run these clauses in a test query, add to table if successful, throw error if not
+  .[?;(.stpps.schemas[x];filters;0b;columns);.stpps.errparse[;"Query"]];
   `.stpps.subrequestfiltered upsert (x;.z.w;filters;columns);
  };
 
 // Add handle for subscriber using old API (filter is list of syms)
 selfiltered:{[x;y]
   filts:enlist (in;`sym;enlist y);
-  if[`error~first test:.[?;(.stpps.schemas[x];filts;0b;());{(`error;x)}];
-    .lg.e[`addfiltered;"Invalid query parameters provided: ",last test];
-    :test
-   ];
+  .[?;(.stpps.schemas[x];filts;0b;());.stpps.errparse[;"Query"]];
   `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
@@ -103,17 +104,17 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
-// Set up table and schema information
-init:{
-  // Grab non-keyed tables from root namespace and store their attributes
-  .stpps.t:(tables[] where 98h=type each value each tables[]) except `currlog;
-  .stpps.schemas:.stpps.t!value each .stpps.t;
+// Strip attributes and remove keying from tables and store in separate dictionary (for use on STP and SCTP)
+attrstrip:{[t]
+  {@[x;cols x;`#]} each .stpps.t:t;
+  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+ };
 
-  // Strip attributes from tables and store new schemas if process is an STP and a dictionary of table column names
-  if[`segmentedtickerplant~.proc.proctype;
-    {@[x;cols x;`#]} each .stpps.t;
-    .stpps.schemasnoattributes:.stpps.t!value each .stpps.t
-    ];  
+// Set up table and schema information
+init:{[t]
+  if[count b:t where not t in tables[];{.lg.e[`psinit;"Table ",string[x]," does not exist"]} each b];
+  .stpps.t:t except b;
+  .stpps.schemas:.stpps.t!value each .stpps.t;
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
  };
 
@@ -126,7 +127,7 @@ init:{
 // Subscriber will call with null y parameter in sub all mode
 // In sub filtered mode, y will contain tables to subscribe to and filters to apply
 .u.sub:{[x;y]
-  if[x~`;:.u.sub[;y] each .stpps.t];
+  if[x~`;:.z.s[;y] each .stpps.t];
   if[not x in .stpps.t;
     .lg.e[`sub;m:"Table ",string[x]," not in list of stp pub/sub tables"];
     :(x;m)
@@ -139,18 +140,18 @@ init:{
 .ps.publish:.stpps.pub;
 .ps.subscribe:.u.sub;
 .ps.init:.stpps.init;
-.ps.initialise:{.ps.init[];.ps.initialised:1b};
+.ps.initialise:{.ps.init[tables[]];.ps.initialised:1b};
 
 // Allow a non-kdb+ subscriber to subscribe with strings for simple conditions - return string to subscriber
 .ps.subtable:{[tab;syms]
-  .lg.o[`subtable;"Received a simple string subscription request."];
-  val:.[.u.sub;(`$tab;$[count syms;::;first] `$csv vs syms);{:(`error;"Error: ",x)}];
-  $[`error~first val;last val;"Subscription successful!"]
+  .lg.o[`subtable;"Received a subscription to ",$[count tab;tab;"all tables"]," for ",$[count syms;syms;"all syms"]];
+  val:.u.sub[`$tab;$[count syms;::;first] `$csv vs syms];
+  $[98h~type last val;"Subscription successful!";last val]
  };
 
 // Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return string to subscriber
 .ps.subtablefiltered:{[tab;filters;columns]
-  .lg.o[`subtablefiltered;"Received a complex string subscription request."];
+  .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for filters: ",filters," and columns: ",columns];
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
-  $[`error~first val;"Invalid query parameters provided: ",last val;"Subscription successful!"]
+  $[98h~type last val;"Subscription successful!";last val]
  };

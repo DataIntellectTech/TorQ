@@ -1,6 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,stpHandle(system;"t 0"),1,,"Turn off STP timer"
-before,0,0,q,stpHandle(`init;`immediate),1,,"Set STP to immediate mode"
+before,0,0,q,stpHandle(`setup;`immediate),1,,"Set STP to immediate mode"
 before,0,0,q,delete from `trade,1,,"Clear trade table"
 before,0,0,q,r1:rdbHandle"count trade",1,,"Get inital RDB table count"
 before,0,0,q,-11!stpHandle"currlog[`trade;`logname]",1,,"Replay initial logs"

@@ -15,110 +15,71 @@ tptype:`segmented
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
 
-$[.sctp.chainedtp;[
-  .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
-  .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
-  schemafile:""
-  ];
-  // Load schema
-  $[`schemafile in key .proc.params;
-    .proc.loadf[schemafile:raze .proc.params[`schemafile]];
-    [.lg.e[`stp;"schema file required"];exit 1]
-   ]
-  ];
-
 // In singular or tabular mode, intraday rolling not required
 if[.stplg.multilog in `singular`tabular;.stplg.multilogperiod:1D];
 
 // In custom mode, load logging type for each table
 if[.stplg.multilog~`custom;
-  @[{.stplg.custommode:1_(!) . ("SS";",")0: x};.stplg.customcsv;
-    {.lg.e[`stp;"failed to load custom mode csv"]}]
+  @[{.stplg.custommode:1_(!) . ("SS";",")0: x};.stplg.customcsv;{.lg.e[`stp;"failed to load custom mode csv"]}]
  ];
 
 // functions used by subscribers
 tablelist:{.stpps.t}
+
 // subscribers who want to replay need this info 
 subdetails:{[tabs;instruments]
- `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)}
+ `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
+ }
 
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
-  .stpps.init[];
+  .stpps.init[tables[] except `currlog];
+  .stpps.attrstrip[.stpps.t];
   $[.sctp.chainedtp;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab
     ]
   }
 
-// Initialise UPD and ZTS behaviour based on batching mode (b)
-init:{[b]
-  if[not all b in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string b)," must be defined in both .stplg.upd and .stplg.zts"];
-  .stplg.updmsg:.stplg.upd[b];
-  $[.sctp.chainedtp;
-    .u.upd:{[t;x]
-      now:.z.p;
-      // Type check allows update messages to contain multiple tables/data
-      $[0h<type t;
-        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
-        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
-      ];
-      .stplg.seqnum+:1;
-      };
-    .u.upd:{[t;x]
-      // snap the current time and check for period end
-      if[.stplg.nextendUTC<now:.z.p;.stplg.checkends now];
-      // Type check allows update messages to contain multiple tables/data
-      $[0h<type t;
-        .stplg.updmsg'[t;x;now+.eodtime.dailyadj];
-        .stplg.updmsg[t;x;now+.eodtime.dailyadj]
-      ];
-      .stplg.seqnum+:1;
-      }
-    ];
-  // set .z.ts to execute the timer func and then check for end-of-period/end-of-day
-  .stplg.ts:.stplg.zts[b];
-  $[.sctp.chainedtp;
-    .z.ts:{
-      .stplg.ts now:.z.p;
-      };
-    .z.ts:{
-      .stplg.ts now:.z.p; 
-      .stplg.checkends now
-      }
-    ];
+// Load in schema file and kill proc if not present
+loadschemas:{
+  if[not `schemafile in key .proc.params;.lg.e[`loadschema;"Schema file required!"];exit 1];
+  @[.proc.loadf;raze .proc.params[`schemafile];{.lg.e[`loadschema;"Failed to load schema file!"];exit 1}];
+ };
+
+// Set up UPD and ZTS behaviour based on batching mode
+setup:{[batch]
+  // Handle bad batch mode, see whether STP is chained or default
+  if[not all batch in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string batch)," must be defined in both .stplg.upd and .stplg.zts"];
+  chainmode:$[.sctp.chainedtp;`chained;`def];
+
+  // Set inner UPD and ZTS behaviour from batch mode, then set outer functions based on whether STP is chained
+  .stplg.updmsg:.stplg.upd[batch];
+  .stplg.ts:.stplg.zts[batch];
+  .u.upd:.stpps.upd[chainmode];
+  .z.ts:.stpps.zts[chainmode];
   
-  // Error mode - write failed updates to separate TP log
+  // Error mode - error trap UPD to write failed updates to separate TP log
   if[.stplg.errmode;
-    //.stplg.openlogerr[.stplg.dldir]; - this is being done in .stplg.init now
     .stp.upd:.u.upd;
     .u.upd:{[t;x] .[.stp.upd;(t;x);{.stplg.badmsg[x;y;z]}[;t;x]]}
-  ];
-  // default the timer if not set
-  if[not system"t"; 
-   .lg.o[`timer;"defaulting timer to 1000ms"];
-    system"t 1000"];
+   ];
+
+  // Default the timer to 1 second if not set
+  if[not system "t";.lg.o[`timer;"defaulting timer to 1000ms"];system"t 1000"];
  };
 
 // Initialise process
+init:{
+  // Set up the update and publish functions
+  setup[.stplg.batchmode];
+  // If process is a chained STP then subscribe to the main STP, if not, load schema file
+  $[.sctp.chainedtp;.sctp.init[];loadschemas[]];
+  // Set up pubsub mechanics and table schemas
+  generateschemas[];
+  // Set up logs and log handles using name of process as an identifier
+  .stplg.init[string .proc.procname];
+ };
 
-\d .
-
-// Set update and publish modes
-init[.stplg.batchmode]
-
-// subscribe to segmented tickerplant is mode is turned on
-if[.sctp.chainedtp;
-  endofperiod:{[x;y;z] .stplg.endofperiod[x;y;z]};
-  endofday:{[x;y] .stplg.endofday[x;y]};
-  .servers.startup[]; 
-  .sctp.subscribe[]
-  ]
-
-// produces schema dicts/tables and upd functions
-// executed after .sctp.subscribe since the SCTP grabs the schemas from the STP
-generateschemas[];
-
-// Create log directory, open all table logs
-// use name of schema to create directory
-.stplg.init[string .proc.procname]
+// Have the init function called from torq.q
+.proc.addinitlist(`init;`);

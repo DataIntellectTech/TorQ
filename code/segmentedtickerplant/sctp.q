@@ -25,6 +25,19 @@ subscribe:{[]
     ];
   }
 
+// Initialise chained STP
+init:{
+  // Load in timer and subscription code and set top-level end of day/period functions
+  .proc.loadf[getenv[`KDBCODE],"/common/timer.q"];
+  .proc.loadf[getenv[`KDBCODE],"/common/subscriptions.q"];
+  `endofperiod set {[x;y;z] .stplg.endofperiod[x;y;z]};
+  `endofday set {[x;y] .stplg.endofday[x;y]};
+
+  // Initialise connections and subscribe to main STP
+  .servers.startup[]; 
+  .sctp.subscribe[];
+ };
+
 \d .
 
 // Make the SCTP die if the main STP dies

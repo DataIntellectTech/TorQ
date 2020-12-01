@@ -18,7 +18,7 @@ true,0,0,q,successmsg~stpHandle(`.ps.subtablefiltered;"trade";complexwhr;columnl
 true,0,0,q,1~count stpHandle(`.stpps.subrequestfiltered),1,,"Check subrequestfiltered populated"
 run,0,0,q,hclose stpHandle,1,,"Disconnect"
 run,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to STP"
-true,0,0,q,not successmsg~stpHandle(`.ps.subtablefiltered;"trade";badwhr;""),1,,"Subscribe for one table and a bad where clause"
+fail,0,0,q,stpHandle(`.ps.subtablefiltered;"trade";badwhr;""),1,,"Subscribe for one table and a bad where clause"
 true,0,0,q,0~count stpHandle(`.stpps.subrequestfiltered),1,,"Check subrequestfiltered not populated"
 run,0,0,q,hclose stpHandle,1,,"Disconnect"
 run,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to STP"

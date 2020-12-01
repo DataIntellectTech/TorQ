@@ -8,7 +8,7 @@ before,0,0,q,stpHandle(setenv;`KDBTPLOG;tstlogs),1,,"Change STP logging director
 before,0,0,q,stpHandle".stplg.custommode:1_(!).(string `SS;csv) 0: .stplg.customcsv",1,,"Load STP custom settings"
 before,0,0,q,stpHandle"delete from `currlog",1,,"Clear log table"
 before,0,0,q,stpHandle(system;"t 0"),1,,"Turn off timer"
-before,0,0,q,stpHandle"init[`defaultbatch]",1,,"Re-initialise STP"
+before,0,0,q,stpHandle"setup[`defaultbatch]",1,,"Re-initialise STP"
 before,0,0,q,stpHandle".stplg.init[string .proc.procname]",1,,"Re-initialise STP"
 before,0,0,q,c1:rdbHandle @/: ("count trade";"count quote"),1,,"Get initial RDB counts"
 before,0,0,q,l1:count each (trade;quote),1,,"Get initial local counts"

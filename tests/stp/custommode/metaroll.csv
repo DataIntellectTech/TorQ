@@ -2,7 +2,7 @@ action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.servers.startup[],1,,"Set up connection management"
 before,0,0,q,stpHandle(setenv;`KDBTPLOG;tstlogs),1,,"Change STP logging directory"
 before,0,0,q,stpHandle"delete from `.stpm.metatable",1,,"Delete meta table"
-before,0,0,q,stpHandle"init[`defaultbatch]",1,,"Re-init STP"
+before,0,0,q,stpHandle"setup[`defaultbatch]",1,,"Re-init STP"
 before,0,0,q,stpHandle".stplg.init[string .proc.procname]",1,,"Re-init STP"
 before,0,0,q,currlog:stpHandle"currlog",1,,"Get currlog table"
 before,0,0,q,metatab:stpHandle".stpm.metatable",1,,"Get meta table"
