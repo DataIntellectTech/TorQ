@@ -185,7 +185,6 @@ rolllog:{[multilog;dir;tabs;p]
  };
 
 // Creates dictionary of process data to be used at endofday/endofperiod - configurable but default provided
-// endofdaydatadef:{`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)};
 endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)} }];
 
 // endofperiod function defined in SCTP
