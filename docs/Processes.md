@@ -750,31 +750,6 @@ q ${TORQHOME}/torq.q -proctype segmentedtickerplant -procname stp1 -load ${KDBCO
 
 ### Subscriptions
 
-Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published. 
-
-Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
-
-```q
-// Subscribe to everything
-handletoSTP(`.u.sub;`;`)
-
-// Subscribe GOOG and AAPL symbols in the trade table
-handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
-
-// Subscribe to all tables but with custom conditions
-handletoSTP(`.u.sub;`;conditions)
-...
-q) show conditions
-tabname| filts            columns
--------| --------------------------------
-trade  | `                `time`sym`price
-quote  | `bid<200`bid>100 `
-```
-
-Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
-
-The subscription logic is contained in the `pubsub.q` file. This file replaces much of the logic contained within `u.q` and utilises the `.stpps` namespace. When a process subscribes its handle is added to one of two dictionaries, `.stpps.subrequestall` or `.stpps.subrequestfiltered` depending on the subscription type. The logic which publishes updates to subscribers also sits in this file, and wherever possible the process will use a broadcast publish.
-
 It is easy for a subscriber to subscribe to a STP process. It follows the same process as subscribing to a TP through `.u.sub` however some changes have been made. Each subscriber connecting to the STP needs to be updated to search for the STP instead of the original tickerplant. This is done using `.servers.CONNECTIONS` in the settings config file for that process, for example:
 
 ```
@@ -790,6 +765,8 @@ The STP requires these functions to be defined in subscriber processes (the defi
   Called at the end of day for all modes. Takes 2 arguments date (current date) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
 
 The data dictionary contains the STP name and type, list of subscribable tables in STP and the time at which the message is sent from the STP. In order to add further information to data, simply add additional elements in the endofdaydata function defined in code/segmentedtickerplant/stplg.q script.
+
+For more information on subscriptions, see the documentation on the pubsub.q utility script.
 
 ### Error Trapping
 
@@ -861,29 +838,29 @@ Once this is done, simply update `.stplg.batchmode` with the name of the new mod
 
 A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP (normal TorQ tickerplant) and a kdb+ tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes.
 
-These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results below show the median and average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below. It should be noted that the message rates achieved will be dependent on hardware configuration. The purpose of the testing below is to demonstrate the relative performance between the different implementations and batching modes.
+These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results below show the average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below. It should be noted that the message rates achieved will be dependent on hardware configuration. The purpose of the testing below is to demonstrate the relative performance between the different implementations and batching modes.
 
-| Process | Batch Mode    | Median mps |
-| ------- | ------------- | :--------: |
-| STP     | Default batch |    103k    |
-| STP     | Immediate     |    93k     |
-| STP     | Memory batch  |    181k    |
-| TorQ TP | Immediate     |    80k     |
-| TorQ TP | Batch         |    110k    |
-| Tick    | Immediate     |    87k     |
-| Tick    | Batch         |    109k    |
+| Process | Batch Mode    | Average mps |
+| ------- | ------------- | :---------: |
+| STP     | Default batch |    103k     |
+| STP     | Immediate     |     89k     |
+| STP     | Memory batch  |    174k     |
+| TorQ TP | Immediate     |     75k     |
+| TorQ TP | Batch         |     98k     |
+| Tick    | Immediate     |     87k     |
+| Tick    | Batch         |    103k     |
 
 And the following are for batched updates (note that each message contains 100 ticks):
 
-| Process | Batching Mode | Median mps |
-| ------- | ------------- | :--------: |
-| STP     | Default batch |    20k     |
-| STP     | Immediate     |    19k     |
-| STP     | Memory batch  |    21k     |
-| TorQ TP | Immediate     |    19k     |
-| TorQ TP | Batch         |    19k     |
-| Tick    | Immediate     |    20k     |
-| Tick    | Batch         |    20k     |
+| Process | Batching Mode | Average mps |
+| ------- | ------------- | :---------: |
+| STP     | Default batch |     19k     |
+| STP     | Immediate     |     18k     |
+| STP     | Memory batch  |     21k     |
+| TorQ TP | Immediate     |     18k     |
+| TorQ TP | Batch         |     18k     |
+| Tick    | Immediate     |     17k     |
+| Tick    | Batch         |     19k     |
 
 The first obvious thing to be noticed is that batching the updates results in greater performance as there are fewer IPC operations and disk writes, and while some insight can be gleaned from these figures the single update results provide a better comparison of the actual process code performance. The memory batching mode is the clear leader in terms of raw performance as it does not write to disk on every update. The three 'default' batching modes are roughly equivalent in terms of performance and all have similar functionality. The three Immediate modes bring up the rear in terms of raw throughput, though the STP version is the performance leader here as it stores table column names in a dictionary which can be easily accessed rather than having to read the columns of a table in the root namespace.
 
