@@ -6,7 +6,7 @@ source $KDBTESTS/flagparse.sh
 # Path to test directory
 testpath=${KDBTESTS}/stp/exit
 
-${TORQHOME}/torq.sh start discovery1 stp1 -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh start discovery1 stpex -csv ${testpath}/process.csv
 
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
@@ -17,4 +17,4 @@ ${TORQHOME}/torq.sh start discovery1 stp1 -csv ${testpath}/process.csv
   -runtime $run \
   $debug $stop $write $quiet
 
-${TORQHOME}/torq.sh stop discovery1 stp1 -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh stop discovery1 stpex -csv ${testpath}/process.csv

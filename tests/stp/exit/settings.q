@@ -4,7 +4,7 @@
 
 // Paths to process CSV, strings to move the sub CSV around
 processcsv:getenv[`KDBTESTS],"/stp/exit/process.csv";
-tstlogs:"tstlogs";
+tstlogs:"stpex";
 tstlogsdir:hsym `$getenv[`KDBTPLOG],"/",tstlogs,"_",string .z.d;
 
 // Function projections (using functions from helperfunctions.q)

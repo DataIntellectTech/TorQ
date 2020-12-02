@@ -15,7 +15,7 @@
   // Initialise the feed and consumer processes and the tickerplants
   neg[.observer.feedhandle] @/: ((set;`.feed.bulkrows;.observer.bulkrows);(`.feed.init;mode;batch);(::));
   neg[.observer.conshandle] @/: ((set;`.consumer.bulkrows;.observer.bulkrows);(`.consumer.init;mode;batch);(::));
-  if[batch in `defaultbatch`memorybatch`immediate;neg[.observer.stphandle] @/: ((set;`.eodtime.dailyadj;0D00:00:00);(`init;batch);(::))];
+  if[batch in `defaultbatch`memorybatch`immediate;neg[.observer.stphandle] @/: ((set;`.eodtime.dailyadj;0D00:00:00);(`setup;batch);(::))];
   if[`vanillabatch~batch;.observer.tphandle(system;.observer.tpreset)];
   if[`tickbatch~batch;.observer.kxhandle(system;.observer.tickreset)];
   
