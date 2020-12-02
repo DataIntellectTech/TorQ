@@ -56,29 +56,28 @@ errparse:{.lg.e[`addfiltered;m:y," error: ",x];'m};
 // Parse columns and where clause from keyed table, spit out errors if any stage fails
 addfiltered:{[x;y]
   // Use dummy queries to produce where and column clauses
-  filters:raze $[all null f:y[x;`filters];();@[parse;"select from t where ",f;.stpps.errparse[;"Filter"]]] 2;
+  filters:$[all null f:y[x;`filters];();@[parse;"select from t where ",f;.stpps.errparse[;"Filter"]] 2];
   columns:last $[all null c:y[x;`columns];();@[parse;"select ",c," from t";.stpps.errparse[;"Column"]]];
 
   // Run these clauses in a test query, add to table if successful, throw error if not
-  .[?;(.stpps.schemas[x];filters;0b;columns);.stpps.errparse[;"Query"]];
+  @[eval;(?;.stpps.schemas[x];filters;0b;columns);.stpps.errparse[;"Query"]];
   `.stpps.subrequestfiltered upsert (x;.z.w;filters;columns);
  };
 
 // Add handle for subscriber using old API (filter is list of syms)
 selfiltered:{[x;y]
-  filts:enlist (in;`sym;enlist y);
-  .[?;(.stpps.schemas[x];filts;0b;());.stpps.errparse[;"Query"]];
+  filts:enlist enlist (in;`sym;enlist y);
+  @[eval;(?;.stpps.schemas[x];filts;0b;());.stpps.errparse[;"Query"]];
   `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
 // Publish table data
 pub:{[t;x]
-  if[count x;
-    if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
-    if[t in subrequestfiltered`tbl;
-      {[t;x]data:?[t;x`filts;0b;x`columns];neg[x`handle](`upd;t;data)}
-      [t;]each select handle,filts,columns from subrequestfiltered where tbl=t
-    ];
+  if[not count x;:()];
+  if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
+  if[t in subrequestfiltered`tbl;
+    {[t;x]data:?[t;x`filts;0b;x`columns];neg[x`handle](`upd;t;data)}
+    [t;]each select handle,filts,columns from subrequestfiltered where tbl=t
   ];
  };
 
@@ -112,7 +111,7 @@ attrstrip:{[t]
 
 // Set up table and schema information
 init:{[t]
-  if[count b:t where not t in tables[];{.lg.e[`psinit;"Table ",string[x]," does not exist"]} each b];
+  if[count b:t where not t in tables[];{.lg.e[`psinit;m:"Table ",string[x]," does not exist"];'m} each b];
   .stpps.t:t except b;
   .stpps.schemas:.stpps.t!value each .stpps.t;
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
@@ -142,16 +141,16 @@ init:{[t]
 .ps.init:.stpps.init;
 .ps.initialise:{.ps.init[tables[]];.ps.initialised:1b};
 
-// Allow a non-kdb+ subscriber to subscribe with strings for simple conditions - return string to subscriber
+// Allow a non-kdb+ subscriber to subscribe with strings for simple conditions - return table name and schema to subscriber
 .ps.subtable:{[tab;syms]
   .lg.o[`subtable;"Received a subscription to ",$[count tab;tab;"all tables"]," for ",$[count syms;syms;"all syms"]];
   val:.u.sub[`$tab;$[count syms;::;first] `$csv vs syms];
-  $[98h~type last val;"Subscription successful!";last val]
+  $[10h~type last val;'last val;val]
  };
 
-// Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return string to subscriber
+// Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return table name and schema to subscriber
 .ps.subtablefiltered:{[tab;filters;columns]
   .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for filters: ",filters," and columns: ",columns];
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
-  $[98h~type last val;"Subscription successful!";last val]
+  $[10h~type last val;'last val;val]
  };
