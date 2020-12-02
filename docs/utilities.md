@@ -652,7 +652,30 @@ There are two new functions which have been added that wrap `.u.sub` with the go
 - `.ps.subtable` - accepts two strings, a table and a comma-separated list of instruments respectively
 - `.ps.subtablefiltered` - accepts 3 strings representing a table, where clause and a list of columns
 
-For more information on subscriptions, see the documentation on the Segmented Tickerplant.
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.
+
+Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
+
+```q
+// Subscribe to everything
+handletoSTP(`.u.sub;`;`)
+
+// Subscribe GOOG and AAPL symbols in the trade table
+handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
+
+// Subscribe to all tables but with custom conditions
+handletoSTP(`.u.sub;`;conditions)
+...
+q) show conditions
+tabname| filts            columns
+-------| --------------------------------
+trade  | `                `time`sym`price
+quote  | `bid<200`bid>100 `
+```
+
+Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
+
+For more information on subscriptions, see the documentation on the segmented tickerplant process.
 
 <a name="kafka"></a>
 
