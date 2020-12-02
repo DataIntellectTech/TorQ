@@ -176,7 +176,7 @@ timeoutreset:{.rdb.timeout:system"T";system"T 0"};
 restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
-/- make sure that the process will make a connection to each of the tickerplant and hdb types
+/- make sure that the process will make a connection to each of the gateways and hdb types
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
 /-set the upd function in the top level namespace
