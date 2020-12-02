@@ -9,8 +9,8 @@
 hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types to look for and call in hdb reload
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
-nulltickerplant:@[value;`nulltickerplant;0b];               //allows rdb to start without connecting or subscribing to tickerplant
 gatewaytypes:@[value;`gatewaytypes;`gateway]                //list of gateway types
+connectonstart:@[value;`connectonstart;1b];                 //rdb connects to tickerplant as soon as it is started
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
@@ -177,7 +177,7 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
 /- make sure that the process will make a connection to each of the tickerplant and hdb types
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.tickerplanttypes,.rdb.gatewaytypes
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
 /-set the upd function in the top level namespace
 upd:.rdb.upd
@@ -191,17 +191,15 @@ reload:.rdb.reload
 /-load the sort csv
 .sort.getsortcsv[.rdb.sortcsv]
 
-if[.rdb.nulltickerplant;
-    // removes tp from connection list if in nulltickerplant mode
-    .servers.CONNECTIONS:.servers.CONNECTIONS except .rdb.tickerplanttypes;
-    .rdb.tplogdate:.z.d; // defines tplogdate for setpartition
-    ]
-
 .lg.o[`init;"searching for servers"];
 
-//check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.servers.CONNECTIONS;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[]; 
+// connects and subscribes to tickerplant only if connectonstart is true
+$[.rdb.connectonstart;
+ [.servers.CONNECTIONS,:.rdb.tickerplanttypes;
+ .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
+ .rdb.subscribe[];]; // defines tplogdate for setpartition
+ .rdb.tplogdate:.z.d;
+ ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
