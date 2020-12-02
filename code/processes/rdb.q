@@ -174,9 +174,9 @@ loadsubfilters:{[]
 	.rdb.subscribesyms:.sub.filterparams;}
 
 applyfilters:{[t;f]
-	filters:$[all null f[t]`filters;();parse each csv vs f[t]`filters];
-	columns:$[all null f[t]`columns;();c!c:parse each csv vs f[t]`columns];
-	@[`.;t;:;?[t;filters;0b;columns]];}
+	filters:$[all null w:f[t;`filters];();@[parse;"select from t where ",w] 2];
+  columns:last $[all null c:f[t;`columns];();@[parse;"select ",c," from t"]];
+	@[`.;t;:;eval(?;t;filters;0b;columns)];}
 
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}

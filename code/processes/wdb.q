@@ -515,7 +515,7 @@ getsortparams:{[]
 
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod."]};
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]

@@ -2,7 +2,6 @@
 
 \d .proc
 loadcommoncode:0b		// do not load common code
-tptype:`default
 
 logroll:0b			// do not roll logs
 // Configuration used by the usage functions - logging of client interaction
