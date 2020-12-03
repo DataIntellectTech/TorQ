@@ -158,12 +158,8 @@ exe:{v:$[(100<abs type first x);val;valp]x;
 
 qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
 
-isvar:{[f]
-  / if first element is not a symbol, not a var ref
-  if[-11h<>type f;:0b];
-  / if first element is symbol, check if it's a variable (type<100h) or named function
-  :$[99h<type get f;0b;1b];
- }
+/ check if arg is symbol, and if so if type is <100h i.e. variable
+isvar:{$[-11h<>type x;0b;100h>type get x]}
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
@@ -172,7 +168,7 @@ mainexpr:{[u;e;b;pr]
   / variable reference
   if[isvar f:first e;
     if[not achk[u;f;`read;pr]; $[b;'err[`selt][f]; :0b]];
-    $[b; :qexe $[f in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[f];e]; :1b];
+    :$[b;qexe $[f in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[f];e];1b];
   ];
   / named function calls
   if[-11h=type f;
