@@ -647,10 +647,32 @@ The following three functions are primarily associated with the pub/sub library:
 - `.ps.subscribe` - this wraps `.u.sub` and it receives subscription requests from other processes and populates subscription tables in memory
 - `.ps.publish` - this is a wrapper for `.stpps.pub` and it publishes data to subscribers using the information given on subscription
 
+For example:
+```q
+// Subscribe to all tables and symbols
+handletosubscriber(`.ps.subscribe;`;`)
+
+// Subscribe to all tables and subset of symbols
+handletosubscriber(`.ps.subscribe;`;`AAPL`GOOG)
+
+// Subscribe to Microsoft quotes only
+handletosubscriber(`.ps.subscribe;`quote;enlist `MSFT)
+```
+
 There are two new functions which have been added that wrap `.u.sub` with the goal of making it easier for non-kdb+ processes to subscribe using strings:
 
 - `.ps.subtable` - accepts two strings, a table and a comma-separated list of instruments respectively
 - `.ps.subtablefiltered` - accepts 3 strings representing a table, where clause and a list of columns
+
+For example:
+```q
+// Subscribe to Google and Apple trades
+handletoSTP(`.ps.subtable;"trade";"GOOG","AAPL")
+
+// Subscribe to time, sym and bid price data for quotes where bid > 50
+.ps.subtablefiltered["quote";"bid>50.0";"time,sym,bid"]
+```
+
 
 Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.
 
