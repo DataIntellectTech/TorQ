@@ -158,8 +158,8 @@ exe:{v:$[(100<abs type first x);val;valp]x;
 
 qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
 
-/ check if arg is symbol, and if so if type is <100h i.e. variable
-isvar:{$[-11h<>type x;0b;100h>type get x]}
+/ check if arg is symbol, and if so if type is <100h i.e. variable - if name invalid, return read error
+isvar:{$[-11h<>type x;0b;100h>type @[get;x;{[x;y]'err[`selt][x]}[x]]]}
 
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
