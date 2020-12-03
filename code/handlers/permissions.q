@@ -165,12 +165,10 @@ isvar:{[f]
   :$[99h<type get f;0b;1b];
  }
 
-enlistsyms:{[x]$[0h=t:type x;.z.s'[x];-11h=t;enlist x;x]}
-
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
   ie:e;
-  e:$[10=type e;parse e;enlistsyms e];
+  e:$[10=type e;parse e;e];
   / variable reference
   if[isvar f:first e;
     if[not achk[u;f;`read;pr]; $[b;'err[`selt][f]; :0b]];
