@@ -295,7 +295,7 @@ init:{[dbname]
   if[.sctp.chainedtp and not .sctp.loggingmode=`create; 
     `..loghandles set .stplg.t!(count .stplg.t)#(::);
     // only need to log errors if sctp is creating its own logs
-    `.stplg.badmsg set {[x;y;z]};
+    .stplg.badmsg:{[x;y;z]};
     ];
  };
 
@@ -305,9 +305,9 @@ init:{[dbname]
 .z.exit:{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
-  if[.sctp.loggingmode=`create; // only close logs if sctp is in create mode
-    .lg.o[`stpexit;"Closing off log files"];
-    .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
-    .stplg.closelog each .stpps.t;
-    ]
+  // exit before logs are touched if process is an sctp NOT in create mode
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
+  .lg.o[`stpexit;"Closing off log files"];
+  .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
+  .stplg.closelog each .stpps.t;
  }
