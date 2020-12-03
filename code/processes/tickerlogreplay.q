@@ -217,7 +217,9 @@ replaylog:{[logfile]
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we wont replay the last message correctly
- $[`stpmeta~`$-7#string logfile;.lg.o[`replay;"skipping meta table: ",string[logfile]];-11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile)];
+ $[`stpmeta~`$-7#string logfile;
+  :();
+  -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile)];
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
@@ -351,7 +353,7 @@ merge:{[dir;pt;tablename;mergelimits;h]
 
 if[.replay.autoreplay;
   // grab stp meta table before replaying logs if in segmentedmode
-  // TO DO - define meta table here for replay flexibility
+  stpmeta:([]seq:(), logname:(), start:(), end:(), tbls:(), msgcount:(), schema:(), additional:());
   .lg.o[`replay;"replay starting from script by default"];
   // expand stp log directories if using segmentedmode
   if[.replay.segmentedmode;.replay.logstoreplay:.replay.expandstplogs[.replay.logstoreplay]];
