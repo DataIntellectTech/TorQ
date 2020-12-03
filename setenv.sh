@@ -11,7 +11,6 @@ export TORQDATA=$dirpath                                                        
 export TORQAPPHOME=$dirpath
 
 export KDBLOG=${TORQDATA}/logs
-export KDBSTPLOG=${TORQDATA}/stplogs
 export KDBHTML=${TORQHOME}/html
 export KDBLIB=${TORQHOME}/lib
 export KDBCONFIG=${TORQHOME}/config

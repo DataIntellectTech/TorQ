@@ -35,6 +35,8 @@ subdetails:{[tabs;instruments]
 generateschemas:{
   .stpps.init[tables[] except `currlog];
   .stpps.attrstrip[.stpps.t];
+
+  // Table UPD functions attach the current timestamp by default, if STP is chained these do nothing
   $[.sctp.chainedtp;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{[x;y] x}),.stplg.updtab;
     .stplg.updtab:(.stpps.t!(count .stpps.t)#{(enlist(count first x)#y),x}),.stplg.updtab

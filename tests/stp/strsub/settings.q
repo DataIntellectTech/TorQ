@@ -15,4 +15,3 @@ simplesyms:"AMZN,MSFT";
 complexwhr:"sym in `GOOG`IBM,price>90";
 columnlist:"sym,price";
 badwhr:"sm in `GOOG`IBM,price>90";
-successmsg:"Subscription successful!";

@@ -11,8 +11,7 @@ customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for
 
 \d .proc
 
-loadprocesscode:1b        
-tptype:`segmented
+loadprocesscode:1b
 
 \d .eodtime
 

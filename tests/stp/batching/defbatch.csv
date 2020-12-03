@@ -2,7 +2,7 @@ action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.servers.startup[],1,,"Get connection management set up"
 before,0,0,q,rdbHandle:gethandle[`rdb1],1,,"Open handle to RDB"
 before,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to STP"
-before,0,0,q,stpHandle(`init;`defaultbatch),1,,"Set STP to defaultbatch mode"
+before,0,0,q,stpHandle(`setup;`defaultbatch),1,,"Set STP to defaultbatch mode"
 before,0,0,q,![-11;] each logs:last flip stpHandle".stplg.replaylog[`trade]",1,,"Replay logs"
 before,0,0,q,l1:count trade,1,,"Get initial trade logs count"
 before,0,0,q,delete from `trade,1,,"Clear local trade table"

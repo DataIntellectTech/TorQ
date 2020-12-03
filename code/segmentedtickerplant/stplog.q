@@ -20,39 +20,30 @@ createdld:{[name;date]
   ]
  };
 
-// Functions to generate log names in one of five modes ///////////////////////////////
+// Functions to generate log names in one of five modes
 
-logname:@[value;`.stplg.logname;enlist[`]!enlist ()];
+// Generate standardised timestamp string for log names
+gentimeformat:{(raze string "dv"$x) except ".:"};
 
-// Default stp mode is tabperiod
-// TP log rolled periodically (default 1 hr), 1 log per table
-logname[`tabperiod]:{[dir;tab;p]
-  ` sv hsym[dir],`$raze/[string (.proc.procname;"_";tab;"dv"$p)] except ".:"
- };
+// Tabperiod mode - TP log rolled periodically (default 1 hr), 1 log per table (default setting)
+.stplg.logname.tabperiod:{[dir;tab;p] ` sv (hsym dir;`$raze string (.proc.procname;"_";tab),.stplg.gentimeformat[p]) };
 
 // Standard TP mode - write all tables to single log, roll daily
-logname[`singular]:{[dir;tab;p]
-  ` sv(hsym dir;`$string[.proc.procname],"_",raze[string"dv"$p]except".:")
- };
+.stplg.logname.singular:{[dir;tab;p] ` sv (hsym dir;`$raze string .proc.procname,"_",.stplg.gentimeformat[p]) };
 
 // Periodic-only mode - write all tables to single log, roll periodically intraday
-logname[`periodic]:{[dir;tab;p]
-  ` sv hsym[dir],`$raze/[string (.proc.procname;"_periodic";"dv"$p)] except ".:"
- };
+.stplg.logname.periodic:{[dir;tab;p] ` sv (hsym dir;`$raze string .proc.procname,"_periodic",.stplg.gentimeformat[p]) };
 
 // Tabular-only mode - write tables to separate logs, roll daily
-logname[`tabular]:{[dir;tab;p]
-  ` sv hsym[dir],`$raze/[string (.proc.procname;"_";tab;"dv"$p)] except ".:"
- };
+.stplg.logname.tabular:{[dir;tab;p] ` sv (hsym dir;`$raze string (.proc.procname;"_";tab),.stplg.gentimeformat[p]) };
 
 // Custom mode - mixed periodic/tabular mode
 // Tables are defined as periodic, tabular, tabperiod or none in config file stpcustom.csv
 // Tables not specified in csv are not logged
-logname[`custom]:{[dir;tab;p]
-  logname[custommode tab][dir;tab;p]
- };
+.stplg.logname.custom:{[dir;tab;p] .stplg.logname[.stplg.custommode tab][dir;tab;p] };
 
-///////////////////////////////////////////////////////////////////////////////////////
+// If in error mode, create an error log name using .stplg.errorlogname
+.stplg.logname.error:{[dir;ename;p] ` sv (hsym dir;`$raze string (.proc.procname;"_";ename),.stplg.gentimeformat[p]) };
 
 // Update and timer functions in three batch modes ////////////////////////////////////
 // preserve pre-existing definitions
@@ -162,8 +153,7 @@ openlog:{[multilog;dir;tab;p]
 
 // Error log for failed updates in error mode
 openlogerr:{[dir]
-  lname:.[{hsym`$string[x],"/",string[y],(raze string"dv"$(.z.p+.eodtime.dailyadj)) except".:"};(dir;`$"_" sv string .proc.procname,errorlogname);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
-  // lname:`$"_" sv string .proc.procname,lname;
+  lname:.[.stplg.logname.error;(dir;.stplg.errorlogname;.z.p+.eodtime.dailyadj);{.lg.e[`openlogerr;"failed to make error log: ",x]}];
   if[not type key lname;.[lname;();:;()]];
   h:@[{hopen x};lname;{.lg.e[`openlogerr;"failed to open handle to error log with error: ",x]}];
   `..currlog upsert (errorlogname;lname;h);
@@ -194,9 +184,8 @@ rolllog:{[multilog;dir;tabs;p]
   .stpm.updmeta[multilog][`open;tabs;p];
  };
 
-// creates dictionary of process data to be used at endofday/endofperiod
-endofdaydatadef:{`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)};
-endofdaydata:@[value;`.stplg.endofdaydata;{.stplg.endofdaydatadef}];
+// Creates dictionary of process data to be used at endofday/endofperiod - configurable but default provided
+endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)} }];
 
 // endofperiod function defined in SCTP
 // passes on eop messages to subscribers and rolls logs
@@ -234,7 +223,7 @@ endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
   .stpps.end[date;data];  // sends endofday message to subscribers
-  dayrollover[data];
+  if[.sctp.loggingmode=`create;dayrollover[data]] // logs only rolled if in create mode
   }
 
 // STP runs function to send out eod messages and roll logs
@@ -290,6 +279,13 @@ init:{[dbname]
     // add the info to the meta table
     .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
     ]
+
+  // set log handles to null in sctp if not in create mode
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create; 
+    `..loghandles set .stplg.t!(count .stplg.t)#(::);
+    // only need to log errors if sctp is creating its own logs
+    .stplg.badmsg:{[x;y;z]};
+    ];
  };
 
 \d .
@@ -297,7 +293,10 @@ init:{[dbname]
 // Close logs on clean exit
 .z.exit:{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
-  .lg.o[`stpexit;"Exiting process and closing off log files."];
+  .lg.o[`stpexit;"Exiting process"];
+  // exit before logs are touched if process is an sctp NOT in create mode
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
+  .lg.o[`stpexit;"Closing off log files"];
   .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
   .stplg.closelog each .stpps.t;
  }
