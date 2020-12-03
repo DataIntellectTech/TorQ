@@ -35,3 +35,16 @@ run,,,q,.pm.grantfunction[.pm.ALL;`role1;{1b}],,,grant all function permission i
 run,,,q,y:1 2 3,,,variable to be counted
 true,,,q,3=.pm.expr[`tom;"count y"],,,should be able to count variable
 true,,,q,3=.pm.expr[`tom;"count 1 2 3"],,,should be able to count non-variable
+
+comment,,,,,,,test indexing into allowed/disallowed variables
+run,,,q,d:`a`b`c!(1 2 3;4 5 6;7 8 9);l:`a`b`c,,,set up a dictionary and list for tests
+run,,,q,.pm.grantaccess[;`group1;`read]'[`d`l],,,grant group1 access to test variables
+true,,,q,1 2 3~.pm.expr[`tom;"d`a"],,,test dictionary lookup
+true,,,q,`a=.pm.expr[`tom;"l 0"],,,test list index
+fail,,,q,.pm.expr[`harry;"d`a"],,,harry doesn't have access to d
+fail,,,q,.pm.expr[`harry;"l 0"],,,harry doesn't have access to l
+
+comment,,,,,,,test expressions where first item is lambda from .q
+true,,,q,(`a`b`c!1 4 7)~.pm.expr[`tom;"first each d"],,,test expression with each
+fail,,,q,.pm.expr[`harry;"first each d"],,,harry doesn't have access to d
+
