@@ -43,6 +43,11 @@ true,,,q,1 2 3~.pm.expr[`tom;"d`a"],,,test dictionary lookup
 true,,,q,`a=.pm.expr[`tom;"l 0"],,,test list index
 fail,,,q,.pm.expr[`harry;"d`a"],,,harry doesn't have access to d
 fail,,,q,.pm.expr[`harry;"l 0"],,,harry doesn't have access to l
+run,,,q,f:{1+x},,,define function for testing named function call
+true,,,q,2=.pm.expr[`tom;"f 1"],,,tom should have access to f
+true,,,q,2=.pm.expr[`tom;(`f;1)],,,tom should have access to f
+fail,,,q,2=.pm.expr[`harry;"f 1"],,,harry should not have access to f
+fail,,,q,2=.pm.expr[`harry;(`f;1)],,,harry should not have access to f
 
 comment,,,,,,,test expressions where first item is lambda from .q
 true,,,q,(`a`b`c!1 4 7)~.pm.expr[`tom;"first each d"],,,test expression with each
