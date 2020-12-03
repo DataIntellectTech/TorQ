@@ -50,6 +50,6 @@ init:{
 
 // Extract data from incoming table as a list
 upd:{[t;x]
-  x:flip value each x;
+  x:value flip x;
   .u.upd[t;x]
  }

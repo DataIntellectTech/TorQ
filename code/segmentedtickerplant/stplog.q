@@ -234,7 +234,7 @@ endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
   .stpps.end[date;data];  // sends endofday message to subscribers
-  dayrollover[data];
+  if[.sctp.loggingmode=`create;dayrollover[data]] // logs only rolled if in create mode
   }
 
 // STP runs function to send out eod messages and roll logs
@@ -290,6 +290,13 @@ init:{[dbname]
     // add the info to the meta table
     .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
     ]
+
+  // set log handles to null in sctp if not in create mode
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create; 
+    `..loghandles set .stplg.t!(count .stplg.t)#(::);
+    // only need to log errors if sctp is creating its own logs
+    `.stplg.badmsg set {[x;y;z]};
+    ];
  };
 
 \d .
@@ -297,7 +304,10 @@ init:{[dbname]
 // Close logs on clean exit
 .z.exit:{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
-  .lg.o[`stpexit;"Exiting process and closing off log files."];
-  .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
-  .stplg.closelog each .stpps.t;
+  .lg.o[`stpexit;"Exiting process"];
+  if[.sctp.loggingmode=`create; // only close logs if sctp is in create mode
+    .lg.o[`stpexit;"Closing off log files"];
+    .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
+    .stplg.closelog each .stpps.t;
+    ]
  }
