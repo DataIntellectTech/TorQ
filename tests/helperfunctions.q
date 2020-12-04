@@ -8,10 +8,6 @@ deadproccheck:{[proctype;procname]
 	not "q" in last each pidnamepairs
 	};
 
-opentorqhandle:{[port]
-	hopen `$"::",port,":admin:admin"	
-	};
-
 // Kill process dead with -9
 kill9proc:{[proc] a:"q" in' b:@[system;"pgrep -lf ",proc," -u $USER";" "];system "kill -9 ",first " " vs first b where a};
 
