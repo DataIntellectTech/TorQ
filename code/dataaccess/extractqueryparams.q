@@ -1,7 +1,7 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();();());
+queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();());
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
@@ -16,7 +16,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractfilters[inputparams;queryparams];
   queryparams:extractfreeformwhere[inputparams;queryparams];
   queryparams:extractfreeformby[inputparams;queryparams];
-  queryparams:extractfreeformselect[inputparams;queryparams];
+  queryparams:extractfreeformcolumn[inputparams;queryparams];
   queryparams:jointableproperties[inputparams;queryparams];
   :queryparams;
  };
@@ -24,14 +24,12 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
-  getpartitionrangefunc:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
+  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];  
   timecolumn:inputparams`timecolumn;
-  primarytimecolumn:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
-  partitionfield:.dataaccess.gettableproperty[inputparams;`partitionfield];
+  partfield:.dataaccess.gettableproperty[inputparams;`partfield];
   timerange:inputparams[`metainfo]`starttime`endtime;
-  partitionrange:getpartitionrangefunc[timecolumn;primarytimecolumn;partitionfield;timerange];
-  partitionfilter:exec enlist(within;partitionfield;partitionrange)from inputparams;
-  :@[queryparams;`partitionfilter;:;partitionfilter];
+  partfilter:exec enlist(within;partfield;timerange)from inputparams;
+  :@[queryparams;`partitionfilter;:;partfilter];
  };
 
 extractattributecolumn:{[inputparams;queryparams]
@@ -43,7 +41,7 @@ extracttimefilter:{[inputparams;queryparams]
   procmeta:inputparams`metainfo;
   timecolumn:inputparams`timecolumn;
   addkeys:`proctype`validrange`timefilter;
-  :queryparams,exec dddkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procmeta;
+  :queryparams,exec addkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procmeta;
  };
 
 extractinstrumentfilter:{[inputparams;queryparams]
@@ -110,10 +108,10 @@ extractfreeformby:{[inputparams;queryparams]
   :@[queryparams;`freeformby;:;byclause];
  };
 
-extractfreeformselect:{[inputparams;queryparams]
-  if[not`freeformselect in key inputparams;:queryparams];
-  selectclause:parse["select ",inputparams[`freeformselect]," from x"][4];
-  :@[queryparams;`freeformselect;:;selectclause];
+extractfreeformcolumn:{[inputparams;queryparams]
+  if[not`freeformcolumn in key inputparams;:queryparams];
+  selectclause:parse["select ",inputparams[`freeformcolumn]," from x"][4];
+  :@[queryparams;`freeformcolumn;:;selectclause];
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};

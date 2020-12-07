@@ -12,7 +12,7 @@ validtablepropertiespath:{[].dataaccess.tablepropertiespath~key .dataaccess.tabl
 checkinputspath:first .proc.getconfigfile"checkinputs.csv";
 
 // instantiate table for holding table metas of current proccess
-metainfo:([tablename:`$()]partfield:`$();metas:`$();proctype:`$());
+metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
 
 //- init function takes:
 //- (i) tablepropertiespath - either from a valid -dataaccess path from cmd line, or passed explicitly
@@ -33,10 +33,18 @@ init:{[tablepropertiespath]
   .lg.o[`.dataaccess.init;"running .dataaccess.init - finished"];
  };
 
+connectcustom:{[f;connectiontab]
+  @[f;connectiontab;()];
+  @[.dataaccess.init;.dataaccess.tablepropertiespath;()];
+ }@[value;`.servers.connectcustom;{{[x]}}]
+
 \d .
 
-// set table properties path
-.dataaccess.settablepropertiespath[];
-
-// initialize dataaccess code
-.dataaccess.init .dataaccess.tablepropertiespath;
+if[.proc.proctype in `rdb`hdb;
+  // set table properties path
+  .dataaccess.settablepropertiespath[];
+  // initialize dataaccess code
+  .dataaccess.init .dataaccess.tablepropertiespath;
+  // 
+  if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
+  ];

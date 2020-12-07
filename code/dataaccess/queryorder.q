@@ -3,14 +3,12 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-  query:([]proctype:`$();query:());
-  if[queryparams`hdbvalidrange;query,:getprocqueryorder[queryparams]];
-  if[queryparams`rdbvalidrange;query,:getprocqueryorder[@[queryparams;`partitionfilter;:;()];]];
-  :query;
+  if[`rdb~queryparams`proctype;:getprocqueryorder[queryparams]];
+  if[`hdb~queryparams`proctype;:getprocqueryorder[@[queryparams;`partitionfilter;:;()];]];
  };
 
 getprocqueryorder:{[queryparams]
-    :`proctype`query!(queryparams`proctype;enlist[?],(gettable;getwhere;getby;getselect)\:queryparams);
+    :enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
  };
 
 gettable:{[queryparams]queryparams`tablename};
@@ -40,7 +38,7 @@ getby:{[queryparams]
   :byclause;
  };
 
-getselect:{[queryparams] extractkeys[queryparams;`columns`aggregations`freeformselect]};
+getselect:{[queryparams] extractkeys[queryparams;`columns`aggregations`freeformcolumn]};
 
 extractkeys:{[queryparams;k]
   k:k inter key queryparams;

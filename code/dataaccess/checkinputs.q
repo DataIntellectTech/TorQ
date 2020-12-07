@@ -118,11 +118,11 @@ checktimeorder:{[dict;parameter]
 
 splitinputtime:{[dict]
   rollovertime:.dataaccess.gettableproperty[dict;`getrollover][];
-  if[`hdb~dict[`metainfo;proctype];  
-    update metainfo:.checkinputs.extimehdb[metainfo;starttime;endtime;rollovertime-1]from dict;
+  if[`hdb~dict[`metainfo;`proctype];  
+    dict:update metainfo:.checkinputs.extimehdb[metainfo;starttime;endtime;rollovertime-1]from dict;
   ];
-  if[`rdb~dict[`metainfo;proctype];
-    update metainfo:.checkinputs.extimerdb[metainfo;starttime;endtime;rollovertime]from dict;
+  if[`rdb~dict[`metainfo;`proctype];
+    dict:update metainfo:.checkinputs.extimerdb[metainfo;starttime;endtime;rollovertime]from dict;
   ];  
   :dict;
  };

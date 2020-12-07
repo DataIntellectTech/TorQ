@@ -1,7 +1,7 @@
 \d .dataaccess
 
 //- utils for reading in config
-readtableproperties:{[tablepropertiepath] `tablename xkey readcsv[tablepropertiepath;"sssssssss"]};
+readtableproperties:{[tablepropertiepath] `tablename`proctype xkey readcsv[tablepropertiepath;"ssssssss"]};
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
 
 readcsv:{[path;types]
@@ -43,11 +43,10 @@ formatstring:{[str;params]
 
 //- join table properties for a given table onto input params
 jointableproperties:{[inputparams]
-  tableproperties:.dataaccess.tablepropertiesconfig inputparams`tablename;
+  tableproperties:.dataaccess.tablepropertiesconfig (inputparams`tablename;.proc.proctype);
   metainfo:.dataaccess.metainfo inputparams`tablename;
-  //inputparams[`hdbparams`rdbparams]:metainfo`hdbparams`rdbparams;
-  inputparams[`metainfo]:metainfo
-  inputparams[`tableproperties]:tableproperties,enlist[`partitionfield]#metainfo;
+  inputparams[`metainfo]:metainfo;
+  inputparams[`tableproperties]:tableproperties,enlist[`partfield]#metainfo;
   :.[inputparams;(`tableproperties;`getrollover`getpartitionrange);.Q.dd[`.dataaccess]];
  };
 
