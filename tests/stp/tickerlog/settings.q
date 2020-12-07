@@ -17,8 +17,7 @@ resplay:{[logfile]
   .replay.clean:0b;
   .replay.segmentedmode:1b;
   .replay.tplogfile:logfile;
-  .replay.logstoreplay:.replay.expandstplogs[.replay.tplogfile];
-  .replay.replaylog each .replay.logstoreplay;
+  .replay.initandrun[];
  };
 
 // Reset to old TP mode and only replay quote table logs
@@ -27,6 +26,12 @@ oldify:{[logfile]
   .replay.tablelist:`quote;
   .replay.tablestoreplay:`quote,();
   .replay.tplogfile:logfile;
-  .replay.logstoreplay:enlist hsym logfile;
-  .replay.replaylog each .replay.logstoreplay;
+  .replay.initandrun[];
+ };
+
+// Change meta table lognames to match local testing setup
+localise:{[logpath]
+  metatable:get tabpath:.Q.dd[logpath;`stpmeta];
+  logpaths:.Q.dd[logpath;] each `$last each exec "/" vs' string logname from metatable;
+  tabpath set update logname:logpaths from metatable;
  };

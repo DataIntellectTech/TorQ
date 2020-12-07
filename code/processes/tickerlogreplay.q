@@ -99,29 +99,7 @@ if[partandmerge and sortafterreplay;(sortafterreplay:0b; .lg.o[`replayinit;"Sett
 @[system;"l ",string .replay.schemafile;{.err.ex[`replayinit;"failed to load replay file ",(string x)," - ",y;2]}[.replay.schemafile]]
 \d .replay
 
-// reset the table list if we are to replay all tables
-tablestoreplay:$[tablelist~enlist`all; tables[`.]; tablelist,()]
-.lg.o[`replayinit;"table list is set to "," " sv string tablestoreplay];
-
 .lg.o[`replayinit;"hdb directory is set to ",string hdbdir:hsym hdbdir];
-
-// get the list of log files to replay
-// if segmentedmode is on, then logstoreplay will be a single logfile directory for a single date partition if -tplogfile is set
-// if -tplogdir is used, it will be a list of log file date partitions to be replayed contained in the stplogs directory
-logstoreplay:$[not null tplogfile; 
-		[if[()~key hsym tplogfile; .err.ex[`replayinit;"specified tplogfile ",(string tplogfile)," does not exist";3]];
-		 enlist hsym tplogfile]; 
-		[.lg.o[`replayinit;"reading log files from directory ",string tplogdir];
-		 if[()~key hsym tplogdir; .err.ex[`replayinit;"specified tplogdir ",(string tplogdir)," does not exist";4]];
-		 raze ` sv' tplogdir,/:key tplogdir:hsym tplogdir]];
-
-// check if at least one log file exists in at least one stp log directory if in segmentedmode
-// similar check for using regular tp
-$[segmentedmode;
-  if[not any 0<count@'key each logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";1]];
-  if[0=count logstoreplay;.err.ex[`replayinit;"failed to find any tickerplant logs to replay";5]]];
-  .lg.o[`replayinit;"tp logs to replay are "," " sv string logstoreplay]
-
 
 // the path to the table to save
 pathtotable:{[h;p;t] `$(string .Q.par[h;partitiontype$p;t]),"/"}
@@ -208,18 +186,10 @@ replaylog:{[logfile]
          @[`.;`upd;:;.replay.initialupd]];
 	@[`.;`upd;:;.replay.realupd]];
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
- // extract date from timestamp if stp, extract date from date if tp
- .replay.replaydate:"D"$$[segmentedmode;-6_-14#;-10#]string logfile;
- if[ .replay.clean and (`$st:string .replay.replaydate) in key hdbdir;
-    .lg.o[`replay;"HDB directory already contains ",st," partition. Deleting from the HDB directory"];
-    .os.deldir .os.pth[.Q.par[hdbdir;.replay.replaydate;`]]; // delete the current dates HDB directory before performing replay
-  ];
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
- // when we do the replay, need to move the indexing, otherwise we wont replay the last message correctly
- $[`stpmeta~`$-7#string logfile;
-  :();
-  -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile)];
+ // when we do the replay, need to move the indexing, otherwise we won't replay the last message correctly
+  -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile);
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
@@ -234,7 +204,15 @@ replaylog:{[logfile]
    .Q.hdpf[`::;hdbdir;partitiontype$.replay.replaydate;`sym]];
   // if not in basic mode, then we need to finish off the replay  
   finishreplay[hdbdir;.replay.replaydate;tempdir]];
-  if[gc;.gc.run[]];}
+  if[gc;.gc.run[]];
+ }
+
+// If replay date in HDB, delete tables/partition from the HDB so no data is duplicated
+cleanhdb:{[dt]
+  if[not (`$string dt) in key .replay.hdbdir;:()];
+  delpaths:.os.pth each .Q.par[.replay.hdbdir;dt;] each $[`all~first .replay.tablelist;enlist `;.replay.tablestoreplay];
+  {.lg.o[`cleanhdb;"Deleting ",x," from HDB."];.os.deldir x} each delpaths;
+ };
 
 // upd functions down here
 realupd:{[f;t;x] 
@@ -345,20 +323,52 @@ merge:{[dir;pt;tablename;mergelimits;h]
  if[gc;.gc.run[]];
  };
 
+// Get all logs that need to be replayed
+getlogs:{
+  if[all null (.replay.tplogfile;.replay.tplogdir);.err.ex[`getlogs;"No log file or directory given."];1];
+  
+  // If in segmented mode, grab meta table and grab log file names from there, return early
+  if[.replay.segmentedmode;
+    metatable:get .Q.dd[hsym first .replay.tplogfile;`stpmeta];
+    :exec distinct logname from metatable where any each tbls in .replay.tablestoreplay;
+   ];
 
-\d .
-//load the sort csv
-.sort.getsortcsv[.replay.sortcsv]
+  // Use tplogfile/dir to return log names
+  $[not null .replay.tplogfile;
+    $[()~key hsym f:.replay.tplogfile;
+      .err.ex[`replayinit;"specified tplogfile ",string[f]," does not exist";2];
+      enlist hsym .replay.tplogfile
+     ];
+    $[()~key hsym d:.replay.tplogdir;
+      .err.ex[`replayinit;"specified tplogfiles ",string[d]," do not exist";3];
+      raze ` sv' tplogdir,/:key tplogdir:hsym .replay.tplogdir
+     ]
+   ]
+ };
 
+// Set up log replay list and clean HDB if necessary, kick off replay
+initandrun:{
+  .lg.o[`initandrun;"Initialising and beginning replay"];
+  .replay.tablestoreplay:$[`all~first .replay.tablelist;tables[];.replay.tablelist,()];
+  .replay.logstoreplay:$[count f:.replay.getlogs[];f;.err.ex[`initandrun;"No log files found";4]];
+  .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];
 
-if[.replay.autoreplay;
-  // grab stp meta table before replaying logs if in segmentedmode
-  stpmeta:([]seq:(), logname:(), start:(), end:(), tbls:(), msgcount:(), schema:(), additional:());
-  .lg.o[`replay;"replay starting from script by default"];
-  // expand stp log directories if using segmentedmode
-  if[.replay.segmentedmode;.replay.logstoreplay:.replay.expandstplogs[.replay.logstoreplay]];
+  // If all log files have the same date, set as a variable, error out if not
+  $[all 0=1_deltas l:"D"$$[.replay.segmentedmode;-6_-14#;-10#] each string .replay.logstoreplay;
+    .replay.replaydate:first l;
+    [.lg.o[`replay;m:"Cannot replay logs from different dates!"];'m]
+   ];
+
+  // Delete HDB data if applicable and replay logs, optionally exit process
+  if[.replay.clean;.replay.cleanhdb .replay.replaydate];
   .replay.replaylog each .replay.logstoreplay;
   .lg.o[`replay;"replay complete"];
-  if[.replay.exitwhencomplete; exit 0];
-  ];
+  if[.replay.exitwhencomplete;exit 0];
+ };
+
+\d .
+
+// Load the sort csv and kick off replay if auto-running
+.sort.getsortcsv[.replay.sortcsv]
+if[.replay.autoreplay;.replay.initandrun[]];
 
