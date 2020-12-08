@@ -1,0 +1,890 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Testing - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#unit-testing-in-torq" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Testing
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../cheatsheet/" title="Cheat Sheat" class="md-nav__link">
+      Cheat Sheat
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Testing
+      </label>
+    
+    <a href="./" title="Testing" class="md-nav__link md-nav__link--active">
+      Testing
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-basics" class="md-nav__link">
+    Test Basics
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-testing-wdb-subscription-tests" class="md-nav__link">
+    Integration Testing: WDB Subscription Tests
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-functionality-to-the-run-script" class="md-nav__link">
+    Adding functionality to the run script
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-multiple-test-sets" class="md-nav__link">
+    Running Multiple Test Sets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-tests" class="md-nav__link">
+    Debugging Tests
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-on-best-practice" class="md-nav__link">
+    Notes on Best Practice
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-basics" class="md-nav__link">
+    Test Basics
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-testing-wdb-subscription-tests" class="md-nav__link">
+    Integration Testing: WDB Subscription Tests
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-functionality-to-the-run-script" class="md-nav__link">
+    Adding functionality to the run script
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-multiple-test-sets" class="md-nav__link">
+    Running Multiple Test Sets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging-tests" class="md-nav__link">
+    Debugging Tests
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes-on-best-practice" class="md-nav__link">
+    Notes on Best Practice
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/unittesting.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="unit-testing-in-torq">Unit Testing in TorQ</h1>
+<h3 id="introduction">Introduction</h3>
+<p>Unit testing is a software validation methodology where individual modules or 'units' of source code are tested to determine whether they work as intended. TorQ's unit testing framework has been designed to be user-friendly and includes lots of useful features such as debugging and integration testing. We shall see that, using this framework, it is straightforward to test both small units of code as well as larger pieces of application functionality.</p>
+<h3 id="test-basics">Test Basics</h3>
+<p><strong>My First Test</strong></p>
+<p>Tests are written in the style of Kx's <a href="https://code.kx.com/q/kb/unit-tests/">k4unit</a>, where tests are written in CSV files and loaded into a Q process along with the testing code and are run line by line, with the results being stored in a table. In order to write and run a basic test, in a new folder create a CSV file with some basic tests in it, like the following:</p>
+<pre><code>action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,,this will be ignored,1,,&quot;&quot;
+before,0,0,q,aa:22,1,,&quot;This sets a variable before the tests begin&quot;
+true,0,0,q,2=sum 1 1,1,,&quot;A basic arithmetic check&quot;
+fail,0,0,q,2=`aa,1,,&quot;This ought to fail&quot;
+after,0,0,q,bb:33,1,,&quot;This code executes after the tests have run&quot;
+</code></pre>
+
+<p>Then use the <code>torq.q</code> script to start up a TorQ process with the test flag pointing to the directory where the CSV is written and a debug flag so that the process outputs its logs into the prompt and stays alive:</p>
+<pre><code class="shell">$ q ${TORQHOME}/torq.q -proctype test -procname test1 -test /path/to/my/tests -debug
+</code></pre>
+
+<p>This will automatically load in the test code and all CSVs in that directory into a test TorQ process and run the tests in those files, then output the results to the screen.</p>
+<p><strong>Simple RDB Test</strong></p>
+<p>A similar scenario is when the test code is loaded into a 'production' TorQ process, ie. an RDB or a tickerplant, in order to test the functioning of that process. A simple RDB example can be seen here:</p>
+<pre><code>action,ms,bytes,lang,code,repeat,minver,comment
+true,0,0,q,`segmentedtickerplant~.rdb.tickerplanttypes,1,,&quot;Check the TP type&quot;
+true,0,0,q,`~.rdb.subscribeto,1,,&quot;Check RDB is subscribed to null symbol (all tables)&quot;
+true,0,0,q,0~count heartbeat,1,,&quot;Check heartheat table is empty&quot;
+run,0,0,q,.rdb.upd[`heartbeat;(.z.p;`test;`rdb1;1;1i;`testhost;1i)],1,,&quot;Call RDB UPD function&quot;
+true,0,0,q,1~count heartbeat,1,,&quot;Check that a row has been added to the heartbeat table&quot;
+</code></pre>
+
+<p>These tests simply check that certain process variables have been set properly and test the UPD function, and these are triggered similarly to the previous set, except that an RDB process is used to load in the tests rather than a 'blank' test process. Here, the <code>-proctype</code> is an RDB, which loads in the code in the <code>${KDBCODE}/rdb/</code> folder as well as any common code, so that the process logic can be tested. The <code>procname</code> can be anything you want:</p>
+<pre><code class="shell">$ q ${TORQHOME}/torq.q -proctype rdb -procname rdb1 -test /path/to/my/tests -debug
+</code></pre>
+
+<h3 id="integration-testing-wdb-subscription-tests">Integration Testing: WDB Subscription Tests</h3>
+<p>Once the basic concepts from before have been understood it is possible to generate much more complex testing scenarios. Often it will be necessary to test interactions between different processes, in which case you will need more than just the one testing process. In this example test we are examining the interaction between a Segmented Tickerplant (STP) and three WDBs, one of which is subscribed to everything, one to a subset of syms and the other to a subset of tables. In order to facilitate this, we need to make some additions to our test directory. As well as the CSVs containing the tests themselves we now add three more files: <code>process.csv</code>, <code>run.sh</code> and <code>settings.q</code>, and we shall examine these in more detail.</p>
+<p><strong>process.csv</strong></p>
+<p>An easy way to spin up multiple custom processes is to pass a custom version of <code>process.csv</code> into the TorQ start script. Our file will contain a discovery process, three WDBs and an STP and can be seen here:</p>
+<pre><code>host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,wdb,wdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q,1,-.wdb.tickerplanttypes segmentedtickerplant,q
+localhost,{KDBBASEPORT}+102,wdb,wdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/wdb.q,1,-.wdb.tickerplanttypes segmentedtickerplant -.wdb.subsyms GOOG,q
+localhost,{KDBBASEPORT}+103,wdb,wdbtabfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/wdb.q,1,-.wdb.tickerplanttypes segmentedtickerplant -.wdb.subtabs quote,q
+localhost,{KDBBASEPORT}+104,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q,q
+</code></pre>
+
+<p>As we can see here, three WDBs are being started up but with different parameters in the 'extras' column, meaning they will have different subscription behaviour. </p>
+<p><strong>run.sh</strong></p>
+<p>Since we need to run multiple shell commands to bring up all the processes and run the tests, it makes sense to move them to a file:</p>
+<pre><code class="sh">#!/bin/bash
+
+# Path to test directory
+testpath=${KDBTESTS}/demo
+
+# Start procs
+${TORQHOME}/torq.sh start all -csv ${testpath}/process.csv
+
+# Start test proc
+/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+  -proctype test -procname test1 \
+  -test ${testpath} \
+  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
+  -procfile ${testpath}/process.csv -debug
+
+# Shut down procs
+${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv
+</code></pre>
+
+<p>The first piece of code in this script simply sets a variable with the path for the test directory. Then the discovery, STP and WDB processes are started, with the custom CSV flag pointing to the file we just created above. If only a subset of the processes in that file are needed then they can be called by name instead of using 'all'. Next, our test process is started up with some extra flags. The <code>-load</code> flag allows other q files to be loaded, in this case we are loading a file of helper functions defined in the <code>KDBTESTS</code> directory and the <code>settings.q</code> file which will be explored in greater depth shortly. There is also a <code>-procfile</code> flag in use which, again, points to our custom process CSV, and this more easily allows the use of TorQ connection management in tests. Finally, once all the tests have been run and the test process exited, all the other processes are brought down. The tests can now be run from the command line with a simple <code>/path/to/tests/run.sh</code>.</p>
+<p><strong>settings.q</strong></p>
+<p>This file, while not strictly speaking necessary, is a very handy place to store variables and functions that will be used in the tests rather than having to declare them in the CSV itself. In this example we are storing TorQ connection parameters and test updates for the trade and quote tables:</p>
+<pre><code class="q">// IPC connection parameters
+.servers.CONNECTIONS:`wdb`segmentedtickerplant`tickerplant;
+.servers.USERPASS:`admin:admin;
+
+// Test updates
+testtrade:((5#`GOOG),5?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
+testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3);
+</code></pre>
+
+<p><strong>WDB Tests</strong></p>
+<p>The following CSV shows a fairly straightforward use of this setup:</p>
+<pre><code>action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.servers.startup[],1,,&quot;Start TorQ connection management&quot;
+before,0,0,q,.proc.sys &quot;sleep 2&quot;,1,,&quot;Wait for proc to start&quot;
+before,0,0,q,stpHandle:gethandle[`stp1],1,,&quot;Open STP handle&quot;
+before,0,0,q,wdbHandles:`all`sym`tab!gethandle each `wdball`wdbsymfilt`wdbtabfilt,1,,&quot;Open WDB handles&quot;
+before,0,0,q,t1:wdbHandles[`all`sym] @\: &quot;count trade&quot;,1,,&quot;Get initial trade table counts&quot;
+before,0,0,q,q1:(value wdbHandles) @\: &quot;count quote&quot;,1,,&quot;Get initial quote table counts&quot;
+run,0,0,q,&quot;stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))&quot;,1,,&quot;Send trade and quote updates to STP&quot;
+run,0,0,q,.proc.sys &quot;sleep 2&quot;,1,,&quot;Wait for updates to publish&quot;
+true,0,0,q,(t1+10 5)~wdbHandles[`all`sym] @\: &quot;count trade&quot;,1,,&quot;Check trade update was correctly published&quot;
+true,0,0,q,(q1+10 0 10)~(value wdbHandles) @\: &quot;count quote&quot;,1,,&quot;Check quote update was correctly published&quot;
+</code></pre>
+
+<p>The first thing that happens is that TorQ connection management is set up, then handles are opened to the STP and WDBs and some test updates are sent to the STP. Finally, the test process grabs the latest table counts from the WDBs and checks they have updated correctly. Note that functions and variables not defined in the test are brought in from the settings and helper function files.</p>
+<p>Our test directory now looks like this:</p>
+<pre><code>wdbtests
+|---- process.csv
+|---- run.sh
+|---- settings.q
+|---- test.csv
+</code></pre>
+
+<h3 id="adding-functionality-to-the-run-script">Adding functionality to the run script</h3>
+<p>In order to make our tests more dynamic and useful there are a few things we can do. In the <code>KDBTESTS</code> directory there is a <code>flagparse.sh</code> script which contains some basic code for parsing command line flags. If we add this line to the top of our run script:</p>
+<pre><code class="shell">source $KDBTESTS/flagparse.sh
+</code></pre>
+
+<p>We can now pass flags to our run script, and these are as follows:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Flag</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-d</code></td>
+<td>Starts the test process in debug mode</td>
+</tr>
+<tr>
+<td><code>-s</code></td>
+<td>Starts the test process in debug and stop mode (thrown out to q prompt on error or test failure)</td>
+</tr>
+<tr>
+<td><code>-w</code></td>
+<td>Writes test results to CSVs on disk</td>
+</tr>
+<tr>
+<td><code>-q</code></td>
+<td>Starts the test process in quiet mode</td>
+</tr>
+<tr>
+<td><code>-r timestamp</code></td>
+<td>Passes a timestamp into the tests for on-disk versioning</td>
+</tr>
+</tbody>
+</table>
+<p>The other addition to be made is a <code>-testresults</code> flag to the TorQ start line in the run script. This passes in a folder where the test process will store its logs and test results in a date-partitioned folder structure. Our run script now looks like the following:</p>
+<pre><code class="shell">#!/bin/bash
+
+# Handle command-line arguments
+source $KDBTESTS/flagparse.sh
+
+# Path to test directory
+testpath=${KDBTESTS}/demo
+
+# Start procs
+${TORQHOME}/torq.sh start discovery1 stp1 wdball wdbsymfilt wdbtabfilt -csv ${testpath}/process.csv
+
+# Start test proc
+/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+  -proctype test -procname test1 \
+  -test ${testpath} \
+  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
+  -testresults ${KDBTESTS}/demo/results/ \
+  -runtime $run \
+  -procfile ${testpath}/process.csv \
+  $debug $stop $write $quiet
+
+# Shut down procs
+${TORQHOME}/torq.sh stop discovery1 stp1 wdball wdbsymfilt wdbtabfilt -csv ${testpath}/process.csv
+</code></pre>
+
+<p>Near the end we have four variables which are optional flags that will be added by the flag parser script. We now have plenty of options when it comes to running the script:</p>
+<pre><code class="shell"># Run in debug mode
+./run.sh -d
+# Run in debug and stop mode
+./run.sh -s
+# Run in quiet mode, pass in a runtime and write results to disk
+./run.sh -r 2020.10.12D16:34:44.261143000 -wq
+</code></pre>
+
+<h3 id="running-multiple-test-sets">Running Multiple Test Sets</h3>
+<p>When testing a large piece of functionality it is very likely that there will a large number of tests to run. It is advised in such a case that the tests are split up into different technical groupings, each with their own folder with test CSVs, process and settings files and run scripts. This is essentially creating an isolated environment for each group of tests. The issue though is that it becomes cumbersome to run all tests, and so a script has been created which executes all the run scripts in each of the directories, saves their results to disk and displays them at the end of the run. </p>
+<p>The <code>runall.q</code> script lives in the <code>KDBTESTS</code> directory and it takes two arguments, <code>-rundir</code> and <code>-resdir</code>, which are the top level directory where your test sub-folders live, and the folder where the test logs and results are kept respectively. This script runs each of the <code>run.sh</code> scripts in each of the sub-folders in the <code>-rundir</code> folder in write and quiet mode, passing in the current timestamp so that all will be saved to disk in an easily-versioned manner. An example run would look like the following:</p>
+<pre><code class="shell">q runall.q -rundir /path/to/top/test/folder/ -resdir /path/to/results/folder/
+</code></pre>
+
+<h3 id="debugging-tests">Debugging Tests</h3>
+<p>In the scenario where there are a large number of tests spread across several folders, you can use the run-all mechanic to test them all. However, say there is an error in one of the test files. Normally, this would be fairly difficult to track down and deal with, but the features of this framework make it much easier. At the end of the run, three things will be shown on the console, a results table, a failures table and dictionary of error logs and any errors in them. Any tests that fail will be displayed in the fails table and any code errors that occur will be logged to disk and displayed in the dictionary, and both of these sources contain the file the test was in, the line number it is on and the code itself. </p>
+<p>A demo folder has been prepared which contains a code error and a test failure. All the tests in the folder were run as follows:</p>
+<pre><code class="shell">q runall.q -rundir demo -resdir demo/results
+</code></pre>
+
+<p>When the tests finish running the results are displayed on the console. There are various failed tests and an entry appears in our error logs which can be expanded out:</p>
+<pre><code>...
+&quot;Logged errors:&quot;
+:demo/results/2020.11.11/logs/err_eod.log| ()
+:demo/results/2020.11.11/logs/err_wdb.log| ,&quot;2020.11.11D16:37:21.716171000|aquaq-184|test|test1|ERR|KUexecerr|run error in file :/ho..&quot;
+...
+q) raze value errors
+&quot;2020.11.11D16:37:21.716171000|aquaq-184|test|test1|ERR|KUexecerr|run error in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 8 - stHandle. Code: 'stHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))'&quot;
+</code></pre>
+
+<p>The script has read the file <code>demo/results/2020.11.11/logs/err_wdb.log</code> and from the message within we can see that there is a code error in a 'run' command in the file <code>/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv</code> on line 8, and the offending piece of code is also displayed. This may be enough information for us to solve the issue, but if not we can dig deeper. </p>
+<p>We can see that the error is coming from the WDB tests, and so we run those in debug mode in the following way:</p>
+<pre><code class="shell">./demo/wdb/run.sh -d
+</code></pre>
+
+<p>This runs the tests and displays the error message we saw earlier before outputting our test results and failures and leaving us in the q session. By examining the error message and being able to access the q session we can see that the variable <code>stHandle</code> should in fact be <code>stpHandle</code> and this typo is causing the error. Once this is fixed, it can be run again and the error doesn't appear any more. There is still one test failing, however:</p>
+<pre><code>q) select action,code,csvline from KUerr
+action code                                               csvline
+-----------------------------------------------------------------
+true   (t1+1 5)~t2:wdbHandles[`all`sym] @\: &quot;count trade&quot; 10
+</code></pre>
+
+<p>The best way to debug this would be to be able to exit the tests as this line is being run and be able to examine it from there. We can do this by invoking the stop mode in our test script:</p>
+<pre><code class="shell">./demo/wdb/run.sh -s
+</code></pre>
+
+<p>This throws us out to the q prompt at this point in the tests with the following error:</p>
+<pre><code>'failed to load /home/mpotter/kdbCode/segtp/deploy/tests/runtests.q : true test failure in file :/home/mpotter/kdbCode/segtp/deploy/tests/demo/wdb/test.csv on line 10
+</code></pre>
+
+<p>We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to <code>t1</code> is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.</p>
+<h3 id="notes-on-best-practice">Notes on Best Practice</h3>
+<p>Here are some recommendations on making test development more straightforward:</p>
+<ul>
+<li>Use TorQ connection management when dealing with multiple processes</li>
+<li>When just unit testing one process in isolation, run the tests from an instance of that process</li>
+<li>When performing integration tests that examine the interaction of multiple processes, run the tests from a 'blank' process where possible, as this ensures that test code and process code don't get in each other's way</li>
+<li>Put any variable or function declarations in a settings file so as not to clutter the test code</li>
+<li>If there are a large number of tests, split into folders of related tests</li>
+<li>Try to keep test output isolated from the rest of the application, ie. any logs or HDB data should be output to a separate testing location and cleared afterwards if appropriate</li>
+</ul>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../visualisation/" title="Visualisation" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Visualisation
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../blog/" title="TorQ Blog Posts" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                TorQ Blog Posts
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2020 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>
