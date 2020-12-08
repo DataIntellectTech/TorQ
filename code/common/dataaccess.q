@@ -45,6 +45,6 @@ if[.proc.proctype in `rdb`hdb;
   .dataaccess.settablepropertiespath[];
   // initialize dataaccess code
   .dataaccess.init .dataaccess.tablepropertiespath;
-  // 
+  // add initializing of dataaccess code upon new connection
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
   ];
