@@ -197,8 +197,8 @@ reload:.rdb.reload
 $[.rdb.connectonstart;
  [.servers.CONNECTIONS,:.rdb.tickerplanttypes;
  .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
- .rdb.subscribe[];]; // defines tplogdate for setpartition
- .rdb.tplogdate:.z.d;
+ .rdb.subscribe[];];
+ .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
  ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
