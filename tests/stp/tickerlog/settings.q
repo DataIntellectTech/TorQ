@@ -15,7 +15,8 @@ tabulogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stptabular";
 // Reset and replay STP logs - to be executed on the tickerlog replay process
 resplay:{[logfile]
   .replay.segmentedmode:1b;
-  .replay.tplogfile:logfile;
+  .replay.tplogfile:`;
+  .replay.tplogdir:logfile;
   .replay.initandrun[];
  };
 
@@ -25,6 +26,7 @@ oldify:{[logfile]
   .replay.tablelist:`quote;
   .replay.tablestoreplay:`quote,();
   .replay.tplogfile:logfile;
+  .replay.tplogdir:`;
   .replay.initandrun[];
  };
 
