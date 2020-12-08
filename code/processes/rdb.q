@@ -200,5 +200,5 @@ reload:.rdb.reload
 .rdb.setpartition[]
 
 /-change timeout to zero before eod flush
-.timer.repeat[.eodtime.nextroll+.eodtime.adjtime[]-00:01;0W;1D;
+.timer.repeat[.eodtime.nextroll+`second$(.proc.cp[]-.z.p)-00:01;0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
