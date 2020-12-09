@@ -220,11 +220,11 @@ invoked synchronously, and the .gw.async\* methods should only be
 invoked asynchronously. Each of these are documented more extensively in
 the gateway api. Use .api.p“.gw.\*” for more details.
 
-|                 Function                 |               Description                |
-| :--------------------------------------: | :--------------------------------------: |
-|    .gw.syncexec\[query; servertypes\]    | Execute the specified query synchronously against the required list of servers. If more than one server, the results will be razed. |
-| .gw.syncexecj\[query; servertypes; joinfunction\] | Execute the specified query against the required list of servers. Use the specified join function to aggregate the results. |
-|   .gw.asyncexec\[query; servertypes\]    | Execute the specified query against the required list of servers. If more than one server, the results will be razed. The client must block and wait for the results. |
+|                           Function                           |                         Description                          |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+|              .gw.syncexec\[query; servertypes\]              | Execute the specified query synchronously against the required list of servers. If more than one server, the results will be razed. |
+|      .gw.syncexecj\[query; servertypes; joinfunction\]       | Execute the specified query against the required list of servers. Use the specified join function to aggregate the results. |
+|             .gw.asyncexec\[query; servertypes\]              | Execute the specified query against the required list of servers. If more than one server, the results will be razed. The client must block and wait for the results. |
 | .gw.asyncexecjpt\[query; servertypes; joinfunction; postback; timeout\] | Execute the specified query against the required list of servers. Use the specified join function to aggregate the results. If the postback function is not set, the client must block and wait for the results. If it is set, the result will be wrapped in the specified postback function and returned asynchronously to the client. The query will be timed out if the timeout value is exceeded. |
 
 
@@ -1063,6 +1063,8 @@ start line would be:
 
     q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1 -proctype tickerlogreplay -procname tplogreplay1
 
+In order to replay log files from a segmented tickerplant, the directory containing those log files can be passed in and the variable `.replay.segmentedmode` must be true. It should be noted that a directory must be passed in and the directory must contain the STP meta table for that day. Only one log directory can be replayed at a time.
+
 The tickerplant log replay script has extended usage information which
 can be accessed with -.replay.usage.
 
@@ -1363,18 +1365,18 @@ are evaluated on the target process, local variables can be referenced
 or foreign functions can be run. Table \[table:reportertable\] shows the
 meaning of the csv schema.
 
-|  Column Header  |         Description and Example          |
-| :-------------: | :--------------------------------------: |
-|      name       |          Report name e.g. Usage          |
+|  Column Header  |                   Description and Example                    |
+| :-------------: | :----------------------------------------------------------: |
+|      name       |                    Report name e.g. Usage                    |
 |      query      | Query to be evaluated on that process. It can be a string query or function |
 |  resulthandler  | Result handlers are run on the returned result. Custom result handlers can be added. The result handler must be a monadic function with the result data being passed in e.g. writetofile[“./output”;“usage”] |
 |     gateway     | If non null the reporter will query processes route the query to the proctype specified in this field. The values in the proctype field will be the process types on which the gateway runs the backend query. e.g. \`gateway |
 |  joinfunction   | Used to join the results when a gateway query is being used. The choice of joinfunction must take into account the result that will be received. The function must be monadic and the parameter will be the list of results returned from the backend processes e.g. raze |
 |    proctype     | The type of process that the report will be run on. If the gateway field is not empty this may be a list of process types, otherwise the reporter will throw an error on startup. e.g. \`rdb |
 |    procname     | The name of a specific process to run the report on. If left null, the reporter process will select a random process with the specified proctype. If the gateway field is not null, this field specifies the specific gateway process name to run the query against e.g. \`hdb1 |
-|      start      | Time on that day to start at e.g. 12:00  |
-|       end       | Time on that day that the report will stop at e.g. 23:00 |
-|     period      | The period between each report query e.g. 00:00:10 |
+|      start      |           Time on that day to start at e.g. 12:00            |
+|       end       |   Time on that day that the report will stop at e.g. 23:00   |
+|     period      |      The period between each report query e.g. 00:00:10      |
 | timeoutinterval | The amount of time the reporter waits before timing out a report e.g. 00:00:30 |
 |   daysofweek    | Numeric value required for the day of the week. Where 0 is Saturday and 2 is Monday |
 
@@ -1435,7 +1437,7 @@ temporary file removed.
     emailreport["./tempdir/"; ("test@aquaq.co.uk";"test1@aquaq.co.uk"); "EndOfDayReport"; "csv"]
 
 **publishresult** - Accepts 1 parameter and that is the data. This is
-discussed later in the subsection subresults.
+discussed later in the subsection subresults.
 Custom result handlers can be added to $KDBCODE/processes/reporter.q .
 It is important to note that the result handler is referencing local
 functions as it is executed in the reporter process and not the target
@@ -1454,12 +1456,12 @@ every interval depending on the value of the flushqueryloginterval
 variable in the reporter.q file found in the $KDBCONFIG/settings
 directory. 
 
-| Stage symbol | Explanation                              |
-| ------------ | ---------------------------------------- |
-| R            | The query is currently running           |
-| E            | An error has occurred during the query   |
-| C            | The query has been completed with no errors |
-| T            | The query has exceeded the timeout interval |
+| Stage symbol | Explanation                                        |
+| ------------ | -------------------------------------------------- |
+| R            | The query is currently running                     |
+| E            | An error has occurred during the query             |
+| C            | The query has been completed with no errors        |
+| T            | The query has exceeded the timeout interval        |
 | S            | System message e.g. “Reporter Process Initialised” |
 
 
@@ -1598,7 +1600,7 @@ r result value passes the conditions specified by the resultchecker function.
     varname| `trade
     count  | 10
     cond   | `morethan
-
+    
     q)r
     status| 1h
     result| ""
@@ -1641,20 +1643,20 @@ the in-memory functions makes altering configuration parameters easier.
 Four functions are available to do so: `addcheck`, `updateconfig`, `updateconfigfammet`
 and `forceconfig`. 
 
-|   Function Name       | Description |         
-| :-------------: |:---------------------:|
-|    `addcheck[dictionary]`  |  addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type.  |
-|   `updateconfig[checkid;paramkey;newval]`     |  updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type.  |
-|   `forceconfig[checkid;newconfig]`   | forceconfig changes the parameter keys of an existing check and will not check for types.  |
-| `updateconfigfammet[family;metric;paramkey;newval]`  | updateconfig changes the parameter key of an existing check, using the family and metric combination to specify which check to alter. If this combination does not exist, the function will return an error. The type of the new parameter value must match the current value type.  |
+|                    Function Name                    |                         Description                          |
+| :-------------------------------------------------: | :----------------------------------------------------------: |
+|               `addcheck[dictionary]`                | addcheck allows a new check to be added, and accepts a dictionary as its argument. The keys must be a match to the current checkconfig table, and the values must be of the correct type. |
+|       `updateconfig[checkid;paramkey;newval]`       | updateconfig changes the parameter key of an existing check, using the checkid to specify which check to alter. The type of the new parameter value must match the current value type. |
+|          `forceconfig[checkid;newconfig]`           | forceconfig changes the parameter keys of an existing check and will not check for types. |
+| `updateconfigfammet[family;metric;paramkey;newval]` | updateconfig changes the parameter key of an existing check, using the family and metric combination to specify which check to alter. If this combination does not exist, the function will return an error. The type of the new parameter value must match the current value type. |
 
 There are other additional functions that are useful for using the check monitor. 
 
-|  Function Name  | Value Type |        
-| :-------------: |:----------:|
-|    `currentstatus `   | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null.   | 
-|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value.  | 
-| `statusbyfam `    |  Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned.   | 
+|  Function Name   |                          Value Type                          |
+| :--------------: | :----------------------------------------------------------: |
+| `currentstatus ` | Will return only status, timerstatus, result and running from the checktracker table. It accepts a list of checkids, or will return all checks if passed a null. |
+|   `timecheck`    | Will check the median time for current checks to be run against a user-defined timespan. It returns a table displaying the median time and a boolean value. |
+|  `statusbyfam `  | Function will return a table of all checks from specified families, ordered firstly by status, and then by timestatus. If a null is provided, ordered checks from all families will be returned. |
 
 
 All checks can be tracked using the table `checktracker`. Here, each run is assigned a 
@@ -1773,18 +1775,18 @@ To launch the chained tickerplant
 Chained tickerplant settings are found in `config/settings/chainedtp.q`
 and are under the `.ctp` namespace.
 
-  |Setting|                  Explanation |               Default|
-  |------------------------ |------------------------------------------------------------------------------------------------------ |-----------------|
-  |tickerplantname       |   list of tickerplant names to try and make a connection to    |                                          <code>`tickerplant1</code>|
- | pubinterval          |   publish batch updates at this interval. If the value is 0D00:00:00 then it will publish tick by tick |  `0D00:00:00`|
-  |tpconnsleep          |    number of seconds between attempts to connect to the source tickerplant  |                              `10`|
-  |createlogfile       |     create a log file             |                                                                         `0b`|
-  |logdir              |     directory containing chained tickerplant logs  |                                                        <code>`:hdb</code>|
- |subscribeto          |    subscribe to these tables only (null for all)    |                                                      <code>`</code>|
- | subscribesyms       |     subscribe to these syms only (null for all)  |                                                          <code>`</code>|
-  |replay               |    replay the tickerplant log file          |                                                              `0b`|
- | schema               |    retrieve schema from tickerplant    |                                                                   `1b`|
- | clearlogonsubscription  | clear log on subscription, only called if createlogfile is also enabled  |                              `0b`|
+| Setting                | Explanation                                                  | Default                    |
+| ---------------------- | ------------------------------------------------------------ | -------------------------- |
+| tickerplantname        | list of tickerplant names to try and make a connection to    | <code>`tickerplant1</code> |
+| pubinterval            | publish batch updates at this interval. If the value is 0D00:00:00 then it will publish tick by tick | `0D00:00:00`               |
+| tpconnsleep            | number of seconds between attempts to connect to the source tickerplant | `10`                       |
+| createlogfile          | create a log file                                            | `0b`                       |
+| logdir                 | directory containing chained tickerplant logs                | <code>`:hdb</code>         |
+| subscribeto            | subscribe to these tables only (null for all)                | <code>`</code>             |
+| subscribesyms          | subscribe to these syms only (null for all)                  | <code>`</code>             |
+| replay                 | replay the tickerplant log file                              | `0b`                       |
+| schema                 | retrieve schema from tickerplant                             | `1b`                       |
+| clearlogonsubscription | clear log on subscription, only called if createlogfile is also enabled | `0b`                       |
 
 TorQ Data Quality System Architecture
 -------
@@ -2163,4 +2165,3 @@ The line in the config csv should be:
 query,params,proc,querytype,starttime
 customquery,`table`quote,`hdb1,other,09:00:00.000000000
 ```
-
