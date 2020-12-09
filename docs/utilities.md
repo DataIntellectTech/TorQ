@@ -689,13 +689,27 @@ handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
 handletoSTP(`.u.sub;`;conditions)
 ...
 q) show conditions
-tabname| filts            columns
--------| --------------------------------
-trade  | `                `time`sym`price
-quote  | `bid<200`bid>100 `
+tabname| filts             columns         
+-------| ----------------------------------
+trade  | ""                "time,sym,price"
+quote  | "bid>100,bid<200" ""                        
 ```
 
-Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables.
+Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables. A conditions table may also be used to perform calculations on columns and define new ones as well:
+
+```q
+q) show conditions
+tabname| filts             columns                           
+-------| ----------------------------------------------------
+quote  | "bid>100,bid<200" "time,sym,bid,ask,mid:0.5*bid+ask"
+
+q)quote
+time                          sym  bid   ask   mid    
+------------------------------------------------------
+2020.12.09D15:29:23.183738000 INTC 58.6  59.4  59     
+2020.12.09D15:29:23.183738000 DOW  21.39 22.53 21.96  
+...
+```
 
 For more information on subscriptions, see the documentation on the segmented tickerplant process.
 

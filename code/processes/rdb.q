@@ -33,6 +33,9 @@ parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source th
 pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
 tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
 
+/ - stops rdb getting the full table schemas in the case that the rdb only subscribes to a subset of columns
+if[.rdb.subfiltered;.rdb.schema:0b]
+
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
 
