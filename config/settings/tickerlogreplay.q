@@ -16,14 +16,15 @@ emptytables:1b                          // whether to overwrite any tables at st
 sortafterreplay:1b                      // whether to re-sort the data at the end of the replay.  Sort order is determined by the result of sortandpart[`tablename]
 partafterreplay:1b                      // whether to apply the parted attribute after the replay.  Parted column is determined by result of first sortandpart[`tablename]
 basicmode:0b                            // do a basic replay, which replays everything in, then saves it down with .Q.hdpf[`::;d;p;`sym]
+segmentedmode:1b                        // use if logs are written using the segmented tickerplant
 exitwhencomplete:1b                     // exit when the replay is complete
 checklogfiles:0b                        // check if the log file is corrupt, if it is then write a new "good" file and replay it instead
 gc:1b                                   // garbage collect at appropriate points (after each table save and after the full log replay)
 autoreplay:1b                           // start replaying logs at the end of the script without any further user input
-clean:1b				// clean existing folders on start up. Needed if a replay screws up and we are replaying by chunk or multiple tp logs
+clean:1b				                // clean existing folders on start up. Needed if a replay screws up and we are replaying by chunk or multiple tp logs
 upd:{[t;x] insert[t;x]}                 // default upd function used for replaying data
 
-sortcsv:`:config/sort.csv               //location of  sort csv file
+sortcsv:`$":",(getenv `TORQHOME),"/config/sort.csv"               //location of  sort csv file
 
 compression:()                          //specify the compress level, empty list if no required
 partandmerge:0b                         //setting to do a replay where the data is partitioned and then merged on disk
