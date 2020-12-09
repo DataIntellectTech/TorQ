@@ -332,38 +332,37 @@ merge:{[dir;pt;tablename;mergelimits;h]
 
 // Return log file if it exists and not in segmented mode
 getlogfile:{
-  if[.replay.segmentedmode;.err.ex[`getlogfile;"Segmented mode requires tplogdir.";2]];
-  if[()~key hsym f:.replay.tplogfile;.err.ex[`getlogfile;"specified tplogfile ",string[f]," does not exist";2]];
+  if[.replay.segmentedmode;.lg.e[`getlogfile;m:"Segmented mode requires tplogdir."];'m];
+  if[()~key hsym f:.replay.tplogfile;.lg.e[`getlogfile;m:"Specified tplogfile ",string[f]," does not exist"];'m];
   enlist hsym f
  };
 
 // Return contents of log directory if it exists. If segmented use meta table, if not, grab directory contents
 getlogdir:{
-  if[()~key hsym d:.replay.tplogdir;.err.ex[`getlogdir;"specified tplogfiles ",string[d]," do not exist";3]];
-  $[.replay.segmentedmode;
-    exec distinct logname from .replay.getstpmeta[d] where any each tbls in .replay.tablestoreplay;
-    raze ` sv' tplogdir,/:key tplogdir:hsym .replay.tplogdir
-   ]
+  if[()~key hsym d:.replay.tplogdir;.lg.e[`getlogdir;m:"Specified log directory ",string[d]," does not exist"];'m];
+  $[.replay.segmentedmode;.replay.getstplogs[d];.Q.dd[logdir;] each key logdir:hsym d]
  };
 
-// Get STP meta table, throw error if it can't be loaded
-getstpmeta:{[logdir]
-  @[get;.Q.dd[hsym logdir;`stpmeta];{.err.ex[`getstpmeta;"Log directory must contain valid STP meta table";3]}]
+// Use STP meta table and tplogdir to build log names
+getstplogs:{[logdir]
+  metatable:@[get;.Q.dd[hsym logdir;`stpmeta];{.lg.e[`getstpmeta;m:"Log directory must contain valid STP meta table"];'m}];
+  names:exec distinct logname from metatable where any each tbls in .replay.tablestoreplay;
+  .Q.dd[hsym logdir;] each last each ` vs' names
  };
 
 // Set up log replay list and clean HDB if necessary, kick off replay
 initandrun:{
-  if[all not null (.replay.tplogfile;.replay.tplogdir);.err.ex[`getlogs;"Can't pass in log file and directory.";1]];
+  if[all not null (.replay.tplogfile;.replay.tplogdir);.lg.e[`getlogs;m:"Can't pass in log file and directory."];'m];
 
   .lg.o[`initandrun;"Initialising replay settings."];
   .replay.tablestoreplay:$[`all~first .replay.tablelist;tables[];.replay.tablelist,()];
   .replay.logstoreplay:$[not null .replay.tplogfile;.replay.getlogfile[];.replay.getlogdir[]];
-  if[not count .replay.logstoreplay;.err.ex[`initandrun;"No log files found";4]];
+  if[not count .replay.logstoreplay;.lg.e[`initandrun;m:"No log files found"];'m];
 
   // If in segmented mode, get replay date and clean HDB once
   if[.replay.segmentedmode;
     .replay.replaydate:first l:"D"$(-6_-14#) each string .replay.logstoreplay;
-    if[not all 0=1_deltas l;.err.ex[`replay;"Cannot replay logs from different dates in segmented mode!";5]];
+    if[not all 0=1_deltas l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
    ];
 

@@ -8,15 +8,18 @@ loadhdb:"l ",testhdb;
 
 // Logs locations
 oldelogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/oldlog/testoldlog";
+fakelogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/oldlog/fakeoldlog";
 nonelogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stpnone";
 perilogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stptabperiod";
 tabulogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stptabular";
+emptydir:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/nologs";
+oldelogdir:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/oldlogdir";
 
 // Reset and replay STP logs - to be executed on the tickerlog replay process
-resplay:{[logfile]
+resplay:{[logdir]
   .replay.segmentedmode:1b;
   .replay.tplogfile:`;
-  .replay.tplogdir:logfile;
+  .replay.tplogdir:logdir;
   .replay.initandrun[];
  };
 
@@ -27,6 +30,37 @@ oldify:{[logfile]
   .replay.tablestoreplay:`quote,();
   .replay.tplogfile:logfile;
   .replay.tplogdir:`;
+  .replay.initandrun[];
+ };
+
+// Reset to old TP mode and play in a log directory
+olddir:{[logdir]
+  .replay.segmentedmode:0b;
+  .replay.tplogfile:`;
+  .replay.tplogdir:logdir;
+  .replay.initandrun[];
+ };
+
+// Reset and try to load file
+oldfile:{[logfile]
+  .replay.segmentedmode:0b;
+  .replay.tplogfile:logfile;
+  .replay.tplogdir:`;
+  .replay.initandrun[];
+ };
+
+// Reset and try to load in a file while in segmented mode
+segfile:{[logfile]
+  .replay.segmentedmode:1b;
+  .replay.tplogfile:logfile;
+  .replay.tplogdir:`;
+  .replay.initandrun[];
+ };
+
+// Reset and try to load in a file and a directory at the same time
+dirandfile:{[logfile]
+  .replay.tplogfile:logfile;
+  .replay.tplogdir:logfile;
   .replay.initandrun[];
  };
 

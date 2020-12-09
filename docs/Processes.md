@@ -1063,6 +1063,8 @@ start line would be:
 
     q torq.q -debug -load code/processes/tickerlogreplay.q -p 9990 -.replay.tplogfile ../test/tplogs/marketdata2013.12.17 -.replay.schemafile ../test/marketdata.q -.replay.hdbdir ../test/hdb1 -proctype tickerlogreplay -procname tplogreplay1
 
+In order to replay log files from a segmented tickerplant, the directory containing those log files can be passed in and the variable `.replay.segmentedmode` must be true. It should be noted that a directory must be passed in and the directory must contain the STP meta table for that day. Only one log directory can be replayed at a time.
+
 The tickerplant log replay script has extended usage information which
 can be accessed with -.replay.usage.
 
