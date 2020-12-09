@@ -598,7 +598,7 @@ Note that in this mode, and all other logging modes, a new log file will be crea
 
 - periodic:
 
-  In this mode all the updates are stored in a the same file but the logs are rolled according to a custom period, set with `.stplg.multilogperiod`. For example, if the period is set to an hour a new log file will be created every hour and stored in a daily partitioned directory. As a result, this mode potentially allows for easier management by breaking the log files into smaller sizes, all while maintaining message arrival order during replays. Note that if the memory batch publish mode is used then the order is no longer guaranteed.
+  In this mode all the updates are stored in a the same file but the logs are rolled according to a custom period, set with `.stplg.multilogperiod`. For example, if the period is set to an hour a new log file will be created every hour and stored in a daily partitioned directory. As a result, this mode potentially allows for easier management by breaking the log files into smaller sizes, all while maintaining message arrival order during replays. Note that if the memory batch publish mode is used then the order of updates across different tables is no longer guaranteed (the order for a single table is guaranteed).
 
   ```
    stplogs
@@ -710,7 +710,7 @@ Note that in this mode, and all other logging modes, a new log file will be crea
 - schema, schemas for each of the tables in the tbls column
 - additional, any additional information about the logfile
 
-Note that both end and msgcount are informative and not guaranteed, and the STP doesn't have any dependency on them. If the STP is shutdown or dies, then they will not be populated.
+Note that both end and msgcount are informative and not guaranteed, and the STP doesn't have any dependency on them. If the STP is killed or dies in an unclean manner, then they will not be populated.
 
 ### Batching Modes
 
@@ -722,7 +722,7 @@ There are named modes which are set with the `.stplg.batchmode` variable and the
 
 - immediate:
 
-  In this mode no batching occurs, and the update is logged and published immediately upon entering the STP. This is less efficient in terms of overall throughput but ensures low latency.
+  In this mode no batching occurs, and the update is logged and published immediately upon entering the STP. This is less efficient in terms of overall throughput but allows for lower latency.
 
 - memorybatch:
 
@@ -758,7 +758,7 @@ It is easy for a subscriber to subscribe to a STP process. It follows the same p
 
 The STP requires these functions to be defined in subscriber processes (the definitions will be unique to the requirements of each subscriber):
 - upd[t;x]
-  Called for updates from the STP. Arguments are t (the table the data is for), x (the data to be inserted) and now (the current time .z.p)
+  Called for updates from the STP. Arguments are t (the table the data is for), x (the data to be inserted)
 - endofperiod[currentpd;nextpd;data]
   Called at the end of a period for periodic STP modes. Takes 3 arguments currentpd (the current period), nextpd (the next period) and data (a dictionary containing some basic information on the stp process and the current time on the stp)
 - endofday[date;data]
@@ -831,14 +831,15 @@ zts[`defaultbatch]:{
 
 \d .
 ```
-
+### Multiple Updates From Publishers
+The STP handles single messages which contain multiple updates. The standard interface for publishers is the `.u.upd` interface supported by the original tickerplant (two arguments, the table to be updated followed by the data). The arguments for this can now but lists, i.e. a list of table names followed by a list of associated data. These updates can all be stamped with the same sequence number, and is useful where upstream publishers receive a single update which is split across downstream tables.
 Once this is done, simply update `.stplg.batchmode` with the name of the new mode and start the process.
 
 ### Performance Comparison
 
 A custom performance stack was set up comprising a feed, a consumer, an STP, a vanilla TP (normal TorQ tickerplant) and a kdb+ tick process along with an observer process which was responsible for coordinating the tests and processing the results. When the tests begin, the feed pushes single row updates to the selected TP process in a loop for one minute before pushing updates in batches of 100 rows for one minute. The observer then collects the results from the consumer which is subscribed to the TP and clears the table before resetting things so that the feed is pointing at either the same process in a different batching mode or a new process. In this way all the process modes are tested, including the immediate and batched modes for the TP and tick processes.
 
-These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. The results below show the average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below. It should be noted that the message rates achieved will be dependent on hardware configuration. The purpose of the testing below is to demonstrate the relative performance between the different implementations and batching modes.
+These tests were run on a shared host with dual Intel Xeon Gold 6128 CPUs with a total of 12 cores and 24 threads with 128GB of memory. Each tickerplant will only have been using a single core. The results below show the average number of messages per second (mps) received by the subscriber. The results for single updates can be seen below. It should be noted that the message rates achieved will be dependent on hardware configuration. The purpose of the testing below is to demonstrate the relative performance between the different implementations and batching modes.
 
 | Process | Batch Mode    | Average mps |
 | ------- | ------------- | :---------: |
@@ -2165,4 +2166,3 @@ The line in the config csv should be:
 query,params,proc,querytype,starttime
 customquery,`table`quote,`hdb1,other,09:00:00.000000000
 ```
-
