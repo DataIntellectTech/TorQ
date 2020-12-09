@@ -196,9 +196,10 @@ reload:.rdb.reload
 // connects and subscribes to tickerplant only if connectonstart is true
 $[.rdb.connectonstart;
  [.servers.CONNECTIONS,:.rdb.tickerplanttypes;
- .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
- .rdb.subscribe[];];
- .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
+  .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
+  .rdb.subscribe[];
+ ];
+  .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
  ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
