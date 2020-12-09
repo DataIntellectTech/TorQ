@@ -226,7 +226,7 @@ stpeod:{[date;data]
   if[(data`p)>.eodtime.nextroll:.eodtime.getroll[data`p];
     system"t 0";'"next roll is in the past"];                    // timer off
   getnextendUTC[];                                               // grabs next end time
-  dayrollover[data];
+  if[.sctp.loggingmode=`create;dayrollover[data]];               // logs only rolled if in create mode
  }
 
 // common eod log rolling logic for STP and SCTP
@@ -280,8 +280,10 @@ init:{[dbname]
 // Close logs on clean exit
 .z.exit:{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
-  if[.sctp.chainedtp;.lg.o[`stpexit;"Exiting process."];:()];
-  .lg.o[`stpexit;"Exiting process and closing off log files."];
+  .lg.o[`stpexit;"Exiting process"];
+  // exit before logs are touched if process is an sctp NOT in create mode
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
+  .lg.o[`stpexit;"Closing off log files"];
   .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
   .stplg.closelog each .stpps.t;
  }
