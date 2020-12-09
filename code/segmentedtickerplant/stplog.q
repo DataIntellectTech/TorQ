@@ -14,10 +14,9 @@ errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  $[count dir:getenv[`KDBTPLOG];
-    [.os.md dir;.os.md .stplg.dldir:hsym`$raze dir,"/", string name,"_",date];
-    [.lg.e[`stp;"log directory not defined"];exit]
-  ]
+  if[not count dir:hsym `$getenv[`KDBTPLOG];.lg.e[`stp;"log directory not defined"];exit 1];
+  .os.md dir;
+  .os.md .stplg.dldir:` sv dir,`$raze/[string name,"_",date];
  };
 
 // Functions to generate log names in one of five modes
@@ -49,12 +48,6 @@ gentimeformat:{(raze string "dv"$x) except ".:"};
 // preserve pre-existing definitions
 upd:@[value;`.stplg.upd;enlist[`]!enlist ()];
 zts:@[value;`.stplg.zts;enlist[`]!enlist ()];
-
-// Number of update messages received for each table
-msgcount:rowcount:tmpmsgcount:tmprowcount:(`symbol$())!`long$()
-
-// Sequence number
-seqnum:0
 
 // Functions to add columns on updates
 updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
@@ -223,7 +216,7 @@ endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
   .stpps.end[date;data];  // sends endofday message to subscribers
-  if[.sctp.loggingmode=`create;dayrollover[data]] // logs only rolled if in create mode
+  dayrollover[data];
   }
 
 // STP runs function to send out eod messages and roll logs
@@ -258,15 +251,16 @@ checkends:{
 
 init:{[dbname]
   t::tables[`.]except `currlog;
-  @[`.stplg.msgcount;t;:;0];
-  @[`.stplg.rowcount;t;:;0];
+  msgcount::rowcount::t!count[t]#0;
+  tmpmsgcount::tmprowcount::(`symbol$())!`long$();
   logtabs::$[multilog~`custom;key custommode;t];
   rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`singular;t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
-  getnextendUTC[]; 
-  i::1; // default value for log seq number
-
+  getnextendUTC[];
+  i::1;
+  seqnum::0;
+  
   if[(value `..createlogs) or .sctp.loggingmode=`create;
     createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
@@ -279,13 +273,6 @@ init:{[dbname]
     // add the info to the meta table
     .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
     ]
-
-  // set log handles to null in sctp if not in create mode
-  if[.sctp.chainedtp and not .sctp.loggingmode=`create; 
-    `..loghandles set .stplg.t!(count .stplg.t)#(::);
-    // only need to log errors if sctp is creating its own logs
-    .stplg.badmsg:{[x;y;z]};
-    ];
  };
 
 \d .
@@ -293,10 +280,8 @@ init:{[dbname]
 // Close logs on clean exit
 .z.exit:{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
-  .lg.o[`stpexit;"Exiting process"];
-  // exit before logs are touched if process is an sctp NOT in create mode
-  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
-  .lg.o[`stpexit;"Closing off log files"];
+  if[.sctp.chainedtp;.lg.o[`stpexit;"Exiting process."];:()];
+  .lg.o[`stpexit;"Exiting process and closing off log files."];
   .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
   .stplg.closelog each .stpps.t;
  }

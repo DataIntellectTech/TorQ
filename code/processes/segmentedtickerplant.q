@@ -52,7 +52,7 @@ loadschemas:{
 // Set up UPD and ZTS behaviour based on batching mode
 setup:{[batch]
   // Handle bad batch mode, see whether STP is chained or default
-  if[not all batch in/:(key .stplg.upd;key .stplg.zts);'"mode ",(string batch)," must be defined in both .stplg.upd and .stplg.zts"];
+  if[not all batch in/: key'[.stplg`upd`zts];'"mode ",(string batch)," must be defined in both .stplg.upd and .stplg.zts"];
   chainmode:$[.sctp.chainedtp;`chained;`def];
 
   // Set inner UPD and ZTS behaviour from batch mode, then set outer functions based on whether STP is chained
