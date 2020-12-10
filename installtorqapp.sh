@@ -10,6 +10,8 @@ while [[ $# -gt 0 ]]
 do
 key="$1"
 
+#extra test sander
+
 case $key in
     -t|--torq)
     torq=`realpath "$2"`
