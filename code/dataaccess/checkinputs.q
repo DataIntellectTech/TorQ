@@ -105,6 +105,7 @@ checktimetype:{[dict;parameter]:checktype[-12 -14 -15h;dict;parameter]};
 checktimecolumn:{[dict;parameter]
   dict:issymbol[dict;parameter];
   dict:checktimeorder[dict;parameter];
+  dict:extracttime dict;
   dict:columnsexist[dict;parameter;dict`timecolumn];
   :checkcolumntype[dict;parameter;dict`timecolumn;-12 -14 -15h];
  };
@@ -112,6 +113,10 @@ checktimecolumn:{[dict;parameter]
 checktimeorder:{[dict;parameter]
   if[dict[`starttime]>dict`endtime;'`$"starttime>endtime"];
   :dict;
+ };
+
+extracttime:{[dict]
+  :update metainfo:(metainfo,`starttime`endtime!(starttime;endtime))from dict;
  };
 
 //- check type of column given by `timecolumn
