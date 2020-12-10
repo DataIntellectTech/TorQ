@@ -9,7 +9,6 @@ checkinputs:{[dict]
   dict:checkdictionary dict;
   dict:checkinvalidcombinations dict;
   dict:checkeachparam[dict;1b];
-  dict:connectionavailable dict;
   dict:filldefaulttimecolumn dict;
   dict:checkeachparam[dict;0b];
   :dict;
@@ -29,7 +28,7 @@ checkrequiredparams:{[dict]all .dataaccess.getrequiredparams[]in key dict};
 checkparamnames:{[dict]all key[dict]in .dataaccess.getvalidparams[]};
 
 filldefaulttimecolumn:{[dict]
-  defaulttimecolumn:.dataaccess.gettableproperty[dict;`primarytimecolumn];
+  defaulttimecolumn:`time^.dataaccess.gettableproperty[dict;`primarytimecolumn];
   if[`timecolumn in key dict;:dict];
   if[not`timecolumn in key dict;:@[dict;`timecolumn;:;defaulttimecolumn]];
  };
@@ -53,14 +52,6 @@ checkeachparam:{[dict;isrequired]
 
 //- extract parameter specific function from confing - to check the input
 checkparam:{[dict;config] config[`checkfunction][dict;config`parameter]};
-
-//- check connection is available
-connectionavailable:{[dict]
-  required:dict[`tableproperties;`proctypehdb`proctyperdb]except`;
-  missing:exec required except proctype from .dataaccess.procmetainfo;
-  if[count missing;'`$.dataaccess.formatstring["no process of type:{missing} required to access {tablename}";`tablename`missing!(dict`tablename;missing)]];
-  :dict;
- };
 
 //- generic function to takes in an atom/list of valid types and compare it against input types 
 checktype:{[validtypes;dict;parameter]
@@ -88,19 +79,17 @@ checkcolumnsexist:{[dict;parameter]
   :columnsexist[dict;parameter;dict parameter];
  };
 
-//- for a given list of columns check names against rdb/hdb metas
+//- for a given list of columns check names against metas
 columnsexist:{[dict;parameter;columns]
-  dict:checkinvalidcolumns[dict;parameter;columns;`rdbparams];
-  dict:checkinvalidcolumns[dict;parameter;columns;`hdbparams];
+  dict:checkinvalidcolumns[dict;parameter;columns];
   :dict;
  };
 
 //- return error for any invalid columns
-checkinvalidcolumns:{[dict;parameter;columns;procparams]
-  if[not dict[procparams;`validrange];:dict];
-  validcolumns:exec columns from dict[procparams;`metainfo];
+checkinvalidcolumns:{[dict;parameter;columns]
+  validcolumns:exec columns from dict[`metainfo;`metas];
   invalidcolumns:except[(),columns;validcolumns];
-  errorparams:dict,`parameter`proctype`validcolumns`invalidcolumns!(parameter;dict[procparams;`proctype];validcolumns;invalidcolumns);
+  errorparams:dict,`parameter`proctype`validcolumns`invalidcolumns!(parameter;dict[`metainfo;`proctype];validcolumns;invalidcolumns);
   if[count invalidcolumns;'`$.dataaccess.formatstring["parameter:{parameter} - table:{tablename} on process:{proctype} doesn't contain:{invalidcolumns} - validcolumns:{validcolumns}";errorparams]];
   :dict;
  };
@@ -110,13 +99,12 @@ checktimetype:{[dict;parameter]:checktype[-12 -14 -15h;dict;parameter]};
 
 //- check param is of type symbol
 //- check starttime<=endtime
-//- use rollover function to split rdb/hdb range (rollover is the time data before which data is in the rdb)
+//- use rollover function to split rdb/hdb range (rollover is the time before which data is in the rdb)
 //- check the column exists for the given table
 //- check the given `timecolumn has valid type (e.g don't pass timecolumn:`sym)
 checktimecolumn:{[dict;parameter]
   dict:issymbol[dict;parameter];
   dict:checktimeorder[dict;parameter];
-  dict:splitinputtime dict;
   dict:columnsexist[dict;parameter;dict`timecolumn];
   :checkcolumntype[dict;parameter;dict`timecolumn;-12 -14 -15h];
  };
@@ -126,32 +114,15 @@ checktimeorder:{[dict;parameter]
   :dict;
  };
 
-splitinputtime:{[dict]
-  rollovertime:.dataaccess.gettableproperty[dict;`getrollover][];
-  dict:update hdbparams:.checkinputs.extracttimerangehdb[hdbparams;starttime;endtime;rollovertime-1]from dict;
-  dict:update rdbparams:.checkinputs.extracttimerangerdb[rdbparams;starttime;endtime;rollovertime]from dict;
-  :dict;
- };
-
-extracttimerange:{[f;params;starttime;endtime;rollovertime]
-  x:params,`starttime`endtime!f[rollovertime;starttime,endtime];
-  :update validrange:not(starttime=rollovertime)&endtime=rollovertime from x;
- };
-
-extracttimerangehdb:extracttimerange[&];
-extracttimerangerdb:extracttimerange[|];
-
 //- check type of column given by `timecolumn
-//- check against both rdb and hdb meta
+//- check against table metas
 checkcolumntype:{[dict;parameter;column;validtypes]
-  dict:checkinvalidcolumntype[dict;parameter;column;validtypes;`rdbparams];
-  dict:checkinvalidcolumntype[dict;parameter;column;validtypes;`hdbparams];
+  dict:checkinvalidcolumntype[dict;parameter;column;validtypes];
   :dict;
  };
 
-checkinvalidcolumntype:{[dict;parameter;column;validtypes;procparams]
-  if[not dict[procparams;`validrange];:dict];
-  inputtype:convertstringtype dict[procparams;`metainfo][column;`types];
+checkinvalidcolumntype:{[dict;parameter;column;validtypes]
+  inputtype:convertstringtype dict[`metainfo;`metas][column;`types];
   errorparams:@[dict;`parameter`column`validtypes`inputtype;:;(parameter;column;validtypes;inputtype)];
   if[not any inputtype~/:validtypes;'`$.dataaccess.formatstring["parameter:{parameter} - column:{column} in table:{tablename} is of type:{inputtype}, validtypes:{validtypes}";errorparams]];
   :dict;
@@ -162,8 +133,8 @@ convertstringtype:{[x]`short$(-1 1)[x~upper x]*.Q.t?lower x};
 issymbol:{[dict;parameter]:checktype[-11h;dict;parameter]};
 allsymbols:{[dict;parameter]:checktype[11 -11h;dict;parameter]};
 
-//- sould be otf: `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-//- returns columns: `lastMid`maxMid`maxMid`maxBidprice`maxAskprice`wavgAsksizeAskprice`wavgBidsizeBidprice
+//- should be of the format: `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
+//- returns columns: `lastMid`maxBidprice`maxAskprice`wavgAsksizeAskprice`wavgBidsizeBidprice
 checkaggregations:{[dict;parameter]
   example:"`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))";
   input:dict parameter;
