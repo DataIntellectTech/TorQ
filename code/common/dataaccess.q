@@ -1,50 +1,48 @@
-//- common script to enable remote data access via generic get data function
+//- common script to enable remote data access via generic function
+//- loads in scripts from code/common/dataaccess
 
 \d .dataaccess
 
-// to set table properties path passed from -dataaccess parameter
 settablepropertiespath:{[]resettablepropertiespath hsym`$first .proc.params`dataaccess};
-// to set table properties path from given path
 resettablepropertiespath:{[tablepropertiespath]`.dataaccess.tablepropertiespath set tablepropertiespath};
-// to check if table properties config file exists at given path
 validtablepropertiespath:{[].dataaccess.tablepropertiespath~key .dataaccess.tablepropertiespath};
-// get path to config file for checking data api input parameters
 checkinputspath:first .proc.getconfigfile"checkinputs.csv";
 
-// instantiate table for holding table metas of current proccess
-metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
+procmetainfo:([procname:`$();proctype:`$()];w:`int$();metainfo:());
+metainfo:([tablename:`$()]partitionfield:`$();hdbparams:();rdbparams:());
 
-//- init function takes:
+//- initnewconnection takes:
 //- (i) tablepropertiespath - either from a valid -dataaccess path from cmd line, or passed explicitly
-//-                           otherwise a user can call "init[`:/path/to/tableproperties.csv]"
-//- init will:
-//-   - load data access code from code/common dataaccess
-//-   - validate table properties config file exists + load it 
-//-   - load config for checking input parameters
-//-   - write meta info for tables in current process to .dataaccess.metainfo
-
-init:{[tablepropertiespath]
-  .lg.o[`.dataaccess.init;"running .dataaccess.init"];
+//- (ii) connectiontab - for updating meta info when a new connection is made.
+//- otherwise a user can call "init[`:/path/to/tableproperties.csv]"
+initnewconnection:{[tablepropertiespath;connectiontab]
+  .lg.o[`.dataaccess.init;"running .dataaccess.initnewconnection"];
   .proc.loaddir getenv[`KDBCODE],"/dataaccess";
+  .servers.retry[];
   if[not validtablepropertiespath[];resettablepropertiespath tablepropertiespath];
   if[()~key`.dataaccess.tablepropertiesconfig;`.dataaccess.tablepropertiesconfig set readtableproperties tablepropertiespath];
   if[()~key`.dataaccess.checkinputsconfig;`.dataaccess.checkinputsconfig set readcheckinputs checkinputspath];
-  `.dataaccess.metainfo upsert getmetainfo[];
-  .lg.o[`.dataaccess.init;"running .dataaccess.init - finished"];
+  `.dataaccess.procmetainfo upsert getprocmetainfo connectiontab;
+  `.dataaccess.metainfo set getmetainfo .dataaccess.procmetainfo; 
+  .lg.o[`.dataaccess.init;"running .dataaccess.initnewconnection - finished"];
  };
+
+//- call "init[`:/path/to/tableproperties.csv]"
+init:initnewconnection[;`.server.SERVERS];
 
 connectcustom:{[f;connectiontab]
   @[f;connectiontab;()];
-  @[.dataaccess.init;.dataaccess.tablepropertiespath;()];
+  .[.dataaccess.initnewconnection;(.dataaccess.tablepropertiespath;connectiontab);()];
  }@[value;`.servers.connectcustom;{{[x]}}]
 
 \d .
 
-if[.proc.proctype in `rdb`hdb;
-  // set table properties path
-  .dataaccess.settablepropertiespath[];
-  // initialize dataaccess code
-  .dataaccess.init .dataaccess.tablepropertiespath;
-  // add initializing of dataaccess code upon new connection
-  if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
-  ];
+.dataaccess.settablepropertiespath[];
+
+.z.pc:{[f;x]
+  @[f;x;()];
+  if[.dataaccess.validtablepropertiespath[];delete from`.dataaccess.procmetainfo where w=x];
+ }@[value;`.z.pc;{{}}];
+
+//- ***WIP
+if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];

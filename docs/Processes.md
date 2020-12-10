@@ -555,80 +555,6 @@ The modifications from the standard tick.q include:
 
 The tickerplant log file will be written to hdb/database.
 
-<a name="segmentedtickerplant"></a>
-
-Segmented Tickerplant
----------------------
-
-The segmented tickerplant is an alternative to the standard tickerplant process,
-designed to afford greater flexibility to the user. It can be configured in a
-variety of operating modes which determine how data is logged and published to
-subscribers.
-
-### Logging
-
-Standard tickperplant set ups are designed such that updates for all tables
-are logged to a single file which rolls on a daily basis. The key purpose
-of the segmented tickerplant is to allow the user to instead log updates
-for each table to separate files which roll periodically throughout the day.
-This segmentation of the logged data facilitates efficient data recovery.
-
-The logging method that the segmented tickerplant will use is set by the `multilog`
-flag in the settings directory. Logging can be set up in one of five distinct
-modes:
-
--   `tabperiod`: A single log file is generated for each table in the
-    tickerplant. All log files are rolled periodically (the length of
-    an intraday time period is specified by `multilogperiod`);
-
--   `none`: Standard tickerplant logging, .i.e all tables write to a single
-    log which rolls at the end of each day;
-
--   `periodic`: All tables write to a single log which rolls periodically;
-
--   `tabular`: Tables write to separate log files which each roll daily;
-
--   `custom`: Allows the user to specify the logging method on a table-by-table
-    basis. A subset of tables can be logged to a single,
-    periodic file, while the others can be written in tabular mode. Users
-    can also request a particular table to be logged in tabperiod mode
-    or to not be logged at all. Logging specifications for each table in custom
-    mode are inputted through the stpcustom.csv file.
-
-### Processing Updates
-
-In addition to enhanced logging features, the segmented tickerplant enables
-greater flexibility in the method used to process updates. The process
- is able to operate in three possible batching modes, specified by the 
-`batchmode` flag:
-
--   `memorybatch`: Updates are stored on the tickerplant and then published 
-    in batches by the timer function. The timer also initiates the disk-write 
-    for all updates in the batch to the appropriate log files;
-
--   `defaultbatch`: Publish is performed in batches by the timer function,
-    while disk-write is performed immediately on every update;
-
--   `immediate`: Publish and disk-write are both performed immediately for
-    all updates.
-
-The segmented tickerplant is also capable of processing updates which 
-contain multiple messages with data corresponding to different tables.
-
-### Subscriptions
-
-The final aspect of the segmented tickerplant which can be configured is
-client subscription. In default mode, the tickerplant will publish all
-updates for every table. However, the client can instead subscribe to a subset
-of the tables, and can also impose filters on the data published for those
-tables. This filtered subscription can be specified to publish certain rows
-from the updates and/or a subset of columns from the table.
-
-The tables to subscribe to, and any filters to be applied, are specified in
-the rdbsub.csv file in the settings directory. To apply these filters
-on subscription, the rdb client must be set to `subfiltered` mode using
-the flag in the rdb settings.
-
 <a name="rdb"></a>
 
 Real Time Database (RDB) 
@@ -830,57 +756,49 @@ housekeeping csv file. These can either be set in the config file, or
 overridden via the command line. If these are not set, then default
 parameters are used; 12.00 and ‘KDBCONFIG/housekeeping.csv’
 respectively. The process is designed to run from a single csv file with
-seven headings:
+five headings:
 
 -   Function details the action that you wish to be carried out on the
-      files or directories. Initially, this can be rm (remove) and zip 
-      (zipping) for files, and tardir (zipping) for directories;
+    files, initially, this can be rm (remove) and zip (zipping);
 
--   Path specifies the directory that the files/directories are in;
+-   Path specifies the directory that the files are in;
 
--   Match provides the search string to the find function, files/directories
+-   Match provides the search string to the find function, files
       returned will have names that match this string;
 
 -   Exclude provides a second string to the find function, and these
-      files/directories are excluded from the match list;
+      files are excluded from the match list;
 
 -   Age is the ‘older than’ parameter, and the function will only be
-      carried out on files/directories older than the age given (in days);
-
--   Agemin switches the age measurement from days to minutes;
-
--   Checkfordirectory specifies whether to search for directories, 
-      instead of files.
+      carried out on files older than the age given (in days).
 
 An example csv file would be:
 
-    function,path,match,exclude,age,agemin,checkfordirectory
-    zip,./logs/,*.log,*tick*,2,,
-    rm,./logs/,*.log*,*tick*,4,,
-    zip,./logs/,*tick*,,1,,
-    rm,./logs/,*tick*,,3,,
-    tardir,./stplogs/,database*,,1,,1
+    function,path,match,exclude,age
+    zip,./logs/,*.log,*tick*,2
+    rm,./logs/,*.log*,*tick*,4
+    zip,./logs/,*tick*,,1
+    rm,./logs/,*tick*,,3
     
-    function path         match       exclude  age agemin checkfordirectory
-    -----------------------------------------------------------------------
-    zip      "./logs/"    "*.log"     "*tick*" 2   0      0
-    rm       "./logs/"    "*.log*"    "*tick*" 4   0      0
-    zip      "./logs/"    "*tick*"    ""       1   0      0
-    rm       "./logs/"    "*tick*"    ""       3   0      0
-    tardir   "./stplogs/" "database*" ""       1   0      1
+    function path      match    exclude  age
+    ----------------------------------------
+    zip      "./logs/" "*.log"  "*tick*" 2
+    rm       "./logs/" "*.log*" "*tick*" 4
+    zip      "./logs/" "*tick*" ""       1
+    rm       "./logs/" "*tick*" ""       3
 
 The process reads in the csv file, and passes it line by line to a
 ‘find’ function; providing a dictionary of values that can be used to
-locate the files/directories required. The find function takes advantage of system
-commands to search for matches according to the specifications in the
+locate the files required. The find function takes advantage of system
+commands to search for the files according to the specifications in the
 dictionary. A search is performed for both the match string and the
-exclude string, and cross referenced to produce a list of files/directories that
-match the parameters given. The matches are then each passed to a further
+exclude string, and cross referenced to produce a list of files that
+match the parameters given. The files are then each passed to a further
 set of system commands to perform the task of either zipping or
 removing. Note that an incomplete csv or non-existant path will throw an
 error.
 
-The remove and zipping functions form only basic implementations of the
+The remove and zipping functions form only basic implimentations of the
 housekeeping process; it is designed to be exended to include more
 actions than those provided. Any user function defined in the
 housekeeping code can be employed in the same fashion by providing the

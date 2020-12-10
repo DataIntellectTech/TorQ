@@ -1,22 +1,14 @@
 \d .eqp
 
 //- table to store arguments
-<<<<<<< HEAD
 queryparams:`tablename`partitionfilter`attributecolumn`hdbtimefilter`rdbtimefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformselect!(`;();`;();();();();();();();();();());
-=======
-queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();());
->>>>>>> dataaccesslh
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
   queryparams:extractpartitionfilter[inputparams;queryparams];
   queryparams:extractattributecolumn[inputparams;queryparams];
-<<<<<<< HEAD
   queryparams:extracthdbtimefilter[inputparams;queryparams];
   queryparams:extractrdbtimefilter[inputparams;queryparams];
-=======
-  queryparams:extracttimefilter[inputparams;queryparams];
->>>>>>> dataaccesslh
   queryparams:extractinstrumentfilter[inputparams;queryparams];
   queryparams:extractcolumns[inputparams;queryparams];
   queryparams:extractgrouping[inputparams;queryparams];
@@ -25,11 +17,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractfilters[inputparams;queryparams];
   queryparams:extractfreeformwhere[inputparams;queryparams];
   queryparams:extractfreeformby[inputparams;queryparams];
-<<<<<<< HEAD
   queryparams:extractfreeformselect[inputparams;queryparams];
-=======
-  queryparams:extractfreeformcolumn[inputparams;queryparams];
->>>>>>> dataaccesslh
   queryparams:jointableproperties[inputparams;queryparams];
   :queryparams;
  };
@@ -37,7 +25,6 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
-<<<<<<< HEAD
   getpartitionrangefunc:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
   timecolumn:inputparams`timecolumn;
   primarytimecolumn:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
@@ -46,14 +33,6 @@ extractpartitionfilter:{[inputparams;queryparams]
   partitionrange:getpartitionrangefunc[timecolumn;primarytimecolumn;partitionfield;hdbtimerange];
   partitionfilter:exec enlist(within;partitionfield;partitionrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partitionfilter];
-=======
-  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];  
-  timecolumn:inputparams`timecolumn;
-  partfield:.dataaccess.gettableproperty[inputparams;`partfield];
-  timerange:inputparams[`metainfo]`starttime`endtime;
-  partfilter:exec enlist(within;partfield;timerange)from inputparams;
-  :@[queryparams;`partitionfilter;:;partfilter];
->>>>>>> dataaccesslh
  };
 
 extractattributecolumn:{[inputparams;queryparams]
@@ -61,7 +40,6 @@ extractattributecolumn:{[inputparams;queryparams]
   :@[queryparams;`attributecolumn;:;attributecolumn];
  };
 
-<<<<<<< HEAD
 extracttimefilter:{[inputparams;queryparams;procparams;proctype;procvalidrange;proctimefilter]
   procspecificparams:inputparams procparams;
   timecolumn:inputparams`timecolumn;
@@ -72,15 +50,6 @@ extracttimefilter:{[inputparams;queryparams;procparams;proctype;procvalidrange;p
 extracthdbtimefilter:extracttimefilter[;;`hdbparams;`proctypehdb;`hdbvalidrange;`hdbtimefilter];
 extractrdbtimefilter:extracttimefilter[;;`rdbparams;`proctyperdb;`rdbvalidrange;`rdbtimefilter];
 
-=======
-extracttimefilter:{[inputparams;queryparams]
-  procmeta:inputparams`metainfo;
-  timecolumn:inputparams`timecolumn;
-  addkeys:`proctype`validrange`timefilter;
-  :queryparams,exec addkeys!(proctype;validrange;enlist(within;timecolumn;(starttime;endtime)))from procmeta;
- };
-
->>>>>>> dataaccesslh
 extractinstrumentfilter:{[inputparams;queryparams]
   if[not`instruments in key inputparams;:queryparams];
   instrumentcolumn:.dataaccess.gettableproperty[inputparams;`instrumentcolumn]; 
@@ -145,10 +114,10 @@ extractfreeformby:{[inputparams;queryparams]
   :@[queryparams;`freeformby;:;byclause];
  };
 
-extractfreeformcolumn:{[inputparams;queryparams]
-  if[not`freeformcolumn in key inputparams;:queryparams];
-  selectclause:parse["select ",inputparams[`freeformcolumn]," from x"][4];
-  :@[queryparams;`freeformcolumn;:;selectclause];
+extractfreeformselect:{[inputparams;queryparams]
+  if[not`freeformselect in key inputparams;:queryparams];
+  selectclause:parse["select ",inputparams[`freeformselect]," from x"][4];
+  :@[queryparams;`freeformselect;:;selectclause];
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};

@@ -180,7 +180,7 @@ savetables:$[writedownmode~`partbyattr;savetablesbypart;savetables];
 savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
-endofday:{[pt;processdata]
+endofday:{[pt]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
@@ -501,7 +501,7 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
-
+	
 \d .
 
 /- get the sort attributes for each table
@@ -513,12 +513,9 @@ getsortparams:{[]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
-/-  adds endofday to top level namespace
-endofday: .wdb.endofday;
-
 /- setting the upd and .u.end functions as the .wdb versions
-.u.end:{[pt]
-	.wdb.endofday[.wdb.getpartition[];()!()];
+.u.end:{[pt] 
+	.wdb.endofday[.wdb.getpartition[]];
 	.wdb.currentpartition:pt+1;}
 	
 /- set the replay upd 

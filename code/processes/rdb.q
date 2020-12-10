@@ -80,7 +80,7 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date;processdata]
+endofday:{[date]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
@@ -147,17 +147,12 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
-		if[subfiltered;
-			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
-		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
 		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
-		/-apply subscription filters to replayed data
-		if[subfiltered&replaylog;
-			applyfilters[;subscribesyms]each subtables];];}
-
+		@[`.rdb;;:;]'[key subinfo;value subinfo]]}
+	
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
 		[.lg.o[`setpartition;"setting rdbpartition from date in tickerplant log file name :",string tplogdate];tplogdate];
@@ -168,16 +163,6 @@ setpartition:{[]
 	rdbpartition:: enlist pardefault ^ part;	
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
-loadsubfilters:{[]
-	.sub.filterparams:@[{1!("SSS";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
-	.rdb.subscribeto:raze value flip key .sub.filterparams;
-	.rdb.subscribesyms:.sub.filterparams;}
-
-applyfilters:{[t;f]
-	filts:$[null f[t]`filts;();enlist parse string f[t]`filts];
-	columns:$[null f[t]`columns;();c!c:raze parse string f[t]`columns];
-	@[`.;t;:;?[t;filts;0b;columns]];}
-
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}
 	
@@ -196,11 +181,8 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/- adds endofday to top level namespace
-endofday: .rdb.endofday;
-
-/-set .u.end for the tickerplant to call at end of day
-.u.end:{[d] .rdb.endofday[d;()!()]}
+/-set u.end for the tickerplant to call at end of day
+.u.end:.rdb.endofday
 
 /-set the reload the function
 reload:.rdb.reload
