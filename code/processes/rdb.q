@@ -199,9 +199,7 @@ reload:.rdb.reload
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
 
-/-rounds GMT offset to nearest hour
-localoffset: {01:00*"j"$(`minute$x)%60}(.proc.cp[]-.z.p)
-
 /-change timeout to zero before eod flush
-.timer.repeat[.eodtime.nextroll+localoffset-00:01;0W;1D;
+/-GMT offset rounded to nearest 15 mins and added to roll time
+.timer.repeat[.eodtime.nextroll+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p)-00:01;0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
