@@ -1,31 +1,33 @@
+
 # Dataaccess API
 
 A generic 'getdata' function for quering KDB+ data.
 
 ### Configuration
 
-To use the getdata function on a TorQ process there are 2 options:
+To use the *getdata* function on a TorQ process there are 2 options:
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the command line (see Example configuration trade/quote below for format)
-2) Run "init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
+2) Run ".dataaccessinit[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
+
+In both cases the filepath should point to a configuration file containing information about the tables you want to access via the *getdata* function.
 
 
-**Example configuration - 'trade' and 'quote' table**
+**Example configuration file** - with 'trade' and 'quote' tables
 
-|proctypehdb   |proctyperdb|tablename                     |primarytimecolumn     |attributecolumn                                                                 |instrumentcolumn|timezone|getrollover     |getpartitionrange     |
+|proctype   |tablename                     |primarytimecolumn     |attributecolumn                                                                 |instrumentcolumn|timezone|getrollover     |getpartitionrange     |
 |--------------|-----------|------------------------------|----------------------|--------------------------------------------------------------------------------|----------------|--------|----------------|----------------------|
-|fxhdb      |fxrdb   |trade                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
-|fxhdb      |fxrdb   |quote                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
+|hdb      |trade                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
+|rdb      |quote                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
 
 
 **Description of fields in csv**
 
 |field      |description                                                          |
 |-----------|---------------------------------------------------------------------|
-|proctypehdb    |hdb process of proctype `fxhdb (add to .servers.CONNECTIONS)|
-|proctyperdb    |rdb process of proctype `fxrdb (add to .servers.CONNECTIONS)|
-|tablename  |table to query (assumed unique across dbs)      |
-|primarytimecolumn  |time column from the tickerplant (use this if no  `timecolumn parameter is passed)      |
-|attributecolumn    |primary attribute column      |
+|proctype    |denotes the type of process  i.e. rdb or hdb|
+|tablename  |table to query - assumed unique across given proctype      |
+|primarytimecolumn  |default time column from the tickerplant - used if no  `timecolumn parameter is passed      |
+|attributecolumn    |primary attribute column - used in ordering of queries      |
 |instrumentcolumn   |column containing instrument      |
 |timezone   |timezone of interest (NYI)      |
 |getrollover   |custom function to determine hdb/rdb rollover (see below)      |
@@ -49,6 +51,26 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 ### Usage
 
+**Valid Inputs**
+
+|parameter     |required|checkfunction                 |invalidpairs          |description                                                                     |
+|--------------|--------|------------------------------|----------------------|--------------------------------------------------------------------------------|
+|tablename     |1       |.checkinputs.isvalidtable     |                      |table to query                                                                  |
+|starttime     |1       |.checkinputs.checktimetype    |                      |startime - must be a valid time type (see timecolumn)                                                       |
+|endtime       |1       |.checkinputs.checktimetype    |                      |endime - must be a valid time type (see timecolumn)                                                         |
+|timecolumn    |0       |.checkinputs.checktimecolumn  |                      |column to apply (startime;endime) filter to                                     |
+|instruments   |0       |.checkinputs.allsymbols       |                      |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)                               |
+|columns       |0       |.checkinputs.checkcolumnsexist|aggregations          |table columns to return - symbol list - assumed all if not present                            |
+|grouping      |0       |.checkinputs.checkcolumnsexist|                      |columns to group by -  no grouping assumed if not present                       |
+|aggregations  |0       |.checkinputs.checkaggregations|columns&#124;freeformcolumn|dictionary of aggregations - e.g ``` `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))```|
+|timebar       |0       |.checkinputs.checktimebar     |                      |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|filters       |0       |.checkinputs.checkfilterformat|                      |a parse tree of ordered filters to apply                             |
+|freeformwhere |0       |.checkinputs.isstring         |                      |where clause in string format                                                   |
+|freeformby    |0       |.checkinputs.isstring         |                      |by clause in string format                                                      |
+|freeformcolumn|0       |.checkinputs.isstring         |aggregations          |select clause in string format                         |
+
+
+
 **Example function call**
 
 ```
@@ -64,26 +86,7 @@ GOOG   2000.01.01D09:36:00.000000000 93.6     925.2   114.4    1130.8
 ```
 
 
-**Valid Inputs**
-
-|parameter     |required|checkfunction                 |invalidpairs          |description                                                                     |
-|--------------|--------|------------------------------|----------------------|--------------------------------------------------------------------------------|
-|tablename     |1       |.checkinputs.isvalidtable     |                      |table to query                                                                  |
-|starttime     |1       |.checkinputs.checktimetype    |                      |startime - see timecolumn                                                       |
-|endtime       |1       |.checkinputs.checktimetype    |                      |endime - see timecolumn                                                         |
-|timecolumn    |0       |.checkinputs.checktimecolumn  |                      |column to apply (startime;endime) filter to                                     |
-|instruments   |0       |.checkinputs.allsymbols       |                      |instruments of interest - see tableproperties.csv                               |
-|columns       |0       |.checkinputs.checkcolumnsexist|aggregations          |table columns to return - assumed all if not present                            |
-|grouping      |0       |.checkinputs.checkcolumnsexist|                      |columns to group by -  no grouping assumed if not present                       |
-|aggregations  |0       |.checkinputs.checkaggregations|columns&#124;freeformcolumn|dictionary of aggregations - e.g `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))|
-|timebar       |0       |.checkinputs.checktimebar     |                      |list of (time column to group on;size;type - `nanosecond`second`minute`hour`day)|
-|filters       |0       |.checkinputs.checkfilterformat|                      |a dictionary of columns + conditions in string format                           |
-|freeformwhere |0       |.checkinputs.isstring         |                      |where clause in string format                                                   |
-|freeformby    |0       |.checkinputs.isstring         |                      |by clause in string format                                                      |
-|freeformcolumn|0       |.checkinputs.isstring         |aggregations          |select clause in string format                         |
-
-
-**Description of fields in csv**
+**Description of fields in checkinputs.csv**
 
 |field      |description                                                          |
 |-----------|---------------------------------------------------------------------|
@@ -123,7 +126,7 @@ GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`AUDUSD)
+getdata`tablename`starttime`endtime`instruments!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`AAPL)
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
@@ -174,7 +177,7 @@ GOOG   2000.01.01D17:35:59.999999999 114
 
 ...
 ```
-
+This can be used in conjunction with the `columns` parameter, however the `columns` parameters will be returned first. It is advised to use the `columns` parameter for returning existing columns and the `freeformcolumn` for any derived columns.
 
 
 
@@ -288,7 +291,3 @@ date       sym    source  id    time                          sourcetime        
 2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
 ...
 ```
-
-
-
-
