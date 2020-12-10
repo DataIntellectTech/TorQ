@@ -1,13 +1,14 @@
-params:([proctype:`dailyhdb`monthlyhdb`yearlyhdb`dailyrdb`monthlyrdb`yearlyrdb]
-  func:`generatehdb`generatehdb`generatehdb`generaterdb`generaterdb`generaterdb;
-  partitiontype:`date`month`year`date`month`year;
-  hdbname:`dailyhdb`monthlyhdb`yearlyhdb```;
-  n:5 5 5 5 5 5;
-  tablename:`xdaily`xmonthly`xyearly`xdaily`xmonthly`xyearly;
-  nrecord:10 10 10 10 10 10
+params:([proctype:`hdb`rdb]
+  func:`generatehdb`generaterdb;
+  partitiontype:`date`date;
+  hdbname:`hdb`;
+  n:5 5;
+  tablename:`xdaily`xdaily;
+  nrecord:10 10
  );
 
 generatehdb:{[x]
+  .lg.o[`mockdata;"generating mock hdb"];  
   x:updatehdbdir x;
   setondisk[x].'exec .getrange[partitiontype]'[til n]from x;
   loadhdb x`hdbdir;
@@ -16,7 +17,10 @@ generatehdb:{[x]
 updatehdbdir:{[x]update hdbdir:` sv(testpath;hdbname)from x};
 loadhdb:{[hdbdir]system "l ",1_string hdbdir};
 
-generaterdb:{[x]setinmemory[x]. exec .getrange[partitiontype][n]from x};
+generaterdb:{
+  .lg.o[`mockdata;"generating mock hdb"];
+  [x]setinmemory[x]. exec .getrange[partitiontype][n]from x;
+ };
 
 .getrange.date:{[n]0D+2000.01.01+0 1+n};
 .getrange.month:{[n]0D+.Q.addmonths[2000.01.01;0 1+n]};

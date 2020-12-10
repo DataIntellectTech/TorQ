@@ -6,14 +6,11 @@ source $KDBTESTS/flagparse.sh
 # Path to test directory
 testpath=${KDBTESTS}/dataaccess/checkinputs
 
-# Start procs
-${TORQHOME}/torq.sh start discovery1 dailyhdb1 monthlyhdb1 yearlyhdb1 dailyrdb1 monthlyrdb1 yearlyrdb1 -csv ${testpath}/config/process.csv
-
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
-  -proctype test -procname test1 \
+  -proctype rdb -procname dailyrdb1 \
   -test ${testpath} \
-  -load ${KDBTESTS}/helperfunctions.q ${testpath}/../settings.q ${testpath}/settings.q \
+  -load ${KDBTESTS}/helperfunctions.q ${testpath}/../settings.q ${testpath}/settings.q ${testpath}/../mockdata.q \
   -testresults ${KDBTESTS}/dataaccess/results/ \
   -runtime $run \
   -procfile ${testpath}/config/process.csv \

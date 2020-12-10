@@ -1,6 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
-before,0,0,q,.servers.startup[],1,,"Get connection management set up"
 before,0,0,q,"errors:1!.dataaccess.readcsv[` sv testpath,`testdata`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"
 true,0,0,q,checkreturnederrorcustom[`nondictinput;`],1,,"non dict input should be flagged"
 true,0,0,q,checkreturnederrorcustom[`nonsymbolkey;"ab"!"ab"],1,,"non symbol key should be flagged"
@@ -39,7 +38,3 @@ true,0,0,q,checkreturnederror[`freeformcolumntype],,1,,"freeformcolumntype must 
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput1,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput2,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput3,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
-after,0,0,q,"startorstopproc[""stop"";;1_string processcsv]'[string `discovery1`dailyhdb1`monthlyhdb1`yearlyhdb1`dailyrdb1`monthlyrdb1`yearlyrdb1]",,1,,"shut down procs"
-after,0,0,q,".os.deldir 1_string` sv testpath,`dailyhdb",1,,"Delete temp HDB"
-after,0,0,q,".os.deldir 1_string` sv testpath,`monthlyhdb",1,,"Delete temp HDB"
-after,0,0,q,".os.deldir 1_string` sv testpath,`yearlyhdb",1,,"Delete temp HDB"
