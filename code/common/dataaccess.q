@@ -3,7 +3,10 @@
 \d .dataaccess
 
 // to set table properties path passed from -dataaccess parameter
-settablepropertiespath:{[]resettablepropertiespath hsym`$first .proc.params`dataaccess};
+settablepropertiespath:{[]
+  if[not`dataaccess in key .proc.params;.lg.e[`.dataaccess.settablepropertiespath;"No table properties passed by -dataaccess parameter"]];
+  resettablepropertiespath hsym`$first .proc.params`dataaccess;
+ };
 // to set table properties path from given path
 resettablepropertiespath:{[tablepropertiespath]`.dataaccess.tablepropertiespath set tablepropertiespath};
 // to check if table properties config file exists at given path
@@ -45,6 +48,8 @@ if[.proc.proctype in `rdb`hdb;
   .dataaccess.settablepropertiespath[];
   // initialize dataaccess code
   .dataaccess.init .dataaccess.tablepropertiespath;
-  // 
+  // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
+  // make sure we have the metainfo for all tables
+  while[count[.dataaccess.metainfo]<count tables`.;.dataaccess.metainfo upsert .dataaccess.getmetainfo[]];
   ];
