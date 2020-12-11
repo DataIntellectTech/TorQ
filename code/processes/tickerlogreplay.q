@@ -387,7 +387,7 @@ initandrun:{
   if[.replay.segmentedmode;
     // Pull out the date from the STP log file name - *_YYYYMMDDhhmmss (+ .gz if zipped)
     .replay.replaydate:first l:"D"$$[first[r] like "*.gz";-9_-17#;-6_-14#] each string r;
-    if[not all 0=1_deltas l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
+    if[not 1=count distinct l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
    ];
 
