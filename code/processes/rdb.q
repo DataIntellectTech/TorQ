@@ -201,5 +201,5 @@ reload:.rdb.reload
 
 /-change timeout to zero before eod flush
 /-GMT offset rounded to nearest 15 mins and added to roll time
-.timer.repeat[.eodtime.nextroll+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p)-00:01;0W;1D;
+.timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
