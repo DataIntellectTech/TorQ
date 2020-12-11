@@ -28,7 +28,6 @@ partandmerge:@[value;`partandmerge;0b];                                 // setti
 tempdir:@[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
-zipped:@[value;`zipped;0b];                                             // whether in zipped mode or not
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]         // a dict of table!function used to manipuate tables at EOD save
@@ -228,6 +227,7 @@ cleanhdb:{[dt]
 // Replay log file, if file is zipped and the kdb+ version is at least 4.0 then replay through named pipe
 replayinner:{[msgnum;logfile]
   if[not .replay.zipped;-11!(msgnum;logfile);:()];
+  if[.z.o like "w*";.lg.e[`replaylog;m:"Zipped log files cannot be directly replayed on Windows"];'m];
   if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
 
   .lg.o[`replay;"Replaying logfile ",(f:1_string[logfile])," over named pipe"];
@@ -362,8 +362,12 @@ getlogdir:{
 
 // Use STP meta table and tplogdir to build log names
 getstplogs:{[logdir]
+  // If trying to replay zipped files on Windows, error out
+  winzip:(.z.o like "w*") and z:`stpmeta.gz in key d:hsym logdir;
+  if[winzip;.lg.e[`replaylog;m:"Zipped log files cannot be directly replayed on Windows"];'m];
+
   // If meta table is zipped, assume all other logs are zipped as well and build log names accordingly
-  if[z:`stpmeta.gz in key d:hsym logdir;system "gunzip ",1_string .Q.dd[d;`stpmeta.gz]];
+  if[z;system "gunzip ",1_string .Q.dd[d;`stpmeta.gz]];
   metatable:@[get;.Q.dd[d;`stpmeta];{.lg.e[`getstpmeta;m:"Log directory must contain valid STP meta table"];'m}];
   if[z;system "gzip ",1_string .Q.dd[d;`stpmeta]];
   names:exec distinct logname from metatable where any each tbls in .replay.tablestoreplay;
