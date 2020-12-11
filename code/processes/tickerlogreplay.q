@@ -362,7 +362,7 @@ initandrun:{
   // If in segmented mode, get replay date and clean HDB once
   if[.replay.segmentedmode;
     .replay.replaydate:first l:"D"$(-6_-14#) each string .replay.logstoreplay;
-    if[not all 0=1_deltas l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
+    if[not 1=count distinct l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
    ];
 
