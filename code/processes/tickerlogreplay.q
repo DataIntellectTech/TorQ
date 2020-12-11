@@ -191,6 +191,7 @@ replaylog:{[logfile]
  // If not running in segmented mode, reset replay date and clean HDB directory on each loop
  .replay.zipped:$[logfile like "*.gz";1b;0b];
  if[not .replay.segmentedmode;
+   // Pull out date from TP log file name - *YYYY.MM.DD (+ .gz if zipped) 
    .replay.replaydate:"D"$$[.replay.zipped;-3_-13#;-10#] string logfile;
    if[.replay.clean;.replay.cleanhdb .replay.replaydate]
   ];
@@ -198,7 +199,7 @@ replaylog:{[logfile]
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we won't replay the last message correctly
-  .replay.replayinner[$[lastmessage<0W;lastmessage+1;lastmessage];logfile];
+  .replay.replayinner[lastmessage+lastmessage<0W;logfile];
 
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
@@ -380,6 +381,7 @@ initandrun:{
 
   // If in segmented mode, get replay date and clean HDB once
   if[.replay.segmentedmode;
+    // Pull out the date from the STP log file name - *_YYYYMMDDhhmmss (+ .gz if zipped)
     .replay.replaydate:first l:"D"$$[first[r] like "*.gz";-9_-17#;-6_-14#] each string r;
     if[not all 0=1_deltas l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
