@@ -1,0 +1,11 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.servers.startup[],1,,"Set up connections"
+before,0,0,q,stpHandle:gethandle[`stpex],1,,"Open handle to STP"
+before,0,0,q,//stpHandle(`.stplg.init;tstlogs),1,,"Re-init logs"
+before,0,0,q,meta1:get .Q.dd[tstlogsdir;`stpmeta],1,,"Grab meta table from log directory"
+fail,0,0,q,stpHandle(exit;0),1,,"Shut down STP safely"
+run,0,0,q,meta2:get .Q.dd[tstlogsdir;`stpmeta],1,,"Get latest meta table"
+true,0,0,q,all null exec end from meta1,1,,"Check all initial period ends are null"
+true,0,0,q,(~/)(meta1;meta2) @' `start,1,,"Check initial and final period starts are the same"
+true,0,0,q,all 0<exec "j"$end-start from meta2,1,,"Check all final period ends are greater than period starts"
+after,0,0,q,//.os.deldir tstlogsdir,1,,"Delete test log directory"
