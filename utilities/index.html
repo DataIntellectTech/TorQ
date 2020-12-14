@@ -1716,13 +1716,70 @@ tickerplants:</p>
 <p>See .api.p“.sub.*” for more details.</p>
 <p><a name="ps"></a></p>
 <h2 id="pubsubq">pubsub.q</h2>
-<p>pubsub.q is essentially a placeholder script to allow publish and
-subscribe functionality to be implemented. Licenced kdb+tick users can
-use the publish and subscribe functionality implemented in u.[k|q]. If
-u.[k|q] is placed in the common code directory and loaded before
-pubsub.q (make sure u.[k|q] is listed before pubsub.q in order.txt)
-then publish and subscribe will be implemented. You can also build out
-this file to add your own publish and subscribe routines as required.</p>
+<p>This file defines the <code>.ps</code> namespace, which contains various functions for subscribing and publishing to processes. These functions have traditionally been wrappers for some of the functions found in <code>u.q</code>, but the advent of the Segmented Tickerplant has brought about a more fully-featured pub/sub library, which is now leveraged by the <code>.ps</code> functions. This library is part of the 'common' code, so to load it in by default <code>.proc.loadcommoncode</code> must be set to true.</p>
+<p>The following three functions are primarily associated with the pub/sub library:</p>
+<ul>
+<li><code>.ps.initialise</code> - this is a wrapper for <code>.stpps.init</code> and it sets up several data structures in the <code>.stpps</code> namespace using the tables loaded into memory. This is automatically called on process start up.</li>
+<li><code>.ps.subscribe</code> - this wraps <code>.u.sub</code> and it receives subscription requests from other processes and populates subscription tables in memory</li>
+<li><code>.ps.publish</code> - this is a wrapper for <code>.stpps.pub</code> and it publishes data to subscribers using the information given on subscription</li>
+</ul>
+<p>For example:</p>
+<pre><code class="q">// Subscribe to all tables and symbols
+handletosubscriber(`.ps.subscribe;`;`)
+
+// Subscribe to all tables and subset of symbols
+handletosubscriber(`.ps.subscribe;`;`AAPL`GOOG)
+
+// Subscribe to Microsoft quotes only
+handletosubscriber(`.ps.subscribe;`quote;enlist `MSFT)
+</code></pre>
+
+<p>There are two new functions which have been added that wrap <code>.u.sub</code> with the goal of making it easier for non-kdb+ processes to subscribe using strings:</p>
+<ul>
+<li><code>.ps.subtable</code> - accepts two strings, a table and a comma-separated list of instruments respectively</li>
+<li><code>.ps.subtablefiltered</code> - accepts 3 strings representing a table, where clause and a list of columns</li>
+</ul>
+<p>For example:</p>
+<pre><code class="q">// Subscribe to Google and Apple trades
+handletoSTP(`.ps.subtable;&quot;trade&quot;;&quot;GOOG&quot;,&quot;AAPL&quot;)
+
+// Subscribe to time, sym and bid price data for quotes where bid &gt; 50
+.ps.subtablefiltered[&quot;quote&quot;;&quot;bid&gt;50.0&quot;;&quot;time,sym,bid&quot;]
+</code></pre>
+
+<p>Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls <code>.u.sub</code> with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.</p>
+<p>Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.</p>
+<pre><code class="q">// Subscribe to everything
+handletoSTP(`.u.sub;`;`)
+
+// Subscribe GOOG and AAPL symbols in the trade table
+handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
+
+// Subscribe to all tables but with custom conditions
+handletoSTP(`.u.sub;`;conditions)
+...
+q) show conditions
+tabname| filts             columns         
+-------| ----------------------------------
+trade  | &quot;&quot;                &quot;time,sym,price&quot;
+quote  | &quot;bid&gt;100,bid&lt;200&quot; &quot;&quot;                        
+</code></pre>
+
+<p>Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables. A conditions table may also be used to perform calculations on columns and define new ones as well:</p>
+<pre><code class="q">q) show conditions
+tabname| filts             columns                           
+-------| ----------------------------------------------------
+quote  | &quot;bid&gt;100,bid&lt;200&quot; &quot;time,sym,bid,ask,mid:0.5*bid+ask&quot;
+
+q)quote
+time                          sym  bid   ask   mid    
+------------------------------------------------------
+2020.12.09D15:29:23.183738000 INTC 58.6  59.4  59     
+2020.12.09D15:29:23.183738000 DOW  21.39 22.53 21.96  
+...
+</code></pre>
+
+<p>For more information on subscriptions, see the documentation on the segmented tickerplant process.</p>
 <p><a name="kafka"></a></p>
 <h2 id="kafkaq">kafka.q</h2>
 <p>kafka.q provides q language bindings for Apache Kafka, a 'distributed streaming
@@ -2124,7 +2181,8 @@ q)first .datareplay.tablesToDataStream input
 time| 2014.04.21D08:09:47.600000000
 msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
 </code></pre>
-<p>All messages from trades where <code>src=`L</code> bucketed in 10 minute intervals interleaved with calls to the function <code>`vwap</code>.</p>
+<p>​  <br />
+All messages from trades where <code>src=`L</code> bucketed in 10 minute intervals interleaved with calls to the function <code>`vwap</code>.</p>
 <pre><code>q)input
 tabs     | `trades
 h        | 3i
