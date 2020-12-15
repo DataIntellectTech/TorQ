@@ -1,0 +1,8 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,tickerplant,tp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/tickerplant.q,1,-schemafile ${TORQHOME}/database -tplogdir ${KDBTPLOG},q
+localhost,{KDBBASEPORT}+102,rdb,rdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.tickerplanttypes tickerplant,q
+localhost,{KDBBASEPORT}+103,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subscribesyms GOOG -.rdb.tickerplanttypes tickerplant,q
+localhost,{KDBBASEPORT}+104,wdb,wdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q,1,-.wdb.tickerplanttypes tickerplant,q
+localhost,{KDBBASEPORT}+105,wdb,wdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/wdb.q,1,-.wdb.subsyms GOOG -.wdb.tickerplanttypes tickerplant,q
+localhost,{KDBBASEPORT}+106,wdb,wdbtabfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/wdb.q,1,-.wdb.subtabs quote -.wdb.tickerplanttypes tickerplant,q

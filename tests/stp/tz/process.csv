@@ -1,0 +1,5 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,segmentedtickerplant,stpdef,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.batchmode defaultbatch,q
+localhost,{KDBBASEPORT}+102,segmentedtickerplant,stpmem,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.batchmode memorybatch,q
+localhost,{KDBBASEPORT}+103,segmentedtickerplant,stpimm,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.batchmode immediate,q

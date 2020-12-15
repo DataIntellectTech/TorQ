@@ -124,7 +124,7 @@ query:{[u;q;b;pr]
   if[not fchk[u;ALL;()]; $[b; 'err[`selx][]; :0b]];
   $[b; :qexe q; :1b]}
 
-dotqd:enlist[`]!enlist{[u;e;b;pr]if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]);$[b;'err[`expr][]];:0b];$[b;exe e;1b]};
+dotqd:enlist[`]!enlist{[u;e;b;pr]if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]);$[b;'err[`expr][]];:0b];$[b;qexe e;1b]};
 dotqd[`lj`ij`pj`uj]:{[u;e;b;pr] $[b;val @[e;1 2;expr[u]];1b]}
 dotqd[`aj`ej]:{[u;e;b;pr] $[b;val @[e;2 3;expr[u]];1b]}
 dotqd[`wj`wj1]:{[u;e;b;pr] $[b;val @[e;2;expr[u]];1b]}
@@ -158,17 +158,20 @@ exe:{v:$[(100<abs type first x);val;valp]x;
 
 qexe:{v:val x; if[maxsize<-22!v; 'err[`size][]]; v}
 
+/ check if arg is symbol, and if so if type is <100h i.e. variable - if name invalid, return read error
+isvar:{$[-11h<>type x;0b;100h>type @[get;x;{[x;y]'err[`selt][x]}[x]]]}
+
 mainexpr:{[u;e;b;pr]
   / store initial expression to use with value
   ie:e;
   e:$[10=type e;parse e;e];
   / variable reference
-  if[-11h=type e;
-    if[not achk[u;e;`read;pr]; $[b;'err[`selt][e]; :0b]];
-    $[b; :qexe $[e in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[e];e]; :1b];
+  if[isvar f:first e;
+    if[not achk[u;f;`read;pr]; $[b;'err[`selt][f]; :0b]];
+    :$[b;qexe $[f in key virtualtable;exec (?;table;enlist whereclause;0b;()) from virtualtable[f];e];1b];
   ];
   / named function calls
-  if[-11h=type f:first e;
+  if[-11h=type f;
     if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
     $[b; :exe ie; :1b];
   ];
