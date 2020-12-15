@@ -4,7 +4,7 @@ ignorelist:`heartbeat`logmsg                                                    
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
 rdbtypes:`rdb                                                                               // list of rdb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
-tickerplanttypes:`tickerplant                                                               // list of tickerplant types to try and make a connection to
+tickerplanttypes:`segmentedtickerplant                                                      // list of tickerplant types to try and make a connection to
 subtabs:`                                                                                   // list of tables to subscribe for (` for all)
 subsyms:`                                                                                   // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location to save wdb data

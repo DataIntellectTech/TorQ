@@ -34,6 +34,9 @@ parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source th
 pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
 tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
 
+/ - stops rdb getting the full table schemas in the case that the rdb only subscribes to a subset of columns
+if[.rdb.subfiltered;.rdb.schema:0b]
+
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
 
@@ -81,7 +84,7 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date]
+endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
@@ -148,12 +151,17 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
+		if[subfiltered;
+			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
-		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
 		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[key subinfo;value subinfo]]}
-	
+		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
+		/-apply subscription filters to replayed data
+		if[subfiltered&replaylog;
+			applyfilters[;subscribesyms]each subtables];];}
+
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
 		[.lg.o[`setpartition;"setting rdbpartition from date in tickerplant log file name :",string tplogdate];tplogdate];
@@ -164,6 +172,16 @@ setpartition:{[]
 	rdbpartition:: enlist pardefault ^ part;	
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
+loadsubfilters:{[]
+	.sub.filterparams:@[{1!("S**";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
+	.rdb.subscribeto:raze value flip key .sub.filterparams;
+	.rdb.subscribesyms:.sub.filterparams;}
+
+applyfilters:{[t;f]
+	filters:$[all null w:f[t;`filters];();@[parse;"select from t where ",w] 2];
+  columns:last $[all null c:f[t;`columns];();@[parse;"select ",c," from t"]];
+	@[`.;t;:;eval(?;t;filters;0b;columns)];}
+
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}
 	
@@ -182,8 +200,12 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/-set u.end for the tickerplant to call at end of day
-.u.end:.rdb.endofday
+/- adds endofday and endofperiod functions to top level namespace
+endofday: .rdb.endofday;
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
+
+/-set .u.end for the tickerplant to call at end of day
+.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload

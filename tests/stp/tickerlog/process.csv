@@ -1,0 +1,3 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,tickerlogreplay,trep1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/tickerlogreplay.q,1,-.replay.tplogfile $KDBTESTS/stp/tickerlog/logs/oldlog/testoldlog -.replay.schemafile $TORQHOME/database.q -.replay.hdbdir $KDBTESTS/stp/tickerlog/testhdb/	-.replay.exitwhencomplete 0 -.replay.segmentedmode 0 -.replay.autoreplay 0,q
