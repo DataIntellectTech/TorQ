@@ -14,10 +14,10 @@ In both cases the filepath should point to a configuration file containing infor
 
 **Example configuration file** - with 'trade' and 'quote' tables
 
-|proctype   |tablename                     |primarytimecolumn     |attributecolumn                                                                 |instrumentcolumn|timezone|getrollover     |getpartitionrange     |
-|--------------|-----------|------------------------------|----------------------|--------------------------------------------------------------------------------|----------------|--------|----------------|----------------------|
-|hdb      |trade                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
-|rdb      |quote                        |time                  |sym                                                                             |sym             |UTC     |defaultrollover|defaultpartitionrange|
+|proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
+|-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
+|hdb        |trade      |time                  |sym                   |sym             |UTC     |defaultrollover|defaultpartitionrange|
+|rdb        |quote      |time                  |sym                   |sym             |UTC     |defaultrollover|defaultpartitionrange|
 
 
 **Description of fields in csv**
