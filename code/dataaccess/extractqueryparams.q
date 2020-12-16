@@ -24,11 +24,14 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
-  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];  
-  timecolumn:inputparams`timecolumn;
+  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
+  getpartrangef:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
+  timecol:inputparams`timecolumn;
+  primarytimecol:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
   partfield:.dataaccess.gettableproperty[inputparams;`partfield];
   timerange:inputparams[`metainfo]`starttime`endtime;
-  partfilter:exec enlist(within;partfield;timerange)from inputparams;
+  partrange:getpartrangef[timecol;primarytimecol;partfield;timerange];
+  partfilter:exec enlist(within;partfield;partrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partfilter];
  };
 
