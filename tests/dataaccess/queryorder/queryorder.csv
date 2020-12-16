@@ -1,0 +1,10 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
+before,0,0,q,.servers.startup[],1,,"Get connection management set up"
+true,0,0,q,testfunction["basicsymquery"],1,,"Basic sym check"
+true,0,0,q,testfunction["byandffby"],1,,"Checks if the by part of the query is reordered"
+true,0,0,q,testfunction["reorderby"],1,,"Checks if the by part of the query is reordered"
+true,0,0,q,testfunction["reorderwhere"],1,,"Checks if the where part of the query is reordered"
+true,0,0,q,testfunction["reorderwhere1"],1,,"Checks if the where part of the query is reordered"
+true,0,0,q,testfunction["colsandffcols"],1,,"Checks if the cols and freeformcols order is correct"
+true,0,0,q,testfunction["colsandffcolls1"],1,,"Checks if the cols and freeformcols order is correct"
