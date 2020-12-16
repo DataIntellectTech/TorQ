@@ -5,9 +5,11 @@ A generic 'getdata' function for quering KDB+ data.
 
 ### Configuration
 
-To use the *getdata* function on a TorQ process there are 2 options:
-1) Pass "-dataaccess /path/to/tableproperties.csv" on the command line (see Example configuration trade/quote below for format)
-2) Run ".dataaccessinit[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
+The *getdata* function will be available in rdb and hdb process types if the table properties config file path has been passed via the 
+'dataaccess' flag on the startup line for the process. For other process types it can be initialized as below:
+
+1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example configuration file below for format)
+2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
 In both cases the filepath should point to a configuration file containing information about the tables you want to access via the *getdata* function.
 
