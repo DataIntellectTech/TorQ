@@ -3,11 +3,6 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-  if[`rdb~queryparams`proctype;:getprocqueryorder[queryparams]];
-  if[`hdb~queryparams`proctype;:getprocqueryorder[@[queryparams;`partitionfilter;:;()];]];
- };
-
-getprocqueryorder:{[queryparams]
     :enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
  };
 
