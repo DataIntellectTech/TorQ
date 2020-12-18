@@ -172,7 +172,15 @@ checktimebar:{[dict;parameter]
 timebarmap:`nanosecond`second`minute`hour`day!1 1000000000 60000000000 3600000000000 86400000000000;
 
 checkfilterformat:{[dict;parameter]
-  if[not 0h~type first dict parameter;'`$"filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))"];
+  input:dict parameter;
+  allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
+  allowednot:(in;within;like);
+  if[not 99h~type input;'`$"filter parameter must be a dictionary - e.g. `sym`price`size!(enlist(=;`AAPL);((within;80 100);(not in;81 83 85));enlist(>;50))"];
+  if[not all 0h=raze type''[get input];'"singular conditions must be enlisted - e.g. `sym`price!(enlist(=;`AAPL);((within;80 100);(not in;81 83 85)))"]; 
+  nots:where(~:)~/:ops:first each filters:raze get input;
+  notfilters:@\:[;1]filters nots;
+  if[not all ops in allowedops;'"allowed operators are: =, <, >, <>, <=, >=, in, within, like. The last 3 may be prefaced with 'not' e.g. (not;within;80 100)"];
+  if[not all notfilters in allowednot;'"not may only preface the keywords 'in', 'within' or 'like'"];
   :dict;
  };
 
