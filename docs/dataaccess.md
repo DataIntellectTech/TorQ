@@ -1,4 +1,5 @@
 
+  
 # Dataaccess API
 
 A generic 'getdata' function for quering KDB+ data.
@@ -55,21 +56,21 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 **Valid Inputs**
 
-|parameter     |required|checkfunction                 |invalidpairs          |description                                                                     |
-|--------------|--------|------------------------------|----------------------|--------------------------------------------------------------------------------|
-|tablename     |1       |.checkinputs.isvalidtable     |                      |table to query                                                                  |
-|starttime     |1       |.checkinputs.checktimetype    |                      |startime - must be a valid time type (see timecolumn)                                                       |
-|endtime       |1       |.checkinputs.checktimetype    |                      |endime - must be a valid time type (see timecolumn)                                                         |
-|timecolumn    |0       |.checkinputs.checktimecolumn  |                      |column to apply (startime;endime) filter to                                     |
-|instruments   |0       |.checkinputs.allsymbols       |                      |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)                               |
-|columns       |0       |.checkinputs.checkcolumnsexist|aggregations          |table columns to return - symbol list - assumed all if not present                            |
-|grouping      |0       |.checkinputs.checkcolumnsexist|                      |columns to group by -  no grouping assumed if not present                       |
-|aggregations  |0       |.checkinputs.checkaggregations|columns&#124;freeformcolumn|dictionary of aggregations - e.g ``` `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))```|
-|timebar       |0       |.checkinputs.checktimebar     |                      |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
-|filters       |0       |.checkinputs.checkfilterformat|                      |a parse tree of ordered filters to apply                             |
-|freeformwhere |0       |.checkinputs.isstring         |                      |where clause in string format                                                   |
-|freeformby    |0       |.checkinputs.isstring         |                      |by clause in string format                                                      |
-|freeformcolumn|0       |.checkinputs.isstring         |aggregations          |select clause in string format                         |
+|parameter     |required|example                                                                                   |invalidpairs                 |description                                                                     |
+|--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
+|tablename     |1       |`quote                                                                                    |                             |table to query                                                                  |
+|starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
+|endtime       |1       |2020.12.20D12:00                                                                          |                             |endime - must be a valid time type (see timecolumn)                             |
+|timecolumn    |0       |`time                                                                                     |                             |column to apply (startime;endime) filter to                                     |
+|instruments   |0       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
+|columns       |0       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
+|grouping      |0       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
+|aggregations  |0       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
+|timebar       |0       |(\`time;10;\`minute)                                                                      |                             |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
+|freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
+|freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format                                                      |
+|freeformcolumn|0       |"time, sym, mid:0.5*bid+ask"                                                              |aggregations                 |select clause in string format                                                  |
 
 
 
