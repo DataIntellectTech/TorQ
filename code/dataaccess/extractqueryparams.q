@@ -24,13 +24,16 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
-  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];  
-  timecolumn:inputparams`timecolumn;
+  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
+  getpartrangef:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
+  timecol:inputparams`timecolumn;
+  primarytimecol:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
   partfield:.dataaccess.gettableproperty[inputparams;`partfield];
   timerange:inputparams[`metainfo]`starttime`endtime;
-  partfilter:exec enlist(within;partfield;timerange)from inputparams;
+  partrange:getpartrangef[timecol;primarytimecol;partfield;timerange];
+  partfilter:exec enlist(within;partfield;partrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partfilter];
- };
+  };
 
 extractattributecolumn:{[inputparams;queryparams]
   attributecolumn:.dataaccess.gettableproperty[inputparams;`attributecolumn];
@@ -91,9 +94,19 @@ xbarfunc:{[n;x]
   '`$"timebar type error"; //- type checks in checkinputs functions should stop it reaching here
  };
 
+// extract where filter parameters from input dictionary
+// the filters parameter is a dictionary of the form:
+// `sym`price`size!(enlist(=;`AAPL);((within;80 100);(not in;81 83 85));enlist(>;50))
+// this is translated into a kdb parse tree for use in the where clause:
+// ((=;`sym;,`AAPL);(within;`price;80 100);(in[~:];`price;81 83 85);(>;`size;50))
+// this function ensures symbol types are enlist for the parse tree and reorders
+// filters prefaced with the 'not' keyword as neeeded
 extractfilters:{[inputparams;queryparams]
   if[not`filters in key inputparams;:queryparams];
-  :@[queryparams;`filters;:;inputparams`filters];
+  f:inputparams`filters;
+  f:@''[f;-1+count''[f];{$[11h~abs type x;enlist x;x]}];
+  f:raze key[f]{$[not~first y;y[0],enlist(y 1),x,-1#y;(1#y),x,-1#y]}''get f;
+  :@[queryparams;`filters;:;f];
  };
 
 extractfreeformwhere:{[inputparams;queryparams]
