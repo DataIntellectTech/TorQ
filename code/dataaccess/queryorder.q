@@ -9,21 +9,23 @@ orderquery:{[queryparams]
 gettable:{[queryparams]queryparams`tablename};
 
 getwhere:{[queryparams]
-  partitionfilter:queryparams`partitionfilter;
   whereclause:extractkeys[queryparams;`instrumentfilter`timefilter`filters`freeformwhere];
-  whereclause:reorderbyattributecolumn[queryparams;whereclause];
-  :partitionfilter,whereclause;
+  whereclause:reorderwhere[queryparams;whereclause];
+  :whereclause;
  };
 
-//- if we have filters otf (=;`sym;1#`APPL) or (in;`sym;`APPL`GOOG), where `sym is the column with the attribute - put them to the front
-reorderbyattributecolumn:{[queryparams;whereclause]
-  where1:where any(=;in)~/:\:first'[whereclause];
+//- Put the filter with the attribute column in the index place
+reorderbyattr:{[queryparams;whereclause]
+  // Gets the attribute column
+  attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn];
+
+  // Looks if any of the where clauses contain the attribute as a filter
+  where1:where attributecolumn~/:whereclause[;1];
+  // If none of the filters are based on the attribute return original query
   if[0=count where1;:whereclause];
-  attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn]; 
-  where2:where1 inter where attributecolumn~/:whereclause[;1];
-  if[0=count where2;:whereclause];
-  attributeindex:first where2;
-  :@[whereclause;0,attributeindex;:;whereclause attributeindex,0];
+
+  // Put the filter based on the attribute to the top
+  :@[whereclause;((til count where1),where1);:;whereclause where1,(til count where1)];
  };
 
 getby:{[queryparams]
@@ -38,4 +40,28 @@ getselect:{[queryparams] extractkeys[queryparams;`columns`aggregations`freeformc
 extractkeys:{[queryparams;k]
   k:k inter key queryparams;
   :raze queryparams k;
- };
+  };
+
+//- Put the partition filter top of the query
+orderpartedtable:{[queryparams;whereclause]
+    // Errors out if there is no partition filter
+    if[queryparams[`partitionfilter]~();'"Include a partition filter"];
+
+    // Returns the query with the partion filter at the top
+    :queryparams[`partitionfilter],whereclause;
+   
+  };
+
+//-reorder the where clause to filter through the partitions (if applicable) then the attribute column, then everything else
+reorderwhere:{[queryparams;whereclause]
+    // If applicable, put the filter on the attribute column at the top
+    whereclause:reorderbyattr[queryparams;whereclause];
+    
+    // If the table isn't parted return the where clause
+    if[queryparams[`proctype]~`rdb;:whereclause;];
+
+    // If it is partitioned add the partition filter at the top
+    :orderpartedtable[queryparams;whereclause];
+    
+    
+    };
