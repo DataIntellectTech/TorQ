@@ -2,14 +2,15 @@ parameter,parametervalue
 tablename,`trade
 partitionfilter,()
 attributecolumn,`sym
-timefilter,enlist (within;`time;2020.12.15D14:06:41.614336000 2020.12.15D17:06:41.614333000)
+timefilter ,enlist (within;`time;2020.12.15D14:43:31.428663000 2020.12.15D17:43:31.428661000)
 instrumentfilter,()
-columns,`time`side!`time`side
-grouping,()
+columns,()
+grouping,(enlist `sym)!enlist `sym
 aggregations,()
 filters,()
-freeformwhere,()
+freeformwhere,enlist (=;`sym;enlist `IBM)
 freeformby,()
-freeformcolumn,(enlist `ravgprice)!enlist ({avgs};`price)
-proctype,`rdb
+freeformcolumn,(enlist `mprice)!enlist (max;`price)
+proctype,`hdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
+
