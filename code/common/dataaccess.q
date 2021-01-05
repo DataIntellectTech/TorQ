@@ -51,5 +51,5 @@ if[.proc.proctype in `rdb`hdb;
   // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
   // make sure we have the metainfo for all tables
-  while[count[.dataaccess.metainfo]<count tables`.;.dataaccess.metainfo upsert .dataaccess.getmetainfo[]];
+  .dataaccess.metainfo upsert .dataaccess.getmetainfo[];
   ];
