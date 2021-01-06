@@ -18,12 +18,10 @@ getwhere:{[queryparams]
 reorderbyattr:{[queryparams;whereclause]
   // Gets the attribute column
   attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn];
-
   // Looks if any of the where clauses contain the attribute as a filter
   where1:where attributecolumn~/:whereclause[;1];
   // If none of the filters are based on the attribute return original query
   if[0=count where1;:whereclause];
-
   // Put the filter based on the attribute to the top
   :@[whereclause;((til count where1),where1);:;whereclause where1,(til count where1)];
  };
@@ -46,22 +44,15 @@ extractkeys:{[queryparams;k]
 orderpartedtable:{[queryparams;whereclause]
     // Errors out if there is no partition filter
     if[queryparams[`partitionfilter]~();'"Include a partition filter"];
-
     // Returns the query with the partion filter at the top
-    :queryparams[`partitionfilter],whereclause;
-   
+    :(queryparams[`partitionfilter],whereclause);
   };
-
 //-reorder the where clause to filter through the partitions (if applicable) then the attribute column, then everything else
 reorderwhere:{[queryparams;whereclause]
     // If applicable, put the filter on the attribute column at the top
     whereclause:reorderbyattr[queryparams;whereclause];
-    
     // If the table isn't parted return the where clause
-    if[queryparams[`proctype]~`rdb;:whereclause;];
-
+    if[not .Q.qp value queryparams[`tablename];:whereclause;];
     // If it is partitioned add the partition filter at the top
     :orderpartedtable[queryparams;whereclause];
-    
-    
     };

@@ -1,5 +1,5 @@
 parameter,parametervalue
-tablename,`trade
+tablename,`xdaily
 partitionfilter,()
 attributecolumn,`sym
 timefilter ,enlist (within;`time;2020.12.15D14:43:31.428663000 2020.12.15D17:43:31.428661000)
