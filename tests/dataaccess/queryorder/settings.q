@@ -15,3 +15,4 @@ getoutputparams:{[test]T:exec parameter!get each parametervalue from .dataaccess
 
 testfunction:{[testquery] getoutputparams[`$testquery]~.queryorder.orderquery[getinputparams[`$testquery]][1+til 4]};
 
+

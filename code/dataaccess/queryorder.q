@@ -20,9 +20,11 @@ reorderbyattr:{[queryparams;whereclause]
   attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn];
   // Looks if any of the where clauses contain the attribute as a filter
   where1:where attributecolumn~/:whereclause[;1];
+  // Checks if anythere is an s attribute on the time column and put filters on that next
+  if[`time in 0!select columns from .dataaccess.metainfo[queryparams`tablename][`metas] where attributes=`s;where1:where1,where `time~/:whereclause[;1]];
   // If none of the filters are based on the attribute return original query
   if[0=count where1;:whereclause];
-  // Put the filter based on the attribute to the top
+  // Put the filter based on the attributes to the top
   :@[whereclause;((til count where1),where1);:;whereclause where1,(til count where1)];
  };
 
@@ -46,7 +48,8 @@ orderpartedtable:{[queryparams;whereclause]
     if[queryparams[`partitionfilter]~();'"Include a partition filter"];
     // Returns the query with the partion filter at the top
     :(queryparams[`partitionfilter],whereclause);
-  };
+    };
+
 //-reorder the where clause to filter through the partitions (if applicable) then the attribute column, then everything else
 reorderwhere:{[queryparams;whereclause]
     // If applicable, put the filter on the attribute column at the top
