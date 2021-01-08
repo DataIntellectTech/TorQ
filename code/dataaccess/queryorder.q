@@ -3,7 +3,17 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-    :enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  query:enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  // extract the sym
+  symfilter::where(in;`sym)~/:(@[query;2][;til 2]);
+  // If there is no sym filter then return the original query
+  if[0=count symfilter;:enlist query];
+  // Swap the in part of the query to a =
+  query[2;symfilter;0]:=;
+  // Extract the symlist
+  symlist:raze .[query;2,symfilter,2];
+  // Return a list of queries for each sym
+  :{.[y;2,z,2;:;enlist x]}[;query;symfilter] each symlist;
  };
 
 gettable:{[queryparams]queryparams`tablename};
