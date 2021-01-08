@@ -3,7 +3,7 @@ tablename,`quote
 partitionfilter,enlist(within;`date;2021.01.02 2021.01.07)
 attributecolumn,`sym
 timefilter,enlist(within;`time;2021.01.02D12:02:13.444192000 2021.01.07D12:02:13.444192000)
-instrumentfilter,enlist(in;`sym;`GOOG`IBM)
+instrumentfilter,enlist(in;`sym;1#`GOOG)
 columns,()
 grouping,()
 aggregations,()

@@ -15,3 +15,5 @@ run,0,0,q,clearattrcol[`:.;`quote;`time],1,,"Clear any attribute on the hdb time
 true,0,0,q,testfunction["unsortedhdb"],1,,"Checks the time filter is not prioritised when there is no attribute"
 run,0,0,q,setattrcol[`:.;`quote;`time;`s],1,,"Applies the s attribute to the hdb time column"
 true,0,0,q,testfunction["timesortedhdb"],1,,"Checks the time filter is prioritised"
+true,0,0,q,((first .queryorder.orderquery getinputparams[`multiinstrumentquery])[1+til 4])~getoutputparams[`multiinstrumentquery0],1,,"Checks a multi instrument query is split up"
+true,0,0,q,((last .queryorder.orderquery getinputparams[`multiinstrumentquery])[1+til 4])~getoutputparams[`multiinstrumentquery1],1,,"Checks a multi instrument query is split up"

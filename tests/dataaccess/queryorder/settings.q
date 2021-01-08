@@ -13,6 +13,6 @@ getinputparams:{[test]exec parameter!get each parametervalue from .dataaccess.re
 getoutputparams:{[test]T:exec parameter!get each parametervalue from .dataaccess.readcsv[` sv outputpath,`$string[test],".csv";"i*"];:(T[til 4])};
 
 
-testfunction:{[testquery] getoutputparams[`$testquery]~.queryorder.orderquery[getinputparams[`$testquery]][1+til 4]};
+testfunction:{[testquery] getoutputparams[`$testquery]~(raze .queryorder.orderquery[getinputparams[`$testquery]])[1+til 4]};
 
 
