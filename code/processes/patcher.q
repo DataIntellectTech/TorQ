@@ -1,3 +1,7 @@
+// master mode sends patch updates to any slave patchers (patchers with mastermode off) running
+// useful when stack is running on multiple hosts with slaves on different hosts to master
+.patch.mastermode: @[value;`.patch.mastermode;1b]
+
 // table to store the function and version number
 functionversion:([]time:`timestamp$();proctype:`symbol$();procname:`symbol$();function:`symbol$();oldversion:();newversion:())
 
@@ -23,7 +27,17 @@ applypatch:{[nameortype;val;func;newversion]
  if[0=count c;'"could not get handle to required process(es)"];
  c:update function:func,newv:(count c)#newversion from c;
  applypatchtohandle .' flip value flip select proctype,procname,w,function,newv from c where .dotz.liveh w;
- writefunctionversion[.patch.versiontab]; 
+ writefunctionversion[.patch.versiontab];
+ if[.patch.mastermode;
+  .lg.o[`applypatch;"obtaining slave patcher handles"];
+  patcherhandles: exec w from .servers.SERVERS where proctype=.proc.proctype, procname<>.proc.procname, not null w;
+  $[count patcherhandles;
+  [.lg.o[`applypatch;"sending patch message to slave patchers"];
+   patcherhandles @\: (`applypatch;nameortype;val;func;newversion);
+  ];
+   .lg.o[`applypatch;"no slave handles found, patch updates not send to slaves"]
+   ]
+  ]
  }
 
 rollback:{[pname;func;versiontime]
