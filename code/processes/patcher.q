@@ -1,6 +1,7 @@
 // master mode sends patch updates to any slave patchers (patchers with mastermode off) running
 // useful when stack is running on multiple hosts with slaves on different hosts to master
 .patch.mastermode: @[value;`.patch.mastermode;1b]
+.patch.patchcurrhost: @[value;`.patch.patchcurrhost;1b]  // only send patch updates to processes running on same host as patcher
 
 // table to store the function and version number
 functionversion:([]time:`timestamp$();proctype:`symbol$();procname:`symbol$();function:`symbol$();oldversion:();newversion:())
@@ -24,6 +25,9 @@ applypatch:{[nameortype;val;func;newversion]
  if[not nameortype in ``proctype`procname; '"nameortype has to be one of ``proctype`procname"];
  if[not -11h=type func;'"func must be of type symbol"];
  c:.servers.getservers[nameortype;val;()!();1b;0b];
+ if[.patch.patchcurrhost;
+  // filters out processes running on different hosts
+  c: c where 0 = first each (1_' exec string hpup from c) ss \: string .z.h];
  if[0=count c;'"could not get handle to required process(es)"];
  c:update function:func,newv:(count c)#newversion from c;
  applypatchtohandle .' flip value flip select proctype,procname,w,function,newv from c where .dotz.liveh w;
