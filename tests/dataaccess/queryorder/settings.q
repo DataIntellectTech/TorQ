@@ -15,4 +15,4 @@ getoutputparams:{[test]T:exec parameter!get each parametervalue from .dataaccess
 
 testfunction:{[testquery] getoutputparams[`$testquery]~(raze .queryorder.orderquery[getinputparams[`$testquery]])[1+til 4]};
 
-
+testfunction1:{[testquery;expectedoutput] (getdata getinputparams[`$testquery])~value expectedoutput};

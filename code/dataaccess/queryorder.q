@@ -3,17 +3,12 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-  query:enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
-  // extract the sym
-  symfilter::where(in;`sym)~/:(@[query;2][;til 2]);
-  // If there is no sym filter then return the original query
-  if[0=count symfilter;:enlist query];
-  // Swap the in part of the query to a =
-  query[2;symfilter;0]:=;
-  // Extract the symlist
-  symlist:raze .[query;2,symfilter,2];
-  // Return a list of queries for each sym
-  :{.[y;2,z,2;:;enlist x]}[;query;symfilter] each symlist;
+  query::enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  // If there is no by clause or if the by clause isn't on sym just enlist the query
+  if[0b~@[query;3];:enlist query];
+  // If there is a sym in the by clause 
+  if[`sym in value query[3];:splitquerybysym[query];];
+  :enlist query;
  };
 
 gettable:{[queryparams]queryparams`tablename};
@@ -54,18 +49,31 @@ extractkeys:{[queryparams;k]
 
 //- Put the partition filter top of the query
 orderpartedtable:{[queryparams;whereclause]
-    // Errors out if there is no partition filter
-    if[queryparams[`partitionfilter]~();'"Include a partition filter"];
-    // Returns the query with the partion filter at the top
-    :(queryparams[`partitionfilter],whereclause);
-    };
+   // Errors out if there is no partition filter
+   if[queryparams[`partitionfilter]~();'"Include a partition filter"];
+   // Returns the query with the partion filter at the top
+   :(queryparams[`partitionfilter],whereclause);
+   };
 
 //-reorder the where clause to filter through the partitions (if applicable) then the attribute column, then everything else
 reorderwhere:{[queryparams;whereclause]
-    // If applicable, put the filter on the attribute column at the top
-    whereclause:reorderbyattr[queryparams;whereclause];
-    // If the table isn't parted return the where clause
-    if[not .Q.qp value queryparams[`tablename];:whereclause;];
-    // If it is partitioned add the partition filter at the top
-    :orderpartedtable[queryparams;whereclause];
-    };
+   // If applicable, put the filter on the attribute column at the top
+   whereclause:reorderbyattr[queryparams;whereclause];
+   // If the table isn't parted return the where clause
+   if[not .Q.qp value queryparams[`tablename];:whereclause;];
+   // If it is partitioned add the partition filter at the top
+   :orderpartedtable[queryparams;whereclause];
+   };
+
+//- Converts a filter otf "sym in" to multiple queries otf "sym=" reducing the amount of RAM used and if there is a `g attribute on sym speeds up the query
+splitquerybysym:{[query]
+  // extract the sym filter if applicable
+  symfilter:where(in;`sym)~/:(@[query;2][;til 2]);
+  // If there is no sym filter then return the original query
+  if[0=count symfilter;:enlist query];
+  query[2;symfilter;0]:=;
+  // Extract the symlist
+  symlist:raze .[query;2,symfilter,2];
+  // Return a list of queries for each sym
+  :{.[y;2,z,2;:;enlist x]}[;query;symfilter] each symlist;
+ };

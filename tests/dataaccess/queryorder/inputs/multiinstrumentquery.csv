@@ -9,7 +9,7 @@ grouping,()
 aggregations,()
 filters,((=;`stop;0);(>;`price;25))
 freeformwhere,()
-freeformby,()
-freeformcolumn,()
+freeformby,(enlist `sym)!enlist(`sym)
+freeformcolumn,(enlist `mprice)!enlist(max;`price)
 proctype,`rdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`

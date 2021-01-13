@@ -8,7 +8,7 @@ columns,()
 grouping,()
 aggregations,()
 filters,((=;`stop;0);(>;`price;25))
-freeformwhere,enlist(=;`sym;enlist`GOOG)
+freeformwhere,()
 freeformby,()
 freeformcolumn,()
 proctype,`hdb
