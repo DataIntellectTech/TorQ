@@ -44,7 +44,7 @@ patchlocal:{[nameortype;val;func;newversion]
    .lg.o[`patchlocal;"writing patches to disk"];
    writefunctionversion[.patch.versiontab];
   ];
-   .lg.o["could not get local handle to required process(es)"]
+   .lg.o[`patchlocal;"could not get local handle to required process(es)"]
   ]
  }
 
@@ -64,7 +64,7 @@ updatepatchers:{[nameortype;val;func;newversion]
 
  // send messages to patchers if handles exist
  $[count patcherhandles;
-  [.lg.o[`updatepatchers;"sending patch updates to other patchers"];
+  [.lg.o[`updatepatchers;"sending patch updates to patchers: ", ", " sv string exec procname from patcherprocs];
    (neg patcherhandles) @\: (`patchlocal;nameortype;val;func;newversion);
   ];
    .lg.o[`updatepatchers;"no patcher handles found, patch updates not sent out"]
