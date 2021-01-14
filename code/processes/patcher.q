@@ -1,7 +1,6 @@
-// master mode sends patch updates to any slave patchers (patchers with mastermode off) running
-// useful when stack is running on multiple hosts with slaves on different hosts to master
-.patch.mastermode: @[value;`.patch.mastermode;1b]
-.patch.patchcurrhost: @[value;`.patch.patchcurrhost;1b]  // only send patch updates to processes running on same host as patcher
+// if stack is running on multiple hosts 
+// each host should be running its own patcher proc
+.patch.multihosts: @[value;`.patch.multihosts;1b];
 
 // table to store the function and version number
 functionversion:([]time:`timestamp$();proctype:`symbol$();procname:`symbol$();function:`symbol$();oldversion:();newversion:())
@@ -20,28 +19,61 @@ applypatchtohandle:{[proctype;procname;handle;function;newversion]
   .lg.o[`applypatch;"failed to apply patch"]];
  }
 
+// function for USER to apply patches to stack
 applypatch:{[nameortype;val;func;newversion]
+ patchlocal[nameortype;val;func;newversion];      // apply patches to procs on current host
+ if[.patch.multihosts;
+  updatepatchers[nameortype;val;func;newversion]  // send patch update to other patchers if running on multiple hosts
+  ]
+ }
+
+// applies patch to procs running on current host
+patchlocal:{[nameortype;val;func;newversion]
  // get the list of connections
  if[not nameortype in ``proctype`procname; '"nameortype has to be one of ``proctype`procname"];
  if[not -11h=type func;'"func must be of type symbol"];
  c:.servers.getservers[nameortype;val;()!();1b;0b];
- if[.patch.patchcurrhost;
-  // filters out processes running on different hosts
-  c: c where 0 = first each (1_' exec string hpup from c) ss \: string .z.h];
- if[0=count c;'"could not get handle to required process(es)"];
- c:update function:func,newv:(count c)#newversion from c;
- applypatchtohandle .' flip value flip select proctype,procname,w,function,newv from c where .dotz.liveh w;
- writefunctionversion[.patch.versiontab];
- if[.patch.mastermode;
-  .lg.o[`applypatch;"obtaining slave patcher handles"];
-  patcherhandles: exec w from .servers.SERVERS where proctype=.proc.proctype, procname<>.proc.procname, not null w;
-  $[count patcherhandles;
-  [.lg.o[`applypatch;"sending patch message to slave patchers"];
-   patcherhandles @\: (`applypatch;nameortype;val;func;newversion);
+ 
+ // filters out processes running on different hosts
+ c: c where 0 = first each (1_' exec string hpup from c) ss \: string .z.h;
+ 
+ // send patches to necessary local procs and write patches to disk
+ $[count c;
+  [c:update function:func,newv:(count c)#newversion from c;
+   applypatchtohandle .' flip value flip select proctype,procname,w,function,newv from c where .dotz.liveh w;
+   .lg.o[`patchlocal;"writing patches to disk"];
+   writefunctionversion[.patch.versiontab];
   ];
-   .lg.o[`applypatch;"no slave handles found, patch updates not send to slaves"]
-   ]
+   .lg.o["could not get local handle to required process(es)"]
   ]
+ }
+
+// sends patch updates to all other patchers (useful if running on multiple hosts)
+updatepatchers:{[nameortype;val;func;newversion]
+ .lg.o[`updatepatchers;"obtaining handles of other patcher procs"];
+ patcherprocs: select from .servers.SERVERS where proctype=.proc.proctype, procname<>.proc.procname, not null w;
+ patcherhandles: exec w from patcherprocs;
+
+ c:.servers.getservers[nameortype;val;()!();1b;0b];
+ hoststopatch: extracthosts[c];             //  hosts running processes that need patching
+ patcherhosts: extracthosts[patcherprocs];  //  connected hosts running a patcher proc
+
+ // check that the hosts of all procs to be patched are running a connected patcher process 
+ if[not all hoststopatch in patcherhosts,.z.h;
+  .lg.e[`updatepatchers;"the following hosts do not have patchers running: ", "," sv string hoststopatch where hoststopatch in patcherhosts]];
+
+ // send messages to patchers if handles exist
+ $[count patcherhandles;
+  [.lg.o[`updatepatchers;"sending patch updates to other patchers"];
+   (neg patcherhandles) @\: (`patchlocal;nameortype;val;func;newversion);
+  ];
+   .lg.o[`updatepatchers;"no patcher handles found, patch updates not sent out"]
+  ]
+ }
+
+// returns hostname of procs, given .servers.SERVERS or subset
+extracthosts:{[x]
+ distinct {[y] `$first ":" vs y} each 1_' string exec hpup from x
  }
 
 rollback:{[pname;func;versiontime]
