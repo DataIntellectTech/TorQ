@@ -12,3 +12,4 @@ filters,0,.checkinputs.checkfilterformat,,a dictionary of columns + conditions i
 freeformwhere,0,.checkinputs.isstring,,where clause in string format
 freeformby,0,.checkinputs.isstring,,by clause in string format
 freeformcolumn,0,.checkinputs.isstring,aggregations,select clause in string format
+renamecolumn,0,.checkinputs.checkrenamecolumn,check the column ordering dictionary

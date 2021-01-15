@@ -18,6 +18,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractfreeformby[inputparams;queryparams];
   queryparams:extractfreeformcolumn[inputparams;queryparams];
   queryparams:jointableproperties[inputparams;queryparams];
+  queryparams:extractcolumnnaming[inputparams;queryparams];
   :queryparams;
  };
 
@@ -128,3 +129,12 @@ extractfreeformcolumn:{[inputparams;queryparams]
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};
+
+//-Extract the column naming dictionary/list
+extractcolumnnaming:{[inputparams;queryparams]
+   // If No argument has been supplied return an empty list (this will return default behaviour in getdata.q)
+   if[not `renamecolumn in key inputparams;:@[queryparams;`renamecolumn;:;()!()]];
+   // Otherwise extract the column order list/dictionary
+   :@[queryparams;`renamecolumn;:;@[inputparams;`renamecolumn]];
+ };
+

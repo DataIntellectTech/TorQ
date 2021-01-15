@@ -3,7 +3,8 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-  query::enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  query:enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  renamecolumns[queryparams;query];
   // If there is no by clause or if the by clause isn't on sym just enlist the query
   if[0b~@[query;3];:enlist query];
   // If there is a sym in the by clause 
@@ -64,8 +65,25 @@ reorderwhere:{[queryparams;whereclause]
    // If it is partitioned add the partition filter at the top
    :orderpartedtable[queryparams;whereclause];
    };
+//- Check if the provided dictionary/list can be used to rename before the query is split and executed
+renamecolumns:{[queryparams;query]
+   // Get the rename list/dictionary
+   order:queryparams `renamecolumn;
+   // Get the old column names
+   if[0b~ query[3];query[3]:()!()];
+   if[()~query[4];
+       query[4]:(cols queryparams[`tablename])!cols queryparams[`tablename]];
+   // If the type of query is a list check the list isn't too long
+   if[11h= type order;
+       if[(count order)>count query[3],query[4];
+           '`$"length of renamecolumns is too long"];
+       :1];
+   // If it is a dictionary check all the keys of the dictionary are column headings
+   if[not all (key order) in key query[3],query[4];'`$"Dictionary keys need to be old column names"];
+   :1;
+   };
 
-//- Converts a filter otf "sym in" to multiple queries otf "sym=" reducing the amount of RAM used and if there is a `g attribute on sym speeds up the query
+//- Converts a filter otf "sym in" to multiple queries otf "sym=" the reduces the amount of RAM used and if there is a `g attribute on sym speeds up the query
 splitquerybysym:{[query]
   // extract the sym filter if applicable
   symfilter:where(in;`sym)~/:(@[query;2][;til 2]);

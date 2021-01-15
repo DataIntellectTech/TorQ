@@ -4,5 +4,6 @@ getdata:{[inputparams]                                                          
   inputparams:.checkinputs.checkinputs inputparams;                                          // validate input passed to getdata
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         // extract validated parameters from input dictionary
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
-  :raze value each query;                                                                    // execute the queries
- };
+  table:raze value each query;                                                               // execute the queries
+  :queryparams[`renamecolumn] xcol table;                                                    // rename the columns
+  };

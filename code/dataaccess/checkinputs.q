@@ -184,4 +184,15 @@ checkfilterformat:{[dict;parameter]
   :dict;
  };
 
+//- check if the rename column is otf `old1`old2`old3!`new1`new2`new3
+checkrenamecolumn:{[dict;parameter]
+  input: dict parameter;
+  if[not (type input) in 11 99h; '`$"Column order must be either a list or dictionary eg `col1`col2`col3 or `old1`old2`old3!`new1`new2`new3"];
+  // If the input is a list just return the list
+  if[11h=type input;:dict];
+  //If the input is a dictionary check the keys and values are a list of symbols
+  if[11h <> type value input;'`$"key of column order dictionary needs to be a list of symbols"];
+  if[11h <> type key input;'`$"column names need to be a list of symbols"];  
+  :dict;
+ };
 isstring:{[dict;parameter]:checktype[10h;dict;parameter]};
