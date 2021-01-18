@@ -11,6 +11,7 @@ createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
 // subscribers use this to determine what type of process they are talking to
 tptype:`segmented
 
+.proc.loadf[getenv[`KDBCODE],"/common/patch.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/os.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/timezone.q"];
 .proc.loadf[getenv[`KDBCODE],"/common/eodtime.q"];
