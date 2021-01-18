@@ -39,6 +39,16 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **4.0.0, Dec 2020**
+  * Updated documemtation
+  * Segmented Tickerplant
+  * Test Framework
+- **3.8.0, Oct 2020**
+  * Updated documentation
+  * Install script added
+  * Inclusive terminology 
+  * DQS,DQC and DQE upgrades
+  * PCAP functionality additions
 - **3.7.0, May 2020**
   * Added Data Quality System ([blog post](https://www.aquaq.co.uk/torq-2/torq-data-quality-system/) and [documentation](http://aquaqanalytics.github.io/TorQ/Processes/#torq-data-quality-system-architecture))
   * Fix k4unit testing so that it works with kdb+ 4.0.

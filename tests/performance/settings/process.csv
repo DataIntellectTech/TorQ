@@ -1,0 +1,8 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,feed,feed1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBTESTS}/performance/code/feed.q,1,-config ${KDBTESTS}/performance/settings/feed.q,q
+localhost,{KDBBASEPORT}+102,consumer,consumer1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBTESTS}/performance/code/consumer.q,1,-config ${KDBTESTS}/performance/settings/consumer.q,q
+localhost,{KDBBASEPORT}+103,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${KDBTESTS}/performance/settings/testdb.q -t 1000 -.stplg.errmode 0,q
+localhost,{KDBBASEPORT}+104,tickerplant,tp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/tickerplant.q,1,-schemafile ${KDBTESTS}/performance/settings/testdb -t 0 -tplogdir ${KDBTPLOG},q
+localhost,{KDBBASEPORT}+105,observer,observer1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBTESTS}/performance/code/observer.q,1,,q
+localhost,{KDBBASEPORT}+106,tick,tick1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBTESTS}/performance/code/tick.q,1,-schemafile ${KDBTESTS}/performance/settings/testdb -tplogdir ${KDBTPLOG},q

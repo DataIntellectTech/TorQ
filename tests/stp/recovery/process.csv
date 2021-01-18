@@ -1,0 +1,9 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,rdb,rdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
+localhost,{KDBBASEPORT}+102,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subscribesyms GOOG,q
+localhost,{KDBBASEPORT}+103,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -.rdb.subcsv ${KDBTESTS}/rdbsub.csv,q
+localhost,{KDBBASEPORT}+104,segmentedtickerplant,stpnone,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog singular,q
+localhost,{KDBBASEPORT}+105,segmentedtickerplant,stptabular,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabular,q
+localhost,{KDBBASEPORT}+106,segmentedtickerplant,stptabperiod,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabperiod,q
+localhost,{KDBBASEPORT}+107,segmentedtickerplant,stprepperiod,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -.stplg.multilog tabperiod -.stplg.multilogperiod 00:00:10 -.stplg.replayperiod period,q

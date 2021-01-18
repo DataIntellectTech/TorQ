@@ -397,7 +397,7 @@ debug should be set to 2i (verbose) to extract the full information.
 A further function .email.sendviaservice can be used to send an email using the default mail server on a separate specified process and can be used to allow latency sensitive processes to offload this piece of functionality. 
 
 The function takes two parameters a process and a dictionary which should follow  the same format as .email.send. The function uses the .async.postback Utility to send the email by calling .email.servicesend on the specified process. The postback function immediately returns a success boolean indicating that the the async request has been sent and when the function has been run on the server the results are posted back to the client function  email.servicecallback which logs the email status.
- 
+
 ```
 q).email.sendviaservice[`emailservice;`to`subject`body!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
 1b
@@ -639,13 +639,79 @@ See .api.p“.sub.\*” for more details.
 pubsub.q
 --------
 
-pubsub.q is essentially a placeholder script to allow publish and
-subscribe functionality to be implemented. Licenced kdb+tick users can
-use the publish and subscribe functionality implemented in u.\[k|q\]. If
-u.\[k|q\] is placed in the common code directory and loaded before
-pubsub.q (make sure u.\[k|q\] is listed before pubsub.q in order.txt)
-then publish and subscribe will be implemented. You can also build out
-this file to add your own publish and subscribe routines as required.
+This file defines the `.ps` namespace, which contains various functions for subscribing and publishing to processes. These functions have traditionally been wrappers for some of the functions found in `u.q`, but the advent of the Segmented Tickerplant has brought about a more fully-featured pub/sub library, which is now leveraged by the `.ps` functions. This library is part of the 'common' code, so to load it in by default `.proc.loadcommoncode` must be set to true.
+
+The following three functions are primarily associated with the pub/sub library:
+
+- `.ps.initialise` - this is a wrapper for `.stpps.init` and it sets up several data structures in the `.stpps` namespace using the tables loaded into memory. This is automatically called on process start up.
+- `.ps.subscribe` - this wraps `.u.sub` and it receives subscription requests from other processes and populates subscription tables in memory
+- `.ps.publish` - this is a wrapper for `.stpps.pub` and it publishes data to subscribers using the information given on subscription
+
+For example:
+```q
+// Subscribe to all tables and symbols
+handletosubscriber(`.ps.subscribe;`;`)
+
+// Subscribe to all tables and subset of symbols
+handletosubscriber(`.ps.subscribe;`;`AAPL`GOOG)
+
+// Subscribe to Microsoft quotes only
+handletosubscriber(`.ps.subscribe;`quote;enlist `MSFT)
+```
+
+There are two new functions which have been added that wrap `.u.sub` with the goal of making it easier for non-kdb+ processes to subscribe using strings:
+
+- `.ps.subtable` - accepts two strings, a table and a comma-separated list of instruments respectively
+- `.ps.subtablefiltered` - accepts 3 strings representing a table, where clause and a list of columns
+
+For example:
+```q
+// Subscribe to Google and Apple trades
+handletoSTP(`.ps.subtable;"trade";"GOOG","AAPL")
+
+// Subscribe to time, sym and bid price data for quotes where bid > 50
+.ps.subtablefiltered["quote";"bid>50.0";"time,sym,bid"]
+```
+
+
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.
+
+Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
+
+```q
+// Subscribe to everything
+handletoSTP(`.u.sub;`;`)
+
+// Subscribe GOOG and AAPL symbols in the trade table
+handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
+
+// Subscribe to all tables but with custom conditions
+handletoSTP(`.u.sub;`;conditions)
+...
+q) show conditions
+tabname| filts             columns         
+-------| ----------------------------------
+trade  | ""                "time,sym,price"
+quote  | "bid>100,bid<200" ""                        
+```
+
+Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables. A conditions table may also be used to perform calculations on columns and define new ones as well:
+
+```q
+q) show conditions
+tabname| filts             columns                           
+-------| ----------------------------------------------------
+quote  | "bid>100,bid<200" "time,sym,bid,ask,mid:0.5*bid+ask"
+
+q)quote
+time                          sym  bid   ask   mid    
+------------------------------------------------------
+2020.12.09D15:29:23.183738000 INTC 58.6  59.4  59     
+2020.12.09D15:29:23.183738000 DOW  21.39 22.53 21.96  
+...
+```
+
+For more information on subscriptions, see the documentation on the segmented tickerplant process.
 
 <a name="kafka"></a>
 
@@ -944,7 +1010,7 @@ fields:
 |h        | 5i                      | Handle to hdb process                  | No       | 0i (self)|
 |interval | 0D00:00:01.00           | Time interval used to chunk data, bucketed by timestamp if no time interval set       | No       | None     |
 |tc       | `` `data_time ``              | Name of time column to cut on          | No       | `` `time ``    |
-|timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts | 
+|timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts |
 
 When the timer flag is set, the utility will interleave timer function calls in the message column at intervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requires a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.
 
@@ -962,7 +1028,7 @@ It is possible to get the functional form of a where clause by running parse on 
     ,((=;`src;,`L);(>;`size;100))
     0b
     ()
-    
+
 The where clause is then the 3rd item returned in the parse tree.
 
 
@@ -1026,8 +1092,9 @@ Same as above but including quote table and with interval of 10 minutes:
     q)first .datareplay.tablesToDataStream input
     time| 2014.04.21D08:09:47.600000000
     msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
-    
-    
+
+
+​    
 All messages from trades where `` src=`L `` bucketed in 10 minute intervals interleaved with calls to the function `` `vwap ``.
 
     q)input

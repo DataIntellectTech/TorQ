@@ -10,6 +10,7 @@ hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types 
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
 gatewaytypes:@[value;`gatewaytypes;`gateway]                //list of gateway types
+connectonstart:@[value;`connectonstart;1b];                 //rdb connects to tickerplant as soon as it is started
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
@@ -80,7 +81,7 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date]
+endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
@@ -147,12 +148,17 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
+		if[subfiltered;
+			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
-		subinfo: .sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
+		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
 		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[key subinfo;value subinfo]]}
-	
+		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
+		/-apply subscription filters to replayed data
+		if[subfiltered&replaylog;
+			applyfilters[;subscribesyms]each subtables];];}
+
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
 		[.lg.o[`setpartition;"setting rdbpartition from date in tickerplant log file name :",string tplogdate];tplogdate];
@@ -163,6 +169,16 @@ setpartition:{[]
 	rdbpartition:: enlist pardefault ^ part;	
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
+loadsubfilters:{[]
+	.sub.filterparams:@[{1!("S**";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
+	.rdb.subscribeto:raze value flip key .sub.filterparams;
+	.rdb.subscribesyms:.sub.filterparams;}
+
+applyfilters:{[t;f]
+	filters:$[all null w:f[t;`filters];();@[parse;"select from t where ",w] 2];
+  columns:last $[all null c:f[t;`columns];();@[parse;"select ",c," from t"]];
+	@[`.;t;:;eval(?;t;filters;0b;columns)];}
+
 /-api function to call to return the partitions in the rdb
 getpartition:{[] rdbpartition}
 	
@@ -175,14 +191,18 @@ timeoutreset:{.rdb.timeout:system"T";system"T 0"};
 restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
-/- make sure that the process will make a connection to each of the tickerplant and hdb types
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.tickerplanttypes,.rdb.gatewaytypes
+/- make sure that the process will make a connection to each of the gateways and hdb types
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
 /-set the upd function in the top level namespace
 upd:.rdb.upd
 
-/-set u.end for the tickerplant to call at end of day
-.u.end:.rdb.endofday
+/- adds endofday and endofperiod functions to top level namespace
+endofday: .rdb.endofday;
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
+
+/-set .u.end for the tickerplant to call at end of day
+.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
@@ -192,13 +212,19 @@ reload:.rdb.reload
 
 .lg.o[`init;"searching for servers"];
 
-//check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[]; 
+// connects and subscribes to tickerplant only if connectonstart is true
+$[.rdb.connectonstart;
+ [.servers.CONNECTIONS,:.rdb.tickerplanttypes;
+  .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
+  .rdb.subscribe[];
+ ];
+  .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
+ ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
 
 /-change timeout to zero before eod flush
-.timer.repeat[.eodtime.nextroll-00:01;0W;1D;
+/-GMT offset rounded to nearest 15 mins and added to roll time
+.timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
