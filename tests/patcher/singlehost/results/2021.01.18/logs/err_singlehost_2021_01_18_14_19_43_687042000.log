@@ -1,0 +1,2 @@
+2021.01.18D14:19:53.254585000|homer|test|test1|ERR|KUexecerr|run error in file :/home/etennison/patchproc/testdeploy/tests/patcher/singlehost/singlepatch.csv on line 9 - /home/etennison/patchproc/testdeploy/appconfig/testfunctionversion. OS reports: No such file or directory. Code: 'test1: get testversiontable'
+2021.01.18D14:19:57.271580000|homer|test|test1|ERR|KUexecerr|true error in file :/home/etennison/patchproc/testdeploy/tests/patcher/singlehost/singlepatch.csv on line 16 - .t1.test. Code: '{1+2}~stpHandle".t1.test"'
