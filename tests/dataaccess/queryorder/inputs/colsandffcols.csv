@@ -13,3 +13,4 @@ freeformby,()
 freeformcolumn,(enlist `sym)!enlist `sym
 proctype,`rdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
+renamecolumn,()!()

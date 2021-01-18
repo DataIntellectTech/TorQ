@@ -10,6 +10,8 @@ true,0,0,q,testfunction["reorderwhere"],1,,"Checks if the where part of the quer
 true,0,0,q,testfunction["reorderwhere1"],1,,"Checks if the where part of the query is reordered"
 true,0,0,q,testfunction["colsandffcols"],1,,"Checks if the cols and freeformcols order is preserved"
 true,0,0,q,testfunction["colsandffcols1"],1,,"In this case the arguments for cols and ffcols are reversed test this order is preserved"
+true,0,0,q,testfunction["listrename"],1,,"check the list rename parameter is valid"
+true,0,0,q,testfunction["dictionaryrename"],1,,"check the dictionary rename parameter is valid"
 fail,0,0,q,.queryorder.orderquery getinputparams[`partederror],1,,"Checks when the above query is sent to a hdb it errors because of a parted error"
 true,0,0,q,testfunction["hdbwherereorder"],1,,"checks the filter prioritises the partition"
 run,0,0,q,clearattrcol[`:.;`quote;`time],1,,"Clear any attribute on the hdb time column"

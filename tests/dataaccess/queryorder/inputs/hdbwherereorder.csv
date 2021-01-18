@@ -13,3 +13,4 @@ freeformby,()
 freeformcolumn,()
 proctype,`hdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`date
+renamecolumn,()!()

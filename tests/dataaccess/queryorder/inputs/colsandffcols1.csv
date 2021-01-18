@@ -13,3 +13,4 @@ freeformby,()
 freeformcolumn,(enlist `ravgprice)!enlist ({avgs};`price)
 proctype,`rdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
+renamecolumn,()!()

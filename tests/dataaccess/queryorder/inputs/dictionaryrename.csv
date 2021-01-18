@@ -2,10 +2,10 @@ parameter,parametervalue
 tablename,`xdaily
 partitionfilter,()
 attributecolumn,`sym
-timefilter,enlist (within;`time;2020.12.15D13:54:27.901446000 2020.12.15D16:54:27.901442000)
-instrumentfilter,()
-columns,`price`time!`price`time
-grouping,`sym`size!`sym`size
+timefilter,enlist(within;`time;2020.12.15D11:42:00.594522000 2020.12.15D14:42:00.594518000)
+instrumentfilter,enlist(=;`sym;1#`GOOG)
+columns,`sym`time!`sym`time
+grouping,()
 aggregations,()
 filters,()
 freeformwhere,()
@@ -13,4 +13,4 @@ freeformby,()
 freeformcolumn,()
 proctype,`rdb
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
-renamecolumn,()!()
+renamecolumn,`sym`time!`new1`new2
