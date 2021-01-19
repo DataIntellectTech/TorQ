@@ -3,7 +3,8 @@
 \d .queryorder
 
 orderquery:{[queryparams]
-  query:enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
+  query:enlist[?],(gettable;getwhere;getby;getselect;getnumber)@\:queryparams;
+  query:query,getordering[queryparams];
   renamecolumns[queryparams;query];
   // If there is no by clause or if the by clause isn't on sym just enlist the query
   if[0b~@[query;3];:enlist query];
@@ -46,6 +47,15 @@ getselect:{[queryparams] extractkeys[queryparams;`columns`aggregations`freeformc
 extractkeys:{[queryparams;k]
   k:k inter key queryparams;
   :raze queryparams k;
+  };
+
+getnumber:{[queryparams]
+  :0W;
+  };
+
+getordering:{[queryparams]
+  if[(count queryparams`ordering)>1;:enlist queryparams`ordering];
+  if[(count queryparams`ordering)>0;:queryparams`ordering];
   };
 
 //- Put the partition filter top of the query

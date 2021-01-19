@@ -9,6 +9,7 @@ grouping,0,.checkinputs.checkcolumnsexist,,columns to group by -  no grouping as
 aggregations,0,.checkinputs.checkaggregations,columns|freeformcolumn,dictionary of aggregations - e.g `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 timebar,0,.checkinputs.checktimebar,,list of (time column to group on;size;type - `nanosecond`second`minute`hour`day)
 filters,0,.checkinputs.checkfilterformat,,a dictionary of columns + conditions in string format
+ordering,0,.checkinputs.checkordering,,a list of pairs regarding the direction (`asc or `desc) of ordering and a column to order
 freeformwhere,0,.checkinputs.isstring,,where clause in string format
 freeformby,0,.checkinputs.isstring,,by clause in string format
 freeformcolumn,0,.checkinputs.isstring,aggregations,select clause in string format

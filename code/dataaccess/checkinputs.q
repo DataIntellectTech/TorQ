@@ -184,6 +184,41 @@ checkfilterformat:{[dict;parameter]
   :dict;
  };
 
+// check that ordering parameter contains only symbols and is paired in the format
+// (direction;column).
+checkordering:{[dict;parameter]
+    example:"((`asc`sym);(`desc`price))";
+    example2:"enlist(`asc`maxPrice)";
+    input:dict parameter;
+    if[11h<>type raze input;
+        '`$"ordering parameter must contain pairs of symbols as its input - example: ",example];
+    if[0<>count except[count each input;2];
+        '`$"ordering parameter's values must be paired in the form (direction;column) - example: ",example];
+    if[0<>count except[first each input;`asc`desc];
+        '`$"the first item in each of the ordering parameter's pairs must be either `asc or `desc - example: ",example];
+    $[in[`grouping;key dict];grouping:(dict`grouping),();grouping:()];
+    $[in[`timebar;key dict];timebar:(dict`timebar);timebar:()];
+    if[in[`aggregations;key dict];
+        aggs:dict`aggregations;
+        aggs:flip(key[aggs]where count each get aggs;raze aggs);
+        names:{
+        if[1=count x[1];
+            :`$(string x[0]),@[string x[1];0;upper]];
+        if[2=count x[1];
+            :`$(string x[0]),(@[string first x[1];0;upper]),@[string last x[1];0;upper]]
+        }'[aggs];
+        if[any raze {1<sum y=x}[last each aggs]'[last each input];
+            '`$"ordering parameter vague. Ordering by a column that aggregated more than once, as such the aggregation must be specified. The aggregation convention is camel-case, so to order by the aggregation max price, the following would be used: ",example2];
+        if[any not in[last each input;names,grouping,timebar[2],last each aggs];
+            '`$"ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter"]];
+    if[in[`columns;key dict];
+        columns:(dict`columns),();
+        if[not (enlist `)~columns;
+            if[any not in[last each input;columns];
+                badorder:sv[",";string (last each ordering) where not in[last each ordering;columns]]; 
+                '`$"trying to order by column(s) {",badorder,"} that is not defined in the columns argument"]]];
+    :dict;};
+
 //- check if the rename column is otf `old1`old2`old3!`new1`new2`new3
 checkrenamecolumn:{[dict;parameter]
   input: dict parameter;

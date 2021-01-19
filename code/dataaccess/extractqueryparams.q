@@ -1,7 +1,7 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();());
+queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`ordering`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();();());
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
@@ -14,6 +14,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractaggregations[inputparams;queryparams];
   queryparams:extracttimebar[inputparams;queryparams];
   queryparams:extractfilters[inputparams;queryparams];
+  queryparams:extractordering[inputparams;queryparams];
   queryparams:extractfreeformwhere[inputparams;queryparams];
   queryparams:extractfreeformby[inputparams;queryparams];
   queryparams:extractfreeformcolumn[inputparams;queryparams];
@@ -108,6 +109,13 @@ extractfilters:{[inputparams;queryparams]
   f:@''[f;-1+count''[f];{$[11h~abs type x;enlist x;x]}];
   f:raze key[f]{$[not~first y;y[0],enlist(y 1),x,-1#y;(1#y),x,-1#y]}''get f;
   :@[queryparams;`filters;:;f];
+ };
+
+extractordering:{[inputparams;queryparams]
+  if[not`ordering in key inputparams;:queryparams];
+  go:{[x;input]if[first (input)[x]=`asc;:(<:;(input)[x;1])];if[first (input)[x]=`desc;:(>:;(input)[x;1])];(input)[x]};
+  order:go[;inputparams`ordering] each til count inputparams`ordering;
+  :@[queryparams;`ordering;:;order];
  };
 
 extractfreeformwhere:{[inputparams;queryparams]
