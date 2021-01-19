@@ -68,6 +68,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 |aggregations  |0       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
 |timebar       |0       |(\`time;10;\`minute)                                                                      |                             |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
 |filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
+|ordering      |0       |enlist(\`desc\`bidprice)                                                         |                             |list ordering results ascending or descending by column                                  |
 |freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
 |freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format                                                      |
 |freeformcolumn|0       |"time, sym, mid:0.5*bid+ask"                                                              |aggregations                 |select clause in string format                                                  |
@@ -263,7 +264,7 @@ AAPL   2000.01.02D00:00:00.000000000| 91.8        112.2       98.1        119.9 
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(=;`source;1#`source1))
+getdata`tablename`starttime`endtime`filters!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`source`bidprice!(enlist(=;`source1);enlist(within;80 100)))
 date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
 -----------------------------------------------------------------------------------------------------------------------------
 2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
@@ -273,6 +274,25 @@ date       sym    source  id    time                          sourcetime        
 2000.01.01 GOOG   source1 "x14" 2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
 2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
 
+...
+```
+
+
+
+**Ordering**
+
+Use the ``` `ordering ``` parameter to sort results by column ascending or descending
+
+```
+getdata`tablename`starttime`endtime`ordering!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`askprice))
+sym    time                          sourcetime                    bidprice bidsize askprice asksize
+----------------------------------------------------------------------------------------------------
+AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
+AAPL   2000.01.01D04:48:00.000000000 2000.01.01D04:48:00.000000000 98.1     933.3   119.9    1140.7
+GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
+AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
+GOOG   2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
+GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
 ...
 ```
 
