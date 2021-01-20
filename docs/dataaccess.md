@@ -310,7 +310,7 @@ GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078
 ...
 ```
 
-** Rename Columns **
+**Rename Columns**
 
 Use the ``` `renamecolumn ``` parameter to rename the columns 
 
