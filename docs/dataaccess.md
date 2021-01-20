@@ -277,8 +277,22 @@ date       sym    source  id    time                          sourcetime        
 ...
 ```
 
+**Free form Filters**
 
+Use the ``` `freefromby ``` parameter to execute the same filter as above
 
+```
+getdata`tablename`starttime`endtime`freeformwhere!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"source=`source1")
+date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
+-----------------------------------------------------------------------------------------------------------------------------
+2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
+2000.01.01 GOOG   source1 "x11" 2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
+2000.01.01 GOOG   source1 "x12" 2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     932.4   119.9    1139.6
+2000.01.01 GOOG   source1 "x13" 2000.01.01D08:00:00.000000000 2000.01.01D08:48:00.000000000 91.8     910.8   112.2    1113.2
+2000.01.01 GOOG   source1 "x14" 2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
+2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
+...
+```
 **Ordering**
 
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
@@ -296,21 +310,18 @@ GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078
 ...
 ```
 
+** Rename Columns **
 
-
-**Free form Filters**
-
-Use the ``` `freefromby ``` parameter to execute the same filter as above
+Use the ``` `renamecolumn ``` parameter to rename the columns 
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"source=`source1")
-date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
------------------------------------------------------------------------------------------------------------------------------
-2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
-2000.01.01 GOOG   source1 "x11" 2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
-2000.01.01 GOOG   source1 "x12" 2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     932.4   119.9    1139.6
-2000.01.01 GOOG   source1 "x13" 2000.01.01D08:00:00.000000000 2000.01.01D08:48:00.000000000 91.8     910.8   112.2    1113.2
-2000.01.01 GOOG   source1 "x14" 2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
-2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
-...
+getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;(00:00:00+.z.d-5);00:00:00+.z.d+1;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+newdate    newsym| newprice
+-----------------| --------
+2021.01.18 IBM   | 69.64
+2021.01.19 IBM   | 55.91
+2021.01.18 AAPL  | 121.66
+2021.01.19 AAPL  | 111.67
+2021.01.18 INTC  | 70.77
+2021.01.19 INTC  | 65.6
 ```
