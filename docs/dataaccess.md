@@ -2,7 +2,7 @@
   
 # Dataaccess API
 
-A generic 'getdata' function for quering KDB+ data.
+The api allows for a user to send identical queries to multiple process types (not just an RDB/HDB), without adapting the query to accommodate to each processes’ semantics. The api strikes a balance of accessibility, whilst not constricting developers or giving unexpected outputs. It is designed to work with other non-KDB+ native applications such as BigQuery.
 
 ### Configuration
 
@@ -19,8 +19,11 @@ In both cases the filepath should point to a configuration file containing infor
 
 |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
-|hdb        |trade      |time                  |sym                   |sym             |UTC     |defaultrollover|defaultpartitionrange|
-|rdb        |quote      |time                  |sym                   |sym             |UTC     |defaultrollover|defaultpartitionrange|
+rdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange
+hdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange
+rdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange
+hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange
+
 
 
 **Description of fields in csv**
@@ -29,7 +32,7 @@ In both cases the filepath should point to a configuration file containing infor
 |-----------|---------------------------------------------------------------------|
 |proctype    |denotes the type of process  i.e. rdb or hdb|
 |tablename  |table to query - assumed unique across given proctype      |
-|primarytimecolumn  |default time column from the tickerplant - used if no  `timecolumn parameter is passed      |
+|primarytimecolumn  |default time column from the tickerplant - used if no  \`timecolumn parameter is passed      |
 |attributecolumn    |primary attribute column - used in ordering of queries      |
 |instrumentcolumn   |column containing instrument      |
 |timezone   |timezone of interest (NYI)      |
@@ -58,21 +61,21 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 |parameter     |required|example                                                                                   |invalidpairs                 |description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
-|tablename     |1       |`quote                                                                                    |                             |table to query                                                                  |
+|tablename     |1       |\`quote                                                                                    |                             |table to query                                                                  |
 |starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
 |endtime       |1       |2020.12.20D12:00                                                                          |                             |endime - must be a valid time type (see timecolumn)                             |
-|timecolumn    |0       |`time                                                                                     |                             |column to apply (startime;endime) filter to                                     |
+|timecolumn    |0       |\`time                                                                                     |                             |column to apply (startime;endime) filter to                                     |
 |instruments   |0       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
 |columns       |0       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
 |grouping      |0       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
 |aggregations  |0       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
 |timebar       |0       |(\`time;10;\`minute)                                                                      |                             |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
 |filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
-|ordering      |0       |enlist(\`desc\`bidprice)                                                         |                             |list ordering results ascending or descending by column                                  |
 |freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
-|freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format                                                      |
-|freeformcolumn|0       |"time, sym, mid:0.5*bid+ask"                                                              |aggregations                 |select clause in string format                                                  |
-
+|freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format
+|freeformcolumn|0       |"time, sym,mid\:0.5*bid+ask"                                                              |aggregations                 |select clause in string format 
+|renamecolumn|0         | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                         | Either a dictionary of old!new or list of column names
+|ordering      |0       |enlist(\`desc\`bidprice)                                                         |                             |list ordering results ascending or descending by column
 
 
 **Example function call**
@@ -99,7 +102,14 @@ GOOG   2000.01.01D09:36:00.000000000 93.6     925.2   114.4    1130.8
 |checkfunction   |function to determine whether the given value is valid      |
 |invalid pairs   |whether a parameter is invalid in combination with some other parameter      |
 
+
+**Developer's Footnote**
+
+The api is designed improve accessibility whilst maintaining a fast query speed. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected.  
+
 ### Further examples
+
+The following examples all come with their own appropriate error checks defined in `.checkinputs`
 
 **time default**
 
@@ -117,12 +127,6 @@ GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078
 GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
 ...
 ```
-
-
-
-
-
-
 
 
 **Intsrument Filter**
