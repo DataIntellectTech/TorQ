@@ -1,36 +1,36 @@
 test,error
-nondictinput,Input parameter must be a dictionary
-nonsymbolkey,keys must be of type 11h
-requiredparamsmissing,"required params missing:,`tablename"
+nondictinput,Input must be a dictionary
+nonsymbolkey,Input dictionary must have keys of type 11h
+requiredparamsmissing,"required parameters missing:,`tablename"
 invalidparamnames,required params missing:`invalidname1`invalidname2
-invalidcomb1,"parameter:`columns cannot be used in combination with parameter(s):,`aggregations"
-invalidcomb2,"parameter:`aggregations cannot be used in combination with parameter(s):,`freeformcolumn"
+invalidcomb1,"parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`columns"
+invalidcomb2,"parameter:`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`freeformcolumn`aggregations"
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 tableexists,table:`invalidtablename doesn't exist
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
-timecolumnexists,"parameter:`timecolumn - table:`xdaily on process:`rdb doesn't contain:,`date - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
+timecolumnexists,"column(s) ,`date presented in `timecolumn is not a valid column for `xdaily"
 invalidtimecolumn,"parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
-checktimeorder,starttime>endtime
-instrumenttype,`instruments input type incorrect - valid type(s):11 -11h - input type:0h
-columntypes,`columns input type incorrect - valid type(s):11 -11h - input type:0h
-columnsexist,parameter:`columns - table:`xdaily on process:`rdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize
-groupingtype,`grouping input type incorrect - valid type(s):11 -11h - input type:0h
-aggregationdict,aggregations parameter must be of type dict - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-aggregationkey,aggregations parameter key must be of type 11h - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-aggregationvalues,aggregations parameter values must be of type symbol - example:`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
-aggregationcolumnsexist,"parameter:`aggregations - table:`xdaily on process:`rdb doesn't contain:`invalid1`invalid2 - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
-invalidaggregationfuncs,invalid functions passed to aggregation parameter:`invalid1`invalid2
+checktimeorder,starttime parameter must be <= endtime parameter
+instrumenttype,`instruments input type incorrect - valid type(s):-11 11h - input type:0h
+columntypes,`columns input type incorrect - valid type(s):-11 11h - input type:0h
+columnsexist,column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
+groupingtype,`grouping input type incorrect - valid type(s):-11 11h - input type:0h
+aggregationdict,`aggregations input type incorrect - valid type(s):99h - input type:-11h
+aggregationkey,aggregations parameter key must be of type 11h - example: `max`min`wavg!(`price;`size;`price`size)
+aggregationvalues,aggregations parameter values must be of type symbol - example: `max`min`wavg!(`price;`size;`price`size)
+aggregationcolumnsexist,column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
+invalidaggregationfuncs,Aggregations dictionary contains undefined function(s) `invalid1`invalid2
 timebarargstype,timebar parameter must be a list of length 3
 timebarcount,timebar parameter must be a list of length 3
-timebararg0,first argument of timebar must be have type -11h
-timebararg1,type of the second argument of timebar must be either -6h or -7h
-timebararg2,third argument of timebar must be of type -11h
-timebarinvalid,third argument of timebar must be one of:`nanosecond`second`minute`hour`day
-timebarexists,"parameter:`timebar - table:`xdaily on process:`rdb doesn't contain:,`invalidcolumn - validcolumns:`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize"
+timebararg0,first argument of timebar must be either -6h or -7h
+timebararg1,second argument of timebar must be of type -11h
+timebararg2,third argument of timebar must be have type -11h
+timebarinvalid,"the inputted size of the timebar argument: `min, is not an appropriate size. Appropraites sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+timebarexists,"column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
 timebartype,"parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
-filterformat,filter parameter passed incorrectly - example ((>;`size;5);(=;`price;(max;`price)))
+filterformat,`filters input type incorrect - valid type(s):99h - input type:10h
 freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
 freeformbytype,`freeformby input type incorrect - valid type(s):10h - input type:-11h
 freeformcolumntype,`freeformcolumn input type incorrect - valid type(s):10h - input type:-11h

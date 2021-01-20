@@ -1,8 +1,8 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
-before,0,0,q,"errors:1!.dataaccess.readcsv[` sv testpath,`testdata`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"
+before,0,0,q,"errors:1!.checkinputs.readcsv[` sv testpath,`testdata`checkinputerrors.csv;""s*""]",1,,"load in error to be thrown for incorrect inputs"
 true,0,0,q,checkreturnederrorcustom[`nondictinput;`],1,,"non dict input should be flagged"
-true,0,0,q,checkreturnederrorcustom[`nonsymbolkey;"ab"!"ab"],1,,"non symbol key should be flagged"
+true,0,0,q,checkreturnederrorcustom[`nonsymbolkey;("bad";"dict")!`bad`dict],1,,"non symbol key should be flagged"
 true,0,0,q,checkreturnederror[`requiredparamsmissing],1,,"parameters with requied:1b must be included - see config/checkinputs.csv"
 true,0,0,q,checkreturnederror[`invalidcomb1],1,,"some column pairs are invalid"
 true,0,0,q,checkreturnederror[`invalidcomb2],1,,"some column pairs are invalid"
@@ -26,8 +26,8 @@ true,0,0,q,checkreturnederror[`invalidaggregationfuncs],1,,"check a valid aggreg
 true,0,0,q,checkreturnederror[`timebarargstype],,1,,"timebar parameter must be a list of length 3"
 true,0,0,q,checkreturnederror[`timebarcount],,1,,"timebar parameter must be a list of length 3"
 true,0,0,q,checkreturnederror[`timebararg0],,1,,"first argument of timebar must be have type -11h"
-true,0,0,q,checkreturnederror[`timebararg1],,1,,"type of the second argument of timebar must be either -6h or -7h"
-true,0,0,q,checkreturnederror[`timebararg2],,1,,"third argument of timebar must be of type -11h"
+true,0,0,q,checkreturnederror[`timebararg1],,1,,second argument of timebar must be of type -11h
+true,0,0,q,checkreturnederror[`timebararg2],,1,,third argument of timebar must be have type -11h
 true,0,0,q,checkreturnederror[`timebarinvalid],,1,,"third argument of timebar must be one of:`nanosecond`second`minute`hour`day"
 true,0,0,q,checkreturnederror[`timebarexists],,1,,"timecolumn does not exist"
 true,0,0,q,checkreturnederror[`timebartype],,1,,"timecolumn must be of valid type"

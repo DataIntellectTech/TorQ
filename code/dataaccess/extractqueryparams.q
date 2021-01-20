@@ -27,10 +27,10 @@ extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparam
 
 extractpartitionfilter:{[inputparams;queryparams]
   if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
-  getpartrangef:.dataaccess.gettableproperty[inputparams;`getpartitionrange];
+  getpartrangef:.checkinputs.gettableproperty[inputparams;`getpartitionrange];
   timecol:inputparams`timecolumn;
-  primarytimecol:.dataaccess.gettableproperty[inputparams;`primarytimecolumn];
-  partfield:.dataaccess.gettableproperty[inputparams;`partfield];
+  primarytimecol:.checkinputs.gettableproperty[inputparams;`primarytimecolumn];
+  partfield:.checkinputs.gettableproperty[inputparams;`partfield];
   timerange:inputparams[`metainfo]`starttime`endtime;
   partrange:getpartrangef[timecol;primarytimecol;partfield;timerange];
   partfilter:exec enlist(within;partfield;partrange)from inputparams;
@@ -38,7 +38,7 @@ extractpartitionfilter:{[inputparams;queryparams]
   };
 
 extractattributecolumn:{[inputparams;queryparams]
-  attributecolumn:.dataaccess.gettableproperty[inputparams;`attributecolumn];
+  attributecolumn:.checkinputs.gettableproperty[inputparams;`attributecolumn];
   :@[queryparams;`attributecolumn;:;attributecolumn];
  };
 
@@ -51,7 +51,7 @@ extracttimefilter:{[inputparams;queryparams]
 
 extractinstrumentfilter:{[inputparams;queryparams]
   if[not`instruments in key inputparams;:queryparams];
-  instrumentcolumn:.dataaccess.gettableproperty[inputparams;`instrumentcolumn]; 
+  instrumentcolumn:.checkinputs.gettableproperty[inputparams;`instrumentcolumn]; 
   instruments:enlist inputparams`instruments;
   filterfunc:$[1=count first instruments;=;in];
   instrumentfilter:enlist(filterfunc;instrumentcolumn;instruments);

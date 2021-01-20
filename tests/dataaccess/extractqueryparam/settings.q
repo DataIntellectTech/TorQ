@@ -6,8 +6,8 @@ processcsv:hsym`$getenv[`KDBTESTS],"/dataaccess/extractqueryparam/`config`proces
 //- extract data from the input and output directories
 //- compare function output with expected output
 
-getinputparams:{[test]exec parameter!get each parametervalue from .dataaccess.readcsv[` sv inputpath,`$string[test],".csv";"s*"]};
+getinputparams:{[test]exec parameter!get each parametervalue from .checkinputs.readcsv[` sv inputpath,`$string[test],".csv";"s*"]};
 
-getoutputparams:{[test]exec parameter!get each parametervalue from .dataaccess.readcsv[` sv outputpath,`$string[test],".csv";"s*"]};
+getoutputparams:{[test]exec parameter!get each parametervalue from .checkinputs.readcsv[` sv outputpath,`$string[test],".csv";"s*"]};
 
 testfunction:{[testquery] getoutputparams[`$testquery]~.eqp.extractqueryparams[getinputparams[`$testquery];.eqp.queryparams]};

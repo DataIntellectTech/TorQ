@@ -3,4 +3,5 @@ tablename,`xdaily
 starttime,2000.01.010D
 endtime,.z.p
 timecolumn,`time
-timebar,(`invalidcolumn;10;`nanosecond)
+timebar,(10;`nanosecond;`invalid)
+aggregations,`max`min!`time`time

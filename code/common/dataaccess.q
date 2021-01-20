@@ -30,9 +30,9 @@ init:{[tablepropertiespath]
   .lg.o[`.dataaccess.init;"running .dataaccess.init"];
   .proc.loaddir getenv[`KDBCODE],"/dataaccess";
   if[not validtablepropertiespath[];resettablepropertiespath tablepropertiespath];
-  if[()~key`.dataaccess.tablepropertiesconfig;`.dataaccess.tablepropertiesconfig set readtableproperties tablepropertiespath];
-  if[()~key`.dataaccess.checkinputsconfig;`.dataaccess.checkinputsconfig set readcheckinputs checkinputspath];
-  `.dataaccess.metainfo upsert getmetainfo[];
+  if[()~key`.checkinputs.tablepropertiesconfig;`.checkinputs.tablepropertiesconfig set .checkinputs.readtableproperties tablepropertiespath];
+  if[()~key`.checkinputs.checkinputsconfig;`.checkinputs.checkinputsconfig set .checkinputs.readcheckinputs checkinputspath];
+  `.dataaccess.metainfo upsert .checkinputs.getmetainfo[];
   .lg.o[`.dataaccess.init;"running .dataaccess.init - finished"];
  };
 
@@ -51,5 +51,5 @@ if[.proc.proctype in `rdb`hdb;
   // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
   // make sure we have the metainfo for all tables
-  .dataaccess.metainfo upsert .dataaccess.getmetainfo[];
+  .dataaccess.metainfo upsert .checkinputs.getmetainfo[];
   ];

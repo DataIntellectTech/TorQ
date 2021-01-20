@@ -24,7 +24,7 @@ getwhere:{[queryparams]
 //- Put the filter with the attribute column in the index place
 reorderbyattr:{[queryparams;whereclause]
   // Gets the attribute column
-  attributecolumn:.dataaccess.gettableproperty[queryparams;`attributecolumn];
+  attributecolumn:.checkinputs.gettableproperty[queryparams;`attributecolumn];
   // Looks if any of the where clauses contain the attribute as a filter
   where1:where attributecolumn~/:whereclause[;1];
   // Checks if anythere is an s attribute on the time column and put filters on that next

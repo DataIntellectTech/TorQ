@@ -1,4 +1,4 @@
-\d .dataaccess
+\d .checkinputs
 
 //- utils for reading in config
 readtableproperties:{[tablepropertiepath] `tablename`proctype xkey readcsv[tablepropertiepath;"ssssssss"]};
@@ -43,7 +43,7 @@ formatstring:{[str;params]
 
 //- join table properties for a given table onto input params
 jointableproperties:{[inputparams]
-  tableproperties:.dataaccess.tablepropertiesconfig (inputparams`tablename;.proc.proctype);
+  tableproperties:.checkinputs.tablepropertiesconfig (inputparams`tablename;.proc.proctype);
   metainfo:.dataaccess.metainfo inputparams`tablename;
   inputparams[`metainfo]:metainfo;
   inputparams[`tableproperties]:tableproperties,enlist[`partfield]#metainfo;
