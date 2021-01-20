@@ -6,4 +6,7 @@ getdata:{[inputparams]                                                          
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
   table:raze value each query;                                                               // execute the queries
   :queryparams[`renamecolumn] xcol table;                                                    // rename the columns
+  $[in[`postback;key inputparams];                                                           // apply post-processing function
+    :.eqp.processpostback[result;inputparams`postback];
+    :result];
   };

@@ -7,10 +7,6 @@
 // The input dictionary accumulates some additional table information/inferred info
 checkinputs:{[dict]
     dict:isdictionary dict;
-    if[in[`sqlquery;key dict];
-        $[checksqlquery dict;
-            '`$"Input dictionary cannot contain sqlquery parameter along with any other parameter";
-            :isstring[dict;`sqlquery]]];
     dict:checkdictionary dict;
     dict:checkinvalidcombinations dict;
     dict:checkrepeatparams dict;
@@ -29,7 +25,6 @@ checkdictionary:{[dict]
 
 isdictionary:{[dict]$[99h~type dict;:dict;'`$"Input must be a dictionary"]};
 checkkeytype:{[dict]11h~type key dict};
-checksqlquery:{[dict]1<>count key dict};
 checkrequiredparams:{[dict]all .checkinputs.getrequiredparams[]in key dict};
 getrequiredparams:{[]exec parameter from .checkinputs.checkinputsconfig where required}
 checkparamnames:{[dict]all key[dict]in .checkinputs.getvalidparams[]};
@@ -199,9 +194,6 @@ checkordering:{[dict;parameter]
                 badorder:sv[",";string (last each ordering) where not in[last each ordering;columns]]; 
                 '`$"trying to order by column(s) {",badorder,"} that is not defined in the columns argument"]]];
     :dict;};
-
-// check that the firstlastsort parameter is of type symbol
-checkfirstlastsort:{[dict;parameter]:checktype[-11h;dict;parameter];};
     
 // check that the instrumentcol parameter is of type symbol
 checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};

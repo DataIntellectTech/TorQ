@@ -146,3 +146,4 @@ extractcolumnnaming:{[inputparams;queryparams]
    :@[queryparams;`renamecolumn;:;@[inputparams;`renamecolumn]];
  };
 
+processpostback:{[result;postback]:postback result;};
