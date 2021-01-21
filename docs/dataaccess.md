@@ -19,16 +19,16 @@ In both cases the filepath should point to a configuration file containing infor
 
 |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
-rdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange
-hdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange
-rdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange
-hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange
+|rdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
+|hdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
+|rdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
+|hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
 
 
 
 **Description of fields in csv**
 
-|field      |description                                                          |
+|Field      |Description                                                          |
 |-----------|---------------------------------------------------------------------|
 |proctype    |denotes the type of process  i.e. rdb or hdb|
 |tablename  |table to query - assumed unique across given proctype      |
@@ -36,8 +36,8 @@ hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange
 |attributecolumn    |primary attribute column - used in ordering of queries      |
 |instrumentcolumn   |column containing instrument      |
 |timezone   |timezone of interest (NYI)      |
-|getrollover   |custom function to determine hdb/rdb rollover (see below)      |
-|getpartitionrange   |custom function to determine partition range for the hdb (see below)      |
+|getrollover   |custom function to determine last rdb rollover (see below)      |
+|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)      |
 
 
 Examples of custom functions:
@@ -47,7 +47,7 @@ Examples of custom functions:
 defaultrollover:{[].z.d+0D};
 
 //- cast time range - to partition range
-//- if timecolumn != primarytimecolum - look forward one partition to account for descrepancy between "date" & "`date$timecolumn"
+//- if timecolumn != primarytimecolumn - look forward one partition to account for descrepancy between "date" & "`date$timecolumn" it is used to determine all the partitions of the hdb
 defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange]
     @[partitionfield$hdbtimerange;1;+;not timecolumn~primarytimecolumn]
  };
@@ -59,7 +59,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 **Valid Inputs**
 
-|parameter     |required|example                                                                                   |invalidpairs                 |description                                                                     |
+|parameter     |required|example                                                                                   |invalidpairs\*                 |description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
 |tablename     |1       |\`quote                                                                                    |                             |table to query                                                                  |
 |starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
@@ -77,6 +77,9 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 |ordering      |0       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn|0         | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                         | Either a dictionary of old!new or list of column names
 
+\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously.
+
+
 **Example function call**
 
 ```
@@ -90,38 +93,53 @@ GOOG   2000.01.01D07:12:00.000000000 94.5     939.6   115.5    1148.4
 GOOG   2000.01.01D09:36:00.000000000 93.6     925.2   114.4    1130.8
 ...
 ```
+**Table of avaliable Aggregations**
 
+|Aggregation|Full Name    |Description                                          |Example                                          |
+|-----------|-------------|-----------------------------------------------------|-------------------------------------------------|
+|`avg`      |Mean         |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |
+|`cor`      |Correlation  |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |
+|`count`    |Count        |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |
+|`cov`      |Covariance   |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |
+|`dev`      |Deviation    |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |
+|`distinct` |Distinct     |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |
+|`first`    |First        |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |
+|`last`     |Last         |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |
+|`max`      |Maximum      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |
+|`med`      |Median       |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |
+|`min`      |Minimum      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |
+|`prd`      |Product      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |
+|`sum`      |Sum          |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |
+|`var`      |Variance     |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |
+|`wavg`     |Weighted Mean|Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
+|`wsum`     |Weighted Sum |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
+
+### Checkinputs
 
 **Description of fields in checkinputs.csv**
 
-|field      |description                                                          |
-|-----------|---------------------------------------------------------------------|
-|parameter    |dictionary key to pass to getdata    |
-|required   |whether this parameter is mandatory      |
-|checkfunction   |function to determine whether the given value is valid      |
-|invalid pairs   |whether a parameter is invalid in combination with some other parameter      |
+|Field        |Description                                                            |
+|-------------|-----------------------------------------------------------------------|
+|parameter    |Dictionary key to pass to getdata                                      |
+|required     |Whether this parameter is mandatory                                    |
+|checkfunction|Function to determine whether the given value is valid                 |
+|invalid pairs|Whether a parameter is invalid in combination with some other parameter|
 
-**Table of avaliable Aggregations**
+**Custom Api Errors**
 
-|Aggregation|Full Name | Description|Example                         |
-|----|-----------------|---------------|----------------------------------|
-|avg|Mean|Return the mean of a list|```enlist(`avg)!enlist(`price)```|
-|cor|Correlation|Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```|
-|count|Count|Return The length of a list|```enlist(`count)!enlist(`price)```|
-|cov|Covariance|Return the covariance of a list pair|```(enlist `cov)!enlist(enlist(`bid`ask))```|
-|dev|Deviation|Return the standard deviation of a list|```enlist(`dev)!enlist(`price)```|
-|distinct|Distinct|Return distinct elements of a list|```enlist(`distinct)!enlist(`sym)```|
-|first|First|Return first element of a list|```enlist(`first)!enlist(`price)```|
-|last|Last|Return the final value in a list|```enlist(`last)!enlist(`price)```|
-|max|Maximum|Return the maximum value of a list|```enlist(`max)!enlist(`price)```|
-|med|Median|Return the median value of a list|```enlist(`med)!enlist(`price)```|
-|min|Minimum|Return the minimum value of a list|```enlist(`min)!enlist(`price)```|
-|prd|Product|Return the product of a list|```enlist(`prd)!enlist(`price)```|
-|sum|Sum|Return the total of a list|```enlist(`sum)!enlist(`price)```|
-|var|Variance|Return the Variance of a list|```enlist(`var)!enlist(`price)```|
-|wavg|Weighted mean|Return the weighted mean of two lists|```((enlist(`wavg))!enlist(enlist(`asize`ask))```
-|wsum|Weighted sum|Return the weighted sum of two lists|```((enlist(`wavg))!enlist(enlist(`asize`ask))```
+One of the goals of the API is to catch errors and return more insightful error messages. Below is a list of all the errors the API will return:
 
+- Table:{tablename} doesn't exist
+- Column(s) {badcol} presented in {parameter} is not a valid column for {tab}
+- If the distinct function is used, it cannot be present with any other aggregations including more of itself
+- Aggregations dictionary contains undefined function(s)
+- Incorrect number of input(s) entred for the following aggregations
+- Aggregations parameter must be supplied in order to perform group by statements
+- In order to use a grouping parameter, only aggregations that return single values may be used
+- The inputted size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are:
+- Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond
+- Length of renamecolumns is too long
+- Dictionary keys need to be old column names
 
 
 **Developer's Footnote**
@@ -130,7 +148,6 @@ The api is designed improve accessibility whilst maintaining a fast query speed.
 
 ### Further examples
 
-The following examples all come with their own appropriate error checks defined in `.checkinputs`
 
 **time default**
 
@@ -164,9 +181,6 @@ AAPL   2000.01.01D04:48:00.000000000 2000.01.01D04:48:00.000000000 98.1     933.
 AAPL   2000.01.01D07:12:00.000000000 2000.01.01D07:12:00.000000000 94.5     939.6   115.5    1148.4
 ...
 ```
-
-
-
 
 
 **Columns**
