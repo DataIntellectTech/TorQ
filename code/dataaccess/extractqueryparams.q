@@ -113,7 +113,7 @@ extractfilters:{[inputparams;queryparams]
 
 extractordering:{[inputparams;queryparams]
   if[not`ordering in key inputparams;:queryparams];
-  go:{[x;input]if[first (input)[x]=`asc;:(<:;(input)[x;1])];if[first (input)[x]=`desc;:(>:;(input)[x;1])];(input)[x]};
+  go:{[x;input]if[first (input)[x]=`asc;:((input)[x;1] xasc)];if[first (input)[x]=`desc;:((input)[x;1] xdesc)];(input)[x]};
   order:go[;inputparams`ordering] each til count inputparams`ordering;
   :@[queryparams;`ordering;:;order];
  };
