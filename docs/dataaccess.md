@@ -73,10 +73,9 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 |filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
 |freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
 |freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format
-|freeformcolumn|0       |"time, sym,mid\:0.5*bid+ask"                                                              |aggregations                 |select clause in string format 
+|freeformcolumn|0       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
+|ordering      |0       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn|0         | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                         | Either a dictionary of old!new or list of column names
-|ordering      |0       |enlist(\`desc\`bidprice)                                                         |                             |list ordering results ascending or descending by column
-
 
 **Example function call**
 
@@ -102,6 +101,28 @@ GOOG   2000.01.01D09:36:00.000000000 93.6     925.2   114.4    1130.8
 |checkfunction   |function to determine whether the given value is valid      |
 |invalid pairs   |whether a parameter is invalid in combination with some other parameter      |
 
+**Table of avaliable Aggregations**
+
+|Aggregation|Full Name | Description|Example                         |
+|----|-----------------|---------------|----------------------------------|
+|avg|Mean|Return the mean of a list|```enlist(`avg)!enlist(`price)```|
+|cor|Correlation|Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```|
+|count|Count|Return The length of a list|```enlist(`count)!enlist(`price)```|
+|cov|Covariance|Return the covariance of a list pair|```(enlist `cov)!enlist(enlist(`bid`ask))```|
+|dev|Deviation|Return the standard deviation of a list|```enlist(`dev)!enlist(`price)```|
+|distinct|Distinct|Return distinct elements of a list|```enlist(`distinct)!enlist(`sym)```|
+|first|First|Return first element of a list|```enlist(`first)!enlist(`price)```|
+|last|Last|Return the final value in a list|```enlist(`last)!enlist(`price)```|
+|max|Maximum|Return the maximum value of a list|```enlist(`max)!enlist(`price)```|
+|med|Median|Return the median value of a list|```enlist(`med)!enlist(`price)```|
+|min|Minimum|Return the minimum value of a list|```enlist(`min)!enlist(`price)```|
+|prd|Product|Return the product of a list|```enlist(`prd)!enlist(`price)```|
+|sum|Sum|Return the total of a list|```enlist(`sum)!enlist(`price)```|
+|var|Variance|Return the Variance of a list|```enlist(`var)!enlist(`price)```|
+|wavg|Weighted mean|Return the weighted mean of two lists|```((enlist(`wavg))!enlist(enlist(`asize`ask))```
+|wsum|Weighted sum|Return the weighted sum of two lists|```((enlist(`wavg))!enlist(enlist(`asize`ask))```
+
+
 
 **Developer's Footnote**
 
@@ -116,7 +137,7 @@ The following examples all come with their own appropriate error checks defined 
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
 ```
-getdata`tablename`starttime`endtime!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000)
+getdata`tablename`starttime`endtime!(`xdaily;2000.01.01D0;2000.01.06D10)
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
@@ -134,7 +155,7 @@ GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`AAPL)
+getdata`tablename`starttime`endtime`instruments!(`xdaily;2000.01.01D0;2000.01.06+10:00;`AAPL)
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
@@ -153,7 +174,7 @@ AAPL   2000.01.01D07:12:00.000000000 2000.01.01D07:12:00.000000000 94.5     939.
 Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`sourcetime`bidprice`askprice ```
 
 ```
-getdata`tablename`starttime`endtime`columns!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`sym`time`sourcetime`bidprice`askprice)
+getdata`tablename`starttime`endtime`columns!(`xdaily;2000.01.01D0;2000.01.06+10:00;`sym`time`sourcetime`bidprice`askprice)
 sym    time                          sourcetime                    bidprice askprice
 ------------------------------------------------------------------------------------
 AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     118.8
@@ -173,7 +194,7 @@ GOOG   2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     119.
 Run a free form select using the ``` `freeformcolumn ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"sym,time,mid:0.5*bidprice+askprice")
+getdata`tablename`starttime`endtime`freeformcolumn!(`xdaily;2000.01.01D0;2000.01.06+10:00;"sym,time,mid:0.5*bidprice+askprice")
 sym    time                          mid
 ----------------------------------------
 AAPL   2000.01.01D00:00:00.000000000 108
@@ -195,7 +216,7 @@ This can be used in conjunction with the `columns` parameter, however the `colum
 Use ``` `grouping ``` parameter to group average ``` `mid```, by ``` `sym ```
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"avgmid:avg 0.5*bidprice+askprice";`sym)
+getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`xdaily;2000.01.01D0;2000.01.06+10:00;"avgmid:avg 0.5*bidprice+askprice";`sym)
 sym   | avgmid
 ------| ------
 AAPL  | 105.4
@@ -212,7 +233,7 @@ USDCHF| 115.5
 Group average ``` `mid```, by ``` `sym/`source ``` using the ``` `freeformby ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source")
+getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`xdaily;2000.01.01D0;2000.01.06+10:00;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source")
 sym    source | avgmid
 --------------| ------
 AAPL   source0| 105.4
@@ -229,7 +250,7 @@ USDCHF source2| 115.5
 Group average ``` `mid```, by ``` `sym/`source ```  + 6 hour buckets using the ``` `timebar ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby`timebar!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source";(`time;6;`hour))
+getdata`tablename`starttime`endtime`freeformcolumn`freeformby`timebar!(`xdaily;2000.01.01D0;2000.01.06D10:00;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source";(`time;6;`hour))
 sym    time                          source | avgmid
 --------------------------------------------| --------
 AAPL   2000.01.01D00:00:00.000000000 source0| 106
@@ -250,7 +271,7 @@ aggregate by ``` `sym```/6 hour buckets - for each calculate
 - wavg of ``` `bidsize`bidprice ``` / ``` `asksize`askprice ```
 
 ```
-getdata`tablename`starttime`endtime`aggregations`grouping`timebar!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`min`max`wavg!(`bidprice`askprice;`bidprice`askprice;(`bidsize`bidprice;`asksize`askprice));`sym;(`time;6;`hour))
+getdata`tablename`starttime`endtime`aggregations`grouping`timebar!(`xdaily;2000.01.01D0;2000.01.06D10:00;`min`max`wavg!(`bidprice`askprice;`bidprice`askprice;(`bidsize`bidprice;`asksize`askprice));`sym;(`time;6;`hour))
 sym    time                         | minBidprice minAskprice maxBidprice maxAskprice wavgBidsizeBidprice wavgAsksizeAskprice
 ------------------------------------| ---------------------------------------------------------------------------------------
 AAPL   2000.01.01D00:00:00.000000000| 90.9        111.1       98.1        119.9       95.41806            116.6221
@@ -268,7 +289,7 @@ AAPL   2000.01.02D00:00:00.000000000| 91.8        112.2       98.1        119.9 
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;`source`bidprice!(enlist(=;`source1);enlist(within;80 100)))
+getdata`tablename`starttime`endtime`filters!(`xdaily;2000.01.01D0;2000.01.06+10:00;`source`bidprice!(enlist(=;`source1);enlist(within;80 100)))
 date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
 -----------------------------------------------------------------------------------------------------------------------------
 2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
@@ -286,7 +307,7 @@ date       sym    source  id    time                          sourcetime        
 Use the ``` `freefromby ``` parameter to execute the same filter as above
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;"source=`source1")
+getdata`tablename`starttime`endtime`freeformwhere!(`xdaily;2000.01.01D0;2000.01.06+10:00;"source=`source1")
 date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
 -----------------------------------------------------------------------------------------------------------------------------
 2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
@@ -302,7 +323,7 @@ date       sym    source  id    time                          sourcetime        
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
 
 ```
-getdata`tablename`starttime`endtime`ordering!(`xdaily;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`askprice))
+getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`askprice))
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
@@ -319,7 +340,7 @@ GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078
 Use the ``` `renamecolumn ``` parameter to rename the columns 
 
 ```
-getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;(00:00:00+.z.d-5);00:00:00+.z.d+1;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
 newdate    newsym| newprice
 -----------------| --------
 2021.01.18 IBM   | 69.64
