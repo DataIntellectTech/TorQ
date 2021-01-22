@@ -58,7 +58,7 @@ updatepatchers:{[nameortype;val;func;newversion]
 
  // check that the hosts of all procs to be patched are running a connected patcher process 
  if[not all hoststopatch in patcherhosts,.z.h;
-  .lg.e[`updatepatchers;"the following hosts do not have patchers running: ", "," sv string hoststopatch where hoststopatch in patcherhosts];
+  .lg.e[`updatepatchers;"the following hosts do not have patchers running: ", "," sv string hoststopatch where not hoststopatch in patcherhosts];
   :()];
 
  // send messages to patchers if handles exist
