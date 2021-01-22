@@ -6,29 +6,29 @@ invalidparamnames,required params missing:`invalidname1`invalidname2
 invalidcomb1,"parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`columns"
 invalidcomb2,"parameter:`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`freeformcolumn`aggregations"
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
-tableexists,table:`invalidtablename doesn't exist
+tableexists,Table:`invalidtablename doesn't exist
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
-timecolumnexists,"column(s) ,`date presented in `timecolumn is not a valid column for `xdaily"
+timecolumnexists,"Column(s) ,`date presented in `timecolumn is not a valid column for `xdaily"
 invalidtimecolumn,"parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
 checktimeorder,starttime parameter must be <= endtime parameter
 instrumenttype,`instruments input type incorrect - valid type(s):-11 11h - input type:0h
 columntypes,`columns input type incorrect - valid type(s):-11 11h - input type:0h
-columnsexist,column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
+columnsexist,Column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
 groupingtype,`grouping input type incorrect - valid type(s):-11 11h - input type:0h
 aggregationdict,`aggregations input type incorrect - valid type(s):99h - input type:-11h
 aggregationkey,aggregations parameter key must be of type 11h - example: `max`min`wavg!(`price;`size;`price`size)
 aggregationvalues,aggregations parameter values must be of type symbol - example: `max`min`wavg!(`price;`size;`price`size)
-aggregationcolumnsexist,column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
+aggregationcolumnsexist,Column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
 invalidaggregationfuncs,Aggregations dictionary contains undefined function(s) `invalid1`invalid2
 timebarargstype,timebar parameter must be a list of length 3
 timebarcount,timebar parameter must be a list of length 3
 timebararg0,first argument of timebar must be either -6h or -7h
 timebararg1,second argument of timebar must be of type -11h
 timebararg2,third argument of timebar must be have type -11h
-timebarinvalid,"the inputted size of the timebar argument: `min, is not an appropriate size. Appropraites sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
-timebarexists,"column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
+timebarinvalid,"The input size of the timebar argument: `invalid, is not an appropriate size. Appropraites sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+timebarexists,"Column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
 timebartype,"parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
 filterformat,`filters input type incorrect - valid type(s):99h - input type:10h
 freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
