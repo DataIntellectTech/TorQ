@@ -18,6 +18,7 @@ checkinputs:{[dict]
     if[in[`timebar;key dict];.dataaccess.checktimebar dict];
     if[in[`freeformwhere;key dict];.dataaccess.checkfreeformwhere dict];
     if[in[`freeformby;key dict];.dataaccess.checkfreeformby dict];
+    if[in[`freeformcolumns;key dict];.dataaccess.checkfreeformcolumns dict];
     :dict;
   };
 
@@ -100,3 +101,16 @@ checkfreeformby:{[dict]
     .dataaccess.checkcolumns[dict`tablename;last cond[;2];`freeformby];
  };
 
+checkfreeformcolumns:{[dict]
+    example:"sym,time,mid:0.5*bidprice+askprice";
+    cond:"," vs dict`freeformcolumn;
+    if[(cond ?\:":")~(count each cond);.dataaccess.checkcolumns[dict`tablename;`$cond;`freeformby]];
+    if[not (cond ?\:":")~(count each cond);
+        loc:(cond ?\:":")=(count each cond);
+        .dataaccess.checkcolumns[dict`tablename;`$(cond where loc);`freeformby];
+        rcond:(1+(cond where not loc) ?\:":")_'(cond where not loc),'" ";
+        isletter:rcond in .Q.a,.Q.A;
+        scond:" " vs trim ?[raze isletter;raze rcond;" "];
+        validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum`;
+        .dataaccess.checkcolumns[dict`tablename;(`$scond) except validfuncs;`freeformcolumns];]
+ };
