@@ -79,7 +79,8 @@ rollback:{[pname;func;versiontime]
  if[not 1=count v:select from functionversion where procname=pname,function=func,time=versiontime;
   '"could not find specified version"];
  // get the handle
- applypatch[`procname;pname;func;first exec oldversion from v];
+ // rollback uses local functionversion table, so cannot be sent to other patcher processes
+ patchlocal[`procname;pname;func;first exec oldversion from v];
  }
 
 // write the table to disk
