@@ -83,14 +83,13 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 **Example function call**
 
 ```
-q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2000.01.01D00:00;2000.01.06D10:00;`GOOG;`sym`time`bidprice`bidsize`askprice`asksize)
-sym    time                          bidprice bidsize askprice asksize
-----------------------------------------------------------------------
-GOOG   2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
-GOOG   2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
-GOOG   2000.01.01D04:48:00.000000000 98.1     933.3   119.9    1140.7
-GOOG   2000.01.01D07:12:00.000000000 94.5     939.6   115.5    1148.4
-GOOG   2000.01.01D09:36:00.000000000 93.6     925.2   114.4    1130.8
+q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+sym    time                        bid   bsize
+----------------------------------------------
+GOOG 2021.01.21D13:36:45.714478000 71.57 1
+GOOG 2021.01.21D13:36:45.714478000 70.86 2
+GOOG 2021.01.21D13:36:45.714478000 70.91 8
+GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
 **Table of avaliable Aggregations**
@@ -154,15 +153,15 @@ The api is designed improve accessibility whilst maintaining a fast query speed.
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
 ```
-getdata`tablename`starttime`endtime!(`xdaily;2000.01.01D0;2000.01.06D10)
-sym    time                          sourcetime                    bidprice bidsize askprice asksize
-----------------------------------------------------------------------------------------------------
-AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
-AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
-AAPL   2000.01.01D04:48:00.000000000 2000.01.01D04:48:00.000000000 98.1     933.3   119.9    1140.7
-GOOG   2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
-GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
-GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
+getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+date       time                          sym  bid   ask   bsize asize mode ex src
+----------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.58 84.93 13    89    Y    N  SUN
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+
 ...
 ```
 
@@ -172,13 +171,15 @@ GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`xdaily;2000.01.01D0;2000.01.06+10:00;`AAPL)
-sym    time                          sourcetime                    bidprice bidsize askprice asksize
-----------------------------------------------------------------------------------------------------
-AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
-AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
-AAPL   2000.01.01D04:48:00.000000000 2000.01.01D04:48:00.000000000 98.1     933.3   119.9    1140.7
-AAPL   2000.01.01D07:12:00.000000000 2000.01.01D07:12:00.000000000 94.5     939.6   115.5    1148.4
+getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+date       time                          sym  bid   ask   bsize asize mode ex src
+----------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.58 84.93 13    89    Y    N  SUN
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+..
 ...
 ```
 
@@ -188,19 +189,17 @@ AAPL   2000.01.01D07:12:00.000000000 2000.01.01D07:12:00.000000000 94.5     939.
 Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`sourcetime`bidprice`askprice ```
 
 ```
-getdata`tablename`starttime`endtime`columns!(`xdaily;2000.01.01D0;2000.01.06+10:00;`sym`time`sourcetime`bidprice`askprice)
-sym    time                          sourcetime                    bidprice askprice
-------------------------------------------------------------------------------------
-AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     118.8
-AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     111.1
-AAPL   2000.01.01D21:35:59.999999999 2000.01.01D21:35:59.999999999 94.5     115.5
-GOOG   2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     114.4
-GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    124.3
-GOOG   2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     119.9
+getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+sym  time                          bid
+----------------------------------------
+AAPL 2021.01.21D13:36:45.714478000 84.01
+AAPL 2021.01.21D13:36:45.714478000 83.1
+AAPL 2021.01.21D13:36:45.714478000 83.3
+AAPL 2021.01.21D13:36:45.714478000 83.58
+AAPL 2021.01.21D13:36:46.113465000 83.96
+
 ...
 ```
-
-
 
 
 **Free form select**
@@ -208,15 +207,14 @@ GOOG   2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     119.
 Run a free form select using the ``` `freeformcolumn ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn!(`xdaily;2000.01.01D0;2000.01.06+10:00;"sym,time,mid:0.5*bidprice+askprice")
-sym    time                          mid
-----------------------------------------
-AAPL   2000.01.01D00:00:00.000000000 108
-AAPL   2000.01.01D02:24:00.000000000 101
-AAPL   2000.01.01D21:35:59.999999999 105
-GOOG   2000.01.01D00:48:00.000000000 104
-GOOG   2000.01.01D15:11:59.999999999 117
-GOOG   2000.01.01D17:35:59.999999999 114
+getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
+sym  time                          mid
+-----------------------------------------
+AAPL 2021.01.21D13:36:45.714478000 84.44
+AAPL 2021.01.21D13:36:45.714478000 83.81
+AAPL 2021.01.21D13:36:45.714478000 83.965
+AAPL 2021.01.21D13:36:45.714478000 84.255
+AAPL 2021.01.21D13:36:46.113465000 84.1
 
 ...
 ```
@@ -230,12 +228,15 @@ This can be used in conjunction with the `columns` parameter, however the `colum
 Use ``` `grouping ``` parameter to group average ``` `mid```, by ``` `sym ```
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`xdaily;2000.01.01D0;2000.01.06+10:00;"avgmid:avg 0.5*bidprice+askprice";`sym)
-sym   | avgmid
-------| ------
-AAPL  | 105.4
-GOOG  | 107
-USDCHF| 115.5
+getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";`sym)
+sym | avgmid
+----| --------
+AAPL| 70.63876
+AIG | 31.37041
+AMD | 36.46488
+DELL| 8.34496
+DOW | 22.8436
+
 ```
 
 
@@ -244,15 +245,18 @@ USDCHF| 115.5
 
 **String style grouping**
 
-Group average ``` `mid```, by ``` `sym/`source ``` using the ``` `freeformby ``` parameter
+Group average ``` `mid```, by ``` instru:sym ``` using the ``` `freeformby ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`xdaily;2000.01.01D0;2000.01.06+10:00;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source")
-sym    source | avgmid
---------------| ------
-AAPL   source0| 105.4
-GOOG   source1| 107
-USDCHF source2| 115.5
+getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
+instr| avgmid
+-----| --------
+AAPL | 70.63876
+AIG  | 31.37041
+AMD  | 36.46488
+DELL | 8.34496
+DOW  | 22.8436
+
 ```
 
 
@@ -285,15 +289,11 @@ aggregate by ``` `sym```/6 hour buckets - for each calculate
 - wavg of ``` `bidsize`bidprice ``` / ``` `asksize`askprice ```
 
 ```
-getdata`tablename`starttime`endtime`aggregations`grouping`timebar!(`xdaily;2000.01.01D0;2000.01.06D10:00;`min`max`wavg!(`bidprice`askprice;`bidprice`askprice;(`bidsize`bidprice;`asksize`askprice));`sym;(`time;6;`hour))
-sym    time                         | minBidprice minAskprice maxBidprice maxAskprice wavgBidsizeBidprice wavgAsksizeAskprice
-------------------------------------| ---------------------------------------------------------------------------------------
-AAPL   2000.01.01D00:00:00.000000000| 90.9        111.1       98.1        119.9       95.41806            116.6221
-AAPL   2000.01.01D06:00:00.000000000| 93.6        114.4       94.5        115.5       94.05347            114.9542
-AAPL   2000.01.01D12:00:00.000000000| 90.9        111.1       95.4        116.6       93.89125            114.756
-AAPL   2000.01.01D18:00:00.000000000| 94.5        115.5       97.2        118.8       95.8601             117.1623
-AAPL   2000.01.02D00:00:00.000000000| 91.8        112.2       98.1        119.9       94.80504            115.8728
-...
+getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+maxAsk maxBid
+-------------
+109.5  108.6
+
 ```
 
 
@@ -303,33 +303,33 @@ AAPL   2000.01.02D00:00:00.000000000| 91.8        112.2       98.1        119.9 
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`xdaily;2000.01.01D0;2000.01.06+10:00;`source`bidprice!(enlist(=;`source1);enlist(within;80 100)))
-date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
------------------------------------------------------------------------------------------------------------------------------
-2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
-2000.01.01 GOOG   source1 "x11" 2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
-2000.01.01 GOOG   source1 "x12" 2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     932.4   119.9    1139.6
-2000.01.01 GOOG   source1 "x13" 2000.01.01D08:00:00.000000000 2000.01.01D08:48:00.000000000 91.8     910.8   112.2    1113.2
-2000.01.01 GOOG   source1 "x14" 2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
-2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
+getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+date       time                          sym  bid   ask   bsize asize mode ex src
+---------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.8  84.76 78    32    Z    N  DB
+2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
+..
 
 ...
 ```
 
 **Free form Filters**
 
-Use the ``` `freefromby ``` parameter to execute the same filter as above
+Use the ``` `freefromwhere ``` parameter to execute the same filter as above
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`xdaily;2000.01.01D0;2000.01.06+10:00;"source=`source1")
-date       sym    source  id    time                          sourcetime                    bidprice bidsize askprice asksize
------------------------------------------------------------------------------------------------------------------------------
-2000.01.01 GOOG   source1 "x10" 2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
-2000.01.01 GOOG   source1 "x11" 2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
-2000.01.01 GOOG   source1 "x12" 2000.01.01D05:36:00.000000000 2000.01.01D06:24:00.000000000 98.1     932.4   119.9    1139.6
-2000.01.01 GOOG   source1 "x13" 2000.01.01D08:00:00.000000000 2000.01.01D08:48:00.000000000 91.8     910.8   112.2    1113.2
-2000.01.01 GOOG   source1 "x14" 2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
-2000.01.01 GOOG   source1 "x15" 2000.01.01D12:47:59.999999999 2000.01.01D13:35:59.999999999 90       974.7   110      1191.3
+getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
+date       time                          sym  bid   ask   bsize asize mode ex src
+---------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.8  84.76 78    32    Z    N  DB
+2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
+
 ...
 ```
 **Ordering**
