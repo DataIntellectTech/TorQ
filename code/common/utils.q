@@ -1,7 +1,13 @@
 \d .checkinputs
 
 //- utils for reading in config
-readtableproperties:{[tablepropertiepath] `tablename`proctype xkey readcsv[tablepropertiepath;"ssssssss"]};
+readtableproperties:{[tablepropertiepath]
+  table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssssss"];
+  alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];
+  table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];
+  :![table;enlist(=;`proctype;enlist`all);0b;`symbol$()];
+ };
+
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
 
 readcsv:{[path;types]
