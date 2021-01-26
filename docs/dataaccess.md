@@ -1,3 +1,4 @@
+p
 
   
 # Dataaccess API
@@ -28,29 +29,40 @@ In both cases the filepath should point to a configuration file containing infor
 
 **Description of fields in csv**
 
-|Field      |Description                                                          |
-|-----------|---------------------------------------------------------------------|
-|proctype    |denotes the type of process  i.e. rdb or hdb|
-|tablename  |table to query - assumed unique across given proctype      |
-|primarytimecolumn  |default time column from the tickerplant - used if no  \`timecolumn parameter is passed      |
-|attributecolumn    |primary attribute column - used in ordering of queries      |
-|instrumentcolumn   |column containing instrument      |
-|timezone   |timezone of interest (NYI)      |
-|getrollover   |custom function to determine last rdb rollover (see below)      |
-|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)      |
+|Field               |Description                                                                                        |
+|--------------------|---------------------------------------------------------------------------------------------------|
+|proctype            |denotes the type of process  i.e. rdb or hdb                                                       |
+|tablename           |table to query - assumed unique across given proctype                                              |
+|primarytimecolumn   |default time column from the tickerplant - used if no  \`timecolumn parameter is passed            |
+|attributecolumn     |primary attribute column - used in ordering of queries                                             |
+|instrumentcolumn    |column containing instrument                                                                       |
+|timezone            |timezone of the timestamps on the data (NYI)                                                       |
+|getrollover         |custom function to determine last rdb rollover from a timestamp                                    |
+|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
 
 
 Examples of custom functions:
 
-```q
-//- return start of current day (UTC)
-defaultrollover:{[].z.d+0D};
+```
+rollover:00:00;
 
-//- cast time range - to partition range
-//- if timecolumn != primarytimecolumn - look forward one partition to account for descrepancy between "date" & "`date$timecolumn" it is used to determine all the partitions of the hdb
-defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange]
-    @[partitionfield$hdbtimerange;1;+;not timecolumn~primarytimecolumn]
- };
+defaultrollover:{[partitionfield;hdbtime;tzone;rover]
+    // If no time zone argument is supplied then just assume the stamps are in local time
+    if[tzone~`;tzone:00:00];
+    //Return the partition 
+    :(partitionfield$hdbtime)+(tzone+rover)>`minute$hdbtime};
+
+//- (ii) getpartitionrange
+//- offset times for non-primary time columns
+// example @[`date$(starttime;endtime);1;+;not `time~`time]
+
+defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange;rolloverf;timezone]
+    // Get the partition fields from default rollover 
+    hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
+    // Output the partitions allowing for non-primary timecolumn
+       :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+
+
 ```
 
 
