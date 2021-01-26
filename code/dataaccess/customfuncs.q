@@ -3,10 +3,26 @@
 
 \d .dataaccess
 
+// Rollover in localtime
+rollover:00:00;
+
 //- (i) getrollover
-//- functions to determine rollover to split the time ranges destined for the rdb and hdb.
-defaultrollover:{[].z.d+0D};
+//- Function to determine which partitions the getdata function should query
+//- e.g If the box is based in Paris +01:00 and rollover is at midnight  London time then tzone:-01:00 
+//- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
+
+defaultrollover:{[partitionfield;hdbtime;tzone;rover]
+    // If no time zone argument is supplied then just assume the stamps are in local time
+    if[tzone~`;tzone:00:00];
+    //Return the partition 
+    :(partitionfield$hdbtime)+(tzone+rover)>`minute$hdbtime};
 
 //- (ii) getpartitionrange
 //- offset times for non-primary time columns
-defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange]@[partitionfield$hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+// example @[`date$(starttime;endtime);1;+;not `time~`time]
+
+defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange;rolloverf;timezone]
+    // Get the partition fields from default rollover 
+    hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
+    // Output the partitions allowing for non-primary timecolumn
+       :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};

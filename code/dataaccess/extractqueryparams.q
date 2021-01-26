@@ -26,13 +26,25 @@ extractqueryparams:{[inputparams;queryparams]
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
 extractpartitionfilter:{[inputparams;queryparams]
+  //If an RDB return the partitionfilters as empty
   if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
+  //Get the  partition range function 
   getpartrangef:.checkinputs.gettableproperty[inputparams;`getpartitionrange];
+  // Get the time column
   timecol:inputparams`timecolumn;
+  // Get the default time column
   primarytimecol:.checkinputs.gettableproperty[inputparams;`primarytimecolumn];
+  // Find the partition field
   partfield:.checkinputs.gettableproperty[inputparams;`partfield];
+  // Get the rollover function
+  rolloverf:value .checkinputs.gettableproperty[inputparams;`getrollover];
+  // Get the time range function
   timerange:inputparams[`metainfo]`starttime`endtime;
-  partrange:getpartrangef[timecol;primarytimecol;partfield;timerange];
+  //return the timezone of the box
+  timezone:.checkinputs.gettableproperty[inputparams;`timezone];
+  //return a list of partions to search through
+  partrange:getpartrangef[timecol;primarytimecol;partfield;timerange;rolloverf;timezone];
+  // Return as kdb native filter
   partfilter:exec enlist(within;partfield;partrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partfilter];
   };
