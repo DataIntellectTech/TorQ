@@ -92,15 +92,18 @@ ungroupaggregations:{[aggregations](key[aggregations]where count each get aggreg
 extracteachaggregation:{[func;columns](`$string[func],raze .[string(),columns;(::;0);upper];parse[string func],columns)};
 
 extracttimebar:{[inputparams;queryparams]
+  // If no key has been provided return the queryparams
   if[not`timebar in key inputparams;:queryparams];
-  timebar:`timecol`size`bucket!inputparams`timebar;
-  timebucket:exec size*.checkinputs.timebarmap bucket from timebar;
-  :@[queryparams;`timebar;:;timebar[1#`timecol]!enlist(.eqp.xbarfunc;timebucket;timebar`timecol)];
- };
+  // Get the timebar params as a dictionary
+  timebar:`size`bucket`timecol!inputparams`timebar;
+  // Convert the timebucket to it's corresponding integer value 
+  timebucket:exec size * .dataaccess.timebarmap bucket from timebar;
+  // Return as a kdb+ native function
+  :@[queryparams;`timebar;:;timebar[1#`timecol]!enlist(xbarfunc;timebucket;timebar[`timecol])];
+  };
 
-xbarfunc:{[n;x]
+xbarfunc:{[timebucket;x]
   typ:type x;
-  timebucket:n*0D00:00.000000001;
   if[typ~12h;:timebucket xbar x];
   if[typ in 13 14h;:timebucket xbar 0D+`date$x];
   if[typ~15h;:timebucket xbar`timespan$x];
