@@ -87,7 +87,7 @@ checktimebar:{[dict]
         '`$.checkinputs.formatstring["The input size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are: {app}";`size`app!(size;key .dataaccess.timebarmap)]];
     if[1>floor (dict`timebar)[0]*.dataaccess.timebarmap(dict`timebar)[1];
         '`$"Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond"];
-    if[not first (exec t from meta dict`tablename where c=(dict`timebar)[2]) in "pmnuvtzd";'`$.checkinputs.formatstring["parameter:`timebar - column:{column} in table:{table} is of type:{type}, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h";`column`table`type!((dict`timebar)[2];dict`tablename;(type( exec from dict`tablename)(dict`timebar)[2]))]];
+    if[not first (exec t from meta dict`tablename where c=(dict`timebar)[2]) in "pmnuvtzd";'`$.checkinputs.formatstring["Parameter:`timebar - column:{column} in table:{table} is of type:{type}, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h";`column`table`type!((dict`timebar)[2];dict`tablename;(type( exec from dict`tablename)(dict`timebar)[2]))]];
  };
 
 // check errors in the freeform parameters
