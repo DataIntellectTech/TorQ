@@ -71,12 +71,12 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 **Valid Inputs**
 
-|parameter     |required|example                                                                                   |invalidpairs\*                 |description                                                                     |
+|parameter     |required|example                                                                                   |invalidpairs\*               |description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
-|tablename     |1       |\`quote                                                                                    |                             |table to query                                                                  |
+|tablename     |1       |\`quote                                                                                   |                             |table to query                                                                  |
 |starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
 |endtime       |1       |2020.12.20D12:00                                                                          |                             |endime - must be a valid time type (see timecolumn)                             |
-|timecolumn    |0       |\`time                                                                                     |                             |column to apply (startime;endime) filter to                                     |
+|timecolumn    |0       |\`time                                                                                    |                             |column to apply (startime;endime) filter to                                     |
 |instruments   |0       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
 |columns       |0       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
 |grouping      |0       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
@@ -87,7 +87,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 |freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format
 |freeformcolumn|0       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
 |ordering      |0       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
-|renamecolumn|0         | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                         | Either a dictionary of old!new or list of column names
+|renamecolumn  |0       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously.
 
@@ -280,14 +280,13 @@ DOW  | 22.8436
 Group average ``` `mid```, by ``` `sym/`source ```  + 6 hour buckets using the ``` `timebar ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby`timebar!(`xdaily;2000.01.01D0;2000.01.06D10:00;"avgmid:avg 0.5*bidprice+askprice";"sym:sym,source:source";(`time;6;`hour))
-sym    time                          source | avgmid
---------------------------------------------| --------
-AAPL   2000.01.01D00:00:00.000000000 source0| 106
-AAPL   2000.01.01D06:00:00.000000000 source0| 104.5
-AAPL   2000.01.01D12:00:00.000000000 source0| 104.3333
-AAPL   2000.01.01D18:00:00.000000000 source0| 106.5
-AAPL   2000.01.02D00:00:00.000000000 source0| 105.3333
+getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+time                         | maxAsk
+-----------------------------| ------
+2021.01.21D12:00:00.000000000| 98.99
+2021.01.21D18:00:00.000000000| 73.28
+2021.01.22D12:00:00.000000000| 97.16
+2021.01.22D18:00:00.000000000| 92.58
 ...
 ```
 
