@@ -3,7 +3,7 @@ nondictinput,Input must be a dictionary
 nonsymbolkey,Input dictionary must have keys of type 11h
 requiredparamsmissing,"required parameters missing:,`tablename"
 invalidparamnames,required params missing:`invalidname1`invalidname2
-invalidcomb1,"parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`columns"
+invalidcomb1,"parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`freeformcolumn`aggregations"
 invalidcomb2,"parameter:`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`freeformcolumn`aggregations"
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 tableexists,Table:`invalidtablename doesn't exist
@@ -27,7 +27,7 @@ timebarcount,timebar parameter must be a list of length 3
 timebararg0,first argument of timebar must be either -6h or -7h
 timebararg1,second argument of timebar must be of type -11h
 timebararg2,third argument of timebar must be have type -11h
-timebarinvalid,"The input size of the timebar argument: `invalid, is not an appropriate size. Appropraite sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+timebarinvalid,"The input size of the timebar argument: `invalid, is not an appropriate size. Appropriate sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
 timebarexists,"Column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
 timebartype,"parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
 filterformat,`filters input type incorrect - valid type(s):99h - input type:10h

@@ -35,7 +35,7 @@ checkinvalidcombinations:{[dict]
     xinvalidpairs:select parameter,invalidpairs:invalidpairs inter\:parameters from .checkinputs.checkinputsconfig where parameter in parameters;
     xinvalidpairs:select from xinvalidpairs where 0<>count'[invalidpairs];
     if[0=count xinvalidpairs;:dict];
-    :checkeachpair[flip xinvalidpairs];
+    :checkeachpair[raze each flip xinvalidpairs];
   };
 
 checkeachpair:{[invalidpair]'`$.checkinputs.formatstring["parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}";invalidpair]};
