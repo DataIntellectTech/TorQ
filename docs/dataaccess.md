@@ -1,6 +1,4 @@
-p
-
-  
+ 
 # Dataaccess API
 
 The api allows for a user to send identical queries to multiple process types (not just an RDB/HDB), without adapting the query to accommodate to each processes’ semantics. The api strikes a balance of accessibility, whilst not constricting developers or giving unexpected outputs. It is designed to work with other non-KDB+ native applications such as BigQuery.
@@ -25,6 +23,14 @@ In both cases the filepath should point to a configuration file containing infor
 |rdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
 |hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
 
+
+The API allows for the user to define either a blank or all proctype to define the tables in both the RDB and HDB. The following table is identitcal to the above
+
+
+ |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
+ |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
+ |all|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
+ |all|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
 
 
 **Description of fields in csv**
@@ -71,7 +77,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 **Valid Inputs**
 
-|parameter     |required|example                                                                                   |invalidpairs\*               |description                                                                     |
+|Parameter     |Required|Example                                                                                   |Invalidpairs\*               |Description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
 |tablename     |1       |\`quote                                                                                   |                             |table to query                                                                  |
 |starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
@@ -81,7 +87,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 |columns       |0       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
 |grouping      |0       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
 |aggregations  |0       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
-|timebar       |0       |(\`time;10;\`minute)                                                                      |                             |list of (time grouping column; bar size; time type) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|timebar       |0       |(10;\`minute;`time)                                                                       |                             |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
 |filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
 |freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
 |freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format
@@ -151,6 +157,34 @@ One of the goals of the API is to catch errors and return more insightful error 
 - Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond
 - Length of renamecolumns is too long
 - Dictionary keys need to be old column names
+
+Whilst other errors are also caught in `config/checkinputs.q`
+
+- Input dictionary must have keys of type 11h
+- Required parameters missing:{}
+- Invalid parameter present:{}
+- Input must be a dictionary
+- Parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}
+- {} parameter(s) used more than once
+- Starttime parameter must be <= endtime parameter
+- Aggregations parameter key must be of type 11h - example:
+- Aggregations parameter values must be of type symbol - example: 
+- First argument of timebar must be either -6h or -7h
+- Second argument of timebar must be of type -11h
+- Third argument of timebar must be have type -11h
+- Filters parameter key must be of type 11h - example:
+- Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example:
+- Filters parameter values containing three elements must have the first element being the not keyword - example
+- Allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)
+- The 'not' keyword may only preceed the operators within, in and like.
+- (not)within statements within the filter parameter must contain exatly two values associated with it - example:
+- The use of inequalities in the filter parameter warrants only one value
+- The use of equalities in the filter parameter warrants only one value - example:
+- Ordering parameter must contain pairs of symbols as its input - example: 
+- Ordering parameter's values must be paired in the form (direction;column) - example:
+- The first item in each of the ordering parameter's pairs must be either `asc or `desc - example:
+- Ordering parameter vague. Ordering by a column that aggregated more than once
+- Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter
 
 
 **Developer's Footnote**
@@ -277,7 +311,7 @@ DOW  | 22.8436
 
 **Time bucket**
 
-Group average ``` `mid```, by ``` `sym/`source ```  + 6 hour buckets using the ``` `timebar ``` parameter
+Group average ``` `mid```, by  6 hour buckets using the ``` `timebar ``` parameter
 
 ```
 getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
@@ -295,9 +329,8 @@ time                         | maxAsk
 
 **Aggregations**
 
-aggregate by ``` `sym```/6 hour buckets - for each calculate
-- min/max of both ``` `bidprice ``` and ``` `askprice ```
-- wavg of ``` `bidsize`bidprice ``` / ``` `asksize`askprice ```
+- max of both ``` `bidprice ``` and ``` `askprice ```
+
 
 ```
 getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
@@ -348,7 +381,7 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
 
 ```
-getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`askprice))
+getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6

@@ -13,3 +13,11 @@ getdata:{[inputparams]                                                          
     :.eqp.processpostback[result;inputparams`postback];
     :result];
   };
+
+\d .dataaccess
+
+buildquery:{[inputparams]
+  inputparams:.dataaccess.checkinputs inputparams;                                           
+  queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         
+  :.queryorder.orderquery queryparams}; 
+
