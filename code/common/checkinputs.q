@@ -18,8 +18,8 @@ checkinputs:{[dict]
 
 checkdictionary:{[dict]
     if[not checkkeytype dict;'`$"Input dictionary must have keys of type 11h"];
-    if[not checkrequiredparams dict;'`$.checkinputs.formatstring["required parameters missing:{}";.checkinputs.getrequiredparams[]except key dict]];
-    if[not checkparamnames dict;'`$.checkinputs.formatstring["invalid parameter present:{}";key[dict]except .checkinputs.getvalidparams[]]];
+    if[not checkrequiredparams dict;'`$.checkinputs.formatstring["Required parameters missing:{}";.checkinputs.getrequiredparams[]except key dict]];
+    if[not checkparamnames dict;'`$.checkinputs.formatstring["Invalid parameter present:{}";key[dict]except .checkinputs.getvalidparams[]]];
     :dict;
   };
 
@@ -38,7 +38,7 @@ checkinvalidcombinations:{[dict]
     :checkeachpair[raze each flip xinvalidpairs];
   };
 
-checkeachpair:{[invalidpair]'`$.checkinputs.formatstring["parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}";invalidpair]};
+checkeachpair:{[invalidpair]'`$.checkinputs.formatstring["Parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}";invalidpair]};
 
 // function to check if any parameters are repeated
 checkrepeatparams:{[dict]
@@ -73,7 +73,7 @@ checktimecolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
 // check starttime <= endtime
 checktimeorder:{[dict]
-    if[dict[`starttime] > dict`endtime;'`$"starttime parameter must be <= endtime parameter"];
+    if[dict[`starttime] > dict`endtime;'`$"Starttime parameter must be <= endtime parameter"];
     :dict;};
 
 // check instruments are of type symbol
@@ -95,9 +95,9 @@ checkaggregations:{[dict;parameter]
     dict:checktype[99h;dict;parameter];
     input:dict parameter;
     if[not 11h~abs type key input;
-        '`$"aggregations parameter key must be of type 11h - example: ",example];
+        '`$"Aggregations parameter key must be of type 11h - example: ",example];
     if[not all 11h~/:abs raze type''[get input];
-        '`$"aggregations parameter values must be of type symbol - example: ",example];
+        '`$"Aggregations parameter values must be of type symbol - example: ",example];
     :dict;
   };
 
@@ -106,14 +106,14 @@ checkaggregations:{[dict;parameter]
 checktimebar:{[dict;parameter]
     input:dict parameter;
     if[not(3=count input)&0h~type input;
-        '`$"timebar parameter must be a list of length 3"];
+        '`$"Timebar parameter must be a list of length 3"];
     input:`size`bucket`timecol!input;
     if[not any -6 -7h~\:type input`size;
-        '`$"first argument of timebar must be either -6h or -7h"];
+        '`$"First argument of timebar must be either -6h or -7h"];
     if[not -11h~type input`bucket;
-        '`$"second argument of timebar must be of type -11h"];
+        '`$"Second argument of timebar must be of type -11h"];
     if[not -11h~type input`timecol;
-        '`$"third argument of timebar must be have type -11h"];
+        '`$"Third argument of timebar must be have type -11h"];
     :dict;
   };
 
@@ -125,18 +125,18 @@ checkfilters:{[dict;parameter]
     dict:checktype[99h;dict;parameter];
     input:dict parameter;
     if[not 11h~abs type key input;
-        '`$"filters parameter key must be of type 11h - example:",example];
+        '`$"Filters parameter key must be of type 11h - example:",example];
     filterpairs:raze value input;
     if[any not in[count each filterpairs;2 3];
-        '`$"filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example: ",example];
+        '`$"Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example: ",example];
     if[any not<>first each filterpairs where 3=count each filterpairs;
-        '`$"filters parameter values containing three elements must have the first element being the not keyword - example ",example];
+        '`$"Filters parameter values containing three elements must have the first element being the not keyword - example ",example];
     allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
     allowednot:(within;like;in);
     nots:where(~:)~/:ops:first each filterpairs;
     notfilters:@\:[;1]filterpairs nots;
-    if[not all in[ops;allowedops];'`$"allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
-    if[not all in[notfilters;allowednot];'`$"the 'not' keyword may only preceed the operators within, in and like."];
+    if[not all in[ops;allowedops];'`$"Allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
+    if[not all in[notfilters;allowednot];'`$"The 'not' keyword may only preceed the operators within, in and like."];
     .checkinputs.withincheck'[filterpairs];
     .checkinputs.inequalitycheck'[filterpairs];
     :dict;
@@ -149,8 +149,8 @@ withincheck:{[pair]
 
 inequalitycheck:{[pair]
     example:"`sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(within;10 20))";
-    errmess:"the use of inequalities in the filter parameter warrants only one value - example: ",example;
-    errmess2:"the use of equalities in the filter parameter warrants only one value - example: ",example;
+    errmess:"The use of inequalities in the filter parameter warrants only one value - example: ",example;
+    errmess2:"The use of equalities in the filter parameter warrants only one value - example: ",example;
     if[(("~<"~string first pair)|(enlist"<")~string first pair)& 1<>count last pair;
         '`$errmess];
     if[(("~>"~string first pair)|(enlist">")~string first pair)& 1<>count last pair;
@@ -167,11 +167,11 @@ checkordering:{[dict;parameter]
     example2:"enlist(`asc`maxPrice)";
     input:dict parameter;
     if[11h<>type raze input;
-        '`$"ordering parameter must contain pairs of symbols as its input - example: ",example];
+        '`$"Ordering parameter must contain pairs of symbols as its input - example: ",example];
     if[0<>count except[count each input;2];
-        '`$"ordering parameter's values must be paired in the form (direction;column) - example: ",example];
+        '`$"Ordering parameter's values must be paired in the form (direction;column) - example: ",example];
     if[0<>count except[first each input;`asc`desc];
-        '`$"the first item in each of the ordering parameter's pairs must be either `asc or `desc - example: ",example];
+        '`$"The first item in each of the ordering parameter's pairs must be either `asc or `desc - example: ",example];
     $[in[`grouping;key dict];grouping:(dict`grouping),();grouping:()];
     $[in[`timebar;key dict];timebar:(dict`timebar);timebar:()];
     if[in[`aggregations;key dict];
@@ -184,15 +184,15 @@ checkordering:{[dict;parameter]
             :`$(string x[0]),(@[string first x[1];0;upper]),@[string last x[1];0;upper]]
         }'[aggs];
         if[any raze {1<sum y=x}[last each aggs]'[last each input];
-            '`$"ordering parameter vague. Ordering by a column that aggregated more than once, as such the aggregation must be specified. The aggregation convention is camel-case, so to order by the aggregation max price, the following would be used: ",example2];
+            '`$"Ordering parameter vague. Ordering by a column that aggregated more than once, as such the aggregation must be specified. The aggregation convention is camel-case, so to order by the aggregation max price, the following would be used: ",example2];
         if[any not in[last each input;names,grouping,timebar[2],last each aggs];
-            '`$"ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter"]];
+            '`$"Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter"]];
     if[in[`columns;key dict];
         columns:(dict`columns),();
         if[not (enlist `)~columns;
             if[any not in[last each input;columns];
                 badorder:sv[",";string (last each ordering) where not in[last each ordering;columns]]; 
-                '`$"trying to order by column(s) {",badorder,"} that is not defined in the columns argument"]]];
+                '`$"Trying to order by column(s) {",badorder,"} that is not defined in the columns argument"]]];
     :dict;};
     
 // check that the instrumentcol parameter is of type symbol
@@ -201,7 +201,7 @@ checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 checkpostback:{[dict;parameter]
     dict:checktype[100h;dict;parameter];
     if[1<>count (get dict parameter)[1];
-        '`$"postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"];
+        '`$"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"];
     :dict;};
 
 isstring:{[dict;parameter]:checktype[10h;dict;parameter];};
