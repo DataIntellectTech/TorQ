@@ -1,5 +1,5 @@
-system "l ",getenv[`KDBCODE],"/dataaccess/logs.q";                                       /load in script for logging
-system "l ",getenv[`KDBCODE],"/dataaccess/customfuncs.q";                                /load in getting most recent partition
+//system "l ",getenv[`KDBCODE],"/dataaccess/logs.q";                                       /load in script for logging
+//system "l ",getenv[`KDBCODE],"/dataaccess/customfuncs.q";                                /load in getting most recent partition
 
 
 
@@ -23,6 +23,3 @@ datesrouting:{[input]
     rollover:lastrollover[];
     :@[`hdb`rdb;where(timespan[0]<rollover;timespan[1]>rollover)];
     };
-
-// utility function to refresh all attributes of processes
-refreshattributes:{`.[`setattributes] .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS where .dotz.liveh[w]};
