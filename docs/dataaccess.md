@@ -186,6 +186,10 @@ Whilst other errors are also caught in `config/checkinputs.q`
 - Ordering parameter vague. Ordering by a column that aggregated more than once
 - Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter
 
+**Implimentation with TorQ FSP**
+
+The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb and hdb extras column.
+
 
 **Developer's Footnote**
 
