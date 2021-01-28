@@ -35,7 +35,7 @@ init:{[tablepropertiespath]
   `.dataaccess.metainfo upsert .checkinputs.getmetainfo[];
   // Check if all the tables presented in tableproperties.csv have been 
   if[.proc.proctype=`hdb;
-      if[not all(exec tablename from .checkinputs.readtableproperties[.dataaccess.tablepropertiespath] where proctype=`hdb) in exec tablename from .dataaccess.metainfo;
+      if[not all(exec tablename from .checkinputs.readtableproperties[.dataaccess.tablepropertiespath] where proctype in `hdb`all`) in exec tablename from .dataaccess.metainfo;
           .lg.e[`.dataaccess.init;"Missing table from HDB in schema"]]];
   .lg.o[`.dataaccess.init;"running .dataaccess.init - finished"];
  };
@@ -47,7 +47,7 @@ connectcustom:{[f;connectiontab]
 
 \d .
 
-if[.proc.proctype in `rdb`hdb;
+if[.proc.proctype in `rdb`hdb`gateway;
   // set table properties path
   .dataaccess.settablepropertiespath[];
   // re-initialize on new connections 

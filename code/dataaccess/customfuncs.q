@@ -8,7 +8,7 @@ rollover:00:00;
 
 //- (i) getrollover
 //- Function to determine which partitions the getdata function should query
-//- e.g If the box is based in Paris +01:00 and rollover is at midnight  London time then tzone:-01:00 
+//- e.g If the box is based in Paris GMT+01:00 and rollover is at midnight London time then tzone:-01:00 
 //- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
 
 defaultrollover:{[partitionfield;hdbtime;tzone;rover]
@@ -25,4 +25,7 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
     // Get the partition fields from default rollover 
     hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
     // Output the partitions allowing for non-primary timecolumn
-       :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+    :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+
+// Gets the last rollover
+lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
