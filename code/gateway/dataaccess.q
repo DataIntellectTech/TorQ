@@ -1,8 +1,3 @@
-//system "l ",getenv[`KDBCODE],"/dataaccess/logs.q";                                       /load in script for logging
-//system "l ",getenv[`KDBCODE],"/dataaccess/customfuncs.q";                                /load in getting most recent partition
-
-
-
 \d .dataaccess
 // All queries have initial checks performed then sent to the correct processes
 syncexec:{[o] .checkinputs.checkinputs[o];.requests.logger[o;()];.gw.syncexec[(`getdata;o);datesrouting[o]]};
