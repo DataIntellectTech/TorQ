@@ -1,20 +1,19 @@
  
-# Dataaccess API
+# Data Access API
 
-The api allows for a user to send identical queries to multiple process types (not just an RDB/HDB), without adapting the query to accommodate to each processes’ semantics. The api strikes a balance of accessibility, whilst not constricting developers or giving unexpected outputs. It is designed to work with other non-KDB+ native applications such as BigQuery.
+The api allows for a user to send identical queries to multiple process types (not just an RDB/HDB), without adapting the query to accommodate to each processes’ semantics. The api strikes a balance of accessibility, whilst not constricting developers or giving unexpected outputs. Key features of the API are: data retrival does not require q-SQL knowledge, a user friendly interface including more comprehensible error messages and compatibility with non-KDB+ native applications such as BigQuery.
 
 ### Configuration
 
-The *getdata* function will be available in rdb and hdb process types if the table properties config file path has been passed via the 
-'dataaccess' flag on the startup line for the process. For other process types it can be initialized as below:
+The API can initialised by the following two methods:
 
-1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example configuration file below for format)
+1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to a configuration file containing information about the tables you want to access via the *getdata* function.
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about the tables in all the process you want API to query. The information provided allows the queries to be built with no q-SQL knowledge, only dictionary manipulation. 
 
 
-**Example configuration file** - with 'trade' and 'quote' tables
+**Example configuration file** - with 'trade' and 'quote' tables in both the rdb and hdb
 
 |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
@@ -47,10 +46,19 @@ The API allows for the user to define either a blank or all proctype to define t
 |getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
 
 
-Examples of custom functions:
+The following code is an example `code/dataaccess/customfuncs.q`, it defines the custom functions referenced in the above tables. This allows the developer to create functions to automatically query the correct process and partitions. 
+
 
 ```
+\d .dataaccess
+
+// Rollover in localtime
 rollover:00:00;
+
+//- (i) getrollover
+//- Function to determine which partitions the getdata function should query
+//- e.g If the box is based in Paris GMT+01:00 and rollover is at midnight London time then tzone:-01:00 
+//- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
 
 defaultrollover:{[partitionfield;hdbtime;tzone;rover]
     // If no time zone argument is supplied then just assume the stamps are in local time
@@ -66,7 +74,10 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
     // Get the partition fields from default rollover 
     hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
     // Output the partitions allowing for non-primary timecolumn
-       :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+    :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+
+// Gets the last rollover
+lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
 
 
 ```
@@ -75,28 +86,31 @@ defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange
 
 ### Usage
 
+The main function is getdata, a lightweight function which takes in a uniform dictionary type (see table below) and builds and executes a query
+
 **Valid Inputs**
 
-|Parameter     |Required|Example                                                                                   |Invalidpairs\*               |Description                                                                     |
+|Parameter     |Required|Example\*\*                                                                                   |Invalidpairs\*               |Description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
-|tablename     |1       |\`quote                                                                                   |                             |table to query                                                                  |
-|starttime     |1       |2020.12.18D12:00                                                                          |                             |startime - must be a valid time type (see timecolumn)                           |
-|endtime       |1       |2020.12.20D12:00                                                                          |                             |endime - must be a valid time type (see timecolumn)                             |
-|timecolumn    |0       |\`time                                                                                    |                             |column to apply (startime;endime) filter to                                     |
-|instruments   |0       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
-|columns       |0       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
-|grouping      |0       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
-|aggregations  |0       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
-|timebar       |0       |(10;\`minute;`time)                                                                       |                             |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
-|filters       |0       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
-|freeformwhere |0       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
-|freeformby    |0       |"sym:sym, source:src"                                                                     |                             |by clause in string format
-|freeformcolumn|0       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
-|ordering      |0       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
-|renamecolumn  |0       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
+|tablename     |Yes       |\`quote                                                                                   |                             |table to query                                                                  |
+|starttime     |Yes       |2020.12.18D12:00                                                                          |                             |start time - must be a valid time type (see timecolumn)                           |
+|endtime       |Yes       |2020.12.20D12:00                                                                          |                             |end time - must be a valid time type (see timecolumn)                             |
+|timecolumn    |No       |\`time                                                                                    |                             |column to apply (startime;endime) filter to                                     |
+|instruments   |No       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
+|columns       |No       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
+|grouping      |No       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
+|aggregations  |No       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
+|timebar       |No       |(10;\`minute;\`time)                                                                       |                             |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
+|freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
+|freeformby    |No       |"sym:sym, source:src"                                                                     |                             |by clause in string format
+|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
+|ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
+|renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 
-\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously.
+\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
+\*\* More complete examples are provide in the Examples section below
 
 **Example function call**
 
@@ -110,28 +124,74 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 8
 GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
+`.dataaccess.buildquery` function provides the developer with an insight into the query that has been built
+
+```
+q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
+
+```
+
+
+Accepting a uniform dictionary allows for queries to be sent to the gateway. The functions `.dataaccess.syncexec(j)(t)` involke checking functions (discussed below) in the gateway then dynamically route the getdata query to the correct process(es). For example
+
+```
+q).dataaccess.syncexec `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+sym    time                        bid   bsize
+----------------------------------------------
+GOOG 2021.01.21D13:36:45.714478000 71.57 1
+GOOG 2021.01.21D13:36:45.714478000 70.86 2
+GOOG 2021.01.21D13:36:45.714478000 70.91 8
+GOOG 2021.01.21D13:36:45.714478000 70.91 6
+...
+```
+The aggregations key is a dictionary led method of perfoming mathematical operations on columns a the table. The key accepts the following table of inputs:
+
 **Table of avaliable Aggregations**
 
-|Aggregation|Full Name    |Description                                          |Example                                          |
-|-----------|-------------|-----------------------------------------------------|-------------------------------------------------|
-|`avg`      |Mean         |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |
-|`cor`      |Correlation  |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |
-|`count`    |Count        |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |
-|`cov`      |Covariance   |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |
-|`dev`      |Deviation    |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |
-|`distinct` |Distinct     |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |
-|`first`    |First        |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |
-|`last`     |Last         |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |
-|`max`      |Maximum      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |
-|`med`      |Median       |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |
-|`min`      |Minimum      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |
-|`prd`      |Product      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |
-|`sum`      |Sum          |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |
-|`var`      |Variance     |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |
-|`wavg`     |Weighted Mean|Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
-|`wsum`     |Weighted Sum |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
+|Aggregation|Description                                          |Example                                          |
+|-----------|-----------------------------------------------------|-------------------------------------------------|
+|`avg`      |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |
+|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |
+|`count`    |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |
+|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |
+|`dev`      |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |
+|`distinct` |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |
+|`first`    |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |
+|`last`     |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |
+|`max`      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |
+|`med`      |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |
+|`min`      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |
+|`prd`      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |
+|`sum`      |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |
+|`var`      |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |
+|`wavg`     |Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
+|`wsum`     |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
 
 ### Checkinputs
+
+A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by the checkinputs. There are two checkinputs libraries firstly common `.checkinputs` this library is loaded into all proccess and is used by `.dataaccess.syncexec` to undergo basic input checks on each key as defined in `checkinputs.csv`. Upon hitting the process more bespoke `.dataaccess` checks are performed. 
+
+|parameter|required|checkfunction|invalidpairs|description|
+|---------|--------|-------------|------------|-----------|
+|ablename|1|.checkinputs.checktable||table to query|
+|starttime|1|.checkinputs.checktimetype||starttime - see timecolumn|
+|endtime|1|.checkinputs.checkendtime||endtime - see timecolumn|
+|timecolumn|0|.checkinputs.checktimecolumn||column to apply (startime;endime) filter to|
+|instruments|0|.checkinputs.checkinstruments||instruments of interest - see tableproperties.csv|
+|columns|0|.checkinputs.checkcolumns|aggregations|table columns to return - assumed all if not present|
+|grouping|0|.checkinputs.checkgrouping||columns to group by -  no grouping assumed if not present|
+|aggregations|0|.checkinputs.checkaggregations|columns|freeformcolumn|dictionary of aggregations - e.g \`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice))|
+ |timebar|0|.checkinputs.checktimebar||list of (time column to group on;size;type - \`nanosecond\`second\`minute\`hour\`day)|
+ |filters|0|.checkinputs.checkfilters||a dictionary of columns + conditions in string format|
+ |ordering|0|.checkinputs.checkordering||a list of pairs regarding the direction (\`asc or \`desc) of ordering and a column to order|
+ |freeformwhere|0|.checkinputs.isstring||where clause in string format|
+ |freeformby|0|.checkinputs.isstring||by clause in string format|
+ |freeformcolumn|0|.checkinputs.isstring|aggregations|select clause in string format|
+ |instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
+ |postback|0|.checkinputs.checkpostback||applies postback lambda functions to data|
+
+
 
 **Description of fields in checkinputs.csv**
 
@@ -144,7 +204,7 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 6
 
 **Custom Api Errors**
 
-One of the goals of the API is to catch errors and return more insightful error messages. Below is a list of all the errors the API will return:
+Below is a list of all the errors the API will return:
 
 - Table:{tablename} doesn't exist
 - Column(s) {badcol} presented in {parameter} is not a valid column for {tab}
@@ -188,15 +248,16 @@ Whilst other errors are also caught in `config/checkinputs.q`
 
 **Implimentation with TorQ FSP**
 
-The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb and hdb extras column.
+The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
 
 
 **Developer's Footnote**
 
-The api is designed improve accessibility whilst maintaining a fast query speed. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected.  
+The API is designed improve accessibility whilst maintaining a fast query speed. The API has a built in query optimiser however: there are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected.  
 
 ### Further examples
 
+The following examples the query, output and the kdb which is 
 
 **time default**
 
@@ -213,6 +274,8 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
 
 ...
+.dataaccess.buildquery `tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b ()
 ```
 
 
@@ -231,12 +294,14 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
 ..
 ...
+q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b ()
 ```
 
 
 **Columns**
 
-Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`sourcetime`bidprice`askprice ```
+Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`bid ```
 
 ```
 getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
@@ -249,6 +314,9 @@ AAPL 2021.01.21D13:36:45.714478000 83.58
 AAPL 2021.01.21D13:36:46.113465000 83.96
 
 ...
+q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `sym`time`bid!`sym`time`bid
+
 ```
 
 
@@ -267,10 +335,10 @@ AAPL 2021.01.21D13:36:45.714478000 84.255
 AAPL 2021.01.21D13:36:46.113465000 84.1
 
 ...
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `sym`time`mid!(`sym;`time;(*;0.5;(+;`bid;`ask)))
 ```
 This can be used in conjunction with the `columns` parameter, however the `columns` parameters will be returned first. It is advised to use the `columns` parameter for returning existing columns and the `freeformcolumn` for any derived columns.
-
-
 
 
 **Grouping**
@@ -287,6 +355,8 @@ AMD | 36.46488
 DELL| 8.34496
 DOW | 22.8436
 
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";`sym)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 ```
 
 
@@ -307,6 +377,9 @@ AMD  | 36.46488
 DELL | 8.34496
 DOW  | 22.8436
 
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`instr)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
+
 ```
 
 
@@ -326,6 +399,12 @@ time                         | maxAsk
 2021.01.22D12:00:00.000000000| 97.16
 2021.01.22D18:00:00.000000000| 92.58
 ...
+q).dataaccess.buildquery (`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.21D01:00:00.000000000 2021.01.28D23:00:00.000000000)) (,`time)!,({[timebucket;x]
+  typ:type x;
+  if[typ~12h;:timebucket xbar x];
+  if[typ in 13 14h;:..
+
 ```
 
 
@@ -341,6 +420,10 @@ getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23
 maxAsk maxBid
 -------------
 109.5  108.6
+
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
 
 ```
 
@@ -360,6 +443,8 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.8  84.76 78    32    Z    N  DB
 2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
 ..
+q).dataaccess.buildquery `tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+? `quote ((within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000);(in;`src;,`GETGO`DB)) 0b ()
 
 ...
 ```
@@ -379,6 +464,10 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
 
 ...
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
+? `quote ((within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000);(in;`src;,`DB`GETGO)) 0b ()
+
+
 ```
 **Ordering**
 
@@ -395,6 +484,8 @@ AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.
 GOOG   2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
 GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
 ...
+q).dataaccess.buildquery `tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+? `quote ,(within;`time;2000.01.01D00:00:00.000000000 2000.01.06D10:00:00.000000000) 0b ()
 ```
 
 **Rename Columns**
