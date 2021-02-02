@@ -1671,25 +1671,31 @@ The patcher process is used to easily apply updates and patches to any TorQ proc
 
 In order for a process to be patchable, it must have the `code/common/patch` file loaded. Making a patch is then completed in the patcher process by executing the `applypatch` function. This function takes the following arguments; a typeorname symbol, the value of the process name/type, the name of the variable to be patched and the new definition of the variable. For example:
 
-    // redefine .t1.test1 in every process connected to the patcher
-    applypatch[`;`;`.t1.test1;{1+1}];
-    
-    // patch the value of .t1.test2 in only rdb processes
-    applypatch[`proctype;`rdb;`.t1.test2;`example}
-    
-    // patch .t1.test3 in stp1 only
-    applypatch[`procname;`stp1;`.t1.test3;4]
+```q
+// redefine .t1.test1 in every process connected to the patcher
+applypatch[`;`;`.t1.test1;{1+1}];
+  
+// patch the value of .t1.test2 in only rdb processes
+applypatch[`proctype;`rdb;`.t1.test2;`example}
+   
+// patch .t1.test3 in stp1 only
+applypatch[`procname;`stp1;`.t1.test3;4]
+```
 
 Patches to specific processes may also be rolled back using the `rollback` function. The `functionversion` table stores the time at which each patch is made and these times are used to specify which version to roll back to. `rollback` takes the following arguments; name of process, name of variable to be rolled back, time of version to be rolled back to. For example:
 
-    // rollback .t1.test4 in discovery1
-    rollback[`discovery1;`.t1.test4;2021.01.21D10:01:56.820526000]
+```q
+// rollback .t1.test4 in discovery1
+rollback[`discovery1;`.t1.test4;2021.01.21D10:01:56.820526000]
+```
 
 For TorQ stacks running on multiple hosts, the `.patch.multihosts` setting should be turned on. In this case, each host included in the stack should run its own independent patcher process. However, any patcher may be used to patch any process regardless of where it is running. More specifically, when `applypatch` is executed in a specific patcher, the update is sent to all other patchers first. Then each patcher will apply updates to local processes where appropriate. The interface for this procedure is exactly the same as above.
 
 In addition, it should be noted that although patches may be made from any patcher process, rollbacks on multihost systems must be performed in the corresponding host. For example, to rollback a function in a process which is running on host A, the `rollback` function must be executed in the host A patcher.
 
 Note: there is currently no way to guarantee that the remote patching has been successful from the patcher in which the update is made. Though the logs of each patcher may be checked to ensure it has worked.
+
+<img src="graphics/patcherarc.png" width="800">
 
 ### HTML5 front end 
 
