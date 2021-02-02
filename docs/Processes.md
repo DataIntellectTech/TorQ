@@ -1689,13 +1689,13 @@ Patches to specific processes may also be rolled back using the `rollback` funct
 rollback[`discovery1;`.t1.test4;2021.01.21D10:01:56.820526000]
 ```
 
-For TorQ stacks running on multiple hosts, the `.patch.multihosts` setting should be turned on. In this case, each host included in the stack should run its own independent patcher process. However, any patcher may be used to patch any process regardless of where it is running. More specifically, when `applypatch` is executed in a specific patcher, the update is sent to all other patchers first. Then each patcher will apply updates to local processes where appropriate. The interface for this procedure is exactly the same as above.
+For TorQ stacks running on multiple hosts, the `.patch.multihosts` setting should be turned on. In this case, each host included in the stack should run its own independent patcher process. However, any patcher may be used to patch any process regardless of where it is running. More specifically, when `applypatch` is executed in a specific patcher, the update is sent to all other patchers first. Then each patcher will apply updates to local processes where appropriate and write the new patches to disk locally. This process is illustrated in the diagram below. The interface for this procedure is exactly the same as above.
+
+<img src="graphics/patcherarc.png" width="800">
 
 In addition, it should be noted that although patches may be made from any patcher process, rollbacks on multihost systems must be performed in the corresponding host. For example, to rollback a function in a process which is running on host A, the `rollback` function must be executed in the host A patcher.
 
 Note: there is currently no way to guarantee that the remote patching has been successful from the patcher in which the update is made. Though the logs of each patcher may be checked to ensure it has worked.
-
-<img src="graphics/patcherarc.png" width="800">
 
 ### HTML5 front end 
 
