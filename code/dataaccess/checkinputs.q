@@ -16,9 +16,9 @@ checkinputs:{[dict]
     if[in[`filters;key dict];.dataaccess.checkcolumns[dict`tablename;key dict`filters;`filters]];
     if[in[`grouping;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
     if[in[`timebar;key dict];dict:rdbdate[dict;`columns];.dataaccess.checktimebar dict];
-    if[in[`freeformwhere;key dict];.dataaccess.checkfreeformwhere dict];
-    if[in[`freeformby;key dict];.dataaccess.checkfreeformby dict];
-    if[in[`freeformcolumns;key dict];.dataaccess.checkfreeformcolumns dict];
+    if[in[`freeformwhere;key dict];dict:freeformrdbdate[dict;`freeformwhere];.dataaccess.checkfreeformwhere dict];
+    if[in[`freeformby;key dict];dict:freeformrdbdate[dict;`freeformby];.dataaccess.checkfreeformby dict];
+    if[in[`freeformcolumns;key dict];dict:freeformrdbdate[dict;`freeformcolumns];.dataaccess.checkfreeformcolumns dict];
     :dict;
   };
 
@@ -58,6 +58,12 @@ rdbdate:{[dict;parameter]
     if[.proc.proctype=`rdb;dict:@[dict;parameter;:;{$[x<>`date;x;`time.date]} each (dict parameter)]];
     :dict;
   };
+
+// function to add date column to free form parameters on rdb processes
+freeformrdbdate:{[dict;parameter]
+    if[.proc.proctype=`rdb;dict:@[dict;parameter;:;ssr[(dict parameter);"date";"time.date"]]];
+    :dict;
+ };
 
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 
