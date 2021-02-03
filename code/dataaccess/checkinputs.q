@@ -8,14 +8,14 @@
 checkinputs:{[dict]
     if[not in[`checksperformed;key dict];dict:.checkinputs.checkinputs dict];
     dict:checktablename dict;
-    if[in[`columns;key dict];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns]];
+    if[in[`columns;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns]];
     if[in[`timecolumn;key dict];.dataaccess.checktimecolumn[dict]];
     dict:filldefaulttimecolumn dict;
     if[in[`instrumentcolumn ;key dict];.dataaccess.checkcolumns[dict`tablename;dict`instrumentcolumn;`instrumentcolumn ]];
     if[in[`aggregations;key dict];.dataaccess.checkaggregations dict];
     if[in[`filters;key dict];.dataaccess.checkcolumns[dict`tablename;key dict`filters;`filters]];
-    if[in[`grouping;key dict];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
-    if[in[`timebar;key dict];.dataaccess.checktimebar dict];
+    if[in[`grouping;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
+    if[in[`timebar;key dict];dict:rdbdate[dict;`columns];.dataaccess.checktimebar dict];
     if[in[`freeformwhere;key dict];.dataaccess.checkfreeformwhere dict];
     if[in[`freeformby;key dict];.dataaccess.checkfreeformby dict];
     if[in[`freeformcolumns;key dict];.dataaccess.checkfreeformcolumns dict];
@@ -52,6 +52,12 @@ filldefaulttimecolumn:{[dict]
         if[any not in[columns;avblecols];
             badcol:columns where not in[columns;avblecols];
             '`$.checkinputs.formatstring["Column(s) {badcol} presented in {parameter} is not a valid column for {tab}";`badcol`tab`parameter!(badcol;table;parameter)]]];};
+
+// function to add date column on request on rdb processes
+rdbdate:{[dict;parameter]
+    if[.proc.proctype=`rdb;dict:@[dict;parameter;:;{$[x<>`date;x;`time.date]} each (dict parameter)]];
+    :dict;
+  };
 
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 

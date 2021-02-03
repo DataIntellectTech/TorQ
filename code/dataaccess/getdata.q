@@ -5,6 +5,8 @@ getdata:{[inputparams]                                                          
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         // extract validated parameters from input dictionary
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
   table:raze value each query;                                                               // execute the queries
+  if[(.proc.proctype=`rdb) & `time.date in (cols table);
+    table:({$[`time.date<>x;x;`date]} each (cols table)) xcol table];                        // change time.date to date on rdb process query result
   f:{[input;x;y]y[x] input};
   if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         // order the query after it's fetched
