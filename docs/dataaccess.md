@@ -112,6 +112,8 @@ The main function is getdata, a lightweight function which takes in a uniform di
 
 \*\* More complete examples are provide in the Examples section below
 
+The getdata function has optimisation built in and 
+
 **Example function call**
 
 ```
@@ -133,10 +135,14 @@ q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote
 ```
 
 
-Accepting a uniform dictionary allows for queries to be sent to the gateway. The functions `.dataaccess.syncexec(j)(t)` involke checking functions (discussed below) in the gateway then dynamically route the getdata query to the correct process(es). For example
+Accepting a uniform dictionary allows getdata function to be be called from the gateway. This is done using `.dataaccess.getdata` which under the covers uses the checkinputs library to catch errors in the gateway before calling `.gw.syncexecj` equipped with a specialist join function.
+
+The main benefit of using the default is when capturing cross process aggregations e.g the max price across a multi-process time range. To do this the user must aggregate using the ``` `aggregations``` key.  
+
+For more complex joining and time outs`.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give the user more freedom. For example
 
 ```
-q).dataaccess.syncexec `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
 sym    time                        bid   bsize
 ----------------------------------------------
 GOOG 2021.01.21D13:36:45.714478000 71.57 1
@@ -145,28 +151,30 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 8
 GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
-The aggregations key is a dictionary led method of perfoming mathematical operations on columns a the table. The key accepts the following table of inputs:
+The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The key accepts the following table of inputs:
 
 **Table of avaliable Aggregations**
 
-|Aggregation|Description                                          |Example                                          |
-|-----------|-----------------------------------------------------|-------------------------------------------------|
-|`avg`      |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |
-|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |
-|`count`    |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |
-|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |
-|`dev`      |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |
-|`distinct` |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |
-|`first`    |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |
-|`last`     |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |
-|`max`      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |
-|`med`      |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |
-|`min`      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |
-|`prd`      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |
-|`sum`      |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |
-|`var`      |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |
-|`wavg`     |Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
-|`wsum`     |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|
+|Aggregation|Description                                          |Example                                          |Cross Process Enabled\*|
+|-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------|
+|`avg`      |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |No                     |
+|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |No                     |
+|`count`    |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |Yes                    |
+|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |No                     |
+|`dev`      |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |No                     |
+|`distinct` |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |Yes                    |
+|`first`    |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |Yes                    |
+|`last`     |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |Yes                    |
+|`max`      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |Yes                    |
+|`med`      |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |No                     |
+|`min`      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |Yes                    |   
+|`prd`      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |Yes                    |
+|`sum`      |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |No                     |
+|`var`      |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |No                     |
+|`wavg`     |Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|No                     |
+|`wsum`     |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|NO                     |
+
+\* Certain aggregations are enabled across process, that is they will take the aggregation across all the apropriate processes rather than split the aggregation byprocess. 
 
 ### Checkinputs
 
@@ -205,46 +213,42 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 **Custom Api Errors**
 
 Below is a list of all the errors the API will return:
-
-- Table:{tablename} doesn't exist
-- Column(s) {badcol} presented in {parameter} is not a valid column for {tab}
-- If the distinct function is used, it cannot be present with any other aggregations including more of itself
-- Aggregations dictionary contains undefined function(s)
-- Incorrect number of input(s) entred for the following aggregations
-- Aggregations parameter must be supplied in order to perform group by statements
-- In order to use a grouping parameter, only aggregations that return single values may be used
-- The inputted size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are:
-- Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond
-- Length of renamecolumns is too long
-- Dictionary keys need to be old column names
-
-Whilst other errors are also caught in `config/checkinputs.q`
-
-- Input dictionary must have keys of type 11h
-- Required parameters missing:{}
-- Invalid parameter present:{}
-- Input must be a dictionary
-- Parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}
-- {} parameter(s) used more than once
-- Starttime parameter must be <= endtime parameter
-- Aggregations parameter key must be of type 11h - example:
-- Aggregations parameter values must be of type symbol - example: 
-- First argument of timebar must be either -6h or -7h
-- Second argument of timebar must be of type -11h
-- Third argument of timebar must be have type -11h
-- Filters parameter key must be of type 11h - example:
-- Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example:
-- Filters parameter values containing three elements must have the first element being the not keyword - example
-- Allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)
-- The 'not' keyword may only preceed the operators within, in and like.
-- (not)within statements within the filter parameter must contain exatly two values associated with it - example:
-- The use of inequalities in the filter parameter warrants only one value
-- The use of equalities in the filter parameter warrants only one value - example:
-- Ordering parameter must contain pairs of symbols as its input - example: 
-- Ordering parameter's values must be paired in the form (direction;column) - example:
-- The first item in each of the ordering parameter's pairs must be either `asc or `desc - example:
-- Ordering parameter vague. Ordering by a column that aggregated more than once
-- Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter
+Error|Function|Library|
+-----|---------|-------------
+|Table:{tablename} doesn't exist|checktablename|dataaccess|
+|Column(s) {badcol} presented in {parameter} is not a valid column for {tab}|checkcolumns|dataaccess|
+| If the distinct function is used, it cannot be present with any other aggregations including more of itself|
+| Aggregations dictionary contains undefined function(s)|checkaggregations|dataaccess|
+| Incorrect number of input(s) entred for the following aggregations|checkaggregations|dataaccess|
+| Aggregations parameter must be supplied in order to perform group by statements|
+| In order to use a grouping parameter, only aggregations that return single values may be used|checkaggregations|dataaccess|
+| The inputted size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are:|checktimebar|dataaccess|
+| Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond|checktimebar|dataaccess|
+|Input dictionary must have keys of type 11h|checkdictionary|checkinputs|
+|Required parameters missing:{}|checkdictionary|checkinputs|
+|Invalid parameter present:{}|checkdictionary|checkinputs|
+|Input must be a dictionary|isdictionary|checkinputs|
+|Parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}|checkeachpair|checkinputs|
+|{} parameter(s) used more than once|checkrepeatparams|checkinputs|
+|Starttime parameter must be <= endtime parameter|checktimeorder|checkinputs|
+|Aggregations parameter key must be of type 11h - example:|checkaggregations|checkinputs|
+|Aggregations parameter values must be of type symbol - example:|checkaggregations|checkinputs|
+|First argument of timebar must be either -6h or -7h|checktimebar|checkinputs|
+|Second argument of timebar must be of type -11h|checktimebar|checkinputs|
+|Third argument of timebar must be have type -11h|checktimebar|checkinputs|
+|Filters parameter key must be of type 11h - example:|checkfilters|checkinputs|
+|Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example:|checkfilters|checkinputs|
+|Filters parameter values containing three elements must have the first element being the not keyword - example|checkfilters|checkinputs|
+|Allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)|checkfilters|checkinputs|
+|The 'not' keyword may only preceed the operators within, in and like.|checkfilters|checkinputs|
+|(not)within statements within the filter parameter must contain exatly two values associated with it - example:|withincheck|checkinputs|
+|The use of inequalities in the filter parameter warrants only one value|inequalitycheck|checkinputs|
+|The use of equalities in the filter parameter warrants only one value - example:|inequalitycheck|checkinputs|
+|Ordering parameter must contain pairs of symbols as its input - example:|checkordering|checkinputs|
+|Ordering parameter's values must be paired in the form (direction;column) - example:|checkordering|checkinputs|
+|The first item in each of the ordering parameter's pairs must be either `asc or `desc - example:|checkordering|checkinputs|
+|Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
+|Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
 **Implimentation with TorQ FSP**
 
