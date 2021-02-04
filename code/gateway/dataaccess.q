@@ -53,7 +53,7 @@ colextract:{[x;y]?[x;();$[x~0!x;0b;(cols key x)!cols key x];(enlist y)!enlist y]
 crossprocfunctions:`count`distinct`first`last`max`min`prd`sum!(sum;distinct;first;last;max;min;prd;sum);
 
 // join a list of tables using function f
-colmerge:{[f;A;z] B::crossprocfunctions[f] (colextract[;z]) each A};
+colmerge:{[f;A;z] crossprocfunctions[f] (colextract[;z]) each A};
 
 // Extract list of crossproc aggregations to be used
 colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations]};
