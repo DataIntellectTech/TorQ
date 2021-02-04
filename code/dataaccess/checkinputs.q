@@ -18,7 +18,7 @@ checkinputs:{[dict]
     if[in[`timebar;key dict];dict:rdbdate[dict;`columns];.dataaccess.checktimebar dict];
     if[in[`freeformwhere;key dict];dict:freeformrdbdate[dict;`freeformwhere];.dataaccess.checkfreeformwhere dict];
     if[in[`freeformby;key dict];dict:freeformrdbdate[dict;`freeformby];.dataaccess.checkfreeformby dict];
-    if[in[`freeformcolumns;key dict];dict:freeformrdbdate[dict;`freeformcolumns];.dataaccess.checkfreeformcolumns dict];
+    if[in[`freeformcolumn;key dict];dict:freeformrdbdate[dict;`freeformcolumn];.dataaccess.checkfreeformcolumns dict];
     :dict;
   };
 
