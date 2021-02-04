@@ -49,16 +49,14 @@ multiprocjoin:{[input]
 // Extract a column from a table maintaining the keys if applicable
 colextract:{[x;y]?[x;();$[x~0!x;0b;(cols key x)!cols key x];(enlist y)!enlist y]};
 
-//list of accepted functions
+// list of accepted functions
 crossprocfunctions:`count`distinct`first`last`max`min`prd`sum!(sum;distinct;first;last;max;min;prd;sum);
 
-// 
-//colmerge:{[f;A;z] B::crossprocfunctions[f] (colextract[;z]) each A;:B};
+// join a list of tables using function f
+colmerge:{[f;A;z] B::crossprocfunctions[f] (colextract[;z]) each A};
 
 // Extract list of crossproc aggregations to be used
 colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations]};
 
 // Merge the tables
 crossprocmerge:{[input;A]colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
-
-crossprod:{attempt[x;]};
