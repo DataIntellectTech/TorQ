@@ -182,7 +182,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 
 |parameter|required|checkfunction|invalidpairs|description|
 |---------|--------|-------------|------------|-----------|
-|ablename|1|.checkinputs.checktable||table to query|
+|tablename|1|.checkinputs.checktable||table to query|
 |starttime|1|.checkinputs.checktimetype||starttime - see timecolumn|
 |endtime|1|.checkinputs.checkendtime||endtime - see timecolumn|
 |timecolumn|0|.checkinputs.checktimecolumn||column to apply (startime;endime) filter to|
