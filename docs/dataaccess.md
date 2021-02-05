@@ -174,7 +174,7 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 |`wavg`     |Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|No                     |
 |`wsum`     |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|NO                     |
 
-\* Certain aggregations are enabled across process, that is they will take the aggregation across all the apropriate processes rather than split the aggregation byprocess. 
+\* Certain aggregations are enabled across process, that is they will take the aggregation across all the appropriate processes rather than split the aggregation byprocess. 
 
 ### Checkinputs
 
