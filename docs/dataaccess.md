@@ -112,7 +112,7 @@ The main function is getdata, a lightweight function which takes in a uniform di
 
 \*\* More complete examples are provide in the Examples section below
 
-The getdata function has optimisation built in and 
+The getdata function has optimisation built in
 
 **Example function call**
 
