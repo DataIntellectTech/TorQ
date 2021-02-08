@@ -8,11 +8,11 @@ processcsv:hsym`$getenv[`KDBTESTS],"/dataaccess/queryorder/`config`process.csv";
 //- compare output with expected one
 
 
-getinputparams:{[test]exec parameter!get each parametervalue from .dataaccess.readcsv[` sv inputpath,`$string[test],".csv";"s*"]};
+getinputparams:{[test]exec parameter!get each parametervalue from .checkinputs.readcsv[` sv inputpath,`$string[test],".csv";"s*"]};
 
-getoutputparams:{[test]T:exec parameter!get each parametervalue from .dataaccess.readcsv[` sv outputpath,`$string[test],".csv";"i*"];:(T[til 4])};
+getoutputparams:{[test]T:exec parameter!get each parametervalue from .checkinputs.readcsv[` sv outputpath,`$string[test],".csv";"i*"];:(T[til 4])};
 
 
-testfunction:{[testquery] getoutputparams[`$testquery]~(raze .queryorder.orderquery[getinputparams[`$testquery]])[1+til 4]};
+testfunction:{[testquery] getoutputparams[testquery]~(raze .queryorder.orderquery[getinputparams[testquery]])[1+til 4]};
 
-testfunction1:{[testquery;expectedoutput] (getdata getinputparams[`$testquery])~value expectedoutput};
+testfunction1:{[testquery;expectedoutput] (getdata getinputparams[testquery])~value expectedoutput};

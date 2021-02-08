@@ -8,8 +8,10 @@ columns,`sym`time`sourcetime`bidprice`askprice!`sym`time`sourcetime`bidprice`ask
 grouping,()
 aggregations,()
 filters,()
+ordering,()
 freeformwhere,()
 freeformby,()
 freeformcolumn,()
 proctype,`rdb
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`
+renamecolumn,()!()

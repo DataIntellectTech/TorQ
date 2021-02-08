@@ -8,8 +8,10 @@ columns,()
 grouping,()
 aggregations,()
 filters,((=;`sym;enlist`AUDUSD);(=;`source;enlist`source0))
+ordering,()
 freeformwhere,()
 freeformby,()
 freeformcolumn,()
 proctype,`rdb
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`
+renamecolumn,()!()

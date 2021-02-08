@@ -8,9 +8,11 @@ columns,()
 grouping,(enlist`sym)!enlist`sym
 aggregations,`minBidprice`minAskprice`maxBidprice`maxAskprice`wavgBidsizeBidprice`wavgAsksizeAskprice!((min;`bidprice);(min;`askprice);(max;`bidprice);(max;`askprice);(wavg;`bidsize;`bidprice);(wavg;`asksize;`askprice))
 filters,()
+ordering,()
 freeformwhere,()
 freeformby,()
 freeformcolumn,()
 proctype,`rdb
 timebar,(enlist`time)!enlist(.eqp.xbarfunc;21600000000000;`time)
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`
+renamecolumn,()!()

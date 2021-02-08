@@ -8,9 +8,11 @@ columns,()
 grouping,()
 aggregations,()
 filters,()
+ordering,()
 freeformwhere,()
 freeformby,`sym`source!`sym`source
 freeformcolumn,(enlist`avgmid)!enlist(avg;(*;0.5;(+;`bidprice;`askprice)))
 proctype,`rdb
 timebar,(enlist`time)!enlist(.eqp.xbarfunc;21600000000000;`time)
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`
+renamecolumn,()!()

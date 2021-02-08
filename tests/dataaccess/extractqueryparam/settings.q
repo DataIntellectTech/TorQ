@@ -10,4 +10,4 @@ getinputparams:{[test]exec parameter!get each parametervalue from .checkinputs.r
 
 getoutputparams:{[test]exec parameter!get each parametervalue from .checkinputs.readcsv[` sv outputpath,`$string[test],".csv";"s*"]};
 
-testfunction:{[testquery] getoutputparams[`$testquery]~.eqp.extractqueryparams[getinputparams[`$testquery];.eqp.queryparams]};
+testfunction:{[test] getoutputparams[test]~.eqp.extractqueryparams[getinputparams[test];.eqp.queryparams]};
