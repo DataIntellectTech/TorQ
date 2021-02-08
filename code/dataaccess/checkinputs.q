@@ -109,7 +109,7 @@ checkfreeformwhere:{[dict]
     cond:(parse each cond);
     .dataaccess.checkcolumns[dict`tablename;cond[;1];`freeformwhere];
     allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
-    if[not all [raze (cond[;0] in allowedops)];'`$(dict`freeformwhere)," contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
+    if[not all [last each (cond[;0] in allowedops)];'`$(dict`freeformwhere)," contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
  };
 
 checkfreeformby:{[dict]

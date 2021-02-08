@@ -5,15 +5,17 @@ getdata:{[inputparams]                                                          
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         // extract validated parameters from input dictionary
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
   table:raze value each query;                                                               // execute the queries
-  if[(.proc.proctype=`rdb) & `time.date in (cols table);
-    table:({$[`time.date<>x;x;`date]} each (cols table)) xcol table];                        // change time.date to date on rdb process query result
-  if[(.proc.proctype=`rdb) & (all (cols inputparams`tablename) in (cols table));             // adds date column when all columns are
-    table:update date:.z.d from table;                                                       // when all columns are quried from the
-    if[98h=type table;table:`date xcols table]                                               // rdb process for both keyed and unkeyed
-    if[99h=type table;keycol:cols key table;                                                 // results
-      table:0!table;
-      table:`date xcols table;
-      table:keycol xkey table]];
+  if[(.proc.proctype=`rdb);
+    if[`time.date in (cols table);
+      table:({$[`time.date<>x;x;`date]} each (cols table)) xcol table];                      // change time.date to date on rdb process query result
+    if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));   // adds date column when all columns are
+      table:update date:.z.d from table;                                                     // quried from the rdb process for both
+      if[98h=type table;table:`date xcols table]                                             // keyed and unkeyed results
+      if[99h=type table;keycol:cols key table;
+        table:0!table;
+        table:`date xcols table;
+        table:keycol xkey table]];
+  ];
   f:{[input;x;y]y[x] input};
   if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         // order the query after it's fetched
