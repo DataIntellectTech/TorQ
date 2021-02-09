@@ -1,16 +1,25 @@
  
 # Data Access API
 
-The api allows for a user to send identical queries to multiple process types (not just an RDB/HDB), without adapting the query to accommodate to each processes’ semantics. The api strikes a balance of accessibility, whilst not constricting developers or giving unexpected outputs. Key features of the API are: data retrival does not require q-SQL knowledge, a user friendly interface including more comprehensible error messages and compatibility with non-KDB+ native applications such as BigQuery.
+## Introduction and Key Features
 
-### Configuration
+The Dataaccess API is a TorQ upgrade designed for cloud compatibility. 
+
+Other Key upgrades of the API are:
+- Compatability with non kdb processes such as Google BigQuery
+- Consistent queries across all processes 
+- Data retrival does not require q-SQL knowledge only q dictionary manipulation
+- User friendly interface including more comprehensible error messages
+- Queries are automatically optimised for each process
+
+## Configuration
 
 The API can initialised by the following two methods:
 
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about the tables in all the process you want API to query. The information provided allows the queries to be built with no q-SQL knowledge, only dictionary manipulation. 
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided allows the queries to be built with no q-SQL knowledge, only dictionary manipulation. 
 
 
 **Example configuration file** - with 'trade' and 'quote' tables in both the rdb and hdb
@@ -23,7 +32,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
 
 
-The API allows for the user to define either a blank or all proctype to define the tables in both the RDB and HDB. The following table is identitcal to the above
+The API allows for the user to define either a blank or all proctype to define the tables in both the RDB and HDB. The following table is identical to the above
 
 
  |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
@@ -84,9 +93,13 @@ lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
 
 
 
-### Usage
+## Usage
 
-The main function is getdata, a lightweight function which takes in a uniform dictionary type (see table below) and builds and executes a query
+The main function is getdata, a dynamic lightweight function which takes in a uniform dictionary type (see table below) to build a process bespoke query. Input consistency permits getdata to disregard a processes' pragmatics allowing it to be called either directly from within a process or at a gateway.
+
+The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Developer's Footnote).
+
+The following table lists getdata's accepted arguments: 
 
 **Valid Inputs**
 
@@ -108,11 +121,9 @@ The main function is getdata, a lightweight function which takes in a uniform di
 |ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 
-\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
+\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour, such as `select price,mprice:max price from trade`. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
-\*\* More complete examples are provide in the Examples section below
-
-The getdata function has optimisation built in
+\*\* More complete examples are provided in the Examples section below
 
 **Example function call**
 
@@ -133,16 +144,107 @@ q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote
 ? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
 
 ```
+## Aggregations 
 
+The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form 
 
-Accepting a uniform dictionary allows getdata function to be be called from the gateway. This is done using `.dataaccess.getdata` which under the covers uses the checkinputs library to catch errors in the gateway before calling `.gw.syncexecj` equipped with a specialist join function.
+``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
-The main benefit of using the default is when capturing cross process aggregations e.g the max price across a multi-process time range. To do this the user must aggregate using the ``` `aggregations``` key.  
+Certain aggregations are cross proccess enabled (see Gateway). The key accepts the following table of inputs:
 
-For more complex joining and time outs`.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give the user more freedom. For example
+**Table of avaliable Aggregations**
+
+|Aggregation|Description                                          |Example                                          |Cross Process Enabled  |
+|-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------|
+|`avg`      |Return the mean of a list                            |```(enlist`avg)!enlist enlist `price```          |No                     |
+|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist enlist `bid`ask```       |No                     |
+|`count`    |Return The length of a list                          |```(enlist`count)!enlist enlist `price```        |Yes                    |
+|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist enlist `bid`ask```       |No                     |
+|`dev`      |Return the standard deviation of a list              |```(enlist`dev)!enlist enlist `price```          |No                     |
+|`distinct` |Return distinct elements of a list                   |```(enlist`distinct)!enlist enlist `sym```       |Yes                    |
+|`first`    |Return first element of a list                       |```(enlist`first)!enlist enlist `price```        |Yes                    |
+|`last`     |Return the final value in a list                     |```(enlist`last)!enlist enlist `price```         |Yes                    |
+|`max`      |Return the maximum value of a list                   |```(enlist`max)!enlist enlist `price```          |Yes                    |
+|`med`      |Return the median value of a list                    |```(enlist`med)!enlist enlist `price```          |No                     |
+|`min`      |Return the minimum value of a list                   |```(enlist`min)!enlist enlist `price```          |Yes                    |   
+|`prd`      |Return the product of a list                         |```(enlist`prd)!enlist enlist `price```          |Yes                    |
+|`sum`      |Return the total of a list                           |```(enlist`sum)!enlist enlist `price```          |No                     |
+|`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                     |
+|`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                     |
+|`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |NO                     |
+
+The following function can be used to merge two aggregation dictionaries: 
 
 ```
-q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
+```
+
+```
+q)A
+min| price
+q)B
+min| time
+q)E
+wavg| bid bsize
+q)f[(A;B;E)]
+min | `price`time
+wavg| ,`bid`bsize
+```
+
+## Gateway
+
+Accepting a uniform dictionary allows getdata function to be be called from the gateway using `.dataaccess.getdata`. `.dataaccess.getdata` leverages the checkinputs library to catch errors in the gateway before calling `.gw.syncexecj` equipped with a specialist join function `.dataaccess.multiprocjoin` to return the expected outputs.
+
+The main benefit of using `.dataaccess.getdata` is capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+
+```
+g"querydict"
+tablename   | `quote
+starttime   | 2021.02.08D00:00:00.000000000
+endtime     | 2021.02.09D09:00:00.000000000
+aggregations| `max`min!(`ask`bid;`ask`bid)
+q)g"querydicttoday"
+tablename   | `quote
+starttime   | 2021.02.09D00:00:00.000000000
+endtime     | 2021.02.09D09:00:00.000000000
+aggregations| `max`min!(`ask`bid;`ask`bid)
+q)g"querydictyesterday"
+tablename   | `quote
+starttime   | 2021.02.08D00:00:00.000000000
+endtime     | 2021.02.09D00:00:00.000000000
+aggregations| `max`min!(`ask`bid;`ask`bid)
+q)g".dataaccess.getdata querydict"
+maxAsk maxBid minAsk minBid
+---------------------------
+214.41 213.49 8.43   7.43
+q)g".dataaccess.getdata querydictyesterday"
+maxAsk maxBid minAsk minBid
+---------------------------
+214.41 213.49 8.8    7.82
+q)g".dataaccess.getdata querydicttoday"
+maxAsk maxBid minAsk minBid
+---------------------------
+94.81  93.82  8.43   7.43
+```
+
+Such behaviour is not demonstrated when using freeform queries
+```
+g"querydict"
+tablename     | `quote
+starttime     | 2021.02.08D00:00:00.000000000
+endtime       | 2021.02.09D09:00:00.000000000
+freeformcolumn| "max ask,max bid,min ask,min bid"
+q)g".dataaccess.getdata querydict"
+ask    bid    ask1 bid1
+-----------------------
+214.41 213.49 8.8  7.82
+94.81  93.82  8.43 7.43
+
+```
+Only certain aggregations are cross process enabled (see aggregations table). As a consequence should the user wish to define more complex join functions and timeouts the functions `.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give more freedom. For example
+
+```
+q)g".dataaccess.syncexec `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)"
 sym    time                        bid   bsize
 ----------------------------------------------
 GOOG 2021.01.21D13:36:45.714478000 71.57 1
@@ -151,32 +253,9 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 8
 GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
-The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The key accepts the following table of inputs:
 
-**Table of avaliable Aggregations**
 
-|Aggregation|Description                                          |Example                                          |Cross Process Enabled\*|
-|-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------|
-|`avg`      |Return the mean of a list                            |```enlist(`avg)!enlist(`price)```                |No                     |
-|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist(enlist(`bid`ask))```     |No                     |
-|`count`    |Return The length of a list                          |```enlist(`count)!enlist(`price)```              |Yes                    |
-|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist(enlist(`bid`ask))```     |No                     |
-|`dev`      |Return the standard deviation of a list              |```enlist(`dev)!enlist(`price)```                |No                     |
-|`distinct` |Return distinct elements of a list                   |```enlist(`distinct)!enlist(`sym)```             |Yes                    |
-|`first`    |Return first element of a list                       |```enlist(`first)!enlist(`price)```              |Yes                    |
-|`last`     |Return the final value in a list                     |```enlist(`last)!enlist(`price)```               |Yes                    |
-|`max`      |Return the maximum value of a list                   |```enlist(`max)!enlist(`price)```                |Yes                    |
-|`med`      |Return the median value of a list                    |```enlist(`med)!enlist(`price)```                |No                     |
-|`min`      |Return the minimum value of a list                   |```enlist(`min)!enlist(`price)```                |Yes                    |   
-|`prd`      |Return the product of a list                         |```enlist(`prd)!enlist(`price)```                |Yes                    |
-|`sum`      |Return the total of a list                           |```enlist(`sum)!enlist(`price)```                |No                     |
-|`var`      |Return the Variance of a list                        |```enlist(`var)!enlist(`price)```                |No                     |
-|`wavg`     |Return the weighted mean of two lists                |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|No                     |
-|`wsum`     |Return the weighted sum of two lists                 |```((enlist(`wavg))!enlist(enlist(`asize`ask))```|NO                     |
-
-\* Certain aggregations are enabled across process, that is they will take the aggregation across all the appropriate processes rather than split the aggregation byprocess. 
-
-### Checkinputs
+## Checkinputs
 
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by the checkinputs. There are two checkinputs libraries firstly common `.checkinputs` this library is loaded into all proccess and is used by `.dataaccess.syncexec` to undergo basic input checks on each key as defined in `checkinputs.csv`. Upon hitting the process more bespoke `.dataaccess` checks are performed. 
 
@@ -246,11 +325,14 @@ Error|Function|Library|
 |The use of equalities in the filter parameter warrants only one value - example:|inequalitycheck|checkinputs|
 |Ordering parameter must contain pairs of symbols as its input - example:|checkordering|checkinputs|
 |Ordering parameter's values must be paired in the form (direction;column) - example:|checkordering|checkinputs|
-|The first item in each of the ordering parameter's pairs must be either `asc or `desc - example:|checkordering|checkinputs|
+|The first item in each of the ordering parameter's pairs must be either \`asc or \`desc - example:|checkordering|checkinputs|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
-**Implimentation with TorQ FSP**
+### Testing Library
+Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests ensure your TorQ stack is down, the enviroment variables have been set and run `. run.sh -d`  
+
+### Implimentation with TorQ FSP
 
 The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
 
