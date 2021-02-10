@@ -19,10 +19,22 @@ The API can initialised by the following two methods:
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided allows the queries to be built with no q-SQL knowledge, only dictionary manipulation. 
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided defines default functionality for the API al
 
+**Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
 
-**Example configuration file** - with 'trade' and 'quote' tables in both the rdb and hdb
+**Description of fields in tableproperties.csv**
+
+|Field               |Description                                                                                        |
+|--------------------|---------------------------------------------------------------------------------------------------|
+|proctype            |denotes the type of process                                                                        |
+|tablename           |table to query - assumed unique across given proctype                                              |
+|primarytimecolumn   |default time column from the tickerplant - used if no  \`timecolumn parameter is passed            |
+|attributecolumn     |primary attribute column - used in ordering of queries                                             |
+|instrumentcolumn    |column containing instrument                                                                       |
+|timezone            |timezone of the timestamps on the data (NYI)                                                       |
+|getrollover         |custom function to determine last rollover from a timestamp                                    |
+|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
 
 |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
@@ -39,20 +51,6 @@ The API allows for the user to define either a blank or all proctype to define t
  |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
  |all|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
  |all|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
-
-
-**Description of fields in csv**
-
-|Field               |Description                                                                                        |
-|--------------------|---------------------------------------------------------------------------------------------------|
-|proctype            |denotes the type of process  i.e. rdb or hdb                                                       |
-|tablename           |table to query - assumed unique across given proctype                                              |
-|primarytimecolumn   |default time column from the tickerplant - used if no  \`timecolumn parameter is passed            |
-|attributecolumn     |primary attribute column - used in ordering of queries                                             |
-|instrumentcolumn    |column containing instrument                                                                       |
-|timezone            |timezone of the timestamps on the data (NYI)                                                       |
-|getrollover         |custom function to determine last rdb rollover from a timestamp                                    |
-|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
 
 
 The following code is an example `code/dataaccess/customfuncs.q`, it defines the custom functions referenced in the above tables. This allows the developer to create functions to automatically query the correct process and partitions. 
@@ -120,6 +118,7 @@ The following table lists getdata's accepted arguments:
 |freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
 |ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
+|postback|No|{flip x}| |Post-processing of the data|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour, such as `select price,mprice:max price from trade`. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
@@ -146,7 +145,7 @@ q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote
 ```
 ## Aggregations 
 
-The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form 
+The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form: 
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
@@ -241,7 +240,7 @@ ask    bid    ask1 bid1
 94.81  93.82  8.43 7.43
 
 ```
-Only certain aggregations are cross process enabled (see aggregations table). As a consequence should the user wish to define more complex join functions and timeouts the functions `.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give more freedom. For example
+Only aggregations which can be factored across processes are enabled (see aggregations table), this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations ordefine other joins and timeouts: the functions `.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give more freedom. For example
 
 ```
 q)g".dataaccess.syncexec `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)"
