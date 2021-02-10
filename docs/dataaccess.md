@@ -11,6 +11,7 @@ Other Key upgrades of the API are:
 - Data retrival does not require q-SQL knowledge only q dictionary manipulation
 - User friendly interface including more comprehensible error messages
 - Queries are automatically optimised for each process
+- Thorough testing allowing ease of further development
 
 ## Configuration
 
@@ -19,9 +20,7 @@ The API can initialised by the following two methods:
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided defines default functionality for the API al
-
-**Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided defines default functionality for the API.
 
 **Description of fields in tableproperties.csv**
 
@@ -33,8 +32,10 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |attributecolumn     |primary attribute column - used in ordering of queries                                             |
 |instrumentcolumn    |column containing instrument                                                                       |
 |timezone            |timezone of the timestamps on the data (NYI)                                                       |
-|getrollover         |custom function to determine last rollover from a timestamp                                    |
+|getrollover         |custom function to determine last rollover from a timestamp                                        |
 |getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
+
+**Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
 
 |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
@@ -149,28 +150,28 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
-Certain aggregations are cross proccess enabled (see Gateway). The key accepts the following table of inputs:
+Certain aggregations are cross proccess enabled . The key accepts the following table of inputs:
 
 **Table of avaliable Aggregations**
 
-|Aggregation|Description                                          |Example                                          |Cross Process Enabled  |
-|-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------|
-|`avg`      |Return the mean of a list                            |```(enlist`avg)!enlist enlist `price```          |No                     |
-|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist enlist `bid`ask```       |No                     |
-|`count`    |Return The length of a list                          |```(enlist`count)!enlist enlist `price```        |Yes                    |
-|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist enlist `bid`ask```       |No                     |
-|`dev`      |Return the standard deviation of a list              |```(enlist`dev)!enlist enlist `price```          |No                     |
-|`distinct` |Return distinct elements of a list                   |```(enlist`distinct)!enlist enlist `sym```       |Yes                    |
-|`first`    |Return first element of a list                       |```(enlist`first)!enlist enlist `price```        |Yes                    |
-|`last`     |Return the final value in a list                     |```(enlist`last)!enlist enlist `price```         |Yes                    |
-|`max`      |Return the maximum value of a list                   |```(enlist`max)!enlist enlist `price```          |Yes                    |
-|`med`      |Return the median value of a list                    |```(enlist`med)!enlist enlist `price```          |No                     |
-|`min`      |Return the minimum value of a list                   |```(enlist`min)!enlist enlist `price```          |Yes                    |   
-|`prd`      |Return the product of a list                         |```(enlist`prd)!enlist enlist `price```          |Yes                    |
-|`sum`      |Return the total of a list                           |```(enlist`sum)!enlist enlist `price```          |No                     |
-|`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                     |
-|`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                     |
-|`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |NO                     |
+|Aggregation|Description                                          |Example                                          |Cross Process Enabled (See Gateway)|
+|-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------------------|
+|`avg`      |Return the mean of a list                            |```(enlist`avg)!enlist enlist `price```          |No                                 |
+|`cor`      |Return Pearson's Correlation coefficient of two lists|```(enlist `cor)!enlist enlist `bid`ask```       |No                                 |
+|`count`    |Return The length of a list                          |```(enlist`count)!enlist enlist `price```        |Yes                                |
+|`cov`      |Return the covariance of a list pair                 |```(enlist `cov)!enlist enlist `bid`ask```       |No                                 |
+|`dev`      |Return the standard deviation of a list              |```(enlist`dev)!enlist enlist `price```          |No                                 |
+|`distinct` |Return distinct elements of a list                   |```(enlist`distinct)!enlist enlist `sym```       |Yes                                |
+|`first`    |Return first element of a list                       |```(enlist`first)!enlist enlist `price```        |Yes                                |
+|`last`     |Return the final value in a list                     |```(enlist`last)!enlist enlist `price```         |Yes                                |
+|`max`      |Return the maximum value of a list                   |```(enlist`max)!enlist enlist `price```          |Yes                                |
+|`med`      |Return the median value of a list                    |```(enlist`med)!enlist enlist `price```          |No                                 |
+|`min`      |Return the minimum value of a list                   |```(enlist`min)!enlist enlist `price```          |Yes                                |   
+|`prd`      |Return the product of a list                         |```(enlist`prd)!enlist enlist `price```          |Yes                                |
+|`sum`      |Return the total of a list                           |```(enlist`sum)!enlist enlist `price```          |No                                 |
+|`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                                 |
+|`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
+|`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |NO                                 |
 
 The following function can be used to merge two aggregation dictionaries: 
 
@@ -252,7 +253,7 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 8
 GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
-
+Data can be retrieved asynchronously with `.dataaccess.agetdata`
 
 ## Checkinputs
 
@@ -328,6 +329,14 @@ Error|Function|Library|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
+### Automatic Query Optimisation
+
+The queries are automatically optimised using `.queryorder.orderquery` this function prioritises filters against the attribute columns defined in `tableproperties.csv`.
+
+**Developer's Footnote**
+
+The API is designed improve accessibility whilst maintaining a fast query speed. The API has a built in query optimiser however: there are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected. 
+
 ### Testing Library
 Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests ensure your TorQ stack is down, the enviroment variables have been set and run `. run.sh -d`  
 
@@ -336,11 +345,9 @@ Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/
 The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
 
 
-**Developer's Footnote**
+ 
 
-The API is designed improve accessibility whilst maintaining a fast query speed. The API has a built in query optimiser however: there are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected.  
-
-### Further examples
+## Further Examples
 
 The following examples the query, output and the kdb which is 
 
