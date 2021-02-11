@@ -107,6 +107,8 @@ checkfreeformwhere:{[dict]
     example:"bidprice<0w,bidsize>`sym bidprice>0w";
     cond:"," vs dict`freeformwhere;
     cond:(parse each cond);
+    if[any (not(first each  cond[;1]) in (in;within;like))*((type each first each cond[;1])=102h);'`$"Not operator must be used in conjucture with in, like or within oporators"];
+    if[any 2=count each cond;cond:?[2=count each cond;cond[;1];cond[]]];
     .dataaccess.checkcolumns[dict`tablename;cond[;1];`freeformwhere];
     allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
     if[not all [last each (cond[;0] in allowedops)];'`$(dict`freeformwhere)," contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
@@ -117,7 +119,7 @@ checkfreeformby:{[dict]
     if[not ((dict`freeformby) ss "!")~`long$();'`$"Freeformby parameter must not be entered as dictionary. Parameter should be entered in the following format: ",example];
     cond:"," vs dict`freeformby;
     cond:(parse each cond);
-    .dataaccess.checkcolumns[dict`tablename;last cond[;2];`freeformby];
+    .dataaccess.checkcolumns[dict`tablename;cond;`freeformby];
  };
 
 checkfreeformcolumns:{[dict]
