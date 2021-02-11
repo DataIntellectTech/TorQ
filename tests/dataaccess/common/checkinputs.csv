@@ -39,6 +39,7 @@ true,0,0,q,checkreturnederror[`orderingordering],,1,,"ordering parameter input n
 true,0,0,q,checkreturnederror[`orderingordering1],,1,,"ordering parameter input needs to be paired lists"
 true,0,0,q,checkreturnederror[`vagueordering],,1,,"cannot order a column which has been aggregated more than once"
 true,0,0,q,checkreturnederror[`noordering],,1,,"cannot order a column which has not been called"
+true,0,0,q,checkreturnederror[`badordering],,1,,"cannot order a column which has not been called"
 true,0,0,q,checkreturnederror[`postbackfail],,1,,"postback can only have one function with a single input"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput1,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"
 true,0,0,q,99h~type .checkinputs.checkinputs gettestparams`validinput2,,1,,".checkinputs.checkinputs runs successfully and returns a dictionary"

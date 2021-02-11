@@ -152,11 +152,11 @@ inequalitycheck:{[pair]
     errmess:"The use of inequalities in the filter parameter warrants only one value - example: ",example;
     errmess2:"The use of equalities in the filter parameter warrants only one value - example: ",example;
     if[(("~<"~string first pair)|(enlist"<")~string first pair)& 1<>count last pair;
-        '`$errmess];
+        '`$errmess2];
     if[(("~>"~string first pair)|(enlist">")~string first pair)& 1<>count last pair;
-        '`$errmess];
+        '`$errmess2];
     if[(((enlist"=")~string first pair)|(enlist"~")~string first pair)&1<>count last pair;
-        '`$errmess];
+        '`$errmess2];
     if[("~="~string first pair)&1<>count last pair;
         '`$errmess];};
 
@@ -191,8 +191,8 @@ checkordering:{[dict;parameter]
         columns:(dict`columns),();
         if[not (enlist `)~columns;
             if[any not in[last each input;columns];
-                badorder:sv[",";string (last each ordering) where not in[last each ordering;columns]]; 
-                '`$"Trying to order by column(s) {",badorder,"} that is not defined in the columns argument"]]];
+                badorder:sv[",";string (last each input) where not in[last each input;columns]]; 
+                '`$"Trying to order by column(s):",badorder," that is not defined in the columns argument"]]];
     :dict;};
     
 // check that the instrumentcol parameter is of type symbol
