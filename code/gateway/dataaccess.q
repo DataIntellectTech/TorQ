@@ -59,4 +59,4 @@ colmerge:{[f;A;z] crossprocfunctions[f] (colextract[;z]) each A};
 colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations]};
 
 // Merge the tables
-crossprocmerge:{[input;A]colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
+crossprocmerge:{[input;A](^/) colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
