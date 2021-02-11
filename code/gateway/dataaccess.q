@@ -19,7 +19,7 @@ agetdatajpts:{[o;join;postback;timeout;sync]
     $[sync;output:.gw.syncexecjt[(`getdata;o);procs;join;timeout];output:.gw.asyncexecjpt[(`getdata;o);procs;join;postback;timeout]];
     if[`ordering in key o;
         s:{?[`asc=x[;0];iasc;idesc]}(o`ordering);
-        ?[`output;();0b;();0w;s]];
+        output:?[output;();0b;();0w;s]];
     :output;
     };
 
