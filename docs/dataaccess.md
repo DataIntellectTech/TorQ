@@ -6,7 +6,7 @@
 The Dataaccess API is a TorQ upgrade designed for cloud compatibility. 
 
 Other Key upgrades of the API are:
-- Compatability with non kdb processes such as Google BigQuery
+- Compatability with non kdb processes such as Google BigQuery and qREST
 - Consistent queries across all processes 
 - Data retrival does not require q-SQL knowledge only q dictionary manipulation
 - User friendly interface including more comprehensible error messages
@@ -92,9 +92,9 @@ lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
 
 
 
-## Usage
+# Usage
 
-The main function is getdata, a dynamic lightweight function which takes in a uniform dictionary type (see table below) to build a process bespoke query. Input consistency permits getdata to disregard a processes' pragmatics allowing it to be called either directly from within a process or at a gateway.
+When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic lightweight function which takes in a uniform dictionary type (see table below) to build a process bespoke query. Input consistency permits getdata to disregard a processes' pragmatics allowing it to be called either directly within a process or via one of the `.dataccess.getdata`'s discussed in the gateway.
 
 The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Developer's Footnote).
 
@@ -193,9 +193,32 @@ wavg| ,`bid`bsize
 
 ## Gateway
 
-Accepting a uniform dictionary allows getdata function to be be called from the gateway using `.dataaccess.getdata`. `.dataaccess.getdata` leverages the checkinputs library to catch errors in the gateway before calling `.gw.syncexecj` equipped with a specialist join function `.dataaccess.multiprocjoin` to return the expected outputs.
+Accepting a uniform dictionary allows queries to be sent to the gateway using the `.dataaccess.getdata`'s (see table below). Each function:
 
-The main benefit of using `.dataaccess.getdata` is capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+- Accepts the query dictionary in the first argument
+- Leverages the checkinputs library to catch errors in the gateway
+- Dynamically determines the appropriate processes to call the getdata function
+- Calls `.gw.(a)syncexecjt` equipped with a join function, postback function (Async queries only) and timeouts. 
+
+The following table provides further insight into all the available functions:
+
+|Function               |Type |Join                     |Postback  |Timeout   |
+|-----------------------|-----|-------------------------|----------|----------|
+|.dataaccess.getdatajt  |sync |Argument 2               |N/A       |Argument 3|
+|.dataaccess.getdataj   |sync |Argument 2               |N/A       |0Wn       |
+|.dataaccess.getdatat   |sync |.dataaccess.multiprocjoin|N/A       |Argument 2|
+|.dataaccess.getdata    |sync |.dataaccess.multiprocjoin|N/A       |0Wn       |
+|.dataaccess.agetdatajpt|async|Argument 2               |Argument 3|Argument 4|
+|.dataaccess.agetdatajt |async|Argument 2               |()        |Argument 3|
+|.dataaccess.agetdatapt |async|.dataaccess.multiprocjoin|Argument 2|Argument 3|
+|.dataaccess.agetdataj  |async|Argument 2               |()        |0Wn       |
+|.dataaccess.agetdatap  |async|.dataaccess.multiprocjoin|Argument 2|0Wn       |
+|.dataaccess.agetdatat  |async|.dataaccess.multiprocjoin|()        |Argument 2|
+|.dataaccess.agetdata   |async|.dataaccess.multiprocjoin|()        |0Wn       |
+
+Only synchronus calls to the gateway can involke the synchronus functions and similarly for the asynchronus library.
+
+The two primary functions are `.dataaccess.getdata` and `.dataaccess.agetdata`. The key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
 
 ```
 g"querydict"
@@ -226,8 +249,7 @@ maxAsk maxBid minAsk minBid
 ---------------------------
 94.81  93.82  8.43   7.43
 ```
-
-Such behaviour is not demonstrated when using freeform queries
+Such behaviour is not demonstrated when using freeform queries for example:
 ```
 g"querydict"
 tablename     | `quote
@@ -241,23 +263,23 @@ ask    bid    ask1 bid1
 94.81  93.82  8.43 7.43
 
 ```
-Only aggregations which can be factored across processes are enabled (see aggregations table), this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations ordefine other joins and timeouts: the functions `.dataaccess.syncexec(j)(t)` are similar to `.dataaccess.getdata` yet give more freedom. For example
-
-```
-q)g".dataaccess.syncexec `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)"
-sym    time                        bid   bsize
-----------------------------------------------
-GOOG 2021.01.21D13:36:45.714478000 71.57 1
-GOOG 2021.01.21D13:36:45.714478000 70.86 2
-GOOG 2021.01.21D13:36:45.714478000 70.91 8
-GOOG 2021.01.21D13:36:45.714478000 70.91 6
-...
-```
-Data can be retrieved asynchronously with `.dataaccess.agetdata`
+As seen in the aggregations table above, only aggregations which can be factored across processes are enabled, this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the `.dataccess.getdata` library appropriately.
 
 ## Checkinputs
 
-A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by the checkinputs. There are two checkinputs libraries firstly common `.checkinputs` this library is loaded into all proccess and is used by `.dataaccess.syncexec` to undergo basic input checks on each key as defined in `checkinputs.csv`. Upon hitting the process more bespoke `.dataaccess` checks are performed. 
+A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by the checkinputs. There are two checkinputs libraries firstly common `.checkinputs` this library is loaded into all proccess and is used to undergo basic input checks on each key as defined in `checkinputs.csv` (example below). Upon hitting the process more bespoke `.dataaccess` checks are performed. 
+
+
+**Description of fields in checkinputs.csv**
+
+|Field        |Description                                                            |
+|-------------|-----------------------------------------------------------------------|
+|parameter    |Dictionary key to pass to getdata                                      |
+|required     |Whether this parameter is mandatory                                    |
+|checkfunction|Function to determine whether the given value is valid                 |
+|invalid pairs|Whether a parameter is invalid in combination with some other parameter|
+
+**Example `checkinputs.csv`**
 
 |parameter|required|checkfunction|invalidpairs|description|
 |---------|--------|-------------|------------|-----------|
@@ -280,16 +302,8 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 
 
 
-**Description of fields in checkinputs.csv**
 
-|Field        |Description                                                            |
-|-------------|-----------------------------------------------------------------------|
-|parameter    |Dictionary key to pass to getdata                                      |
-|required     |Whether this parameter is mandatory                                    |
-|checkfunction|Function to determine whether the given value is valid                 |
-|invalid pairs|Whether a parameter is invalid in combination with some other parameter|
-
-**Custom Api Errors**
+### Custom Api Errors
 
 Below is a list of all the errors the API will return:
 Error|Function|Library|
@@ -331,21 +345,36 @@ Error|Function|Library|
 
 ### Automatic Query Optimisation
 
-The queries are automatically optimised using `.queryorder.orderquery` this function prioritises filters against the attribute columns defined in `tableproperties.csv`.
+The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries. It does this by prioritising filters against the attribute columns defined in `tableproperties.csv`.
 
 **Developer's Footnote**
 
 The API is designed improve accessibility whilst maintaining a fast query speed. The API has a built in query optimiser however: there are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected. 
 
 ### Testing Library
-Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests ensure your TorQ stack is down, the enviroment variables have been set and run `. run.sh -d`  
+Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
+
+1. Set environment variables
+2. Ensure your TorQ stack is not running
+3. Navigate to the appropriate testing directory
+4. Run `. run.sh -d`  
 
 ### Implimentation with TorQ FSP
 
 The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
 
-
+### Implimentation with q-REST
  
+The API is compatible with q-REST. To do this:
+
+1. Download q-REST from https://github.com/AquaQAnalytics/q-REST
+2. Open `application.properties` and point `kdb.host/port` to the gateway
+3. qCon into the gateway and run `.dataaccess.enableqrest[]`\*
+4. Send `.json`s of the form `"query":".dataaccess.agetdata(jpt)...","response":"boolean","type":"(a)sync"`\*\* to the appropriate port/host
+
+\* This will change the response types from all gateway requests, including those not through q-REST.
+
+\*\* Only asynchronus queries to the gateway will execute from q-REST.   
 
 ## Further Examples
 
