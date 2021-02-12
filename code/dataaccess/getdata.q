@@ -19,7 +19,7 @@ getdata:{[inputparams]                                                          
   f:{[input;x;y]y[x] input};
   if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         // order the query after it's fetched
-  :queryparams[`renamecolumn] xcol table;                                                    // rename the columns
+  result:queryparams[`renamecolumn] xcol table;                                                    // rename the columns
   $[in[`postback;key inputparams];                                                           // apply post-processing function
     :.eqp.processpostback[result;inputparams`postback];
     :result];

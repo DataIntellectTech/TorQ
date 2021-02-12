@@ -91,7 +91,7 @@ crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0
 
 // Helpful Projections
 getdatajt:agetdatajpts[;;();;1b];
-getdataj:agetdatajt[;;0Wn];
+getdataj:getdatajt[;;0Wn];
 getdatat:{:getdatajt[x;multiprocjoin[x];y]};
 getdata:getdatat[;0Wn];
 
