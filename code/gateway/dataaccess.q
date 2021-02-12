@@ -14,21 +14,21 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 // Projections defined similarly to .gw.(a)syncexec(j/p/t)
 // Main Function is .dataaccess.(a)getdata
 agetdatajpts:{[o;join;postback;timeout;sync]
-    // Check the inputs before they hit the gateway 
-    o:.checkinputs.checkinputs[o];
-    // Log the request
-    .requests.logger[o;()];
-    // Get the process to query
-    procs:attributesrouting[o;partdict[o]];
-    // Add the proc list to the query
-    o[`procs]:procs;
-    // Execute query
-    $[sync;output:.gw.syncexecjt[(`getdata;o);procs;join;timeout];output:.gw.asyncexecjpt[(`getdata;o);procs;join;postback;timeout]];
+    $[sync;output:.gw.syncexecjt[(`getdata;o);o[`procs];@[join;o;{join}];timeout];output:.gw.asyncexecjpt[(`getdata;o);o[`procs];@[join;o;{join}];postback;timeout]];
     if[`ordering in key o;
         s:{?[`asc=x[;0];iasc;idesc]}(o`ordering);
         output:?[output;();0b;();0w;s]];
     :output;
     };
+
+prepinput:{[o]
+    o:.checkinputs.checkinputs[o];
+    // Log the request
+    //.requests.logger[o;()];
+    // Get the process to query
+    o[`procs]:attributesrouting[o;partdict[o]];
+    :o
+    }
 
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
@@ -61,10 +61,11 @@ partdict:{[input]
 
 // Default dataaccess join allowing for aggregations across processes
 multiprocjoin:{[input]
+    TTT::input;
     //If there is only one proc queried output the table
     if[1=count input `procs;:{::};];
     // If no aggregations key is provided return a basic raze function
-    if[not `aggregations in key input;:raze];
+    if[not `aggregations in key input;:{raze}];
     // If a by date clause has been added then just raze as normal
     if[`grouping in key input;if[`date in input[`grouping];:raze]];
     // If timebar is called just error
@@ -90,14 +91,14 @@ colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations
 crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
 
 // Helpful Projections
-getdatajt:agetdatajpts[;;();;1b];
+getdatajt:{x:prepinput[x];agetdatajpts[x;y;();z;1b]};
 getdataj:getdatajt[;;0Wn];
-getdatat:{:getdatajt[x;multiprocjoin[x];y]};
+getdatat:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];();y;1b]};
 getdata:getdatat[;0Wn];
 
-agetdatajpt:agetdatajpts[;;;;0b];
+agetdatajpt:{[x;y;z;w] x:prepinput[x];:agetdatajpts[x;y;z;w;0b]}
 agetdatajt:agetdatajpt[;;();];
-agetdatapt:{:agetdatajpt[x;multiprocjoin[x];y;z]};
+agetdatapt:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];y;z]}
 agetdataj:agetdatajpt[;;();0Wn]
 agetdatap:agetdatapt[;;0Wn];
 agetdatat:agetdatapt[;();];
