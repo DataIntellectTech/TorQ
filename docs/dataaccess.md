@@ -1,7 +1,6 @@
- 
 # Data Access API
 
-## Introduction and Key Features
+# Introduction and Key Features
 
 The Dataaccess API is a TorQ upgrade designed for cloud compatibility. 
 
@@ -13,9 +12,9 @@ Other Key upgrades of the API are:
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
-## Configuration
+# Configuration
 
-The API can initialised by the following two methods:
+The API can initialised in a TorQ proccess by either:
 
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
@@ -137,7 +136,7 @@ GOOG 2021.01.21D13:36:45.714478000 70.91 8
 GOOG 2021.01.21D13:36:45.714478000 70.91 6
 ...
 ```
-`.dataaccess.buildquery` function provides the developer with an insight into the query that has been built
+`.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
 
 ```
 q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
@@ -171,7 +170,7 @@ Certain aggregations are cross proccess enabled . The key accepts the following 
 |`sum`      |Return the total of a list                           |```(enlist`sum)!enlist enlist `price```          |No                                 |
 |`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                                 |
 |`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
-|`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |NO                                 |
+|`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |No                                 |
 
 The following function can be used to merge two aggregation dictionaries: 
 
@@ -193,11 +192,11 @@ wavg| ,`bid`bsize
 
 ## Gateway
 
-Accepting a uniform dictionary allows queries to be sent to the gateway using the `.dataaccess.getdata`'s (see table below). Each function:
+Accepting a uniform dictionary allows queries to be sent to the gateway using the `.dataaccess.getdata`s (see table below). Each function:
 
 - Accepts the query dictionary in the first argument
 - Leverages the checkinputs library to catch errors in the gateway
-- Dynamically determines the appropriate processes to call the getdata function
+- Uses `.gw.servers` to dynamically determine the appropriate processes 
 - Calls `.gw.(a)syncexecjt` equipped with a join function, postback function (Async queries only) and timeouts. 
 
 The following table provides further insight into all the available functions:
@@ -218,7 +217,7 @@ The following table provides further insight into all the available functions:
 
 Only synchronus calls to the gateway can involke the synchronus functions and similarly for the asynchronus library.
 
-The two primary functions are `.dataaccess.getdata` and `.dataaccess.agetdata`. The key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+The two primary `.dataccess.getdata`s are `.dataaccess.getdata` and `.dataaccess.agetdata`. The key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
 
 ```
 g"querydict"
@@ -343,15 +342,17 @@ Error|Function|Library|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
-### Automatic Query Optimisation
+## Automatic Query Optimisation
 
 The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries. It does this by prioritising filters against the attribute columns defined in `tableproperties.csv`.
 
-**Developer's Footnote**
+# Further Development
 
-The API is designed improve accessibility whilst maintaining a fast query speed. The API has a built in query optimiser however: there are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected. 
+## Debugging and Optimisation
 
-### Testing Library
+A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected. 
+
+## Testing Library
 Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
 
 1. Set environment variables
@@ -359,11 +360,11 @@ Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/
 3. Navigate to the appropriate testing directory
 4. Run `. run.sh -d`  
 
-### Implimentation with TorQ FSP
+## Implimentation with TorQ FSP
 
 The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
 
-### Implimentation with q-REST
+## Implimentation with q-REST
  
 The API is compatible with q-REST. To do this:
 
@@ -372,15 +373,15 @@ The API is compatible with q-REST. To do this:
 3. qCon into the gateway and run `.dataaccess.enableqrest[]`\*
 4. Send `.json`s of the form `"query":".dataaccess.agetdata(jpt)...","response":"boolean","type":"(a)sync"`\*\* to the appropriate port/host
 
-\* This will change the response types from all gateway requests, including those not through q-REST.
+\* This will change the response types of all gateway requests, including those not through q-REST.
 
 \*\* Only asynchronus queries to the gateway will execute from q-REST.   
 
-## Further Examples
+# Further Examples
 
-The following examples the query, output and the kdb which is 
+For every key in the dictionary the following examples provide a query, output and the functional select executed from within the process. 
 
-**time default**
+**Time default**
 
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
@@ -398,7 +399,6 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 .dataaccess.buildquery `tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b ()
 ```
-
 
 **Intsrument Filter**
 
@@ -418,7 +418,6 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
 ? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b ()
 ```
-
 
 **Columns**
 
@@ -440,7 +439,6 @@ q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20
 
 ```
 
-
 **Free form select**
 
 Run a free form select using the ``` `freeformcolumn ``` parameter
@@ -461,7 +459,6 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn!(`quote;202
 ```
 This can be used in conjunction with the `columns` parameter, however the `columns` parameters will be returned first. It is advised to use the `columns` parameter for returning existing columns and the `freeformcolumn` for any derived columns.
 
-
 **Grouping**
 
 Use ``` `grouping ``` parameter to group average ``` `mid```, by ``` `sym ```
@@ -479,10 +476,6 @@ DOW | 22.8436
 q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";`sym)
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 ```
-
-
-
-
 
 **String style grouping**
 
@@ -502,10 +495,6 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`instr)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 
 ```
-
-
-
-
 
 **Time bucket**
 
@@ -528,12 +517,9 @@ q).dataaccess.buildquery (`tablename`starttime`endtime`aggregations`instruments`
 
 ```
 
-
-
-
 **Aggregations**
 
-- max of both ``` `bidprice ``` and ``` `askprice ```
+Max of both ``` `bidprice ``` and ``` `askprice ```
 
 
 ```
@@ -547,8 +533,6 @@ q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.
 
 
 ```
-
-
 
 **Filters**
 
@@ -623,4 +607,18 @@ newdate    newsym| newprice
 2021.01.19 AAPL  | 111.67
 2021.01.18 INTC  | 70.77
 2021.01.19 INTC  | 65.6
+```
+
+**PostBack**
+
+Use the postback key to under go post proccessing on a table for example flipping the table into a dictionary
+
+```
+q) getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+maxAsk| 91.74
+maxBid| 90.65
+
+.dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
 ```
