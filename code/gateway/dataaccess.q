@@ -91,11 +91,14 @@ crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0
 
 // Helpful Projections
 getdatajt:agetdatajpts[;;();;1b];
+getdataj:agetdatajt[;;0Wn];
 getdatat:{:getdatajt[x;multiprocjoin[x];y]};
 getdata:getdatat[;0Wn];
 
 agetdatajpt:agetdatajpts[;;;;0b];
 agetdatajt:agetdatajpt[;;();];
 agetdatapt:{:agetdatajpt[x;multiprocjoin[x];y;z]};
+agetdataj:agetdatajpt[;;();0Wn]
+agetdatap:agetdatapt[;;0Wn];
 agetdatat:agetdatapt[;();];
 agetdata:agetdatat[;0Wn];
