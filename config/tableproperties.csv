@@ -1,4 +1,3 @@
 proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,getrollover,getpartitionrange
 ,trade,time,sym,sym,,defaultrollover,defaultpartitionrange
 ,quote,time,sym,sym,,defaultrollover,defaultpartitionrange
-
