@@ -19,6 +19,8 @@ checkinputs:{[dict]
     if[in[`freeformwhere;key dict];dict:freeformrdbdate[dict;`freeformwhere];.dataaccess.checkfreeformwhere dict];
     if[in[`freeformby;key dict];dict:freeformrdbdate[dict;`freeformby];.dataaccess.checkfreeformby dict];
     if[in[`freeformcolumn;key dict];dict:freeformrdbdate[dict;`freeformcolumn];.dataaccess.checkfreeformcolumns dict];
+    if[in[`sqlquery;key dict];'`$"sqlquery parameter not supported on ",(string .proc.proctype)," process"];
+    if[in[`firstlastsort;key dict];'`$"firstlastsort parameter not supported on ",(string .proc.proctype)," process"];
     :dict;
   };
 

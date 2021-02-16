@@ -15,3 +15,5 @@ freeformby,0,.checkinputs.isstring,,by clause in string format
 freeformcolumn,0,.checkinputs.isstring,,select clause in string format
 instrumentcolumn,0,.checkinputs.checkinstrumentcolumn,,column to select instrument parameter from
 postback,0,.checkinputs.checkpostback,,applies postback lambda functions to data
+sqlquery,0,.checkinputs.isstring,,allows for sql query inputs (not supported by dataaccess)
+firstlastsort,0,.checkinputs.checkcolumns,,allows for use of firstlastsort (not supported by dataaccess)
