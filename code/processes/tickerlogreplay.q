@@ -230,11 +230,18 @@ replayinner:{[msgnum;logfile]
   if[.z.o like "w*";.lg.e[`replaylog;m:"Zipped log files cannot be directly replayed on Windows"];'m];
   if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
 
-  .lg.o[`replay;"Replaying logfile ",(f:1_string[logfile])," over named pipe"];
-  @[system;"mkfifo logfifo;gunzip -cd ",f," > logfifo &";{.lg.e[`replay;"Failed to read log into named pipe"]}];
-  -11!(msgnum;`:logfifo);
-  system "rm -f logfifo";
+  .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," over named pipe"];
+  -11!(msgnum;hsym `$fifo:.replay.readintofifo f);
+  system "rm -f ",fifo;
   .replay.zipped:0b;
+ };
+
+// Create FIFO and unzip file into it, return FIFO name
+readintofifo:{[filename]
+  fifo:"/tmp/logfifo",string .z.i;
+  fifostr:"mkfifo ",fifo,";gunzip -cd ",filename," > ",fifo," &";
+  @[system;fifostr;{.lg.e[`replay;"Failed to read log into named pipe"]}];
+  fifo
  };
 
 // upd functions down here
