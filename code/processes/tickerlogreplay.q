@@ -188,15 +188,18 @@ replaylog:{[logfile]
  .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
 
  // If not running in segmented mode, reset replay date and clean HDB directory on each loop
+ .replay.zipped:$[logfile like "*.gz";1b;0b];
  if[not .replay.segmentedmode;
-   .replay.replaydate:"D"$-10#string logfile;
+   // Pull out date from TP log file name - *YYYY.MM.DD (+ .gz if zipped) 
+   .replay.replaydate:"D"$$[.replay.zipped;-3_-13#;-10#] string logfile;
    if[.replay.clean;.replay.cleanhdb .replay.replaydate]
   ];
 
  if[lastmessage<firstmessage; .lg.o[`replay;"lastmessage (",(string lastmessage),") is less than firstmessage (",(string firstmessage),"). Not replaying log file"]; :()];
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we won't replay the last message correctly
-  -11!($[lastmessage<0W; lastmessage+1;lastmessage];logfile);
+  .replay.replayinner[lastmessage+lastmessage<0W;logfile];
+  
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
@@ -216,9 +219,29 @@ replaylog:{[logfile]
 
 // If replay date in HDB, delete tables/partition from the HDB so no data is duplicated
 cleanhdb:{[dt]
-  if[not (`$string dt) in key .replay.hdbdir;:()];
+  if[not (`$sd:string dt) in key .replay.hdbdir;.lg.o[`cleanhdb;"Date ",sd," not in HDB."];:()];
   delpaths:.os.pth each .Q.par[.replay.hdbdir;dt;] each $[`all~first .replay.tablelist;enlist `;.replay.tablestoreplay];
   {.lg.o[`cleanhdb;"Deleting ",x," from HDB."];.os.deldir x} each delpaths;
+ };
+
+// Replay log file, if file is zipped and the kdb+ version is at least 4.0 then replay through named pipe
+replayinner:{[msgnum;logfile]
+  if[not .replay.zipped;-11!(msgnum;logfile);:()];
+  if[not .z.o like "l*";.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on Linux systems"];'m];
+  if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
+
+  .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," over named pipe"];
+  -11!(msgnum;hsym `$fifo:.replay.readintofifo f);
+  system "rm -f ",fifo;
+  .replay.zipped:0b;
+ };
+
+// Create FIFO and unzip file into it, return FIFO name
+readintofifo:{[filename]
+  fifo:"/tmp/logfifo",string .z.i;
+  fifostr:"mkfifo ",fifo,";gunzip -cd ",filename," > ",fifo," &";
+  @[system;fifostr;{.lg.e[`replay;"Failed to read log into named pipe"]}];
+  fifo
  };
 
 // upd functions down here
@@ -337,34 +360,44 @@ getlogfile:{
   enlist hsym f
  };
 
-// Return contents of log directory if it exists. If segmented use meta table, if not, grab directory contents
+// Return contents of log directory if it exists
 getlogdir:{
   if[()~key hsym d:.replay.tplogdir;.lg.e[`getlogdir;m:"Specified log directory ",string[d]," does not exist"];'m];
+  if[d like "*.gz";.lg.e[`getlogdir;m:"Zipped log directories not supported."];'m];
   $[.replay.segmentedmode;.replay.getstplogs[d];.Q.dd[logdir;] each key logdir:hsym d]
  };
 
 // Use STP meta table and tplogdir to build log names
 getstplogs:{[logdir]
-  metatable:@[get;.Q.dd[hsym logdir;`stpmeta];{.lg.e[`getstpmeta;m:"Log directory must contain valid STP meta table"];'m}];
+  // If trying to replay zipped files on Windows, error out
+  winzip:(.z.o like "w*") and z:`stpmeta.gz in key d:hsym logdir;
+  if[winzip;.lg.e[`replaylog;m:"Zipped log files cannot be directly replayed on Windows"];'m];
+
+  // If meta table is zipped, assume all other logs are zipped as well and build log names accordingly
+  if[z;system "gunzip ",1_string .Q.dd[d;`stpmeta.gz]];
+  metatable:@[get;.Q.dd[d;`stpmeta];{.lg.e[`getstpmeta;m:"Log directory must contain valid STP meta table"];'m}];
+  if[z;system "gzip ",1_string .Q.dd[d;`stpmeta]];
   names:exec distinct logname from metatable where any each tbls in .replay.tablestoreplay;
-  .Q.dd[hsym logdir;] each last each ` vs' names
+  .Q.dd[d;] each $[z;.Q.dd[;`gz];::] each last each ` vs' names
  };
 
 // Set up log replay list and clean HDB if necessary, kick off replay
 initandrun:{
-  if[all not null (.replay.tplogfile;.replay.tplogdir);.lg.e[`getlogs;m:"Can't pass in log file and directory."];'m];
+  if[all not null .replay[`tplogfile`tplogdir];.lg.e[`getlogs;m:"Can't pass in log file and directory."];'m];
 
   .lg.o[`initandrun;"Initialising replay settings."];
   .replay.tablestoreplay:$[`all~first .replay.tablelist;tables[];.replay.tablelist,()];
   .replay.logstoreplay:$[not null .replay.tplogfile;.replay.getlogfile[];.replay.getlogdir[]];
-  if[not count .replay.logstoreplay;.lg.e[`initandrun;m:"No log files found"];'m];
+  if[not count r:.replay.logstoreplay;.lg.e[`initandrun;m:"No log files found"];'m];
 
   // If in segmented mode, get replay date and clean HDB once
   if[.replay.segmentedmode;
-    .replay.replaydate:first l:"D"$(-6_-14#) each string .replay.logstoreplay;
+    // Pull out the date from the STP log file name - *_YYYYMMDDhhmmss (+ .gz if zipped)
+    .replay.replaydate:first l:"D"$$[first[r] like "*.gz";-9_-17#;-6_-14#] each string r;
     if[not 1=count distinct l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
    ];
+
 
   // Replay all logs and exit
   .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];
