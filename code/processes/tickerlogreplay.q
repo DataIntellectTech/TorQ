@@ -227,7 +227,7 @@ cleanhdb:{[dt]
 // Replay log file, if file is zipped and the kdb+ version is at least 4.0 then replay through named pipe
 replayinner:{[msgnum;logfile]
   if[not .replay.zipped;-11!(msgnum;logfile);:()];
-  if[.z.o like "w*";.lg.e[`replaylog;m:"Zipped log files cannot be directly replayed on Windows"];'m];
+  if[not .z.o like "l*";.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on Linux systems"];'m];
   if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
 
   .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," over named pipe"];
