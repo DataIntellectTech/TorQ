@@ -1,11 +1,9 @@
 .aqrest.execute:{[req;props] @[value;req;{(neg .z.w)(.gw.formatresponse[0b;0b;"error: ",x])}]};
 
-
 \d .dataaccess
 
-
-enableqrest:{[]`.gw.formatresponse set {[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]}};
-disableqrest:{[] `.gw.formatresponse set {[status;sync;result]$[not[status]and sync;'result;result]}};
+enableqrest:{[].gw.formatresponse::{[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]}};
+disableqrest:{[] .gw.formatresponse::{[status;sync;result]$[not[status]and sync;'result;result]}};
 
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 
@@ -14,17 +12,15 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 // Projections defined similarly to .gw.(a)syncexec(j/p/t)
 // Main Function is .dataaccess.(a)getdata
 agetdatajpts:{[o;join;postback;timeout;sync]
-    $[sync;output:.gw.syncexecjt[(`getdata;o);o[`procs];@[join;o;{join}];timeout];output:.gw.asyncexecjpt[(`getdata;o);o[`procs];@[join;o;{join}];postback;timeout]];
-    if[`ordering in key o;
-        s:{?[`asc=x[;0];iasc;idesc]}(o`ordering);
-        output:?[output;();0b;();0w;s]];
-    :output;
+    $[sync;output:.gw.syncexecjt[(`getdata;o);o[`procs];join;timeout];output:.gw.asyncexecjpt[(`getdata;o);o[`procs];join;postback;timeout]];
+    if[`ordering in key o;output:?[output;();0b;();((raze $[`asc=o[;1];iasc;idesc]);o[;0])]];
+    :output
     };
 
 prepinput:{[o]
     o:.checkinputs.checkinputs[o];
     // Log the request
-    //.requests.logger[o;()];
+    .requests.logger[o;()];
     // Get the process to query
     o[`procs]:attributesrouting[o;partdict[o]];
     :o
@@ -47,7 +43,6 @@ attributesrouting:{[options;procdict]
 
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
-    timespan:`date$input[`starttime`endtime];
     tabname:input[`tablename];
     // extract the procs which have the table defined
     servers:select from .gw.servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
@@ -61,18 +56,17 @@ partdict:{[input]
 
 // Default dataaccess join allowing for aggregations across processes
 multiprocjoin:{[input]
-    TTT::input;
     //If there is only one proc queried output the table
     if[1=count input `procs;:{::};];
     // If no aggregations key is provided return a basic raze function
-    if[not `aggregations in key input;:{raze}];
+    if[not `aggregations in key input;:raze];
     // If a by date clause has been added then just raze as normal
     if[`grouping in key input;if[`date in input[`grouping];:raze]];
     // If timebar is called just error
     if[`timebar in key input;$[(((input[`timebar][0])*.dataaccess.timebarmap[input[`timebar][1]]) xbar 00:00:00.0+lastrollover[])=00:00:00.0+lastrollover[];:raze;'`$"Can't have a cross process timebar not land directly on the rollover try adding a date grouping"]];
     // If user queries for an aggregation which isn't allowed cross process error
     if[not all (key input[`aggregations]) in key crossprocfunctions;'`$"Can't use the following aggregations across processes avg, cor, cov, dev, med, var, wavg, wsum consider adding a date grouping"];
-    :crossprocmerge[input;]
+    :crossprocmerge[input;];
     };
 
 // Extract a column from a table maintaining the keys if applicable
@@ -81,7 +75,6 @@ colextract:{[x;y]?[x;();$[x~0!x;0b;(cols key x)!cols key x];(enlist y)!enlist y]
 //list of accepted functions
 crossprocfunctions:`count`distinct`first`last`max`min`prd`sum!(sum;distinct;first;last;max;min;prd;sum);
 
- 
 colmerge:{[f;A;z] crossprocfunctions[f] (colextract[;z]) each A};
 
 // Extract list of crossproc aggregations to be used
@@ -98,8 +91,9 @@ getdata:getdatat[;0Wn];
 
 agetdatajpt:{[x;y;z;w] x:prepinput[x];:agetdatajpts[x;y;z;w;0b]}
 agetdatajt:agetdatajpt[;;();];
-agetdatapt:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];y;z]}
+agetdatapt:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];y;z;0b]}
 agetdataj:agetdatajpt[;;();0Wn]
 agetdatap:agetdatapt[;;0Wn];
 agetdatat:agetdatapt[;();];
 agetdata:agetdatat[;0Wn];
+\d .
