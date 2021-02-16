@@ -129,7 +129,7 @@ checkfilters:{[dict;parameter]
     filterpairs:raze value input;
     if[any not in[count each filterpairs;2 3];
         '`$"Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example: ",example];
-    if[any not<>first each filterpairs where 3=count each filterpairs;
+    if[15 in value each first each filterpairs where 3=count each filterpairs;
         '`$"Filters parameter values containing three elements must have the first element being the not keyword - example ",example];
     allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
     allowednot:(within;like;in);
@@ -192,7 +192,7 @@ checkordering:{[dict;parameter]
         if[not (enlist `)~columns;
             if[any not in[last each input;columns];
                 badorder:sv[",";string (last each input) where not in[last each input;columns]]; 
-                '`$"Trying to order by column(s):",badorder," that is not defined in the columns argument"]]];
+                '`$"Trying to order by column(s): ",badorder," that is not defined in the columns argument"]]];
     :dict;};
     
 // check that the instrumentcol parameter is of type symbol

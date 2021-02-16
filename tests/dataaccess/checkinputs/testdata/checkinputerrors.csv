@@ -1,36 +1,21 @@
 test,error
-nondictinput,Input must be a dictionary
-nonsymbolkey,Input dictionary must have keys of type 11h
-requiredparamsmissing,"Required parameters missing:,`tablename"
-invalidparamnames,Required params missing:`invalidname1`invalidname2
-invalidcomb1,"Parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`freeformcolumn`aggregations"
-invalidcomb2,"Parameter:`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`freeformcolumn`aggregations"
-tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 tableexists,Table:`invalidtablename doesn't exist
-starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
-endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
-timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
 timecolumnexists,"Column(s) ,`date presented in `timecolumn is not a valid column for `xdaily"
 invalidtimecolumn,"Parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
-checktimeorder,Starttime parameter must be <= endtime parameter
-instrumenttype,`instruments input type incorrect - valid type(s):-11 11h - input type:0h
-columntypes,`columns input type incorrect - valid type(s):-11 11h - input type:0h
 columnsexist,Column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
-groupingtype,`grouping input type incorrect - valid type(s):-11 11h - input type:0h
-aggregationdict,`aggregations input type incorrect - valid type(s):99h - input type:-11h
-aggregationkey,Aggregations parameter key must be of type 11h - example: `max`min`wavg!(`price;`size;`price`size)
-aggregationvalues,Aggregations parameter values must be of type symbol - example: `max`min`wavg!(`price;`size;`price`size)
 aggregationcolumnsexist,Column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
-invalidaggregationfuncs,Aggregations dictionary contains undefined function(s) `invalid1`invalid2
-timebarargstype,Timebar parameter must be a list of length 3
-timebarcount,Timebar parameter must be a list of length 3
-timebararg0,First argument of timebar must be either -6h or -7h
-timebararg1,Second argument of timebar must be of type -11h
-timebararg2,Third argument of timebar must be have type -11h
+timebartype,"Parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
+aggregationdistinct,"If the distinct function is used, it cannot be present with any other aggregations including more of itself"
+timebarmissingagg,"Aggregations parameter must be supplied in order to perform group by statements"
+aggnumber,"Incorrect number of input(s) entred for the following aggregations,`wavg"
+aggtimebar,"In order to use a grouping parameter, only aggregations that return single values may be used"
+smalltimebar,"The input size of the timebar argument: `nanoseconds, is not an appropriate size. Appropriate sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+dictfreeformby,"Freeformby parameter must not be entered as dictionary. Parameter should be entered in the following format: sym:sym, source:src"
+columncheckffwhere,"Column(s) ,`invalid presented in `freeformwhere is not a valid column for `xdaily"
+notffwhere,"Not operator must be used in conjucture with in, like or within oporators"
+operatorffwhere,"sym % `AUDUSD contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"
+columncheckffby,"Column(s) ,`invalid presented in `freeformby is not a valid column for `xdaily"
+columncheckffcolumn,"Column(s) `invalid`invalid2 presented in `freeformcolumns is not a valid column for `xdaily"
+invalidaggregationfuncs,"Aggregations dictionary contains undefined function(s) `invalid1`invalid2"
 timebarinvalid,"The input size of the timebar argument: `invalid, is not an appropriate size. Appropriate sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
 timebarexists,"Column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
-timebartype,"Parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
-filterformat,`filters input type incorrect - valid type(s):99h - input type:10h
-freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
-freeformbytype,`freeformby input type incorrect - valid type(s):10h - input type:-11h
-freeformcolumntype,`freeformcolumn input type incorrect - valid type(s):10h - input type:-11h

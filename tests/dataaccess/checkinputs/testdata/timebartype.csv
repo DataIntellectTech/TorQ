@@ -3,5 +3,5 @@ tablename,`xdaily
 starttime,2000.01.010D
 endtime,.z.p
 timecolumn,`time
-timebar,(10;`nanosecond;`sym)
-aggregations,`max`min!`time`time
+timebar,(6;`hour;`sym)
+aggregations,(`max`min)!(`askprice`askprice)

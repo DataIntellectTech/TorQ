@@ -3,4 +3,4 @@ tablename,`xdaily
 starttime,2000.01.010D
 endtime,.z.p
 timecolumn,`time
-aggregations,"(""min"";""max"")!(""sym"";""time"")"
+aggregations,`distinct`distinct!`bidprice`askprice

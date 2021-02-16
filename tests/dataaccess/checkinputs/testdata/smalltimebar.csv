@@ -3,4 +3,5 @@ tablename,`xdaily
 starttime,2000.01.010D
 endtime,.z.p
 timecolumn,`time
-freeformcolumn,`
+aggregations,(enlist(`max))!enlist(enlist(`askprice))
+timebar,(0.5;`nanoseconds;`time)
