@@ -111,7 +111,7 @@ createemptytable:{[h;p;t;td]
  if[(not (path:pathtotable[dest;p;t]) in .replay.emptytabs) and .replay.emptytables;
   .lg.o[`replay;"creating empty table ",(string t)," at ",string path];
   .replay.emptytabs,:path;
-  savetabdatatrapped[h;p;t;0#value t;0b]]}
+  savetabdatatrapped[h;p;t;0#value t;0b;td]]}
 
 savetabdata:{[h;p;t;data;UPSERT;td]
  $[partandmerge;path:pathtotable[td;p;t];path:pathtotable[h;p;t]];
@@ -199,7 +199,7 @@ replaylog:{[logfile]
  .lg.o[`replay;"replaying data from logfile ",(string logfile)," from message ",(string firstmessage)," to ",(string lastmessage),". Message indices are from 0 and inclusive - so both the first and last message will be replayed"];
  // when we do the replay, need to move the indexing, otherwise we won't replay the last message correctly
   .replay.replayinner[lastmessage+lastmessage<0W;logfile];
-
+  
  .lg.o[`replay;"replayed data into tables with the following counts: ","; " sv {" = " sv string x}@'flip(key .replay.tablecounts;value .replay.tablecounts)];
  if[count .replay.errorcounts;
   .lg.e[`replay;"errors were hit when replaying the following tables: ","; " sv {" = " sv string x}@'flip(key .replay.errorcounts;value .replay.errorcounts)]];
@@ -264,7 +264,7 @@ mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 
 // post replay function for merge replay, invoked after all the tables have been written down for a given log file
 postreplaymerge:{[td;p;h] 
-
+ .os.md[.os.pth[string .Q.par[td;p;`]]]; // ensures directory exists before removed
  mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();	
  // merge the tables from each partition in the tempdir together
  merge[td;p;;mergelimits;h] each tabsincountorder[.replay.tablestoreplay];
@@ -390,6 +390,7 @@ initandrun:{
     if[not 1=count distinct l;.lg.e[`replay;m:"Cannot replay logs from different dates in segmented mode!"];'m];
     if[.replay.clean;.replay.cleanhdb .replay.replaydate]
    ];
+
 
   // Replay all logs and exit
   .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];

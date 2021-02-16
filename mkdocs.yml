@@ -13,6 +13,7 @@ pages:
     - Analytics Library: analyticslib.md 
     - Monitoring: monit.md 
     - Visualisation: visualisation.md
+    - Testing: unittesting.md
     - TorQ Blog Posts: blog.md
 copyright: 'Copyright &copy 2020 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.'
 

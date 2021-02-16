@@ -10,6 +10,7 @@ hdbtypes:@[value;`hdbtypes;`hdb];                           //list of hdb types 
 hdbnames:@[value;`hdbnames;()];                             //list of hdb names to search for and call in hdb reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];   //list of tickerplant types to try and make a connection to
 gatewaytypes:@[value;`gatewaytypes;`gateway]                //list of gateway types
+connectonstart:@[value;`connectonstart;1b];                 //rdb connects to tickerplant as soon as it is started
 
 replaylog:@[value;`replaylog;1b];                           //replay the tickerplant log file
 schema:@[value;`schema;1b];                                 //retrieve the schema from the tickerplant
@@ -193,8 +194,8 @@ timeoutreset:{.rdb.timeout:system"T";system"T 0"};
 restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
-/- make sure that the process will make a connection to each of the tickerplant and hdb types
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.tickerplanttypes,.rdb.gatewaytypes
+/- make sure that the process will make a connection to each of the gateways and hdb types
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
 /-set the upd function in the top level namespace
 upd:.rdb.upd
@@ -214,13 +215,19 @@ reload:.rdb.reload
 
 .lg.o[`init;"searching for servers"];
 
-//check if tickerplant is available and if not exit with error 
-.servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles]
-.rdb.subscribe[]; 
+// connects and subscribes to tickerplant only if connectonstart is true
+$[.rdb.connectonstart;
+ [.servers.CONNECTIONS,:.rdb.tickerplanttypes;
+  .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
+  .rdb.subscribe[];
+ ];
+  .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
+ ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
 
 /-change timeout to zero before eod flush
-.timer.repeat[.eodtime.nextroll-00:01;0W;1D;
+/-GMT offset rounded to nearest 15 mins and added to roll time
+.timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
