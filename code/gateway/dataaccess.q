@@ -1,9 +1,4 @@
-.aqrest.execute:{[req;props] @[value;req;{(neg .z.w)(.gw.formatresponse[0b;0b;"error: ",x])}]};
-
 \d .dataaccess
-
-enableqrest:{[].gw.formatresponse::{[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]}};
-disableqrest:{[] .gw.formatresponse::{[status;sync;result]$[not[status]and sync;'result;result]}};
 
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 
