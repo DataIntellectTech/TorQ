@@ -6,7 +6,7 @@
 // (iii) parameter specific checks
 // The input dictionary accumulates some additional table information/inferred info
 checkinputs:{[dict]
-    //if[not in[`checksperformed;key dict];dict:.checkinputs.checkinputs dict];
+    if[not in[`checksperformed;key dict];dict:.checkinputs.checkinputs dict];
     dict:checktablename dict;
     if[in[`columns;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns]];
     if[in[`timecolumn;key dict];.dataaccess.checktimecolumn[dict]];
@@ -126,16 +126,18 @@ checkfreeformby:{[dict]
 
 checkfreeformcolumns:{[dict]
     example:"sym,time,mid:0.5*bidprice+askprice";
+    validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum`0`1`2`3`4`5`6`7`8`9`;
     cond:(dict`freeformcolumn),",",(dict`freeformcolumn);
     cond:"," vs cond;
-    if[(cond ?\:":")~(count each cond);.dataaccess.checkcolumns[dict`tablename;`$cond;`freeformby]];
+    if[(cond ?\:":")~(count each cond);
+        cond:cond,'" ";
+        cond:distinct " " vs raze cond;
+        .dataaccess.checkcolumns[dict`tablename;(`$cond) except validfuncs;`freeformby]];
     if[not (cond ?\:":")~(count each cond);
         loc:(cond ?\:":")=(count each cond);
         .dataaccess.checkcolumns[dict`tablename;`$(cond where loc);`freeformby];
         rcond:(1+(cond where not loc) ?\:":")_'(cond where not loc),'" ";
         isletter:rcond in .Q.an;
-        scond:" " vs trim ?[raze isletter;raze rcond;" "];
-        scond:(7h$((count scond)%2))#scond;
-        validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum`0`1`2`3`4`5`6`7`8`9`;
+        scond:distinct " " vs trim ?[raze isletter;raze rcond;" "];
         .dataaccess.checkcolumns[dict`tablename;(`$scond) except validfuncs;`freeformcolumns];]
  };
