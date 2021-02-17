@@ -123,13 +123,15 @@ checktimebar:{[dict;parameter]
 checkfilters:{[dict;parameter]
     example:"`sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(not;within;10 20))";
     dict:checktype[99h;dict;parameter];
+    (dict parameter):@[(dict parameter);where {not all 0h=type each x}each (dict parameter);enlist];
     input:dict parameter;
+    (input`nottest):enlist(not;in;10 30)
     if[not 11h~abs type key input;
         '`$"Filters parameter key must be of type 11h - example:",example];
     filterpairs:raze value input;
     if[any not in[count each filterpairs;2 3];
         '`$"Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example: ",example];
-    if[15 in value each first each filterpairs where 3=count each filterpairs;
+    if[not 15 in value each first each filterpairs where 3=count each filterpairs;
         '`$"Filters parameter values containing three elements must have the first element being the not keyword - example ",example];
     allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
     allowednot:(within;like;in);
@@ -165,6 +167,7 @@ inequalitycheck:{[pair]
 checkordering:{[dict;parameter]
     example:"((`asc`sym);(`desc`price))";
     example2:"enlist(`asc`maxPrice)";
+    if[11h=type (dict parameter);(dict parameter):enlist (dict parameter)];
     input:dict parameter;
     if[11h<>type raze input;
         '`$"Ordering parameter must contain pairs of symbols as its input - example: ",example];
