@@ -4,8 +4,7 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 
 
 // Full generality dataaccess function in the gateway
-// Projections defined similarly to .gw.(a)syncexec(j/p/t)
-// Main Function is .dataaccess.(a)getdata
+// Main Function is .dataaccess.getdata
 getdata:{[o]
     // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
@@ -16,10 +15,10 @@ getdata:{[o]
     // Log the requests
     .requests.logger[o;()];
     // Get Default process behavior
-    default:`sync`join`timeout`postback!(1b;multiprocjoin[o];0Wn;());
+    default:`join`timeout`postback!(multiprocjoin[o];0Wn;());
     // Use upserting logic to determine behaviour
     options:default^o;
-    if[options[`sync];
+    if[.gw.call .z.w;
         :.gw.syncexecjt[(`getdata;o);options[`procs];options[`join];options[`timeout]];
         :.gw.asyncexecjpt[(`getdata;o);options[`procs];options[`join];options[`postback];options[`timeout]]];
     };
