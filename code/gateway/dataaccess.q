@@ -6,20 +6,23 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 // Full generality dataaccess function in the gateway
 // Projections defined similarly to .gw.(a)syncexec(j/p/t)
 // Main Function is .dataaccess.(a)getdata
-agetdatajpts:{[o;join;postback;timeout;sync]
-    $[sync;output:.gw.syncexecjt[(`getdata;o);o[`procs];join;timeout];output:.gw.asyncexecjpt[(`getdata;o);o[`procs];join;postback;timeout]];
-    if[`ordering in key o;output:?[output;();0b;();((raze $[`asc=o[;1];iasc;idesc]);o[;0])]];
-    :output
-    };
-
-prepinput:{[o]
+getdata:{[o]
+    // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
-    // Log the request
-    .requests.logger[o;()];
-    // Get the process to query
+    // Default queryoptimisation to true
+    if[not `queryoptimisation in key o;o[``queryoptimisation]:1b];
+    // Get the Procs
     o[`procs]:attributesrouting[o;partdict[o]];
-    :o
-    }
+    // Log the requests
+    .requests.logger[o;()];
+    // Get Default process behavior
+    default:`sync`join`timeout`postback!(1b;multiprocjoin[o];0Wn;());
+    // Use upserting logic to determine behaviour
+    options:default^o;
+    if[options[`sync];
+        :.gw.syncexecjt[(`getdata;o);options[`procs];options[`join];options[`timeout]];
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];options[`join];options[`postback];options[`timeout]]];
+    };
 
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
@@ -77,18 +80,4 @@ colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations
 
 // Merge the tables
 crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
-
-// Helpful Projections
-getdatajt:{x:prepinput[x];agetdatajpts[x;y;();z;1b]};
-getdataj:getdatajt[;;0Wn];
-getdatat:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];();y;1b]};
-getdata:getdatat[;0Wn];
-
-agetdatajpt:{[x;y;z;w] x:prepinput[x];:agetdatajpts[x;y;z;w;0b]}
-agetdatajt:agetdatajpt[;;();];
-agetdatapt:{x:prepinput[x];:agetdatajpts[x;multiprocjoin[x];y;z;0b]}
-agetdataj:agetdatajpt[;;();0Wn]
-agetdatap:agetdatapt[;;0Wn];
-agetdatat:agetdatapt[;();];
-agetdata:agetdatat[;0Wn];
 \d .

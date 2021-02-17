@@ -198,7 +198,7 @@ checkordering:{[dict;parameter]
 // check that the instrumentcol parameter is of type symbol
 checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
-checkpostback:{[dict;parameter]
+checkunaryfunc:{[dict;parameter]
     dict:checktype[100h;dict;parameter];
     if[1<>count (get dict parameter)[1];
         '`$"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"];
@@ -210,4 +210,17 @@ checktype:{[validtypes;dict;parameter]
     inputtype:type dict parameter;
     if[not any validtypes~\:inputtype;'`$.checkinputs.formatstring["{parameter} input type incorrect - valid type(s):{validtypes} - input type:{inputtype}";`parameter`validtypes`inputtype!(parameter;validtypes;inputtype)]];
     :dict;
-  };
+    };
+
+isbool:{[dict;parameter]dict:checktype[-1h;dict;parameter];};
+
+
+checkpostback:{[dict;parameter]
+    if[()~dict parameter;:dict];
+    if[not `sync in key dict;'`$"Postback only allowed for async requests"]
+    if[not dict`sync;'`$"Postback only allowed for async requests"]
+    :checkunaryfunc[dict;parameter]};
+
+checktimeout:{[dict;parameter]
+    checktype[-16h;dict;parameter];
+    :dict};
