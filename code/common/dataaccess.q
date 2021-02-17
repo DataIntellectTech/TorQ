@@ -12,7 +12,7 @@ resettablepropertiespath:{[tablepropertiespath]`.dataaccess.tablepropertiespath 
 // to check if table properties config file exists at given path
 validtablepropertiespath:{[].dataaccess.tablepropertiespath~key .dataaccess.tablepropertiespath};
 // get path to config file for checking data api input parameters
-checkinputspath:first .proc.getconfigfile"checkinputs.csv";
+checkinputspath:first .proc.getconfigfile"dataaccess/checkinputs.csv";
 
 // instantiate table for holding table metas of current proccess
 metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
