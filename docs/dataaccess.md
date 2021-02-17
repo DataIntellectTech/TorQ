@@ -290,14 +290,22 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |columns|0|.checkinputs.checkcolumns|aggregations|table columns to return - assumed all if not present|
 |grouping|0|.checkinputs.checkgrouping||columns to group by -  no grouping assumed if not present|
 |aggregations|0|.checkinputs.checkaggregations|columns|freeformcolumn|dictionary of aggregations - e.g \`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice))|
- |timebar|0|.checkinputs.checktimebar||list of (time column to group on;size;type - \`nanosecond\`second\`minute\`hour\`day)|
- |filters|0|.checkinputs.checkfilters||a dictionary of columns + conditions in string format|
- |ordering|0|.checkinputs.checkordering||a list of pairs regarding the direction (\`asc or \`desc) of ordering and a column to order|
- |freeformwhere|0|.checkinputs.isstring||where clause in string format|
- |freeformby|0|.checkinputs.isstring||by clause in string format|
- |freeformcolumn|0|.checkinputs.isstring|aggregations|select clause in string format|
- |instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
- |postback|0|.checkinputs.checkpostback||applies postback lambda functions to data|
+|timebar|0|.checkinputs.checktimebar||list of (time column to group on;size;type - \`nanosecond\`second\`minute\`hour\`day)|
+|filters|0|.checkinputs.checkfilters||a dictionary of columns + conditions in string format|
+|ordering|0|.checkinputs.checkordering||a list of pairs regarding the direction (\`asc or \`desc) of ordering and a column to order|
+|freeformwhere|0|.checkinputs.isstring||where clause in string format|
+|freeformby|0|.checkinputs.isstring||by clause in string format|
+|freeformcolumn|0|.checkinputs.isstring|aggregations|select clause in string format|
+|instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
+|queryoptimisation|0|.checkinputs.isbool||Toogle query optimiser|
+|postprocessing|0|.checkinputs.checkpostprocessing||applies postback lambda functions to data|
+|sync|0|.checkinputs.isbool||Sends queries sync if 1b async if 0b|
+|join|0|.checkinputs.checkjoin||Joins queries together|
+|postback|0|.checkinputs.checkpostback||sends async queries back|
+|timeout|0|.checkinputs.checktimeout||Checks the time of the timeout|
+|sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
+|firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
+
 
 
 
@@ -306,7 +314,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 
 Below is a list of all the errors the API will return:
 Error|Function|Library|
------|---------|-------------
+|-----|---------|-------------|
 |Table:{tablename} doesn't exist|checktablename|dataaccess|
 |Column(s) {badcol} presented in {parameter} is not a valid column for {tab}|checkcolumns|dataaccess|
 | If the distinct function is used, it cannot be present with any other aggregations including more of itself|
