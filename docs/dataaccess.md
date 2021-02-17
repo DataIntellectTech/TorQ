@@ -118,7 +118,8 @@ The following table lists getdata's accepted arguments:
 |freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
 |ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
-|postback|No|{flip x}| |Post-processing of the data|
+|postprocessing|No|{flip x}| |Post-processing of the data|
+|queryoptimisation|No|0b| | Determines whether the query optimiser should be turned on/off|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour, such as `select price,mprice:max price from trade`. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
@@ -190,34 +191,25 @@ min | `price`time
 wavg| ,`bid`bsize
 ```
 
-## Gateway
+# Gateway
 
-Accepting a uniform dictionary allows queries to be sent to the gateway using the `.dataaccess.getdata`s (see table below). Each function:
-
-- Accepts the query dictionary in the first argument
+Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata` similar to `getdata` however `.dataaccess.getdata`
+ 
 - Leverages the checkinputs library to catch errors in the gateway
-- Uses `.gw.servers` to dynamically determine the appropriate processes 
-- Calls `.gw.(a)syncexecjt` equipped with a join function, postback function (Async queries only) and timeouts. 
+- Uses `.gw.servers` to dynamically determine the appropriate processes to call the getdata function in 
+- Accepts bonus arguments to better determine the behaviour of the function see table below:
 
-The following table provides further insight into all the available functions:
+|Input Key|Example        |Default behaviour           |Description                                   |
+|---------|---------------|----------------------------|----------------------------------------------|
+|postback |()             |()                          |Post back function for retuning async queries |
+|join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables             |
+|timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                 |
 
-|Function               |Type |Join                     |Postback  |Timeout   |
-|-----------------------|-----|-------------------------|----------|----------|
-|.dataaccess.getdatajt  |sync |Argument 2               |N/A       |Argument 3|
-|.dataaccess.getdataj   |sync |Argument 2               |N/A       |0Wn       |
-|.dataaccess.getdatat   |sync |.dataaccess.multiprocjoin|N/A       |Argument 2|
-|.dataaccess.getdata    |sync |.dataaccess.multiprocjoin|N/A       |0Wn       |
-|.dataaccess.agetdatajpt|async|Argument 2               |Argument 3|Argument 4|
-|.dataaccess.agetdatajt |async|Argument 2               |()        |Argument 3|
-|.dataaccess.agetdatapt |async|.dataaccess.multiprocjoin|Argument 2|Argument 3|
-|.dataaccess.agetdataj  |async|Argument 2               |()        |0Wn       |
-|.dataaccess.agetdatap  |async|.dataaccess.multiprocjoin|Argument 2|0Wn       |
-|.dataaccess.agetdatat  |async|.dataaccess.multiprocjoin|()        |Argument 2|
-|.dataaccess.agetdata   |async|.dataaccess.multiprocjoin|()        |0Wn       |
+
 
 Only synchronus calls to the gateway can involke the synchronus functions and similarly for the asynchronus library.
 
-The two primary `.dataccess.getdata`s are `.dataaccess.getdata` and `.dataaccess.agetdata`. The key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+A key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
 
 ```
 g"querydict"
@@ -352,7 +344,7 @@ Error|Function|Library|
 
 ## Automatic Query Optimisation
 
-The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries. It does this by prioritising filters against the attribute columns defined in `tableproperties.csv`.
+The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries. It does this by prioritising filters against the attribute columns defined in `tableproperties.csv`. It is default on however can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
 # Further Development
 
