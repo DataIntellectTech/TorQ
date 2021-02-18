@@ -291,7 +291,6 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
 |queryoptimisation|0|.checkinputs.isbool||Toogle query optimiser|
 |postprocessing|0|.checkinputs.checkpostprocessing||applies postback lambda functions to data|
-|sync|0|.checkinputs.isbool||Sends queries sync if 1b async if 0b|
 |join|0|.checkinputs.checkjoin||Joins queries together|
 |postback|0|.checkinputs.checkpostback||sends async queries back|
 |timeout|0|.checkinputs.checktimeout||Checks the time of the timeout|
