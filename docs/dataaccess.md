@@ -191,6 +191,32 @@ min | `price`time
 wavg| ,`bid`bsize
 ```
 
+## Filters
+
+The filters key is a dictionary led method of controlling which entries of a given table are being queried by setting out a criteria. The dictionary uses a table column as the key and the entries as the condition to be applied to that column. Any condition to be applied should be entered as a nest of two item lists for each condition and each sublist entered as an operator first followed by conditional values, for example:
+
+``` `col1`col2`...`coln!((op;cond);((op;cond);(op;cond));...;(op;cond)```
+
+For negative conditionals, the not operator can be included as the first item of a three item list for the operators in, like and within, e.g.
+
+``` enlist`col1!enlist(not;within;`cond1`cond2)```
+
+**Table of available Filters**
+
+|Operator    |Description                                          |Example                                          |
+|------------|-----------------------------------------------------|-------------------------------------------------|
+|`<`         |less than                                            |```(enlist`col)!enlist(<;input)```               |
+|`>`         |greater than                                         |```(enlist`col)!enlist(>;input)```               |
+|`<>`        |not equal                                            |```(enlist`col)!enlist(<>;input)```              |
+|`<=`        |less than or equal to                                |```(enlist`col)!enlist(<=;input)```              |
+|`>=`        |greater than or equal to                             |```(enlist`col)!enlist(>=;input)```              |
+|`=`         |equal to                                             |```(enlist`col)!enlist(=;input)```               |
+|`~`         |match/comparison                                     |```(enlist`col)!enlist(~;input)```               |
+|`in`        |column value is an item of input list                |```(enlist`col)!enlist(in;input)```              |
+|`within`    |column value is within bounds of two inputs          |```(enlist`col)!enlist(within;input)```          |
+|`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(link;input)```            |
+|`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```          |
+
 # Gateway
 
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata` similar to `getdata` however `.dataaccess.getdata`
