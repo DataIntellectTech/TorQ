@@ -4,12 +4,13 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 
 
 // Full generality dataaccess function in the gateway
-// Main Function is .dataaccess.getdata
+// Projections defined similarly to .gw.(a)syncexec(j/p/t)
+// Main Function is .dataaccess.(a)getdata
 getdata:{[o]
     // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
     // Default queryoptimisation to true
-    if[not `queryoptimisation in key o;o[``queryoptimisation]:1b];
+    if[not `queryoptimisation in key o;o[`queryoptimisation]:1b];
     // Get the Procs
     o[`procs]:attributesrouting[o;partdict[o]];
     // Log the requests
@@ -18,9 +19,9 @@ getdata:{[o]
     default:`join`timeout`postback!(multiprocjoin[o];0Wn;());
     // Use upserting logic to determine behaviour
     options:default^o;
-    if[.gw.call .z.w;
-        :.gw.syncexecjt[(`getdata;o);options[`procs];options[`join];options[`timeout]];
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];options[`join];options[`postback];options[`timeout]]];
+    TTT::options;
+    if[.gw.call .z.w;:.gw.syncexecjt[(`getdata;o);options[`procs];options[`join];options[`timeout]]];
+    :.gw.asyncexecjpt[(`getdata;o);options[`procs];options[`join];options[`postback];options[`timeout]];
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -54,7 +55,7 @@ partdict:{[input]
 // Default dataaccess join allowing for aggregations across processes
 multiprocjoin:{[input]
     //If there is only one proc queried output the table
-    if[1=count input `procs;:{::};];
+    if[1=count input `procs;:::];
     // If no aggregations key is provided return a basic raze function
     if[not `aggregations in key input;:raze];
     // If a by date clause has been added then just raze as normal
