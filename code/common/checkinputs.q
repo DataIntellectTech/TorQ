@@ -7,6 +7,7 @@
 // The input dictionary accumulates some additional table information/inferred info
 checkinputs:{[dict]
     dict:isdictionary dict;
+    if[in[`sqlquery;key dict];:isstring[dict;`sqlquery]];
     dict:checkdictionary dict;
     dict:checkinvalidcombinations dict;
     dict:checkrepeatparams dict;
@@ -201,7 +202,7 @@ checkordering:{[dict;parameter]
 // check that the instrumentcol parameter is of type symbol
 checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
-checkunaryfunc:{[dict;parameter]
+checkpostprocessing:{[dict;parameter]
     dict:checktype[100h;dict;parameter];
     if[1<>count (get dict parameter)[1];
         '`$"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"];
@@ -215,7 +216,7 @@ checktype:{[validtypes;dict;parameter]
     :dict;
     };
 
-isbool:{[dict;parameter]dict:checktype[-1h;dict;parameter];};
+isbool:{[dict;parameter]:checktype[-1h;dict;parameter];};
 
 
 checkpostback:{[dict;parameter]
