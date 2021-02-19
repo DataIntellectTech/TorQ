@@ -93,9 +93,9 @@ lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic lightweight function which takes in a uniform dictionary type (see table below) to build a process bespoke query. Input consistency permits getdata to disregard a processes' pragmatics allowing it to be called either directly within a process or via one of the `.dataccess.getdata`'s discussed in the gateway.
+When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic lightweight function which takes in a uniform dictionary type (see table below) to build a process bespoke query. Input consistency permits getdata to disregard a processes' pragmatics allowing it to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
 
-The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Developer's Footnote).
+The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Debugging and Optimisation).
 
 The following table lists getdata's accepted arguments: 
 
@@ -152,7 +152,7 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 
 Certain aggregations are cross proccess enabled . The key accepts the following table of inputs:
 
-**Table of avaliable Aggregations**
+**Table of Avaliable Aggregations**
 
 |Aggregation|Description                                          |Example                                          |Cross Process Enabled (See Gateway)|
 |-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------------------|
@@ -214,28 +214,25 @@ For negative conditionals, the not operator can be included as the first item of
 |`~`         |match/comparison                                     |```(enlist`col)!enlist(~;input)```               |
 |`in`        |column value is an item of input list                |```(enlist`col)!enlist(in;input)```              |
 |`within`    |column value is within bounds of two inputs          |```(enlist`col)!enlist(within;input)```          |
-|`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(link;input)```            |
+|`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
 |`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```          |
 
 # Gateway
 
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata` similar to `getdata` however `.dataaccess.getdata`
  
-- Leverages the checkinputs library to catch errors in the gateway
+- Leverages the checkinputs library from within the gateway to catch errors 
 - Uses `.gw.servers` to dynamically determine the appropriate processes to call the getdata function in 
-- Accepts bonus arguments to better determine the behaviour of the function see table below:
+- Determines the query type to send to the process(es)
+- Accepts further optional arguments to better determine the behaviour of the function see table below:
 
-|Input Key|Example        |Default behaviour           |Description                                   |
-|---------|---------------|----------------------------|----------------------------------------------|
-|postback |()             |()                          |Post back function for retuning async queries |
-|join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables             |
-|timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                 |
+|Input Key|Example        |Default behaviour           |Description                                       |
+|---------|---------------|----------------------------|--------------------------------------------------|
+|postback |()             |()                          |Post back function for retuning async queries only|
+|join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables                 |
+|timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                     |
 
-
-
-Only synchronus calls to the gateway can involke the synchronus functions and similarly for the asynchronus library.
-
-A key benefit of using these two is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+The key benefit of using `.dataaccess.getdata` is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
 
 ```
 g"querydict"
@@ -280,7 +277,7 @@ ask    bid    ask1 bid1
 94.81  93.82  8.43 7.43
 
 ```
-As seen in the aggregations table above, only aggregations which can be factored across processes are enabled, this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the `.dataccess.getdata` library appropriately.
+As seen in the aggregations section, only aggregations which can be factored across processes are enabled, this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the``` `join``` key appropriately.
 
 ## Checkinputs
 
@@ -322,9 +319,6 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |timeout|0|.checkinputs.checktimeout||Checks the time of the timeout|
 |sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
 |firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
-
-
-
 
 
 ### Custom Api Errors
@@ -369,7 +363,7 @@ Error|Function|Library|
 
 ## Automatic Query Optimisation
 
-The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries. It does this by prioritising filters against the attribute columns defined in `tableproperties.csv`. It is default on however can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
+The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries  by prioritising filters against the attribute columns defined in `tableproperties.csv`. It can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
 # Further Development
 
@@ -395,12 +389,31 @@ The API is compatible with q-REST. To do this:
 
 1. Download q-REST from https://github.com/AquaQAnalytics/q-REST
 2. Open `application.properties` and point `kdb.host/port` to the gateway
-3. qCon into the gateway and run `.dataaccess.enableqrest[]`\*
-4. Send `.json`s of the form `"query":".dataaccess.agetdata(jpt)...","response":"boolean","type":"(a)sync"`\*\* to the appropriate port/host
+3. qCon into the gateway and run `.dataaccess.enableqrest[]`
+4. Use the execute function argument to send `.json`s of the form:
+```
+{
+"function_name": ".dataaccess.qrest",
+"arguments":{
+"tablename":"quote",
+"starttime":"2021.02.17D10:00:00.000000000",
+"endtime":"2021.02.18D12:00:00.000000000",
+"freeformby":"sym",
+"aggregations":" `max`min!(`ask`bid;`ask)",
+"filters":"`sym`bid`bsize!(enlist(like;`8APL);((<;85);(>;83.5));enlist(~:;within;5 43))"
+}
+}
+```
 
-\* This will change the response types of all gateway requests, including those not through q-REST.
+q-REST doesn't present all the freedom of the API, in particular:
 
-\*\* Only asynchronus queries to the gateway will execute from q-REST.   
+1. All dictionary values must be in string format
+2. Nested quotion marks are not permitted
+3. Running `.dataaccess.enableqrest[]` will change the output of *all* queries to the gateway not just qREST ones
+4. When using the filter argument and like argument: 
+  1. The second argument in a filter should be a symbol e.g (like;``` `AMD```)
+  2. The following patterns `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
+  3. Like can not be used with any numberics
 
 # Further Examples
 
@@ -634,9 +647,9 @@ newdate    newsym| newprice
 2021.01.19 INTC  | 65.6
 ```
 
-**PostBack**
+**Postprocessing**
 
-Use the postback key to under go post proccessing on a table for example flipping the table into a dictionary
+Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
 q) getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
