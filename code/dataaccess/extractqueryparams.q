@@ -19,6 +19,7 @@ extractqueryparams:{[inputparams;queryparams]
   queryparams:extractfreeformby[inputparams;queryparams];
   queryparams:extractfreeformcolumn[inputparams;queryparams];
   queryparams:jointableproperties[inputparams;queryparams];
+  queryparams:extractoptimisationkey[inputparams;queryparams];
   queryparams:extractcolumnnaming[inputparams;queryparams];
   :queryparams;
  };
@@ -149,6 +150,11 @@ extractfreeformcolumn:{[inputparams;queryparams]
   if[not`freeformcolumn in key inputparams;:queryparams];
   selectclause:parse["select ",inputparams[`freeformcolumn]," from x"][4];
   :@[queryparams;`freeformcolumn;:;selectclause];
+ };
+
+extractoptimisationkey:{[inputparams;queryparams]
+  if[not`optimisation in key inputparams;:queryparams];
+  :@[queryparams;`optimisation;:;inputparams`optimisation];
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};

@@ -5,10 +5,11 @@
 orderquery:{[queryparams]
   query:enlist[?],(gettable;getwhere;getby;getselect)@\:queryparams;
   renamecolumns[queryparams;query];
-  // If there is no by clause or if the by clause isn't on sym just enlist the query
-  if[0b~@[query;3];:enlist query];
-  // If there is a sym in the by clause 
-  if[`sym in value query[3];:splitquerybysym[query];];
+  if[queryparams`optimisation;
+    // If there is no by clause or if the by clause isn't on sym just enlist the query
+    if[0b~@[query;3] ;:enlist query];
+    // If there is a sym in the by clause
+    if[`sym in value query[3];:splitquerybysym[query];]];
   :enlist query;
  };
 

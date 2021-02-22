@@ -20,7 +20,7 @@ checkinputs:{[dict]
 checkdictionary:{[dict]
     if[not checkkeytype dict;'`$"Input dictionary must have keys of type 11h"];
     if[not checkrequiredparams dict;'`$.checkinputs.formatstring["Required parameters missing:{}";.checkinputs.getrequiredparams[]except key dict]];
-    if[not checkparamnames dict;'`$.checkinputs.formatstring["Invalid parameter present:{}";key[dict]except .checkinputs.getvalidparams[]]];
+    if[not checkparamnames dict;'`$.checkinputs.formatstring["Invalid parameter present:{}. For a list of valid parameters, use the command .checkinputs.getvalidparams[]";key[dict]except .checkinputs.getvalidparams[]]];
     :dict;
   };
 

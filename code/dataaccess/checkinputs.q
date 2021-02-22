@@ -26,7 +26,8 @@ checkinputs:{[dict]
 
 // function to check the validity of tablenames
 checktablename:{[dict]
-    if[not dict[`tablename]in exec tablename from .checkinputs.tablepropertiesconfig;'`$.checkinputs.formatstring["Table:{tablename} doesn't exist";dict]];
+    if[not dict[`tablename]in exec tablename from .checkinputs.tablepropertiesconfig where proctype in (.proc.proctype,`,`all);
+        '`$.checkinputs.formatstring["Table:{tablename} doesn't exist";dict]];
     dict:.checkinputs.jointableproperties dict;
     :update metainfo:(metainfo,`starttime`endtime!(starttime;endtime))from dict;
   };
