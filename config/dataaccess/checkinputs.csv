@@ -14,6 +14,7 @@ freeformwhere,0,.checkinputs.isstring,,where clause in string format
 freeformby,0,.checkinputs.isstring,,by clause in string format
 freeformcolumn,0,.checkinputs.isstring,,select clause in string format
 instrumentcolumn,0,.checkinputs.checkinstrumentcolumn,,column to select instrument parameter from
+renamecolumn,0,.checkinputs.checkrenamecolumn,,dictionary to rename a column in results
 postprocessing,0,.checkinputs.checkpostprocessing,,applies postback lambda functions to data
 join,0,.checkinputs.checkjoin,,Joins queries together
 postback,0,.checkinputs.checkpostback,,sends async queries back
