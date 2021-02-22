@@ -1,7 +1,7 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`ordering`freeformwhere`freeformby`freeformcolumn`optimisation!(`;();`;();();();();();();();();();();1b);
+queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`ordering`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();();());
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
@@ -153,8 +153,8 @@ extractfreeformcolumn:{[inputparams;queryparams]
  };
 
 extractoptimisationkey:{[inputparams;queryparams]
-  if[not`optimisation in key inputparams;:queryparams];
-  :@[queryparams;`optimisation;:;inputparams`optimisation];
+ A:((1#`optimisation)!1#1b)^inputparams;
+ :@[queryparams;`optimisation;:;A`optimisation];
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};
