@@ -2,6 +2,8 @@
 
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 
+// function to convert sorting
+go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 
 // Full generality dataaccess function in the gateway
 // Projections defined similarly to .gw.(a)syncexec(j/p/t)
@@ -19,9 +21,13 @@ getdata:{[o]
     default:`join`timeout`postback!(multiprocjoin[o];0Wn;());
     // Use upserting logic to determine behaviour
     options:default^o;
-    TTT::options;
-    if[.gw.call .z.w;:.gw.syncexecjt[(`getdata;o);options[`procs];options[`join];options[`timeout]]];
-    :.gw.asyncexecjpt[(`getdata;o);options[`procs];options[`join];options[`postback];options[`timeout]];
+    options[`ordering]: go each options`ordering;
+    // Execute the queries
+    $[.gw.call .z.w;
+        //if sync
+        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]}[options];options[`timeout]];
+        // if async
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];options[`postback];options[`timeout]]];
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -55,7 +61,7 @@ partdict:{[input]
 // Default dataaccess join allowing for aggregations across processes
 multiprocjoin:{[input]
     //If there is only one proc queried output the table
-    if[1=count input `procs;:::];
+    if[1=count input `procs;:{::}];
     // If no aggregations key is provided return a basic raze function
     if[not `aggregations in key input;:raze];
     // If a by date clause has been added then just raze as normal
