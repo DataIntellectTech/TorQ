@@ -197,7 +197,7 @@ The filters key is a dictionary led method of controlling which entries of a giv
 
 ``` `col1`col2`...`coln!((op;cond);((op;cond);(op;cond));...;(op;cond)```
 
-For negative conditionals, the not operator can be included as the first item of a three item list for the operators in, like and within, e.g.
+For negative conditionals, the not and ~: operators can be included as the first item of a three item list for the operators in, like and within, e.g.
 
 ``` enlist`col1!enlist(not;within;`cond1`cond2)```
 
@@ -216,6 +216,7 @@ For negative conditionals, the not operator can be included as the first item of
 |`within`    |column value is within bounds of two inputs          |```(enlist`col)!enlist(within;input)```          |
 |`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
 |`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```          |
+|`~:`        |negative conditional when used with in,like or within|```(enlist`col)!enlist(~:;in/like/within;input)```          |
 
 # Gateway
 

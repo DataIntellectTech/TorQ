@@ -202,6 +202,8 @@ checkordering:{[dict;parameter]
 // check that the instrumentcol parameter is of type symbol
 checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
+checkrenamecolumn:{[dict;parameter]:checktype[99h;dict;parameter];};
+
 checkpostprocessing:{[dict;parameter]
     dict:checktype[100h;dict;parameter];
     if[1<>count (get dict parameter)[1];

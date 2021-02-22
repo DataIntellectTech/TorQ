@@ -1,7 +1,7 @@
 \d .eqp
 
 //- table to store arguments
-queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`ordering`freeformwhere`freeformby`freeformcolumn!(`;();`;();();();();();();();();();());
+queryparams:`tablename`partitionfilter`attributecolumn`timefilter`instrumentfilter`columns`grouping`aggregations`filters`ordering`freeformwhere`freeformby`freeformcolumn`optimisation!(`;();`;();();();();();();();();();();1b);
 
 extractqueryparams:{[inputparams;queryparams]
   queryparams:extracttablename[inputparams;queryparams];
