@@ -27,7 +27,7 @@ getdata:{[o]
         //if sync
         :.gw.syncexecjt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]}[options];options[`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];options[`postback];options[`timeout]]];
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]}[options];options[`postback];options[`timeout]]];
     };
 
 // Dynamic routing finds all processes with relevant data 
