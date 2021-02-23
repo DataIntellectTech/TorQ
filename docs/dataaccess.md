@@ -12,6 +12,8 @@ Other Key upgrades of the API are:
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
+A more informal discussion of the API can be seen at ```!!!MYBLOGLINK!!!```
+
 # Configuration
 
 The API can initialised in a TorQ proccess by either:
@@ -19,7 +21,7 @@ The API can initialised in a TorQ proccess by either:
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The information provided defines default functionality for the API.
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The following table describes each of the columns of the table:
 
 **Description of fields in tableproperties.csv**
 
@@ -57,7 +59,7 @@ The two tables will perform the same calculations when loaded into the API.
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary type (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard a processes' pragmatics allowing it to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
+When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary type (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
 
 The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Debugging and Optimisation).
 
@@ -190,6 +192,8 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 - Uses `.gw.servers` to dynamically determine the appropriate processes to call the getdata function in 
 - Determines the query type to send to the process(es)
 - Accepts further optional arguments to better determine the behaviour of the function see table below:
+
+**Gateway Accepted Keys**
 
 |Input Key|Example        |Default behaviour           |Description                                       |
 |---------|---------------|----------------------------|--------------------------------------------------|
@@ -338,9 +342,30 @@ The optimisation can be toggled off by setting the value of ``` `queryoptimisati
 
 ### Metrics 
 
+We provide a brief comparision of three identical queries called using: 
 
+- The getdata function with optimisation on
+- The getdata function with optimisation off
+- Raw unoptimised kdb+
 
-# Further Development
+All queries were queried across both a 10Gb HDB(x rows) and RDB(y rows) trade table
+
+The results show the average execution time in ms for each query while the table of querynames show the call used 
+
+**Results**
+
+|Queryname |10 syms |100 syms|1000 syms|
+|----------|--------|--------|---------|
+|Optimised1|        |        |         |
+
+**Table of Querynames**
+
+|Queryname|Call|
+|---------|----|
+|Optimised1||
+# Other features and Further Integration
+
+This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
 
 ## Debugging and Optimisation
 
@@ -389,6 +414,12 @@ q-REST doesn't present all the freedom of the API, in particular:
   1. The second argument in a filter should be a symbol e.g (like;``` `AMD```)
   2. The following patterns `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
   3. Like can not be used with any numberics
+
+## Implimentation with Google BigQuery
+
+A key goal of the API has been TorQ's integration with Google BigQuery the successful outcome is discussed in the following blog
+
+```!!! ADD A BLOG HERE!!!```
 
 # Further Examples
 
