@@ -202,7 +202,17 @@ checkordering:{[dict;parameter]
 // check that the instrumentcol parameter is of type symbol
 checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
-checkrenamecolumn:{[dict;parameter]:checktype[99h;dict;parameter];};
+checkrenamecolumn:{[dict;parameter]
+    example:"`sym`date!(`newsym`newdate)";
+    dict:checktype[99 -11 11h;dict;parameter];
+    input:dict parameter;
+    if[(type input) in (-11h;11h);:dict];
+    if[99h~type input;
+        if[not (type key input)~11h;
+            '`$"Renamecolumn parameter key must be of type 11h - example:",example];
+        if[not (type raze input)~11h;
+            '`$"Renamecolumn parameter input must be of type 11h - example:",example]];
+  :dict;};
 
 checkpostprocessing:{[dict;parameter]
     dict:checktype[100h;dict;parameter];
