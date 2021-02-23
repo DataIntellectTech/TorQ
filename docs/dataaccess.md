@@ -2,7 +2,7 @@
 
 # Introduction and Key Features
 
-The Dataaccess API is a TorQ upgrade designed for cloud compatibility. 
+The Dataaccess API is a TorQ upgrade designed for seamless cross process data retrival.
 
 Other Key upgrades of the API are:
 - Compatibility with non kdb processes such as Google BigQuery and qREST
@@ -23,77 +23,41 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 
 **Description of fields in tableproperties.csv**
 
-|Field               |Description                                                                                        |
-|--------------------|---------------------------------------------------------------------------------------------------|
-|proctype            |denotes the type of process                                                                        |
-|tablename           |table to query - assumed unique across given proctype                                              |
-|primarytimecolumn   |default time column from the tickerplant - used if no  \`timecolumn parameter is passed            |
-|attributecolumn     |primary attribute column - used in ordering of queries                                             |
-|instrumentcolumn    |column containing instrument                                                                       |
-|timezone            |timezone of the timestamps on the data (NYI)                                                       |
-|getrollover         |custom function to determine last rollover from a timestamp                                        |
-|getpartitionrange   |custom function to determine the partition range which should be used when querying hdb (see below)|
+|Field               |Description                                                                                        |Default                                 |
+|--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
+|proctype            |Denotes the type of process (passing all will involke default behaviour)                           |\`rdb\`hdb                              |
+|tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
+|primarytimecolumn   |Primary Time column for the table                                                                  |Default time column from the tickerplant|
+|attributecolumn     |Primary attribute column                                                                           |N/A                                     |
+|instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
+|timezone            |Timezone of the timestamps on the data relative to local time                                      |00:00                                   |
+|rollovertime        |Rollover time relative local time                                                                  |00:00                                   |
+|partitionfield      |Partition field of the data, use blank if not applicable                                           |date if proctype<>\`rdb                 |
 
 **Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
 
-|proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
+|proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|rollovertime    |partitionfield      |
 |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
-|rdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
-|hdb|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
-|rdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
-|hdb|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
+|rdb|trade|time|sym|sym|00:00|00:00||
+|hdb|trade|time|sym|sym|00:00|00:00|date|
+|rdb|quote|time|sym|sym|00:00|00:00||
+|hdb|quote|time|sym|sym|00:00|00:00|date|
 
 
-The API allows for the user to define either a blank or all proctype to define the tables in both the RDB and HDB. The following table is identical to the above
+The API allows for blanks to be passed and will use the default behavior. For example:
 
+**Example default configuration file**
 
  |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
  |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
- |all|trade|time|sym|sym||defaultrollover|defaultpartitionrange|
- |all|quote|time|sym|sym||defaultrollover|defaultpartitionrange|
+ ||trade|time|sym|sym||||
+ ||quote|time|sym|sym||||
 
-
-The following code is an example `code/dataaccess/customfuncs.q`, it defines the custom functions referenced in the above tables. This allows the developer to create functions to automatically query the correct process and partitions. 
-
-
-```
-\d .dataaccess
-
-// Rollover in localtime
-rollover:00:00;
-
-//- (i) getrollover
-//- Function to determine which partitions the getdata function should query
-//- e.g If the box is based in Paris GMT+01:00 and rollover is at midnight London time then tzone:-01:00 
-//- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
-
-defaultrollover:{[partitionfield;hdbtime;tzone;rover]
-    // If no time zone argument is supplied then just assume the stamps are in local time
-    if[tzone~`;tzone:00:00];
-    //Return the partition 
-    :(partitionfield$hdbtime)+(tzone+rover)>`minute$hdbtime};
-
-//- (ii) getpartitionrange
-//- offset times for non-primary time columns
-// example @[`date$(starttime;endtime);1;+;not `time~`time]
-
-defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange;rolloverf;timezone]
-    // Get the partition fields from default rollover 
-    hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
-    // Output the partitions allowing for non-primary timecolumn
-    :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
-
-// Gets the last rollover
-lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
-
-
-```
-
-
+The two tables will perform the same calculations when loaded into the API.
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic lightweight function which takes in a uniform dictionary type (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard a processes' pragmatics allowing it to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
+When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary type (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard a processes' pragmatics allowing it to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
 
 The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Debugging and Optimisation).
 
@@ -215,12 +179,12 @@ For negative conditionals, the not and ~: operators can be included as the first
 |`in`        |column value is an item of input list                |```(enlist`col)!enlist(in;input)```              |
 |`within`    |column value is within bounds of two inputs          |```(enlist`col)!enlist(within;input)```          |
 |`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
-|`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```          |
+|`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```         |
 |`~:`        |negative conditional when used with in,like or within|```(enlist`col)!enlist(~:;in/like/within;input)```          |
 
 # Gateway
 
-Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata` similar to `getdata` however `.dataaccess.getdata`
+Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. `.dataaccess.getdata` is similar to `getdata` however: 
  
 - Leverages the checkinputs library from within the gateway to catch errors 
 - Uses `.gw.servers` to dynamically determine the appropriate processes to call the getdata function in 
@@ -362,9 +326,19 @@ Error|Function|Library|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
-## Automatic Query Optimisation
+## Query Optimisation
 
-The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries  by prioritising filters against the attribute columns defined in `tableproperties.csv`. It can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
+The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries.
+This is done by:
+
+- Prioritising filters against the primary attribute column in tableproperties.csv
+- Swapping in for multiple = statements and razing the result together ```https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes```
+
+The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
+
+### Metrics 
+
+
 
 # Further Development
 
@@ -410,7 +384,7 @@ q-REST doesn't present all the freedom of the API, in particular:
 
 1. All dictionary values must be in string format
 2. Nested quotion marks are not permitted
-3. Running `.dataaccess.enableqrest[]` will change the output of *all* queries to the gateway not just qREST ones
+3. Running `.dataaccess.enableqrest[]` will change the output of **all** queries to the gateway not just qREST ones
 4. When using the filter argument and like argument: 
   1. The second argument in a filter should be a symbol e.g (like;``` `AMD```)
   2. The following patterns `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
