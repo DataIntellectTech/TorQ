@@ -33,18 +33,12 @@ extractpartitionfilter:{[inputparams;queryparams]
   getpartrangef:.checkinputs.gettableproperty[inputparams;`getpartitionrange];
   // Get the time column
   timecol:inputparams`timecolumn;
-  // Get the default time column
-  primarytimecol:.checkinputs.gettableproperty[inputparams;`primarytimecolumn];
-  // Find the partition field
-  partfield:.checkinputs.gettableproperty[inputparams;`partfield];
-  // Get the rollover function
-  rolloverf:value .checkinputs.gettableproperty[inputparams;`getrollover];
   // Get the time range function
   timerange:inputparams[`metainfo]`starttime`endtime;
-  //return the timezone of the box
-  timezone:.checkinputs.gettableproperty[inputparams;`timezone];
+  // Find the partition field
+  partfield:.checkinputs.gettableproperty[inputparams;`partfield];
   //return a list of partions to search through
-  partrange:getpartrangef[timecol;primarytimecol;partfield;timerange;rolloverf;timezone];
+  partrange:.dacustomfuncs.partitionrange[(inputparams`tablename);timerange;.proc.proctype;timecol];
   // Return as kdb native filter
   partfilter:exec enlist(within;partfield;partrange)from inputparams;
   :@[queryparams;`partitionfilter;:;partfilter];

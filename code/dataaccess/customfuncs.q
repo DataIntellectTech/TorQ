@@ -1,31 +1,31 @@
 //- Script to load in custom functionality:
-//- see getrollover/getpartitionrange in config/tableproperties.csv
+//- Useful for splitting queries 
 
-\d .dataaccess
+\d .dacustomfuncs
 
-// Rollover in localtime
-rollover:00:00;
-
-//- (i) getrollover
+//- (i) rollover
 //- Function to determine which partitions the getdata function should query
-//- e.g If the box is based in Paris GMT+01:00 and rollover is at midnight London time then tzone:-01:00 
+//- e.g If the box is based in Paris (GMT+01:00) and rollover is at midnight London time then tzone:-01:00 
 //- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
 
-defaultrollover:{[partitionfield;hdbtime;tzone;rover]
-    // If no time zone argument is supplied then just assume the stamps are in local time
-    if[tzone~`;tzone:00:00];
-    //Return the partition 
-    :(partitionfield$hdbtime)+(tzone+rover)>`minute$hdbtime};
+rollover:{[tabname;hdbtime;prc]
+    // Extract the TimeStamps relative to local
+    A:?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();`rover`pfield`tzone!`rollovertime`partitionfield`timezone];
+    // Output
+    A:first each A;
+    :(A[`pfield]$hdbtime)+(A[`tzone]+A[`rover])>`minute$hdbtime;
+    };
 
 //- (ii) getpartitionrange
 //- offset times for non-primary time columns
 // example @[`date$(starttime;endtime);1;+;not `time~`time]
 
-defaultpartitionrange:{[timecolumn;primarytimecolumn;partitionfield;hdbtimerange;rolloverf;timezone]
+partitionrange:{[tabname;hdbtimerange;prc;timecol]
     // Get the partition fields from default rollover 
-    hdbtimerange:partitionfield rolloverf[;;timezone;rollover]/: hdbtimerange;
+    hdbtimerange:rollover[tabname;;prc] each hdbtimerange;
+    C::?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();(1#`ptc)!1#`primarytimecolumn];
     // Output the partitions allowing for non-primary timecolumn
-    :@[hdbtimerange;1;+;not timecolumn~primarytimecolumn]};
+    :@[hdbtimerange;1;+;any timecol=raze C[`ptc]]};
 
 // Gets the last rollover
-lastrollover:{:defaultrollover[`date;.proc.cp[];`;rollover]};
+lastrollover:{:rollover[x;.proc.cp[];.proc.proctype]};

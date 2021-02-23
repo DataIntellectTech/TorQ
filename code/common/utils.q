@@ -2,11 +2,13 @@
 
 //- utils for reading in config
 readtableproperties:{[tablepropertiepath]
-  table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssssss"];                                                            //read in table from file
+    table:`tablename`proctype xkey readcsv[tablepropertiepath;"sssssuus"];                                                            //read in table from file
   alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];                                                                         //find any instance of the use "all" or blank for proctype
   table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];      //join rdb and hdb entries for any "all" or blank entries 
-  :![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                         //remove "all" or blank entries from table
- };
+  table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
+  table:update 00:00 ^ timezone, 00:00 ^ rollovertime from table;
+  :update  `date ^ partitionfield from table where proctype<>`rdb;
+      };
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
 
