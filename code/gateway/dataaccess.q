@@ -21,13 +21,13 @@ getdata:{[o]
     default:`join`timeout`postback!(multiprocjoin[o];0Wn;());
     // Use upserting logic to determine behaviour
     options:default^o;
-    options[`ordering]: go each options`ordering;
+    if[`ordering in key o;options[`ordering]: go each options`ordering];
     // Execute the queries
     $[.gw.call .z.w;
         //if sync
-        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]}[options];options[`timeout]];
+        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab::(x[`join])[y];if[`ordering in key x;: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:tab}[options];options[`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab::(x[`join])[y];: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]}[options];options[`postback];options[`timeout]]];
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab:(x[`join])[y];if[`ordering in key x;: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:tab}[options];options[`postback];options[`timeout]]];
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -67,7 +67,7 @@ multiprocjoin:{[input]
     // If a by date clause has been added then just raze as normal
     if[`grouping in key input;if[`date in input[`grouping];:raze]];
     // If timebar is called just error
-    if[`timebar in key input;$[(((input[`timebar][0])*.dataaccess.timebarmap[input[`timebar][1]]) xbar 00:00:00.0+lastrollover[])=00:00:00.0+lastrollover[];:raze;'`$"Can't have a cross process timebar not land directly on the rollover try adding a date grouping"]];
+    if[`timebar in key input;:raze;];
     // If user queries for an aggregation which isn't allowed cross process error
     if[not all (key input[`aggregations]) in key crossprocfunctions;'`$"Can't use the following aggregations across processes avg, cor, cov, dev, med, var, wavg, wsum consider adding a date grouping"];
     :crossprocmerge[input;];
