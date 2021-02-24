@@ -359,9 +359,9 @@ The results show the average execution time in ms for each query while the table
 |Optimised1  |        |53      |         |
 |Unoptimised1|        |1686    |         |
 |kdb1        |        |50      |         |
-|Optimised2  |        |53      |         |
-|Unoptimised2|        |1686    |         |
-|kdb2        |        |50      |         |
+|Optimised2  |        |220     |         |
+|Unoptimised2|        |224     |         |
+|kdb2        |        |362     |         |
 |Optimised3  |        |53      |         |
 |Unoptimised3|        |1686    |         |
 |kdb3        |        |50      |         |
@@ -372,6 +372,7 @@ The results show the average execution time in ms for each query while the table
 |Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in`lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh ```|
 |kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh"```|
 |Optimised2|```(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))```|
+|kdb2|```select max ask by 21600000000000 xbar time from quote where time>2021.02.23```|
 
 # Other features and Further Integration
 
@@ -552,7 +553,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!
 
 **Time bucket**
 
-Group average ``` `mid```, by  6 hour buckets using the ``` `timebar ``` parameter
+Group max ask by  6 hour buckets using the ``` `timebar ``` parameter
 
 ```
 getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
