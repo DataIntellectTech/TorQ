@@ -346,23 +346,33 @@ We provide a brief comparision of three identical queries called using:
 
 - The getdata function with optimisation on
 - The getdata function with optimisation off
-- Raw unoptimised kdb+
+- Raw kdb+ query
 
-All queries were queried across both a 10Gb HDB(x rows) and RDB(y rows) trade table
+All queries were queried across both a 5Gb HDB(1.3 million rows over 22 partitions) and RDB(150000 rows) trade table
 
 The results show the average execution time in ms for each query while the table of querynames show the call used 
 
 **Results**
 
-|Queryname |10 syms |100 syms|1000 syms|
-|----------|--------|--------|---------|
-|Optimised1|        |        |         |
-
+|Queryname   |10 syms |100 syms|1000 syms|
+|------------|--------|--------|---------|
+|Optimised1  |        |53      |         |
+|Unoptimised1|        |1686    |         |
+|kdb1        |        |50      |         |
+|Optimised2  |        |53      |         |
+|Unoptimised2|        |1686    |         |
+|kdb2        |        |50      |         |
+|Optimised3  |        |53      |         |
+|Unoptimised3|        |1686    |         |
+|kdb3        |        |50      |         |
 **Table of Querynames**
 
 |Queryname|Call|
 |---------|----|
-|Optimised1||
+|Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in`lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh ```|
+|kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh"```|
+|Optimised2|```(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))```|
+
 # Other features and Further Integration
 
 This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
