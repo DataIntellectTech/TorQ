@@ -352,7 +352,7 @@ All queries were queried across both a 5Gb HDB(1.3 million rows over 22 partitio
 
 The results show the average execution time in ms for each query while the table of querynames show the call used 
 
-The queries have been selected as they demonstrate the 3 typical cases. 
+The queries have been selected as they demonstrate 3 typical cases. 
 
 **Results**
 
@@ -383,13 +383,14 @@ The queries have been selected as they demonstrate the 3 typical cases.
 - Case 2 - The API's strong all round performance, this occurs whenever a kdb+ query doesn't use the semantics of a process
 - Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised
 
-# Other features and Further Integration
-
-This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
 
 ## Debugging and Optimisation
 
-A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure the user has a query with one of the table attributes, the query only pulls in the essential data and evaluates the output of `dataaccess.buildquery` to see whether the execute query is what is expected. 
+A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:
+
+1. The user has a filter against a table attributes
+2. The query only pulls in the essential data 
+3. The output of `dataaccess.buildquery` is what is expected. 
 
 ## Testing Library
 Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
@@ -398,6 +399,10 @@ Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/
 2. Ensure your TorQ stack is not running
 3. Navigate to the appropriate testing directory
 4. Run `. run.sh -d`  
+
+# Further Integration
+
+This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
 
 ## Implimentation with TorQ FSP
 
