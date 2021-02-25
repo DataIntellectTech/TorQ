@@ -50,7 +50,7 @@ The API allows for blanks to be passed and will use the default behavior. For ex
 
 **Example default configuration file**
 
- |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|getrollover     |getpartitionrange   |
+ |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|rollovertime    |partitionfield      |
  |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
  ||trade|time|sym|sym||||
  ||quote|time|sym|sym||||
