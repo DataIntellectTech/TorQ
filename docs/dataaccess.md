@@ -352,27 +352,36 @@ All queries were queried across both a 5Gb HDB(1.3 million rows over 22 partitio
 
 The results show the average execution time in ms for each query while the table of querynames show the call used 
 
+The queries have been selected as they demonstrate the 3 typical cases. 
+
 **Results**
 
 |Queryname   |10 syms |100 syms|1000 syms|
 |------------|--------|--------|---------|
-|Optimised1  |        |53      |         |
-|Unoptimised1|        |1686    |         |
-|kdb1        |        |50      |         |
-|Optimised2  |        |220     |         |
-|Unoptimised2|        |224     |         |
-|kdb2        |        |362     |         |
-|Optimised3  |        |53      |         |
-|Unoptimised3|        |1686    |         |
-|kdb3        |        |50      |         |
+|Optimised1  |17      |53      |22       |
+|Unoptimised1|8       |58      |17       |
+|kdb1        |27      |50      |19       |
+|Optimised2  |365     |220     |327      |
+|Unoptimised2|320     |224     |649      |
+|kdb2        |404     |362     |488      |
+|Optimised3  |291     |153     |145      |
+|Unoptimised3|283     |360     |391      |
+|kdb3        |344     |392     |413      |
+
 **Table of Querynames**
 
 |Queryname|Call|
 |---------|----|
-|Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in`lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh ```|
-|kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `lle`mai`mno`nol`ohe`ojj`olj`ome`pfe`plh"```|
+|Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in `AMD`HPQ`DOW`MSFT`AIG`IBM ```|
+|kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `AMD`HPQ`DOW`MSFT`AIG`IBM```|
 |Optimised2|```(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))```|
 |kdb2|```select max ask by 21600000000000 xbar time from quote where time>2021.02.23```|
+|Optimised3|```(`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.02.25D12;`bsize`sym`bid!(enlist(not;within;5 43);enlist(like;\"*OW\");((<;85);(>;83.5)))))```|
+|kdb3|```select from quote where bid within(83.5;85),not bsize within(5;43),sym like "*OW"```|
+
+- Case 1 - Limited difference amongst all three queries, this occurs whenever a query can't be optimised or the dataset is too small for a change to be noticed.
+- Case 2 - The API's strong all round performance, this occurs whenever a kdb+ query doesn't use the semantics of a process
+- Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised
 
 # Other features and Further Integration
 
