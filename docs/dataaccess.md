@@ -302,10 +302,10 @@ Error|Function|Library|
 |-----|---------|-------------|
 |Table:{tablename} doesn't exist|checktablename|dataaccess|
 |Column(s) {badcol} presented in {parameter} is not a valid column for {tab}|checkcolumns|dataaccess|
-| If the distinct function is used, it cannot be present with any other aggregations including more of itself|
+| If the distinct function is used, it cannot be present with any other aggregations including more of itself|checkaggregations|dataaccess|
 | Aggregations dictionary contains undefined function(s)|checkaggregations|dataaccess|
 | Incorrect number of input(s) entred for the following aggregations|checkaggregations|dataaccess|
-| Aggregations parameter must be supplied in order to perform group by statements|
+| Aggregations parameter must be supplied in order to perform group by statements|checkaggregations|dataaccess|
 | In order to use a grouping parameter, only aggregations that return single values may be used|checkaggregations|dataaccess|
 | The inputted size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are:|checktimebar|dataaccess|
 | Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond|checktimebar|dataaccess|
