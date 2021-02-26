@@ -67,7 +67,7 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 - `.eqp.extractqueryparams` converts the arguments into q-SQL 
 - `.queryorder.orderquery` is the API's query optimiser (See Debugging and Optimisation)
 
-The `getdata`'s accepted arguments: 
+`getdata's` input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists getdata's accepted arguments: 
 
 **Valid Inputs**
 
