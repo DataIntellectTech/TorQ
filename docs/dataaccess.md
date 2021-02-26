@@ -59,7 +59,7 @@ The two tables will perform the same calculations when loaded into the API.
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary type (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
+When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
 
 The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Debugging and Optimisation).
 
