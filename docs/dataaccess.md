@@ -12,22 +12,22 @@ Other Key upgrades of the API are:
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
-A more informal discussion of the API can be seen at ```!!!MYBLOGLINK!!!```
+A more conceptual discussion of the API can be seen at ```!!!MYBLOGLINK!!!```
 
 # Configuration
 
-The API can initialised in a TorQ proccess by either:
+The API can be initialised in a TorQ proccess by either:
 
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want API to query. The following table describes each of the columns of the table:
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want the API to query. The following table describes each of the columns of the table:
 
 **Description of fields in tableproperties.csv**
 
 |Field               |Description                                                                                        |Default                                 |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
-|proctype            |Denotes the type of process (passing all will involke default behaviour)                           |\`rdb\`hdb                              |
+|proctype            |Denotes the type of process (passing `all` will involke default behaviour)                         |\`rdb\`hdb                              |
 |tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
 |primarytimecolumn   |Primary Time column for the table                                                                  |Default time column from the tickerplant|
 |attributecolumn     |Primary attribute column                                                                           |N/A                                     |
@@ -55,15 +55,19 @@ The API allows for blanks to be passed and will use the default behavior. For ex
  ||trade|time|sym|sym||||
  ||quote|time|sym|sym||||
 
-The two tables will perform the same calculations when loaded into the API.
+The two tables would induce identical functionality in the API.
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is getdata. getdata is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
+When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
 
-The getdata function is split into three sub functions: checkinputs, extractqueryparams and queryorder. Checkinputs checks if the input dictionary is valid; extractqueryparams converts the arguments into q-SQL and queryorder is the API's query optimiser (See Debugging and Optimisation).
+The `getdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`. 
 
-The following table lists getdata's accepted arguments: 
+- `.dataaccess.checkinputs` checks if the input dictionary is valid (See custom API errors) 
+- `.eqp.extractqueryparams` converts the arguments into q-SQL 
+- `.queryorder.orderquery` is the API's query optimiser (See Debugging and Optimisation)
+
+The `getdata`'s accepted arguments: 
 
 **Valid Inputs**
 
@@ -94,16 +98,16 @@ The following table lists getdata's accepted arguments:
 **Example function call**
 
 ```
-q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
-sym    time                        bid   bsize
-----------------------------------------------
-GOOG 2021.01.21D13:36:45.714478000 71.57 1
-GOOG 2021.01.21D13:36:45.714478000 70.86 2
-GOOG 2021.01.21D13:36:45.714478000 70.91 8
-GOOG 2021.01.21D13:36:45.714478000 70.91 6
+q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`bid`bsize)
+sym  bid   bsize
+----------------
+GOOG 71.57 1
+GOOG 70.86 2
+GOOG 70.91 8
+GOOG 70.91 6
 ...
 ```
-`.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
+The `.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
 
 ```
 q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
@@ -116,7 +120,7 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
-Certain aggregations are cross proccess enabled . The key accepts the following table of inputs:
+Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway). The key accepts the following table of inputs:
 
 **Table of Avaliable Aggregations**
 
@@ -182,16 +186,15 @@ For negative conditionals, the not and ~: operators can be included as the first
 |`within`    |column value is within bounds of two inputs          |```(enlist`col)!enlist(within;input)```          |
 |`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
 |`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```         |
-|`~:`        |negative conditional when used with in,like or within|```(enlist`col)!enlist(~:;in/like/within;input)```          |
 
 # Gateway
 
-Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. `.dataaccess.getdata` is similar to `getdata` however: 
+Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
  
-- Leverages the checkinputs library from within the gateway to catch errors 
-- Uses `.gw.servers` to dynamically determine the appropriate processes to call the getdata function in 
+- Leverage the checkinputs library from within the gateway and catch errors before they hit the process
+- Uses `.gw.servers` to dynamically determine the appropriate processes to execute `getdata` in 
 - Determines the query type to send to the process(es)
-- Accepts further optional arguments to better determine the behaviour of the function see table below:
+- Provide further optional arguments to better determine the behaviour of the function see table below:
 
 **Gateway Accepted Keys**
 
@@ -201,7 +204,7 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 |join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables                 |
 |timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                     |
 
-The key benefit of using `.dataaccess.getdata` is when capturing cross process aggregations, as seen below where the user gets the max/min bid/ask across the RDB and HDB.
+One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
 ```
 g"querydict"
@@ -232,7 +235,7 @@ maxAsk maxBid minAsk minBid
 ---------------------------
 94.81  93.82  8.43   7.43
 ```
-Such behaviour is not demonstrated when using freeform queries for example:
+Such behaviour is not demonstrated when using freeform queries, for example:
 ```
 g"querydict"
 tablename     | `quote
@@ -244,20 +247,22 @@ ask    bid    ask1 bid1
 -----------------------
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
-
 ```
-As seen in the aggregations section, only aggregations which can be factored across processes are enabled, this is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the``` `join``` key appropriately.
+As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the```\`join``` key appropriately.
 
 ## Checkinputs
 
-A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by the checkinputs. There are two checkinputs libraries firstly common `.checkinputs` this library is loaded into all proccess and is used to undergo basic input checks on each key as defined in `checkinputs.csv` (example below). Upon hitting the process more bespoke `.dataaccess` checks are performed. 
+A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
+
+- `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable.
+- `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
 
 
 **Description of fields in checkinputs.csv**
 
 |Field        |Description                                                            |
 |-------------|-----------------------------------------------------------------------|
-|parameter    |Dictionary key to pass to getdata                                      |
+|parameter    |Dictionary key to pass to `getdata`                                    |
 |required     |Whether this parameter is mandatory                                    |
 |checkfunction|Function to determine whether the given value is valid                 |
 |invalid pairs|Whether a parameter is invalid in combination with some other parameter|
@@ -290,7 +295,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
 
 
-### Custom Api Errors
+### Custom API Errors
 
 Below is a list of all the errors the API will return:
 Error|Function|Library|
@@ -336,25 +341,47 @@ The queries are automatically optimised using `.queryorder.orderquery` this func
 This is done by:
 
 - Prioritising filters against the primary attribute column in tableproperties.csv
-- Swapping in for multiple = statements and razing the result together ```https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes```
+- [Swapping in for multiple = statements and razing the result together] (https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes)
 
 The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
-### Metrics 
+### Debugging and Optimisation
 
-We provide a brief comparision of three identical queries called using: 
+A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:
 
-- The getdata function with optimisation on
-- The getdata function with optimisation off
+1. The user has a filter against a table attributes
+2. The query only pulls in the essential data 
+3. The output of `dataaccess.buildquery` is what is expected.
+
+## Metrics 
+
+### Introduction
+
+A test was performed to determine the performance of: 
+
+- The `getdata` function with optimisation on
+- The `getdata` function with optimisation off
 - Raw kdb+ query
 
-All queries were queried across both a 5Gb HDB(1.3 million rows over 22 partitions) and RDB(150000 rows) trade table
+### Methodology
 
-The results show the average execution time in ms for each query while the table of querynames show the call used 
+Each query was run against 10/100/1000 sym TorQ stack each with a 5GB HDB (68 million rows over 22 partitions) and a 120 MB RDB (2 million rows) quotes table. 
 
-The queries have been selected as they demonstrate 3 typical cases. 
+### Query List
 
-**Results**
+|Queryname|Call|
+|---------|----|
+|Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in `AMD`HPQ`DOW`MSFT`AIG`IBM ```|
+|kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `AMD`HPQ`DOW`MSFT`AIG`IBM```|
+|Optimised2|```(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))```|
+|kdb2|```select max ask by 21600000000000 xbar time from quote where time>2021.02.23```|
+|Optimised3|```(`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.02.25D12;`bsize`sym`bid!(enlist(not;within;5 43);enlist(like;\"*OW\");((<;85);(>;83.5)))))```|
+|kdb3|```select from quote where bid within(83.5;85),not bsize within(5;43),sym like "*OW"```|
+
+
+### Results
+
+The results show the average execution time in ms for each query 
 
 |Queryname   |10 syms |100 syms|1000 syms|
 |------------|--------|--------|---------|
@@ -368,51 +395,44 @@ The queries have been selected as they demonstrate 3 typical cases.
 |Unoptimised3|283     |360     |391      |
 |kdb3        |344     |392     |413      |
 
-**Table of Querynames**
-
-|Queryname|Call|
-|---------|----|
-|Optimised1|``` `tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in `AMD`HPQ`DOW`MSFT`AIG`IBM ```|
-|kdb1|```select max ask,min bid,max bid,min ask by sym from quote where sym in `AMD`HPQ`DOW`MSFT`AIG`IBM```|
-|Optimised2|```(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))```|
-|kdb2|```select max ask by 21600000000000 xbar time from quote where time>2021.02.23```|
-|Optimised3|```(`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.02.25D12;`bsize`sym`bid!(enlist(not;within;5 43);enlist(like;\"*OW\");((<;85);(>;83.5)))))```|
-|kdb3|```select from quote where bid within(83.5;85),not bsize within(5;43),sym like "*OW"```|
+### Discussion
 
 - Case 1 - Limited difference amongst all three queries, this occurs whenever a query can't be optimised or the dataset is too small for a change to be noticed.
 - Case 2 - The API's strong all round performance, this occurs whenever a kdb+ query doesn't use the semantics of a process
 - Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised
 
 
-## Debugging and Optimisation
 
-A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:
-
-1. The user has a filter against a table attributes
-2. The query only pulls in the essential data 
-3. The output of `dataaccess.buildquery` is what is expected. 
 
 ## Testing Library
-Each subfunction of getdata has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
+Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
 
 1. Set environment variables
 2. Ensure your TorQ stack is not running
 3. Navigate to the appropriate testing directory
-4. Run `. run.sh -d`  
+4. Run `. run.sh -d`
 
 # Further Integration
 
 This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
 
-## Implimentation with TorQ FSP
+## Implementation with TorQ FSP
 
-The API is compatible with the most recent TorQ Finance-Starter-Package, the fastest way to import the API is opening {APPCONFIG}/processes.csv and adding the following flag `  -dataaccess ${KDBCONFIG}/tableproperties.csv` to the rdb, hdb and gateway extras column.
+The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag `  -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
 
-## Implimentation with q-REST
+```
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+2,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv ,q
+localhost,{KDBBASEPORT}+3,hdb,hdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,q
+localhost,{KDBBASEPORT}+4,hdb,hdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
+localhost,{KDBBASEPORT}+7,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,q
+```
+
+## Implementation with q-REST
  
 The API is compatible with q-REST. To do this:
 
-1. Download q-REST from https://github.com/AquaQAnalytics/q-REST
+1. Download [q-REST](https://github.com/AquaQAnalytics/q-REST)
 2. Open `application.properties` and point `kdb.host/port` to the gateway
 3. qCon into the gateway and run `.dataaccess.enableqrest[]`
 4. Use the execute function argument to send `.json`s of the form:
@@ -436,11 +456,11 @@ q-REST doesn't present all the freedom of the API, in particular:
 2. Nested quotion marks are not permitted
 3. Running `.dataaccess.enableqrest[]` will change the output of **all** queries to the gateway not just qREST ones
 4. When using the filter argument and like argument: 
-  1. The second argument in a filter should be a symbol e.g (like;``` `AMD```)
-  2. The following patterns `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
-  3. Like can not be used with any numberics
+  1. The second argument in a filter should be a symbol e.g ```(like; `AMD)```
+  2. The following [patterns](https://code.kx.com/q/basics/regex/) `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
+  3. Like should not be used with any numberics e.g ```(like;`234)````
 
-## Implimentation with Google BigQuery
+## Implementation with Google BigQuery
 
 A key goal of the API has been TorQ's integration with Google BigQuery the successful outcome is discussed in the following blog
 
