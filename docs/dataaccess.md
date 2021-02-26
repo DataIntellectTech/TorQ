@@ -341,7 +341,7 @@ The queries are automatically optimised using `.queryorder.orderquery` this func
 This is done by:
 
 - Prioritising filters against the primary attribute column in tableproperties.csv
-- [Swapping in for multiple = statements and razing the result together] (https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes)
+- [Swapping in for multiple = statements and razing the result together](https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes)
 
 The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
