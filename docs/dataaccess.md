@@ -457,8 +457,7 @@ q-REST doesn't present all the freedom of the API, in particular:
 3. Running `.dataaccess.enableqrest[]` will change the output of **all** queries to the gateway not just qREST ones
 4. When using the filter argument and like argument: 
   1. The second argument in a filter should be a symbol e.g ```(like; `AMD)```
-  2. The following [patterns](https://code.kx.com/q/basics/regex/) `\*,?,^,[,]` should be replaced by the numberics:`8,1,6,9,0` retrospectively
-  3. Like should not be used with any numberics e.g ```(like;`234)````
+  2. The following [patterns](https://code.kx.com/q/basics/regex/) `*,?,^,[,]` can not be sent through qREST
 
 ## Implementation with Google BigQuery
 
