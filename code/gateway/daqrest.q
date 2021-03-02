@@ -9,7 +9,6 @@ disableqrest:{[] .gw.formatresponse::{[status;sync;result]$[not[status]and sync;
 
 //Gets the json and converts to input dict before executing .dataaccess.getdata on the input
 qrest:{getdata jsontodict x};
-
 // Converts json payload to .dataaaccess input dictionary
 jsontodict:{
     // convert the input to a dictionary 
@@ -26,25 +25,19 @@ jsontodict:{
     // Convert the filters key
     if [`filters in k;dict[`filters]:filterskey dict`filters];
     //output
-    :dict}
+    :dict};
 
-convertingdict:(like;in)!`string`symbol
+quotefinder:{y[2#where y>x]}
 
 filterskey:{[filtersstrings]
+    likelist:ss[filtersstrings;"like"];
+    if[0=count likelist;value filtersstrings];
+    // Get the location of all the backticks
+    apostlist:ss[filtersstrings;"'"];
+    // Get the location of all the likes
+    swaplist:raze {y[2#where y>x]}[;apostlist] each likelist;
+    // Swap the ' to "
+    filtersstrings:@[filtersstrings;swaplist;:;"\""];
     // Convert the string to a dict
-    dict:value filtersstrings;
-    // Undergo the filter list
-    :@[dict;key dict;multifilterfunc]
+    :value filtersstrings
     };
-
-multifilterfunc:{
-    if[x~raze x;:filterfunc x];
-    :filterfunc each x};
-
-filterfunc:{
-    // If there's a ~ error as types can't pass through qrest yet
-    if[~[~;x[0]];'`$"Can't pass ~ through qREST filters please use freeformwhere"];
-    // If there is a like convert the argument to a string
-    if[~[like;x[0]];A:string x[1];A:ssr[A;"6";"^"];A:ssr[A;"9";"["];A:ssr[A;"0";"["];A:ssr[A;"1";"?"];A:ssr[A;"8";"*"];:(like;A)];
-    // Otherwise just use the input
-    :x};
