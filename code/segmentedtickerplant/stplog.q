@@ -276,6 +276,11 @@ init:{[dbname]
     // add the info to the meta table
     .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
     ]
+
+  // set loghandles to null if sctp is not creating logs
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create;
+    `..loghandles set t! (count t) # enlist  (::)
+   ]
  };
 
 \d .
