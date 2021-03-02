@@ -86,4 +86,5 @@ colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations
 
 // Merge the tables
 crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
-\d .
+
+updategwtabprop:{[]:.gw.syncexec[".checkinputs.tablepropertiesconfig";exec servertype from .gw.servers];}
