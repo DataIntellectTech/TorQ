@@ -32,28 +32,30 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |primarytimecolumn   |Primary Time column for the table                                                                  |Default time column from the tickerplant|
 |attributecolumn     |Primary attribute column                                                                           |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
-|timezone            |Timezone of the timestamps on the data relative to local time                                      |00:00                                   |
-|rollovertime        |Rollover time relative local time                                                                  |00:00                                   |
+|rolltimeoffset      |Timezone of the timestamps on the data relative to local time                                      |.eodtime.rolltimeoffset                 |
+|rolltimezone        |Timezone of the Rollover Function                                                                  |.eodtime.rolltimezone                   |
+|datatimezone        |Timezone of the data timestamps                                                                    |.eodtime.datatimezone                   |
 |partitionfield      |Partition field of the data, use blank if not applicable                                           |date if proctype<>\`rdb                 |
 
 **Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
 
-|proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|rollovertime    |partitionfield      |
-|-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
-|rdb|trade|time|sym|sym|00:00|00:00||
-|hdb|trade|time|sym|sym|00:00|00:00|date|
-|rdb|quote|time|sym|sym|00:00|00:00||
-|hdb|quote|time|sym|sym|00:00|00:00|date|
+|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
+|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
+|rdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
+|hdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
+|rdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
+|hdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
 
 
 The API allows for blanks to be passed and will use the default behavior. For example:
 
-**Example default configuration file**
+**Example Default Configuration File**
 
- |proctype   |tablename  |primarytimecolumn     |attributecolumn       |instrumentcolumn|timezone|rollovertime    |partitionfield      |
- |-----------|-----------|----------------------|----------------------|----------------|--------|----------------|--------------------|
- ||trade|time|sym|sym||||
- ||quote|time|sym|sym||||
+|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
+|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
+||trade|time|sym|sym|||||
+||quote|time|sym|sym|||||
+
 
 The two tables would induce identical functionality in the API.
 
@@ -402,8 +404,6 @@ The results show the average execution time in ms for each query
 - Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised
 
 
-
-
 ## Testing Library
 Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
 
@@ -445,7 +445,7 @@ The API is compatible with q-REST. To do this:
 "endtime":"2021.02.18D12:00:00.000000000",
 "freeformby":"sym",
 "aggregations":" `max`min!(`ask`bid;`ask)",
-"filters":"`sym`bid`bsize!(enlist(like;`8APL);((<;85);(>;83.5));enlist(~:;within;5 43))"
+"filters":"`sym`bid`bsize!(enlist(like;'*PL');((<;85);(>;83.5));enlist(~:;within;5 43))"
 }
 }
 ```
@@ -453,11 +453,10 @@ The API is compatible with q-REST. To do this:
 q-REST doesn't present all the freedom of the API, in particular:
 
 1. All dictionary values must be in string format
-2. Nested quotion marks are not permitted
+2. Nested quotion marks are not permitted (Even when escaped out using `\"`)
 3. Running `.dataaccess.enableqrest[]` will change the output of **all** queries to the gateway not just qREST ones
-4. When using the filter argument and like argument: 
-  1. The second argument in a filter should be a symbol e.g ```(like; `AMD)```
-  2. The following [patterns](https://code.kx.com/q/basics/regex/) `*,?,^,[,]` can not be sent through qREST
+4. The second argument in a `like` filter should be have ' rather than " e.g ```(like; 'AMD')```
+
 
 ## Implementation with Google BigQuery
 
