@@ -57,7 +57,9 @@ The API allows for blanks to be passed and will use the default behavior. For ex
 ||quote|time|sym|sym|||||
 
 
-The two tables would induce identical functionality in the API.
+The two tables would induce identical functionality in the API. 
+
+To view the current settings across all processes run the function ```.dataaccess.updategwtabprop[]``` from the gateway. 
 
 # Usage
 
