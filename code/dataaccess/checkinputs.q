@@ -14,8 +14,8 @@ checkinputs:{[dict]
     if[in[`instrumentcolumn ;key dict];.dataaccess.checkcolumns[dict`tablename;dict`instrumentcolumn;`instrumentcolumn ]];
     if[in[`aggregations;key dict];.dataaccess.checkaggregations dict];
     if[in[`filters;key dict];.dataaccess.checkcolumns[dict`tablename;key dict`filters;`filters]];
-    if[in[`grouping;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
-    if[in[`timebar;key dict];dict:rdbdate[dict;`columns];.dataaccess.checktimebar dict];
+    if[in[`grouping;key dict];dict:rdbdate[dict;`grouping];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
+    if[in[`timebar;key dict];.dataaccess.checktimebar dict];
     if[in[`freeformwhere;key dict];dict:freeformrdbdate[dict;`freeformwhere];.dataaccess.checkfreeformwhere dict];
     if[in[`freeformby;key dict];dict:freeformrdbdate[dict;`freeformby];.dataaccess.checkfreeformby dict];
     if[in[`freeformcolumn;key dict];dict:freeformrdbdate[dict;`freeformcolumn];.dataaccess.checkfreeformcolumns dict];
