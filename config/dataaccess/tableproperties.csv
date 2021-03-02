@@ -1,3 +1,3 @@
-proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,rollovertime,partitionfield
-,trade,time,sym,sym,,,
-,quote,time,sym,sym,,,
+proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,rolltimeoffset,rolltimezone,datatimezone,partitionfield
+,trade,time,sym,sym,,,,
+,quote,time,sym,sym,,,,

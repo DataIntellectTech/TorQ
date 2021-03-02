@@ -9,11 +9,18 @@
 //- e.g If the box is UTC based and rollover is at 10pm UTC then rover: 22:00
 
 rollover:{[tabname;hdbtime;prc]
-    // Extract the TimeStamps relative to local
-    A:?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();`rover`pfield`tzone!`rollovertime`partitionfield`timezone];
+    // Extract the data from tableproperties.csv
+    A:?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();`rolltimeoffset`rolltimezone`datatimezone`partitionfield!`rolltimeoffset`rolltimezone`datatimezone`partitionfield];
     // Output
     A:first each A;
-    :(A[`pfield]$hdbtime)+(A[`tzone]+A[`rover])>`minute$hdbtime;
+    // Get the hdbtime adjustment
+    adjroll:exec adjustment from .tz.t asof `timezoneID`localDateTime!(A[`rolltimezone];hdbtime);
+    // convert rolltimeoffset from box timezone -> utc
+    rolltimeUTC:`time$A[`rolltimeoffset]+adjroll;
+    // convert from data timezone -> utc
+    adjdata:exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(A[`datatimezone];hdbtime+adjroll);
+    querytimeUTC:`time$hdbtime+adjdata;
+    $[querytimeUTC >= rolltimeUTC;:A[`partitionfield]$hdbtime;offsetbyone[hdbtime;A[`partitionfield]]];              
     };
 
 //- (ii) getpartitionrange
@@ -29,3 +36,9 @@ partitionrange:{[tabname;hdbtimerange;prc;timecol]
 
 // Gets the last rollover
 lastrollover:{:rollover[x;.proc.cp[];.proc.proctype]};
+
+offsetbyone:{[time;pfield]
+    if[pfield~`date;:`date$time-1D];
+    if[pfield~`month;:.Q.addmonths[time;-1]];
+    :(`year$time)-1;
+    };
