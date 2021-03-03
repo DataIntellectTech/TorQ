@@ -230,6 +230,7 @@ checktype:{[validtypes;dict;parameter]
 
 isbool:{[dict;parameter]:checktype[-1h;dict;parameter];};
 
+isnumb:{[dict;parameter]:checktype[-7h;dict;parameter]};
 
 checkpostback:{[dict;parameter]
     if[()~dict parameter;:dict];

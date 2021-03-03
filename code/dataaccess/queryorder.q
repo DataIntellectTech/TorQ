@@ -95,4 +95,6 @@ splitquerybysym:{[query]
   symlist:raze .[query;2,symfilter,2];
   // Return a list of queries for each sym
   :{.[y;2,z,2;:;enlist x]}[;query;symfilter] each symlist;
- };
+  };
+
+gethead:{[query];if[`head in key query;:query[`head]];:0W};
