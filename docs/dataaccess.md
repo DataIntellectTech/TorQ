@@ -41,10 +41,10 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
-|rdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
-|hdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
-|rdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
-|hdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
+|rdb|trade|time|sym|sym|00:00|GMT|GMT||
+|hdb|trade|time|sym|sym|00:00|GMT|GMT|date|
+|rdb|quote|time|sym|sym|00:00|GMT|GMT||
+|hdb|quote|time|sym|sym|00:00|GMT|GMT|date|
 
 
 The API allows for blanks to be passed and will use the default behavior. For example:
