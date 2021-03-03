@@ -11,7 +11,7 @@ filters,()
 freeformwhere,enlist (=;`sym;enlist `IBM)
 freeformby,()
 freeformcolumn,(enlist `mprice)!enlist (max;`price)
+optimisation,1b
 proctype,`rdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
-
 renamecolumn,()!()

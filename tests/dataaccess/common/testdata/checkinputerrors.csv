@@ -2,9 +2,9 @@ test,error
 nondictinput,Input must be a dictionary
 nonsymbolkey,Input dictionary must have keys of type 11h
 requiredparamsmissing,"Required parameters missing:,`tablename"
-invalidparamnames,Invalid parameter present:`invalidname1`invalidname2
-invalidcomb1,Parameter:`columns`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`aggregations`columns`freeformcolumn`aggregations
-invalidcomb2,"Parameter:`aggregations`freeformcolumn cannot be used in conjunction with parameter(s):`freeformcolumn`aggregations"
+invalidparamnames,"Invalid parameter present:`invalidname1`invalidname2. For a list of valid parameters, use the command .checkinputs.getvalidparams[]"
+invalidcomb1,"Parameter:,`aggregations cannot be used in conjunction with parameter(s):`columns`freeformcolumn"
+invalidcomb2,"Parameter:,`aggregations cannot be used in conjunction with parameter(s):,`freeformcolumn"
 tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
 starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
 endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h

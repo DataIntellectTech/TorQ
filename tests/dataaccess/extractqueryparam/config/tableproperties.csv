@@ -1,4 +1,2 @@
-proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,timezone,getrollover,getpartitionrange
-rdb,xdaily,time,sym,sym,UTC,testfuncrollover,testfuncpartitionrange
-hdb,xdaily,time,sym,sym,UTC,testfuncrollover,testfuncpartitionrange
-
+proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,rolltimeoffset,rolltimezone,datatimezone,partitionfield
+,xdaily,time,sym,sym,,,,
