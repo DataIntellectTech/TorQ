@@ -60,15 +60,10 @@ checkparam:{[dict;config]
 // check tablename parameter is of type symbol
 checktable:{[dict;parameter]:checktype[-11h;dict;parameter];};
 
-// check that endtime is of type symbol and that it is greater than or equal to starttime
+// check that endtime is of temporal type and that it is greater than or equal to starttime
 checkendtime:{[dict;parameter]
     dict:checktimetype[dict;parameter];
     :checktimeorder dict};
-
-// check that starttime is of type symbol
-checkstarttime:{[dict;parameter]
-    if[-14h = type dict parameter;(dict parameter):(dict parameter)+00:00];
-    :checktimetype[dict;parameter]};
 
 // check that inputted value is of valid type: -12 -14 -15h
 checktimetype:{[dict;parameter]:checktype[-12 -14 -15h;dict;parameter];};
