@@ -1,6 +1,6 @@
 parameter,required,checkfunction,invalidpairs,description
 tablename,1,.checkinputs.checktable,,table to query
-starttime,1,.checkinputs.checktimetype,,starttime - see timecolumn
+starttime,1,.checkinputs.checkstarttime,,starttime - see timecolumn
 endtime,1,.checkinputs.checkendtime,,endtime - see timecolumn
 timecolumn,0,.checkinputs.checktimecolumn,,column to apply (startime;endime) filter to
 instruments,0,.checkinputs.checkinstruments,,instruments of interest - see tableproperties.csv
