@@ -59,8 +59,6 @@ The API allows for blanks to be passed and will use the default behavior. For ex
 
 The two tables would induce identical functionality in the API. 
 
-To view the current settings across all processes run the function ```.dataaccess.updategwtabprop[]``` from the gateway. 
-
 # Usage
 
 When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
@@ -437,8 +435,7 @@ The API is compatible with q-REST. To do this:
 
 1. Download [q-REST](https://github.com/AquaQAnalytics/q-REST)
 2. Open `application.properties` and point `kdb.host/port` to the gateway
-3. qCon into the gateway and run `.dataaccess.enableqrest[]`
-4. Use the execute function argument to send `.json`s of the form:
+3. Use the execute function argument to send `.json`s of the form:
 ```
 {
 "function_name": ".dataaccess.qrest",
@@ -457,8 +454,7 @@ q-REST doesn't present all the freedom of the API, in particular:
 
 1. All dictionary values must be in string format
 2. Nested quotion marks are not permitted (Even when escaped out using `\"`)
-3. Running `.dataaccess.enableqrest[]` will change the output of **all** queries to the gateway not just qREST ones
-4. The second argument in a `like` filter should be have ' rather than " e.g ```(like; 'AMD')```
+3. The second argument in a `like` filter should be have ' rather than " e.g ```(like; 'AMD')```
 
 
 ## Implementation with Google BigQuery
