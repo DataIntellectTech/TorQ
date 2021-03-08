@@ -41,10 +41,10 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
-|rdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
-|hdb|trade|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
-|rdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone||
-|hdb|quote|time|sym|sym|.eodtime.rolltimeoffset|.eodtime.rolltimezone|.eodtime.datatimezone|date|
+|rdb|trade|time|sym|sym|00:00|GMT|GMT||
+|hdb|trade|time|sym|sym|00:00|GMT|GMT|date|
+|rdb|quote|time|sym|sym|00:00|GMT|GMT||
+|hdb|quote|time|sym|sym|00:00|GMT|GMT|date|
 
 
 The API allows for blanks to be passed and will use the default behavior. For example:
@@ -94,6 +94,7 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 |postprocessing|No|{flip x}| |Post-processing of the data|
 |queryoptimisation|No|0b| | Determines whether the query optimiser should be turned on/off|
+|head|No|42||Returns the top n rows of a table|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour, such as `select price,mprice:max price from trade`. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
@@ -703,11 +704,28 @@ newdate    newsym| newprice
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-q) getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q)getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
 
-.dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 ? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
+```
+
+**Head**
+
+Use the ``` `head``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
+
+```
+q) getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+AAPL| 171.23 170.36 56.35  55.32
+GOOG| 101.09 99.96  45.57  44.47
+
+q)`tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
 
 ```

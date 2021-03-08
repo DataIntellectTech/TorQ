@@ -9,7 +9,7 @@ checkinputs:{[dict]
     if[not in[`checksperformed;key dict];dict:.checkinputs.checkinputs dict];
     dict:checktablename dict;
     if[in[`columns;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns]];
-    if[in[`timecolumn;key dict];.dataaccess.checktimecolumn[dict]];
+    if[in[`timecolumn;key dict];dict:rdbdate[dict;`timecolumn];.dataaccess.checktimecolumn[dict]];
     dict:filldefaulttimecolumn dict;
     if[in[`instrumentcolumn ;key dict];.dataaccess.checkcolumns[dict`tablename;dict`instrumentcolumn;`instrumentcolumn ]];
     if[in[`aggregations;key dict];.dataaccess.checkaggregations dict];
@@ -35,8 +35,11 @@ checktablename:{[dict]
 //check that time column is of the correct type
 checktimecolumn:{[dict]
     .dataaccess.checkcolumns[dict`tablename;dict`timecolumn;`timecolumn];
-    if[not first (exec t from meta dict`tablename where c=dict`timecolumn) in "pzd";'`$.checkinputs.formatstring["Parameter:`timecolumn - column:{column} in table:{table} is of type:{type}, validtypes:-12 -14 -15h";`column`table`type!(dict`timecolumn;dict`tablename;(type( exec from dict`tablename)dict`timecolumn))]];
+    A:dict`timecolumn;
+    if[(.proc.proctype=`rdb) & (A=`time.date);A:`time];
+    if[not first (exec t from meta dict`tablename where c=A) in "pzd";'`$.checkinputs.formatstring["Parameter:`timecolumn - column:{column} in table:{table} is of type:{type}, validtypes:-12 -14 -15h";`column`table`type!(dict`timecolumn;dict`tablename;(type( exec from dict`tablename)dict`timecolumn))]];
   };
+
 
 // function to fill in default columns to reduce the amount of information a user has to
 // fill in

@@ -29,7 +29,7 @@ rollover:{[tabname;hdbtime;prc]
 
 partitionrange:{[tabname;hdbtimerange;prc;timecol]
     // Get the partition fields from default rollover 
-    hdbtimerange:rollover[tabname;;prc] each hdbtimerange;
+    hdbtimerange:rollover[tabname;;prc] each hdbtimerange+00:00;
     C::?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();(1#`ptc)!1#`primarytimecolumn];
     // Output the partitions allowing for non-primary timecolumn
     :@[hdbtimerange;1;+;any timecol=raze C[`ptc]]};

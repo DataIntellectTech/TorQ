@@ -12,6 +12,7 @@ ordering,()
 freeformwhere,()
 freeformby,()
 freeformcolumn,()
+optimisation,1b
 proctype,`rdb
 timebar,(enlist`time)!enlist(.eqp.xbarfunc;21600000000000;`time)
 tableproperties ,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`

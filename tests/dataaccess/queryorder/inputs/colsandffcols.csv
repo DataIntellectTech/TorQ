@@ -11,6 +11,7 @@ filters,()
 freeformwhere,()
 freeformby,()
 freeformcolumn,(enlist `sym)!enlist `sym
+optimisation,1b
 proctype,`rdb
 tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
 renamecolumn,()!()
