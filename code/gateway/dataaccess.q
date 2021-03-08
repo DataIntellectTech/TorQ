@@ -66,8 +66,8 @@ multiprocjoin:{[input]
     if[not `aggregations in key input;:raze];
     // If a by date clause has been added then just raze as normal
     if[`grouping in key input;if[`date in input[`grouping];:raze]];
-    // If timebar is called just error
-    if[`timebar in key input;:raze;];
+    // If timebar is called check it lines up with rollover
+    if[`timebar in key input;$[(((input[`timebar][0])*.dataaccess.timebarmap[input[`timebar][1]]) xbar 00:00:00.0+.dacustomfuncs.lastrollover[input[`tablename]])=00:00:00.0+.dacustomfuncs.lastrollover[input[`tablename]];:raze;'`$"Can't have a cross process timebar not land directly on the rollover try adding a date grouping"]]; 
     // If user queries for an aggregation which isn't allowed cross process error
     if[not all (key input[`aggregations]) in key crossprocfunctions;'`$"Can't use the following aggregations across processes avg, cor, cov, dev, med, var, wavg, wsum consider adding a date grouping"];
     :crossprocmerge[input;];

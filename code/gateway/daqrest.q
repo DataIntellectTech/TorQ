@@ -1,14 +1,15 @@
 .aqrest.execute:{[req;props] @[value;req;{(neg .z.w)(.gw.formatresponse[0b;0b;"error: ",x])}]};
 
-.gw.formatresponse:{[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]};
-
 \d .dataaccess
 
-enableqrest:{[].gw.formatresponse::{[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]}};
-disableqrest:{[] .gw.formatresponse::{[status;sync;result]$[not[status]and sync;'result;result]}};
+// .gw.formatresponse:{[status;sync;result]$[not[status]and sync;'result;result]}};
 
 //Gets the json and converts to input dict before executing .dataaccess.getdata on the input
-qrest:{getdata jsontodict x};
+qrest:{
+    // Set the response type
+    .gw.formatresponse:{[status;sync;result] $[sync and not status; 'result; `status`result!(status;result)]};
+    // Run the function 
+    :getdata jsontodict x};
 // Converts json payload to .dataaaccess input dictionary
 jsontodict:{
     // convert the input to a dictionary 
