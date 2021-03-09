@@ -228,7 +228,7 @@ checktype:{[validtypes;dict;parameter]
     :dict;
     };
 
-isbool:{[dict;parameter]:checktype[-1h;dict;parameter];};
+isboolean:{[dict;parameter]:checktype[-1h;dict;parameter];};
 
 isnumb:{[dict;parameter]:checktype[-7h;dict;parameter]};
 
