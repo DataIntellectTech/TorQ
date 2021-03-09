@@ -20,7 +20,7 @@ getdata:{[o]
     // Get Default process behavior
     default:`join`timeout`postback`head!(multiprocjoin[o];0Wn;();0W);
     // Use upserting logic to determine behaviour
-    options:default^o;
+    options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     // Execute the queries
     $[.gw.call .z.w;
