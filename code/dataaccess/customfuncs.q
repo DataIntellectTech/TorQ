@@ -16,10 +16,10 @@ rollover:{[tabname;hdbtime;prc]
     // Get the hdbtime adjustment
     adjroll::exec adjustment from .tz.t asof `timezoneID`localDateTime!(A[`rolltimezone];hdbtime);
     // convert rolltimeoffset from box timezone -> utc
-    rolltimeUTC::`time$A[`rolltimeoffset]+adjroll;
+    rolltimeUTC:`time$A[`rolltimeoffset]+adjroll;
     // convert from data timezone -> utc
-    adjdata::exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(A[`datatimezone];hdbtime+adjroll);
-    querytimeUTC::`time$hdbtime+$[0Nn~adjdata;00:00;adjdata];
+    adjdata:exec adjustment from .tz.t asof `timezoneID`gmtDateTime!(A[`datatimezone];hdbtime+adjroll);
+    querytimeUTC:`time$hdbtime+$[0Nn~adjdata;00:00;adjdata];
     $[querytimeUTC >= rolltimeUTC;:A[`partitionfield]$hdbtime;:offsetbyone[hdbtime;A[`partitionfield]]];              
     };
 

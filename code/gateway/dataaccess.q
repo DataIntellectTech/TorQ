@@ -6,8 +6,6 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 
 // Full generality dataaccess function in the gateway
-// Projections defined similarly to .gw.(a)syncexec(j/p/t)
-// Main Function is .dataaccess.(a)getdata
 getdata:{[o]
     // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
@@ -20,7 +18,7 @@ getdata:{[o]
     // Get Default process behavior
     default:`join`timeout`postback`head!(multiprocjoin[o];0Wn;();0W);
     // Use upserting logic to determine behaviour
-    options:default^o;
+    options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     // Execute the queries
     $[.gw.call .z.w;
