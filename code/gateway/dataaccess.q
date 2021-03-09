@@ -6,8 +6,6 @@ timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000
 go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 
 // Full generality dataaccess function in the gateway
-// Projections defined similarly to .gw.(a)syncexec(j/p/t)
-// Main Function is .dataaccess.(a)getdata
 getdata:{[o]
     // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
