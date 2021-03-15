@@ -19,7 +19,7 @@ A more conceptual discussion of the API can be seen at ```!!!MYBLOGLINK!!!```
 The API can be initialised in a TorQ proccess by either:
 
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
-2) Run ".dataaccess.init[`:/path/to/tableproperties.csv]" to initialise the code in a running process.
+2) Run ".dataaccess.init[`:path/to/tableproperties.csv]" to initialise the code in a running process.
 
 In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want the API to query. The following table describes each of the columns of the table:
 
@@ -27,15 +27,21 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 
 |Field               |Description                                                                                        |Default                                 |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
-|proctype            |Denotes the type of process (passing `all` will involke default behaviour)                         |\`rdb\`hdb                              |
+|proctype            |Denotes the type of process the table is loaded in (passing `all` will involke default behaviour)  |procs in .gw.servers                    |
 |tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
-|primarytimecolumn   |Primary Time column for the table                                                                  |Default time column from the tickerplant|
-|attributecolumn     |Primary attribute column                                                                           |N/A                                     |
+|primarytimecolumn   |Default timecolumn used for starttime and endtime arguments (see examples)                         |\*                                      |
+|attributecolumn     |Primary attribute column (see query optimisation)                                                  |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
-|rolltimeoffset      |Timezone of the timestamps on the data relative to local time                                      |.eodtime.rolltimeoffset                 |
+|rolltimeoffset      |Rollovertime offset from midnight                                                                  |.eodtime.rolltimeoffset                 |
 |rolltimezone        |Timezone of the Rollover Function                                                                  |.eodtime.rolltimezone                   |
 |datatimezone        |Timezone of the data timestamps                                                                    |.eodtime.datatimezone                   |
-|partitionfield      |Partition field of the data, use blank if not applicable                                           |date if proctype<>\`rdb                 |
+|partitionfield      |Partition field of the data                                                                        |```$[.Q.qp[];.Q.pf;`]```                |
+
+\* The Default behaviour of primarytimecolumn is:
+1. If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.
+2. Else if a **unique** column of type p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
+3. Else if a **unique** column of type d exist then it is used.
+4. Else the API will error. 
 
 **Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
 
@@ -75,26 +81,32 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 
 |Parameter     |Required|Example\*\*                                                                                   |Invalidpairs\*               |Description                                                                     |
 |--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
-|tablename     |Yes       |\`quote                                                                                   |                             |table to query                                                                  |
-|starttime     |Yes       |2020.12.18D12:00                                                                          |                             |start time - must be a valid time type (see timecolumn)                           |
-|endtime       |Yes       |2020.12.20D12:00                                                                          |                             |end time - must be a valid time type (see timecolumn)                             |
-|timecolumn    |No       |\`time                                                                                    |                             |column to apply (startime;endime) filter to                                     |
-|instruments   |No       |\`AAPL\`GOOG                                                                              |                             |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
-|columns       |No       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations                 |table columns to return - symbol list - assumed all if not present              |
-|grouping      |No       |\`sym                                                                                     |                             |columns to group by -  no grouping assumed if not present                       |
-|aggregations  |No       |\`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
-|timebar       |No       |(10;\`minute;\`time)                                                                       |                             |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
-|filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                             |a dictionary of ordered filters to apply to keys of dictionary                  |
-|freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                             |where clause in string format                                                   |
-|freeformby    |No       |"sym:sym, source:src"                                                                     |                             |by clause in string format
-|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations                 |select clause in string format 
+|tablename     |Yes       |\`quote                                                                                   |                |table to query                                                                  |
+|starttime     |Yes       |2020.12.18D12:00                                                                          |               |start time - must be a valid time type (see timecolumn)                           |
+|endtime       |Yes       |2020.12.20D12:00                                                                          |               |end time - must be a valid time type (see timecolumn)                             |
+|timecolumn    |No       |\`time                                                                      |                              |column to apply(startime;endime) filter to|
+|instruments   |No       |\`AAPL\`GOOG                                                                              |                |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
+|columns       |No       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations    |table columns to return - symbol list - assumed all if not present              |
+|grouping      |No       |\`sym                                                                                     |                |columns to group by -  no grouping assumed if not present                       |
+|aggregations  |No       |\`max\`wavg!(\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
+|timebar       |No       |(10;\`minute;\`time)                                                                       |               |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                |a dictionary of ordered filters to apply to keys of dictionary                  |
+|freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                 |where clause in string format                                                   |
+|freeformby    |No       |"sym:sym, source:src"                                                                     |                 |by clause in string format
+|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations     |select clause in string format 
 |ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 |postprocessing|No|{flip x}| |Post-processing of the data|
-|queryoptimisation|No|0b| | Determines whether the query optimiser should be turned on/off|
+|queryoptimisation|No|0b| |Determines whether the query optimiser should be turned on/off, Default is 1b|
 |head|No|42||Returns the top n rows of a table|
 
-\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour, such as `select price,mprice:max price from trade`. If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
+\* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:
+
+```select price,mprice:max price from trade``` 
+
+Although a valid query the result may be unexpected as the column lengths don't match up.
+
+If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
 \*\* More complete examples are provided in the Examples section below
 
@@ -192,6 +204,8 @@ For negative conditionals, the not and ~: operators can be included as the first
 
 # Gateway
 
+The documentation for the gateway outside the API can be found [here](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/Processes.md)
+
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
  
 - Leverage the checkinputs library from within the gateway and catch errors before they hit the process
@@ -203,13 +217,16 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 
 |Input Key|Example        |Default behaviour           |Description                                       |
 |---------|---------------|----------------------------|--------------------------------------------------|
-|postback |()             |()                          |Post back function for retuning async queries only|
+|postback |`{0N!x}`       |()                          |Post back function for retuning async queries only|
 |join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables                 |
 |timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                     |
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
 ```
+// open connection to the gateway g
+g:hopen`::1234:admin:admin
+
 g"querydict"
 tablename   | `quote
 starttime   | 2021.02.08D00:00:00.000000000
@@ -257,7 +274,7 @@ As seen in the aggregations section, only aggregations which can be factored acr
 
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
 
-- `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable.
+- `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable. 
 - `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
 
 
@@ -289,7 +306,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |freeformby|0|.checkinputs.isstring||by clause in string format|
 |freeformcolumn|0|.checkinputs.isstring|aggregations|select clause in string format|
 |instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
-|queryoptimisation|0|.checkinputs.isbool||Toogle query optimiser|
+|queryoptimisation|0|.checkinputs.isboolean||Toogle query optimiser|
 |postprocessing|0|.checkinputs.checkpostprocessing||applies postback lambda functions to data|
 |join|0|.checkinputs.checkjoin||Joins queries together|
 |postback|0|.checkinputs.checkpostback||sends async queries back|
@@ -297,6 +314,13 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
 |firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
 
+The csv enables developers simple extension or modification of the accepted inputs. 
+
+For example if the user want to add a key ``` `docs``` which accepts a boolean input they would add the following line to `checkinputs.csv` 
+
+docs|0|.checkinputs.isboolean||info about docs function|
+
+Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than 'type see messages below.
 
 ### Custom API Errors
 
@@ -450,7 +474,7 @@ The API is compatible with q-REST. To do this:
 }
 ```
 
-q-REST doesn't present all the freedom of the API, in particular:
+q-REST requires some modifications to the input dictionary:
 
 1. All dictionary values must be in string format
 2. Nested quotion marks are not permitted (Even when escaped out using `\"`)
@@ -459,7 +483,7 @@ q-REST doesn't present all the freedom of the API, in particular:
 
 ## Implementation with Google BigQuery
 
-A key goal of the API has been TorQ's integration with Google BigQuery the successful outcome is discussed in the following blog
+As key goal of the API has been TorQ's integration with other SQL databases such as Google BigQuery the successful outcome is discussed in the following blog:
 
 ```!!! ADD A BLOG HERE!!!```
 
