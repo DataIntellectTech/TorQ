@@ -16,11 +16,16 @@ getdata:{[o]
     // Log the requests
     .requests.logger[o;()];
     // Get Default process behavior
-    default:`join`timeout`postback`head!(multiprocjoin[o];0Wn;();0W);
+    default:`join`timeout`postback`head`getquery!(multiprocjoin[o];0Wn;();0W;0b);
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     // Execute the queries
+    opt::options;
+    if[options`getquery;
+        $[.gw.call .z.w;
+            :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
+            :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
     $[.gw.call .z.w;
         //if sync
         :.gw.syncexecjt[(`getdata;o);options[`procs];{tab: (x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:select [x[`head]] from tab}[options];options[`timeout]];

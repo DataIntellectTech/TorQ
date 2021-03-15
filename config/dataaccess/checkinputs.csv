@@ -20,5 +20,8 @@ join,0,.checkinputs.checkjoin,,Joins queries together
 postback,0,.checkinputs.checkpostback,,sends async queries back
 timeout,0,.checkinputs.checktimeout,,Checks the time of the timeout
 head,0,.checkinputs.isnumb,,checks the head parameter
-firstlastsort,0,.checkinputs.checkinstrumentcolumn,,allows for use of firstlastsort (not supported by dataaccess)
-optimisation,0,.checkinputs.isboolean,,toggle optimastion in queryorder
+sqlquery,0,.checkinputs.isstring,,Select clause in string format
+getquery,0,.checkinputs.isboolean,,Returns the queries in each of the process
+dryrun,0,.checkinputs.isboolean,,Calculates the number of MB processed
+firstlastsort,0,.checkinputs.checkinstrumentcolumn,,Allows for use of firstlastsort (not supported by dataaccess)
+optimisation,0,.checkinputs.isboolean,,Toggle optimastion in queryorder

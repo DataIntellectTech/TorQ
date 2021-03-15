@@ -1,6 +1,7 @@
 // high level api functions for data retrieval
 
 getdata:{[inputparams]                                                                       // [input parameters dict] generic function acting as main access point for data retrieval
+  if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]]
   inputparams:.dataaccess.checkinputs usersdict:inputparams;                                 // validate input passed to getdata
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         // extract validated parameters from input dictionary
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
@@ -31,6 +32,7 @@ getdata:{[inputparams]                                                          
 
 buildquery:{[inputparams]
   inputparams:.dataaccess.checkinputs inputparams;                                           
-  queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         
+  queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 
   :.queryorder.orderquery queryparams}; 
 
