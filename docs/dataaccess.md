@@ -98,7 +98,8 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
 |postprocessing|No|{flip x}| |Post-processing of the data|
 |queryoptimisation|No|0b| |Determines whether the query optimiser should be turned on/off, Default is 1b|
-|head|No|42||Returns the top n rows of a table|
+|head|No|42||Returns the top n rows of a table, use -n to get the last n rows of the table|
+|getquery|No||Runs `.dataaccess.buildquery` in each of the processes|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:
 
@@ -122,13 +123,30 @@ GOOG 70.91 8
 GOOG 70.91 6
 ...
 ```
-The `.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
+From within a kdb+ process the `.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
 
 ```
-q.dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+q).dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
 ? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
 
 ```
+From within a process the``` `getquery``` key can also be used to produce an identical result
+
+```
+q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize;1b)
+? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
+
+```
+This method is preferable as it has been extended to work from within the gateway (see gateway section) or another exotic process:
+
+```
+.dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;.z.d+12:00;`GOOG;`sym`time`bid`bsize;1b)
+`rdb
+(?;`quote;((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
+`hdb
+(?;`quote;((within;`date;2021.01.20 2021.03.17);(=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
+```
+
 ## Aggregations 
 
 The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form: 
@@ -186,7 +204,7 @@ For negative conditionals, the not and ~: operators can be included as the first
 
 ``` enlist`col1!enlist(not;within;`cond1`cond2)```
 
-**Table of available Filters**
+**Table of Available Filters**
 
 |Operator    |Description                                          |Example                                          |
 |------------|-----------------------------------------------------|-------------------------------------------------|
@@ -215,11 +233,14 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 
 **Gateway Accepted Keys**
 
-|Input Key|Example        |Default behaviour           |Description                                       |
-|---------|---------------|----------------------------|--------------------------------------------------|
-|postback |`{0N!x}`       |()                          |Post back function for retuning async queries only|
-|join     |`raze`         |`.dataaccess.multiprocjoin` |Join function to merge the tables                 |
-|timeout  |`00:00:03`     |0Wn                         |Maximum time for query to run                     |
+|Input Key|Example        |Default behaviour             |Description                                       |
+|---------|---------------|------------------------------|--------------------------------------------------|
+|postback |`{0N!x}`       |()                            |Post back function for retuning async queries only|
+|join     |`raze`         |`.dataaccess.multiprocjoin`   |Join function to merge the tables                 |
+|timeout  |`00:00:03`     |0Wn                           |Maximum time for query to run                     |
+|procs    |``` `rdb`hdb```|`.dataaccess.attrituesrouting`|Choose which processes to run `getdata` in \*     |
+
+\* If `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server list in `.gw.servers` can be used.
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
