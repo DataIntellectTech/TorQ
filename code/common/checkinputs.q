@@ -248,12 +248,9 @@ checkprocs:{[dict;parameter]
     // check we are in a gateway
     if[.proc.proctype<>`gateway;'`$"Procs key can only be used from a gateway"];
     // Check type is a sym(list)
-    hello::1; 
     checktype[-11 11h;dict;parameter];
     // Get the list of available servers
-    hello::2;
     slist:exec servertype from .gw.servers;
-    hello::3;
     // If any of the input isn't in slist error
     if[any not input in slist;'`$.checkinputs.formatstring["{parameter} input contains the following server(s) {server} not in .gw.servers";`parameter`server!(parameter;(input except slist))]];
     // If force servers is enabled quick exit
