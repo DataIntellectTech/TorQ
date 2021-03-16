@@ -1,5 +1,7 @@
 \d .dataaccess
 
+forceservers:0b
+
 timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
 
 // function to convert sorting
@@ -9,14 +11,12 @@ go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 getdata:{[o]
     // Input checking in the gateway
     o:.checkinputs.checkinputs[o];
-    // Default queryoptimisation to true
-    if[not `queryoptimisation in key o;o[`queryoptimisation]:1b];
     // Get the Procs
-    o[`procs]:attributesrouting[o;partdict[o]];
+    if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
     // Log the requests
     .requests.logger[o;()];
     // Get Default process behavior
-    default:`join`timeout`postback`head`getquery!(multiprocjoin[o];0Wn;();0W;0b);
+    default:`join`timeout`postback`head`getquery`queryoptimisation!(multiprocjoin[o];0Wn;();0W;0b;1b);
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];

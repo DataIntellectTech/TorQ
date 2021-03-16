@@ -235,11 +235,34 @@ isnumb:{[dict;parameter]:checktype[-7h;dict;parameter]};
 checkjoin:{[dict;parameter]:checktype[107h;dict;parameter];};
 
 checkpostback:{[dict;parameter]
-    if[()~dict parameter;:dict];
-    if[not `sync in key dict;'`$"Postback only allowed for async requests"]
-    if[not dict`sync;'`$"Postback only allowed for async requests"]
+    if[.gw.call .z.w;'`$"Postback key only allowed for async requests"]
     :checkunaryfunc[dict;parameter]};
 
 checktimeout:{[dict;parameter]
     checktype[-16h;dict;parameter];
     :dict};
+
+checkprocs:{[dict;parameter]
+    // input dict
+    input:raze dict parameter;
+    // check we are in a gateway
+    if[.proc.proctype<>`gateway;'`$"Procs key can only be used from a gateway"];
+    // Check type is a sym(list)
+    hello::1; 
+    checktype[-11 11h;dict;parameter];
+    // Get the list of available servers
+    hello::2;
+    slist:exec servertype from .gw.servers;
+    hello::3;
+    // If any of the input isn't in slist error
+    if[any not input in slist;'`$.checkinputs.formatstring["{parameter} input contains the following server(s) {server} not in .gw.servers";`parameter`server!(parameter;(input except slist))]];
+    // If force servers is enabled quick exit
+    if[.dataaccess.forceservers;:dict];
+    // Else find whether the input is in the expect proc list
+    A:input in .dataaccess.attributesrouting[dict;.dataaccess.partdict[dict]];
+    // If all the input is in this list carry on
+    if[all A;:dict];
+    // Otherwise error
+    '`$.checkinputs.formatstring["{parameter} input contains a server(s) {server} which wouldn't have otherwise been queried by the process";`parameter`server!(parameter;input where not A)]
+    };
+    
