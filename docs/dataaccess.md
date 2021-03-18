@@ -29,31 +29,102 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
 |proctype            |Denotes the type of process the table is loaded in (passing `all` will involke default behaviour)  |procs in .gw.servers                    |
 |tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
-|primarytimecolumn   |Default timecolumn used for starttime and endtime arguments (see examples)                         |\*                                      |
+|primarytimecolumn   |Default timecolumn used to determine the partitioning of a process                                 |\*                                      |
 |attributecolumn     |Primary attribute column (see query optimisation)                                                  |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
 |rolltimeoffset      |Rollovertime offset from midnight                                                                  |.eodtime.rolltimeoffset                 |
 |rolltimezone        |Timezone of the Rollover Function                                                                  |.eodtime.rolltimezone                   |
 |datatimezone        |Timezone of the data timestamps                                                                    |.eodtime.datatimezone                   |
 |partitionfield      |Partition field of the data                                                                        |```$[.Q.qp[];.Q.pf;`]```                |
+ 
+The Default behaviour of primarytimecolumn is:
 
-\* The Default behaviour of primarytimecolumn is:
 1. If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.
-2. Else if a **unique** column of type p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
-3. Else if a **unique** column of type d exist then it is used.
-4. Else the API will error. 
+2. Else if a unique column of type p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
+3. Else if a unique column of type d exist then it is used.
+4. Else the API will error.
 
-**Example configuration file** - with 'trade' and 'quote' tables in both a rdb and hdb
+As mentioned above the primary time column is the column which should be used to . For example:
+
+Consider the following table in an HDB:
+
+```
+q)meta quote
+c     | t f a
+------| -----
+date  | d
+time  | p
+extime| p
+sym   | s   p
+bid   | f
+ask   | f
+bsize | j
+asize | j
+mode  | c
+ex    | c
+src   | s
+```
+
+This table has two time columns extime and time.
+- The extime column is the time when the trade was made
+- The time column is the time when the data entered the tickerplant
+
+The time column is the most illuminating into the partition structure as it is linked to the time column. The reason extime is not the primary time column is due to the variable latency between the exchange and TorQ process. 
+
+For further clarity of configuration we provide two examples: 
+
+**Example Configuration File** 
+
+Suppose a vanilla TorQ process has two tables trade and quote for the NYSE (timezone ET). 
+
+The meta for tables in the hdb are   
+
+```
+q)meta trade
+c    | t f a
+-----| -----
+date | d
+time | p
+sym  | s   p
+price| f
+size | i
+stop | b
+cond | c
+ex   | c
+side | s
+
+q)meta quote
+c     | t f a
+------| -----
+date  | d
+time  | p
+extime| p
+sym   | s   p
+bid   | f
+ask   | f
+bsize | j
+asize | j
+mode  | c
+ex    | c
+src   | s
+
+```
+
+In our scenario the TorQ system is London (GMT) based. The rollovers times are as follows: 
+- trade rolls over at midnight GMT  
+- quote rolls over at 01:00 am New York time (ET) 
+
+For this example the following `tableproperties.csv` should be defined.   
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
-|rdb|trade|time|sym|sym|00:00|GMT|GMT||
-|hdb|trade|time|sym|sym|00:00|GMT|GMT|date|
-|rdb|quote|time|sym|sym|00:00|GMT|GMT||
-|hdb|quote|time|sym|sym|00:00|GMT|GMT|date|
+|rdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
+|rdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |              |
+|hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
+ 
 
-
-The API allows for blanks to be passed and will use the default behavior. For example:
+The API allows for blanks to be passed and will use the default behavior. For example if the user wishes to use the TorQ FSP (see section below) the following example will suffice:
 
 **Example Default Configuration File**
 
@@ -63,7 +134,14 @@ The API allows for blanks to be passed and will use the default behavior. For ex
 ||quote|time|sym|sym|||||
 
 
-The two tables would induce identical functionality in the API. 
+This table will be configured as if it were the following 
+
+|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
+|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
+|rdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
+|rdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
 
 # Usage
 
@@ -233,14 +311,14 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 
 **Gateway Accepted Keys**
 
-|Input Key|Example        |Default behaviour             |Description                                       |
-|---------|---------------|------------------------------|--------------------------------------------------|
-|postback |`{0N!x}`       |()                            |Post back function for retuning async queries only|
-|join     |`raze`         |`.dataaccess.multiprocjoin`   |Join function to merge the tables                 |
-|timeout  |`00:00:03`     |0Wn                           |Maximum time for query to run                     |
-|procs    |``` `rdb`hdb```|`.dataaccess.attrituesrouting`|Choose which processes to run `getdata` in \*     |
+|Input Key|Example        |Default behaviour              |Description                                       |
+|---------|---------------|-------------------------------|--------------------------------------------------|
+|postback |`{0N!x}`       |()                             |Post back function for retuning async queries only|
+|join     |`raze`         |`.dataaccess.multiprocjoin`    |Join function to merge the tables                 |
+|timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                     |
+|procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*     |
 
-\* If `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server list in `.gw.servers` can be used.
+\* By default, `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
@@ -275,6 +353,23 @@ q)g".dataaccess.getdata querydicttoday"
 maxAsk maxBid minAsk minBid
 ---------------------------
 94.81  93.82  8.43   7.43
+```
+The cross process aggregations also work with groupings and freeformby keys, for example 
+
+```
+q)g"optimised1"
+tablename   | `quote
+starttime   | 2021.03.16D01:00:00.000000000
+endtime     | 2021.03.17D18:00:00.000000000
+freeformby  | "sym"
+aggregations| `max`min!(`ask`bid;`ask`bid)
+ordering    | ,`desc`maxAsk
+head        | -2
+q)g".dataaccess.getdata optimised1"
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+DELL| 29.37  28.33  7.87   6.84
+DOW | 24.52  23.48  2.56   1.55
 ```
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
@@ -335,13 +430,13 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
 |firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
 
-The csv enables developers simple extension or modification of the accepted inputs. 
+The csv file enables developers simple extension, modification or deletion of the accepted inputs. 
 
 For example if the user want to add a key ``` `docs``` which accepts a boolean input they would add the following line to `checkinputs.csv` 
 
 docs|0|.checkinputs.isboolean||info about docs function|
 
-Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than 'type see messages below.
+Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than `'type` see messages below.
 
 ### Custom API Errors
 
@@ -391,7 +486,8 @@ This is done by:
 - Prioritising filters against the primary attribute column in tableproperties.csv
 - [Swapping in for multiple = statements and razing the result together](https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes)
 
-The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
+Furthermore, columns are ordered to put date then sym columns to the left
+The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`. An example of when this is done can be seen below:
 
 ### Debugging and Optimisation
 
