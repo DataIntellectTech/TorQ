@@ -75,6 +75,7 @@ checktimecolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 // check starttime <= endtime
 checktimeorder:{[dict]
     if[dict[`starttime] > dict`endtime;'`$"Starttime parameter must be <= endtime parameter"];
+    if[-14h = type dict`endtime;(dict`endtime):1+dict`endtime];
     :dict;};
 
 // check instruments are of type symbol

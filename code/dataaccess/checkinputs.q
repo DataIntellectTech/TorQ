@@ -44,8 +44,18 @@ checktimecolumn:{[dict]
 // function to fill in default columns to reduce the amount of information a user has to
 // fill in
 filldefaulttimecolumn:{[dict]
-    defaulttimecolumn:`time^.checkinputs.gettableproperty[dict;`primarytimecolumn];
-    if[not`timecolumn in key dict;:@[dict;`timecolumn;:;defaulttimecolumn]];
+    if[not`timecolumn in key dict;    
+        if[(dict`tablename) in key .schema;
+            defaulttimecolumn:?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c];
+            :@[dict;`timecolumn;:;defaulttimecolumn]];
+        timestamp:(exec from meta (dict`tablename) where t in "p")`c;
+        if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
+        if[not timestamp = `;:@[dict;`timecolumn;:;timestamp]];
+        date:(exec from meta (dict`tablename) where t in "d")`c;
+        if[1 < count date; '`$.checkinputs.formatstring["Table has multiple date columns, please select one of the following {} for the parameter timecolumn";date]];
+        if[not date = `;:@[dict;`timecolumn;:;date]];
+        defaulttimecolumn:`time^.checkinputs.gettableproperty[dict;`primarytimecolumn];        
+        :@[dict;`timecolumn;:;defaulttimecolumn]];
     :dict;
   };
 
