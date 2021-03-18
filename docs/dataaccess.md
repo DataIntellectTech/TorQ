@@ -29,7 +29,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
 |proctype            |Denotes the type of process the table is loaded in (passing `all` will involke default behaviour)  |procs in .gw.servers                    |
 |tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
-|primarytimecolumn   |Default timecolumn of process (see examples)                                                       |\*                                      |
+|primarytimecolumn   |Default timecolumn used to determine the partitioning of a process                                 |\*                                      |
 |attributecolumn     |Primary attribute column (see query optimisation)                                                  |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
 |rolltimeoffset      |Rollovertime offset from midnight                                                                  |.eodtime.rolltimeoffset                 |
@@ -44,7 +44,7 @@ The Default behaviour of primarytimecolumn is:
 3. Else if a unique column of type d exist then it is used.
 4. Else the API will error.
 
-The primary time column should be the column which provides the greatest insight to the data structure. For example:
+As mentioned above the primary time column is the column which should be used to . For example:
 
 Consider the following table in an HDB:
 
@@ -69,9 +69,9 @@ This table has two time columns extime and time.
 - The extime column is the time when the trade was made
 - The time column is the time when the data entered the tickerplant
 
-The time column is the most illuminating into the partition structure as it is linked to the time column. This is due to the potential latency between the exchange and TorQ process. 
+The time column is the most illuminating into the partition structure as it is linked to the time column. The reason extime is not the primary time column is due to the variable latency between the exchange and TorQ process. 
 
-For further clarity we provide two examples: 
+For further clarity of configuration we provide two examples: 
 
 **Example Configuration File** 
 
@@ -110,7 +110,7 @@ src   | s
 
 ```
 
-In our scenario the TorQ system is london (GMT) based. The rollovers times are as follows: 
+In our scenario the TorQ system is London (GMT) based. The rollovers times are as follows: 
 - trade rolls over at midnight GMT  
 - quote rolls over at 01:00 am New York time (ET) 
 
@@ -122,6 +122,7 @@ For this example the following `tableproperties.csv` should be defined.
 |hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
 |rdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |              |
 |hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
+ 
 
 The API allows for blanks to be passed and will use the default behavior. For example if the user wishes to use the TorQ FSP (see section below) the following example will suffice:
 
@@ -133,7 +134,14 @@ The API allows for blanks to be passed and will use the default behavior. For ex
 ||quote|time|sym|sym|||||
 
 
-The two tables would induce identical functionality in the API. 
+This table will be configured as if it were the following 
+
+|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
+|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
+|rdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
+|rdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
 
 # Usage
 
@@ -310,7 +318,7 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 |timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                     |
 |procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*     |
 
-\* If `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
+\* By default, `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
@@ -422,13 +430,13 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
 |firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
 
-The csv enables developers simple extension or modification of the accepted inputs. 
+The csv file enables developers simple extension, modification or deletion of the accepted inputs. 
 
 For example if the user want to add a key ``` `docs``` which accepts a boolean input they would add the following line to `checkinputs.csv` 
 
 docs|0|.checkinputs.isboolean||info about docs function|
 
-Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than 'type see messages below.
+Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than `'type` see messages below.
 
 ### Custom API Errors
 
