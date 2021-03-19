@@ -53,3 +53,6 @@ if[.proc.proctype in `rdb`hdb`gateway;
   // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
   ];
+
+\d .schema
+schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];

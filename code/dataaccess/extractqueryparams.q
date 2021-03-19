@@ -51,6 +51,7 @@ extractattributecolumn:{[inputparams;queryparams]
 
 extracttimefilter:{[inputparams;queryparams]
   procmeta:inputparams`metainfo;
+  if[-14h~type procmeta[`endtime];procmeta[`endtime]:1+procmeta[`endtime]];
   timecolumn:inputparams`timecolumn;
   addkeys:`proctype`timefilter;
   :queryparams,exec addkeys!(proctype;enlist(within;timecolumn;(starttime;endtime)))from procmeta;
