@@ -46,7 +46,7 @@ checktimecolumn:{[dict]
 filldefaulttimecolumn:{[dict]
     if[not`timecolumn in key dict;    
         if[(dict`tablename) in key .schema;
-            defaulttimecolumn:?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c];
+            defaulttimecolumn:first ?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c];
             :@[dict;`timecolumn;:;defaulttimecolumn]];
         timestamp:(exec from meta (dict`tablename) where t in "p")`c;
         if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
