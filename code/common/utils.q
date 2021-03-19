@@ -1,3 +1,5 @@
+if[.proc.proctype=`rdb;.temp.trade:([]time:`timestamp$(); sym:`g#`symbol$(); price:`float$(); size:`int$(); stop:`boolean$(); cond:`char$(); ex:`char$();side:`symbol$())];
+
 \d .checkinputs
 
 //- utils for reading in config
@@ -31,9 +33,12 @@ spliltandcast:{[x;typ]typ$"|"vs/:x};
 //- (i) .dataaccess.getmetainfo - mapping from tablename to metainfo;
 
 getmetainfo:{
+  .lg.o[`getmetainfo;"Loading meta info"];
+  tlist:exec tablename from .checkinputs.tablepropertiesconfig;
   partfield:$[()~key`.Q.pf;`;.Q.pf];
-  metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;
-  :1!flip(`tablename`partfield`metas`proctype)!(tables`.;partfield;metainfo;.proc.proctype);
+  metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tlist;
+  :1!flip(`tablename`partfield`metas`proctype)!(tlist;partfield;metainfo;.proc.proctype);
+  .lg.o[`getmetainfo;"metainfo successfully loaded"]
  };
 
 //- misc utils
