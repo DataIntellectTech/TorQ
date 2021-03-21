@@ -7,8 +7,9 @@ getdata:{[inputparams]                                                          
   query:.queryorder.orderquery queryparams;                                                  // re-order the passed parameters to build an efficient query
   table:raze value each query;                                                               // execute the queries
   if[(.proc.proctype=`rdb);
-    if[`time.date in (cols table);
-      table:({$[`time.date<>x;x;`date]} each (cols table)) xcol table];                      // change time.date to date on rdb process query result
+    deftime:.checkinputs.getdefaulttime dict;
+    if[(`$(string deftime),".date") in (cols table);
+      table:({$[(`$(string deftime),".date")<>x;x;`date]} each (cols table)) xcol table];    // change defaulttime.date to date on rdb process query result
     if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));   // adds date column when all columns are
         table:update date:.z.d from table;                                                   // quried from the rdb process for both
       if[98h=type table;table:`date xcols table]                                             // keyed and unkeyed results

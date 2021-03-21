@@ -8,17 +8,17 @@
 checkinputs:{[dict]
     if[not in[`checksperformed;key dict];dict:.checkinputs.checkinputs dict];
     dict:checktablename dict;
-    if[in[`columns;key dict];dict:rdbdate[dict;`columns];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns]];
-    if[in[`timecolumn;key dict];dict:rdbdate[dict;`timecolumn];.dataaccess.checktimecolumn[dict]];
+    if[in[`columns;key dict];.dataaccess.checkcolumns[dict`tablename;dict`columns;`columns];dict:rdbdate[dict;`columns]];
+    if[in[`timecolumn;key dict];dict:.dataaccess.checktimecolumn[dict];dict:rdbdate[dict;`timecolumn]];
     dict:filldefaulttimecolumn dict;
     if[in[`instrumentcolumn ;key dict];.dataaccess.checkcolumns[dict`tablename;dict`instrumentcolumn;`instrumentcolumn ]];
     if[in[`aggregations;key dict];.dataaccess.checkaggregations dict];
     if[in[`filters;key dict];.dataaccess.checkcolumns[dict`tablename;key dict`filters;`filters]];
-    if[in[`grouping;key dict];dict:rdbdate[dict;`grouping];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping]];
-    if[in[`timebar;key dict];.dataaccess.checktimebar dict];
-    if[in[`freeformwhere;key dict];dict:freeformrdbdate[dict;`freeformwhere];.dataaccess.checkfreeformwhere dict];
-    if[in[`freeformby;key dict];dict:freeformrdbdate[dict;`freeformby];.dataaccess.checkfreeformby dict];
-    if[in[`freeformcolumn;key dict];dict:freeformrdbdate[dict;`freeformcolumn];.dataaccess.checkfreeformcolumns dict];
+    if[in[`grouping;key dict];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping];dict:rdbdate[dict;`grouping]];
+    if[in[`timebar;key dict];.dataaccess.checktimebar dict;dict:rdbdate[dict;`timebar]];
+    if[in[`freeformwhere;key dict];.dataaccess.checkfreeformwhere dict;dict:freeformrdbdate[dict;`freeformwhere]];
+    if[in[`freeformby;key dict];.dataaccess.checkfreeformby dict;dict:freeformrdbdate[dict;`freeformby]];
+    if[in[`freeformcolumn;key dict];.dataaccess.checkfreeformcolumns dict;dict:freeformrdbdate[dict;`freeformcolumn]];
     if[in[`sqlquery;key dict];'`$"sqlquery parameter not supported on ",(string .proc.proctype)," process"];
     if[in[`firstlastsort;key dict];'`$"firstlastsort parameter not supported on ",(string .proc.proctype)," process"];
     :dict;
@@ -35,25 +35,15 @@ checktablename:{[dict]
 //check that time column is of the correct type
 checktimecolumn:{[dict]
     .dataaccess.checkcolumns[dict`tablename;dict`timecolumn;`timecolumn];
-    A:dict`timecolumn;
-    if[(.proc.proctype=`rdb) & (A=`time.date);A:`time];
-    if[not first (exec t from meta dict`tablename where c=A) in "pzd";'`$.checkinputs.formatstring["Parameter:`timecolumn - column:{column} in table:{table} is of type:{type}, validtypes:-12 -14 -15h";`column`table`type!(dict`timecolumn;dict`tablename;(type( exec from dict`tablename)dict`timecolumn))]];
+    :dict;
   };
 
 
 // function to fill in default columns to reduce the amount of information a user has to
 // fill in
 filldefaulttimecolumn:{[dict]
-    if[not`timecolumn in key dict;    
-        if[(dict`tablename) in key .schema;
-            defaulttimecolumn:first ?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c];
-            :@[dict;`timecolumn;:;defaulttimecolumn]];
-        timestamp:(exec from meta (dict`tablename) where t in "p")`c;
-        if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
-        if[not timestamp = `;:@[dict;`timecolumn;:;timestamp]];
-        date:(exec from meta (dict`tablename) where t in "d")`c;
-        if[1 < count date; '`$.checkinputs.formatstring["Table has multiple date columns, please select one of the following {} for the parameter timecolumn";date]];
-        if[not date = `;:@[dict;`timecolumn;:;date]];
+    if[not `timecolumn in key dict;    
+        :@[dict;`timecolumn;:;.checkinputs.getdefaulttime dict];
         defaulttimecolumn:`time^.checkinputs.gettableproperty[dict;`primarytimecolumn];        
         :@[dict;`timecolumn;:;defaulttimecolumn]];
     :dict;
@@ -64,20 +54,23 @@ filldefaulttimecolumn:{[dict]
  checkcolumns:{[table;columns;parameter]
     if[not all(`~columns)& parameter~`columns;
         columns,:();
-        avblecols:`time.date,cols table;
+        avblecols:`date,cols table;
         if[any not in[columns;avblecols];
             badcol:columns where not in[columns;avblecols];
             '`$.checkinputs.formatstring["Column(s) {badcol} presented in {parameter} is not a valid column for {tab}";`badcol`tab`parameter!(badcol;table;parameter)]]];};
 
 // function to add date column on request on rdb processes
 rdbdate:{[dict;parameter]
-    if[.proc.proctype=`rdb;dict:@[dict;parameter;:;{$[x<>`date;x;`time.date]} each (dict parameter)]];
+    if[.proc.proctype=`rdb;
+        f:{[y;x]$[x~`date;`$((string .checkinputs.getdefaulttime y),".date");x]};
+        :@[dict;parameter;:;f[dict;] each dict parameter]];
     :dict;
   };
 
 // function to add date column to free form parameters on rdb processes
 freeformrdbdate:{[dict;parameter]
-    if[.proc.proctype=`rdb;dict:@[dict;parameter;:;ssr[(dict parameter);"date";"time.date"]]];
+    if[.proc.proctype=`rdb;
+        :@[dict;parameter;:;ssr[(dict parameter);"date";(string (.checkinputs.getdefaulttime dict)),".date"]]];
     :dict;
  };
 
@@ -115,7 +108,7 @@ checktimebar:{[dict]
         '`$.checkinputs.formatstring["The input size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are: {app}";`size`app!(size;key .dataaccess.timebarmap)]];
     if[1>floor (dict`timebar)[0]*.dataaccess.timebarmap(dict`timebar)[1];
         '`$"Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond"];
-    if[not first (exec t from meta dict`tablename where c=(dict`timebar)[2]) in "pmnuvtzd";'`$.checkinputs.formatstring["Parameter:`timebar - column:{column} in table:{table} is of type:{type}, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h";`column`table`type!((dict`timebar)[2];dict`tablename;(type( exec from dict`tablename)(dict`timebar)[2]))]];
+    if[(not first (exec t from meta dict`tablename where c=(dict`timebar)[2]) in "pmnuvtzd") & (not (dict`timebar)[2]=`date);'`$.checkinputs.formatstring["Parameter:`timebar - column:{column} in table:{table} is of type:{type}, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h";`column`table`type!((dict`timebar)[2];dict`tablename;(type( exec from dict`tablename)(dict`timebar)[2]))]];
  };
 
 // check errors in the freeform parameters
