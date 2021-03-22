@@ -12,7 +12,7 @@ checkinputs:{[dict]
     if[in[`timecolumn;key dict];dict:.dataaccess.checktimecolumn[dict];dict:rdbdate[dict;`timecolumn]];
     dict:filldefaulttimecolumn dict;
     if[in[`instrumentcolumn ;key dict];.dataaccess.checkcolumns[dict`tablename;dict`instrumentcolumn;`instrumentcolumn ]];
-    if[in[`aggregations;key dict];.dataaccess.checkaggregations dict];
+    if[in[`aggregations;key dict];.dataaccess.checkaggregations dict;dict:rdbdate[dict;`aggregations]];
     if[in[`filters;key dict];.dataaccess.checkcolumns[dict`tablename;key dict`filters;`filters]];
     if[in[`grouping;key dict];.dataaccess.checkcolumns[dict`tablename;dict`grouping;`grouping];dict:rdbdate[dict;`grouping]];
     if[in[`timebar;key dict];.dataaccess.checktimebar dict;dict:rdbdate[dict;`timebar]];
