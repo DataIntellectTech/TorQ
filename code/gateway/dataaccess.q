@@ -58,7 +58,7 @@ partdict:{[input]
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
-    :@[procdict;key procdict;{:(min x; max x)}]
+    :asc @[procdict;key procdict;{:(min x; max x)}]
     };
 
 // Default dataaccess join allowing for aggregations across processes
