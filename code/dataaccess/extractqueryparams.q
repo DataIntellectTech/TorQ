@@ -80,12 +80,12 @@ extractgrouping:{[inputparams;queryparams]
 
 extractaggregations:{[inputparams;queryparams]
   if[not`aggregations in key inputparams;:queryparams];
-  aggregations:(!). flip(extracteachaggregation'). ungroupaggregations inputparams`aggregations;;
+  aggregations:(!). flip(extracteachaggregation'). ungroupaggregations inputparams;
   :@[queryparams;`aggregations;:;aggregations];
  };
 
-ungroupaggregations:{[aggregations](key[aggregations]where count each get aggregations;raze aggregations)};
-extracteachaggregation:{[func;columns](`$string[func],raze .[string(),columns;(::;0);upper];parse[string func],columns)};
+ungroupaggregations:{[inputparams](key[inputparams`aggregations]where count each get inputparams`aggregations;raze inputparams`aggregations;.checkinputs.getdefaulttime[inputparams])};
+extracteachaggregation:{[func;columns;deftime](`$string[func],raze .[string(),?[columns=`$((string deftime),".date");`date;columns];(::;0);upper];parse[string func],columns)};
 
 extracttimebar:{[inputparams;queryparams]
   // If no key has been provided return the queryparams
