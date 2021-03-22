@@ -28,7 +28,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |Field               |Description                                                                                        |Default                                 |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
 |proctype            |Denotes the type of process the table is loaded in (passing `all` will involke default behaviour)  |procs in .gw.servers                    |
-|tablename           |Table to query - assumed unique across given proctype                                              |N/A                                     |
+|tablename           |Table to query - Tables within namespaces are allowed                                              |N/A                                     |
 |primarytimecolumn   |Default timecolumn used to determine the partitioning of a process                                 |\*                                      |
 |attributecolumn     |Primary attribute column (see query optimisation)                                                  |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
@@ -37,7 +37,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |datatimezone        |Timezone of the data timestamps                                                                    |.eodtime.datatimezone                   |
 |partitionfield      |Partition field of the data                                                                        |```$[.Q.qp[];.Q.pf;`]```                |
  
-The Default behaviour of primarytimecolumn is:
+\* The Default behaviour of primarytimecolumn is:
 
 1. If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.
 2. Else if a unique column of type p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
@@ -145,7 +145,7 @@ This table will be configured as if it were the following
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the gateway).
+When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the Gateway section).
 
 The `getdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`. 
 
@@ -215,7 +215,7 @@ q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021
 ? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
 
 ```
-This method is preferable as it has been extended to work from within the gateway (see gateway section) or another exotic process:
+This method is preferable as it has been extended to work from within the gateway (see Gateway section) or another exotic process:
 
 ```
 .dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;.z.d+12:00;`GOOG;`sym`time`bid`bsize;1b)
@@ -231,7 +231,7 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
-Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway). The key accepts the following table of inputs:
+Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway section). The key accepts the following table of inputs:
 
 **Table of Avaliable Aggregations**
 
@@ -318,7 +318,7 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 |timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                     |
 |procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*     |
 
-\* By default, `.dataaccess.forceservers` is set to `0b` only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
+\* By default, `.dataaccess.forceservers` is set to `0b`. In this case, only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
