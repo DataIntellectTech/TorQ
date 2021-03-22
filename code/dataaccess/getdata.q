@@ -14,7 +14,7 @@ getdata:{[inputparams]
   if[(.proc.proctype=`rdb);
 // change defaulttime.date to date on rdb process query result
     if[(`$(string .checkinputs.getdefaulttime inputparams),".date") in (cols table);
-      table:({$[(`$(string .checkinputs.getdefaulttime inputparams),".date")<>x;x;`date]} each (cols table)) xcol table];    
+      table:?[(cols table)=`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];    
 // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
     if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));   
         table:update date:.z.d from table;                                                    
