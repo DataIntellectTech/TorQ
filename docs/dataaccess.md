@@ -102,7 +102,7 @@ Suppose the latency from the feed to tickerplant was a consistent 200ms. Now con
 - Quote1 comes into the tickerplant at 2020.02.03D05:00:00.100000000(GMT)
 - Quote1 will be in partition 2020.02.03
  
- Consequently the time column is the primary time column 
+ As such the partitioning structure is dependent on the time column not the extime column. 
 
 For this example the following `tableproperties.csv` should be defined.   
 
