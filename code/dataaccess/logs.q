@@ -1,6 +1,6 @@
 //- log requests made to DA API
 
-stats:([]user:();time:();handle:();request:();additionalinfo:());
+.dataaccess.stats:([]user:();time:();handle:();request:();additionalinfo:());
 
 \d .requests
                           
@@ -11,7 +11,7 @@ logger:{[inputparams;result]
   if[not .requests.logenabled;:()];
   addinfo:.requests.additionalinfo;
   addinfo:$[addinfo~()!();addinfo;@[addinfo;key addinfo;@;enlist inputparams]]; 
-  `stats upsert 
+  `.dataaccess.stats upsert 
      (.z.u;.z.p;.z.w;inputparams;addinfo);
   };
 
