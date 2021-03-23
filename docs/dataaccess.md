@@ -21,7 +21,7 @@ The API can be initialised in a TorQ proccess by either:
 1) Pass "-dataaccess /path/to/tableproperties.csv" on the startup line (see Example table properties file below for format)
 2) Run ".dataaccess.init[`:path/to/tableproperties.csv]" to initialise the code in a running process.
 
-In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want the API to query. The following table describes each of the columns of the table:
+In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want the API to query. The following table describes each of the columns of tableproperties.csv:
 
 **Description of fields in tableproperties.csv**
 
