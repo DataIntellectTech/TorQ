@@ -4,7 +4,7 @@
 
 The Dataaccess API is a TorQ upgrade designed for seamless cross process data retrival.
 
-Other Key upgrades of the API are:
+Other key upgrades of the API are:
 - Compatibility with non kdb+ processes such as Google BigQuery and qREST
 - Consistent queries across all processes 
 - Data retrieval does not require q-SQL knowledge only q dictionary manipulation
