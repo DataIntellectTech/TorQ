@@ -547,10 +547,11 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 3. Navigate to the appropriate testing directory
 4. Run `. run.sh -d`
 
-### Logging
+## Logging
 Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user,time,handle and request are upserted to the `.dataaccess.stats` table for example:
 
 ```
+// generic gateway query
 q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{select avgprice: sumAsk%countAsk from x})"
 avgprice
 --------
