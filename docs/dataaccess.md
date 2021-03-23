@@ -548,7 +548,7 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 4. Run `. run.sh -d`
 
 ## Logging
-Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user,time,handle and request are upserted to the `.dataaccess.stats` table for example:
+Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user, time, handle and request are upserted to the `.dataaccess.stats` table for example:
 
 ```
 // generic gateway query
