@@ -5,7 +5,7 @@
 The Dataaccess API is a TorQ upgrade designed for seamless cross process data retrival.
 
 Other Key upgrades of the API are:
-- Compatibility with non kdb processes such as Google BigQuery and qREST
+- Compatibility with non kdb+ processes such as Google BigQuery and qREST
 - Consistent queries across all processes 
 - Data retrieval does not require q-SQL knowledge only q dictionary manipulation
 - User friendly interface including more comprehensible error messages
@@ -44,40 +44,17 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 3. Else if a unique column of type d exist then it is used.
 4. Else the API will error.
 
-As mentioned above the primary time column is the column which should be used to . For example:
-
-Consider the following table in an HDB:
-
-```
-q)meta quote
-c     | t f a
-------| -----
-date  | d
-time  | p
-extime| p
-sym   | s   p
-bid   | f
-ask   | f
-bsize | j
-asize | j
-mode  | c
-ex    | c
-src   | s
-```
-
-This table has two time columns extime and time.
-- The extime column is the time when the trade was made
-- The time column is the time when the data entered the tickerplant
-
-The time column is the most illuminating into the partition structure as it is linked to the time column. The reason extime is not the primary time column is due to the variable latency between the exchange and TorQ process. 
-
-For further clarity of configuration we provide two examples: 
+For further clarity of configuration we provide two examples:
 
 **Example Configuration File** 
 
-Suppose a vanilla TorQ process has two tables trade and quote for the NYSE (timezone ET). 
+Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
 
-The meta for tables in the hdb are   
+In our scenario the TorQ system is London (GMT) based and the rollover times are as follows: 
+- trade rolls over at midnight GMT  
+- quote rolls over at 01:00 am New York time (ET) 
+
+The meta for tables in the hdb are:  
 
 ```
 q)meta trade
@@ -110,9 +87,22 @@ src   | s
 
 ```
 
-In our scenario the TorQ system is London (GMT) based. The rollovers times are as follows: 
-- trade rolls over at midnight GMT  
-- quote rolls over at 01:00 am New York time (ET) 
+Determining the correct primary time column for the trade table is simple as time is the unique column with a p attribute.
+
+The quote table is more complicated as it has two time columns extime and time.
+- The extime column is the time when the trade was made
+- The time column is the time when the data entered the tickerplant
+
+The time column is the most illuminating into the partition structure. 
+
+The reason extime is not the primary time column is due to the latency between the exchange and TorQ process. 
+Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote
+
+- Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) 
+- Quote1 comes into the tickerplant at 2020.02.03D05:00:00.100000000(GMT)
+- Quote1 will be in partition 2020.02.03
+ 
+ Consequently the time column is the primary time column 
 
 For this example the following `tableproperties.csv` should be defined.   
 
@@ -124,9 +114,9 @@ For this example the following `tableproperties.csv` should be defined.
 |hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
  
 
-The API allows for blanks to be passed and will use the default behavior. For example if the user wishes to use the TorQ FSP (see section below) the following example will suffice:
-
 **Example Default Configuration File**
+
+The API allows for blanks to be passed and will use the default behavior. For example if the user wishes to use the TorQ FSP (see section below) the following example will suffice:
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
@@ -158,32 +148,32 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 **Valid Inputs**
 
 |Parameter     |Required|Example\*\*                                                                                   |Invalidpairs\*               |Description                                                                     |
-|--------------|--------|------------------------------------------------------------------------------------------|-----------------------------|--------------------------------------------------------------------------------|
-|tablename     |Yes       |\`quote                                                                                   |                |table to query                                                                  |
-|starttime     |Yes       |2020.12.18D12:00                                                                          |               |start time - must be a valid time type (see timecolumn)                           |
-|endtime       |Yes       |2020.12.20D12:00                                                                          |               |end time - must be a valid time type (see timecolumn)                             |
-|timecolumn    |No       |\`time                                                                      |                              |column to apply(startime;endime) filter to|
-|instruments   |No       |\`AAPL\`GOOG                                                                              |                |instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
-|columns       |No       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations    |table columns to return - symbol list - assumed all if not present              |
-|grouping      |No       |\`sym                                                                                     |                |columns to group by -  no grouping assumed if not present                       |
-|aggregations  |No       |\`max\`wavg!(\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice)) |columns&#124;freeformcolumn  |dictionary of aggregations                                                      |
-|timebar       |No       |(10;\`minute;\`time)                                                                       |               |list of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
-|filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                |a dictionary of ordered filters to apply to keys of dictionary                  |
-|freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                 |where clause in string format                                                   |
-|freeformby    |No       |"sym:sym, source:src"                                                                     |                 |by clause in string format
-|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations     |select clause in string format 
-|ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                             |list ordering results ascending or descending by column
-|renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                             | Either a dictionary of old!new or list of column names
-|postprocessing|No|{flip x}| |Post-processing of the data|
-|queryoptimisation|No|0b| |Determines whether the query optimiser should be turned on/off, Default is 1b|
-|head|No|42||Returns the top n rows of a table, use -n to get the last n rows of the table|
-|getquery|No||Runs `.dataaccess.buildquery` in each of the processes|
+|--------------|----------|-----------------------------------------------------------------------------------------|---------------|--------------------------------------------------------------------------------|
+|tablename     |Yes       |\`quote                                                                                  |               |Table to query                            |
+|starttime     |Yes       |2020.12.18D12:00                                                                         |               |Start time - must be a valid time type (see timecolumn)                           |
+|endtime       |Yes       |2020.12.20D12:00                                                                         |               |End time - must be a valid time type (see timecolumn)                             |
+|timecolumn    |No       |\`time                                                                                    |                |Column to apply(startime;endime) filter to|
+|instruments   |No       |\`AAPL\`GOOG                                                                              |                |Instruments to filter on - will usually have an attribute applied (see tableproperties.csv)|
+|columns       |No       |\`sym\`bid\`ask\`bsize\`asize                                                             |aggregations    |Table columns to return - symbol list - assumed all if not present              |
+|grouping      |No       |\`sym                                                                                     |                |Columns to group by -  no grouping assumed if not present|
+|aggregations  |No       |\`max\`wavg!(\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice))              |columns&#124;freeformcolumn |dictionary of aggregations |
+|timebar       |No       |(10;\`minute;\`time)                                                                      |                |List of (bar size; time type;timegrouping column) valid types: \`nanosecond\`second\`minute\`hour\`day)|
+|filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                 |Dictionary of ordered filters to apply to keys of dictionary|
+|freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                 |Where clause in string format                                                   |
+|freeformby    |No       |"sym:sym, source:src"                                                                     |                 |By clause in string format
+|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations     |Select clause in string format 
+|ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                 |List ordering results ascending or descending by column
+|renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                 |Either a dictionary of old!new or list of column names|
+|postprocessing|No       |{flip x}                                                                                  |                 |Post-processing of the data|
+|queryoptimisation|No    |0b                                                                                        |                 |Determines whether the query optimiser should be turned on/off, Default is 1b|
+|head          |No       |42                                                                                        |                 |Returns the top n rows of a table, use -n to get the last n rows of the table|
+|getquery      |No       |1b                                                                                        |                 |Runs `.dataaccess.buildquery` in each of the processes|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:
 
 ```select price,mprice:max price from trade``` 
 
-Although a valid query the result may be unexpected as the column lengths don't match up.
+Although the above is a valid query the result may be unexpected as the column lengths don't match up.
 
 If an invalid key pair is desired the user should convert all inputs to the q-SQL version.
 
@@ -201,14 +191,14 @@ GOOG 70.91 8
 GOOG 70.91 6
 ...
 ```
-From within a kdb+ process the `.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example
+From within a kdb+ process the `.dataaccess.buildquery` function provides the developer with an insight into the query that has been built for example:
 
 ```
 q).dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
 ? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
 
 ```
-From within a process the``` `getquery``` key can also be used to produce an identical result
+Alternatively, the ``` `getquery``` key can also be used to produce an identical result:
 
 ```
 q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize;1b)
@@ -218,7 +208,7 @@ q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021
 This method is preferable as it has been extended to work from within the gateway (see Gateway section) or another exotic process:
 
 ```
-.dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;.z.d+12:00;`GOOG;`sym`time`bid`bsize;1b)
+q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;.z.d+12:00;`GOOG;`sym`time`bid`bsize;1b)
 `rdb
 (?;`quote;((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
 `hdb
@@ -253,6 +243,8 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 |`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                                 |
 |`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
 |`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |No                                 |
+
+Should a user wish to use a disabled cross process aggreagtions they should leverage the postprocessing key (see the postprocessing example in further examples).
 
 The following function can be used to merge two aggregation dictionaries: 
 
@@ -318,7 +310,7 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 |timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                     |
 |procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*     |
 
-\* By default, `.dataaccess.forceservers` is set to `0b`. In this case, only a subset of `.dataaccess.attrituesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
+\* By default, `.dataaccess.forceservers` is set to `0b`. In this case, only a subset of `.dataaccess.attributesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
@@ -394,7 +386,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 - `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
 
 
-**Description of fields in checkinputs.csv**
+**Description of Fields in checkinputs.csv**
 
 |Field        |Description                                                            |
 |-------------|-----------------------------------------------------------------------|
@@ -480,14 +472,15 @@ Error|Function|Library|
 
 ## Query Optimisation
 
-The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries.
+The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries as well as return intuative results.
 This is done by:
 
 - Prioritising filters against the primary attribute column in tableproperties.csv
 - [Swapping in for multiple = statements and razing the result together](https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes)
 
-Furthermore, columns are ordered to put date then sym columns to the left
-The optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`. An example of when this is done can be seen below:
+Furthermore, columns are ordered to put date then sym columns to the left.
+
+Optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
 ### Debugging and Optimisation
 
@@ -847,6 +840,20 @@ maxBid| 90.65
 
 q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 ? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
+```
+More complex example collecting the avg price across multiple processes in the gateway g
+``` 
+
+q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{flip x})"
+sumAsk  | 1.288549e+09
+countAsk| 28738958
+q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{select avgprice: sumAsk%countAsk from x})"
+avgprice
+--------
+44.83632
+q)
+
 
 ```
 
