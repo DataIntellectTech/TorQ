@@ -44,7 +44,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 3. Else if a unique column of type d exist then it is used.
 4. Else the API will error.
 
-For further clarity of configuration we provide two examples:
+For further clarity we provide two examples:
 
 **Example Configuration File** 
 
