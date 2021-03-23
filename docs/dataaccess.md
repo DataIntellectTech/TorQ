@@ -34,7 +34,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
 |rolltimeoffset      |Rollovertime offset from midnight                                                                  |.eodtime.rolltimeoffset                 |
 |rolltimezone        |Timezone of the Rollover Function                                                                  |.eodtime.rolltimezone                   |
-|datatimezone        |Timezone of the data timestamps                                                                    |.eodtime.datatimezone                   |
+|datatimezone        |Timezone of the primary time column timestamps                                                     |.eodtime.datatimezone                   |
 |partitionfield      |Partition field of the data                                                                        |```$[.Q.qp[];.Q.pf;`]```                |
  
 \* The Default behaviour of primarytimecolumn is:
@@ -546,6 +546,27 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 2. Ensure your TorQ stack is not running
 3. Navigate to the appropriate testing directory
 4. Run `. run.sh -d`
+
+### Logging
+Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user,time,handle and request are upserted to the `.dataaccess.stats` table for example:
+
+```
+q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{select avgprice: sumAsk%countAsk from x})"
+avgprice
+--------
+45.38716
+q)g".dataaccess.stats"
+user  time                          handle request                                                                                                                                                                                                                       additionalinfo
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+admin 2021.03.23D16:26:56.390400000 12     `tablename`starttime`endtime`aggregations`postprocessing`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.23D16:26:56.390283000;`sum`count!`ask`ask;{select avgprice: sumAsk%countAsk from x};1b;`hdb`rdb) ()!()
+```
+The same query is added to the rdb log
+```
+q).dataaccess.stats
+user    time                          handle request                                                                                                                                                                                                                       additionalinfo
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+gateway 2021.03.23D16:26:56.420006000 10     `tablename`starttime`endtime`aggregations`postprocessing`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.23D16:26:56.390283000;`sum`count!`ask`ask;{select avgprice: sumAsk%countAsk from x};1b;`hdb`rdb) ()!()
+```
 
 # Further Integration
 
