@@ -32,9 +32,9 @@ getdata:{[inputparams]
   result:queryparams[`renamecolumn] xcol table;                                              
   if[10b~`head`procs in key inputparams;result:select [inputparams`head] from result];
   .requests.logger[usersdict;result];
-// apply post-processing function  
-  $[in[`postback;key inputparams];                                                           
-    :.eqp.processpostback[result;inputparams`postback];
+    // apply post-processing function  
+    $[10b~in[`postprocessing`procs;key inputparams];                                                           
+        :.eqp.processpostback[result;inputparams`postprocessing];
     :result];
   };
 

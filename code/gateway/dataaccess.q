@@ -16,21 +16,20 @@ getdata:{[o]
     // Log the requests
     .requests.logger[o;()];
     // Get Default process behavior
-    default:`join`timeout`postback`head`getquery`queryoptimisation!(multiprocjoin[o];0Wn;();0W;0b;1b);
+    default:`join`timeout`postback`head`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{::});
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     // Execute the queries
-    opt::options;
     if[options`getquery;
         $[.gw.call .z.w;
             :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
     $[.gw.call .z.w;
         //if sync
-        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab: (x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:select [x[`head]] from tab}[options];options[`timeout]];
+        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab: (x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:x[`postprocessing][select [x[`head]] from tab]}[options];options[`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab:(x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:select [x[`head]] from tab}[options];options[`postback];options[`timeout]]];
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab:(x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:x[`postprocessing][select [x[`head]] from tab]}[options];options[`postback];options[`timeout]]];
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -58,7 +57,7 @@ partdict:{[input]
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
-    :@[procdict;key procdict;{:(min x; max x)}]
+    :asc @[procdict;key procdict;{:(min x; max x)}]
     };
 
 // Default dataaccess join allowing for aggregations across processes

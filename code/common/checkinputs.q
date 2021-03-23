@@ -31,6 +31,12 @@ getrequiredparams:{[]exec parameter from .checkinputs.checkinputsconfig where re
 checkparamnames:{[dict]all key[dict]in .checkinputs.getvalidparams[]};
 getvalidparams:{[]exec parameter from .checkinputs.checkinputsconfig};
 
+checkunaryfunc:{[dict;parameter]
+    dict:checktype[100h;dict;parameter];
+    if[1<>count (get dict parameter)[1];
+        '`$"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"];}
+
+
 checkinvalidcombinations:{[dict]
     parameters:key dict;
     xinvalidpairs:select parameter,invalidpairs:invalidpairs inter\:parameters from .checkinputs.checkinputsconfig where parameter in parameters;
