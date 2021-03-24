@@ -99,7 +99,7 @@ The reason extime is not the primary time column is due to the latency between t
 Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote
 
 - Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) 
-- Quote1 comes into the tickerplant at 2020.02.03D05:00:00.100000000(GMT)
+- Quote1 comes into the tickerplant at 2020.02.03D06:00:00.100000000(GMT)
 - Quote1 will be in partition 2020.02.03
  
  As such the partitioning structure is dependent on the time column not the extime column. 
