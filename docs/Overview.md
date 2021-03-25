@@ -145,7 +145,7 @@ TorQ are:
         and/or columns of those tables with different parameters if
         required, and also offers decompression.
         
-    11. Data access API: A streamlined method to retrieve data 
+    11. Data Access API: A streamlined method to retrieve data 
         across a variety of vanilla and exotic processes.
   
 AquaQ TorQ will wrap easily around kdb+tick and therefore around any
