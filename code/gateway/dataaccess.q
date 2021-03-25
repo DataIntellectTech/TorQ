@@ -10,13 +10,12 @@ go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 // Full generality dataaccess function in the gateway
 getdata:{[o]
     // Input checking in the gateway
-    o:.checkinputs.checkinputs[o];
+    reqno:.requests.initlogger[o];
+    o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
     // Get the Procs
     if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
-    // Log the requests
-    .requests.logger[o;()];
     // Get Default process behavior
-    default:`join`timeout`postback`head`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{::});
+    default:`join`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
@@ -27,10 +26,10 @@ getdata:{[o]
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
     $[.gw.call .z.w;
         //if sync
-        :.gw.syncexecjt[(`getdata;o);options[`procs];{tab: (x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:x[`postprocessing][select [x[`head]] from tab]}[options];options[`timeout]];
+        :.gw.syncexecjt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];{tab:(x[`join])[y];if[`ordering in key x;tab: {.[y;(z;x)]}/[tab;(x[`ordering])[;0];(x[`ordering])[;1]]];:x[`postprocessing][select [x[`head]] from tab]}[options];options[`postback];options[`timeout]]];
-    };
+        :.gw.asyncexecjpt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`postback];options[`timeout]]];
+     };
 
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
@@ -46,6 +45,22 @@ attributesrouting:{[options;procdict]
        ];
     :types;
     };
+// mixture of all the post processing functions in gw
+returntab:{[input;tab;reqno]
+    joinfn:input[`join];
+    // Join the tables together with the join function
+    tab:joinfn[tab];
+    // Sort the joined table in the gateway
+    if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
+    // Return the sublist from the table then apply the post processing function
+    tab:select [input`sublist] from tab;
+    // Undergo post processing
+    tab:(input[`postprocessing])[tab];
+    // Update the logger
+    .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
+    :tab
+    };
+
 
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
