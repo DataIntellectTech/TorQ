@@ -40,7 +40,7 @@ Head to the address it gives you to check if your changes have worked. More info
 
 ## Release Notes
 - **5.0.0, Apr 2021**
-  * Data Access API Update [Blog post](path/to/blog) and [Documentation](path/to/docs)
+  * Data Access API Update [Blog post](path/to/blog) and [Documentation](docs/dataaccess.md)
 - **4.0.0, Dec 2020**
   * Updated documemtation
   * Segmented Tickerplant
