@@ -175,7 +175,7 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 |`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
 |`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |No                                 |
 
-The postprocessing key can provide a work around for some cross process aggregations (see the postprocessing example in Further Examples section).
+The postprocessing key provides a work around for creating these cross process aggregations (see the postprocessing example in Further Examples section).
 
 The following function can be used to merge two aggregation dictionaries: 
 
@@ -279,13 +279,13 @@ DOW | 24.52  23.48  2.56   1.55
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
 q)querydict2:`tablename`starttime`endtime`aggregations`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
-q)g(`.dataaccess.getdata;querydict1)
+q)g(`.dataaccess.getdata;querydict2)
 ask    bid    ask1 bid1
 -----------------------
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
 ```
-As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the```\`postprocessing``` key appropriately.
+As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the``` `join`postprocessing`timeouts``` keys appropriately.
 
 ## Checkinputs
 
@@ -387,7 +387,7 @@ Error|Function|Library|
 
 ## Table Properties Configuration
 
-Although the default configuration is often the best there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
+Although the default configuration is often the best, there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
 
 Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
 
