@@ -39,6 +39,8 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **5.0.0, Apr 2021**
+  * Data Access API Update [Blog post](path/to/blog) and [Documentation](path/to/docs)
 - **4.0.0, Dec 2020**
   * Updated documemtation
   * Segmented Tickerplant
