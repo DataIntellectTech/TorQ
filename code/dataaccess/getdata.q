@@ -1,12 +1,15 @@
 // high level api functions for data retrieval
 
+
 getdata:{[inputparams]
+  requestnumber:.requests.initlogger[inputparams];
 // [input parameters dict] generic function acting as main access point for data retrieval
-  if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]]
-// validate input passed to getdata
-  inputparams:.dataaccess.checkinputs usersdict:inputparams;
-// extract validated parameters from input dictionary
-  queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         
+  if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
+  // validate input passed to getdata
+  usersdict:inputparams;
+  inputparams:@[.dataaccess.checkinputs;inputparams;.requests.error[requestnumber;]];
+  // extract validated parameters from input dictionary
+   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];                         
 // re-order the passed parameters to build an efficient query  
   query:.queryorder.orderquery queryparams;
 // execute the queries                                                    
@@ -30,12 +33,12 @@ getdata:{[inputparams]
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         
 // rename the columns  
   result:queryparams[`renamecolumn] xcol table;                                              
-  if[10b~`head`procs in key inputparams;result:select [inputparams`head] from result];
-  .requests.logger[usersdict;result];
+  if[10b~`sublist`procs in key inputparams;result:select [inputparams`sublist] from result];
     // apply post-processing function  
-    $[10b~in[`postprocessing`procs;key inputparams];                                                           
-        :.eqp.processpostback[result;inputparams`postprocessing];
-    :result];
+    if[10b~in[`postprocessing`procs;key inputparams];                                                           
+        result:.eqp.processpostback[result;inputparams`postprocessing];];
+   .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
+   :result
   };
 
 \d .dataaccess

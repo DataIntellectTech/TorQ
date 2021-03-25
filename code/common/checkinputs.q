@@ -236,7 +236,12 @@ checktype:{[validtypes;dict;parameter]
 
 isboolean:{[dict;parameter]:checktype[-1h;dict;parameter];};
 
-isnumb:{[dict;parameter]:checktype[-7h;dict;parameter]};
+isnumb:{[dict;parameter]:checktype[-7;dict;parameter]};
+
+checksublist:{[dict;parameter]:checktype[-7 7h;dict;parameter]
+    if[7h~type dict parameter;
+        if[2<>count dict parameter;'`$.checkinputs.formatstring["Input parameter {parameter} input length incorrect it should be of length 2 or as an atom type";(1#`parameter)!1#parameter]]];
+    };
 
 checkjoin:{[dict;parameter]:checktype[107h;dict;parameter];};
 

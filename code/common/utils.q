@@ -77,7 +77,7 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 getdefaulttime:{[dict]
   if[(dict`tablename) in key .schema;
     :first ?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c]];
-  timestamp:(exec from meta (dict`tablename) where t in "p")`c;
+  timestamp:(exec from meta (dict`tablename) where t in "pz")`c;
   if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
   date:(exec from meta (dict`tablename) where t in "d")`c;
   if[1 < count date; '`$.checkinputs.formatstring["Table has multiple date columns, please select one of the following {} for the parameter timecolumn";date]];
