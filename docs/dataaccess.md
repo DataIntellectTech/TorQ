@@ -387,7 +387,7 @@ Error|Function|Library|
 
 ## Table Properties Configuration
 
-Although the default configuration is often the best there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a non-unique time column. We provide a complete example for clearer explanation:
+Although the default configuration is often the best there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
 
 Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
 
@@ -428,7 +428,7 @@ src   | s
 
 ```
 
-Determining the correct primary time column for the trade table is simple as time is the unique column with a p attribute.
+Determining the correct primary time column for the trade table is simple as time is the unique column with of type p.
 
 The quote table is more complicated as it has two time columns extime and time.
 - The extime column is the time when the trade was made
