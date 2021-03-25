@@ -175,12 +175,12 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 |`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
 |`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |No                                 |
 
-Should a user wish to use a disabled cross process aggreagtions they should leverage the postprocessing key (see the postprocessing example in further examples).
+The postprocessing key can provide a work around for some cross process aggregations (see the postprocessing example in Further Examples section).
 
 The following function can be used to merge two aggregation dictionaries: 
 
 ```
-f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
+q)f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
 ```
 
 ```
@@ -188,9 +188,9 @@ q)A
 min| price
 q)B
 min| time
-q)E
+q)C
 wavg| bid bsize
-q)f[(A;B;E)]
+q)f[(A;B;C)]
 min | `price`time
 wavg| ,`bid`bsize
 ```
@@ -246,7 +246,6 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
 ```
-
 q)querydict:`tablename`starttime`endtime`aggregations!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
 q)querydicttoday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
 q)querydictyesterday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
@@ -286,7 +285,7 @@ ask    bid    ask1 bid1
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
 ```
-As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the```\`join``` key appropriately.
+As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the```\`postprocessing``` key appropriately.
 
 ## Checkinputs
 
