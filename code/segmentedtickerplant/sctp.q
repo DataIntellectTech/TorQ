@@ -1,8 +1,10 @@
 \d .sctp
 
-chainedtp:@[value;`chainedtp;0b]                     // switches between STP and SCTP codebase
-loggingmode:@[value;`loggingmode;`none]              // [none|create|parent] determines whether SCTP creates its own logs, uses STP logs or does neither
+chainedtp:@[value;`chainedtp;0b];                    // switches between STP and SCTP codebase
+loggingmode:@[value;`loggingmode;`none];             // [none|create|parent] determines whether SCTP creates its own logs, uses STP logs or does neither
 tickerplantname:@[value;`tickerplantname;`stp1];     // tickerplant name to try and make a connection to  
+tpconnsleep:@[value;`tpconnsleep;10];                // number of seconds between attempts to connect to source tickerplant
+tpcheckcycles:@[value;`tpcheckcycles;0W];            // number of times the process will check for an available tickerplant
 subscribeto:@[value;`subscribeto;`];                 // list of tables to subscribe for
 subscribesyms:@[value;`subscribesyms;`];             // list of syms to subscription to
 replay:@[value;`replay;0b];                          // replay the tickerplant log file
@@ -34,7 +36,7 @@ init:{
   `endofday set {[x;y] .stplg.endofday[x;y]};
 
   // Initialise connections and subscribe to main STP
-  .servers.startup[]; 
+  .servers.startupdepnamecycles[.sctp.tickerplantname;.sctp.tpconnsleep;.sctp.tpcheckcycles];
   .sctp.subscribe[];
  };
 

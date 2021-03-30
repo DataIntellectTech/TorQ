@@ -226,7 +226,11 @@ stpeod:{[date;data]
   if[(data`p)>.eodtime.nextroll:.eodtime.getroll[data`p];
     system"t 0";'"next roll is in the past"];                    // timer off
   getnextendUTC[];                                               // grabs next end time
-  if[.sctp.loggingmode=`create;dayrollover[data]];               // logs only rolled if in create mode
+  .eodtime.d+:1;                                                 // increment current day
+  $[.sctp.chainedtp;
+   if[.sctp.loggingmode=`create;dayrollover[data]];              // if chained tp, logs only rolled if in create mode
+   dayrollover[data]                                             // if stp, logs roll 
+   ]
  }
 
 // common eod log rolling logic for STP and SCTP
@@ -234,7 +238,6 @@ dayrollover:{[data]
   .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;                                                // close current day logs
-  .eodtime.d+:1;                                                        // increment current day
   init[string .proc.procname];                                          // reinitialise process
   .lg.o[`dayrollover;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
   }
@@ -273,6 +276,11 @@ init:{[dbname]
     // add the info to the meta table
     .stpm.updmeta[multilog][`open;logtabs;.z.p+.eodtime.dailyadj];
     ]
+
+  // set loghandles to null if sctp is not creating logs
+  if[.sctp.chainedtp and not .sctp.loggingmode=`create;
+    `..loghandles set t! (count t) # enlist  (::)
+   ]
  };
 
 \d .
