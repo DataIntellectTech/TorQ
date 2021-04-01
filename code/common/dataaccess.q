@@ -46,12 +46,15 @@ connectcustom:{[f;connectiontab]
 
 \d .
 
-if[.proc.proctype in `rdb`hdb`gateway;
-  // set table properties path
-  .dataaccess.settablepropertiespath[];
-  // re-initialize on new connections 
-  if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
-  ];
+//Load in the library if appropriate
+if[`dataaccess in key .proc.params;
+  if[.proc.proctype in `rdb`hdb`gateway;
+    // set table properties path
+    .dataaccess.settablepropertiespath[];
+    // re-initialize on new connections
+    if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
+    ];];
+
 
 \d .schema
 schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];
