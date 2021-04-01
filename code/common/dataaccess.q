@@ -55,7 +55,6 @@ if[`dataaccess in key .proc.params;
     if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
     ];];
 
-
 \d .schema
 schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];
 \d .
