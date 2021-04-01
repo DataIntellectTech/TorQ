@@ -25,7 +25,6 @@ metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
 //-   - validate table properties config file exists + load it 
 //-   - load config for checking input parameters
 //-   - write meta info for tables in current process to .dataaccess.metainfo
-
 init:{[tablepropertiespath]
   .lg.o[`.dataaccess.init;"running .dataaccess.init"];
   .proc.loaddir getenv[`KDBCODE],"/dataaccess";
@@ -56,3 +55,4 @@ if[.proc.proctype in `rdb`hdb`gateway;
 
 \d .schema
 schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];
+\d .
