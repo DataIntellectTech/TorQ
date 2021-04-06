@@ -11,8 +11,7 @@ readtableproperties:{[tablepropertiepath]
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
   table:update pfield^partitionfield,.eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
-  :table;
-      };
+  :table;};
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
 
