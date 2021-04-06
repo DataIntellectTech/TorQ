@@ -65,8 +65,10 @@ returntab:{[input;tab;reqno]
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     tabname:input[`tablename];
+    // Remove duplicate servertypes from the gw.servers
+    servers:select from .gw.servers where i=(first;i)fby servertype;
     // extract the procs which have the table defined
-    servers:select from .gw.servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
+    servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // Create a dictionary of the attributes against servertypes
     procdict:(exec servertype from servers)!(exec attributes from servers)@'(key each exec attributes from servers)[;0];
     // If the response is a dictionary index into the tablename
