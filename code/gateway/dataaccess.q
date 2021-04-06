@@ -1,8 +1,6 @@
 \d .dataaccess
 
-forceservers:0b
-
-timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
+forceservers:0b;
 
 // function to convert sorting
 go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
