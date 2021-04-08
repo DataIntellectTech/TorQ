@@ -39,10 +39,6 @@ getmetainfo:{
   .lg.o[`getmetainfo;"metainfo successfully loaded"]
  };
 
-//- misc utils
-getvalidparams:{[]checkinputsconfig`parameter};
-getrequiredparams:{[]exec parameter from checkinputsconfig where required};
-
 //- formatstring - inserts text into strings
 //- formatstring["I have {} apples and {} oranges";10] - "I have 10 apples and 10 oranges"
 //- formatstring["I have {n1} apples and {n2} oranges";`n1`n2!10 20] - "I have 10 apples and 20 oranges"
