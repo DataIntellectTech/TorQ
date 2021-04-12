@@ -13,8 +13,7 @@ checkinputs:{[dict]
     dict:checkrepeatparams dict;
     dict:checkeachparam[dict;1b];
     dict:checkeachparam[dict;0b];
-    dict[`checksperformed]:1b;
-    :dict;
+    :@[dict;`checksperformed;:;1b];
   };
 
 checkdictionary:{[dict]
@@ -30,13 +29,6 @@ checkrequiredparams:{[dict]all .checkinputs.getrequiredparams[]in key dict};
 getrequiredparams:{[]exec parameter from .checkinputs.checkinputsconfig where required}
 checkparamnames:{[dict]all key[dict]in .checkinputs.getvalidparams[]};
 getvalidparams:{[]exec parameter from .checkinputs.checkinputsconfig};
-
-checkunaryfunc:{[dict;parameter]
-    dict:checktype[100h;dict;parameter];
-    if[1<>count (get dict parameter)[1];
-        '`$.schema.errors[`postback;`errormessage]];
-  };
-
 
 checkinvalidcombinations:{[dict]
     parameters:key dict;
@@ -84,8 +76,16 @@ checktimeorder:{[dict]
     if[dict[`starttime] > dict`endtime;'`$.schema.errors[`checktimeorder;`errormessage]];
     :dict;};
 
-// check instruments, columns and grouping are of type symbol
-checksyminput:{[dict;parameter]
+// check instruments are of type symbol
+checkinstruments:{[dict;parameter]
+    :checktype[-11 11h;dict;parameter];};
+
+// check columns are of type symbol
+checkcolumns:{[dict;parameter]
+    :checktype[-11 11h;dict;parameter];};
+
+// check groupings are of type symbol
+checkgrouping:{[dict;parameter]
     :checktype[-11 11h;dict;parameter];};
 
 // check aggregations are of type dictionary, that the dictionary has symbol keys, that 
@@ -106,10 +106,13 @@ checktimebar:{[dict;parameter]
     input:dict parameter;
     if[not(3=count input)&0h~type input;
         '`$.schema.errors[`timebarlength;`errormessage]];
-    input:(`$"timebar first arguement";`$"timebar second arguement";`$"timebar third arguement")!input;
-    .checkinputs.checktype[-6 -7h;input;`$"timebar first arguement"];
-    .checkinputs.checktype[-11h;input;`$"timebar second arguement"];
-    .checkinputs.checktype[-11h;input;`$"timebar third arguement"];
+    input:`size`bucket`timecol!input;
+    if[not any -6 -7h~\:type input`size;
+        '`$.schema.errors[`firsttimebar;`errormessage]];
+    if[not -11h~type input`bucket;
+        '`$.schema.errors[`secondtimebar;`errormessage]];
+    if[not -11h~type input`timecol;
+        '`$.schema.errors[`thirdtimebar;`errormessage]];
     :dict;
   };
 
@@ -118,11 +121,11 @@ checktimebar:{[dict;parameter]
 // associated with it.
 checkfilters:{[dict;parameter]
     dict:checktype[99h;dict;parameter];
-    (dict parameter):@[(dict parameter);where {not all 0h=type each x}each (dict parameter);enlist];
+    dict[parameter]:@[(dict parameter);where {not all 0h=type each x}each (dict parameter);enlist];
     input:dict parameter;
     if[not 11h~abs type key input;
         '`$.schema.errors[`filterkey;`errormessage],.schema.examples[`filters1;`example]];
-    (input`testnotfunc):enlist(not;in;10 30);
+    (input`nottest):enlist(not;in;10 30);
     filterpairs:raze value input;
     if[any not in[count each filterpairs;2 3];
         '`$.schema.errors[`filterpair;`errormessage],.schema.examples[`filters1;`example]];
@@ -156,7 +159,7 @@ inequalitycheck:{[pair]
 // check that ordering parameter contains only symbols and is paired in the format
 // (direction;column).
 checkordering:{[dict;parameter]
-    if[11h=type (dict parameter);(dict parameter):enlist (dict parameter)];
+    if[11h=type dict parameter;dict[parameter]:enlist dict parameter];
     input:dict parameter;
     if[11h<>type raze input;
         '`$.schema.errors[`checkorderingpair;`errormessage],.schema.examples[`ordering1;`example]];
@@ -164,26 +167,23 @@ checkordering:{[dict;parameter]
         '`$.schema.errors[`checkorderingarrangment;`errormessage],.schema.examples[`ordering1;`example]];
     if[0<>count except[first each input;`asc`desc];
         '`$.schema.errors[`checkorderingdirection;`errormessage],.schema.examples[`ordering1;`example]];
-    $[in[`grouping;key dict];grouping:(dict`grouping),();grouping:()];
-    $[in[`timebar;key dict];timebar:(dict`timebar);timebar:()];
-    if[in[`aggregations;key dict];
+    grouping:$[`grouping in key dict;(),dict`grouping;()];
+    timebar:$[`timebar in key dict;dict`timebar;()];
+    if[`aggregations in key dict;
         aggs:dict`aggregations;
         aggs:flip(key[aggs]where count each get aggs;raze aggs);
         names:{
-        if[1=count x[1];
-            :`$(string x[0]),@[string x[1];0;upper]];
-        if[2=count x[1];
-            :`$(string x[0]),(@[string first x[1];0;upper]),@[string last x[1];0;upper]]
+            if[count[x 1]in 1 2;
+                :`$raze string[x 0],.[string (),x 1;(::;0);upper]]
         }'[aggs];
         if[any raze {1<sum y=x}[last each aggs]'[last each input];
             '`$.schema.errors[`orderingvague;`errormessage],.schema.examples[`ordering2;`example]];
         if[any not in[last each input;names,grouping,timebar[2],last each aggs];
             '`$.schema.errors[`orderingnocolumn;`errormessage]]];
     if[in[`columns;key dict];
-        columns:(dict`columns),();
-        if[not (enlist `)~columns;
-            if[any not in[last each input;columns];
-                badorder:sv[",";string (last each input) where not in[last each input;columns]]; 
+        if[not enlist[`]~columns:(),dict`columns;
+            if[any not l:last'[input]in columns;
+                badorder:","sv string last'[input]where not l; 
                 '`$.checkinputs.formatstring[.schema.errors[`badorder;`errormessage];`$badorder]]]];
     :dict;};
     
@@ -193,7 +193,7 @@ checkinstrumentcolumn:{[dict;parameter]:checktype[-11h;dict;parameter];};
 checkrenamecolumn:{[dict;parameter]
     dict:checktype[99 -11 11h;dict;parameter];
     input:dict parameter;
-    if[(type input) in (-11h;11h);:dict];
+    if[type[input]in -11 11h;:dict];
     if[99h~type input;
         if[not (type key input)~11h;
             '`$.schema.errors[`renamekey;`errormessage],.schema.examples[`renamecolumn;`example]];
@@ -219,39 +219,14 @@ isboolean:{[dict;parameter]:checktype[-1h;dict;parameter];};
 
 isnumb:{[dict;parameter]:checktype[-7h;dict;parameter]};
 
-checksublist:{[dict;parameter]:checktype[-7 7h;dict;parameter]
-    if[7h~type dict parameter;
-        if[2<>count dict parameter;'`$.checkinputs.formatstring[.schema.errors[`checksublist;`errormessage];(1#`parameter)!1#parameter]]];
-    };
-
 checkjoin:{[dict;parameter]:checktype[107h;dict;parameter];};
 
 checkpostback:{[dict;parameter]
-    if[.gw.call .z.w;'`$.schema.errors[`checkpostback;`errormessage]]
+    if[()~dict parameter;:dict];
+    if[not `sync in key dict;'`$.schema.errors[`asyncpostback;`errormessage]]
+    if[not dict`sync;'`$.schema.errors[`asyncpostback;`errormessage]]
     :checkunaryfunc[dict;parameter]};
 
 checktimeout:{[dict;parameter]
     checktype[-16h;dict;parameter];
     :dict};
-
-checkprocs:{[dict;parameter]
-    // input dict
-    input:raze dict parameter;
-    // check we are in a gateway
-    if[.proc.proctype<>`gateway;'`$.schema.errors[`prockey;`errormessage]];
-    // Check type is a sym(list)
-    checktype[-11 11h;dict;parameter];
-    // Get the list of available servers
-    slist:exec servertype from .gw.servers;
-    // If any of the input isn't in slist error
-    if[any not input in slist;'`$.checkinputs.formatstring[.schema.errors[`slisterror;`errormessage];`parameter`server!(parameter;(input except slist))]];
-    // If force servers is enabled quick exit
-    if[.dataaccess.forceservers;:dict];
-    // Else find whether the input is in the expect proc list
-    A:input in .dataaccess.attributesrouting[dict;.dataaccess.partdict[dict]];
-    // If all the input is in this list carry on
-    if[all A;:dict];
-    // Otherwise error
-    '`$.checkinputs.formatstring[.schema.errors[`checkprocerror;`errormessage];`parameter`server!(parameter;input where not A)]
-    };
-    
