@@ -897,7 +897,7 @@ Not everything about the STP is exactly the same as the TP, a couple of things h
 - All updates must be lists of lists, meaning that single updates must be enlisted.
 - Consumers must have endofday[currentdate;DATA], endofperiod[currentperiod;nextperiod;DATA] and upd[newdata;table] defined in order to successfully subscribe to the STP (.u.end is no longer used). Here DATA is a dictionary of metadata about the STP containing the STP name and type, subscribable tables and the time at which the message was sent from the STP.
 - First two columns in tables do not have to be time and sym 
-
+- By default, every update entering the STP will be timestamped as the first column. However, this behaviour can easily be modified by altering the dictionary of updtab functions. To read more on this, visit the Per Table Customisation subsection of the STP documentation in this file.
 
 <a name="rdb"></a>
 

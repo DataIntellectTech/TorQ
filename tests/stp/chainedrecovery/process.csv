@@ -5,4 +5,4 @@ localhost,{KDBBASEPORT}+102,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/acces
 localhost,{KDBBASEPORT}+103,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.tickerplanttypes segmentedchainedtickerplant -.rdb.subfiltered 1 -.rdb.subcsv ${KDBTESTS}/rdbsub.csv,q
 localhost,{KDBBASEPORT}+104,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q,q
 localhost,{KDBBASEPORT}+105,segmentedchainedtickerplant,stptabperiod1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-.stplg.multilog tabperiod -.sctp.tickerplantname stp1 -parentproctype segmentedtickerplant,q
-localhost,{KDBBASEPORT}+106,segmentedchainedtickerplant,stptabperiod2,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-.sctp.loggingmode parent -.stplg.multilog tabperiod -.sctp.tickerplantname stp1 -parentproctype segmentedtickerplant,q
+

@@ -14,6 +14,9 @@ perilogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stptabperiod";
 tabulogs:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/stptabular";
 emptydir:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/nologs";
 oldelogdir:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/oldlogdir";
+zipfile:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/zipfile/testoldlog.gz";
+zipdir:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/zipdir/";
+zipdirstp:hsym `$getenv[`KDBTESTS],"/stp/tickerlog/logs/zipdirstp/";
 
 // Reset and replay STP logs - to be executed on the tickerlog replay process
 resplay:{[logdir]
