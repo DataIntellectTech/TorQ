@@ -2,4 +2,4 @@ parameter,parametervalue
 tablename,`xdaily
 starttime,2000.01.010D
 endtime,.z.p
-timecolumn,`date
+timecolumn,`month

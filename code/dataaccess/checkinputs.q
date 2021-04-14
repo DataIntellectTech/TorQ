@@ -35,7 +35,8 @@ checktablename:{[dict]
 //check that time column is of the correct type
 checktimecolumn:{[dict]
     .dataaccess.checkcolumns[dict`tablename;dict`timecolumn;`timecolumn];
-    :dict;
+    if[dict[`timecolumn]~`date;:dict];
+    if[not first (exec t from meta dict`tablename where c=(dict[`timecolumn])) in "pzd";'`$.checkinputs.formatstring["Parameter:`timecolumn - column:{column} in table:{table} is of type:{type}, validtypes:-12 -14 -15h";`column`table`type!(dict`timecolumn;dict`tablename;(type( exec from dict`tablename)dict`timecolumn))]];    :dict;
   };
 
 

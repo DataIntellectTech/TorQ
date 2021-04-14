@@ -1,6 +1,6 @@
 test,error
 tableexists,Table:`invalidtablename doesn't exist
-timecolumnexists,"Column(s) ,`date presented in `timecolumn is not a valid column for `xdaily"
+timecolumnexists,"Column(s) ,`month presented in `timecolumn is not a valid column for `xdaily"
 invalidtimecolumn,"Parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
 columnsexist,Column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
 aggregationcolumnsexist,Column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
