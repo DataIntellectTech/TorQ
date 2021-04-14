@@ -2,7 +2,7 @@ action,ms,bytes,lang,code,repeat,minver,comment
 beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
 before,0,0,q,\l hdb,1,,"load the HDB"
 before,0,0,q,.servers.startup[],1,,"Get connection management set up"
-before,0,0,q,.dataaccess.metainfo:.dataaccess.getmetainfo[],1,,"populate the meta table"
+before,0,0,q,.dataaccess.init[.dataaccess.tablepropertiespath],1,,"Run the init function"
 true,0,0,q,testfunction[`basicsymquery],1,,"Basic sym check"
 true,0,0,q,testfunction[`byandffby],1,,"Checks if the by part of the query is reordered if both a free form argument and grouping are provided"
 true,0,0,q,testfunction[`reorderby],1,,"As above however checks the order is preserved even after being swapped"
