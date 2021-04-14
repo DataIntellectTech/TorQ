@@ -46,7 +46,7 @@ getfield() {
 
 parameter() {
   fieldval=$(getfield "$1" "$2")
-  if [[ "" == "$fieldval" ]]; then                                                                  # check for empty string
+  if [[ ("" == "$fieldval") || ("0" == "$fieldval" && "localtime" == "$2") ]]; then                 # check for empty string or 0 for localtime 
     echo ""
   else
     echo " -""$2" "$fieldval"
