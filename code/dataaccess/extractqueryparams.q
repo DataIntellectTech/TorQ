@@ -93,7 +93,7 @@ extracttimebar:{[inputparams;queryparams]
   // Get the timebar params as a dictionary
   timebar:`size`bucket`timecol!inputparams`timebar;
   // Convert the timebucket to it's corresponding integer value 
-  timebucket:exec size * .dataaccess.timebarmap bucket from timebar;
+  timebucket:exec size * .schema.timebarmap bucket from timebar;
   // Return as a kdb+ native function
   :@[queryparams;`timebar;:;timebar[1#`timecol]!enlist(xbarfunc;timebucket;timebar[`timecol])];
   };

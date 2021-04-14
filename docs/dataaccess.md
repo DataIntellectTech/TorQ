@@ -28,7 +28,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |Field               |Description                                                                                        |Default                                 |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
 |proctype            |Denotes the type of process the table is loaded in (passing `all` will involke default behaviour)  |procs in .gw.servers                    |
-|tablename           |Table to query - Tables within namespaces are allowed                                              |N/A                                     |
+|tablename           |Table to query  (Tables within namespaces are allowed)                                             |N/A                                     |
 |primarytimecolumn   |Default timecolumn used to determine the partitioning of a process                                 |\*                                      |
 |attributecolumn     |Primary attribute column (see query optimisation)                                                  |N/A                                     |
 |instrumentcolumn    |Column containing instrument                                                                       |N/A                                     |
@@ -40,89 +40,18 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 \* The Default behaviour of primarytimecolumn is:
 
 1. If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.
-2. Else if a unique column of type p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
+2. Else if a unique column of type z or p exists it is used. (If uniqueness isn't satisfied an error will occur here.)
 3. Else if a unique column of type d exist then it is used.
 4. Else the API will error.
 
-For further clarity we provide two examples:
-
-**Example Configuration File** 
-
-Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
-
-In our scenario the TorQ system is London (GMT) based and the rollover times are as follows: 
-- trade rolls over at midnight GMT  
-- quote rolls over at 01:00 am New York time (ET) 
-
-The meta for tables in the hdb are:  
-
-```
-q)meta trade
-c    | t f a
------| -----
-date | d
-time | p
-sym  | s   p
-price| f
-size | i
-stop | b
-cond | c
-ex   | c
-side | s
-
-q)meta quote
-c     | t f a
-------| -----
-date  | d
-time  | p
-extime| p
-sym   | s   p
-bid   | f
-ask   | f
-bsize | j
-asize | j
-mode  | c
-ex    | c
-src   | s
-
-```
-
-Determining the correct primary time column for the trade table is simple as time is the unique column with a p attribute.
-
-The quote table is more complicated as it has two time columns extime and time.
-- The extime column is the time when the trade was made
-- The time column is the time when the data entered the tickerplant
-
-The time column is the most illuminating into the partition structure. 
-
-The reason extime is not the primary time column is due to the latency between the exchange and TorQ process. 
-Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote
-
-- Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) 
-- Quote1 comes into the tickerplant at 2020.02.03D06:00:00.100000000(GMT)
-- Quote1 will be in partition 2020.02.03
- 
- As such the partitioning structure is dependent on the time column not the extime column. 
-
-For this example the following `tableproperties.csv` should be defined.   
-
-|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
-|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
-|rdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
-|hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
-|rdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |              |
-|hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
- 
-
 **Example Default Configuration File**
 
-The API allows for blanks to be passed and will use the default behavior. For example if the user wishes to use the TorQ FSP (see section below) the following example will suffice:
+If the user wishes to use the TorQ FSP (see section below) the following example will suffice:
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
 ||trade|time|sym|sym|||||
 ||quote|time|sym|sym|||||
-
 
 This table will be configured as if it were the following 
 
@@ -132,6 +61,8 @@ This table will be configured as if it were the following
 |hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
 |rdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
 |hdb     |quote    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
+
+A more complete explanation into the configuration can be seen in the Table Properties Configuration section.
 
 # Usage
 
@@ -166,7 +97,7 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                 |Either a dictionary of old!new or list of column names|
 |postprocessing|No       |{flip x}                                                                                  |                 |Post-processing of the data|
 |queryoptimisation|No    |0b                                                                                        |                 |Determines whether the query optimiser should be turned on/off, Default is 1b|
-|head          |No       |42                                                                                        |                 |Returns the top n rows of a table, use -n to get the last n rows of the table|
+|sublist       |No       |42                                                                                        |                 |[Sublist](https://code.kx.com/q/ref/sublist/)|
 |getquery      |No       |1b                                                                                        |                 |Runs `.dataaccess.buildquery` in each of the processes|
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:
@@ -244,12 +175,12 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 |`wavg`     |Return the weighted mean of two lists                |```(enlist`wavg)!enlist enlist `asize`ask```     |No                                 |
 |`wsum`     |Return the weighted sum of two lists                 |```(enlist`wsum)!enlist enlist `asize`ask```     |No                                 |
 
-Should a user wish to use a disabled cross process aggreagtions they should leverage the postprocessing key (see the postprocessing example in further examples).
+The postprocessing key provides a work around for creating these cross process aggregations (see the postprocessing example in Further Examples section).
 
 The following function can be used to merge two aggregation dictionaries: 
 
 ```
-f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
+q)f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
 ```
 
 ```
@@ -257,9 +188,9 @@ q)A
 min| price
 q)B
 min| time
-q)E
+q)C
 wavg| bid bsize
-q)f[(A;B;E)]
+q)f[(A;B;C)]
 min | `price`time
 wavg| ,`bid`bsize
 ```
@@ -315,33 +246,22 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 One major benefit of using `.dataaccess.getdata` can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.
 
 ```
-// open connection to the gateway g
-g:hopen`::1234:admin:admin
+q)querydict:`tablename`starttime`endtime`aggregations!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
+q)querydicttoday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
+q)querydictyesterday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
 
-g"querydict"
-tablename   | `quote
-starttime   | 2021.02.08D00:00:00.000000000
-endtime     | 2021.02.09D09:00:00.000000000
-aggregations| `max`min!(`ask`bid;`ask`bid)
-q)g"querydicttoday"
-tablename   | `quote
-starttime   | 2021.02.09D00:00:00.000000000
-endtime     | 2021.02.09D09:00:00.000000000
-aggregations| `max`min!(`ask`bid;`ask`bid)
-q)g"querydictyesterday"
-tablename   | `quote
-starttime   | 2021.02.08D00:00:00.000000000
-endtime     | 2021.02.09D00:00:00.000000000
-aggregations| `max`min!(`ask`bid;`ask`bid)
-q)g".dataaccess.getdata querydict"
+// open connection to the gateway g
+q)g:hopen`::1234:admin:admin
+
+q)g(`.dataaccess.getdata;querydict)
 maxAsk maxBid minAsk minBid
 ---------------------------
 214.41 213.49 8.43   7.43
-q)g".dataaccess.getdata querydictyesterday"
+q)g(`.dataaccess.getdata;querydictyesterday)
 maxAsk maxBid minAsk minBid
 ---------------------------
 214.41 213.49 8.8    7.82
-q)g".dataaccess.getdata querydicttoday"
+q)g(`.dataaccess.getdata;querydicttoday)
 maxAsk maxBid minAsk minBid
 ---------------------------
 94.81  93.82  8.43   7.43
@@ -349,15 +269,8 @@ maxAsk maxBid minAsk minBid
 The cross process aggregations also work with groupings and freeformby keys, for example 
 
 ```
-q)g"optimised1"
-tablename   | `quote
-starttime   | 2021.03.16D01:00:00.000000000
-endtime     | 2021.03.17D18:00:00.000000000
-freeformby  | "sym"
-aggregations| `max`min!(`ask`bid;`ask`bid)
-ordering    | ,`desc`maxAsk
-head        | -2
-q)g".dataaccess.getdata optimised1"
+q)querydict1:`tablename`starttime`endtime`aggregations`ordering`head!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;"sym";`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
+q)g(`.dataaccess.getdata;querydict1)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 DELL| 29.37  28.33  7.87   6.84
@@ -365,18 +278,14 @@ DOW | 24.52  23.48  2.56   1.55
 ```
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
-g"querydict"
-tablename     | `quote
-starttime     | 2021.02.08D00:00:00.000000000
-endtime       | 2021.02.09D09:00:00.000000000
-freeformcolumn| "max ask,max bid,min ask,min bid"
-q)g".dataaccess.getdata querydict"
+q)querydict2:`tablename`starttime`endtime`aggregations`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
+q)g(`.dataaccess.getdata;querydict2)
 ask    bid    ask1 bid1
 -----------------------
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
 ```
-As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the```\`join``` key appropriately.
+As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the``` `join`postprocessing`timeouts``` keys appropriately.
 
 ## Checkinputs
 
@@ -399,28 +308,34 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 
 |parameter|required|checkfunction|invalidpairs|description|
 |---------|--------|-------------|------------|-----------|
-|tablename|1|.checkinputs.checktable||table to query|
-|starttime|1|.checkinputs.checktimetype||starttime - see timecolumn|
-|endtime|1|.checkinputs.checkendtime||endtime - see timecolumn|
-|timecolumn|0|.checkinputs.checktimecolumn||column to apply (startime;endime) filter to|
-|instruments|0|.checkinputs.checkinstruments||instruments of interest - see tableproperties.csv|
-|columns|0|.checkinputs.checkcolumns|aggregations|table columns to return - assumed all if not present|
-|grouping|0|.checkinputs.checkgrouping||columns to group by -  no grouping assumed if not present|
-|aggregations|0|.checkinputs.checkaggregations|columns|freeformcolumn|dictionary of aggregations - e.g \`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice))|
-|timebar|0|.checkinputs.checktimebar||list of (time column to group on;size;type - \`nanosecond\`second\`minute\`hour\`day)|
-|filters|0|.checkinputs.checkfilters||a dictionary of columns + conditions in string format|
-|ordering|0|.checkinputs.checkordering||a list of pairs regarding the direction (\`asc or \`desc) of ordering and a column to order|
-|freeformwhere|0|.checkinputs.isstring||where clause in string format|
-|freeformby|0|.checkinputs.isstring||by clause in string format|
-|freeformcolumn|0|.checkinputs.isstring|aggregations|select clause in string format|
-|instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from|
-|queryoptimisation|0|.checkinputs.isboolean||Toogle query optimiser|
-|postprocessing|0|.checkinputs.checkpostprocessing||applies postback lambda functions to data|
-|join|0|.checkinputs.checkjoin||Joins queries together|
-|postback|0|.checkinputs.checkpostback||sends async queries back|
-|timeout|0|.checkinputs.checktimeout||Checks the time of the timeout|
-|sqlquery|0|.checkinputs.isstring||allows for sql query inputs (not supported by dataaccess)|
-|firstlastsort|0|.checkinputs.checkcolumns||allows for use of firstlastsort (not supported by dataaccess)|
+|tablename|1|.checkinputs.checktable||table to query
+|starttime|1|.checkinputs.checktimetype||starttime - see timecolumn
+|endtime|1|.checkinputs.checkendtime||endtime - see timecolumn
+|timecolumn|0|.checkinputs.checktimecolumn||column to apply (startime;endime) filter to
+|instruments|0|.checkinputs.checkinstruments||instruments of interest - see tableproperties.csv
+|columns|0|.checkinputs.checkcolumns||table columns to return - assumed all if not present
+|grouping|0|.checkinputs.checkgrouping||columns to group by -  no grouping assumed if not present
+|aggregations|0|.checkinputs.checkaggregations|columns|freeformcolumn|dictionary of aggregations - e.g \`last\`max\`wavg!(\`time;\`bidprice\`askprice;(\`asksize\`askprice;\`bidsize\`bidprice))
+|timebar|0|.checkinputs.checktimebar||list of (time column to group on;size;type - \`nanosecond\`second\`minute\`hour\`day)
+|filters|0|.checkinputs.checkfilters||a dictionary of columns + conditions in string format
+|ordering|0|.checkinputs.checkordering||a list of pairs regarding the direction (\`asc or \`desc) of ordering and a column to order
+|freeformwhere|0|.checkinputs.isstring||where clause in string format
+|freeformby|0|.checkinputs.isstring||by clause in string format
+|freeformcolumn|0|.checkinputs.isstring||select clause in string format
+|instrumentcolumn|0|.checkinputs.checkinstrumentcolumn||column to select instrument parameter from
+|renamecolumn|0|.checkinputs.checkrenamecolumn||dictionary to rename a column in results
+|postprocessing|0|.checkinputs.checkpostprocessing||applies postback lambda functions to data
+|join|0|.checkinputs.checkjoin||Joins queries together
+|postback|0|.checkinputs.checkpostback||sends async queries back
+|timeout|0|.checkinputs.checktimeout||Checks the time of the timeout
+|sublist|0|.checkinputs.checksublist||checks the head parameter
+|procs|0|.checkinputs.checkprocs||Checks the procs is the correct servers
+|sqlquery|0|.checkinputs.isstring||Select clause in string format
+|getquery|0|.checkinputs.isboolean||Returns the queries in each of the process
+|dryrun|0|.checkinputs.isboolean||Calculates the number of MB processed
+|firstlastsort|0|.checkinputs.checkinstrumentcolumn||Allows for use of firstlastsort (not supported by dataaccess)
+|optimisation|0|.checkinputs.isboolean||Toggle optimastion in queryorder
+
 
 The csv file enables developers simple extension, modification or deletion of the accepted inputs. 
 
@@ -469,6 +384,78 @@ Error|Function|Library|
 |The first item in each of the ordering parameter's pairs must be either \`asc or \`desc - example:|checkordering|checkinputs|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
+
+## Table Properties Configuration
+
+Although the default configuration is often the best, there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
+
+Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
+
+In our scenario the TorQ system is GMT based and the rollover times are as follows: 
+- trade rolls over at midnight GMT  
+- quote rolls over at 01:00 am New York time (ET) 
+
+The meta for tables in the hdb are:  
+
+```
+q)meta trade
+c    | t f a
+-----| -----
+date | d
+time | p
+sym  | s   p
+price| f
+size | i
+stop | b
+cond | c
+ex   | c
+side | s
+
+q)meta quote
+c     | t f a
+------| -----
+date  | d
+time  | p
+extime| p
+sym   | s   p
+bid   | f
+ask   | f
+bsize | j
+asize | j
+mode  | c
+ex    | c
+src   | s
+
+```
+
+Determining the correct primary time column for the trade table is simple as time is the unique column with of type p.
+
+The quote table is more complicated as it has two time columns extime and time.
+- The extime column is the time when the trade was made
+- The time column is the time when the data entered the tickerplant
+
+The time column is the most illuminating into the partition structure. 
+
+The reason extime is not the primary time column is due to the latency between the exchange and TorQ process. 
+Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote
+
+- Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) 
+- Quote1 comes into the tickerplant at 2020.02.03D06:00:00.100000000(GMT)
+- Quote1 will be in partition 2020.02.03
+ 
+As such the partitioning structure is dependent on the time column not the extime column.
+ 
+The p attribute on the sym column shows why it should be used as the attribute column.
+
+For this example the following `tableproperties.csv` should be defined.   
+
+|proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
+|--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
+|rdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |              |
+|hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
+|rdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |              |
+|hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
+ 
 
 ## Query Optimisation
 
@@ -548,26 +535,41 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 4. Run `. run.sh -d`
 
 ## Logging
-Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user, time, handle and request are upserted to the `.dataaccess.stats` table for example:
+Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user, startime, endtime, handle, success and any error messages are upserted to the `.dataaccess.stats` table for example when a good and bad query are sent to the gateway:
 
 ```
-// generic gateway query
-q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{select avgprice: sumAsk%countAsk from x})"
-avgprice
---------
-45.38716
+// Good gateway query
+q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;.z.p;((enlist `max)!enlist `ask`bid);`sym)"
+sym | maxAsk maxBid
+----| -------------
+AAPL| 246.33 245.26
+AIG | 85.07  84
+...
+// Bad gateway query
+q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;15;((enlist `max)!enlist `ask`bid);`sym)"
+'`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
+  [0]  g".dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;15;((enlist `max)!enlist `ask`bid);`sym)"
+       ^
+```
+The following are the gateway and rdb logs:
+```
+// The logging in the gateway returns 
+
 q)g".dataaccess.stats"
-user  time                          handle request                                                                                                                                                                                                                       additionalinfo
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-admin 2021.03.23D16:26:56.390400000 12     `tablename`starttime`endtime`aggregations`postprocessing`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.23D16:26:56.390283000;`sum`count!`ask`ask;{select avgprice: sumAsk%countAsk from x};1b;`hdb`rdb) ()!()
-```
-The same query is added to the rdb log
-```
+querynumber| user  starttime                     endtime                       handle request                                                                                                                                        success error
+-----------| -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1          | admin 2021.03.25D14:52:03.380485000 2021.03.25D14:52:04.138481000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym) 1
+2          | admin 2021.03.25D14:52:20.546227000 2021.03.25D14:52:20.546341000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;15;(,`max)!,`ask`bid;`sym)                            0       `endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
+
+// The bad query errored out in the gateway, consequently only the good query is seen in the rdb logs
+
 q).dataaccess.stats
-user    time                          handle request                                                                                                                                                                                                                       additionalinfo
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-gateway 2021.03.23D16:26:56.420006000 10     `tablename`starttime`endtime`aggregations`postprocessing`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.23D16:26:56.390283000;`sum`count!`ask`ask;{select avgprice: sumAsk%countAsk from x};1b;`hdb`rdb) ()!()
+querynumber| user    starttime                     endtime                       handle request                                                                                                                                                                          success error
+-----------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1          | gateway 2021.03.25D14:52:03.381980000 2021.03.25D14:52:03.407870000 10     `tablename`starttime`endtime`aggregations`grouping`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym;1b;`hdb`rdb) 1
+
 ```
+Logging can be toggled off from within a process by setting the value of `.dataaccess.logging` to `0b`.
 
 # Further Integration
 
@@ -575,7 +577,7 @@ This section describes the remaining features of the API as well as how the API 
 
 ## Implementation with TorQ FSP
 
-The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag `  -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
+The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag ` -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
 
 ```
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -874,24 +876,29 @@ q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!
 avgprice
 --------
 44.83632
-q)
-
 
 ```
 
-**Head**
+**Sublist**
 
-Use the ``` `head``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
+Use the ``` `sublist``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
 
 ```
-q) getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 AAPL| 171.23 170.36 56.35  55.32
 GOOG| 101.09 99.96  45.57  44.47
 
-q)`tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 ? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
+
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)"
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+INTC| 68.51  67.56  44.59  43.63
+IBM | 48.53  47.61  37.1   36.11
+HPQ | 46.09  45.05  29.97  29.03
 
 ```

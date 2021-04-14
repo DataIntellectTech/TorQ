@@ -3,9 +3,9 @@ tablename,1,.checkinputs.checktable,,table to query
 starttime,1,.checkinputs.checktimetype,,starttime - see timecolumn
 endtime,1,.checkinputs.checkendtime,,endtime - see timecolumn
 timecolumn,0,.checkinputs.checktimecolumn,,column to apply (startime;endime) filter to
-instruments,0,.checkinputs.checkinstruments,,instruments of interest - see tableproperties.csv
-columns,0,.checkinputs.checkcolumns,,table columns to return - assumed all if not present
-grouping,0,.checkinputs.checkgrouping,,columns to group by -  no grouping assumed if not present
+instruments,0,.checkinputs.checksyminput,,instruments of interest - see tableproperties.csv
+columns,0,.checkinputs.checksyminput,,table columns to return - assumed all if not present
+grouping,0,.checkinputs.checksyminput,,columns to group by -  no grouping assumed if not present
 aggregations,0,.checkinputs.checkaggregations,columns|freeformcolumn,dictionary of aggregations - e.g `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 timebar,0,.checkinputs.checktimebar,,list of (time column to group on;size;type - `nanosecond`second`minute`hour`day)
 filters,0,.checkinputs.checkfilters,,a dictionary of columns + conditions in string format

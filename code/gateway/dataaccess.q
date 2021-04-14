@@ -1,8 +1,6 @@
 \d .dataaccess
 
-forceservers:0b
-
-timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
+forceservers:0b;
 
 // function to convert sorting
 go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
@@ -65,8 +63,10 @@ returntab:{[input;tab;reqno]
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     tabname:input[`tablename];
+    // Remove duplicate servertypes from the gw.servers
+    servers:select from .gw.servers where i=(first;i)fby servertype;
     // extract the procs which have the table defined
-    servers:select from .gw.servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
+    servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // Create a dictionary of the attributes against servertypes
     procdict:(exec servertype from servers)!(exec attributes from servers)@'(key each exec attributes from servers)[;0];
     // If the response is a dictionary index into the tablename

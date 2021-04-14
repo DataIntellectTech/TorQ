@@ -2,16 +2,15 @@
 
 //- utils for reading in config
 readtableproperties:{[tablepropertiepath]
-  pfield:$[()~.Q.pt;`;.Q.pf];
-  .lg.o[`readtableproperties;"loading table properties"];
+  .lg.o[`readtableproperties;"loading table properties"]
   table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssstsss"];                                                            //read in table from file
   alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];                                                                          //find any instance of the use "all" or blank for proctype
-  table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];       //join rdb and hdb entries for any "all" or blank entries
+  table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];       //join rdb and hdb entries for any "all" or blank entries 
   table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
-  table:update pfield^partitionfield,.eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
+  table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
+  :update  `date ^ partitionfield from table where proctype<>`rdb;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
-  :table;
       };
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
@@ -32,17 +31,10 @@ spliltandcast:{[x;typ]typ$"|"vs/:x};
 //- (i) .dataaccess.getmetainfo - mapping from tablename to metainfo;
 
 getmetainfo:{
-  .lg.o[`getmetainfo;"Loading meta info"];
-  tlist:exec tablename from .checkinputs.tablepropertiesconfig;
   partfield:$[()~key`.Q.pf;`;.Q.pf];
-  metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tlist;
-  :1!flip(`tablename`partfield`metas`proctype)!(tlist;partfield;metainfo;.proc.proctype);
-  .lg.o[`getmetainfo;"metainfo successfully loaded"]
+  metainfo:1!/:`columns`types`attributes xcol/:`c`t`a#/:0!/:meta each tables`.;
+  :1!flip(`tablename`partfield`metas`proctype)!(tables`.;partfield;metainfo;.proc.proctype);
  };
-
-//- misc utils
-getvalidparams:{[]checkinputsconfig`parameter};
-getrequiredparams:{[]exec parameter from checkinputsconfig where required};
 
 //- formatstring - inserts text into strings
 //- formatstring["I have {} apples and {} oranges";10] - "I have 10 apples and 10 oranges"
@@ -76,8 +68,8 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 //- get default time from  tickerplant or table
 getdefaulttime:{[dict]
   if[(dict`tablename) in key .schema;
-    :first ?[meta `$(".schema.",string (dict`tablename));enlist(=;`t;"p");();`c]];
-  timestamp:(exec from meta (dict`tablename) where t in "pz")`c;
+    :first ?[meta` sv``schema,dict`tablename;enlist(=;`t;"p");();`c]];
+  timestamp:(exec from meta (dict`tablename) where t in "p")`c;
   if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
   date:(exec from meta (dict`tablename) where t in "d")`c;
   if[1 < count date; '`$.checkinputs.formatstring["Table has multiple date columns, please select one of the following {} for the parameter timecolumn";date]];

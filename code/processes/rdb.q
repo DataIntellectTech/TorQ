@@ -156,7 +156,7 @@ subscribe:{[]
 		/-setting subtables and tplogdate globals
 		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
         /-update metainfo table for the dataaccessapi
-        .dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[];
+        if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]];
         /-apply subscription filters to replayed data
         if[subfiltered&replaylog;
 			applyfilters[;subscribesyms]each subtables];];}

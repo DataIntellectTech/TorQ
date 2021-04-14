@@ -19,15 +19,15 @@ checkinputs:{[dict]
     if[in[`freeformwhere;key dict];.dataaccess.checkfreeformwhere dict;dict:freeformrdbdate[dict;`freeformwhere]];
     if[in[`freeformby;key dict];.dataaccess.checkfreeformby dict;dict:freeformrdbdate[dict;`freeformby]];
     if[in[`freeformcolumn;key dict];.dataaccess.checkfreeformcolumns dict;dict:freeformrdbdate[dict;`freeformcolumn]];
-    if[in[`sqlquery;key dict];'`$"sqlquery parameter not supported on ",(string .proc.proctype)," process"];
-    if[in[`firstlastsort;key dict];'`$"firstlastsort parameter not supported on ",(string .proc.proctype)," process"];
+    if[in[`sqlquery;key dict];'`$.checkinputs.formatstring[.schema.errors[`sqlquery;`errormessage];.proc.proctype]];
+    if[in[`firstlastsort;key dict];'`$.checkinputs.formatstring[.schema.errors[`firstlastsort;`errormessage];.proc.proctype]];
     :dict;
   };
 
 // function to check the validity of tablenames
 checktablename:{[dict]
     if[not dict[`tablename]in exec tablename from .checkinputs.tablepropertiesconfig where proctype in (.proc.proctype,`,`all);
-        '`$.checkinputs.formatstring["Table:{tablename} doesn't exist";dict]];
+        '`$.checkinputs.formatstring[.schema.errors[`tableexists;`errormessage];dict]];
     dict:.checkinputs.jointableproperties dict;
     :update metainfo:(metainfo,`starttime`endtime!(starttime;endtime))from dict;
   };
@@ -57,7 +57,7 @@ filldefaulttimecolumn:{[dict]
         avblecols:`date,cols table;
         if[any not in[columns;avblecols];
             badcol:columns where not in[columns;avblecols];
-            '`$.checkinputs.formatstring["Column(s) {badcol} presented in {parameter} is not a valid column for {tab}";`badcol`tab`parameter!(badcol;table;parameter)]]];};
+            '`$.checkinputs.formatstring[.schema.errors[`checkcolumns;`errormessage];`badcol`tab`parameter!(badcol;table;parameter)]]];};
 
 // function to add date column on request on rdb processes
 rdbdate:{[dict;parameter]
@@ -74,58 +74,50 @@ freeformrdbdate:{[dict;parameter]
     :dict;
  };
 
-timebarmap:`nanosecond`timespan`microsecond`second`minute`hour`day!1 1 1000 1000000000 60000000000 3600000000000 86400000000000;
-
-//- should be of the format: `last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))
 //- returns columns: `lastMid`maxBidprice`maxAskprice`wavgAsksizeAskprice`wavgBidsizeBidprice
 checkaggregations:{[dict]
-    example:"`last`max`wavg!(`time;`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))";
     input:dict`aggregations;
     .dataaccess.checkcolumns[dict`tablename;raze last each input;`aggregations];
     columns:distinct(raze/)get input;
     dict:checkcolumns[dict`tablename;raze last each input;`aggregations];
-    validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum; //- these functions support 'map reduce' - in future custom functions could be added
     inputfuncs:key input;
-    if[(`distinct in key input)&(not ((count flip(key[input]where count each get input;raze input)))=1); '`$"If the distinct function is used, it cannot be present with any other aggregations including more of itself"]
-    if[any not inputfuncs in validfuncs;'`$.checkinputs.formatstring["Aggregations dictionary contains undefined function(s) {}";distinct inputfuncs except validfuncs]];
-    dvalidfuncs:(key input) inter `cor`cov`wavg`wsum;
-    if[0<>count except[count each raze input dvalidfuncs;2];'`$.checkinputs.formatstring["Incorrect number of input(s) entred for the following aggregations{}";dvalidfuncs]];
+    if[(`distinct in key input)&(not ((count flip(key[input]where count each get input;raze input)))=1); '`$.schema.errors[`distinctagg;`errormessage]]
+    if[any not inputfuncs in .schema.validfuncs;'`$.checkinputs.formatstring[.schema.errors[`undefinedaggs;`errormessage];distinct inputfuncs except .schema.validfuncs]];
+    dvalidfuncs:(key input) inter .schema.dvalidfuncs;
+    if[0<>count except[count each raze input dvalidfuncs;2];'`$.checkinputs.formatstring[.schema.errors[`agglength;`errormessage];dvalidfuncs]];
     :dict;
  };
 
 // check that the timebar size chosen isn't too small for DA to handle
 checktimebar:{[dict]
     if[not in[`aggregations;key dict];
-        '`$"Aggregations parameter must be supplied in order to perform group by statements"];
+        '`$.schema.errors[`aggtimebar;`errormessage]];
     .dataaccess.checkcolumns[dict`tablename;last dict`timebar;`timebar];
-    returnone:`first`last`avg`count`dev`max`med`min`prd`sum`var`wavg`wsum;
     input:dict`aggregations;
     input:flip(key[input]where count each get input;raze input);
-    if[any not in[first each input;returnone];
-        '`$"In order to use a grouping parameter, only aggregations that return single values may be used"];
+    if[any not in[first each input;.schema.returnone];
+        '`$.schema.errors[`singleaggtimebar;`errormessage]];
     size:dict[`timebar][1];
-    if[not in[size;key .dataaccess.timebarmap];
-        '`$.checkinputs.formatstring["The input size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are: {app}";`size`app!(size;key .dataaccess.timebarmap)]];
-    if[1>floor (dict`timebar)[0]*.dataaccess.timebarmap(dict`timebar)[1];
-        '`$"Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond"];
+    if[not in[size;key .schema.timebarmap];
+        '`$.checkinputs.formatstring[.schema.errors[`timebarsize;`errormessage];`size`app!(size;key .schema.timebarmap)]];
+    if[1>floor (dict`timebar)[0]*.schema.timebarmap(dict`timebar)[1];
+        '`$.schema.errors[`smalltimebar;`errormessage]];
     if[(not first (exec t from meta dict`tablename where c=(dict`timebar)[2]) in "pmnuvtzd") & (not (dict`timebar)[2]=`date);'`$.checkinputs.formatstring["Parameter:`timebar - column:{column} in table:{table} is of type:{type}, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h";`column`table`type!((dict`timebar)[2];dict`tablename;(type( exec from dict`tablename)(dict`timebar)[2]))]];
+    :dict;
  };
 
 // check errors in the freeform parameters
 checkfreeformwhere:{[dict]
-    example:"bidprice<0w,bidsize>`sym bidprice>0w";
     cond:"," vs dict`freeformwhere;
     cond:(parse each cond);
-    if[any (not(first each  cond[;1]) in (in;within;like))*((type each first each cond[;1])=102h);'`$"Not operator must be used in conjucture with in, like or within oporators"];
+    if[any (not(first each  cond[;1]) in (in;within;like))*((type each first each cond[;1])=102h);'`$.schema.errors[`freeformnot;`errormessage]];
     if[any 2=count each cond;cond:?[2=count each cond;cond[;1];cond[]]];
     .dataaccess.checkcolumns[dict`tablename;cond[;1];`freeformwhere];
-    allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
-    if[not all [last each (cond[;0] in allowedops)];'`$(dict`freeformwhere)," contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"];
+    if[not all [last each (cond[;0] in .schema.allowedops)];'`$(dict`freeformwhere),.schema.errors[`freeformoperators;`errormessage]];
  };
 
 checkfreeformby:{[dict]
-    example:"sym:sym, source:src";
-    if[not ((dict`freeformby) ss "!")~`long$();'`$"Freeformby parameter must not be entered as dictionary. Parameter should be entered in the following format: ",example];
+    if[not ((dict`freeformby) ss "!")~`long$();'`$.schema.errors[`freeformbydict;`errormessage],.schema.examples[`freeformby;`example]];
     cond:"," vs dict`freeformby;
     cond:(parse each cond);
     .dataaccess.checkcolumns[dict`tablename;cond;`freeformby];
