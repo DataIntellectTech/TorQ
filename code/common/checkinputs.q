@@ -76,16 +76,8 @@ checktimeorder:{[dict]
     if[dict[`starttime] > dict`endtime;'`$.schema.errors[`checktimeorder;`errormessage]];
     :dict;};
 
-// check instruments are of type symbol
-checkinstruments:{[dict;parameter]
-    :checktype[-11 11h;dict;parameter];};
-
-// check columns are of type symbol
-checkcolumns:{[dict;parameter]
-    :checktype[-11 11h;dict;parameter];};
-
-// check groupings are of type symbol
-checkgrouping:{[dict;parameter]
+// check parameter is of type symbol
+checkinputsym:{[dict;parameter]
     :checktype[-11 11h;dict;parameter];};
 
 // check aggregations are of type dictionary, that the dictionary has symbol keys, that 
@@ -225,7 +217,7 @@ checkpostback:{[dict;parameter]
     if[()~dict parameter;:dict];
     if[not `sync in key dict;'`$.schema.errors[`asyncpostback;`errormessage]]
     if[not dict`sync;'`$.schema.errors[`asyncpostback;`errormessage]]
-    :checkunaryfunc[dict;parameter]};
+    :checkpostprocessing[dict;parameter]};
 
 checktimeout:{[dict;parameter]
     checktype[-16h;dict;parameter];

@@ -37,5 +37,5 @@ orderingordering,"The first item in each of the ordering parameter's pairs must 
 orderingordering1,"Ordering parameter's values must be paired in the form (direction;column) - example: ((`asc`sym);(`desc`price))"
 vagueordering,"Ordering parameter vague. Ordering by a column that aggregated more than once, as such the aggregation must be specified. The aggregation convention is camel-case, so to order by the aggregation max price, the following would be used: enlist(`asc`maxPrice)"
 noordering,"Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter"
-badordering,"Trying to order by column(s): size that is not defined in the columns argument"
+badordering,"Trying to order by column(s): `size that is not defined in the columns argument"
 postbackfail,"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"
