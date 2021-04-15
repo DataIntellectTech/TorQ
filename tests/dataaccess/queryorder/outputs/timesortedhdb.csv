@@ -1,0 +1,5 @@
+parameter,parametervalue
+0,`quote
+1,((within;`date;2020.12.17 2020.12.22);(in;`sym;enlist enlist`GOOG);(within;`time;)2020.12.17D10:11:32.897689000 2020.12.22D10:11:32.897688000;(=;`stop;0);(>;`price;25))
+2,0b
+3,()

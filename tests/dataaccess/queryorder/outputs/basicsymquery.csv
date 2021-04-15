@@ -1,0 +1,5 @@
+parameter,parametervalue
+0,`xdaily
+1,((=;`sym;enlist `GOOG);(within;`time;2020.12.15D11:42:00.594522000 2020.12.15D14:42:00.594518000))
+2,0b
+3,`sym`time!`sym`time

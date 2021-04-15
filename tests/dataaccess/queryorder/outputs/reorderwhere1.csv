@@ -1,0 +1,6 @@
+parameter,parametervalue
+0,`xdaily
+1,((=;`sym;enlist `IBM);(within;`time;2020.12.15D14:43:31.428663000 2020.12.15D17:43:31.428661000))
+2,(enlist `sym)!enlist `sym
+3,(enlist `mprice)!enlist (max;`price)
+

@@ -1,0 +1,10 @@
+parameter,parametervalue
+tablename,`xdaily
+starttime,2000.01.01D00:00:00.000000000
+endtime,2000.01.06D10:00:00.000000000
+aggregations,`min`max`wavg!(`bidprice`askprice;`bidprice`askprice;(`bidsize`bidprice;`asksize`askprice))
+grouping,`sym
+timebar,(6;`hour;`time)
+metainfo,`partfield`metas`proctype`starttime`endtime!(`;(flip (enlist`columns)!enlist`sym`source`id`time`sourcetime`bidprice`bidsize`askprice`asksize)!(flip `types`attributes!("ssCppffff";`p````````));`rdb;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000)
+tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym`UTC`.dataaccess.testfuncrollover`.dataaccess.testfuncpartitionrange`
+timecolumn ,`time

@@ -144,7 +144,10 @@ TorQ are:
         also gives the flexibilty of compressing user-specified tables
         and/or columns of those tables with different parameters if
         required, and also offers decompression.
-
+        
+    11. Data Access API: A streamlined method to retrieve data 
+        across a variety of vanilla and exotic processes.
+  
 AquaQ TorQ will wrap easily around kdb+tick and therefore around any
 tickerplant, RDB, HDB or real time processing application. We currently
 have several customised processes of our own:

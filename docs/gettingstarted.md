@@ -94,6 +94,7 @@ The available command line parameters are:
   |-usage                    |Print usage info and exit|
   |-onelog                   |Writes all messages to stdout log file, note non-trapped errors will still be written to stderr log file|
   |-test x                   |Use for unit testing. Pass the location of tests directory|
+  |-dataaccess path/to/csv   |Initialise the Dataaccess API in the process with table properties|
   
 
 In addition any process variable in a namespace (.\*.\*) can be

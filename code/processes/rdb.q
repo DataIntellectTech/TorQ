@@ -155,8 +155,10 @@ subscribe:{[]
 		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
 		/-setting subtables and tplogdate globals
 		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
-		/-apply subscription filters to replayed data
-		if[subfiltered&replaylog;
+        /-update metainfo table for the dataaccessapi
+        if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]];
+        /-apply subscription filters to replayed data
+        if[subfiltered&replaylog;
 			applyfilters[;subscribesyms]each subtables];];}
 
 setpartition:{[]

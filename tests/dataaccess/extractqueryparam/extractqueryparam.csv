@@ -1,0 +1,14 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+beforeany,0,0,q,system "sleep 1",1,,"Wait for all procs to go up"
+true,0,0,q,testfunction[`query1],1,,"Checks a basic query and the output"
+true,0,0,q,testfunction[`instrumentfilter],1,,"Checks a query using instument filter"
+true,0,0,q,testfunction[`columns],1,,"Checks a query using the coloums parameter"
+true,0,0,q,testfunction[`freeformselect],1,,"Checks a query using freeformselect parameter"
+true,0,0,q,testfunction[`grouping],1,,"Checks a query using grouping parameter"
+true,0,0,q,testfunction[`string],1,,"Checks a query using freeformby parameter"
+true,0,0,q,testfunction[`timebucket],1,,"Checks a query using timebar parameter"
+true,0,0,q,testfunction[`aggregations],1,,"Checks a query using aggregations"
+true,0,0,q,testfunction[`filters],1,,"Checks a query using filters parameter"
+true,0,0,q,testfunction[`freeformfilters],1,,"Checks a query using freefromby parameter"
+
+

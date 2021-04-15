@@ -1,0 +1,11 @@
+parameter,parametervalue
+tablename,`xdaily
+starttime,2000.01.01D
+endtime,2000.01.06D10:00
+instruments,`AUDUSD
+columns,`bidprice`bidsize`askprice`asksize
+timebar,(1;`hour;`time)
+filters,`source`sourcetime!(enlist(like;"source?");enlist(<;0wp))
+freeformwhere,"""bidprice<0w,bidsize<0w"""
+freeformby,"""sym:sym,source:source"""
+freeformcolumn,"""sym:sym,source:source"""

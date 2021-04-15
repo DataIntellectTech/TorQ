@@ -1,0 +1,17 @@
+parameter,parametervalue
+tablename,`xdaily
+partitionfilter,()
+attributecolumn,`sym
+timefilter,enlist (within;`time;2020.12.15D14:28:46.882009000 2020.12.15D17:28:46.882006000)
+instrumentfilter,()
+columns,()
+grouping,(enlist `sym)!enlist `sym
+aggregations,()
+filters,((>;`size;5);(>;`size;5))
+freeformwhere,()
+freeformby,()
+freeformcolumn,(enlist `mprice)!enlist `price
+optimisation,1b
+proctype,`rdb
+tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`
+renamecolumn,()!()

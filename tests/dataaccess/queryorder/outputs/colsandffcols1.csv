@@ -1,0 +1,5 @@
+parameter,parametervalue
+0,`xdaily
+1,enlist (within;`time;2020.12.15D14:06:41.614336000 2020.12.15D17:06:41.614333000)
+2,0b
+3,`time`side`ravgprice!(`time;`side;({avgs};`price))

@@ -1,0 +1,6 @@
+parameter,parametervalue
+tablename,`trade
+starttime,2000.01.010D
+endtime,.z.p
+columns,`sym`price
+ordering,enlist(`asc`size)

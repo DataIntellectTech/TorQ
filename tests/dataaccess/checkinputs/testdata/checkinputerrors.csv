@@ -1,0 +1,21 @@
+test,error
+tableexists,Table:`invalidtablename doesn't exist
+timecolumnexists,"Column(s) ,`month presented in `timecolumn is not a valid column for `xdaily"
+invalidtimecolumn,"Parameter:`timecolumn - column:`source in table:`xdaily is of type:-11h, validtypes:-12 -14 -15h"
+columnsexist,Column(s) `invalid1`invalid2 presented in `columns is not a valid column for `xdaily
+aggregationcolumnsexist,Column(s) `invalid1`invalid2 presented in `aggregations is not a valid column for `xdaily
+timebartype,"Parameter:`timebar - column:`sym in table:`xdaily is of type:-11h, validtypes:-12 -13 -14 -15 -16 -17 -18 -19h"
+aggregationdistinct,"If the distinct function is used, it cannot be present with any other aggregations including more of itself"
+timebarmissingagg,"Aggregations parameter must be supplied in order to perform group by statements"
+aggnumber,"Incorrect number of input(s) entred for the following aggregations,`wavg"
+aggtimebar,"In order to use a grouping parameter, only aggregations that return single values may be used"
+smalltimebar,"The input size of the timebar argument: `nanoseconds, is not an appropriate size. Appropriate sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+dictfreeformby,"Freeformby parameter must not be entered as dictionary. Parameter should be entered in the following format: sym:sym, source:src"
+columncheckffwhere,"Column(s) ,`invalid presented in `freeformwhere is not a valid column for `xdaily"
+notffwhere,"Not operator must be used in conjucture with in, like or within oporators"
+operatorffwhere,"sym % `AUDUSD contains operators which can not be accepted. The following are allowed operators: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"
+columncheckffby,"Column(s) ,`invalid presented in `freeformby is not a valid column for `xdaily"
+columncheckffcolumn,"Column(s) `invalid`invalid2 presented in `freeformcolumns is not a valid column for `xdaily"
+invalidaggregationfuncs,"Aggregations dictionary contains undefined function(s) `invalid1`invalid2"
+timebarinvalid,"The input size of the timebar argument: `invalid, is not an appropriate size. Appropriate sizes are: `nanosecond`timespan`microsecond`second`minute`hour`day"
+timebarexists,"Column(s) ,`invalid presented in `timebar is not a valid column for `xdaily"
