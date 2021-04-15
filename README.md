@@ -40,7 +40,7 @@ Head to the address it gives you to check if your changes have worked. More info
 
 ## Release Notes
 - **4.1.0, Apr 2021**
-  * Data Access API Update [Blog post](path/to/blog) and [Documentation](docs/dataaccess.md)
+  * Data Access API Update [Blog post](https://www.aquaq.co.uk/torq-2/data-access-api/) and [Documentation](docs/dataaccess.md)
 - **4.0.1, Mar 2021**
   * Bug fixes
   * Documentation improvements
