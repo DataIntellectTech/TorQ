@@ -12,7 +12,7 @@ Other key upgrades of the API are:
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
-A more conceptual discussion of the API can be seen at ```!!!MYBLOGLINK!!!```
+A more conceptual discussion of the API can be seen at [Blog Post](https://www.aquaq.co.uk/torq-2/data-access-api/)
 
 # Configuration
 
