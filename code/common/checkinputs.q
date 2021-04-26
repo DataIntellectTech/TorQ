@@ -77,8 +77,12 @@ checktimeorder:{[dict]
     :dict;};
 
 // check parameter is of type symbol
-checkinputsym:{[dict;parameter]
+checksyminput:{[dict;parameter]
     :checktype[-11 11h;dict;parameter];};
+
+// check parameter is of type 
+checksublist:{[dict;parameter]
+    :checktype[-5 -6 -7h;dict;parameter];};
 
 // check aggregations are of type dictionary, that the dictionary has symbol keys, that 
 // the dictionary has symbol values

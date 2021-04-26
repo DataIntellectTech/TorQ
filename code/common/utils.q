@@ -67,8 +67,10 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 
 //- get default time from  tickerplant or table
 getdefaulttime:{[dict]
-  if[(dict`tablename) in key .schema;
-    :first ?[meta` sv``schema,dict`tablename;enlist(=;`t;"p");();`c]];
+  tp:exec first w from .servers.SERVERS where procname=.schema.tickplant;
+  if[tp<>0Ni;
+    if[dict[`tablename] in tp (tables;[]);
+      :first ?[tp (meta;dict`tablename);enlist(=;`t;"p");();`c]]];
   timestamp:(exec from meta (dict`tablename) where t in "p")`c;
   if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
   date:(exec from meta (dict`tablename) where t in "d")`c;

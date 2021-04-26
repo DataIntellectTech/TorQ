@@ -52,8 +52,3 @@ if[`dataaccess in key .proc.params;
   // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
   ];
-
-
-\d .schema
-schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];
-\d .
