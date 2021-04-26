@@ -67,7 +67,7 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 
 //- get default time from  tickerplant or table
 getdefaulttime:{[dict]
-  tp:exec first w from .servers.SERVERS where procname=.schema.tickplant;
+  tp:exec first w from .servers.SERVERS where procname=.schema.tickerplant;
   if[tp<>0Ni;
     if[dict[`tablename] in tp (tables;[]);
       :first ?[tp (meta;dict`tablename);enlist(=;`t;"p");();`c]]];
