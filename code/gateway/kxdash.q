@@ -1,4 +1,5 @@
 \d .kxdash
+enabled:@[value;`enabled;{0b}];
 
 // use this to store the additional params that the kx dashboards seem to send in
 dashparams:`o`w`r`limit!(0;0i;0i;0W)
@@ -36,18 +37,25 @@ dashps:{
    value x]
  }
 
-\d .kxdash
 
 // need this to handle queries that only hit one backend process
 // reformat those responses to look the same
-.gw.formatresponse:{[status;sync;result]
- if[`kxdash~first result;
+formatresponse:{[status;sync;result]
+  if[`kxdash~first result;
   res:last result;
   :$[res`status;
     (`.dash.rcv_msg;res`w;res`o;res`r;res`result);
     (`.dash.snd_err;res`w;res`r;res`result)]];
  $[not[status]and sync;'result;result]}
 
-// incorporate dashps into the .z.ps definition
-.z.ps:dashps
 
+init:{
+ // KX dashboards are expecting getFunctions to be defined on the process
+ .api.getFunctions:@[value;`.api.getFunctions;{{:()}}];
+ // Reset format response
+ .gw.formatresponse:formatresponse;
+ // incorporate dashps into the .z.ps definition
+ .z.ps:{x@y;.kxdash.dashps y}@[value;`.z.ps;{{value x}}];
+ };
+ 
+if[enabled;init[]];
