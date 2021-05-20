@@ -1,3 +1,23 @@
+// load in correct table schemas to test against
+schemas:(!).(@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
+
+// function to get values of environment variables from strings, e.g. removeenvvar"{KDBBASEPORT}+1" produces "6000+1"
+removeenvvar:{
+        // positions of {}
+        pos:ss[x]each"{}";
+        // check the formatting is ok
+        $[0=count first pos; :x;
+        1<count distinct count each pos; '"environment variable contains unmatched brackets: ",x;
+        (any pos[0]>pos[1]) or any pos[0]<prev pos[1]; '"failed to match environment variable brackets on supplied string: ",x;
+        ()];
+
+        // cut out each environment variable, and retrieve the meaning
+        raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}
+
+// dictionary of connection details for processes from /appconfig/process.csv, e.g. procconns`discovery1 gives `:localhost:33501:discovery:pass 
+procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
+
+
 /
   TODO
   add exit or continue on fail? Group tests?
@@ -27,13 +47,16 @@
     .tst.SaveResults
 \
 
-/ Contains test cases
-/ name - unique name for each test
-/ description - more info on what the test does
-/ setup - pre check setup
-/ check - actual test logic
-/ resultchecker - given the results from check, determine what to do with it
+// Contains test cases
+// name - unique name for each test
+// description - more info on what the test does
+// setup - pre check setup
+// check - actual test logic
+// resultchecker - given the results from check, determine what to do with it
 Cases:([name:`symbol$()] description:();setup:();check:();resultchecker:())
+
+// create empty dictionary for connection handles
+.conn.h:(`$())!`int$();
 
 / connections that are required during each test run
 Conns:([name:`symbol$();proc:`symbol$()] hp:`symbol$();h:`int$())
@@ -42,16 +65,16 @@ Conn:(`$())!`int$();
 
 \d .tst
 
-/ Roll own logging funcs
+// Roll own logging funcs
 u.Log:{-1 x;}
 u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
 
-/ input checking
+// input checking
 casesTypes:`name`description`setup`check`resultchecker!-11 10 100 100 100h
 inputDictCheck:{[dict]
   if[not all key[dict] in key casesTypes;'"missing param keys : ",-3!key[dict] where not key[dict] in key casesTypes];
-  / format input dictionary
+  // format input dictionary
   dict:key[casesTypes]#dict;
   if[not all casesTypes~'type each dict;'"given incorrect types for these keys : \n",.Q.s `expected`got!(where not casesTypes~'type each dict)#/:(casesTypes;type each dict)];
   if[count select from `Cases where name=dict`name;'"test with that name already exists : \n",(.Q.s select from `Cases where name=dict`name),"\nTo proceed, remove using .tst.Remove ",-3!dict`name];
@@ -93,34 +116,34 @@ RunAll:{
   res
  }
 
-/ output to json, can then save to directory for input into reporting tool
+// output to json, can then save to directory for input into reporting tool
 SaveResults:{[results]
   results:select name,result from results;
   .j.j `status`total`failed`cases!(`fail`pass all results`result;count results;sum not results`result;results)
  }
 
 
-/ manage ipc connections
-/ setup ipc connections e.g. start of each test
+// manage ipc connections
+// setup ipc connections e.g. start of each test
 openConn:{[Name]
   update h:hopen each hp from `Conns where name=Name;
   `Conn upsert exec proc!h from `Conns where name=Name;
  }
 
-/ tear down ipc connections e.g. end of each test
+// tear down ipc connections e.g. end of each test
 closeConn:{[Name]
   update h:{hclose x;0Ni} each h from `Conns where name=Name;
   @[`.;`Conn;0#];
  }
 
-/ add host and port under each test
-/ e.g. .tst.AddConn[`schemacheck_1;`rdb;`::1337]
+// add host and port under each test
+// e.g. .tst.AddConn[`schemacheck_1;`rdb;`::1337]
 AddConn:{[Name;procName;hp]
   `Conns upsert (Name;procName;hp;0Ni);
  }
 
 \d .
 
-/ TODO remove
+// TODO remove
 pass:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};{x~x})
 fail:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};`funcname)
