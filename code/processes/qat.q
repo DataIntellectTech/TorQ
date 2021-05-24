@@ -135,7 +135,10 @@ RunAll:{
 // output to json, can then save to directory for input into reporting tool
 SaveResults:{[results]
   results:select name,result from results;
-  .j.j `status`total`failed`cases!(`fail`pass all results`result;count results;sum not results`result;results)
+  r:.j.j `status`total`failed`cases!(`fail`pass all results`result;count results;sum not results`result;results);
+  f:`$"testResults_",-10_{ssr[x;y;"_"]}/[string .z.p;"D.:"];
+  set[f;r];
+  save `$getenv[`TORQHOME],"/testreports/",(string f),".json"
  }
 
 
