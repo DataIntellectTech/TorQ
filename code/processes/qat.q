@@ -1,5 +1,5 @@
 // load in correct table schemas to test against
-schemas:(!).(@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
+schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
 
 // function to get values of environment variables from strings, e.g. removeenvvar"{KDBBASEPORT}+1" produces "6000+1"
 removeenvvar:{
@@ -16,6 +16,22 @@ removeenvvar:{
 
 // dictionary of connection details for processes from /appconfig/process.csv, e.g. procconns`discovery1 gives `:localhost:33501:discovery:pass 
 procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
+
+// function to test the schemas of a process
+testschemas:{[proc]
+  // return list (1b;`$()) if test is passed, (0b;SYMBOL LIST OF FAILED TABS) if test is failed
+  ({0=count x};::)@\:
+    // open handle to process
+    {h:hopen x;
+      // retrieve list of tables to be compared against schemas  
+      proctabs:(h"tables[]") inter key schemas; 
+      // get the metas of these tables from the process
+      tabmetas:h((first each)each meta each value each;first each proctabs);
+      // test if these metas match the metas in schemas 
+      proctabs where not tabmetas~'(first each)each schemas proctabs
+    }[procconns proc]
+  }
+
 
 
 /
