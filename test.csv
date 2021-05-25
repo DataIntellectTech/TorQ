@@ -1,0 +1,2 @@
+name|description|setup|check|resultchecker
+example_test|"Check that 1b equals 1b!"|{}|{1b}|{x~1b}

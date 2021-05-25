@@ -32,6 +32,13 @@ testschemas:{[proc]
     }[procconns proc]
   }
 
+loadtests:{[file]
+  // extract tests from csv
+  newtests:update value each setup, value each check, value each resultchecker from ("S****";enlist"|")0: file;
+  // add these test to the Cases dictionary
+  .tst.Add each newtests
+  }
+
 
 
 /
