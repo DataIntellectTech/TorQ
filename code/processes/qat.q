@@ -14,8 +14,8 @@ removeenvvar:{
         // cut out each environment variable, and retrieve the meaning
         raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}
 
-// dictionary of connection details for processes from /appconfig/process.csv, e.g. procconns`discovery1 gives `:localhost:33501:discovery:pass 
-procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
+// dictionary of connection details for processes from /appconfig/process.csv, e.g. .conn.procconns`discovery1 gives `:localhost:33501:discovery:pass 
+.conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
 
 // function to test the schemas of a process
 testschemas:{[proc]
@@ -29,14 +29,14 @@ testschemas:{[proc]
       tabmetas:h((first each)each meta each value each;first each proctabs);
       // test if these metas match the metas in schemas 
       proctabs where not tabmetas~'(first each)each schemas proctabs
-    }[procconns proc]
+    }[.conn.procconns proc]
   }
 
 loadtests:{[file]
   // extract tests from csv
   newtests:update value each setup, value each check, value each resultchecker from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
-  .tst.Add each newtests
+  .tst.Add each newtests;
   }
 
 
@@ -70,6 +70,8 @@ loadtests:{[file]
     .tst.SaveResults
 \
 
+\d .tst
+
 // Contains test cases
 // name - unique name for each test
 // description - more info on what the test does
@@ -85,8 +87,6 @@ Cases:([name:`symbol$()] description:();setup:();check:();resultchecker:())
 Conns:([name:`symbol$();proc:`symbol$()] hp:`symbol$();h:`int$())
 / active connections to be used during each test e.g. Conn[`rdb] "query"
 Conn:(`$())!`int$();
-
-\d .tst
 
 // Roll own logging funcs
 u.Log:{-1 x;}
@@ -113,7 +113,6 @@ Add:{[dict]
 Remove:{[Name] delete from `Cases where name=Name}
 
 RunCase:{[Name]
-  openConn Name;
   res:RunCaseInner Name;
   closeConn Name;
   res
@@ -125,6 +124,8 @@ RunCaseInner:{[Name]
   u.LogCase[Name;"Running setup function"];
   res:@[case`setup;(::);{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
   if[res~0b;u.LogCase[Name;"test exiting"];:0b];
+  u.LogCase[Name;"Setting up necessary connections"];
+  openConn Name;
   u.LogCase[Name;"Running check function"];
   res:@[case`check;(::);{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
   if[res~0b;u.LogCase[Name;"test exiting"];:0b];
@@ -159,13 +160,13 @@ openConn:{[Name]
 // tear down ipc connections e.g. end of each test
 closeConn:{[Name]
   update h:{hclose x;0Ni} each h from `Conns where name=Name;
-  @[`.;`Conn;0#];
+  @[`.tst;`Conn;0#];
  }
 
 // add host and port under each test
 // e.g. .tst.AddConn[`schemacheck_1;`rdb;`::1337]
-AddConn:{[Name;procName;hp]
-  `Conns upsert (Name;procName;hp;0Ni);
+AddConn:{[Name;procName]
+  `Conns upsert (Name;procName;.conn.procconns[procName];0Ni);
  }
 
 \d .
