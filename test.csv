@@ -1,3 +1,4 @@
 name|description|setup|check|resultchecker
 example_test|"Check that 1b equals 1b!"|{}|{1b}|{x~1b}
 rdb_test|"Check that rdb's trade table is populating"|{.tst.AddConn[`rdb_test;`rdb1]}|{a:Conn[`rdb1]"count trade";system"sleep 1";(a;Conn[`rdb1]"count trade")}|{first[x]<last x}
+rdb_schemas|"Check the tables in the rdb have correct schemas"|{}|{`.[`testschemas] `rdb1}|{first x}

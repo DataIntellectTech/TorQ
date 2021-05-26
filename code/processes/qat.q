@@ -134,8 +134,8 @@ RunCaseInner:{[Name]
  }
 
 RunAll:{
-  if[0=count `. `Cases;'"no cases to run";:()];
-  res:0!update result:@[.tst.RunCase;;{"Failed : ",x;0b}] each name from `. `Cases;
+  if[0=count Cases;'"no cases to run";:()];
+  res:0!update result:@[RunCase;;{u.LogCaseErr[x; "Failed to run test"];0b}] each name from Cases;
   SaveResults res;
   res
  }
