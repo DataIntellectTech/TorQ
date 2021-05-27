@@ -1,0 +1,4 @@
+name|description|setup|check|resultchecker
+`test1|"Check that 1b equals 1b!"|{}|{1b}|{x~1b}
+`test2|"Check two elements of dictionary aren't equal"|{}|{`a`b!1 2}|{x[`a]<>x[`b]}
+`test3|"Show setup working"|{.test.test:53}|{}|{.test.test=53}

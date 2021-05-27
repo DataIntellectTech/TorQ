@@ -178,3 +178,6 @@ AddConn:{[Name;procName]
 // TODO remove
 pass:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};{x~x})
 fail:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};`funcname)
+
+.timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
+
