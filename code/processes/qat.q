@@ -18,7 +18,7 @@ removeenvvar:{
 .conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
 
 // getting connection details via discovery
-{h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
+// {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
 
 
 // function to test the schemas of a process
