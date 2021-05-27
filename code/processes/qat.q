@@ -17,6 +17,10 @@ removeenvvar:{
 // dictionary of connection details for processes from /appconfig/process.csv, e.g. .conn.procconns`discovery1 gives `:localhost:33501:discovery:pass 
 .conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
 
+// getting connection details via discovery
+{h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
+
+
 // function to test the schemas of a process
 testschemas:{[proc]
   // return list (1b;`$()) if test is passed, (0b;SYMBOL LIST OF FAILED TABS) if test is failed
@@ -135,7 +139,7 @@ RunCaseInner:{[Name]
 
 RunAll:{
   if[0=count Cases;'"no cases to run";:()];
-  res:0!update result:@[RunCase;;{u.LogCaseErr[x; "Failed to run test"];0b}] each name from Cases;
+  res:0!update result:@[RunCase;;0b] each name from Cases;
   SaveResults res;
   res
  }
