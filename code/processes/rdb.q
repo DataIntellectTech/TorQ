@@ -31,7 +31,7 @@ reloadenabled:@[value;`reloadenabled;0b];                   //if true, the RDB w
 parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source the rdb partition value, can be log (from tp log file name), 
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
                                                             //anything else will return a null date which is will be filled by pardefault								
-subfiltered:@[value;`subfiltered;0b]                        //allows subscription filters to be loaded and applied in the rdb
+subfiltered:@[value;`subfiltered;0b];                       //allows subscription filters to be loaded and applied in the rdb
 	
 pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
 tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
