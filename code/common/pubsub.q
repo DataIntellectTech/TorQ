@@ -134,6 +134,9 @@ init:{[t]
   $[y~`;.stpps.suball[x];.stpps.subfiltered[x;y]]
  };
 
+// Default definition for .u.pub incase process does publishes via .u.pub
+.u.pub:.stpps.pub
+
 // Define .ps wrapper functions
 .ps.loaded:1b;
 .ps.publish:.stpps.pub;

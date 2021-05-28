@@ -79,7 +79,7 @@ The available command line parameters are:
   |Cmd Line Param|            Description|
   |-------------------------| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
   |-procname x -proctype y   |The process name and process type|
-  |-parentproctype x         |The parent process type|
+  |-parentproctype x         |The parent process type. Specifying will load in any additional code or configuration that is associated with another process type|
   |-procfile x               |The name of the file to get the process information from|
   |-load x \[y..z\]          |The files or database directory to load|
   |-loaddir x \[y..z\]       |Load all .q, .k files in specified directories|
