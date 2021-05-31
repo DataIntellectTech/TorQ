@@ -9,6 +9,9 @@ querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
 clearinactivetime:0D01:00	// the time to keep inactive handle data
 
+\d .kxdash
+enabled:0b  // Functionality for parsing and handling kx dashboard queries - disabled by default
+
 \d .proc
 loadprocesscode:1b              // whether to load the process specific code defined at ${KDBCODE}/{process type}
 
