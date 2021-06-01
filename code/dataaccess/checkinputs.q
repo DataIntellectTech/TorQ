@@ -45,8 +45,6 @@ checktimecolumn:{[dict]
 filldefaulttimecolumn:{[dict]
     if[not `timecolumn in key dict;    
         :@[dict;`timecolumn;:;.checkinputs.getdefaulttime dict];
-        defaulttimecolumn:`time^.checkinputs.gettableproperty[dict;`primarytimecolumn];        
-        :@[dict;`timecolumn;:;defaulttimecolumn]];
     :dict;
   };
 

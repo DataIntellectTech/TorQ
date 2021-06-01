@@ -2,15 +2,16 @@
 
 //- utils for reading in config
 readtableproperties:{[tablepropertiepath]
-  .lg.o[`readtableproperties;"loading table properties"]
+  .lg.o[`readtableproperties;"loading table properties"];
   table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssstsss"];                                                            //read in table from file
   alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];                                                                          //find any instance of the use "all" or blank for proctype
   table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];       //join rdb and hdb entries for any "all" or blank entries 
   table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
   table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
-  :update  `date ^ partitionfield from table where proctype<>`rdb;
+  table:update  `date ^ partitionfield from table where proctype<>`rdb;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
+  table;
       };
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
