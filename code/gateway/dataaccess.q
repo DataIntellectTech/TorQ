@@ -72,7 +72,11 @@ partdict:{[input]
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
-    :asc @[procdict;key procdict;{:(min x; max x)}]
+    procdict:asc @[procdict;key procdict;{:(min x; max x)}];
+    // prevents overlap if more than one process contains a specified date
+    if[1<count procdict;
+        procdict:{:$[y~`date$();x;$[within[x 0;(min y;max y)];(1+max[y];x 1);x]]}':[procdict]];
+    :procdict;
     };
 
 // Default dataaccess join allowing for aggregations across processes
