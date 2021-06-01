@@ -11,7 +11,7 @@ readtableproperties:{[tablepropertiepath]
   table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
   table:update  `date ^ partitionfield from table where proctype<>`rdb;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
-  table;
+  :table;
       };
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};

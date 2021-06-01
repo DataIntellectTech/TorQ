@@ -44,7 +44,7 @@ checktimecolumn:{[dict]
 // fill in
 filldefaulttimecolumn:{[dict]
     if[not `timecolumn in key dict;    
-        :@[dict;`timecolumn;:;.checkinputs.getdefaulttime dict];
+        :@[dict;`timecolumn;:;.checkinputs.getdefaulttime dict]];
     :dict;
   };
 
