@@ -17,6 +17,7 @@ getdata:{[o]
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
+    o:adjustqueries[o;partdict o];
     // Execute the queries
     if[options`getquery;
         $[.gw.call .z.w;
@@ -72,7 +73,34 @@ partdict:{[input]
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
-    :asc @[procdict;key procdict;{:(min x; max x)}]
+    procdict:asc @[procdict;key procdict;{:(min x; max x)}];
+    // prevents overlap if more than one process contains a specified date
+    if[1<count procdict;
+        procdict:{:$[y~`date$();x;$[within[x 0;(min y;max y)];(1+max[y];x 1);x]]}':[procdict]];
+    :procdict;
+    };
+
+// function to adjust the queries being sent to processes to prevent overlap of
+// time clause and data being queried on more than one process
+adjustqueries:{[options;part]
+    // if only one process then no need to adjust
+    if[2>count p:options`procs;:options];
+    // get the date casting where relevant
+    st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
+    et:$[a;options`endtime;`date$options`endtime];
+    // get the dates that are required by each process
+    dates:group key[part]where each{within[y;]each value x}[part]'[l:st+til 1+et-st];
+    dates:l{(min x:max x)}'[dates];
+    // if start/end time not a date, then adjust dates parameter for the
+    // correct types
+    if[not a;
+        // converts dates dictionary to timestamps/datetimes
+        dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
+        // convert first and last timestamp to start and end time
+        dates:@[dates;f;:;(start;dates[f:first key dates;1])];
+        dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]];
+    // create a dictionary of procs and different queries
+    :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
     };
 
 // Default dataaccess join allowing for aggregations across processes
