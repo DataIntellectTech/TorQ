@@ -38,7 +38,7 @@ testschemas:{[proc]
 
 loadtests:{[file]
   // extract tests from csv
-  newtests:update value each setup, value each check, value each resultchecker from ("S****";enlist"|")0: file;
+  newtests:update value each setup, value each check, value each ?[0=count each args;count[args]#enlist "`$()";args] from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
   .tst.Add each newtests;
   }
@@ -82,7 +82,7 @@ loadtests:{[file]
 // setup - pre check setup
 // check - actual test logic
 // resultchecker - given the results from check, determine what to do with it
-Cases:([name:`symbol$()] description:();setup:();check:();resultchecker:())
+Cases:([name:`symbol$()] description:();setup:();check:();args:())
 
 // create empty dictionary for connection handles
 .conn.h:(`$())!`int$();
@@ -98,12 +98,13 @@ u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
 
 // input checking
-casesTypes:`name`description`setup`check`resultchecker!-11 10 100 100 100h
+casesTypes:`name`description`setup`check`args!(-11h;10h;100h;100h;"h"$neg[19]+til 121)
+
 inputDictCheck:{[dict]
   if[not all key[dict] in key casesTypes;'"missing param keys : ",-3!key[dict] where not key[dict] in key casesTypes];
   // format input dictionary
   dict:key[casesTypes]#dict;
-  if[not all casesTypes~'type each dict;'"given incorrect types for these keys : \n",.Q.s `expected`got!(where not casesTypes~'type each dict)#/:(casesTypes;type each dict)];
+  if[not all (type each dict) in' casesTypes;'"given incorrect types for these keys : \n",.Q.s `expected`got!(where not (type each dict) in' casesTypes)#/:(casesTypes;type each dict)];
   if[count select from `Cases where name=dict`name;'"test with that name already exists : \n",(.Q.s select from `Cases where name=dict`name),"\nTo proceed, remove using .tst.Remove ",-3!dict`name];
   dict
   }
@@ -131,10 +132,8 @@ RunCaseInner:{[Name]
   u.LogCase[Name;"Setting up necessary connections"];
   openConn Name;
   u.LogCase[Name;"Running check function"];
-  res:@[case`check;(::);{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
-  if[res~0b;u.LogCase[Name;"test exiting"];:0b];
-  u.LogCase[Name;"Running resultchecker function against result"];
-  @[case`resultchecker;res;{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]]
+  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
+  res
  }
 
 RunAll:{

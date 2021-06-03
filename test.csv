@@ -1,6 +1,6 @@
-name|description|setup|check|resultchecker
-true_test|"Check that 1b equals 1b!"|{}|{1b}|{x~1b}
-false_test|"Check that kdb thinks small"|{}|{1%0W}|{0=x}
-fail_test|"Check that errors result in 0b"|{}|{7.0 in 5 6 7}|{x;"should result in 0b";1b}
-rdb_test|"Check that rdb's trade table is populating"|{.tst.AddConn[`rdb_test;`rdb1]}|{a:Conn[`rdb1]"count trade";system"sleep 1";(a;Conn[`rdb1]"count trade")}|{first[x]<last x}
-rdb_schemas|"Check the tables in the rdb have correct schemas"|{}|{`.[`testschemas] `rdb1}|{first x}
+name|description|setup|check|args
+true_test|"Check that 1b equals 1b!"|{}|{(x;y)~`a`b}|`a`b
+false_test|"Check that kdb thinks small"|{}|{0=1%0W}|
+fail_test|"Check that errors result in 0b"|{}|{7.0 in 5 6 7;1b}|
+rdb_test|"Check that rdb's trade table is populating"|{.tst.AddConn[`rdb_test;`rdb1]}|{a:Conn[`rdb1]"count trade";system"sleep 1";a<Conn[`rdb1]"count trade"}|
+rdb_schemas|"Check the tables in the rdb have correct schemas"|{}|{first `.[`testschemas] `rdb1}|
