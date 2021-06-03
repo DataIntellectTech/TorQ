@@ -69,12 +69,6 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 getdefaulttime:{[dict]
   // go to the tableproperties table
   if[not ` ~ configure:.checkinputs.tablepropertiesconfig[(dict`tablename),.proc.proctype;`primarytimecolumn];:configure];
-  // If the tableproperties is empty then try connecting to the tp
-  tp:exec first w from .servers.SERVERS where procname=.schema.tickerplant;
-  if[tp<>0Ni;
-      if[dict[`tablename] in tp (tables;[]);output:first ?[tp (meta;dict`tablename);enlist(=;`t;"p");();`c]];
-      .checkinputs.tablepropertiesconfig[(dict`tablename),.proc.proctype;`primarytimecolumn]::output;
-      :output];
   timestamp:(exec from meta (dict`tablename) where t in "p")`c;
   if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
   date:(exec from meta (dict`tablename) where t in "d")`c;
