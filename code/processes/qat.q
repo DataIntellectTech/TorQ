@@ -145,7 +145,7 @@ RunAll:{
 
 // output to json, can then save to directory for input into reporting tool
 SaveResults:{[results]
-  results:.h.xd select name,description,string args,string result from results;
+  results:.h.xd select name,description,(","sv' "`",/:'string args),string result from results;
   f:`$":",getenv[`TORQHOME],"/testreports/testResults_",(-10_{ssr[x;y;"_"]}/[string .z.p;"D.:"]),".xml";
   h:hopen f;
   neg[h] results
