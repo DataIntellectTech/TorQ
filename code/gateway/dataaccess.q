@@ -90,7 +90,7 @@ adjustqueries:{[options;part]
     et:$[a;options`endtime;`date$options`endtime];
     // get the dates that are required by each process
     dates:group key[part]where each{within[y;]each value x}[part]'[l:st+til 1+et-st];
-    dates:l{(min x:max x)}'[dates];
+    dates:l{(min x;max x)}'[dates];
     // if start/end time not a date, then adjust dates parameter for the
     // correct types
     if[not a;
