@@ -38,7 +38,7 @@ testschemas:{[proc]
 
 loadtests:{[file]
   // extract tests from csv
-  newtests:update value each setup, value each check, value each ?[0=count each args;count[args]#enlist "`$()";args] from ("S****";enlist"|")0: file;
+  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check, {$[(::)~x;`$();x]}each value each args from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
   .tst.Add each newtests;
   }
@@ -55,7 +55,7 @@ loadtests:{[file]
   Standalone script for creating tests
   Usage:
   Add a test
-  .tst.Add `name`description`setup`check`resultchecker!(
+  .tst.Add `name`description`connections`check`resultchecker!(
       `example_test;
       "Check that 1b equals 1b!";
       {};
@@ -82,7 +82,7 @@ loadtests:{[file]
 // setup - pre check setup
 // check - actual test logic
 // resultchecker - given the results from check, determine what to do with it
-Cases:([name:`symbol$()] description:();setup:();check:();args:())
+Cases:([name:`symbol$()] description:();connections:();check:();args:())
 
 // create empty dictionary for connection handles
 .conn.h:(`$())!`int$();
@@ -98,7 +98,7 @@ u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
 
 // input checking
-casesTypes:`name`description`setup`check`args!(-11h;10h;100h;100h;"h"$neg[19]+til 121)
+casesTypes:`name`description`connections`check`args!(-11h;10h;-11 11h;100h;"h"$neg[19]+til 121)
 
 inputDictCheck:{[dict]
   if[not all key[dict] in key casesTypes;'"missing param keys : ",-3!key[dict] where not key[dict] in key casesTypes];
@@ -126,12 +126,12 @@ RunCase:{[Name]
 RunCaseInner:{[Name]
   if[not count case:0!select from `Cases where name=Name;'"case does not exist : ",-3!Name];
   case:first case;
-  u.LogCase[Name;"Running setup function"];
-  res:@[case`setup;(::);{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
-  if[res~0b;u.LogCase[Name;"test exiting"];:0b];
-  u.LogCase[Name;"Setting up necessary connections"];
-  openConn Name;
-  u.LogCase[Name;"Running check function"];
+  if[not `~case`connections;  
+    u.LogCase[Name;"Setting up necessary connections"];
+    AddConn[Name;]each case`connections;
+    openConn Name;
+  ];
+  u.LogCase[Name;"Running test"];
   res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
   res
  }
