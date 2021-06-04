@@ -2,15 +2,16 @@
 
 //- utils for reading in config
 readtableproperties:{[tablepropertiepath]
-  .lg.o[`readtableproperties;"loading table properties"]
+  .lg.o[`readtableproperties;"loading table properties"];
   table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssstsss"];                                                            //read in table from file
   alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];                                                                          //find any instance of the use "all" or blank for proctype
   table:table,![alltable;();0b;(enlist`proctype)!enlist(enlist `hdb)],![alltable;();0b;(enlist`proctype)!enlist(enlist `rdb)];       //join rdb and hdb entries for any "all" or blank entries 
   table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
   table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
-  :update  `date ^ partitionfield from table where proctype<>`rdb;
+  table:update  `date ^ partitionfield from table where proctype<>`rdb;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
+  :table;
       };
 
 readcheckinputs:{[checkinputspath] spliltcolumns[readcsv[checkinputspath;"sbs*"];`invalidpairs;`]};
@@ -67,13 +68,13 @@ gettableproperty:extractfromsubdict[;`tableproperties;];   //- extract from `tab
 
 //- get default time from  tickerplant or table
 getdefaulttime:{[dict]
-  if[(dict`tablename) in key .schema;
-    :first ?[meta` sv``schema,dict`tablename;enlist(=;`t;"p");();`c]];
+  // go to the tableproperties table
+  if[not ` ~ configure:.checkinputs.tablepropertiesconfig[(dict`tablename),.proc.proctype;`primarytimecolumn];:configure];
   timestamp:(exec from meta (dict`tablename) where t in "p")`c;
   if[1 < count timestamp; '`$.checkinputs.formatstring["Table has multiple time columns, please select one of the following {} for the parameter timecolumn";timestamp]];
   date:(exec from meta (dict`tablename) where t in "d")`c;
   if[1 < count date; '`$.checkinputs.formatstring["Table has multiple date columns, please select one of the following {} for the parameter timecolumn";date]];
-  if[not timestamp = `;:timestamp];
+  if[not timestamp = `;.checkinputs.tablepropertiesconfig[(dict`tablename),.proc.proctype;`primarytimecolumn]::timestamp;:timestamp];
   if[not date = `;:date];
   '`$.checkinputs.formatstring["Table:{tablename} does not have a default timecolumn, one must be selected using the time column parameter";dict]
   };

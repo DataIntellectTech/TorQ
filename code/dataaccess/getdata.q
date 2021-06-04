@@ -2,6 +2,7 @@
 
 
 getdata:{[inputparams]
+  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   requestnumber:.requests.initlogger[inputparams];
 // [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
@@ -50,6 +51,7 @@ getdata:{[inputparams]
 \d .dataaccess
 
 buildquery:{[inputparams]
+  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   inputparams:.dataaccess.checkinputs inputparams;                                           
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 

@@ -1,7 +1,7 @@
 \d .schema
 
-// load in tickerplant schema to determine default time column
-schema:.proc.loadf[getenv[`TORQAPPHOME],"/database.q"];
+// define the tickerplant to cross check for default timecolumn
+tickerplant:`stp1
 // define allowed operators and operators which can be used with a not statement for filter and freeformwhere parameter
 allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
 allowednot:(within;like;in);
