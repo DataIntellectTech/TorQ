@@ -7,7 +7,7 @@ source $KDBTESTS/flagparse.sh
 testpath=${KDBTESTS}/stp/chainedeod
 
 # Start procs
-${TORQHOME}/torq.sh start discovery1 stp1 sctp1 rdb1 -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh start discovery1 stptest1 sctptest1 rdb1 -csv ${testpath}/process.csv
 
 # Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
@@ -20,4 +20,4 @@ ${TORQHOME}/torq.sh start discovery1 stp1 sctp1 rdb1 -csv ${testpath}/process.cs
   $debug $stop $quiet
 
 # Shut down procs
-${TORQHOME}/torq.sh stop discovery1 stp1 sctp1 rdb1 -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh stop discovery1 stptest1 sctptest1 rdb1 -csv ${testpath}/process.csv

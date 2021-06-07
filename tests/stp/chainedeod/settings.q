@@ -4,7 +4,6 @@
 
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/chainedeod/process.csv";
-testlogdb:"testlog";
 
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
