@@ -1,21 +1,8 @@
 // load in correct table schemas to test against
 schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
 
-// function to get values of environment variables from strings, e.g. removeenvvar"{KDBBASEPORT}+1" produces "6000+1"
-removeenvvar:{
-        // positions of {}
-        pos:ss[x]each"{}";
-        // check the formatting is ok
-        $[0=count first pos; :x;
-        1<count distinct count each pos; '"environment variable contains unmatched brackets: ",x;
-        (any pos[0]>pos[1]) or any pos[0]<prev pos[1]; '"failed to match environment variable brackets on supplied string: ",x;
-        ()];
-
-        // cut out each environment variable, and retrieve the meaning
-        raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}
-
 // dictionary of connection details for processes from /appconfig/process.csv, e.g. .conn.procconns`discovery1 gives `:localhost:33501:discovery:pass 
-.conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$removeenvvar each last x})@\: @[;1;string value each removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
+.conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$.rmvr.removeenvvar each last x})@\: @[;1;string value each .rmvr.removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
 
 // getting connection details via discovery
 // {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
