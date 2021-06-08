@@ -4,6 +4,13 @@
 
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/chainedeod/process.csv";
+tplogdir:getenv[`KDBTPLOG];
+
+// Count number of tplog dirs for a given proc
+// eg counttplogs[`sctptest1]
+counttplogs:{[procname;tplogdir]
+  sum system["ls ",tplogdir] like string[procname],"*"
+  }[;tplogdir];
 
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
