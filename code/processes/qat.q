@@ -1,3 +1,5 @@
+/TorQ QA Testing Process
+
 // load in correct table schemas to test against
 schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
 
@@ -23,20 +25,13 @@ testschemas:{[proc]
     }[.conn.procconns proc]
   }
 
+// function to load tests from a csv
 loadtests:{[file]
   // extract tests from csv
   newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check, {$[(::)~x;`$();x]}each value each args from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
   .tst.Add each newtests;
   }
-
-
-
-/
-  TODO
-  add exit or continue on fail? Group tests?
-  add each step in RunCase to a log
-\
 
 /
   Standalone script for creating tests
@@ -66,20 +61,19 @@ loadtests:{[file]
 // Contains test cases
 // name - unique name for each test
 // description - more info on what the test does
-// setup - pre check setup
+// connections - list of connections to make for the test
 // check - actual test logic
-// resultchecker - given the results from check, determine what to do with it
 Cases:([name:`symbol$()] description:();connections:();check:();args:())
 
 // create empty dictionary for connection handles
 .conn.h:(`$())!`int$();
 
-/ connections that are required during each test run
+// connections that are required during each test run
 Conns:([name:`symbol$();proc:`symbol$()] hp:`symbol$();h:`int$())
-/ active connections to be used during each test e.g. Conn[`rdb] "query"
+// active connections to be used during each test e.g. Conn[`rdb] "query"
 Conn:(`$())!`int$();
 
-// Roll own logging funcs
+// test logging functions
 u.Log:{-1 x;}
 u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
@@ -91,19 +85,28 @@ inputDictCheck:{[dict]
   if[not all key[dict] in key casesTypes;'"missing param keys : ",-3!key[dict] where not key[dict] in key casesTypes];
   // format input dictionary
   dict:key[casesTypes]#dict;
-  if[not all (type each dict) in' casesTypes;'"given incorrect types for these keys : \n",.Q.s `expected`got!(where not (type each dict) in' casesTypes)#/:(casesTypes;type each dict)];
-  if[count select from `Cases where name=dict`name;'"test with that name already exists : \n",(.Q.s select from `Cases where name=dict`name),"\nTo proceed, remove using .tst.Remove ",-3!dict`name];
+  // check for incorrect types in test
+  if[not all (type each dict) in' casesTypes;
+    '"given incorrect types for these keys : \n",.Q.s `expected`got!(where not (type each dict) in' casesTypes)#/:(casesTypes;type each dict)
+  ];
+  // check that no test with this name already exists
+  if[count select from `Cases where name=dict`name;
+    '"test with that name already exists : \n",(.Q.s select from `Cases where name=dict`name),"\nTo proceed, remove using .tst.Remove ",-3!dict`name
+  ];
   dict
   }
 
+// add a test to Cases dictionary
 Add:{[dict]
   dict:inputDictCheck dict;
   u.Log "Adding test : ",string dict`name;
   `Cases upsert dict;
   }
 
+// remove specific test from Cases dictionary
 Remove:{[Name] delete from `Cases where name=Name}
 
+// run specific test in Cases dictionary
 RunCase:{[Name]
   res:RunCaseInner Name;
   closeConn Name;
@@ -123,6 +126,7 @@ RunCaseInner:{[Name]
   res
  }
 
+// run all tests in Cases dictionary
 RunAll:{
   if[0=count Cases;'"no cases to run";:()];
   res:0!update result:@[RunCase;;0b] each name from Cases;
@@ -146,7 +150,7 @@ openConn:{[Name]
   `Conn upsert exec proc!h from `Conns where name=Name;
  }
 
-// tear down ipc connections e.g. end of each test
+// close ipc connections e.g. end of each test
 closeConn:{[Name]
   update h:{hclose x;0Ni} each h from `Conns where name=Name;
   @[`.tst;`Conn;0#];
@@ -160,9 +164,4 @@ AddConn:{[Name;procName]
 
 \d .
 
-// TODO remove
-pass:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};{x~x})
-fail:`name`description`setup`check`resultchecker!(`test1;"testing cxtn";{x};{x};`funcname)
-
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
-
