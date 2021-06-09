@@ -4,7 +4,7 @@
 source $KDBTESTS/flagparse.sh
 
 # Path to test directory
-testpath=${KDBTESTS}/stp/chainedeod
+testpath=${KDBTESTS}/stp/chainedeodlognone
 
 # Start procs
 ${TORQHOME}/torq.sh start discovery1 stptest1 sctptest1 rdb1 -csv ${testpath}/process.csv

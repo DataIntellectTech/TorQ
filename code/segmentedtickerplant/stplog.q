@@ -223,18 +223,15 @@ endofday:{[date;data]
 stpeod:{[date;data]
   .lg.o[`stpeod;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];                                         // sends endofday message to subscribers
-  if[(data`p)>.eodtime.nextroll:.eodtime.getroll[data`p];
-    system"t 0";'"next roll is in the past"];                    // timer off
-  getnextendUTC[];                                               // grabs next end time
-  .eodtime.d+:1;                                                 // increment current day
-  $[.sctp.chainedtp;
-   if[.sctp.loggingmode=`create;dayrollover[data]];              // if chained tp, logs only rolled if in create mode
-   dayrollover[data]                                             // if stp, logs roll 
-   ]
+  dayrollover[data];                 
  }
 
 // common eod log rolling logic for STP and SCTP
 dayrollover:{[data]
+  if[(data`p)>.eodtime.nextroll:.eodtime.getroll[data`p];
+    system"t 0";'"next roll is in the past"];                    // timer off
+  getnextendUTC[];                                               // grabs next end time
+  .eodtime.d+:1;                                                 // increment current day
   .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
   .stpm.metatable:0#.stpm.metatable;
   closelog each logtabs;                                                // close current day logs
