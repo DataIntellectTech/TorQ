@@ -90,8 +90,8 @@ inputDictCheck:{[dict]
     '"given incorrect types for these keys : \n",.Q.s `expected`got!(where not (type each dict) in' casesTypes)#/:(casesTypes;type each dict)
   ];
   // check that no test with this name already exists
-  if[count select from `Cases where name=dict`name;
-    '"test with that name already exists : \n",(.Q.s select from `Cases where name=dict`name),"\nTo proceed, remove using .tst.Remove ",-3!dict`name
+  if[count select from Cases where name=dict`name;
+    '"test with that name already exists : \n",(.Q.s select from Cases where name=dict`name),"\nTo proceed, remove using Remove ",-3!dict`name
   ];
   dict
   }
@@ -100,11 +100,11 @@ inputDictCheck:{[dict]
 Add:{[dict]
   dict:inputDictCheck dict;
   u.Log "Adding test : ",string dict`name;
-  `Cases upsert dict;
+  .tst.Cases:Cases upsert dict;
   }
 
 // remove specific test from Cases dictionary
-Remove:{[Name] delete from `Cases where name=Name}
+Remove:{[Name] .tst.Cases:delete from Cases where name=Name}
 
 // run specific test in Cases dictionary
 RunCase:{[Name]
@@ -114,7 +114,7 @@ RunCase:{[Name]
  }
 
 RunCaseInner:{[Name]
-  if[not count case:0!select from `Cases where name=Name;'"case does not exist : ",-3!Name];
+  if[not count case:0!select from .tst.Cases where name=Name;'"case does not exist : ",-3!Name];
   case:first case;
   if[not `~case`connections;  
     u.LogCase[Name;"Setting up necessary connections"];
@@ -122,14 +122,14 @@ RunCaseInner:{[Name]
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
-  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err].tst.u.LogCaseErr[n;err];0b}[Name]];
+  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err].u.LogCaseErr[n;err];0b}[Name]];
   res
  }
 
 // run all tests in Cases dictionary
 RunAll:{
-  if[0=count Cases;'"no cases to run";:()];
-  res:0!update result:@[RunCase;;0b] each name from Cases;
+  if[0=count .tst.Cases;'"no cases to run";:()];
+  res:0!update result:@[.tst.RunCase;;0b] each name from .tst.Cases;
   SaveResults res;
   res
  }
@@ -146,13 +146,13 @@ SaveResults:{[results]
 // manage ipc connections
 // setup ipc connections e.g. start of each test
 openConn:{[Name]
-  update h:hopen each hp from `Conns where name=Name;
-  `Conn upsert exec proc!h from `Conns where name=Name;
+  update h:hopen each hp from .tst.Conns where name=Name;
+  `Conn upsert exec proc!h from .tst.Conns where name=Name;
  }
 
 // close ipc connections e.g. end of each test
 closeConn:{[Name]
-  update h:{hclose x;0Ni} each h from `Conns where name=Name;
+  update h:{hclose x;0Ni} each h from .tst.Conns where name=Name;
   @[`.tst;`Conn;0#];
  }
 
