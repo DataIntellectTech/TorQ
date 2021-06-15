@@ -15,8 +15,8 @@ loadprocesscode:1b
 
 \d .eodtime
 
-datatimezone:`GMT
-rolltimezone:`GMT
+datatimezone:@[value;`datatimezone;`GMT];
+rolltimezone:@[value;`rolltimezone;`GMT];
 
   
 \d .proc
