@@ -10,19 +10,8 @@ replayperiod:`day               // [period|day|prior]
 customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
 
 \d .proc
-
-loadprocesscode:1b
-
-\d .eodtime
-
-datatimezone:@[value;`datatimezone;`GMT];
-rolltimezone:@[value;`rolltimezone;`GMT];
-
-  
-\d .proc
 loadcommoncode:0b               // do not load common code
 loadprocesscode:1b              // load process code
-
 logroll:0b                      // do not roll logs
 
 // Configuration used by the usage functions - logging of client interaction
