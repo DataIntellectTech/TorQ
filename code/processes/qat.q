@@ -9,7 +9,6 @@ schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$
 // getting connection details via discovery
 // {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
 
-
 // function to test the schemas of a process
 testschemas:{[proc]
   // return list (1b;`$()) if test is passed, (0b;SYMBOL LIST OF FAILED TABS) if test is failed
@@ -67,6 +66,11 @@ Cases:([name:`symbol$()] description:();connections:();check:();args:())
 
 // create empty dictionary for connection handles
 .conn.h:(`$())!`int$();
+
+procstatus:{
+  t:system getenv[`TORQHOME],"/torq.sh summary";
+  d:(!). flip `$trim each ("|" vs' 1_t)[;1 2],enlist ("";"up");
+  (enlist each x)!(enlist each d x)}
 
 // connections that are required during each test run
 Conns:([name:`symbol$();proc:`symbol$()] hp:`symbol$();h:`int$())
@@ -129,7 +133,9 @@ RunCaseInner:{[Name]
 // run all tests in Cases dictionary
 RunAll:{
   if[0=count .tst.Cases;'"no cases to run";:()];
-  res:0!update result:@[.tst.RunCase;;0b] each name from .tst.Cases;
+  constat:procstatus exec connections from .tst.Cases;
+  tests:update status:first'[constat'[connections]] from .tst.Cases;
+  res:0!update result:@[.tst.RunCase;;0b] each name from tests where status=`up;
   SaveResults res;
   res
  }
