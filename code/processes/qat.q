@@ -32,6 +32,9 @@ loadtests:{[file]
   .tst.Add each newtests;
   }
 
+// add connection tests for each process 
+{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string key[.conn.procconns]except `killtick`tpreplay1]
+
 /
   Standalone script for creating tests
   Usage:
