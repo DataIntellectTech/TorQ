@@ -173,7 +173,7 @@ loadtests:{[file]
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
 
 // load in test csv
-.tst.loadtests[`test.csv]
+.tst.loadtests[`test.csv];
 
 // add connection tests for each process
 {.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string key[.conn.procconns]except `killtick`tpreplay1];
