@@ -24,14 +24,6 @@ testschemas:{[proc]
     }[.conn.procconns proc]
   }
 
-// function to load tests from a csv
-loadtests:{[file]
-  // extract tests from csv
-  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check, {$[(::)~x;`$();x]}each value each args from ("S****";enlist"|")0: file;
-  // add these test to the Cases dictionary
-  .tst.Add each newtests;
-  }
-
 /
   Standalone script for creating tests
   Usage:
@@ -104,7 +96,7 @@ inputDictCheck:{[dict]
 Add:{[dict]
   dict:inputDictCheck dict;
   u.Log "Adding test : ",string dict`name;
-  .tst.Cases:Cases upsert dict;
+  .tst.Cases:.tst.Cases upsert dict;
   }
 
 // remove specific test from Cases dictionary
@@ -168,9 +160,20 @@ AddConn:{[Name;procName]
   `Conns upsert (Name;procName;.conn.procconns[procName];0Ni);
  }
 
+// function to load tests from a csv
+loadtests:{[file]
+  // extract tests from csv
+  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check, {$[(::)~x;`$();x]}each value each args from ("S****";enlist"|")0: file;
+  // add these test to the Cases dictionary
+  .tst.Add each newtests;
+  }
+
 \d .
 
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
 
+// load in test csv
+.tst.loadtests[`test.csv]
+
 // add connection tests for each process
-{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string key[.conn.procconns]except `killtick`tpreplay1]
+{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string key[.conn.procconns]except `killtick`tpreplay1];
