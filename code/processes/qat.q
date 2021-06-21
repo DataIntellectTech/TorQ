@@ -9,6 +9,9 @@ schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$
 // getting connection details via discovery
 // {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
 
+procstab:.proc.readprocs .proc.file
+.servers.CONNECTIONS:(exec distinct proctype from procstab) except `qat`kill`tickerlogreplay
+
 // function to test the schemas of a process
 testschemas:{[proc]
   // return list (1b;`$()) if test is passed, (0b;SYMBOL LIST OF FAILED TABS) if test is failed
