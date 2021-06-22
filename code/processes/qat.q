@@ -3,13 +3,12 @@
 // load in correct table schemas to test against
 schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
 
-// dictionary of connection details for processes from /appconfig/process.csv, e.g. .conn.procconns`discovery1 gives `:localhost:33501:discovery:pass 
-.conn.procconns:(!) . (@[;2];{hsym `$x[0],'":",/:x[1],'":",/:{first $[null x;"";read0 x]}each hsym`$.rmvr.removeenvvar each last x})@\: @[;1;string value each .rmvr.removeenvvar']1_'("** S*";",")0:hsym `$getenv[`TORQAPPHOME],"/appconfig/process.csv"
-
 // getting connection details via discovery
 // {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
 
+// read in connection details and set all processes as connections
 procstab:.proc.readprocs .proc.file
+expectedprocs:(exec procname from procstab) except `killtick`tpreplay1`qat1
 .servers.CONNECTIONS:(exec distinct proctype from procstab) except `qat`kill`tickerlogreplay
 
 // function to test the schemas of a process
@@ -117,7 +116,7 @@ RunCaseInner:{[Name]
   case:first case;
   if[not `~case`connections;  
     u.LogCase[Name;"Setting up necessary connections"];
-    AddConn[Name;]each case`connections;
+    // AddConn[Name;]each case`connections;
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
@@ -147,21 +146,25 @@ SaveResults:{[results]
 // manage ipc connections
 // setup ipc connections e.g. start of each test
 openConn:{[Name]
-  update h:hopen each hp from .tst.Conns where name=Name;
-  `Conn upsert exec proc!h from .tst.Conns where name=Name;
+  `Conn upsert exec procname!w from .servers.getservers[`procname;.tst.testConn Name;()!();1b;1b];
+ }
+
+// connections required for test Name 
+testConn:{[Name]
+ exec connections from .tst.Cases where name=Name
  }
 
 // close ipc connections e.g. end of each test
 closeConn:{[Name]
-  update h:{hclose x;0Ni} each h from .tst.Conns where name=Name;
+  .servers.SERVERS:update w:{@[hclose;x;];0Ni} each w from .servers.SERVERS where procname in .tst.testConn[Name];
   @[`.tst;`Conn;0#];
  }
 
 // add host and port under each test
 // e.g. .tst.AddConn[`schemacheck_1;`rdb;`::1337]
-AddConn:{[Name;procName]
-  `Conns upsert (Name;procName;.conn.procconns[procName];0Ni);
- }
+// AddConn:{[Name;procName]
+//  `Conns upsert (Name;procName;.conn.procconns[procName];0Ni);
+//  }
 
 // function to load tests from a csv
 loadtests:{[file]
@@ -173,10 +176,28 @@ loadtests:{[file]
 
 \d .
 
-.timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
-
 // load in test csv
 .tst.loadtests[`test.csv];
 
 // add connection tests for each process
-{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string key[.conn.procconns]except `killtick`tpreplay1];
+{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string expectedprocs];
+
+// start connections
+.servers.startup[]
+
+
+// test each process is up
+
+
+testconnections:{
+  .tst.RunCase each `$'string[expectedprocs],\:"connection";
+ }
+
+testconnections[]
+
+.timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
+// .timer.once[.z.p + 00:00:01.000;(`testconnections;`);"Test all connections are made on qat startup"]
+
+// if[all .tst.RunCase each `$'string[.servers.CONNECTIONS],\:"connection";
+//   u.Log:{-1 "All connections setup successfully";}
+//  ]
