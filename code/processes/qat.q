@@ -108,6 +108,10 @@ Remove:{[Name] .tst.Cases:delete from Cases where name=Name}
 RunCase:{[Name]
   res:RunCaseInner Name;
   closeConn Name;
+  $[res;
+     u.LogCase[Name;"Test passed"];
+     u.LogCaseErr[Name;"Test failed"]   
+  ];
   res
  }
 
@@ -120,7 +124,7 @@ RunCaseInner:{[Name]
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
-  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err].u.LogCaseErr[n;err];0b}[Name]];
+  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err]u.LogCaseErr[n;err];0b}[Name]];
   res
  }
 
@@ -180,24 +184,18 @@ loadtests:{[file]
 .tst.loadtests[`test.csv];
 
 // add connection tests for each process
-{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{1b};0N);}'[string expectedprocs];
+{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{x~Conn[x]".proc.procname"};(`$x));}'[string expectedprocs];
 
 // start connections
 .servers.startup[]
 
-
-// test each process is up
-
-
+// function to test each process is up
 testconnections:{
   .tst.RunCase each `$'string[expectedprocs],\:"connection";
  }
 
+// test each process is up at end of startup
 testconnections[]
 
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
-// .timer.once[.z.p + 00:00:01.000;(`testconnections;`);"Test all connections are made on qat startup"]
-
-// if[all .tst.RunCase each `$'string[.servers.CONNECTIONS],\:"connection";
-//   u.Log:{-1 "All connections setup successfully";}
-//  ]
+.timer.repeat[17:00+.z.d;0W;1D00:00:00;(`testconnections;`);"Test each process is running at end of day"]
