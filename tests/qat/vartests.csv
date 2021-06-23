@@ -1,0 +1,3 @@
+name|description|connections|check|args
+rdb_trade_table|"Check that the trade table exists in the rdb"|`rdb1|constructcheck|`trade`table
+gw_syncexec_func|"Check that .gw.syncexec exists in gateway"|`gateway1|constructcheck|`.gw.asyncexec`function
