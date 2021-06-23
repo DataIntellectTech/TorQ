@@ -121,7 +121,7 @@ RunCaseInner:{[Name]
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
-  res:$[1<count value[case`check] 1; .; @][case`check;case`args;{[n;err]u.LogCaseErr[n;err];0b}[Name]];
+  res:$[1<count value[case`check] 1; .; @][case`check;value case`args;{[n;err]u.LogCaseErr[n;err];0b}[Name]];
   res
  }
 
@@ -170,29 +170,22 @@ closeConn:{[Name]
 // function to load tests from a csv
 loadtests:{[file]
   // extract tests from csv
-  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check, {$[(::)~x;`$();x]}each value each args from ("S****";enlist"|")0: file;
+  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
   .tst.Add each newtests;
   }
 
+// {$[(::)~x;`$();x]}each value each args 
+
 \d .
 
-// load in test csv
-.tst.loadtests[`test.csv];
+// all test file paths
+alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat"
 
-// add connection tests for each process
-// {.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{x~Conn[x]".proc.procname"};(`$x));}'[string expectedprocs];
+// load in test csv's
+.tst.loadtests'[alltests];
 
 // start connections
 .servers.startup[]
 
-// function to test each process is up
-testconnections:{
-  .tst.RunCase each `$'string[expectedprocs],\:"connection";
- }
-
-// test each process is up at end of startup
-// testconnections[]
-
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
-// .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`testconnections;`);"Test each process is running at end of day"]
