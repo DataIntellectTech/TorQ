@@ -179,6 +179,9 @@ loadtests:{[file]
 
 \d .
 
+// test whether a process is up
+connectiontest:{all {1~x"1"}'[Conn]}
+
 // all test file paths
 alltests:alltests where not (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like "*swp"
 
