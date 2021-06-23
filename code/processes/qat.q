@@ -180,7 +180,7 @@ loadtests:{[file]
 \d .
 
 // all test file paths
-alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat"
+alltests:alltests where not (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like "*swp"
 
 // load in test csv's
 .tst.loadtests'[alltests];
