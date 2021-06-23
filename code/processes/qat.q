@@ -55,16 +55,12 @@ testschemas:{[proc]
 // check - actual test logic
 Cases:([name:`symbol$()] description:();connections:();check:();args:())
 
-// create empty dictionary for connection handles
-.conn.h:(`$())!`int$();
-
+// run prior to testing to show if tests were up for each test
 procstatus:{
   t:system getenv[`TORQHOME],"/torq.sh summary";
   d:(!). flip `$trim each ("|" vs' 1_t)[;1 2],enlist ("";"up");
   (enlist each x)!(enlist each d x)}
 
-// connections that are required during each test run
-Conns:([name:`symbol$();proc:`symbol$()] hp:`symbol$();h:`int$())
 // active connections to be used during each test e.g. Conn[`rdb] "query"
 Conn:(`$())!`int$();
 
@@ -143,11 +139,10 @@ SaveResults:{[results]
   neg[h] results
  }
 
-
 // manage ipc connections
 // setup ipc connections e.g. start of each test
 openConn:{[Name]
-  `Conn upsert exec procname!w from .servers.getservers[`procname;.tst.testConn Name;()!();1b;1b];
+ `.tst.Conn set .tst.Conn upsert exec procname!w from .servers.getservers[`procname;.tst.testConn Name;()!();1b;1b];
  }
 
 // connections required for test Name 
@@ -161,12 +156,6 @@ closeConn:{[Name]
   @[`.tst;`Conn;0#];
  }
 
-// add host and port under each test
-// e.g. .tst.AddConn[`schemacheck_1;`rdb;`::1337]
-// AddConn:{[Name;procName]
-//  `Conns upsert (Name;procName;.conn.procconns[procName];0Ni);
-//  }
-
 // function to load tests from a csv
 loadtests:{[file]
   // extract tests from csv
@@ -175,12 +164,10 @@ loadtests:{[file]
   .tst.Add each newtests;
   }
 
-// {$[(::)~x;`$();x]}each value each args 
-
 \d .
 
 // test whether a process is up
-connectiontest:{all {1~x"1"}'[Conn]}
+connectiontest:{all {1~x"1"}'[.tst.Conn]}
 
 // test whether a connected process has particular variables/tables/view/functions in it
 constructcheck:{[construct;chktype]
@@ -194,17 +181,16 @@ constructcheck:{[construct;chktype]
 constructcheckinner:{[construct;chktype]
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
-  construct in dict[chktype][];
-  $[chktype=`table;construct in tables[];{x~key x}construct]
+  construct in dict[chktype][`$"."sv -1_"."vs string construct]
   }
 
 // outer function sends constructcheckinner query to the process
 constructcheck:{[construct;chktype]
-  first[Conn](constructcheckinner;construct;chktype)
+  first[.tst.Conn](constructcheckinner;construct;chktype)
   }
 
 // all test file paths
-alltests:alltests where not (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like "*swp"
+alltests:alltests where not (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like "*.swp*"
 
 // load in test csv's
 .tst.loadtests'[alltests];
