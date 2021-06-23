@@ -3,9 +3,6 @@
 // load in correct table schemas to test against
 schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
 
-// getting connection details via discovery
-// {h:.conn.procconns `discovery1; `.servers.SERVERS set h".servers.SERVERS"}[]
-
 // read in connection details and set all processes as connections
 procstab:.proc.readprocs .proc.file
 expectedprocs:(exec procname from procstab) except `killtick`tpreplay1`qat1
@@ -184,7 +181,7 @@ loadtests:{[file]
 .tst.loadtests[`test.csv];
 
 // add connection tests for each process
-{.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{x~Conn[x]".proc.procname"};(`$x));}'[string expectedprocs];
+// {.tst.Add`name`description`connections`check`args!(`$x,"connection";"check that ",x," process is up";`$x;{x~Conn[x]".proc.procname"};(`$x));}'[string expectedprocs];
 
 // start connections
 .servers.startup[]
@@ -195,7 +192,7 @@ testconnections:{
  }
 
 // test each process is up at end of startup
-testconnections[]
+// testconnections[]
 
 .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`.tst.RunAll;`);"Run tests at end of day"]
-.timer.repeat[17:00+.z.d;0W;1D00:00:00;(`testconnections;`);"Test each process is running at end of day"]
+// .timer.repeat[17:00+.z.d;0W;1D00:00:00;(`testconnections;`);"Test each process is running at end of day"]
