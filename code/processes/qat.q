@@ -109,17 +109,37 @@ RunAll:{
   constat:procstatus exec connections from .tst.Cases;
   tests:update status:first'[constat'[connections]] from .tst.Cases;
   res:0!update result:@[.tst.RunCase;;0b] each name from tests where status=`up;
-  SaveResults res;
+  SaveResults[res];
   res
  }
 
 // output to json, can then save to directory for input into reporting tool
-SaveResults:{[results]
-  results:.h.xd select name,description,(","sv' "`",/:'string args),string result from results;
-  f:`$":",getenv[`TORQHOME],"/testreports/testResults_",(-10_{ssr[x;y;"_"]}/[string .z.p;"D.:"]),".xml";
+SaveResults:{[res]
+  cat:exec distinct category from res;
+  tblcat:{[res;cat]?[res;enlist (=;`category;enlist cat);0b;()]}[res]each cat;
+  SaveResultsInner'[tblcat]}
+
+// formats json report
+SaveResultsInner:{[res]
+  start:-6_-3!`long$.z.p;
+  system"sleep 1";
+  stop:-6_-3!`long$.z.p;
+  steps:select name,status:{$[x;`passed;`failed]}each result from res;
+  steps:update stage:`finished,steps:(),attachments:(),parameters:(),start:enlist start,stop:enlist stop from steps;
+  name:string exec first category from res;
+  uuid:-3!-1?0Ng;
+  historyId:raze string 32#.Q.sha1 .j.j res;
+  labels:([]name:("package";"testClass";"testMethod";"parentSuite";"host";"language");
+  ace15282cc7a7737e7e1b76143250e2:("run all tests";"kdb QA testing";"QAT process";"test suite";first system"hostname";"q"));
+  status:{[steps] t:`passed=(exec distinct status from steps);
+          $[1=min t;"passed";0=max t;"failed";"broken"]}steps;
+  d:`name`status`steps`start`stop`uuid`historyId`labels!
+    (name;status;steps;start;stop;uuid;historyId;labels);
+  json:ssr[.j.j d;"ace15282cc7a7737e7e1b76143250e2";"value"];
+  f:`$":",getenv[`TORQHOME],"/testreports/",(1_uuid),"-result.json";
   h:hopen f;
-  neg[h] results
- }
+  neg[h] json
+  }
 
 // manage ipc connections
 // setup ipc connections e.g. start of each test
