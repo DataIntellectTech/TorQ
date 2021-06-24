@@ -170,19 +170,20 @@ loadtests:{[file]
 connectiontest:{all {1~x"1"}'[.tst.Conn]}
 
 // inner function to test whether a construct exists on a process
-constructcheckinner:{[construct;chktype]
+constructcheckinner:{[construct;chktype;contype]
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
-  last[`$c] in dict[chktype][`$"."sv -1_c:"."vs string construct]
+  res:last[`$c] in dict[chktype][`$"."sv -1_c:"."vs string construct];
+  $[null contype; res; min (res; contype=type value construct)]
   }
 
 // outer function sends constructcheckinner query to the process
-constructcheck:{[construct;chktype]
-  first[.tst.Conn](constructcheckinner;construct;chktype)
+constructcheck:{[construct;chktype;contype]
+  first[.tst.Conn](constructcheckinner;construct;chktype;contype)
   }
 
 // all test file paths
-alltests:alltests where not (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like "*.swp*"
+alltests:alltests where not max (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like/: ("*.swp*";"*.swo*")
 
 // load in test csv's
 .tst.loadtests'[alltests];

@@ -1,7 +1,7 @@
 name|description|connections|check|args
-rdb_trade_table|"Check that the trade table exists in the rdb"|`rdb1|constructcheck|`trade`table
-hdb_trade_table|"Check that the trade table exists in the hdb"|`hdb1|constructcheck|`trade`table
-rdb_quote_table|"Check that the quote table exists in the rdb"|`rdb1|constructcheck|`quote`table
-hdb_quote_table|"Check that the quote table exists in the hdb"|`hdb1|constructcheck|`quote`table
-rdb_upd_func|"Check upd function exists on the rdb"|`rdb1|constructcheck|"`upd`function
-gw_syncexec_func|"Check that .gw.syncexec exists in gateway"|`gateway1|constructcheck|`.gw.syncexec`function
+rdb_trade_table|"Check that the trade table exists in the rdb"|`rdb1|constructcheck|(`trade;`table;98)
+hdb_trade_table|"Check that the trade table exists in the hdb"|`hdb1|constructcheck|(`trade;`table;98)
+rdb_quote_table|"Check that the quote table exists in the rdb"|`rdb1|constructcheck|(`quote;`table;98)
+hdb_quote_table|"Check that the quote table exists in the hdb"|`hdb1|constructcheck|`quote`table`
+rdb_upd_func|"Check upd function exists on the rdb"|`rdb1|constructcheck|`upd`function`
+gw_syncexec_func|"Check that .gw.syncexec exists in gateway"|`gateway1|constructcheck|`.gw.syncexec`function`
