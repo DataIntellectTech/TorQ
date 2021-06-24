@@ -131,11 +131,13 @@ RunAll:{
   res
  }
 
+// output to json, can then save to directory for input into reporting tool
 SaveResults:{[res]
   cat:exec distinct category from res;
   tblcat:{[res;cat]?[res;enlist (=;`category;enlist cat);0b;()]}[res]each cat;
   SaveResultsInner'[tblcat]}
 
+// formats json report
 SaveResultsInner:{[res]
   start:-6_-3!`long$.z.p;
   system"sleep 1";
@@ -149,22 +151,13 @@ SaveResultsInner:{[res]
   ace15282cc7a7737e7e1b76143250e2:("run all tests";"kdb QA testing";"QAT process";"test suite";first system"hostname";"q"));
   status:{[steps] t:`passed=(exec distinct status from steps);
           $[1=min t;"passed";0=max t;"failed";"broken"]}steps;
-  / ace15282cc7a7737e7e1b76143250e2:("run all tests";"kdb QA testing";"QAT process";"test suite";first system"hostname";"q"));
-  / d:`start`steps`stop`name`uuid`historyId`labels!(start;steps;stop;name;uuid;historyId;labels);
-  d:`name`status`steps`start`stop`uuid`historyId`labels!(name;status;steps;start;stop;uuid;historyId;labels);
+  d:`name`status`steps`start`stop`uuid`historyId`labels!
+    (name;status;steps;start;stop;uuid;historyId;labels);
   json:ssr[.j.j d;"ace15282cc7a7737e7e1b76143250e2";"value"];
   f:`$":",getenv[`TORQHOME],"/testreports/",(1_uuid),"-result.json";
   h:hopen f;
   neg[h] json
   }
-
-// output to json, can then save to directory for input into reporting tool
-SaveResultsOld:{[results]
-  results:.h.xd select name,description,(","sv' "`",/:'string args),string result from results;
-  f:`$":",getenv[`TORQHOME],"/testreports/testResults_",(-10_{ssr[x;y;"_"]}/[string .z.p;"D.:"]),".xml";
-  h:hopen f;
-  neg[h] results
- }
 
 // manage ipc connections
 // setup ipc connections e.g. start of each test
