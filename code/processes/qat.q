@@ -1,27 +1,9 @@
 /TorQ QA Testing Process
 
-// load in correct table schemas to test against
-schemas:(!) . (@'[;1];meta each eval each last each)@\: parse each read0 hsym `$getenv[`TORQHOME],"/database.q"
-
 // read in connection details and set all processes as connections
 procstab:.proc.readprocs .proc.file
 expectedprocs:(exec procname from procstab) except `killtick`tpreplay1`qat1
 .servers.CONNECTIONS:(exec distinct proctype from procstab) except `qat`kill`tickerlogreplay
-
-// function to test the schemas of a process
-testschemas:{[proc]
-  // return list (1b;`$()) if test is passed, (0b;SYMBOL LIST OF FAILED TABS) if test is failed
-  ({0=count x};::)@\:
-    // open handle to process
-    {h:hopen x;
-      // retrieve list of tables to be compared against schemas  
-      proctabs:(h"tables[]") inter key schemas; 
-      // get the metas of these tables from the process
-      tabmetas:h((first each)each meta each value each;first each proctabs);
-      // test if these metas match the metas in schemas 
-      proctabs where not tabmetas~'(first each)each schemas proctabs
-    }[.conn.procconns proc]
-  }
 
 /
   Standalone script for creating tests
@@ -184,6 +166,20 @@ constructcheck:{[construct;chktype;contype]
 
 // test whether a process has all required subscriptions
 subtest:{min count each first[.tst.Conn]({exec w from .servers.getservers[`procname;x;()!();0b;1b]}';(::;enlist)[0>type x]x)}
+
+// test to check result of function called on its arguments
+functest:{[func;args]
+  numargsapply:first[.tst.Conn]({$[1<count x 1; .; @]};func);
+  query:"eval[",string[func],"] ",string[numargsapply]," eval each ",.Q.s1 args;
+  first[.tst.Conn]query 
+  }
+
+// come back to this - might need to add failcomment column
+schemacheck:{[tab;colname;types;forkeys;attribute]
+  origschema:0!meta tab;
+  checkschema:([]c:colname;t:types;f:forkeys;a:attribute);
+  all checkschema~'origschema
+  }
 
 // all test file paths
 alltests:alltests where not max (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like/: ("*.swp*";"*.swo*")
