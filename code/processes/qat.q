@@ -169,19 +169,11 @@ loadtests:{[file]
 // test whether a process is up
 connectiontest:{all {1~x"1"}'[.tst.Conn]}
 
-// test whether a connected process has particular variables/tables/view/functions in it
-constructcheck:{[construct;chktype]
-   chkfunct:{y in system x};
-   dict:`table`variable`view`function!chkfunct@/:"avbf";
-   .lg.o[`qat;"checking if ", (s:string construct)," ",(s2:string chktype), " exists"];
-   first[Conn](0N!dict[chktype];0N!construct)
-   }
-
 // inner function to test whether a construct exists on a process
 constructcheckinner:{[construct;chktype]
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
-  construct in dict[chktype][`$"."sv -1_"."vs string construct]
+  last[`$c] in dict[chktype][`$"."sv -1_c:"."vs string construct]
   }
 
 // outer function sends constructcheckinner query to the process
