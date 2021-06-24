@@ -182,12 +182,14 @@ constructcheck:{[construct;chktype;contype]
   first[.tst.Conn](constructcheckinner;construct;chktype;contype)
   }
 
+// test whether a process has all required subscriptions
+subtest:{min count each first[.tst.Conn]({exec w from .servers.getservers[`procname;x;()!();0b;1b]}';(::;enlist)[0>type x]x)}
+
 // all test file paths
 alltests:alltests where not max (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like/: ("*.swp*";"*.swo*")
 
 // load in test csv's
 .tst.loadtests'[alltests];
-
 
 // start connections
 .servers.startup[]

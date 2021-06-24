@@ -1,0 +1,3 @@
+name|description|connections|check|args
+rdb_subs|"check that rdb1 process has necessary subscriptions"|`rdb1|subtest|`stp1`gateway1`discovery1
+gw_subs|"check that gateway1 process has necessary subscriptions"|`gateway1|subtest|`discovery1`rdb1`hdb1
