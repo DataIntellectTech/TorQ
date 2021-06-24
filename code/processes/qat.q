@@ -53,7 +53,7 @@ testschemas:{[proc]
 // description - more info on what the test does
 // connections - list of connections to make for the test
 // check - actual test logic
-Cases:([name:`symbol$()] description:();connections:();check:();args:())
+Cases:([name:`symbol$()] description:();connections:();check:();args:();category:`$())
 
 // run prior to testing to show if tests were up for each test
 procstatus:{
@@ -70,7 +70,7 @@ u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
 
 // input checking
-casesTypes:`name`description`connections`check`args!(-11h;10h;-11 11h;100h;"h"$neg[19]+til 121)
+casesTypes:`name`description`connections`check`args`category!(-11h;10h;-11 11h;100h;"h"$neg[19]+til 121;-11h)
 
 inputDictCheck:{[dict]
   if[not all key[dict] in key casesTypes;'"missing param keys : ",-3!key[dict] where not key[dict] in key casesTypes];
@@ -159,7 +159,7 @@ closeConn:{[Name]
 // function to load tests from a csv
 loadtests:{[file]
   // extract tests from csv
-  newtests:update {@[x;where (::)~'x;:;`]}value each connections, value each check from ("S****";enlist"|")0: file;
+  newtests:update category:`$first "."vs last "/"vs string file, {@[x;where (::)~'x;:;`]}value each connections, value each check from ("S****";enlist"|")0: file;
   // add these test to the Cases dictionary
   .tst.Add each newtests;
   }
@@ -187,6 +187,7 @@ alltests:alltests where not max (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTES
 
 // load in test csv's
 .tst.loadtests'[alltests];
+
 
 // start connections
 .servers.startup[]
