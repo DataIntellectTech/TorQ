@@ -108,7 +108,7 @@ RunAll:{
   if[0=count .tst.Cases;'"no cases to run";:()];
   constat:procstatus exec connections from .tst.Cases;
   tests:update status:first'[constat'[connections]] from .tst.Cases;
-  res:0!update result:@[.tst.RunCase;;0b] each name from tests where status=`up;
+  res:0!update result:0b from (update result:@[.tst.RunCase;;0b] each name from tests where status=`up) where status=`down;
   SaveResults[res];
   res
  }
