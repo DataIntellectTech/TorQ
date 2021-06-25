@@ -1,1 +1,2 @@
 name|description|connections|check|args
+test_name|"test function execution and result"|`rdb1|functest|({x+y};20 80;100)
