@@ -1,5 +1,5 @@
 name|description|connections|check|args
 rdb_subs|"check that rdb1 process has necessary subscriptions"|`rdb1|subtest|`stp1`gateway1`discovery1
 gw_subs|"check that gateway1 process has necessary subscriptions"|`gateway1|subtest|`discovery1`rdb1`hdb1
-discovery_subs|"check that discovery1 process has necessary subscriptions"|`discovery1|`stp1`rdb1`hdb1`wdb1`sort1`hdb2`monitor1`reporter1`filealerter1`feed1`sctp1`dqc1`qat1
-wdb_subs|"check that wdb1 process has necessary subscriptions"|`wdb1|`discovery1`stp1`sort1`gateway1`rdb1`hdb1`hdb2
+discovery_subs|"check that discovery1 process has necessary subscriptions"|`discovery1|subtest|`stp1`rdb1`hdb1`wdb1`sort1`hdb2`monitor1`reporter1`filealerter1`feed1`sctp1`dqc1`qat1
+wdb_subs|"check that wdb1 process has necessary subscriptions"|`wdb1|subtest|`discovery1`stp1`sort1`gateway1`rdb1`hdb1`hdb2
