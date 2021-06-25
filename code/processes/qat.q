@@ -2,7 +2,7 @@
 
 // read in connection details and set all processes as connections
 procstab:.proc.readprocs .proc.file
-expectedprocs:(exec procname from procstab) except `killtick`tpreplay1`qat1
+expectedprocs:(exec procname from procstab) except `qat1`killtick`tpreplay1
 .servers.CONNECTIONS:(exec distinct proctype from procstab) except `qat`kill`tickerlogreplay
 
 /
@@ -188,10 +188,10 @@ constructcheck:{[construct;chktype;contype]
 subtest:{min count each first[.tst.Conn]({exec w from .servers.getservers[`procname;x;()!();0b;1b]}';(::;enlist)[0>type x]x)}
 
 // test to check result of function called on its arguments
-functest:{[func;args]
-  numargsapply:first[.tst.Conn]({$[1<count x 1; .; @]};func);
+functest:{[func;args;res]
+  numargsapply:first[.tst.Conn]"{$[1<count value[x] 1; .; @]}eval ",.Q.s1 func;
   query:"eval[",string[func],"] ",string[numargsapply]," eval each ",.Q.s1 args;
-  first[.tst.Conn]query 
+  res~first[.tst.Conn]query 
   }
 
 // come back to this - might need to add failcomment column
