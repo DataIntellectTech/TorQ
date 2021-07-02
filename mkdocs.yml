@@ -11,6 +11,7 @@ pages:
     - Connection Management: conn.md
     - Processes: Processes.md
     - Analytics Library: analyticslib.md 
+    - Data Access Library: dataaccess.md
     - Monitoring: monit.md 
     - Visualisation: visualisation.md
     - Testing: unittesting.md
