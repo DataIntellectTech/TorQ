@@ -1,0 +1,2057 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
+    
+    
+      
+        <title>Data Access Library - TorQ</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application.1b62728e.css">
+      
+      
+    
+    
+      <script src="../assets/javascripts/modernizr.268332fc.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../assets/fonts/material-icons.css">
+    
+    
+    
+      
+        
+<script>
+  window.ga = window.ga || function() {
+    (ga.q = ga.q || []).push(arguments)
+  }
+  ga.l = +new Date
+  /* Setup integration and send page view */
+  ga("create", "UA-51911331-4", "auto")
+  ga("set", "anonymizeIp", true)
+  ga("send", "pageview")
+  /* Register handler to log search on blur */
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.forms.search) {
+      var query = document.forms.search.query
+      query.addEventListener("blur", function() {
+        if (this.value) {
+          var path = document.location.pathname;
+          ga("send", "pageview", path + "?q=" + this.value)
+        }
+      })
+    }
+  })
+</script>
+<script async src="https://www.google-analytics.com/analytics.js"></script>
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#data-access-api" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="TorQ" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              TorQ
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Data Access Library
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href=".." title="TorQ" class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </a>
+    TorQ
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/AquaQAnalytics/TorQ/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Overview/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../cheatsheet/" title="Cheat Sheat" class="md-nav__link">
+      Cheat Sheat
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../gettingstarted/" title="Getting Started" class="md-nav__link">
+      Getting Started
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../InstallGuide/" title="Installation" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../utilities/" title="Utilities" class="md-nav__link">
+      Utilities
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../handlers/" title="Handlers" class="md-nav__link">
+      Handlers
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conn/" title="Connection Management" class="md-nav__link">
+      Connection Management
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../Processes/" title="Processes" class="md-nav__link">
+      Processes
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../analyticslib/" title="Analytics Library" class="md-nav__link">
+      Analytics Library
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+    <a href="./" title="Data Access Library" class="md-nav__link md-nav__link--active">
+      Data Access Library
+    </a>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../monit/" title="Monitoring" class="md-nav__link">
+      Monitoring
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../visualisation/" title="Visualisation" class="md-nav__link">
+      Visualisation
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../unittesting/" title="Testing" class="md-nav__link">
+      Testing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../blog/" title="TorQ Blog Posts" class="md-nav__link">
+      TorQ Blog Posts
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/dataaccess.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="data-access-api">Data Access API</h1>
+<h1 id="introduction-and-key-features">Introduction and Key Features</h1>
+<p>The Dataaccess API is a TorQ upgrade designed for seamless cross process data retrival.</p>
+<p>Other key upgrades of the API are:
+- Compatibility with non kdb+ processes such as Google BigQuery and qREST
+- Consistent queries across all processes 
+- Data retrieval does not require q-SQL knowledge only q dictionary manipulation
+- User friendly interface including more comprehensible error messages
+- Queries are automatically optimised for each process
+- Thorough testing allowing ease of further development</p>
+<p>A more conceptual discussion of the API can be seen at <a href="https://www.aquaq.co.uk/torq-2/data-access-api/">Blog Post</a></p>
+<h1 id="configuration">Configuration</h1>
+<p>The API can be initialised in a TorQ proccess by either:</p>
+<p>1) Pass <code>"-dataaccess /path/to/tableproperties.csv"</code> on the startup line (see Example table properties file below for format)
+2) Run <code>".dataaccess.init[`:path/to/tableproperties.csv]"</code> to initialise the code in a running process.</p>
+<p>In both cases the filepath should point to <code>tableproperties.csv</code> a <code>.csv</code> containing information about all the tables you want the API to query. The following table describes each of the columns of tableproperties.csv:</p>
+<p><strong>Description of fields in tableproperties.csv</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>proctype</td>
+<td>Denotes the type of process the table is loaded in (passing <code>all</code> will involke default behaviour)</td>
+<td>procs in .gw.servers</td>
+</tr>
+<tr>
+<td>tablename</td>
+<td>Table to query  (Tables within namespaces are allowed)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>primarytimecolumn</td>
+<td>Default timecolumn used to determine the partitioning of a process</td>
+<td>*</td>
+</tr>
+<tr>
+<td>attributecolumn</td>
+<td>Primary attribute column (see query optimisation)</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>instrumentcolumn</td>
+<td>Column containing instrument</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>rolltimeoffset</td>
+<td>Rollovertime offset from midnight</td>
+<td>.eodtime.rolltimeoffset</td>
+</tr>
+<tr>
+<td>rolltimezone</td>
+<td>Timezone of the Rollover Function</td>
+<td>.eodtime.rolltimezone</td>
+</tr>
+<tr>
+<td>datatimezone</td>
+<td>Timezone of the primary time column timestamps</td>
+<td>.eodtime.datatimezone</td>
+</tr>
+<tr>
+<td>partitionfield</td>
+<td>Partition field of the data</td>
+<td><code>$[.Q.qp[];.Q.pf;`]</code></td>
+</tr>
+</tbody>
+</table>
+<p>* The Default behaviour of primarytimecolumn is:</p>
+<ol>
+<li>If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.</li>
+<li>Else if a unique column of type z or p exists it is used. (If uniqueness isn't satisfied an error will occur here.)</li>
+<li>Else if a unique column of type d exist then it is used.</li>
+<li>Else the API will error.</li>
+</ol>
+<p><strong>Example Default Configuration File</strong></p>
+<p>If the user wishes to use the TorQ FSP (see section below) the following example will suffice:</p>
+<table>
+<thead>
+<tr>
+<th>proctype</th>
+<th>tablename</th>
+<th>primarytimecolumn</th>
+<th>attributecolumn</th>
+<th>instrumentcolumn</th>
+<th>rolltimeoffset</th>
+<th>rolltimezone</th>
+<th>datatimezone</th>
+<th>partitionfield</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>trade</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>quote</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>This table will be configured as if it were the following </p>
+<table>
+<thead>
+<tr>
+<th>proctype</th>
+<th>tablename</th>
+<th>primarytimecolumn</th>
+<th>attributecolumn</th>
+<th>instrumentcolumn</th>
+<th>rolltimeoffset</th>
+<th>rolltimezone</th>
+<th>datatimezone</th>
+<th>partitionfield</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rdb</td>
+<td>trade</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td></td>
+</tr>
+<tr>
+<td>hdb</td>
+<td>trade</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td>date</td>
+</tr>
+<tr>
+<td>rdb</td>
+<td>quote</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td></td>
+</tr>
+<tr>
+<td>hdb</td>
+<td>quote</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td>date</td>
+</tr>
+</tbody>
+</table>
+<p>A more complete explanation into the configuration can be seen in the Table Properties Configuration section.</p>
+<h1 id="usage">Usage</h1>
+<p>When using the API to send queries direct to a process, the overarching function is <code>getdata</code>. <code>getdata</code> is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in <code>tableproperties.csv</code> allowing <code>getdata</code> to be called either directly within a process or via <code>.dataccess.getdata</code> (discussed in the Gateway section).</p>
+<p>The <code>getdata</code> function is split into three sub functions:<code>.dataaccess.checkinputs</code>, <code>.eqp.extractqueryparams</code> and <code>queryorder.orderquery</code>. </p>
+<ul>
+<li><code>.dataaccess.checkinputs</code> checks if the input dictionary is valid (See custom API errors) </li>
+<li><code>.eqp.extractqueryparams</code> converts the arguments into q-SQL </li>
+<li><code>.queryorder.orderquery</code> is the API's query optimiser (See Debugging and Optimisation)</li>
+</ul>
+<p><code>getdata's</code> input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists getdata's accepted arguments: </p>
+<p><strong>Valid Inputs</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Required</th>
+<th>Example**</th>
+<th>Invalidpairs*</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tablename</td>
+<td>Yes</td>
+<td>`quote</td>
+<td></td>
+<td>Table to query</td>
+</tr>
+<tr>
+<td>starttime</td>
+<td>Yes</td>
+<td>2020.12.18D12:00</td>
+<td></td>
+<td>Start time - must be a valid time type (see timecolumn)</td>
+</tr>
+<tr>
+<td>endtime</td>
+<td>Yes</td>
+<td>2020.12.20D12:00</td>
+<td></td>
+<td>End time - must be a valid time type (see timecolumn)</td>
+</tr>
+<tr>
+<td>timecolumn</td>
+<td>No</td>
+<td>`time</td>
+<td></td>
+<td>Column to apply(startime;endime) filter to</td>
+</tr>
+<tr>
+<td>instruments</td>
+<td>No</td>
+<td>`AAPL`GOOG</td>
+<td></td>
+<td>Instruments to filter on - will usually have an attribute applied (see tableproperties.csv)</td>
+</tr>
+<tr>
+<td>columns</td>
+<td>No</td>
+<td>`sym`bid`ask`bsize`asize</td>
+<td>aggregations</td>
+<td>Table columns to return - symbol list - assumed all if not present</td>
+</tr>
+<tr>
+<td>grouping</td>
+<td>No</td>
+<td>`sym</td>
+<td></td>
+<td>Columns to group by -  no grouping assumed if not present</td>
+</tr>
+<tr>
+<td>aggregations</td>
+<td>No</td>
+<td>`max`wavg!(`bidprice`askprice;(`asksize`askprice;`bidsize`bidprice))</td>
+<td>columns&#124;freeformcolumn</td>
+<td>dictionary of aggregations</td>
+</tr>
+<tr>
+<td>timebar</td>
+<td>No</td>
+<td>(10;`minute;`time)</td>
+<td></td>
+<td>List of (bar size; time type;timegrouping column) valid types: `nanosecond`second`minute`hour`day)</td>
+</tr>
+<tr>
+<td>filters</td>
+<td>No</td>
+<td>`sym`bid`bsize!(enlist(like;"AAPL");((&lt;;85);(&gt;;83.5));enlist(not;within;5 43))</td>
+<td></td>
+<td>Dictionary of ordered filters to apply to keys of dictionary</td>
+</tr>
+<tr>
+<td>freeformwhere</td>
+<td>No</td>
+<td>"sym=`AAPL, src=`BARX, price within 60 85"</td>
+<td></td>
+<td>Where clause in string format</td>
+</tr>
+<tr>
+<td>freeformby</td>
+<td>No</td>
+<td>"sym:sym, source:src"</td>
+<td></td>
+<td>By clause in string format</td>
+</tr>
+<tr>
+<td>freeformcolumn</td>
+<td>No</td>
+<td>"time, sym,mid\:0.5*bid+ask"</td>
+<td>aggregations</td>
+<td>Select clause in string format</td>
+</tr>
+<tr>
+<td>ordering</td>
+<td>No</td>
+<td>enlist(`desc`bidprice)</td>
+<td></td>
+<td>List ordering results ascending or descending by column</td>
+</tr>
+<tr>
+<td>renamecolumn</td>
+<td>No</td>
+<td>`old1`old2`old3!`new1`new2`new3</td>
+<td></td>
+<td>Either a dictionary of old!new or list of column names</td>
+</tr>
+<tr>
+<td>postprocessing</td>
+<td>No</td>
+<td>{flip x}</td>
+<td></td>
+<td>Post-processing of the data</td>
+</tr>
+<tr>
+<td>queryoptimisation</td>
+<td>No</td>
+<td>0b</td>
+<td></td>
+<td>Determines whether the query optimiser should be turned on/off, Default is 1b</td>
+</tr>
+<tr>
+<td>sublist</td>
+<td>No</td>
+<td>42</td>
+<td></td>
+<td><a href="https://code.kx.com/q/ref/sublist/">Sublist</a></td>
+</tr>
+<tr>
+<td>getquery</td>
+<td>No</td>
+<td>1b</td>
+<td></td>
+<td>Runs <code>.dataaccess.buildquery</code> in each of the processes</td>
+</tr>
+</tbody>
+</table>
+<p>* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:</p>
+<p><code>select price,mprice:max price from trade</code> </p>
+<p>Although the above is a valid query the result may be unexpected as the column lengths don't match up.</p>
+<p>If an invalid key pair is desired the user should convert all inputs to the q-SQL version.</p>
+<p>** More complete examples are provided in the Examples section below</p>
+<p><strong>Example function call</strong></p>
+<pre><code>q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`bid`bsize)
+sym  bid   bsize
+----------------
+GOOG 71.57 1
+GOOG 70.86 2
+GOOG 70.91 8
+GOOG 70.91 6
+...
+</code></pre>
+
+<p>From within a kdb+ process the <code>.dataaccess.buildquery</code> function provides the developer with an insight into the query that has been built for example:</p>
+<pre><code>q).dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize)
+? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
+
+</code></pre>
+
+<p>Alternatively, the <code>`getquery</code> key can also be used to produce an identical result:</p>
+<pre><code>q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize;1b)
+? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
+
+</code></pre>
+
+<p>This method is preferable as it has been extended to work from within the gateway (see Gateway section) or another exotic process:</p>
+<pre><code>q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;.z.d+12:00;`GOOG;`sym`time`bid`bsize;1b)
+`rdb
+(?;`quote;((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
+`hdb
+(?;`quote;((within;`date;2021.01.20 2021.03.17);(=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
+</code></pre>
+
+<h2 id="aggregations">Aggregations</h2>
+<p>The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form: </p>
+<p><code>`agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)</code></p>
+<p>Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway section). The key accepts the following table of inputs:</p>
+<p><strong>Table of Avaliable Aggregations</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aggregation</th>
+<th>Description</th>
+<th>Example</th>
+<th>Cross Process Enabled (See Gateway)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>avg</code></td>
+<td>Return the mean of a list</td>
+<td><code>(enlist`avg)!enlist enlist `price</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>cor</code></td>
+<td>Return Pearson's Correlation coefficient of two lists</td>
+<td><code>(enlist `cor)!enlist enlist `bid`ask</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>count</code></td>
+<td>Return The length of a list</td>
+<td><code>(enlist`count)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>cov</code></td>
+<td>Return the covariance of a list pair</td>
+<td><code>(enlist `cov)!enlist enlist `bid`ask</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>dev</code></td>
+<td>Return the standard deviation of a list</td>
+<td><code>(enlist`dev)!enlist enlist `price</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>distinct</code></td>
+<td>Return distinct elements of a list</td>
+<td><code>(enlist`distinct)!enlist enlist `sym</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>first</code></td>
+<td>Return first element of a list</td>
+<td><code>(enlist`first)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>last</code></td>
+<td>Return the final value in a list</td>
+<td><code>(enlist`last)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>max</code></td>
+<td>Return the maximum value of a list</td>
+<td><code>(enlist`max)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>med</code></td>
+<td>Return the median value of a list</td>
+<td><code>(enlist`med)!enlist enlist `price</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>min</code></td>
+<td>Return the minimum value of a list</td>
+<td><code>(enlist`min)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>prd</code></td>
+<td>Return the product of a list</td>
+<td><code>(enlist`prd)!enlist enlist `price</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>sum</code></td>
+<td>Return the total of a list</td>
+<td><code>(enlist`sum)!enlist enlist `price</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>var</code></td>
+<td>Return the Variance of a list</td>
+<td><code>(enlist`var)!enlist enlist `price</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>wavg</code></td>
+<td>Return the weighted mean of two lists</td>
+<td><code>(enlist`wavg)!enlist enlist `asize`ask</code></td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>wsum</code></td>
+<td>Return the weighted sum of two lists</td>
+<td><code>(enlist`wsum)!enlist enlist `asize`ask</code></td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>The postprocessing key provides a work around for creating these cross process aggregations (see the postprocessing example in Further Examples section).</p>
+<p>The following function can be used to merge two aggregation dictionaries: </p>
+<pre><code>q)f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
+</code></pre>
+
+<pre><code>q)A
+min| price
+q)B
+min| time
+q)C
+wavg| bid bsize
+q)f[(A;B;C)]
+min | `price`time
+wavg| ,`bid`bsize
+</code></pre>
+
+<h2 id="filters">Filters</h2>
+<p>The filters key is a dictionary led method of controlling which entries of a given table are being queried by setting out a criteria. The dictionary uses a table column as the key and the entries as the condition to be applied to that column. Any condition to be applied should be entered as a nest of two item lists for each condition and each sublist entered as an operator first followed by conditional values, for example:</p>
+<p><code>`col1`col2`...`coln!((op;cond);((op;cond);(op;cond));...;(op;cond)</code></p>
+<p>For negative conditionals, the not and ~: operators can be included as the first item of a three item list for the operators in, like and within, e.g.</p>
+<p><code>enlist`col1!enlist(not;within;`cond1`cond2)</code></p>
+<p><strong>Table of Available Filters</strong></p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;</code></td>
+<td>less than</td>
+<td><code>(enlist`col)!enlist(&lt;;input)</code></td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td>greater than</td>
+<td><code>(enlist`col)!enlist(&gt;;input)</code></td>
+</tr>
+<tr>
+<td><code>&lt;&gt;</code></td>
+<td>not equal</td>
+<td><code>(enlist`col)!enlist(&lt;&gt;;input)</code></td>
+</tr>
+<tr>
+<td><code>&lt;=</code></td>
+<td>less than or equal to</td>
+<td><code>(enlist`col)!enlist(&lt;=;input)</code></td>
+</tr>
+<tr>
+<td><code>&gt;=</code></td>
+<td>greater than or equal to</td>
+<td><code>(enlist`col)!enlist(&gt;=;input)</code></td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td>equal to</td>
+<td><code>(enlist`col)!enlist(=;input)</code></td>
+</tr>
+<tr>
+<td><code>~</code></td>
+<td>match/comparison</td>
+<td><code>(enlist`col)!enlist(~;input)</code></td>
+</tr>
+<tr>
+<td><code>in</code></td>
+<td>column value is an item of input list</td>
+<td><code>(enlist`col)!enlist(in;input)</code></td>
+</tr>
+<tr>
+<td><code>within</code></td>
+<td>column value is within bounds of two inputs</td>
+<td><code>(enlist`col)!enlist(within;input)</code></td>
+</tr>
+<tr>
+<td><code>like</code></td>
+<td>column symbol or string matches input string pattern</td>
+<td><code>(enlist`col)!enlist(like;input)</code></td>
+</tr>
+<tr>
+<td><code>not</code></td>
+<td>negative conditional when used with in,like or within</td>
+<td><code>(enlist`col)!enlist(not;in/like/within;input)</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="gateway">Gateway</h1>
+<p>The documentation for the gateway outside the API can be found <a href="https://github.com/AquaQAnalytics/TorQ/blob/master/docs/Processes.md">here</a></p>
+<p>Accepting a uniform dictionary allows queries to be sent to the gateway using <code>.dataaccess.getdata</code>. Using <code>.dataaccess.getdata</code> allows the user to</p>
+<ul>
+<li>Leverage the checkinputs library from within the gateway and catch errors before they hit the process</li>
+<li>Uses <code>.gw.servers</code> to dynamically determine the appropriate processes to execute <code>getdata</code> in </li>
+<li>Determines the query type to send to the process(es)</li>
+<li>Provide further optional arguments to better determine the behaviour of the function see table below:</li>
+</ul>
+<p><strong>Gateway Accepted Keys</strong></p>
+<table>
+<thead>
+<tr>
+<th>Input Key</th>
+<th>Example</th>
+<th>Default behaviour</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>postback</td>
+<td><code>{0N!x}</code></td>
+<td>()</td>
+<td>Post back function for retuning async queries only</td>
+</tr>
+<tr>
+<td>join</td>
+<td><code>raze</code></td>
+<td><code>.dataaccess.multiprocjoin</code></td>
+<td>Join function to merge the tables</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td><code>00:00:03</code></td>
+<td>0Wn</td>
+<td>Maximum time for query to run</td>
+</tr>
+<tr>
+<td>procs</td>
+<td><code>`rdb`hdb</code></td>
+<td><code>.dataaccess.attributesrouting</code></td>
+<td>Choose which processes to run <code>getdata</code> in *</td>
+</tr>
+</tbody>
+</table>
+<p>* By default, <code>.dataaccess.forceservers</code> is set to <code>0b</code>. In this case, only a subset of <code>.dataaccess.attributesrouting</code> can be used. However, if <code>.dataaccess.forceservers</code> is set to <code>1b</code> any server in <code>.gw.servers</code> can be used.</p>
+<p>One major benefit of using <code>.dataaccess.getdata</code> can be seen when performing aggregations across different processes. An example of this can be seen below, where the user gets the max/min of bid/ask across both the RDB and HDB.</p>
+<pre><code>q)querydict:`tablename`starttime`endtime`aggregations!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
+q)querydicttoday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
+q)querydictyesterday:`tablename`starttime`endtime`aggregations!(`quote;2021.02.09D00:00:00.000000000;2021.02.09D09:00:00.000000000;`max`min!(`ask`bid;`ask`bid))
+
+// open connection to the gateway g
+q)g:hopen`::1234:admin:admin
+
+q)g(`.dataaccess.getdata;querydict)
+maxAsk maxBid minAsk minBid
+---------------------------
+214.41 213.49 8.43   7.43
+q)g(`.dataaccess.getdata;querydictyesterday)
+maxAsk maxBid minAsk minBid
+---------------------------
+214.41 213.49 8.8    7.82
+q)g(`.dataaccess.getdata;querydicttoday)
+maxAsk maxBid minAsk minBid
+---------------------------
+94.81  93.82  8.43   7.43
+</code></pre>
+
+<p>The cross process aggregations also work with groupings and freeformby keys, for example </p>
+<pre><code>q)querydict1:`tablename`starttime`endtime`aggregations`ordering`head!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;&quot;sym&quot;;`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
+q)g(`.dataaccess.getdata;querydict1)
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+DELL| 29.37  28.33  7.87   6.84
+DOW | 24.52  23.48  2.56   1.55
+</code></pre>
+
+<p>Such behaviour is not demonstrated when using freeform queries, for example:</p>
+<pre><code>q)querydict2:`tablename`starttime`endtime`aggregations`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;&quot;max ask,min ask,max bid, min bid&quot;)
+q)g(`.dataaccess.getdata;querydict2)
+ask    bid    ask1 bid1
+-----------------------
+214.41 213.49 8.8  7.82
+94.81  93.82  8.43 7.43
+</code></pre>
+
+<p>As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the<code>`join`postprocessing`timeouts</code> keys appropriately.</p>
+<h2 id="checkinputs">Checkinputs</h2>
+<p>A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  <code>.dataaccess.checkinputs</code>. which under the covers runs two different checking libraries:</p>
+<ul>
+<li><code>.checkinputs</code> A set of universal basic input checks as defined in <code>checkinputs.csv</code> (example <code>.csv</code> below). These checks are performed from within the gateway if applicable. </li>
+<li><code>.dataaccess</code>  A set of process bespoke checks, performed from within the queried proccess.</li>
+</ul>
+<p><strong>Description of Fields in checkinputs.csv</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parameter</td>
+<td>Dictionary key to pass to <code>getdata</code></td>
+</tr>
+<tr>
+<td>required</td>
+<td>Whether this parameter is mandatory</td>
+</tr>
+<tr>
+<td>checkfunction</td>
+<td>Function to determine whether the given value is valid</td>
+</tr>
+<tr>
+<td>invalid pairs</td>
+<td>Whether a parameter is invalid in combination with some other parameter</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example <code>checkinputs.csv</code></strong></p>
+<table>
+<thead>
+<tr>
+<th>parameter</th>
+<th>required</th>
+<th>checkfunction</th>
+<th>invalidpairs</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tablename</td>
+<td>1</td>
+<td>.checkinputs.checktable</td>
+<td></td>
+<td>table to query</td>
+</tr>
+<tr>
+<td>starttime</td>
+<td>1</td>
+<td>.checkinputs.checktimetype</td>
+<td></td>
+<td>starttime - see timecolumn</td>
+</tr>
+<tr>
+<td>endtime</td>
+<td>1</td>
+<td>.checkinputs.checkendtime</td>
+<td></td>
+<td>endtime - see timecolumn</td>
+</tr>
+<tr>
+<td>timecolumn</td>
+<td>0</td>
+<td>.checkinputs.checktimecolumn</td>
+<td></td>
+<td>column to apply (startime;endime) filter to</td>
+</tr>
+<tr>
+<td>instruments</td>
+<td>0</td>
+<td>.checkinputs.checkinstruments</td>
+<td></td>
+<td>instruments of interest - see tableproperties.csv</td>
+</tr>
+<tr>
+<td>columns</td>
+<td>0</td>
+<td>.checkinputs.checkcolumns</td>
+<td></td>
+<td>table columns to return - assumed all if not present</td>
+</tr>
+<tr>
+<td>grouping</td>
+<td>0</td>
+<td>.checkinputs.checkgrouping</td>
+<td></td>
+<td>columns to group by -  no grouping assumed if not present</td>
+</tr>
+<tr>
+<td>aggregations</td>
+<td>0</td>
+<td>.checkinputs.checkaggregations</td>
+<td>columns</td>
+<td>freeformcolumn</td>
+</tr>
+<tr>
+<td>timebar</td>
+<td>0</td>
+<td>.checkinputs.checktimebar</td>
+<td></td>
+<td>list of (time column to group on;size;type - `nanosecond`second`minute`hour`day)</td>
+</tr>
+<tr>
+<td>filters</td>
+<td>0</td>
+<td>.checkinputs.checkfilters</td>
+<td></td>
+<td>a dictionary of columns + conditions in string format</td>
+</tr>
+<tr>
+<td>ordering</td>
+<td>0</td>
+<td>.checkinputs.checkordering</td>
+<td></td>
+<td>a list of pairs regarding the direction (`asc or `desc) of ordering and a column to order</td>
+</tr>
+<tr>
+<td>freeformwhere</td>
+<td>0</td>
+<td>.checkinputs.isstring</td>
+<td></td>
+<td>where clause in string format</td>
+</tr>
+<tr>
+<td>freeformby</td>
+<td>0</td>
+<td>.checkinputs.isstring</td>
+<td></td>
+<td>by clause in string format</td>
+</tr>
+<tr>
+<td>freeformcolumn</td>
+<td>0</td>
+<td>.checkinputs.isstring</td>
+<td></td>
+<td>select clause in string format</td>
+</tr>
+<tr>
+<td>instrumentcolumn</td>
+<td>0</td>
+<td>.checkinputs.checkinstrumentcolumn</td>
+<td></td>
+<td>column to select instrument parameter from</td>
+</tr>
+<tr>
+<td>renamecolumn</td>
+<td>0</td>
+<td>.checkinputs.checkrenamecolumn</td>
+<td></td>
+<td>dictionary to rename a column in results</td>
+</tr>
+<tr>
+<td>postprocessing</td>
+<td>0</td>
+<td>.checkinputs.checkpostprocessing</td>
+<td></td>
+<td>applies postback lambda functions to data</td>
+</tr>
+<tr>
+<td>join</td>
+<td>0</td>
+<td>.checkinputs.checkjoin</td>
+<td></td>
+<td>Joins queries together</td>
+</tr>
+<tr>
+<td>postback</td>
+<td>0</td>
+<td>.checkinputs.checkpostback</td>
+<td></td>
+<td>sends async queries back</td>
+</tr>
+<tr>
+<td>timeout</td>
+<td>0</td>
+<td>.checkinputs.checktimeout</td>
+<td></td>
+<td>Checks the time of the timeout</td>
+</tr>
+<tr>
+<td>sublist</td>
+<td>0</td>
+<td>.checkinputs.checksublist</td>
+<td></td>
+<td>checks the head parameter</td>
+</tr>
+<tr>
+<td>procs</td>
+<td>0</td>
+<td>.checkinputs.checkprocs</td>
+<td></td>
+<td>Checks the procs is the correct servers</td>
+</tr>
+<tr>
+<td>sqlquery</td>
+<td>0</td>
+<td>.checkinputs.isstring</td>
+<td></td>
+<td>Select clause in string format</td>
+</tr>
+<tr>
+<td>getquery</td>
+<td>0</td>
+<td>.checkinputs.isboolean</td>
+<td></td>
+<td>Returns the queries in each of the process</td>
+</tr>
+<tr>
+<td>dryrun</td>
+<td>0</td>
+<td>.checkinputs.isboolean</td>
+<td></td>
+<td>Calculates the number of MB processed</td>
+</tr>
+<tr>
+<td>firstlastsort</td>
+<td>0</td>
+<td>.checkinputs.checkinstrumentcolumn</td>
+<td></td>
+<td>Allows for use of firstlastsort (not supported by dataaccess)</td>
+</tr>
+<tr>
+<td>optimisation</td>
+<td>0</td>
+<td>.checkinputs.isboolean</td>
+<td></td>
+<td>Toggle optimastion in queryorder</td>
+</tr>
+</tbody>
+</table>
+<p>The csv file enables developers simple extension, modification or deletion of the accepted inputs. </p>
+<p>For example if the user want to add a key <code>`docs</code> which accepts a boolean input they would add the following line to <code>checkinputs.csv</code> </p>
+<p>docs|0|.checkinputs.isboolean||info about docs function|</p>
+<p>Furthermore, using the <code>.checkinputs.isboolean</code> function would provide the user with a more comprehesive error message than <code>'type</code> see messages below.</p>
+<h3 id="custom-api-errors">Custom API Errors</h3>
+<p>Below is a list of all the errors the API will return:
+Error|Function|Library|
+|-----|---------|-------------|
+|Table:{tablename} doesn't exist|checktablename|dataaccess|
+|Column(s) {badcol} presented in {parameter} is not a valid column for {tab}|checkcolumns|dataaccess|
+| If the distinct function is used, it cannot be present with any other aggregations including more of itself|checkaggregations|dataaccess|
+| Aggregations dictionary contains undefined function(s)|checkaggregations|dataaccess|
+| Incorrect number of input(s) entred for the following aggregations|checkaggregations|dataaccess|
+| Aggregations parameter must be supplied in order to perform group by statements|checkaggregations|dataaccess|
+| In order to use a grouping parameter, only aggregations that return single values may be used|checkaggregations|dataaccess|
+| The inputted size of the timebar argument: {size}, is not an appropriate size. Appropriate sizes are:|checktimebar|dataaccess|
+| Timebar parameter's intervals are too small. Time-bucket intervals must be greater than (or equal to) one nanosecond|checktimebar|dataaccess|
+|Input dictionary must have keys of type 11h|checkdictionary|checkinputs|
+|Required parameters missing:{}|checkdictionary|checkinputs|
+|Invalid parameter present:{}|checkdictionary|checkinputs|
+|Input must be a dictionary|isdictionary|checkinputs|
+|Parameter:{parameter} cannot be used in conjunction with parameter(s):{invalidpairs}|checkeachpair|checkinputs|
+|{} parameter(s) used more than once|checkrepeatparams|checkinputs|
+|Starttime parameter must be &lt;= endtime parameter|checktimeorder|checkinputs|
+|Aggregations parameter key must be of type 11h - example:|checkaggregations|checkinputs|
+|Aggregations parameter values must be of type symbol - example:|checkaggregations|checkinputs|
+|First argument of timebar must be either -6h or -7h|checktimebar|checkinputs|
+|Second argument of timebar must be of type -11h|checktimebar|checkinputs|
+|Third argument of timebar must be have type -11h|checktimebar|checkinputs|
+|Filters parameter key must be of type 11h - example:|checkfilters|checkinputs|
+|Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example:|checkfilters|checkinputs|
+|Filters parameter values containing three elements must have the first element being the not keyword - example|checkfilters|checkinputs|
+|Allowed operators are: =, &lt;, &gt;, &lt;=, &gt;=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)|checkfilters|checkinputs|
+|The 'not' keyword may only preceed the operators within, in and like.|checkfilters|checkinputs|
+|(not)within statements within the filter parameter must contain exatly two values associated with it - example:|withincheck|checkinputs|
+|The use of inequalities in the filter parameter warrants only one value|inequalitycheck|checkinputs|
+|The use of equalities in the filter parameter warrants only one value - example:|inequalitycheck|checkinputs|
+|Ordering parameter must contain pairs of symbols as its input - example:|checkordering|checkinputs|
+|Ordering parameter's values must be paired in the form (direction;column) - example:|checkordering|checkinputs|
+|The first item in each of the ordering parameter's pairs must be either `asc or `desc - example:|checkordering|checkinputs|
+|Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
+|Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|</p>
+<h2 id="table-properties-configuration">Table Properties Configuration</h2>
+<p>Although the default configuration is often the best, there are examples when the user will have to define there own <code>tableproperties.csv</code> file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:</p>
+<p>Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). </p>
+<p>In our scenario the TorQ system is GMT based and the rollover times are as follows: 
+- trade rolls over at midnight GMT<br />
+- quote rolls over at 01:00 am New York time (ET) </p>
+<p>The meta for tables in the hdb are:  </p>
+<pre><code>q)meta trade
+c    | t f a
+-----| -----
+date | d
+time | p
+sym  | s   p
+price| f
+size | i
+stop | b
+cond | c
+ex   | c
+side | s
+
+q)meta quote
+c     | t f a
+------| -----
+date  | d
+time  | p
+extime| p
+sym   | s   p
+bid   | f
+ask   | f
+bsize | j
+asize | j
+mode  | c
+ex    | c
+src   | s
+
+</code></pre>
+
+<p>Determining the correct primary time column for the trade table is simple as time is the unique column with of type p.</p>
+<p>The quote table is more complicated as it has two time columns extime and time.
+- The extime column is the time when the trade was made
+- The time column is the time when the data entered the tickerplant</p>
+<p>The time column is the most illuminating into the partition structure. </p>
+<p>The reason extime is not the primary time column is due to the latency between the exchange and TorQ process. 
+Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote</p>
+<ul>
+<li>Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) </li>
+<li>Quote1 comes into the tickerplant at 2020.02.03D06:00:00.100000000(GMT)</li>
+<li>Quote1 will be in partition 2020.02.03</li>
+</ul>
+<p>As such the partitioning structure is dependent on the time column not the extime column.</p>
+<p>The p attribute on the sym column shows why it should be used as the attribute column.</p>
+<p>For this example the following <code>tableproperties.csv</code> should be defined.   </p>
+<table>
+<thead>
+<tr>
+<th>proctype</th>
+<th>tablename</th>
+<th>primarytimecolumn</th>
+<th>attributecolumn</th>
+<th>instrumentcolumn</th>
+<th>rolltimeoffset</th>
+<th>rolltimezone</th>
+<th>datatimezone</th>
+<th>partitionfield</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rdb</td>
+<td>trade</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td></td>
+</tr>
+<tr>
+<td>hdb</td>
+<td>trade</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>00:00</td>
+<td>GMT</td>
+<td>GMT</td>
+<td>date</td>
+</tr>
+<tr>
+<td>rdb</td>
+<td>quote</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>01:00</td>
+<td>ET</td>
+<td>GMT</td>
+<td></td>
+</tr>
+<tr>
+<td>hdb</td>
+<td>quote</td>
+<td>time</td>
+<td>sym</td>
+<td>sym</td>
+<td>01:00</td>
+<td>ET</td>
+<td>GMT</td>
+<td>date</td>
+</tr>
+</tbody>
+</table>
+<h2 id="query-optimisation">Query Optimisation</h2>
+<p>The queries are automatically optimised using <code>.queryorder.orderquery</code> this function is designed to improve the performance of certain queries as well as return intuative results.
+This is done by:</p>
+<ul>
+<li>Prioritising filters against the primary attribute column in tableproperties.csv</li>
+<li><a href="https://code.kx.com/q/wp/query-scaling/#efficient-select-statements-using-attributes">Swapping in for multiple = statements and razing the result together</a></li>
+</ul>
+<p>Furthermore, columns are ordered to put date then sym columns to the left.</p>
+<p>Optimisation can be toggled off by setting the value of <code>`queryoptimisation</code> in the input dictionary to <code>0b</code>.</p>
+<h3 id="debugging-and-optimisation">Debugging and Optimisation</h3>
+<p>A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:</p>
+<ol>
+<li>The user has a filter against a table attributes</li>
+<li>The query only pulls in the essential data </li>
+<li>The output of <code>dataaccess.buildquery</code> is what is expected.</li>
+</ol>
+<h2 id="metrics">Metrics</h2>
+<h3 id="introduction">Introduction</h3>
+<p>A test was performed to determine the performance of: </p>
+<ul>
+<li>The <code>getdata</code> function with optimisation on</li>
+<li>The <code>getdata</code> function with optimisation off</li>
+<li>Raw kdb+ query</li>
+</ul>
+<h3 id="methodology">Methodology</h3>
+<p>Each query was run against 10/100/1000 sym TorQ stack each with a 5GB HDB (68 million rows over 22 partitions) and a 120 MB RDB (2 million rows) quotes table. </p>
+<h3 id="query-list">Query List</h3>
+<table>
+<thead>
+<tr>
+<th>Queryname</th>
+<th>Call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Optimised1</td>
+<td><code>`tablename`starttime`endtime`freeformby`aggregations`freeformwhere)!(`quote;00:00+2020.12.17D10;.z.d+12:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));\"sym in `AMD`HPQ`DOW`MSFT`AIG`IBM</code></td>
+</tr>
+<tr>
+<td>kdb1</td>
+<td><code>select max ask,min bid,max bid,min ask by sym from quote where sym in `AMD`HPQ`DOW`MSFT`AIG`IBM</code></td>
+</tr>
+<tr>
+<td>Optimised2</td>
+<td><code>(`tablename`starttime`endtime`aggregations`timebar)!(`quote;2021.02.23D1;.z.p;(enlist(`max))!enlist(enlist(`ask));(6;`hour;`time))</code></td>
+</tr>
+<tr>
+<td>kdb2</td>
+<td><code>select max ask by 21600000000000 xbar time from quote where time&gt;2021.02.23</code></td>
+</tr>
+<tr>
+<td>Optimised3</td>
+<td><code>(`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.02.25D12;`bsize`sym`bid!(enlist(not;within;5 43);enlist(like;\"*OW\");((&lt;;85);(&gt;;83.5)))))</code></td>
+</tr>
+<tr>
+<td>kdb3</td>
+<td><code>select from quote where bid within(83.5;85),not bsize within(5;43),sym like "*OW"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="results">Results</h3>
+<p>The results show the average execution time in ms for each query </p>
+<table>
+<thead>
+<tr>
+<th>Queryname</th>
+<th>10 syms</th>
+<th>100 syms</th>
+<th>1000 syms</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Optimised1</td>
+<td>17</td>
+<td>53</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Unoptimised1</td>
+<td>8</td>
+<td>58</td>
+<td>17</td>
+</tr>
+<tr>
+<td>kdb1</td>
+<td>27</td>
+<td>50</td>
+<td>19</td>
+</tr>
+<tr>
+<td>Optimised2</td>
+<td>365</td>
+<td>220</td>
+<td>327</td>
+</tr>
+<tr>
+<td>Unoptimised2</td>
+<td>320</td>
+<td>224</td>
+<td>649</td>
+</tr>
+<tr>
+<td>kdb2</td>
+<td>404</td>
+<td>362</td>
+<td>488</td>
+</tr>
+<tr>
+<td>Optimised3</td>
+<td>291</td>
+<td>153</td>
+<td>145</td>
+</tr>
+<tr>
+<td>Unoptimised3</td>
+<td>283</td>
+<td>360</td>
+<td>391</td>
+</tr>
+<tr>
+<td>kdb3</td>
+<td>344</td>
+<td>392</td>
+<td>413</td>
+</tr>
+</tbody>
+</table>
+<h3 id="discussion">Discussion</h3>
+<ul>
+<li>Case 1 - Limited difference amongst all three queries, this occurs whenever a query can't be optimised or the dataset is too small for a change to be noticed.</li>
+<li>Case 2 - The API's strong all round performance, this occurs whenever a kdb+ query doesn't use the semantics of a process</li>
+<li>Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised</li>
+</ul>
+<h2 id="testing-library">Testing Library</h2>
+<p>Each subfunction of <code>getdata</code> has thorough tests found in <code>${KDBTESTS}/dataaccess/</code>. To run the tests:</p>
+<ol>
+<li>Set environment variables</li>
+<li>Ensure your TorQ stack is not running</li>
+<li>Navigate to the appropriate testing directory</li>
+<li>Run <code>. run.sh -d</code></li>
+</ol>
+<h2 id="logging">Logging</h2>
+<p>Upon calling either <code>.dataaccess.getdata</code> or <code>getdata</code> the corresponding user, startime, endtime, handle, success and any error messages are upserted to the <code>.dataaccess.stats</code> table for example when a good and bad query are sent to the gateway:</p>
+<pre><code>// Good gateway query
+q)g&quot;.dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;.z.p;((enlist `max)!enlist `ask`bid);`sym)&quot;
+sym | maxAsk maxBid
+----| -------------
+AAPL| 246.33 245.26
+AIG | 85.07  84
+...
+// Bad gateway query
+q)g&quot;.dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;15;((enlist `max)!enlist `ask`bid);`sym)&quot;
+'`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
+  [0]  g&quot;.dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D0;15;((enlist `max)!enlist `ask`bid);`sym)&quot;
+       ^
+</code></pre>
+
+<p>The following are the gateway and rdb logs:</p>
+<pre><code>// The logging in the gateway returns 
+
+q)g&quot;.dataaccess.stats&quot;
+querynumber| user  starttime                     endtime                       handle request                                                                                                                                        success error
+-----------| -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1          | admin 2021.03.25D14:52:03.380485000 2021.03.25D14:52:04.138481000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym) 1
+2          | admin 2021.03.25D14:52:20.546227000 2021.03.25D14:52:20.546341000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;15;(,`max)!,`ask`bid;`sym)                            0       `endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
+
+// The bad query errored out in the gateway, consequently only the good query is seen in the rdb logs
+
+q).dataaccess.stats
+querynumber| user    starttime                     endtime                       handle request                                                                                                                                                                          success error
+-----------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+1          | gateway 2021.03.25D14:52:03.381980000 2021.03.25D14:52:03.407870000 10     `tablename`starttime`endtime`aggregations`grouping`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym;1b;`hdb`rdb) 1
+
+</code></pre>
+
+<p>Logging can be toggled off from within a process by setting the value of <code>.dataaccess.logging</code> to <code>0b</code>.</p>
+<h1 id="further-integration">Further Integration</h1>
+<p>This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.</p>
+<h2 id="implementation-with-torq-fsp">Implementation with TorQ FSP</h2>
+<p>The API is compatible with the most recent <a href="https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack">TorQ Finance-Starter-Package</a>, the fastest way to import the API is opening <code>{APPCONFIG}/processes.csv</code> and adding the following flag <code>-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv</code> to the <code>rdb</code>, <code>hdb</code> and <code>gateway</code> extras column. For example:</p>
+<pre><code>host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+2,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv ,q
+localhost,{KDBBASEPORT}+3,hdb,hdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,q
+localhost,{KDBBASEPORT}+4,hdb,hdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBHDB},1,,q
+localhost,{KDBBASEPORT}+7,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,q
+</code></pre>
+
+<h2 id="implementation-with-q-rest">Implementation with q-REST</h2>
+<p>The API is compatible with q-REST. To do this:</p>
+<ol>
+<li>Download <a href="https://github.com/AquaQAnalytics/q-REST">q-REST</a></li>
+<li>Open <code>application.properties</code> and point <code>kdb.host/port</code> to the gateway</li>
+<li>Use the execute function argument to send <code>.json</code>s of the form:</li>
+</ol>
+<pre><code>{
+&quot;function_name&quot;: &quot;.dataaccess.qrest&quot;,
+&quot;arguments&quot;:{
+&quot;tablename&quot;:&quot;quote&quot;,
+&quot;starttime&quot;:&quot;2021.02.17D10:00:00.000000000&quot;,
+&quot;endtime&quot;:&quot;2021.02.18D12:00:00.000000000&quot;,
+&quot;freeformby&quot;:&quot;sym&quot;,
+&quot;aggregations&quot;:&quot; `max`min!(`ask`bid;`ask)&quot;,
+&quot;filters&quot;:&quot;`sym`bid`bsize!(enlist(like;'*PL');((&lt;;85);(&gt;;83.5));enlist(~:;within;5 43))&quot;
+}
+}
+</code></pre>
+
+<p>q-REST requires some modifications to the input dictionary:</p>
+<ol>
+<li>All dictionary values must be in string format</li>
+<li>Nested quotion marks are not permitted (Even when escaped out using <code>\"</code>)</li>
+<li>The second argument in a <code>like</code> filter should be have ' rather than " e.g <code>(like; 'AMD')</code></li>
+</ol>
+<h2 id="implementation-with-google-bigquery">Implementation with Google BigQuery</h2>
+<p>As key goal of the API has been TorQ's integration with other SQL databases such as Google BigQuery the successful outcome is discussed in the following blog:</p>
+<p><code>!!! ADD A BLOG HERE!!!</code></p>
+<h1 id="further-examples">Further Examples</h1>
+<p>For every key in the dictionary the following examples provide a query, output and the functional select executed from within the process. </p>
+<p><strong>Time default</strong></p>
+<p>If the time column isn't specified it defaults to the value of <code>`primaryattributecolumn</code></p>
+<pre><code>getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+date       time                          sym  bid   ask   bsize asize mode ex src
+----------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.58 84.93 13    89    Y    N  SUN
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+
+...
+.dataaccess.buildquery `tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b ()
+</code></pre>
+
+<p><strong>Intsrument Filter</strong></p>
+<p>Use the <code>`instruments</code> parameter to filter for <code>sym=`AAPL</code></p>
+<pre><code>getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+date       time                          sym  bid   ask   bsize asize mode ex src
+----------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.58 84.93 13    89    Y    N  SUN
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+..
+...
+q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b ()
+</code></pre>
+
+<p><strong>Columns</strong></p>
+<p>Use the <code>`columns</code> parameter to extract the following columns - <code>`sym`time`bid</code></p>
+<pre><code>getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+sym  time                          bid
+----------------------------------------
+AAPL 2021.01.21D13:36:45.714478000 84.01
+AAPL 2021.01.21D13:36:45.714478000 83.1
+AAPL 2021.01.21D13:36:45.714478000 83.3
+AAPL 2021.01.21D13:36:45.714478000 83.58
+AAPL 2021.01.21D13:36:46.113465000 83.96
+
+...
+q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `sym`time`bid!`sym`time`bid
+
+</code></pre>
+
+<p><strong>Free form select</strong></p>
+<p>Run a free form select using the <code>`freeformcolumn</code> parameter</p>
+<pre><code>getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;&quot;sym,time,mid:0.5*bid+ask&quot;)
+sym  time                          mid
+-----------------------------------------
+AAPL 2021.01.21D13:36:45.714478000 84.44
+AAPL 2021.01.21D13:36:45.714478000 83.81
+AAPL 2021.01.21D13:36:45.714478000 83.965
+AAPL 2021.01.21D13:36:45.714478000 84.255
+AAPL 2021.01.21D13:36:46.113465000 84.1
+
+...
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;&quot;sym,time,mid:0.5*bid+ask&quot;)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `sym`time`mid!(`sym;`time;(*;0.5;(+;`bid;`ask)))
+</code></pre>
+
+<p>This can be used in conjunction with the <code>columns</code> parameter, however the <code>columns</code> parameters will be returned first. It is advised to use the <code>columns</code> parameter for returning existing columns and the <code>freeformcolumn</code> for any derived columns.</p>
+<p><strong>Grouping</strong></p>
+<p>Use <code>`grouping</code> parameter to group average <code>`mid</code>, by <code>`sym</code></p>
+<pre><code>getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;&quot;avgmid:avg 0.5*bid+ask&quot;;`sym)
+sym | avgmid
+----| --------
+AAPL| 70.63876
+AIG | 31.37041
+AMD | 36.46488
+DELL| 8.34496
+DOW | 22.8436
+
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;&quot;avgmid:avg 0.5*bid+ask&quot;;`sym)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
+</code></pre>
+
+<p><strong>String style grouping</strong></p>
+<p>Group average <code>`mid</code>, by <code>instru:sym</code> using the <code>`freeformby</code> parameter</p>
+<pre><code>getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;&quot;avgmid:avg 0.5*bid+ask&quot;;&quot;instr:sym&quot;)
+instr| avgmid
+-----| --------
+AAPL | 70.63876
+AIG  | 31.37041
+AMD  | 36.46488
+DELL | 8.34496
+DOW  | 22.8436
+
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;&quot;avgmid:avg 0.5*bid+ask&quot;;&quot;instr:sym&quot;)
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`instr)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
+
+</code></pre>
+
+<p><strong>Time bucket</strong></p>
+<p>Group max ask by  6 hour buckets using the <code>`timebar</code> parameter</p>
+<pre><code>getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+time                         | maxAsk
+-----------------------------| ------
+2021.01.21D12:00:00.000000000| 98.99
+2021.01.21D18:00:00.000000000| 73.28
+2021.01.22D12:00:00.000000000| 97.16
+2021.01.22D18:00:00.000000000| 92.58
+...
+q).dataaccess.buildquery (`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.21D01:00:00.000000000 2021.01.28D23:00:00.000000000)) (,`time)!,({[timebucket;x]
+  typ:type x;
+  if[typ~12h;:timebucket xbar x];
+  if[typ in 13 14h;:..
+
+</code></pre>
+
+<p><strong>Aggregations</strong></p>
+<p>Max of both <code>`bidprice</code> and <code>`askprice</code></p>
+<pre><code>getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+maxAsk maxBid
+-------------
+109.5  108.6
+
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
+
+</code></pre>
+
+<p><strong>Filters</strong></p>
+<p>Use the <code>`filters</code> parameter to execute a functional select style where clause</p>
+<pre><code>getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+date       time                          sym  bid   ask   bsize asize mode ex src
+---------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.8  84.76 78    32    Z    N  DB
+2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
+..
+q).dataaccess.buildquery `tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+? `quote ((within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000);(in;`src;,`GETGO`DB)) 0b ()
+
+...
+</code></pre>
+
+<p><strong>Free form Filters</strong></p>
+<p>Use the <code>`freefromwhere</code> parameter to execute the same filter as above</p>
+<pre><code>getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;&quot;src in `DB`GETGO&quot;)
+date       time                          sym  bid   ask   bsize asize mode ex src
+---------------------------------------------------------------------------------
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
+2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.3  84.63 76    28    I    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.96 84.24 50    73    Y    N  DB
+2021.01.21 2021.01.21D13:36:46.113465000 AAPL 83.8  84.76 78    32    Z    N  DB
+2021.01.21 2021.01.21D13:36:48.714396000 AAPL 83.5  84.99 42    71    R    N  DB
+
+...
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;&quot;src in `DB`GETGO&quot;)
+? `quote ((within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000);(in;`src;,`DB`GETGO)) 0b ()
+
+
+</code></pre>
+
+<p><strong>Ordering</strong></p>
+<p>Use the <code>`ordering</code> parameter to sort results by column ascending or descending</p>
+<pre><code>getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+sym    time                          sourcetime                    bidprice bidsize askprice asksize
+----------------------------------------------------------------------------------------------------
+AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
+AAPL   2000.01.01D04:48:00.000000000 2000.01.01D04:48:00.000000000 98.1     933.3   119.9    1140.7
+GOOG   2000.01.01D10:24:00.000000000 2000.01.01D11:12:00.000000000 96.3     940.5   117.7    1149.5
+AAPL   2000.01.01D00:00:00.000000000 2000.01.01D00:00:00.000000000 97.2     959.4   118.8    1172.6
+GOOG   2000.01.01D00:48:00.000000000 2000.01.01D01:36:00.000000000 93.6     1008    114.4    1232
+GOOG   2000.01.01D03:12:00.000000000 2000.01.01D04:00:00.000000000 101.7    1078.2  124.3    1317.8
+...
+q).dataaccess.buildquery `tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+? `quote ,(within;`time;2000.01.01D00:00:00.000000000 2000.01.06D10:00:00.000000000) 0b ()
+</code></pre>
+
+<p><strong>Rename Columns</strong></p>
+<p>Use the <code>`renamecolumn</code> parameter to rename the columns </p>
+<pre><code>getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;&quot;sym,date&quot;;&quot;max price&quot;;`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+newdate    newsym| newprice
+-----------------| --------
+2021.01.18 IBM   | 69.64
+2021.01.19 IBM   | 55.91
+2021.01.18 AAPL  | 121.66
+2021.01.19 AAPL  | 111.67
+2021.01.18 INTC  | 70.77
+2021.01.19 INTC  | 65.6
+</code></pre>
+
+<p><strong>Postprocessing</strong></p>
+<p>Use the <code>`postproccessing</code> key to under go post proccessing on a table for example flipping the table into a dictionary</p>
+<pre><code>q)getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+maxAsk| 91.74
+maxBid| 90.65
+
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
+
+</code></pre>
+
+<p>More complex example collecting the avg price across multiple processes in the gateway g</p>
+<pre><code>
+q)g&quot;.dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{flip x})&quot;
+sumAsk  | 1.288549e+09
+countAsk| 28738958
+q)g&quot;.dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{select avgprice: sumAsk%countAsk from x})&quot;
+avgprice
+--------
+44.83632
+
+</code></pre>
+
+<p><strong>Sublist</strong></p>
+<p>Use the <code>`sublist</code> key to return the first n rows of a table, for example we get the first 2 rows of the table.</p>
+<pre><code>q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\&quot;sym\&quot;;(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+AAPL| 171.23 170.36 56.35  55.32
+GOOG| 101.09 99.96  45.57  44.47
+
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\&quot;sym\&quot;;(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
+
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\&quot;sym\&quot;;(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)&quot;
+sym | maxAsk maxBid minAsk minBid
+----| ---------------------------
+INTC| 68.51  67.56  44.59  43.63
+IBM | 48.53  47.61  37.1   36.11
+HPQ | 46.09  45.05  29.97  29.03
+
+</code></pre>
+                
+                  
+                
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../analyticslib/" title="Analytics Library" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Analytics Library
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../monit/" title="Monitoring" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Monitoring
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy 2020 AquaQ Analytics Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
+    
+      <a href="https://github.com/AquaQAnalytics" class="md-footer-social__link fa fa-github"></a>
+    
+      <a href="https://twitter.com/AquaQAnalytics" class="md-footer-social__link fa fa-twitter"></a>
+    
+      <a href="https://www.linkedin.com/company/aquaq-analytics" class="md-footer-social__link fa fa-linkedin"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application.808e90bb.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
+      
+    
+  </body>
+</html>
