@@ -1,3 +1,27 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////// Dev notes ///////////////////////
+/
+Current issues:
+
+	1) Need to add failure comment column to results. I'll mark comments for necessary code changes with "%%%".
+
+	2) The test load-in is clunky and currently has an issue with the connections column not being able to handle a mix of sym lists and atoms. I'll mark comments for necessary 
+	code changes with "&&&".
+
+	3) My feeling is the .tst namespace is handled incorrectly and inconsistently but would helpful to get a code review on this. 
+	
+	4) Logging to be changed throughout to TorQ logging.
+	
+	5) Add timer to run tests shortly (20s?) after deployment.
+	
+	6) Would be better for results readability if the check is not valued on loadin - resulting in named test functions with big lambdas populating the results table. Probably 
+	best value-ing the checks when the test is called. This change will cause issues for checking the test inputs. This can either be dealt with by changing the expected type for
+	check to 10h or by adding more bespoke checking for the check column. Or potentially on load-in maintaining the original input and the value-ed input, using the value-ed one
+	for testing and the original one for publishing results.
+\
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /TorQ QA Testing Process
 
 // read in connection details and set all processes as connections
@@ -9,19 +33,18 @@ expectedprocs:(exec procname from procstab) except `qat1`killtick`tpreplay1
   Standalone script for creating tests
   Usage:
   Add a test
-  .tst.Add `name`description`connections`check`resultchecker!(
+  .tst.Add `name`description`connections`check`args`category!(
       `example_test;
       "Check that 1b equals 1b!";
-      {};
-      {1b};
-      {x~1b}
+      `;
+      {1b~x};
+      1b;
+      `sample_tests
    );
   Run all tests
     .tst.RunAll[]
   Run specific test
     .tst.RunCase `example_test
-  Add connection details (can be included in the setup function)
-    .tst.AddConn[`example_test;`rdb;`::1337]
   Opens connection before test execution, adds handle to global dictionary
     Conn[`rdb] "query"
   Modify function below to output results favourite format.
@@ -35,6 +58,8 @@ expectedprocs:(exec procname from procstab) except `qat1`killtick`tpreplay1
 // description - more info on what the test does
 // connections - list of connections to make for the test
 // check - actual test logic
+// category - the category of the test, as defined by the csv it resides in
+//// %%% //// add failure comment column
 Cases:([name:`symbol$()] description:();connections:();check:();args:();category:`$())
 
 // run prior to testing to show if tests were up for each test
@@ -51,6 +76,8 @@ u.Log:{-1 x;}
 u.LogCase:{[name;msg] -1 string[name]," : ",msg;}
 u.LogCaseErr:{[name;msg] -2 string[name]," : ",msg;}
 
+
+//// %%% //// add check for failure comment
 // input checking
 casesTypes:`name`description`connections`check`args`category!(-11h;10h;-11 11h;100h;"h"$neg[19]+til 121;-11h)
 
@@ -95,15 +122,16 @@ RunCaseInner:{[Name]
   case:first case;
   if[not `~case`connections;  
     u.LogCase[Name;"Setting up necessary connections"];
-    // AddConn[Name;]each case`connections;
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
+  //// %%% //// results for failed tests may come back with an optional comment, need logic to handle this
   res:$[1<count value[case`check] 1; .; @][case`check;value case`args;{[n;err]u.LogCaseErr[n;err];0b}[Name]];
   res
  }
 
 // run all tests in Cases dictionary
+//// %%% //// need logic to handle failed tests coming back with an optional comment
 RunAll:{
   if[0=count .tst.Cases;'"no cases to run";:()];
   constat:procstatus exec connections from .tst.Cases;
@@ -119,6 +147,8 @@ SaveResults:{[res]
   tblcat:{[res;cat]?[res;enlist (=;`category;enlist cat);0b;()]}[res]each cat;
   SaveResultsInner'[tblcat]}
 
+
+//// %%% //// need to add failure comments to reporting
 // formats json report
 SaveResultsInner:{[res]
   start:-6_-3!`long$.z.p;
@@ -159,6 +189,7 @@ closeConn:{[Name]
  }
 
 // function to load tests from a csv
+//// &&& //// I think this can be made tider and more easily modified if the columns are extracted as lists and tests table is defined in terms of these lists
 loadtests:{[file]
   // extract tests from csv
   newtests:update category:`$first "."vs last "/"vs string file, {@[x;where (::)~'x;:;`]}value each connections, value each check from ("S****";enlist"|")0: file;
@@ -168,6 +199,8 @@ loadtests:{[file]
 
 \d .
 
+//////////////////// test functions below ////////////////////////
+//// %%% //// need to capture failure details for each test - many of these tests share names with DQC functions which may already have this capture within them
 // test whether a process is up
 connectiontest:{all {1~x"1"}'[.tst.Conn]}
 
@@ -202,7 +235,7 @@ schemacheck:{[tab;colname;types;forkeys;attribute]
   }
 
 // all test file paths
-alltests:alltests where not max (alltests:{` sv/:x,/:key x} hsym`$getenv[`KDBTESTS],"/qat") like/: ("*.swp*";"*.swo*")
+alltests:alltests where not max (alltests:.Q.dd[l]'[key l:hsym`$getenv[`KDBTESTS],"/qat"]) like/: ("*.swp*";"*.swo*")
 
 // load in test csv's
 .tst.loadtests'[alltests];
