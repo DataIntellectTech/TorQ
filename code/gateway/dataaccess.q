@@ -7,17 +7,8 @@ go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 
 // Full generality dataaccess function in the gateway
 getdata:{[o]
-    // Input checking in the gateway
-    reqno:.requests.initlogger[o];
-    o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
-    // Get the Procs
-    if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
-    // Get Default process behavior
-    default:`join`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{:x;});
-    // Use upserting logic to determine behaviour
-    options:default,o;
-    if[`ordering in key o;options[`ordering]: go each options`ordering];
-    o:adjustqueries[o;partdict o];
+    // Format query for multiprocess querying
+    preprocessing[o];
     // Execute the queries
     if[options`getquery;
         $[.gw.call .z.w;
@@ -133,3 +124,18 @@ colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations
 crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
 
 updategwtabprop:{[]:.gw.syncexec[".checkinputs.tablepropertiesconfig";exec servertype from .gw.servers];}
+
+
+preprocessing:{[o]
+    // Input checking in the gateway
+    reqno::.requests.initlogger[o];
+    o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
+    // Get the Procs
+    if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
+    // Get Default process behavior
+    default:`join`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{:x;});
+    // Use upserting logic to determine behaviour
+    options::default,o;
+    if[`ordering in key o;options[`ordering]: go each options`ordering];
+    o::adjustqueries[o;partdict o];
+    };

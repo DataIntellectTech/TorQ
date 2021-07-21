@@ -1,6 +1,5 @@
+\c 200 2000
 \d .kxdash
-enabled:@[value;`enabled;{0b}];
-
 // use this to store the additional params that the kx dashboards seem to send in
 dashparams:`o`w`r`limit!(0;0i;0i;0W)
 
@@ -8,6 +7,17 @@ dashparams:`o`w`r`limit!(0;0i;0i;0W)
 dashexec:{[q;s;j]
  .gw.asyncexecjpt[(dashremote;q;dashparams);(),s;dashjoin[j];();0Wn]
  }
+
+// Full generality dataaccess function for kx dashboards
+getdata:{[o]
+  // Format query for multiprocess querying
+  .dataaccess.preprocessing[o];
+  if[.dataaccess.options`getquery;
+    //Allow functionality of building a query
+    :.gw.asyncexec[(dashremote;(`getdata,o);dashparams);.dataaccess.options[`procs]];];
+    //Execute the query
+    :.gw.asyncexecjpt[(dashremote;(`getdata;o);dashparams);.dataaccess.options[`procs];dashjoin[.dataaccess.returntab[.dataaccess.options;;.dataaccess.reqno]];.dataaccess.options[`postback];.dataaccess.options[`timeout]];
+  }
 
 // execute the request
 // return a dict of status and result, along with the params
@@ -24,19 +34,20 @@ dashjoin:{[joinfunc;r]
   (`.dash.snd_err;r[0;1;`w];r[0;1;`r];r[0;1;`result])]
  }
 
+//Define the current .z.ps as a new function to be called in dashps
+.z.ops:@[.:;`.z.ps;{.:}];
+
 dashps:{
- // check the query coming in meets the format
- $[@[{`f`w`r`x`u~first 1_ value first x};x;0b];
-   // pull out the values we need to return to the dashboards
-   [dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0]);
+  // check the query coming in meets the format
+  $[@[{`f`w`r`x`u~first 1_ value first x};x;0b];
+    // pull out the values we need to return to the dashboards
+    [dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0]);
     // execute the query part, which must look something like
     // .kxdash.dashexec["select from t";`rdb`hdb;raze]
-    value x[4;1];
-    ];
-   //
-   value x]
+    .z.ops x[4;1];];
+    // if incoming message is not in kxdash format, treat as normal
+    .z.ops x]
  }
-
 
 // need this to handle queries that only hit one backend process
 // reformat those responses to look the same
@@ -46,16 +57,16 @@ formatresponse:{[status;sync;result]
   :$[res`status;
     (`.dash.rcv_msg;res`w;res`o;res`r;res`result);
     (`.dash.snd_err;res`w;res`r;res`result)]];
- $[not[status]and sync;'result;result]}
-
+ $[not[status]and sync;'result;result]
+ }
 
 init:{
- // KX dashboards are expecting getFunctions to be defined on the process
- .api.getFunctions:@[value;`.api.getFunctions;{{:()}}];
- // Reset format response
- .gw.formatresponse:formatresponse;
- // incorporate dashps into the .z.ps definition
- .z.ps:{x@y;.kxdash.dashps y}@[value;`.z.ps;{{value x}}];
+  // KX dashboards are expecting getFunctions to be defined on the process
+  .api.getFunctions:@[value;`.api.getFunctions;{{:()}}];
+  // Reset format response
+  .gw.formatresponse:formatresponse;
+  // Redefine .z.ps as dashps to handle incoming queries
+  .z.ps:dashps;
  };
  
 if[enabled;init[]];
