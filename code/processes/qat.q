@@ -81,17 +81,28 @@ Remove:{[Name] .tst.Cases:delete from Cases where name=Name}
 
 // run specific test in Cases dictionary
 RunCase:{[Name]
-  res:RunCaseInner Name;
+  res:`name`start!(Name;.z.p);
+  result:RunCaseInner Name;
+  $[99=type result;
+    $[`result`description~key result;
+      res,:result;
+      `result in key result;
+      res,:(select result from result),(enlist `description)!enlist " No description given";
+      res,:`result`description!(0b;" Failed:Incorrect dictionary output")];
+    -1=type result;
+    res,:`result`description!(result;" No description given");
+    res,:`result`description!(0b;" Incorrect test output")];
   closeConn Name;
-  $[res;
+  $[res`result;
      u.LogCase[Name;"Test passed"];
      u.LogCaseErr[Name;"Test failed"]   
   ];
+  res[`end]:.z.p;
   res
  }
 
 RunCaseInner:{[Name]
-  if[not count case:0!select from .tst.Cases where name=Name;'"case does not exist : ",-3!Name];
+  if[not count case:0!select from .tst.Cases where name=Name;:"case does not exist : ",-3!Name];
   case:first case;
   if[not `~case`connections;  
     u.LogCase[Name;"Setting up necessary connections"];
@@ -99,16 +110,20 @@ RunCaseInner:{[Name]
     openConn Name;
   ];
   u.LogCase[Name;"Running test"];
-  res:$[1<count value[case`check] 1; .; @][case`check;value case`args;{[n;err]u.LogCaseErr[n;err];0b}[Name]];
+  res:$[1<count value[case`check] 1; .; @][case`check;value case`args;{[n;err]u.LogCaseErr[n;err];`result`description!(0b;" Failed with error:",err)}[Name]];
   res
  }
 
 // run all tests in Cases dictionary
 RunAll:{
-  if[0=count .tst.Cases;'"no cases to run";:()];
+  if[0=count .tst.Cases;:"no cases to run";:()];
   constat:procstatus exec connections from .tst.Cases;
   tests:update status:first'[constat'[connections]] from .tst.Cases;
-  res:0!update result:0b from (update result:@[.tst.RunCase;;0b] each name from tests where status=`up) where status=`down;
+  res:update result:0b,start:.z.p,end:.z.p from tests where status=`down;
+  res:{.tst.descUpd[x;y;" Connection failed; status=down"]}/[res;exec name from res where status=`down];
+  result:.tst.RunCase each exec name from tests where status=`up;
+  res:{.tst.descUpd[x;y 0;y 1]}/[res;flip value exec name,description from result];
+  res:0!res lj 1!delete description from result;
   SaveResults[res];
   res
  }
@@ -121,9 +136,8 @@ SaveResults:{[res]
 
 // formats json report
 SaveResultsInner:{[res]
-  start:"J"$-6_-3!`long$.z.p-1970.01.01D;
-  system"sleep 1";
-  stop:"J"$-6_-3!`long$.z.p-1970.01.01D;
+  start:exec "J"$13#-3!`long$start-1970.01.01D from res;
+  stop:exec "J"$13#-3!`long$end-1970.01.01D from res;
   description:exec description from res;
   steps:select name,status:{$[x;`passed;`failed]}each result from res;
   steps:enlist update stage:`finished,steps:(),attachments:(),parameters:(),start:start,stop:stop from steps;
@@ -167,6 +181,12 @@ loadtests:{[file]
   .tst.Add each newtests;
   }
 
+descUpd:{[table;name;comment]
+  ![table;
+    enlist (=;`name;enlist name);
+    0b;
+    (enlist `description)!enlist (each;raze;(enlist;(,;`description;comment)))]}
+
 \d .
 
 // test whether a process is up
@@ -177,7 +197,8 @@ constructcheckinner:{[construct;chktype;contype]
   chkfunct:{system x," ",string $[null y;`;y]};
   dict:`table`variable`view`function!chkfunct@/:"avbf";
   res:last[`$c] in dict[chktype][`$"."sv -1_c:"."vs string construct];
-  $[null contype; res; min (res; contype=type value construct)]
+  result:$[null contype; res; min (res; contype=type value construct)];
+  `result`description!(result;"")
   }
 
 // outer function sends constructcheckinner query to the process
@@ -186,20 +207,25 @@ constructcheck:{[construct;chktype;contype]
   }
 
 // test whether a process has all required subscriptions
-subtest:{min count each first[.tst.Conn]({exec w from .servers.getservers[`procname;x;()!();0b;1b]}';(::;enlist)[0>type x]x)}
+subtest:{min count each first each c:first[.tst.Conn]({(exec w from .servers.getservers[`procname;x;()!();0b;1b];x)}';(::;enlist)[0>type x]x);
+  $[min count each c[;0];
+    `result`description!(1b;"");
+    `result`description!(0b;" Failed to connect to "," " sv string each c[;1] where 0=count'[c[;0]])]}
 
 // test to check result of function called on its arguments
 functest:{[func;args;res]
   numargsapply:first[.tst.Conn]"{$[1<count value[x] 1; .; @]}eval ",.Q.s1 func;
   query:"eval[",string[func],"] ",string[numargsapply]," eval each ",.Q.s1 args;
-  res~first[.tst.Conn]query 
+  result:res~first[.tst.Conn]query;
+  `result`description!(result;"")
   }
 
 // come back to this - might need to add failcomment column
 schemacheck:{[tab;colname;types;forkeys;attribute]
   origschema:0!meta tab;
   checkschema:([]c:colname;t:types;f:forkeys;a:attribute);
-  all checkschema~'origschema
+  result:all checkschema~'origschema;
+  `result`description!(result;"")
   }
 
 // all test file paths
