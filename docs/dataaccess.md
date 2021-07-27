@@ -285,7 +285,15 @@ ask    bid    ask1 bid1
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
 ```
-As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the``` `join`postprocessing`timeouts``` keys appropriately.
+Updates to the dataaccess gateway code sees an ability to perform all
+map-reducable aggregations (except median) currently available to be performed
+over multiple processes without the need for a grouping based upon the
+partitioning field. The gateway now collects all the appropriate aggregates
+needed to calculate a value, and then re-aggregates the collected data based
+upon groupings when brought back to the gateway process. For complete clarity
+the full list of aggregations that can span multiple processes without
+a partitioned grouping are as follows: `avg`, `cor`, `count`, `cov`, `dev`,
+`first`, `last`, `max`, `min`, `prd`, `sum`, `var`, `wavg` and `wsum`.
 
 ## Checkinputs
 
