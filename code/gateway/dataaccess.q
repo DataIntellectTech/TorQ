@@ -115,7 +115,7 @@ mapreduceres:{[options;res]
             a!a:(),options[`timebar;2];
             0b];
     // select aggs by gr from res
-    ?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]]];
+    :?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
     };
 
 
