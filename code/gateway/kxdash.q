@@ -1,4 +1,3 @@
-\c 200 2000
 \d .kxdash
 // use this to store the additional params that the kx dashboards seem to send in
 dashparams:`o`w`r`limit!(0;0i;0i;0W)
@@ -11,12 +10,12 @@ dashexec:{[q;s;j]
 // Full generality dataaccess function for kx dashboards
 getdata:{[o]
   // Format query for multiprocess querying
-  .dataaccess.preprocessing[o];
-  if[.dataaccess.options`getquery;
+  query:.dataaccess.preprocessing[o];
+  if[query[`options][`getquery];
     //Allow functionality of building a query
-    :.gw.asyncexec[(dashremote;(`getdata,o);dashparams);.dataaccess.options[`procs]];];
+    :.gw.asyncexec[(dashremote;(`getdata,query[`o]);dashparams);query[`options][`procs]];];
     //Execute the query
-    :.gw.asyncexecjpt[(dashremote;(`getdata;o);dashparams);.dataaccess.options[`procs];dashjoin[.dataaccess.returntab[.dataaccess.options;;.dataaccess.reqno]];.dataaccess.options[`postback];.dataaccess.options[`timeout]];
+    :.gw.asyncexecjpt[(dashremote;(`getdata;query[`o]);dashparams);query[`options][`procs];dashjoin[.dataaccess.returntab[query[`options];;query[`reqno]]];query[`options][`postback];query[`options][`timeout]];
   }
 
 // execute the request
@@ -34,9 +33,6 @@ dashjoin:{[joinfunc;r]
   (`.dash.snd_err;r[0;1;`w];r[0;1;`r];r[0;1;`result])]
  }
 
-//Define the current .z.ps as a new function to be called in dashps
-.z.ops:@[.:;`.z.ps;{.:}];
-
 dashps:{
   // check the query coming in meets the format
   $[@[{`f`w`r`x`u~first 1_ value first x};x;0b];
@@ -44,9 +40,9 @@ dashps:{
     [dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0]);
     // execute the query part, which must look something like
     // .kxdash.dashexec["select from t";`rdb`hdb;raze]
-    .z.ops x[4;1];];
+    .gw.ps x[4;1];];
     // if incoming message is not in kxdash format, treat as normal
-    .z.ops x]
+    .gw.ps x]
  }
 
 // need this to handle queries that only hit one backend process
@@ -61,6 +57,8 @@ formatresponse:{[status;sync;result]
  }
 
 init:{
+  //Define the current .z.ps as a new function to be called in dashps
+  .gw.ps:@[value;`.z.ps;{value}];
   // KX dashboards are expecting getFunctions to be defined on the process
   .api.getFunctions:@[value;`.api.getFunctions;{{:()}}];
   // Reset format response

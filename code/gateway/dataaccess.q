@@ -8,17 +8,17 @@ go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 // Full generality dataaccess function in the gateway
 getdata:{[o]
     // Format query for multiprocess querying
-    preprocessing[o];
+    query:preprocessing[o];
     // Execute the queries
-    if[options`getquery;
+    if[query[`options][`getquery];
         $[.gw.call .z.w;
-            :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
-            :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
+            :.gw.syncexec[(`.dataaccess.buildquery;query[`o]);query[`options][`procs]];
+            :.gw.asyncexec[(`.dataaccess.buildquery;query[`o]);query[`options][`procs]]]];
     $[.gw.call .z.w;
         //if sync
-        :.gw.syncexecjt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`timeout]];
+        :.gw.syncexecjt[(`getdata;query[`o]);query[`options][`procs];returntab[query[`options];;query[`reqno]];query[`options][`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`postback];options[`timeout]]];
+        :.gw.asyncexecjpt[(`getdata;query[`o]);query[`options][`procs];returntab[query[`options];;query`[reqno]];query[`options][`postback];query[`options][`timeout]]];
      };
 
 // Dynamic routing finds all processes with relevant data 
@@ -128,14 +128,15 @@ updategwtabprop:{[]:.gw.syncexec[".checkinputs.tablepropertiesconfig";exec serve
 
 preprocessing:{[o]
     // Input checking in the gateway
-    reqno::.requests.initlogger[o];
+    reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
     // Get the Procs
     if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
     // Get Default process behavior
     default:`join`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
-    options::default,o;
-    if[`ordering in key o;options[`ordering]: go each options`ordering];
-    o::adjustqueries[o;partdict o];
+    options:default,o;
+    if[`ordering in key o;options[`ordering]:: go each options`ordering];
+    o:adjustqueries[o;partdict o];
+    `o`options`reqno!(o;options;reqno)
     };
