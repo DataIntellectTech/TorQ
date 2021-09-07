@@ -1,5 +1,3 @@
-.aqrest.execute:{[req;props] @[value;req;{(neg .z.w)(.gw.formatresponse[0b;0b;"error: ",x])}]};
-
 \d .dataaccess
 
 // .gw.formatresponse:{[status;sync;result]$[not[status]and sync;'result;result]}};
