@@ -393,8 +393,14 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
      if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
      servertype:res;
     ];
+/   if[serverid=`hdb;]
    ]
   ];
+    checkdate:{[query] 
+       conds:parse query; 
+       $[count ss[.Q.s1 @[conds;2];"date"];0;"Please add a date clause to your query"]};
+    errcheck:checkdate[query];
+    if[10h=type errcheck; errstr:errcheck]
  // error has been hit
  if[count errstr;
   @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errstr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errstr]];()];
