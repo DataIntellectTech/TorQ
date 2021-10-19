@@ -2,6 +2,57 @@
 
 forceservers:0b;
 
+// dictionary containing aggregate functions needed to calculate map-reducable
+// values over multiple processes
+aggadjust:(!). flip(
+    (`avg;     {flip(`sum`count;2#x)});
+    (`cor;     {flip(`wsum`count`sum`sum`sumsq`sumsq;@[x;(enlist(0;1);0;0;1;0;1)])});
+    (`count;   `);
+    (`cov;     {flip(`wsum`count`sum`sum;@[x;(enlist(0;1);0;0;1)])});
+    (`dev;     {flip(`sumsq`count`sum;3#x)});
+    (`distinct;`);
+    (`first;   `);
+    (`last;    `);
+    (`max;     `);
+    (`min;     `);
+    (`prd;     `);
+    (`sum;     `);
+    (`var;     {flip(`sumsq`count`sum;3#x)});
+    (`wavg;    {flip(`wsum`sum;(enlist(x 0;x 1);x 0))});
+    (`wsum;    {enlist(`wsum;enlist(x 0;x 1))}));
+
+// function to make symbols strings with an upper case first letter
+camel:{$[11h~type x;@[;0;upper]each string x;@[string x;0;upper]]};
+// function that creates aggregation where X(X1,X2)=X(X(X1),X(X2)) where X is
+// the aggregation and X1 and X2 are non overlapping subsets of a list
+absagg:{enlist[`$x,y]!enlist(value x;`$x,y)};
+
+// functions to calculate avg, cov and var in mapaggregate dictionary
+avgf:{(%;(sum;`$"sum",x);scx y)};
+covf:{(-;(%;swsum[x;y];scx x);(*;avgf[x;x];avgf[y;x]))};
+varf:{(-;(%;(sum;`$"sumsq",y);scx x);(xexp;avgf[y;x];2))};
+// functions to sum counts and wsums in mapaggregate dictioanry
+scx:{(sum;`$"count",x)};
+swsum:{(sum;`$"wsum",x,y)}
+
+// dictionary containing the functions needed to aggregate results together for
+// map reducable aggregations
+mapaggregate:(!). flip(
+    (`avg;      {enlist[`$"avg",x]!enlist(%;(sum;`$"sum",x);scx x)});
+    (`cor;      {enlist[`$"cor",x,w]!enlist(%;covf[x;w];(*;(sqrt;varf[x;x]);(sqrt;varf[(x:x 0);w:x 1])))});
+    (`count;    {enlist[`$"count",x]!enlist scx x});
+    (`cov;      {enlist[`$"cov",x,w]!enlist covf[x:x 0;w:x 1]});
+    (`dev;      {enlist[`$"dev",x]!enlist(sqrt;varf[x;x])});
+    (`first;    {enlist[`$"first",x]!enlist(*:;`$"first",x)});
+    (`last;     {absagg["last";x]});
+    (`max;      {absagg["max";x]});
+    (`min;      {absagg["min";x]});
+    (`prd;      {absagg["prd";x]});
+    (`sum;      {absagg["sum";x]});
+    (`var;      {enlist[`$"var",x]!enlist varf[x;x]});
+    (`wavg;     {enlist[`$"wavg",x,w]!enlist(%;swsum[x:x 0;w:x 1];(sum;`$"sum",x))});
+    (`wsum;     {enlist[`$"wsum",x,w]!enlist swsum[x:x 0;w:x 1]}));
+
 // function to convert sorting
 go:{if[`asc=x[0];:(xasc;x[1])];:(xdesc;x[1])};
 
@@ -13,22 +64,60 @@ getdata:{[o]
     // Get the Procs
     if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
     // Get Default process behavior
-    default:`join`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(multiprocjoin[o];0Wn;();0W;0b;1b;{:x;});
+    default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     o:adjustqueries[o;partdict o];
+    options[`mapreduce]:0b;
+    gr:$[`grouping in key options;options`grouping;`];
+    if[`aggregations in key options;
+        if[all key[options`aggregations]in key aggadjust;
+            options[`mapreduce]:not`date in gr]];
     // Execute the queries
     if[options`getquery;
         $[.gw.call .z.w;
             :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
-    $[.gw.call .z.w;
+    :$[.gw.call .z.w;
         //if sync
-        :.gw.syncexecjt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`timeout]];
+        .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
         // if async
-        :.gw.asyncexecjpt[(`getdata;o);options[`procs];returntab[options;;reqno];options[`postback];options[`timeout]]];
-     };
+        .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
+    };
+
+
+// join results together if from multiple processes
+autojoin:{[options]
+    // if there is only one proc queried output the table
+    if[1=count options`procs;:{::}];
+    // if there is no need for map reducable adjustment, return razed results
+    if[not options`mapreduce;:raze];
+    :mapreduceres[options;];
+    };
+
+// function to correctly reduce two tables to one
+mapreduceres:{[options;res]
+    // raze the result sets together
+    res:$[all 99h=type each res;
+        (){x,0!y}/res;
+        (),/res];
+    aggs:options`aggregations;
+    aggs:flip(key[aggs]where count each value aggs;raze aggs);
+    // distinct may be present as only agg, so apply distinct again
+    if[all`distinct=first each aggs;:?[res;();1b;()]];
+    // collecting the appropriate grouping argument for map-reduce aggs
+    gr:$[all`grouping`timebar in key options;
+            a!a:options[`timebar;2],options`grouping;
+        `grouping in key options;
+            a!a:(),options`grouping;
+        `timebar in key options;
+            a!a:(),options[`timebar;2];
+            0b];
+    // select aggs by gr from res
+    :?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
+    };
+
 
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
@@ -44,6 +133,7 @@ attributesrouting:{[options;procdict]
        ];
     :types;
     };
+
 // mixture of all the post processing functions in gw
 returntab:{[input;tab;reqno]
     joinfn:input[`join];
@@ -99,37 +189,27 @@ adjustqueries:{[options;part]
         // convert first and last timestamp to start and end time
         dates:@[dates;f;:;(start;dates[f:first key dates;1])];
         dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]];
+    // adjust map reducable aggregations to get correct components
+    if[(1<count dates)&`aggregations in key options;
+        if[all key[o:options`aggregations]in key aggadjust;
+            aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
+            options:@[options;`aggregations;:;aggs]]];
     // create a dictionary of procs and different queries
     :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
     };
 
-// Default dataaccess join allowing for aggregations across processes
-multiprocjoin:{[input]
-    //If there is only one proc queried output the table
-    if[1=count input `procs;:{::}];
-    // If no aggregations key is provided return a basic raze function
-    if[not `aggregations in key input;:raze];
-    // If a by date clause has been added then just raze as normal
-    if[`grouping in key input;if[`date in input[`grouping];:raze]];
-    // If timebar is called check it lines up with rollover
-    if[`timebar in key input;$[(((input[`timebar][0])*.dataaccess.timebarmap[input[`timebar][1]]) xbar 00:00:00.0+.dacustomfuncs.lastrollover[input[`tablename]])=00:00:00.0+.dacustomfuncs.lastrollover[input[`tablename]];:raze;'`$"Can't have a cross process timebar not land directly on the rollover try adding a date grouping"]]; 
-    // If user queries for an aggregation which isn't allowed cross process error
-    if[not all (key input[`aggregations]) in key crossprocfunctions;'`$"Can't use the following aggregations across processes avg, cor, cov, dev, med, var, wavg, wsum consider adding a date grouping"];
-    :crossprocmerge[input;];
+// function to grab the correct aggregations needed for aggregating over
+// multiple processes
+mapreduce:{[aggs;gr]
+    // if there is a date grouping any aggregation is allowed
+    if[`date in gr;:aggs];
+    // format aggregations into a paired list
+    aggs:flip(key[aggs]where count each value aggs;raze aggs);
+    // if aggregations are not map-reducable and there is no date grouping,
+    // then error
+    if[not all aggs[;0]in key aggadjust;
+        '`$"to perform non-map reducable aggregations automatically over multiple processes there must be a date grouping"];
+    // aggregations are map reducable (with potential non-date groupings)
+    aggs:distinct raze{$[`~a:.dataaccess.aggadjust x 0;enlist x;a x 1]}'[aggs];
+    :first'[aggs]!last'[aggs];
     };
-
-// Extract a column from a table maintaining the keys if applicable
-colextract:{[x;y]?[x;();$[x~0!x;0b;(cols key x)!cols key x];(enlist y)!enlist y]};
-
-//list of accepted functions
-crossprocfunctions:`count`distinct`first`last`max`min`prd`sum!(sum;distinct;first;last;max;min;prd;sum);
-
-colmerge:{[f;A;z] crossprocfunctions[f] (colextract[;z]) each A};
-
-// Extract list of crossproc aggregations to be used
-colstm:{[input]: raze ((count') input[`aggregations]) #' key input[`aggregations]};
-
-// Merge the tables
-crossprocmerge:{[input;A](^/)colmerge[;A;]'[colstm[input];$[A[0]~0!A[0];cols A[0];((cols A[0]) where not (cols A[0]) in  cols key A[0])]]};
-
-updategwtabprop:{[]:.gw.syncexec[".checkinputs.tablepropertiesconfig";exec servertype from .gw.servers];}

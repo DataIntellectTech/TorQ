@@ -6,7 +6,7 @@ tickerplant:`stp1
 allowedops:(<;>;<>;in;within;like;<=;>=;=;~;not);
 allowednot:(within;like;in);
 // functions that can be queried under aggregations, these functions support 'map reduce'
-validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`var`wavg`wsum;
+validfuncs:`avg`cor`count`cov`dev`distinct`first`last`max`med`min`prd`sum`sumsq`var`wavg`wsum;
 // functions which return a single value for aggregations
 returnone:`first`last`avg`count`dev`max`med`min`prd`sum`var`wavg`wsum;
 // functions with two inputs required for aggregations

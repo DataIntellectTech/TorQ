@@ -85,7 +85,7 @@ extractaggregations:{[inputparams;queryparams]
  };
 
 ungroupaggregations:{[inputparams](key[inputparams`aggregations]where count each get inputparams`aggregations;raze inputparams`aggregations;.checkinputs.getdefaulttime[inputparams])};
-extracteachaggregation:{[func;columns;deftime](`$string[func],raze .[string(),?[columns=`$((string deftime),".date");`date;columns];(::;0);upper];parse[string func],columns)};
+extracteachaggregation:{[func;columns;deftime](`$string[func],raze .[string(),?[columns=`$((string deftime),".date");`date;columns];(::;0);upper];?[`sumsq=func;(sum;(xexp;columns;2));parse[string func],columns])};
 
 extracttimebar:{[inputparams;queryparams]
   // If no key has been provided return the queryparams
