@@ -507,6 +507,9 @@ pgs:{.gw.call,:enlist[x]!enlist y};
 .z.po:{x@y;.gw.po[y]}@[value;`.z.po;{{[x]}}];
 .z.pg:{.gw.pgs[.z.w;1b];x@y}@[value;`.z.pg;{{[x]}}];
 .z.ps:{.gw.pgs[.z.w;0b];x@y}@[value;`.z.ps;{{[x]}}];
+// only wrap .z.ws if it is already defined
+if[@[{value x;1b};`.z.ws;{0b}];
+  .z.ws:{.gw.pgs[.z.w;1b];x@y}.z.ws];
 
 // START UP
 // initialise connections
