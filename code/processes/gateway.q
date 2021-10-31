@@ -220,8 +220,7 @@ checkresults:{[queryid]
   // get the rest of the detail from the query table
   querydetails:queryqueue[queryid];
   // apply the join function to the results
-  // If there only is one result, then just return it - ignore the join function
-  res:@[{(0b;$[1<count y;$[10h=type x;value(x;y); x @ y];first y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
+  res:@[{(0b;$[10h=type x;value(x;y); x @ y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
   // send the results back to the client.
   sendclientreply[queryid;last res;not res 0];
   // finish the query
@@ -508,8 +507,7 @@ pgs:{.gw.call,:enlist[x]!enlist y};
 .z.pg:{.gw.pgs[.z.w;1b];x@y}@[value;`.z.pg;{{[x]}}];
 .z.ps:{.gw.pgs[.z.w;0b];x@y}@[value;`.z.ps;{{[x]}}];
 // only wrap .z.ws if it is already defined
-if[@[{value x;1b};`.z.ws;{0b}];
-  .z.ws:{.gw.pgs[.z.w;1b];x@y}.z.ws];
+if[@[{value x;1b};`.z.ws;{0b}];.z.ws:{.gw.pgs[.z.w;0b];x@y}.z.ws];
 
 // START UP
 // initialise connections
