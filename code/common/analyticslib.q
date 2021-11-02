@@ -47,7 +47,7 @@ ffill:{[args]
 
 / - General pivot function
 pivot:{[args]
-	checkargs[args;`table`by`piv`var;(" sS")];
+	checkargs[args;`table`by`piv`var`f`g;(" sS")];
  	/ - if user has not specified f or g set to defaults
  	if[not all `f`g in key args;
     	args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
