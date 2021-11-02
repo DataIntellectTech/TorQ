@@ -4,7 +4,7 @@
 checkargs:{[args;k;t]
  	$[not 99h~type args;'`$"Input parameter must be a dictionary with keys:\n\t-",sv["\n\t-";string k];  / - check for dictionary
         / - check for keys
-        not all key[args] in k;'`$"Dictionary keys are incorrect. Keys should be:\n\t-", sv["\n\t-";string k], "\nYou have input keys:\n\t-", sv["\n\t-";string key args];
+        not all k in key[args];'`$"Dictionary keys are incorrect. Keys should be:\n\t-", sv["\n\t-";string k], "\nYou have input keys:\n\t-", sv["\n\t-";string key args];
         / - check for types
 		/ any not in'[string .Q.ty'[args k];t]
         any not .Q.ty'[args k] in t;'`$("One or more of your inputs are of an invalid type.");
@@ -47,11 +47,16 @@ ffill:{[args]
 
 / - General pivot function
 pivot:{[args]
-	checkargs[args;`table`by`piv`var`f`g;(" sS")];
- 	/ - if user has not specified f or g set to defaults
- 	if[not all `f`g in key args;
-    	args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
-    	args[`g]:{[k;P;c] k,asc c}];
+	checkargs[args;`table`by`piv`var;(" sS")];
+ 	/ - Check for optional args f and g
+	/ - Check if f optional exists, if empty set as default else leave as input
+	if[not `f in key args;
+	args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
+	args[`f]];
+	/ - Check if g optional exists, if empty set as default else leave as input
+	if[not `g in key args;
+	args[`g]:{[k;P;c] k,asc c};
+	args[`g]];
 	/ - Call check function on input
 	(args`var):(),args[`var];
 	G:group flip (args[`by])!((args[`table]):0!.Q.v (args[`table]))(args`by),:();
