@@ -51,12 +51,12 @@ pivot:{[args]
  	/ - Check for optional args f and g
 	/ - Check if f optional exists, if empty set as default else leave as input
 	if[not `f in key args;
-	args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
-	args[`f]];
+	  args[`f]:{[v;P] `$"_" sv' string (v,()) cross P};
+	];
 	/ - Check if g optional exists, if empty set as default else leave as input
 	if[not `g in key args;
-	args[`g]:{[k;P;c] k,asc c};
-	args[`g]];
+	  args[`g]:{[k;P;c] k,asc c};
+	];
 	/ - Call check function on input
 	(args`var):(),args[`var];
 	G:group flip (args[`by])!((args[`table]):0!.Q.v (args[`table]))(args`by),:();
