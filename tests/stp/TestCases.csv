@@ -7,6 +7,7 @@ RDB (or any Subscriber),Subscriptions,All Subscriptions,1.1.1,"Data is published
 ,,Update logs,1.1.6,"Data is published, it is saved in the log file",Update saved in log file,,MP,Done,subscription/subs.csv,
 ,,Error logs,1.1.7,"Bad update published, gets saved in error log",Bad update saved to log file,,MP,Done,subscription/subs.csv,
 ,,Filtered Subscription file missing ,1.1.8,Filtered sub file doesn't exist,Process fails to start,,MP,Done,subfile/subfilemissing.csv,is this one covered? 
+,,Publish only by filtered subsciptions,1.1.9,Subscriber subscribes with .u.sub[`table;`list`of`symbols],Consumer subscribes to specific list of sym data onlywith only the specific data being published,,PK,In Progress,pubsub/pubsub.csv,^M
 RDB ,Recovery - single daily log file (tabperiod=`none),"RDB Restart, all subscriptions",2.1.1,"RDB subscribes for all data, is bounced",Data is the same in the RDB pre and post bounce,,AW,Done,recovery/recoverysinglelog.csv,
 ,,"RDB restart, sym subscriptions (using .rdb.subscribesyms variable)",2.1.2,"RDB subscribes to a subset of syms, is bounced",Data is the same in the RDB pre and post bounce,,AW,Done,recovery/recoverysinglelog.csv,
 ,,"RDB restart, complex filter using filtered subs functionality ",2.1.3,RDB subscribes to a subset of data using filtered functionality ,Data is the same in the RDB pre and post bounce,"These are similar to 2.1.1 but for this type of TP log file the TP may have multple log files, all of which should be replayed. So the set up should be:
