@@ -73,14 +73,14 @@ selfiltered:{[x;y]
 
 // Publish table data
 pub:{[t;x]
-    if[not count x;:()];
-    if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
-    if[t in .stpps.subrequestfiltered`tbl;
-         {[t;x;sels] data:eval(?;x;sels`filts;0b;sels`columns);
-         //show count data;
+  if[not count x;:()];
+  if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
+  if[t in .stpps.subrequestfiltered`tbl;
+    {[t;x;sels] data:eval(?;x;sels`filts;0b;sels`columns);
          if[count data;neg[sels`handle](`upd;t;data)]}[t;x;]
-    each select handle,filts,columns from .stpps.subrequestfiltered where tbl=t];
-        };
+           each select handle,filts,columns from .stpps.subrequestfiltered where tbl=t
+    ];
+   };
 
 // publish and clear tables
 pubclear:{
