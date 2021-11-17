@@ -157,3 +157,41 @@ init:{[t]
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
   $[10h~type last val;'last val;val]
  };
+
+// Striping data in a TorQ Installation
+// Limitation: only max 16 (hexidecimal digits 0-9 A-F) processes using this logic
+// Can expand beyond 16 processes if required - Modify lookup and modMd5 function to use more digits e.g. "8b" for a single map
+.ds.lookup:{[numSeg;maxProc]
+    hexDg:lower .Q.nA til maxProc;
+    seg:til numSeg;
+    hexDg!maxProc#til numSeg
+    }[;16]
+
+// Hash function
+.ds.modMd5:{first each string first each md5'[string x]}
+
+.ds.map:{[numSeg;sym] sym@/:group .ds.lookup[numSeg] .ds.modMd5 sym}
+
+// Get the number of rdb processes from process.csv
+.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype
+
+// Striping function which stores the mappings for any symbols that it has already computed and 
+// for subsequent requests for that symbol, it looks them up
+.ds.stripe:{[input;skey]
+    // If no updates, return
+    $[0=count input;:();];
+
+    sym:distinct input;
+    // Check if .ds.subReq (dict) exists
+    $[`subReq in key`.ds;
+        // If .ds.numSeg changes - reset .ds.subReq
+        [$[.ds.numSeg=1+max key .ds.subReq;;`.ds.subReq set ()!()];
+        // If .ds.subReq exists - check for new sym and append to .ds.subReq
+        $[any new:not sym in raze value .ds.subReq;
+            `.ds.subReq set .ds.subReq,' .ds.map[.ds.numSeg;sym where new];
+            ];];
+        // Initialize .ds.subReq if does not exists
+        `.ds.subReq set .ds.map[.ds.numSeg;sym]
+        ];
+    .ds.subReq skey
+    }
