@@ -185,7 +185,7 @@ init:{[t]
     // Check if .ds.subReq (dict) exists
     $[`subReq in key`.ds;
         // If .ds.numSeg changes - reset .ds.subReq
-        [$[.ds.numSeg=1+max key .ds.subReq;;`.ds.subReq set ()!()];
+        [if[.ds.numSeg<>1+max key .ds.subReq;`.ds.subReq set ()!()];
         // If .ds.subReq exists - check for new sym and append to .ds.subReq
         $[any new:not sym in raze value .ds.subReq;
             `.ds.subReq set .ds.subReq,' .ds.map[.ds.numSeg;sym where new];
