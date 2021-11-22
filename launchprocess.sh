@@ -28,15 +28,6 @@ if [ "${arg_arr[1]:0:8}" == "procname" ] && [ "${arg_arr[2]:0:8}" == "proctype" 
 	    localtime )
 	        localtime_arg=${sub_arg_arr[1]}
 		;;
-	    g )
-		g_arg=${sub_arg_arr[1]}
-		;;
-	    T )
-		T_arg=${sub_arg_arr[1]}
-		;;
-	    w )
-		w_arg=${sub_arg_arr[1]}
-		;;
 	    qcmd )
 		qcmd_arg=${sub_arg_arr[1]}
 		;;
@@ -53,50 +44,27 @@ else
 fi
 
 #set default values
-U_arg=${U_arg:=0}
-localtime_arg=${localtime_arg:=0}
-g_arg=${g_arg:=0}
-T_arg=${T_arg:=0}
-w_arg=${w_arg:=0}
-qcmd_arg=${qcmd:="q"}
+localtime_arg=${localtime_arg:=1}
+qcmd_arg=${qcmd_arg:="q"}
 other_args=${other_args:=" "}
 
-#may be able to just assume that all the relevant env vars are defined but just in case:
-if [ "-bash" = $0 ]; then
-  dirpath="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-else
-  dirpath="$(cd "$(dirname "$0")" && pwd)"
-fi
-
-if [ -z $SETENV ]; then
-  SETENV=${dirpath}/setenv.sh                                                                       # set environment if not predefined
-fi
-
-if [ -f $SETENV ]; then
-    . $SETENV
-else
-    echo "Error1"
-fi
-
 #define the startline
-sline="q ${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype "$proctype" -procname "$procname" -U "$U_arg" -localtime "$localtime_arg" -g "$g_arg" -T "$T_arg" -w "$w_arg" "
-
+sline="q ${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $procname -U $U_arg -localtime $localtime_arg "
 
 #fn to check if a process is running, returns a non-zero search result for success, returns null for failure
 findproc()  {
-    pgrep -lf "$1" -u $USER | grep -ow "q"
+    pgrep -lf "$1" -u "$USER" | grep -ow "q"
 }
-
 
 #check process isn't already running before attempting to start it
 if [[ -z $(findproc "$procname") ]]; then
     echo "Starting " "$procname"
     #run process in background and redirect input & output 
-    eval "nohup $sline </dev/null >${KDBLOG}/torq${1}.txt 2>&1 &"
+    eval "nohup $sline </dev/null >${KDBLOG}/torq${procname}.txt 2>&1 &"
 
-    #after 3s check if the process is running
-    sleep 3s
-    if [ "$(findproc "$procname")" ]; then
+    #check exit code of nohup $sline to make sure process is starting successfully
+    temp=$?
+    if [ $temp -eq 0 ]; then
         echo "Successfully started: " "$procname"
     else
         echo "Error: ""$procname" "failed to start"
