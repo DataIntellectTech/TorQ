@@ -173,7 +173,7 @@ init:{[t]
 .ds.map:{[numSeg;sym] sym@/:group .ds.lookup[numSeg] .ds.modMd5 sym}
 
 // Get the number of rdb processes from process.csv
-.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype
+if[.ds.numSeg=0;.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
 
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up

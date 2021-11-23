@@ -181,3 +181,6 @@ DEBUG:0;                // 0 - trap errors, 1 - suspend if errors (except action
 DELIM:",";              // csv delimiter
 SAVEFILE:`:KUTR.csv;    // test results savefile
 
+// data striping
+\d .ds
+numSeg:0i;		// default value for process.csv to overwrite and pubsub.q check
