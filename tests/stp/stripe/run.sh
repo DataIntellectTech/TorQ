@@ -42,7 +42,7 @@ stpport=$(cat ${testpath}/process.csv | grep segmentedtickerplant | awk -F',' '{
 tmux send-keys -t kdbProcess:bash -l qcon=\'/usr/bin/rlwrap\ /opt/kdb/qcon\'
 tmux send-keys -t kdbProcess:bash Enter
 tmux send-keys -t kdbProcess:bash stpport=\'$stpport\' Enter
-tmux send-keys -t kdbProcess:bash -l '$qcon homer.aquaq.co.uk:$stpport:admin:admin'
+tmux send-keys -t kdbProcess:bash -l '$qcon localhost:$stpport:admin:admin'
 tmux send-keys -t kdbProcess:bash Enter
 # Load the script file
 tmux send-keys -t kdbProcess:bash \\l\ $k4unit Enter
