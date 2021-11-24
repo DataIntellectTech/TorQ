@@ -183,12 +183,13 @@ if[.ds.numSeg=0;.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
     // Check if .ds.subReq (dict) exists
     $[`subReq in key`.ds;
         // If .ds.numSeg changes - reset .ds.subReq
-        [if[.ds.numSeg<>1+max key .ds.subReq;`.ds.subReq set ()!()];
-        // If .ds.subReq exists - check for new sym and append to .ds.subReq
-        if[any new:not sym in raze value .ds.subReq;
-            `.ds.subReq set .ds.subReq,' .ds.map[.ds.numSeg;sym where new];
+        [
+            if[.ds.numSeg<>1+max key .ds.subReq;`.ds.subReq set ()!()];
+            // If .ds.subReq exists - check for new sym and append to .ds.subReq
+            if[any new:not sym in raze value .ds.subReq;
+                `.ds.subReq set .ds.subReq,' .ds.map[.ds.numSeg;sym where new];
+            ];
         ];
-    ];
         // Initialize .ds.subReq if does not exists
         `.ds.subReq set .ds.map[.ds.numSeg;sym]
         ];
