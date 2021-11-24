@@ -15,30 +15,30 @@ trade:flip `time`sym`price`size`stop`cond`ex`side!"PSFIBCCS" $\: ();
 quote:flip `time`sym`bid`ask`bsize`asize`mode`ex`src!"PSFFJJCCS" $\: ();
 
 // Striping function
-lookup:{[numSeg;maxProc]
-    hexDg:lower .Q.nA til maxProc;
-    seg:til numSeg;
-    hexDg!maxProc#til numSeg
+lookup:{[numseg;maxproc]
+    hexdg:lower .Q.nA til maxproc;
+    seg:til numseg;
+    hexdg!maxproc#til numseg
     }[;16];
-modMd5:{first each string first each md5'[string x]};
-map:{[modMd5;lookup;numSeg;sym] sym@/:group lookup[numSeg]modMd5 sym}[modMd5;lookup];
-stripe:{[map;numSeg;input]
-    $[numSeg within(1;16);;'"Max number of processes is 16"];
+modmd5:{first each string first each md5'[string x]};
+map:{[modmd5;lookup;numseg;sym] sym@/:group lookup[numseg]modmd5 sym}[modmd5;lookup];
+stripe:{[map;numseg;input]
+    $[numseg within(1;16);;'"Max number of processes is 16"];
     sym:distinct input;
-    $[`subReq in key`.;
-        [$[numSeg=1+max key subReq;;`subReq set ()!()];
-        $[any new:not sym in raze value subReq;
-            `subReq set subReq,'map[numSeg;sym where new];
+    $[`subreq in key`.;
+        [$[numseg=1+max key subreq;;`subreq set ()!()];
+        $[any new:not sym in raze value subreq;
+            `subreq set subreq,'map[numseg;sym where new];
             ];];
-        `subReq set map[numSeg;sym]
+        `subreq set map[numseg;sym]
         ];}[map];
 // Get the number of rdb processes from process.csv
-numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype;
-skey:til numSeg;
+numseg:sum `rdb=((.proc`readprocs).proc`file)`proctype;
+skey:til numseg;
 // Initialize subscription request for all syms to test striping function in stp
-stripe[numSeg;syms];
+stripe[numseg;syms];
 // Get the splits to each rdb
-splits:ce%sum ce:value count each group value lookup[numSeg];
+splits:ce%sum ce:value count each group value lookup[numseg];
 
 // Local upd and error log function
 upd:{[t;x] t insert x};

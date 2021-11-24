@@ -160,38 +160,38 @@ init:{[t]
 
 // Striping data in a TorQ Installation
 // Limitation: only max 16 (hexidecimal digits 0-9 A-F) processes using this logic
-// Can expand beyond 16 processes if required - Modify lookup and modMd5 function to use more digits e.g. "8b" for a single map
-.ds.lookup:{[numSeg;maxProc]
-    hexDg:lower .Q.nA til maxProc;
-    seg:til numSeg;
-    hexDg!maxProc#til numSeg
+// Can expand beyond 16 processes if required - Modify lookup and modmd5 function to use more digits e.g. "8b" for a single map
+.ds.lookup:{[numseg;maxproc]
+    hexdg:lower .Q.nA til maxproc;
+    seg:til numseg;
+    hexdg!maxproc#til numseg
     }[;16]
 
 // Hash function
-.ds.modMd5:{first each string first each md5'[string x]}
+.ds.modmd5:{first each string first each md5'[string x]}
 
-.ds.map:{[numSeg;sym] sym@/:group .ds.lookup[numSeg] .ds.modMd5 sym}
+.ds.map:{[numseg;sym] sym@/:group .ds.lookup[numseg] .ds.modmd5 sym}
 
 // Get the number of rdb processes from process.csv
-if[.ds.numSeg=0;.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
+if[.ds.numseg=0;.ds.numseg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
 
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
     // If no updates, return
     if[0=count sym:distinct input;:()];
-    // Check if .ds.subReq (dict) exists
-    $[`subReq in key`.ds;
-        // If .ds.numSeg changes - reset .ds.subReq
+    // Check if .ds.subreq (dict) exists
+    $[`subreq in key`.ds;
+        // If .ds.numseg changes - reset .ds.subreq
         [
-            if[.ds.numSeg<>1+max key .ds.subReq;`.ds.subReq set ()!()];
-            // If .ds.subReq exists - check for new sym and append to .ds.subReq
-            if[any new:not sym in raze value .ds.subReq;
-                `.ds.subReq set .ds.subReq,' .ds.map[.ds.numSeg;sym where new];
+            if[.ds.numseg<>1+max key .ds.subreq;`.ds.subreq set ()!()];
+            // If .ds.subreq exists - check for new sym and append to .ds.subreq
+            if[any new:not sym in raze value .ds.subreq;
+                `.ds.subreq set .ds.subreq,' .ds.map[.ds.numseg;sym where new];
             ];
         ];
-        // Initialize .ds.subReq if does not exists
-        `.ds.subReq set .ds.map[.ds.numSeg;sym]
+        // Initialize .ds.subreq if does not exists
+        `.ds.subreq set .ds.map[.ds.numseg;sym]
     ];
-    .ds.subReq skey
+    .ds.subreq skey
     }
