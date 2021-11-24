@@ -7,7 +7,7 @@ source setenv.sh
 source $KDBTESTS/flagparse.sh
 
 # Path to test directory
-testpath=${KDBTESTS}/stp/stripe
+export testpath=${KDBTESTS}/stp/stripe
 export perfpath=${testpath}/performance
 
 # Start procs
