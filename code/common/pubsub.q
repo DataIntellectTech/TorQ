@@ -192,6 +192,6 @@ if[.ds.numSeg=0;.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
         ];
         // Initialize .ds.subReq if does not exists
         `.ds.subReq set .ds.map[.ds.numSeg;sym]
-        ];
+    ];
     .ds.subReq skey
     }
