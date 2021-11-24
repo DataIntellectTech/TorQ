@@ -37,6 +37,8 @@ numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype;
 skey:til numSeg;
 // Initialize subscription request for all syms to test striping function in stp
 stripe[numSeg;syms];
+// Get the splits to each rdb
+splits:ce%sum ce:value count each group value lookup[numSeg];
 
 // Local upd and error log function
 upd:{[t;x] t insert x};
