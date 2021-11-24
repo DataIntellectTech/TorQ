@@ -179,9 +179,7 @@ if[.ds.numSeg=0;.ds.numSeg:sum `rdb=((.proc`readprocs).proc`file)`proctype]
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
     // If no updates, return
-    $[0=count input;:();];
-
-    sym:distinct input;
+    if[0=count sym:distinct input;:()];
     // Check if .ds.subReq (dict) exists
     $[`subReq in key`.ds;
         // If .ds.numSeg changes - reset .ds.subReq
