@@ -25,45 +25,11 @@ ${QCMD} ${TORQHOME}/torq.q \
   -write
   #$debug $stop $write $quiet
 
-# k4unit test
-k4unit=$(find "$(cd ..; pwd)" -name "k4unit.q")
-# Performance test from stp
-cd $perfpath
-# Specify session name
-session=kdbProcess
-# Kill remaining session first
-tmux kill-session -t $session
-# Start a new session (kdbProcess) detached (-d)
-tmux new-session -d -s $session
-# Wait till session and window is created
-while ! tmux has-session -t $session:bash; do sleep 1; done
-# qcon into stp proc
-stpport=$(cat ${testpath}/process.csv | grep segmentedtickerplant | awk -F',' '{print $2}')
-tmux send-keys -t kdbProcess:bash -l qcon=\'/usr/bin/rlwrap\ /opt/kdb/qcon\'
-tmux send-keys -t kdbProcess:bash Enter
-tmux send-keys -t kdbProcess:bash stpport=\'$stpport\' Enter
-tmux send-keys -t kdbProcess:bash -l '$qcon localhost:$stpport:admin:admin'
-tmux send-keys -t kdbProcess:bash Enter
-# Load the script file
-tmux send-keys -t kdbProcess:bash \\l\ $k4unit Enter
-# Load settings
-settings=$testpath/settings.q
-tmux send-keys -t kdbProcess:bash \\l\ $settings Enter
-# Run performance test and save results
-tmux send-keys -t kdbProcess:bash \\l\ $perfpath/run_perf_test.q Enter
-# Wait for test to complete
-tmux send-keys -t kdbProcess:bash \`char\$107\ 52\ 117\ 110\ 105\ 116\ 32\ 84\ 101\ 115\ 116\ 32\ 82\ 101\ 115\ 117\ 108\ 116\ 115i Enter
-tmux capture-pane -t kdbProcess
-done=$(tmux show-buffer | grep "k4unit Test Results" | wc -l)
-while ! [ $done -eq 1 ]; do
-    sleep 3
-    tmux capture-pane -t kdbProcess
-    echo k4unit Test is running...
-    done=$(tmux show-buffer | grep "k4unit Test Results" | wc -l)
-done
-# Kill tmux session
-tmux kill-session -t $session
-echo k4unit Test complete
+# Shut down stp1
+${TORQHOME}/torq.sh stop stp1 -csv ${testpath}/process.csv
 
-# Shut down procs
-${TORQHOME}/torq.sh stop discovery1 stp1 rdb1 rdb2 rdb3 rdb4 -csv ${testpath}/process.csv
+# Performance tests
+# Start stpperf
+${TORQHOME}/torq.sh start stpperf -csv ${testpath}/process.csv
+# Procs will stop automatically once tests are completed
+echo Performance tests are running in the background

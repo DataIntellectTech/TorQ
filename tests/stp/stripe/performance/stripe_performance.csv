@@ -1,9 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.servers.startup[],1,,"Get connection management set up"
-before,0,0,q,system "sleep 1",1,,"Wait a sec"
-before,0,0,q,gethandle:{[name] .z.pc exec first w from .servers.SERVERS where procname=name; exec first w from .servers.getservers[`procname;name;()!();1b;1b]};,1,,"Set helper function"
 before,0,0,q,rdbHandles:rdbNames!gethandle each rdbNames:exec procname from (.proc`readprocs).proc`file where proctype=`rdb,1,,"Open handle to RDBs"
-before,0,0,q,value[rdbHandles] @\: ""quote:0#quote; trade:0#trade"",1,,"Clear RDBs tables"
+before,0,0,q,value[rdbHandles] @\: "quote:0#quote; trade:0#trade",1,,"Clear RDBs tables"
 true,0,0,q,numseg~sum `rdb=.servers.SERVERS`proctype,1,,"Check the number of running rdbs is the same as that of process.csv"
 before,0,0,q,rep:1000,1,,"Number of repetitions for loop test"
 before,0,0,q,"genQupdNew:{x,enlist 1_'last[x],'q(1+1?til y)0};genTupdNew:{x,enlist 1_'last[x],'t(1+1?til y)0}",1,,"General functions to generate a list of table updates with a range of NEW symbol"
@@ -38,5 +35,6 @@ run,1300,0,q,.u.upd[`quote;qupd],100,,"Performance test for striping function wi
 run,0,0,q,"qupdNew:genQupdNew[;10]/[rep-1;enlist qupd];tupdNew:genTupdNew[;10]/[rep-1;enlist tupd]",1,,"Generate a list of table updates with 1 to 10 NEW symbols each update"
 run,1300,0,q,.u.upd[`trade]'[tupdNew],1,,"Performance test for striping function with 1 to 10 NEW symbols each update"
 run,1500,0,q,.u.upd[`quote]'[qupdNew],1,,"Performance test for striping function with 1 to 10 NEW symbols each update"
-after,0,0,q,value[rdbHandles] @\: ""quote:0#quote"";value[rdbHandles] @\: ""trade:0#trade"",1,,"Clear RDBs tables"
+after,0,0,q,value[rdbHandles] @\: "quote:0#quote";value[rdbHandles] @\: "trade:0#trade",1,,"Clear RDBs tables"
 after,0,0,q,"system ""rm -rf "",1_string .stplg.dldir",1,,"Delete logs folder"
+after,0,0,q,"startorstopproc[""stop"";""all"";getenv[`testpath],""/process.csv""]",1,,"Stop all proccess"

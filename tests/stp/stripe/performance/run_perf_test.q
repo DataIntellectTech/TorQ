@@ -39,4 +39,5 @@ KUrt[];
 show each ("k4unit Test Results";KUTR;"k4unit Test Errors";KUerr);
 
 // Write results to disk
-.[.k4.writeres;(KUTR;KUerr),clargs;{.lg.e[`test;"Error: ",x]}]
+.[.k4.writeres;(KUTR;KUerr),clargs;{.lg.e[`test;"Error: ",x]}];
+if[not `debug in key .Q.opt .z.x;exit count KUerr];
