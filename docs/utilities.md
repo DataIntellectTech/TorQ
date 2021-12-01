@@ -1,13 +1,16 @@
+
 <a name="ut"></a>
 
-# Utilities
+Utilities
+=========
 
 We have provided several utility scripts, which either implement
 developer aids or standard operations which are useful across processes.
 
 <a name="api.q"></a>
 
-## api.q
+api.q
+-----
 
 This provides a mechanism for documenting and publishing
 function/variable/table or view definitions within the kdb+ process. It
@@ -32,7 +35,7 @@ pattern matching can be done.
 
 ```no-highlight
 
-    q).api.f`max
+    q).api.f`max                                                                                                                                                                                                                    
     name                | vartype   namespace public descrip             ..
     --------------------| -----------------------------------------------..
     maxs                | function  .q        1      ""                  ..
@@ -42,15 +45,15 @@ pattern matching can be done.
     .cache.maxsize      | variable  .cache    1      "The maximum size in..
     .cache.maxindividual| variable  .cache    1      "The maximum size in..
     max                 | primitive           1      ""                  ..
-    q).api.f"max*"
+    q).api.f"max*"                                                                                                                                                                                                                  
     name| vartype   namespace public descrip params return
     ----| ------------------------------------------------
-    maxs| function  .q        1      ""      ""     ""
-    max | primitive           1      ""      ""     ""
+    maxs| function  .q        1      ""      ""     ""    
+    max | primitive           1      ""      ""     ""    
 
 ```
 
-.api.torqnamespaces is a variable which returns a symbol list of torq
+.api.torqnamespaces is a variable which returns a symbol list of torq 
 namespaces.
 
 .api.exportconfig uses the table returned by .api.f` to give a table
@@ -69,7 +72,7 @@ case sensitive searches.
 
 .api.s is used to search function definitions for specific values.
 
-    q).api.s"*max*"
+    q).api.s"*max*"                                                                                                                                                                                                                 
     function            definition                                       ..
     ---------------------------------------------------------------------..
     .Q.w                "k){`used`heap`peak`wmax`mmap`mphy`syms`symw!(.\"..
@@ -83,39 +86,41 @@ views in the process, retrieved using -22!. Views will be re-evaluated
 if required. Use .api.mem\[0b\] if you do not want to evaluate and
 return views.
 
-    q).api.m[]
+    q).api.m[]                                                                                                                                                                                                                      
     variable          size    sizeMB
     --------------------------------
-    .tz.t             1587359 2
-    .help.TXT         15409   0
-    .api.detail       10678   0
-    .proc.usage       3610    0
-    .proc.configusage 1029    0
+    .tz.t             1587359 2     
+    .help.TXT         15409   0     
+    .api.detail       10678   0     
+    .proc.usage       3610    0     
+    .proc.configusage 1029    0     
     ..
 
 .api.whereami\[lambda\] can be used to retrieve the name of a function
 given its definition. This can be useful in debugging.
 
-    q)g:{x+y}
-    q)f:{20 + g[x;10]}
-    q)f[10]
+    q)g:{x+y}                                                                                                                                                                                                                                                                     
+    q)f:{20 + g[x;10]}                                                                                                                                                                                                                                                            
+    q)f[10]                                                                                                                                                                                                                                                                       
     40
-    q)f[`a]
+    q)f[`a]                                                                                                                                                                                                                                                                       
     {x+y}
     `type
     +
     `a
     10
-    q)).api.whereami[.z.s]
+    q)).api.whereami[.z.s]                                                                                                                                                                                                                                                        
     `..g
 
-## apidetails.q
+apidetails.q
+----------------
 
 This file in both the common and the handler directories is used to add to the api using the functions defined in api.q
 
 <a name="tim"></a>
 
-## timer.q
+timer.q
+-------
 
 kdb+ provides a single timer function, .z.ts which is triggered with the
 frequency specified by -t. We have provided an extension to allow
@@ -132,11 +137,11 @@ rescheduled. Assuming that a timer function with period P is scheduled
 to fire at time T0, actually fires at time T1 and finishes at time T2,
 then
 
-- mode 0 will reschedule for T0+P;
+-   mode 0 will reschedule for T0+P;
 
-- mode 1 will reschedule for T1+P;
+-   mode 1 will reschedule for T1+P;
 
-- mode 2 will reschedule for T2+P.
+-   mode 2 will reschedule for T2+P.
 
 Both mode 0 and mode 1 have the potential for causing the timer to back
 up if the finish time T2 is after the next schedule time. See
@@ -144,7 +149,8 @@ up if the finish time T2 is after the next schedule time. See
 
 <a name="async"></a>
 
-## async.q
+async.q
+-------
 
 kdb+ processes can communicate with each using either synchronous or
 asynchronous calls. Synchronous calls expect a response and so the
@@ -154,15 +160,15 @@ expect a response so allow for greater flexibility. The effect of
 synchronous calls can be replicated with asynchronous calls in one of
 two ways (further details in section gateway):
 
-- deferred synchronous: the client sends an async request, then blocks
-  on the handle waiting for the result. This allows the server more
-  flexibility as to how and when the query is processed;
+-   deferred synchronous: the client sends an async request, then blocks
+    on the handle waiting for the result. This allows the server more
+    flexibility as to how and when the query is processed;
 
-- asynchronous postback: the client sends an async request which is
-  wrapped in a function to be posted back to the client when the
-  result is ready. This allows the server flexibility as to how and
-  when the query is processed, and allows the client to continue
-  processing while the server is generating the result.
+-   asynchronous postback: the client sends an async request which is
+      wrapped in a function to be posted back to the client when the
+      result is ready. This allows the server flexibility as to how and
+      when the query is processed, and allows the client to continue
+      processing while the server is generating the result.
 
 The code for both of these can get a little tricky, largely due to the
 amount of error trapping required. We have provided two functions to
@@ -170,17 +176,17 @@ allow these methods to be used more easily. .async.deferred takes a list
 of handles and a query, and will return a two item list of
 (success;results).
 
-    q).async.deferred[3 5;({system"sleep 1";system"p"};())]
-    1    1
+    q).async.deferred[3 5;({system"sleep 1";system"p"};())]                                                                                                                                                                                     
+    1    1   
     9995 9996
-    q).async.deferred[3 5;({x+y};1;2)]
+    q).async.deferred[3 5;({x+y};1;2)]                                                                                                                                                                                                          
     1 1
     3 3
-    q).async.deferred[3 5;({x+y};1;`a)]
-    0                         0
+    q).async.deferred[3 5;({x+y};1;`a)]                                                                                                                                                                                                         
+    0                         0                        
     "error: server fail:type" "error: server fail:type"
-    q).async.deferred[3 5 87;({system"sleep 1";system"p"};())]
-    1     1     0
+    q).async.deferred[3 5 87;({system"sleep 1";system"p"};())]                                                                                                                                                                                  
+    1     1     0                                       
     9995i 9996i "error: comm fail: failed to send query"
 
 .async.postback takes a list of handles, a query, and the name or lambda
@@ -188,28 +194,28 @@ of the postback function to return the result to. It will immediately
 return a success vector, and the results will be posted back to the
 client when ready.
 
-    q).async.postback[3 5;({system"sleep 1";system"p"};());`showresult]
+    q).async.postback[3 5;({system"sleep 1";system"p"};());`showresult]                                                                                                                                                                         
     11b
-    q)
+    q)                                                                                                                                                                                                                                          
     q)9995i
     9996i
-
-    q).async.postback[3 5;({x+y};1;2);`showresult]
+                                                                                                                                                                                                                                                
+    q).async.postback[3 5;({x+y};1;2);`showresult]                                                                                                                                                                                              
     11b
     q)3
     3
-
-    q).async.postback[3 5;({x+y};1;`a);`showresult]
+                                                                                                                                                                                                                                                
+    q).async.postback[3 5;({x+y};1;`a);`showresult]                                                                                                                                                                                             
     11b
     q)"error: server fail:type"
     "error: server fail:type"
-
-    q).async.postback[3 5;({x+y};1;`a);showresult]
+                                                                                                                                                                                                                                                
+    q).async.postback[3 5;({x+y};1;`a);showresult]                                                                                                                                                                                              
     11b
     q)"error: server fail:type"
     "error: server fail:type"
-
-    q).async.postback[3 5 87;({x+y};1;2);showresult]
+                                                                                                                                                                                                                                                
+    q).async.postback[3 5 87;({x+y};1;2);showresult]                                                                                                                                                                                            
     110b
     q)3
     3
@@ -218,7 +224,8 @@ For more details, see .api.p“.async.\*”.
 
 <a name="cache"></a>
 
-## cache.q
+cache.q
+-------
 
 cache.q provides a mechanism for storing function results in a cache and
 returning them from the cache if they are available and non stale. This
@@ -229,15 +236,15 @@ up to the programmer to determine which functions are suitable for
 caching. Likely candidates are those where some or all of the following
 conditions hold:
 
-- the function is run multiple times with the same parameters (perhaps
-  different clients all want the same result set);
+-   the function is run multiple times with the same parameters (perhaps
+    different clients all want the same result set);
 
-- the result set changes infrequently or the clients can accept
-  slightly out-of-date values;
+-   the result set changes infrequently or the clients can accept
+      slightly out-of-date values;
 
-- the result set is not too large and/or is relatively expensive to
-  produce. For example, it does not make sense to cache raw data
-  extracts.
+-   the result set is not too large and/or is relatively expensive to
+      produce. For example, it does not make sense to cache raw data
+      extracts.
 
 The cache has a maximum size and a minimum size for any individual
 result set, both of which are defined in the configuration file. Size
@@ -260,32 +267,32 @@ function is executed and placed in the cache.
 
 The function is run and the result placed in the cache:
 
-    q)\t r:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]
+    q)\t r:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]                                                                                                                                                                     
     2023
-    q)r
+    q)r                                                                                                                                                                                                                             
     3
 
 The second time round, the result set is returned immediately from the
 cache as we are within the staletime value:
 
-    q)\t r1:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]
+    q)\t r1:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:01]                                                                                                                                                                    
     0
-    q)r1
+    q)r1                                                                                                                                                                                                                            
     3
 
 If the time since the last execution is greater than the required stale
 time, the function is re-run, the cached result is updated, and the
 result returned:
 
-    q)\t r2:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:00]
+    q)\t r2:.cache.execute[({system"sleep 2"; x+y};1;2);0D00:00]                                                                                                                                                                    
     2008
-    q)r2
+    q)r2                                                                                                                                                                                                                            
     3
 
 The cache performance is tracked:
 
-    q).cache.getperf[]
-    time                          id status function
+    q).cache.getperf[]                                                                                                                                                                                                              
+    time                          id status function                  
     ------------------------------------------------------------------
     2013.11.06D12:41:53.103508000 2  add    {system"sleep 2"; x+y} 1 2
     2013.11.06D12:42:01.647731000 2  hit    {system"sleep 2"; x+y} 1 2
@@ -295,7 +302,8 @@ See .api.p.cache.\*for more details.
 
 <a name="email"></a>
 
-## email.q
+email.q
+-------
 
 A library file is provided to allow TorQ processes to send emails using
 an SMTP server. This is a wrapper around the standard libcurl library.
@@ -308,14 +316,15 @@ see the top of email.q for details.
 The main connection method .email.connect takes a single dictionary
 parameter and returns 0i for success and -1i for failure.
 
-| Parameter | Req |  Type   |                                Description                                |
-| :-------: | :-: | :-----: | :-----------------------------------------------------------------------: |
-|    url    |  Y  | symbol  |              URL of mail server e.g. smtp://mail.example.com              |
-|   user    |  Y  | symbol  |                       Username of user to login as                        |
-| password  |  Y  | symbol  |                             Password for user                             |
-|  usessl   |  N  | boolean |                 Connect using SSL/TLS, defaults to false                  |
-|   from    |  N  | symbol  |              Email from field, defaults to torq@aquaq.co.uk               |
-|   debug   |  N  | integer | Debug level. 0=no output, 1=normal output, 2=verbose output. Default is 1 |
+| Parameter | Req  |  Type   |               Description                |
+| :-------: | :--: | :-----: | :--------------------------------------: |
+|    url    |  Y   | symbol  | URL of mail server e.g. smtp://mail.example.com |
+|   user    |  Y   | symbol  |       Username of user to login as       |
+| password  |  Y   | symbol  |            Password for user             |
+|  usessl   |  N   | boolean | Connect using SSL/TLS, defaults to false |
+|   from    |  N   | symbol  | Email from field, defaults to torq@aquaq.co.uk |
+|   debug   |  N   | integer | Debug level. 0=no output, 1=normal output, 2=verbose output. Default is 1 |
+
 
 An example is:
 
@@ -333,14 +342,15 @@ parameter containing the details of the email to send. A connection must
 be established before an email can be sent. The send function returns an
 integer of the email length on success, or -1 on failure.
 
-| Parameter | Req |        Type        |                               Description                                |
-| :-------: | :-: | :----------------: | :----------------------------------------------------------------------: |
-|    to     |  Y  |   symbol (list)    |                           addresses to send to                           |
-|  subject  |  Y  |     char list      |                              email subject                               |
-|   body    |  Y  | list of char lists |                                email body                                |
-|    cc     |  N  |   symbol (list)    |                                 cc list                                  |
-| bodyType  |  N  |       symbol       |      type of email body. Can be \`text or \`html. Default is \`text      |
-|   debug   |  N  |      integer       | Debug level. 0=no output, 1=normal output,2=verbose output. Default is 1 |
+
+| Parameter | Req  |        Type        |               Description                |
+| :-------: | :--: | :----------------: | :--------------------------------------: |
+|    to     |  Y   |   symbol (list)    |           addresses to send to           |
+|  subject  |  Y   |     char list      |              email subject               |
+|   body    |  Y   | list of char lists |                email body                |
+|    cc     |  N   |   symbol (list)    |                 cc list                  |
+| bodyType  |  N   |       symbol       | type of email body. Can be \`text or \`html. Default is \`text |
+|   debug   |  N   |      integer       | Debug level. 0=no output, 1=normal output,2=verbose output. Default is 1 |
 
 An example is:
 
@@ -384,9 +394,9 @@ debug should be set to 2i (verbose) to extract the full information.
     q).email.test `$"test@aquaq.co.uk"
     ...
 
-A further function .email.sendviaservice can be used to send an email using the default mail server on a separate specified process and can be used to allow latency sensitive processes to offload this piece of functionality.
+A further function .email.sendviaservice can be used to send an email using the default mail server on a separate specified process and can be used to allow latency sensitive processes to offload this piece of functionality. 
 
-The function takes two parameters a process and a dictionary which should follow the same format as .email.send. The function uses the .async.postback Utility to send the email by calling .email.servicesend on the specified process. The postback function immediately returns a success boolean indicating that the the async request has been sent and when the function has been run on the server the results are posted back to the client function email.servicecallback which logs the email status.
+The function takes two parameters a process and a dictionary which should follow  the same format as .email.send. The function uses the .async.postback Utility to send the email by calling .email.servicesend on the specified process. The postback function immediately returns a success boolean indicating that the the async request has been sent and when the function has been run on the server the results are posted back to the client function  email.servicecallback which logs the email status.
 
 ```
 q).email.sendviaservice[`emailservice;`to`subject`body!(`$"test@aquaq.co.uk";"test email";("hi";"this is an email from torq"))]
@@ -405,13 +415,13 @@ from Windows (e.g. Hotmail, Gmail) then you have to do a few extra steps
 as usessl must be true and Windows does not usually find the correct
 certificate. The steps are:
 
-- download
-  [this](https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt)
-  and save it to your PC
+-   download
+    [this](https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt)
+    and save it to your PC
 
-- set
+-   set
 
-        CURLOPT_CAINFO=c:/path/to/cabundle_file/ca-bundle.crt
+          CURLOPT_CAINFO=c:/path/to/cabundle_file/ca-bundle.crt 
 
 More information is available
 [here](http://richardwarrender.com/2007/05/the-secret-to-curl-in-php-on-windows/)
@@ -419,7 +429,8 @@ and [here](http://curl.haxx.se/docs/caextract.html)
 
 <a name="tz"></a>
 
-## timezone.q
+timezone.q
+----------
 
 A slightly customised version of the timezone conversion functionality
 from code.kx. It loads a table of timezone information from
@@ -427,7 +438,8 @@ $KDBCONFIG. See .api.p.tz.\*for more details.
 
 <a name="com"></a>
 
-## compress.q
+compress.q
+----------
 
 compress.q applies compression to any kdb+ database, handles all
 partition types including date, month, year, int, and can deal with top
@@ -447,7 +459,6 @@ compression is performed.
 
 Compression is performed using the -19! operator, which takes 3
 parameters; the compression algorithm to use (0 - none, 1 - kdb+ IPC, 2
-
 - gzip), the compression blocksize as a power of 2 (between 12 and 19),
   and the level of compression to apply (from 0 - 9, applicable only for
   gzip). (For further information on -19! and the parameters used, see
@@ -487,9 +498,9 @@ it is recommended to run the function .cmp.showcomp, which takes three
 parameters - the path to the database, the path to the csv file, and the
 maximum age of the files to be compressed:
 
-    .cmp.showcomp[`:/full/path/to/HDB;.cmp.inputcsv;maxage]
+    .cmp.showcomp[`:/full/path/to/HDB;.cmp.inputcsv;maxage]   
     		/- for using the csv file in the config folder
-    .cmp.showcomp[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]
+    .cmp.showcomp[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]    
     		/- to specify a file
 
 This function produces a table of the files to be compressed, the
@@ -511,18 +522,18 @@ To then run the compression function, use .cmp.compressmaxage with the
 same parameters as .cmp.showcomp (hdb path, csv path, maximum age of
 files):
 
-    .cmp.compressmaxage[`:/full/path/to/HDB;.cmp.inputcsv;maxage]
+    .cmp.compressmaxage[`:/full/path/to/HDB;.cmp.inputcsv;maxage]   
     		/- for using the csv file in the config folder
-    .cmp.compressmaxage[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]
+    .cmp.compressmaxage[`:/full/path/to/HDB;`:/full/path/to/csvfile;maxage]    
     		/- to specify a file
 
 To run compression on all files in the database disregarding the maximum
 age of the files (i.e. from minage as specified in the configuration
 file to infinitely old), then use:
 
-    .cmp.docompression[`:/full/path/to/HDB;.cmp.inputcsv]
+    .cmp.docompression[`:/full/path/to/HDB;.cmp.inputcsv]   
     		/- for using the csv file in the config folder
-    .cmp.docompression[`:/full/path/to/HDB;`:/full/path/to/csvfile]
+    .cmp.docompression[`:/full/path/to/HDB;`:/full/path/to/csvfile]    
     		/- to specify a file
 
 Logs are produced for each file which is compressed or decompressed.
@@ -553,7 +564,8 @@ compression blocksize of 16 or more.
 
 <a name="data"></a>
 
-## dataloader.q
+dataloader.q 
+------------
 
 This script contains some utility functions to assist in loading data
 from delimited files (e.g. comma separated, tab delimited). It is a more
@@ -566,21 +578,22 @@ function is .loader.loadalldata which takes two parameters- a dictionary
 of loading parameters and a directory containing the files to read. The
 dictionary should/can have the following fields:
 
-|    Parameter    | Req |     Type     |                                                                                  Description                                                                                  |
-| :-------------: | :-: | :----------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|     headers     |  Y  | symbol list  |                                                                    Names of the header columns in the file                                                                    |
-|      types      |  Y  |  char list   |                                                                       Data types to read from the file                                                                        |
-|    separator    |  Y  | char\[list\] |                                                     Delimiting character. Enlist it if first line of file is header data                                                      |
-|    tablename    |  Y  |    symbol    |                                                                        Name of table to write data to                                                                         |
-|      dbdir      |  Y  |    symbol    |                                                                          Directory to write data to                                                                           |
-|     symdir      |  N  |    symbol    |                                                                        Directory to enumerate against                                                                         |
-|  partitiontype  |  N  |    symbol    |                                                Partitioning to use. Must be one of \`date\`month\`year\`int. Default is \`date                                                |
-|  partitioncol   |  N  |    symbol    |                                                        Column to use to extract partition information.Default is `time                                                        |
-| dataprocessfunc |  N  |   function   | Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y} |
-|    chunksize    |  N  |     int      |                                                          Data size in bytes to read in one chunk. Default is 100 MB                                                           |
-|   compression   |  N  |   int list   |                                              Compression parameters to use e.g. 17 2 6. Default is empty list for no compression                                              |
-|       gc        |  N  |   boolean    |                                                Whether to run garbage collection at appropriate points. Default is 0b (false)                                                 |
-|   filepattern   |  N  | char\[list\] |                                                    Pattern used to only load certain files e.g. "_.csv",("_.csv","\*.txt")                                                    |
+
+|    Parameter    | Req  |     Type     |               Description                |
+| :-------------: | :--: | :----------: | :--------------------------------------: |
+|     headers     |  Y   | symbol list  | Names of the header columns in the file  |
+|      types      |  Y   |  char list   |     Data types to read from the file     |
+|    separator    |  Y   | char\[list\] | Delimiting character. Enlist it if first line of file is header data |
+|    tablename    |  Y   |    symbol    |      Name of table to write data to      |
+|      dbdir      |  Y   |    symbol    |        Directory to write data to        |
+|     symdir      |  N   |    symbol    |      Directory to enumerate against      |
+|  partitiontype  |  N   |    symbol    | Partitioning to use. Must be one of \`date\`month\`year\`int. Default is \`date |
+|  partitioncol   |  N   |    symbol    | Column to use to extract partition information.Default is `time |
+| dataprocessfunc |  N   |   function   | Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y} |
+|    chunksize    |  N   |     int      | Data size in bytes to read in one chunk. Default is 100 MB |
+|   compression   |  N   |   int list   | Compression parameters to use e.g. 17 2 6. Default is empty list for no compression |
+|       gc        |  N   |   boolean    | Whether to run garbage collection at appropriate points. Default is 0b (false) |
+|  filepattern    |  N   | char\[list\] | Pattern used to only load certain files e.g. "*.csv",("*.csv","*.txt")|
 
 Example usage:
 
@@ -589,7 +602,8 @@ Example usage:
 
 <a name="sub"></a>
 
-## subscriptions.q
+subscriptions.q
+---------------
 
 The subscription utilities allow multiple subscriptions to different
 data sources to be managed and maintained. Automatic resubscriptions in
@@ -622,7 +636,8 @@ See .api.p“.sub.\*” for more details.
 
 <a name="ps"></a>
 
-## pubsub.q
+pubsub.q
+--------
 
 This file defines the `.ps` namespace, which contains various functions for subscribing and publishing to processes. These functions have traditionally been wrappers for some of the functions found in `u.q`, but the advent of the Segmented Tickerplant has brought about a more fully-featured pub/sub library, which is now leveraged by the `.ps` functions. This library is part of the 'common' code, so to load it in by default `.proc.loadcommoncode` must be set to true.
 
@@ -633,7 +648,6 @@ The following three functions are primarily associated with the pub/sub library:
 - `.ps.publish` - this is a wrapper for `.stpps.pub` and it publishes data to subscribers using the information given on subscription
 
 For example:
-
 ```q
 // Subscribe to all tables and symbols
 handletosubscriber(`.ps.subscribe;`;`)
@@ -651,7 +665,6 @@ There are two new functions which have been added that wrap `.u.sub` with the go
 - `.ps.subtablefiltered` - accepts 3 strings representing a table, where clause and a list of columns
 
 For example:
-
 ```q
 // Subscribe to Google and Apple trades
 handletoSTP(`.ps.subtable;"trade";"GOOG","AAPL")
@@ -660,7 +673,8 @@ handletoSTP(`.ps.subtable;"trade";"GOOG","AAPL")
 .ps.subtablefiltered["quote";"bid>50.0";"time,sym,bid"]
 ```
 
-Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter. The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.
+
+Subscribing to the STP works in a very similar fashion to the original tickerplant. From the subscriber's perspective the subscription logic is backwardly compatible: it opens a handle to the STP and calls `.u.sub` with a list of tables to subscribe to as its first argument and either a null symbol or a list of symbols as a sym filter.  The STP also supports a keyed table of conditions (in q parse format) and a list of columns that should be published.
 
 Whilst complex bespoke subscription is possible in the STP it is generally not recommended. Complex subscription filtering should be off loaded to a chained STP.
 
@@ -675,31 +689,31 @@ handletoSTP(`.u.sub;`trade;`GOOG`AAPL)
 handletoSTP(`.u.sub;`;conditions)
 ...
 q) show conditions
-tabname| filts             columns
+tabname| filts             columns         
 -------| ----------------------------------
 trade  | ""                "time,sym,price"
-quote  | "bid>100,bid<200" ""
+quote  | "bid>100,bid<200" ""                        
 ```
 
 Here subscribing subject to the conditions table results in the subscriber only receiving quotes where the bid is between 100 and 200. Also only the time, sym and price columns of the trade table are published to the subscriber. Note that it is also possible to use the conditions table to subscribe to just one of the trade or quote tables. A conditions table may also be used to perform calculations on columns and define new ones as well:
 
 ```q
 q) show conditions
-tabname| filts             columns
+tabname| filts             columns                           
 -------| ----------------------------------------------------
 quote  | "bid>100,bid<200" "time,sym,bid,ask,mid:0.5*bid+ask"
 
 q)quote
-time                          sym  bid   ask   mid
+time                          sym  bid   ask   mid    
 ------------------------------------------------------
-2020.12.09D15:29:23.183738000 INTC 58.6  59.4  59
-2020.12.09D15:29:23.183738000 DOW  21.39 22.53 21.96
+2020.12.09D15:29:23.183738000 INTC 58.6  59.4  59     
+2020.12.09D15:29:23.183738000 DOW  21.39 22.53 21.96  
 ...
 ```
 
 For more information on subscriptions, see the documentation on the segmented tickerplant process.
 
-# Data striping
+### Data striping
 
 Data striping is the technique of logically segmenting data between processes so that they are stored on different processes.
 
@@ -707,13 +721,13 @@ The advantages of striping include performance and throughput improvements. Segm
 
 The reduction in data access in each process cumulatively multiplies the data throughput by the number of processes. It also allows the process to complete its task faster and without interruption, thereby reducing latency.
 
-## Example of data striping in TorQ
+#### Example of data striping in TorQ
 
 A simple but effective way of data striping is to do it divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
 
 A common method for data striping between processes is to use an instrument (sym) filter. For example, to stripe data across 2 RDB processes, data with symbols starting with A-M and N-L will be striped to RDB1 and RDB2 respectively. However, a major problem with this method is the uneven distribution of data (a lot of symbols tend to start with A for example).
 
-## Data hash striping with MD5
+#### Data hash striping with MD5
 
 A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and for subsequent requests for those symbols, it looks them up. It is loaded into the segmented tickerplant to use as subscription requests. For this purpose, MD5 (Message-Digest algorithm 5) hash is chosen as it is a fast and [built-in](https://code.kx.com/q/ref/md5/) hash function in kdb+. It creates a hexadecimal byte array from an input string and the first hex value from the output byte array is used to create a hash map for the data hash striping.
 
@@ -736,7 +750,7 @@ q)f`AMD`AIG`AAPL`DELL`DOW`GOOG`HPQ`INTC`IBM`MSFT
 "40809edfcb"
 ```
 
-A hash map is based on the **`sym`** column is created like so:
+A hash map based on the **`sym`** column is created like so:
 
 ```q
 q)show sym:`$-100?(thrl cross .Q.A),thrl:(.Q.A cross .Q.A cross .Q.A)
@@ -760,7 +774,7 @@ d| `RYVW`SNKZ`PGBO`EPSV
 9| `CWXD`KZJL`SYMB`EJDG
 ```
 
-The hex keys will be divided across the number of striped processes, example 4 RDBs, like so:
+The hex keys will be divided across the number of striped processes, for example 4 RDBs, like so:
 
 ```q
 q).Q.s1(hex:lower .Q.nA til base)!(base:16)#til numproc:4
@@ -780,13 +794,13 @@ A minor disadvantage to this method is when the number of distinct symbols is re
 
 However, this can be easily resolved by using more hex values from the output byte array of MD5 to create the hash map for the data hash striping, i.e., the number of hash keys will be much greater than 16.
 
-# Setting up data striping in TorQ
+### Setting up data striping in TorQ
 
-## 1) Example setup for data striping across **ALL** RDB instances
+#### 1) Example setup for data striping across **ALL** RDB instances
 
-### $KDBCONFIG/process.csv
+##### $KDBCONFIG/process.csv
 
-The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**. Add in **`-.ds.numseg {i}`** (count of striped RDB instances) in the **`extras`** column for the **`segmentedtickerplant`** instance.
+The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**.
 
 > **NOTE**
 >
@@ -800,25 +814,25 @@ The process file should contain the RDB instances by specifying a different **`p
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
 localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
-localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG} -.ds.numseg 4,q
+localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG},q
 localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-### $KDBAPPCONFIG/settings/rdb.q
+##### $KDBAPPCONFIG/settings/rdb.q
 
 Set **`.rdb.subfiltered: 1b`**
 
 ---
 
-## 2) Example setup for data striping across **SOME** RDB instances
+#### 2) Example setup for data striping across **SOME** RDB instances
 
 > - 2 RDB instances unfiltered
 > - 2 RDB instances striped
 
-### $KDBCONFIG/process.csv
+##### $KDBCONFIG/process.csv
 
 Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column for the striped RDB instances. Add in **`-.ds.numseg {i}`** (count of striped RDB instances) in the **`extras`** column for the **`segmentedtickerplant`** instance.
 
@@ -834,20 +848,21 @@ Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
 localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
-localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG} -.ds.numseg 2,q
+localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG} -.ds.numSeg 2,q
 localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1,q
 localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1,q
 localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-### $KDBAPPCONFIG/settings/rdb.q
+##### $KDBAPPCONFIG/settings/rdb.q
 
 **Ensure** **`.rdb.subfiltered: 0b`**
 
 <a name="kafka"></a>
 
-## kafka.q
+kafka.q
+-------
 
 kafka.q provides q language bindings for Apache Kafka, a 'distributed streaming
 platform', a real time messaging system with persistent storage in message logs.
@@ -862,16 +877,16 @@ the data they need. While not suitable for very low latency access to streaming
 data, it would carry some advantages for very high throughput applications,
 particularly those in the cloud:
 
-- Kafka’s distributed nature should allow it to scale more transparently than
-  splitting tickerplants by instrument universe or message type
-- Replaying from offsets is the same interface as live pub/sub and doesn’t require
-  filesystem access to the tickerplant log, so RDB’s and other consumer could be
-  on a different server
+* Kafka’s distributed nature should allow it to scale more transparently than
+splitting tickerplants by instrument universe or message type
+* Replaying from offsets is the same interface as live pub/sub and doesn’t require
+filesystem access to the tickerplant log, so RDB’s and other consumer could be
+on a different server
 
 By default, the Kafka bindings will be loaded into all TorQ processes running on
 l64 systems (the only platform currently supported). An example of usage is
 shown here (this assumes a local running instance of kafka - instructions for
-this are available on the [kafkaq](https://github.com/AquaQAnalytics/kafkaq) github
+this are available on the [kafkaq](https://github.com/AquaQAnalytics/kafkaq) github 
 repo):
 
 ```
@@ -890,12 +905,13 @@ q)hello world
 
 Limitations of the current implementation:
 
-- Only l64 supported
-- Single consumer thread subscribed to one topic at a time
+* Only l64 supported
+* Single consumer thread subscribed to one topic at a time
 
 <a name="tp"></a>
 
-## tplogutils.q
+tplogutils.q
+------------
 
 tplogutils.q contains functions for recovering tickerplant log files.
 Under certain circumstances the tickerplant log file can become corrupt
@@ -907,28 +923,30 @@ the tickerplant log file.
 
 <a name="mon"></a>
 
-## monitoringchecks.q
+monitoringchecks.q
+------------------
 
 monitoringchecks.q implements a set of standard, basic monitoring
 checks. They include checks to ensure:
 
-- table sizes are increasing during live capture
+-   table sizes are increasing during live capture
 
-- the HDB data saves down correctly
+-   the HDB data saves down correctly
 
-- the allocated memory of a process does not increase past a certain
-  size
+-   the allocated memory of a process does not increase past a certain
+      size
 
-- the size of the symbol list in memory doesn’t grow to big
+-   the size of the symbol list in memory doesn’t grow to big
 
-- the process does not have too much on its pending subscriber queue
+-   the process does not have too much on its pending subscriber queue
 
 These checks are intended to be run by the reporter process on a
 schedule, and any alerts emailed to an appropriate recipient list.
 
 <a name="hb"></a>
 
-## heartbeat.q
+heartbeat.q
+-----------
 
 heartbeat.q implements heartbeating, and relies on both timer.q and
 pubsub.q. A table called heartbeat will be published periodically,
@@ -937,11 +955,13 @@ components. The heartbeat table contains a heartbeat time and counter.
 The heartbeat script contains functions to handle and process heartbeats
 and manage upstream process failures. See .api.p.hb.\*for details.
 
-## rmvr.q
+rmvr.q
+-----------
 
 This file contains a function which can be used to convert environment variable paths into a full path from the root directory.
 
-## os.q
+os.q
+-----------
 
 A file with various q functions to perform system operations. This will detect your operating system and will perform the correct commands depending on what you are using.
 
@@ -949,7 +969,8 @@ This is a modification of a script developed by Simon Garland.
 
 <a name="wu"></a>
 
-## dbwriteutils.q
+dbwriteutils.q
+--------------
 
 This contains a set of utility functions for writing data to historic
 databases.
@@ -964,7 +985,7 @@ configuration is defined in a csv which defaults to $KDBCONFG/sort.csv.
 The default setup is that every table is sorted by sym and time, with a
 p attribute on sym (this is the standard kdb+ tick configuration).
 
-    aquaq$ tail config/sort.csv
+    aquaq$ tail config/sort.csv 
     tabname,att,column,sort
     default,p,sym,1
     default,,time,1
@@ -980,7 +1001,7 @@ be sorted and parted in the standard way. The configuration file would
 look like this (sort order is derived from the order within the file
 combined with the sort flag being set to true):
 
-    aquaq$ tail config/sort.csv
+    aquaq$ tail config/sort.csv                
     tabname,att,column,sort
     default,p,sym,1
     default,,time,1
@@ -1010,7 +1031,7 @@ A different sort configuration file can be loaded with
 The garbage collection utility prints some debug information before and
 after the garbage collection.
 
-    q).gc.run[]
+    q).gc.run[]                                                                                                                                                      
     2014.12.03D10:22:51.688435000|aquaq|test|INF|garbagecollect|Starting garbage collect. mem stats: used=2 MB; heap=1984 MB; peak=1984 MB; wmax=0 MB; mmap=0 MB; mphy=16384 MB; syms=0 MB; symw=0 MB
     2014.12.03D10:22:53.920656000|aquaq|test|INF|garbagecollect|Garbage collection returned 1472MB. mem stats: used=2 MB; heap=512 MB; peak=1984 MB; wmax=0 MB; mmap=0 MB; mphy=16384 MB; syms=0 MB; symw=0 MB
 
@@ -1025,13 +1046,14 @@ invokved in each process.
 
 <a name="help"></a>
 
-## help.q
+help.q
+------
 
 The standard help.q from code.kx provides help utilities in the console.
 This should be kept up to date with
 [[code.kx](http://code.kx.com/wsvn/code/kx/kdb+/d/help.q)].
 
-    q)help`
+    q)help`                                                                                                                                                                                                                         
     adverb    | adverbs/operators
     attributes| data attributes
     cmdline   | command line parameters
@@ -1046,7 +1068,8 @@ This should be kept up to date with
 
 <a name="html"></a>
 
-## html.q
+html.q
+------
 
 An HTML utility has been added to accompany the HTML5 front end for the
 Monitoring process. It includes functions to format dates, tables to csv
@@ -1055,20 +1078,21 @@ accessible from the `.html` namespace.
 
 <a name="eodtime"></a>
 
-## eodtime.q
+eodtime.q
+---------
 
-This script provides functionality for managing timezones. TorQ can be
+This script provides functionality for managing timezones. TorQ can be 
 configured to timestamp data in a specific timezone, while also being
 configured to perform the end of day rollover in another timezone, at a
 configurable time.
 
 These options are handled by three settings:
 
-|         Setting         | Req |   Type   |                Description                 |
-| :---------------------: | :-: | :------: | :----------------------------------------: |
-| .eodtime.rolltimeoffset |  Y  | timespan |   Offset from default midnight roll time   |
-|  .eodtime.rolltimezone  |  Y  |  symbol  |       Time zone in which to rollover       |
-|  .eodtime.datatimezone  |  Y  |  symbol  | Time zone in which to timestamp data in TP |
+| Setting | Req  |  Type   |               Description                |
+| :-----: | :--: | :-----: | :--------------------------------------: |
+| .eodtime.rolltimeoffset |  Y   | timespan  | Offset from default midnight roll time |
+| .eodtime.rolltimezone |  Y   | symbol  | Time zone in which to rollover |
+| .eodtime.datatimezone |  Y   | symbol  | Time zone in which to timestamp data in TP |
 
 The default configuration sets both timezones to GMT and has the rollover
 performed at midnight.
@@ -1082,12 +1106,13 @@ occurs at 5PM New York time would be:
     .eodtime.rolltimezone:`$"America/New_YorK";    // roll in NYC time
     .eodtime.datatimezone:`$"GMT";                 // timestamp in GMT
 
-Note that the rolltimeoffset can be negative - this will cause the rollover to happen
-"yesterday", meaning that at the rolltime, the trading date will become the day _after_
+Note that the rolltimeoffset can be negative - this will cause the rollover to happen 
+"yesterday", meaning that at the rolltime, the trading date will become the day *after*
 the calendar date. Where this is positive, the rollover occurs "today" and so the trading
 date will become the current calendar date.
 
-## subscribercutoff.q
+subscribercutoff.q
+------------------
 
 This script is used to provide functionality for cutting off any slow subscribers on any
 TorQ processes. The script will periodically check (time between checks set in .subcut.checkfreq.
@@ -1096,17 +1121,18 @@ they have exceeded a set cut-off point (set in the variable .subcut.maxsize) and
 cut-off the handle if it exceeds this limit a set number of times in a row (default is 3
 and set in the .subcut.breachlimit variable). This gives clients a chance to tidy up their
 behavior and will avoid cutting off clients if they happened to have a spike just before the
-check was performed. The .subcut.state variable is used to keep track of the handles and the
-number of times they have exceeded the size limit in a row.
+check was performed. The .subcut.state variable is used to keep track of the handles and the 
+number of times they have exceeded the size limit in a row. 
 
-To enable this functionality the .subcut.enabled flag must be set to true and
-the timer.q script must be loaded on the desired processes. By default the chained
-tickerplant is the only processes with the functionality enabled.
+To enable this functionality the .subcut.enabled flag must be set to true and 
+the timer.q script must be loaded on the desired processes. By default the chained 
+tickerplant is the only processes with the functionality enabled. 
 
-## datareplay.q
+datareplay.q
+------------
 
 The datareplay utility provides functionality for generating tickerplant function calls from historcial
-data which can be executed by subscriber functions. This can be used to test a known data-set against a
+data which can be executed by subscriber functions. This can be used to test a known data-set against a 
 subscriber for testing or debugging purposes.
 
 It can load this data from the current TorQ session, or from a remote hdb if given its connection handle.
@@ -1119,18 +1145,18 @@ The functions provided by this utility are made available in the .datareplay nam
 The utility is mainly used via the tabesToDataStreamFunction, which accepts a dictionary parameter with the following
 fields:
 
-|    Key    |        Example Value         |                                   Description                                   | Required |   Default   |
-| :-------: | :--------------------------: | :-----------------------------------------------------------------------------: | :------: | :---------: |
-|   tabs    | `` `trade`quote or `trade `` |                            List of tables to include                            |   Yes    |     N/A     |
-|    sts    |   2014.04.04D07:00:00.000    |                            Start timestamp for data                             |   Yes    |     N/A     |
-|    ets    |   2014.04.04D16:30:00.000    |                            End of timestamp for data                            |   Yes    |     N/A     |
-|   syms    |       `` `AAPL`IBM ``        |                           List of symbols to include                            |    No    |  All syms   |
-|   where   |     `` ,(=;`src;,`L) ``      |                     Custom where clause in functional form                      |    No    |    none     |
-|   timer   |              1b              |                          Generate timer function flag                           |    No    |     0b      |
-|     h     |              5i              |                              Handle to hdb process                              |    No    |  0i (self)  |
-| interval  |        0D00:00:01.00         | Time interval used to chunk data, bucketed by timestamp if no time interval set |    No    |    None     |
-|    tc     |       `` `data_time ``       |                          Name of time column to cut on                          |    No    | `` `time `` |
-| timerfunc |            .z.ts             |                Timer function to use if `timer parameter is set                 |    No    |    .z.ts    |
+| Key     | Example Value           | Description                            | Required | Default  |
+|:-------:|:-----------------------:|:--------------------------------------:|:--------:|:--------:|
+|tabs     | `` `trade`quote or `trade ``  | List of tables to include              | Yes      | N/A      |
+|sts      | 2014.04.04D07:00:00.000 | Start timestamp for data               | Yes      | N/A      |
+|ets      | 2014.04.04D16:30:00.000 | End of timestamp for data              | Yes      | N/A      |
+|syms     | `` `AAPL`IBM ``               | List of symbols to include             | No       | All syms |
+|where    | `` ,(=;`src;,`L) ``           | Custom where clause in functional form | No       | none     |
+|timer    | 1b                      | Generate timer function flag           | No       | 0b       |
+|h        | 5i                      | Handle to hdb process                  | No       | 0i (self)|
+|interval | 0D00:00:01.00           | Time interval used to chunk data, bucketed by timestamp if no time interval set       | No       | None     |
+|tc       | `` `data_time ``              | Name of time column to cut on          | No       | `` `time ``    |
+|timerfunc| .z.ts                   | Timer function to use if `timer parameter is set | No | .z.ts |
 
 When the timer flag is set, the utility will interleave timer function calls in the message column at intervals based on the interval parameter, or every 10 seconds if interval is not set. This is useful if testing requires a call to a function at a set time, to generate a VWAP every 10 minutes for example. The function the timer messages call is based on the timerfunc parameter, or .z.ts if this parameter is not set.
 
@@ -1150,6 +1176,7 @@ It is possible to get the functional form of a where clause by running parse on 
     ()
 
 The where clause is then the 3rd item returned in the parse tree.
+
 
 ## Examples:
 
@@ -1190,7 +1217,9 @@ Extract all data between sts and ets from the trades table from a remote hdb han
     time| 2014.04.21D08:00:07.769000000
     msg | (`upd;`trades;`sym`time`src`price`size!(`IBM;2014.04.21D08:00:07.769000..
 
+
 Same as above but including quote table and with interval of 10 minutes:
+
 
     q)input
     tabs    | `quotes`trades
@@ -1210,7 +1239,8 @@ Same as above but including quote table and with interval of 10 minutes:
     time| 2014.04.21D08:09:47.600000000
     msg | (`upd;`trades;+`sym`time`src`price`size!(`YHOO`AAPL`MSFT`NOK`DELL`YHOO`..
 
-​  
+
+​    
 All messages from trades where `` src=`L `` bucketed in 10 minute intervals interleaved with calls to the function `` `vwap ``.
 
     q)input
@@ -1231,7 +1261,10 @@ All messages from trades where `` src=`L `` bucketed in 10 minute intervals inte
     2014.04.21D08:18:17.188000000 (`upd;`trades;+`sym`time`src`price`size!(`AAPL`..
     ..
 
-## Modified u.q
+
+
+Modified u.q
+------------
 
 Starting in kdb+ v3.4, the new broadcast feature has some performance
 benefits. It works by serialising a message once before sending it
@@ -1243,11 +1276,12 @@ publishing if the kdb+ version being used is 3.4 or after.
 
 <a name="api"></a>
 
-## Full API
+Full API
+--------
 
 The full public api can be found by running
 
-    q).api.u`
+    q).api.u`                                                                                                                                                                                                                       
     name             | vartype  namespace public descrip                 ..
     -----------------| --------------------------------------------------..
     .proc.createlog  | function .proc     1      "Create the standard out..
@@ -1285,200 +1319,197 @@ namespaces is below- run .api.u namespace\*to list the functions.
 |  .tplog   |       Tickerplant Log Replay API       |
 |   .api    |           API management API           |
 
-## API Table
 
-| name                        | vartype  | namespace | descrip                                                                                                                                                                                                                                                                                          | params                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | return                                                                                                                    |
-| --------------------------- | -------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| .proc.createlog             | function | .proc     | Create the standard out and standard err log files. Redirect to them                                                                                                                                                                                                                             | [string: log directory; string: name of the log file;mixed: timestamp suffix for the file (can be null); boolean: suppress the generation of an alias link]                                                                                                                                                                                                                                                                                                                                               | null                                                                                                                      |
-| .proc.rolllogauto           | function | .proc     | Roll the standard out/err log files                                                                                                                                                                                                                                                              | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .proc.loadf                 | function | .proc     | Load the specified file                                                                                                                                                                                                                                                                          | [string: filename]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .proc.loaddir               | function | .proc     | Load all the .q and .k files in the specified directory. If order.txt is found in the directory, use the ordering found in that file                                                                                                                                                             | [string: name of directory]                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | null                                                                                                                      |
-| .proc.getattributes         | function | .proc     | Called by external processes to retrieve the attributes (advertised functionality) of this process                                                                                                                                                                                               | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | dictionary of attributes                                                                                                  |
-| .proc.override              | function | .proc     | Override configuration varibles with command line parameters. For example, if you set -.servers.HOPENTIMEOUT 5000 on the command line and call this function, then the command line value will be used                                                                                           | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .proc.overrideconfig        | function | .proc     | Override configuration varibles with values in supplied parameter dictionary. Generic version of .proc.override                                                                                                                                                                                  | [dictionary: command line parameters. .proc.params should be used]                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .lg.o                       | function | .lg       | Log to standard out                                                                                                                                                                                                                                                                              | [symbol: id of log message; string: message]                                                                                                                                                                                                                                                                                                                                                                                                                                                              | null                                                                                                                      |
-| .lg.e                       | function | .lg       | Log to standard err                                                                                                                                                                                                                                                                              | [symbol: id of log message; string: message]                                                                                                                                                                                                                                                                                                                                                                                                                                                              | null                                                                                                                      |
-| .lg.l                       | function | .lg       | Log to either standard error or standard out, depending on the log level                                                                                                                                                                                                                         | [symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]                                                                                                                                                                                                                                                                                                                                                  | null                                                                                                                      |
-| .lg.err                     | function | .lg       | Log to standard err                                                                                                                                                                                                                                                                              | [symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]                                                                                                                                                                                                                                                                                                                                                  | null                                                                                                                      |
-| .lg.ext                     | function | .lg       | Extra function invoked in standard logging function .lg.l. Can be used to do more with the log message, e.g. publish externally                                                                                                                                                                  | [symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters]                                                                                                                                                                                                                                                                                                                                                                                          | null                                                                                                                      |
-| .err.ex                     | function | .err      | Log to standard err, exit                                                                                                                                                                                                                                                                        | [symbol: id of log message; string: message; int: exit code]                                                                                                                                                                                                                                                                                                                                                                                                                                              | null                                                                                                                      |
-| .err.usage                  | function | .err      | Throw a usage error and exit                                                                                                                                                                                                                                                                     | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .err.param                  | function | .err      | Check a dictionary for a set of required parameters. Print an error and exit if not all required are supplied                                                                                                                                                                                    | [dict: parameters; symbol list: the required param values]                                                                                                                                                                                                                                                                                                                                                                                                                                                | null                                                                                                                      |
-| .err.env                    | function | .err      | Check if a list of required environment variables are set. If not, print an error and exit                                                                                                                                                                                                       | [symbol list: list of required environment variables]                                                                                                                                                                                                                                                                                                                                                                                                                                                     | null                                                                                                                      |
-| .usage.rolllogauto          | function | .usage    | Roll the .usage txt files                                                                                                                                                                                                                                                                        | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .usage.readlog              | function | .usage    | Read and return a usage log file as a table                                                                                                                                                                                                                                                      | [string: name of log file]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | null                                                                                                                      |
-| .usage.logtodisk            | variable | .usage    | whether to log to disk                                                                                                                                                                                                                                                                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .usage.logtomemory          | variable | .usage    | whether to log to .usage.usage                                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .usage.ignore               | variable | .usage    | whether to check the ignore list for functions to ignore                                                                                                                                                                                                                                         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .usage.ignorelist           | variable | .usage    | the list of functions to ignore                                                                                                                                                                                                                                                                  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .usage.logroll              | variable | .usage    | whether to automatically roll the log file                                                                                                                                                                                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .usage.usage                | table    | .usage    | log of messages through the message handlers                                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .clients.clients            | table    | .clients  | table containing client handles and session values                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .sub.getsubscriptionhandles | function | .sub      | Connect to a list of processes of a specified type                                                                                                                                                                                                                                               | [symbol: process type to match; symbol: process name to match; dictionary:attributes of process]                                                                                                                                                                                                                                                                                                                                                                                                          | table of process names, types and the handle connected on                                                                 |
-| .sub.subscribe              | function | .sub      | Subscribe to a table or list of tables and specified instruments                                                                                                                                                                                                                                 | [symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle                                                                                                                                                                                                                                                                                                                   |                                                                                                                           |
-| .pm.adduser                 | function | .pm       | Adds a user to be permissioned as well as setting their password and the method used to hash it.                                                                                                                                                                                                 | [symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]                                                                                                                                                                                                                                                                                                                                                   | null                                                                                                                      |
-| .pm.addgroup                | function | .pm       | Add a group which will have access to certain tables and variables                                                                                                                                                                                                                               | [symbol: the name of the group; string: a description of the group]                                                                                                                                                                                                                                                                                                                                                                                                                                       | null                                                                                                                      |
-| .pm.addrole                 | function | .pm       | Add a role which will have access to certain functions                                                                                                                                                                                                                                           | [symbol: the name of the role; string: a description of the role]                                                                                                                                                                                                                                                                                                                                                                                                                                         | null                                                                                                                      |
-| .pm.addtogroup              | function | .pm       | Add a user to a group, giving them access to all of its variables                                                                                                                                                                                                                                | [symbol: the name of the user to add; symbol: group the user is to be added to]                                                                                                                                                                                                                                                                                                                                                                                                                           | null                                                                                                                      |
-| .pm.assignrole              | function | .pm       | Assign a user a role, giving them access to all of its functions                                                                                                                                                                                                                                 | [symbol: the name of the user to add; symbol: role the user is to be assigned to]                                                                                                                                                                                                                                                                                                                                                                                                                         | null                                                                                                                      |
-| .pm.grantaccess             | function | .pm       | Give a group access to a variable                                                                                                                                                                                                                                                                | [symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .pm.grantfunction           | function | .pm       | Give a role access to a function                                                                                                                                                                                                                                                                 | symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .pm.createvirtualtable      | function | .pm       | Create a virtual table that a group might be able to access instead of the full table                                                                                                                                                                                                            | [symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]                                                                                                                                                                                                                                                                                                                                                                                                                       | null                                                                                                                      |
-| .pm.cloneuser               | function | .pm       | Add a new user that is identical to another user                                                                                                                                                                                                                                                 | [symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]                                                                                                                                                                                                                                                                                                                                                                                                   | null                                                                                                                      |
-| .access.addsuperuser        | function | .access   | Add a super user                                                                                                                                                                                                                                                                                 | [symbol: user]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | null                                                                                                                      |
-| .access.addpoweruser        | function | .access   | Add a power user                                                                                                                                                                                                                                                                                 | [symbol: user]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | null                                                                                                                      |
-| .access.adddefaultuser      | function | .access   | Add a default user                                                                                                                                                                                                                                                                               | [symbol: user]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | null                                                                                                                      |
-| .access.readpermissions     | function | .access   | Read the permissions from a directory                                                                                                                                                                                                                                                            | [string: directory containing the permissions files]                                                                                                                                                                                                                                                                                                                                                                                                                                                      | null                                                                                                                      |
-| .access.USERS               | table    | .access   | Table of users and their types                                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .servers.opencon            | function | .servers  | open a connection to a process using the default timeout. If no user:pass supplied, the default one will be added if set                                                                                                                                                                         | [symbol: the host:port[:user:pass]]                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | int: the process handle, null if the connection failed                                                                    |
-| .servers.addh               | function | .servers  | open a connection to a server, store the connection details                                                                                                                                                                                                                                      | [symbol: the host:port:user:pass connection symbol]                                                                                                                                                                                                                                                                                                                                                                                                                                                       | int: the server handle                                                                                                    |
-| .servers.addw               | function | .servers  | add the connection details of a process behind the handle                                                                                                                                                                                                                                        | [int: server handle]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | null                                                                                                                      |
-| .servers.addnthawc          | function | .servers  | add the details of a connection to the table                                                                                                                                                                                                                                                     | [symbol: process name; symbol: process type; hpup: host:port:user:pass connection symbol; dict: attributes of the process; int: handle to the process;boolean: whether to check the handle is valid on insert                                                                                                                                                                                                                                                                                             | int: the handle of the process                                                                                            |
-| .servers.getservers         | function | .servers  | get a table of servers which match the given criteria                                                                                                                                                                                                                                            | [symbol: pick the server based on the name value or the type value. Can be either \`procname\`proctype; symbol(list): lookup values. \` for any; dict: requirements dictionary; boolean: whether to automatically open dead connections for the specified lookup values; boolean: if only one of each of the specified lookup values is required (means dead connections aren't opened if there is one available)]                                                                                        | table: processes details and requirements matches                                                                         |
-| .servers.gethandlebytype    | function | .servers  | get a server handle for the supplied type                                                                                                                                                                                                                                                        | [symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]                                                                                                                                                                                                                                                                                                                                                                                                                        | int: handle of server                                                                                                     |
-| .servers.gethpbytype        | function | .servers  | get a server hpup connection symbol for the supplied type                                                                                                                                                                                                                                        | [symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]                                                                                                                                                                                                                                                                                                                                                                                                                        | symbol: h:p:u:p connection symbol of server                                                                               |
-| .servers.startup            | function | .servers  | initialise all the connections. Must processes should call this during initialisation                                                                                                                                                                                                            | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .servers.refreshattributes  | function | .servers  | refresh the attributes registered with the discovery service. Should be called whenever they change e.g. end of day for an HDB                                                                                                                                                                   | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | null                                                                                                                      |
-| .servers.SERVERS            | table    | .servers  | table containing server handles and session values                                                                                                                                                                                                                                               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .timer.repeat               | function | .timer    | Add a repeating timer with default next schedule                                                                                                                                                                                                                                                 | [timestamp: start time; timestamp: end time; timespan: period; mixedlist: (function and argument list); string: description string]                                                                                                                                                                                                                                                                                                                                                                       | null                                                                                                                      |
-| .timer.once                 | function | .timer    | Add a one-off timer to fire at a specific time                                                                                                                                                                                                                                                   | [timestamp: execute time; mixedlist: (function and argument list); string: description string]                                                                                                                                                                                                                                                                                                                                                                                                            | null                                                                                                                      |
-| .timer.remove               | function | .timer    | Delete a row from the timer schedule                                                                                                                                                                                                                                                             | [int: timer id to delete]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | null                                                                                                                      |
-| .timer.removefunc           | function | .timer    | Delete a specific function from the timer schedule                                                                                                                                                                                                                                               | [mixedlist: (function and argument list)]                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | null                                                                                                                      |
-| .timer.rep                  | function | .timer    | Add a repeating timer - more flexibility than .timer.repeat                                                                                                                                                                                                                                      | [timestamp: execute time; mixedlist: (function and argument list); short: scheduling algorithm for next timer; string: description string; boolean: whether to check if this new function is already present on the schedule]                                                                                                                                                                                                                                                                             | null                                                                                                                      |
-| .timer.one                  | function | .timer    | Add a one-off timer to fire at a specific time - more flexibility than .timer.once                                                                                                                                                                                                               | [timestamp: execute time; mixedlist: (function and argument list); string: description string; boolean: whether to check if this new function is already present on the schedule]                                                                                                                                                                                                                                                                                                                         | null                                                                                                                      |
-| .timer.timer                | table    | .timer    | The table containing the timer information                                                                                                                                                                                                                                                       |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .cache.execute              | function | .cache    | Check the cache for a valid result set, return the results if found, execute the function, cache it and return if not                                                                                                                                                                            | [mixed: function or string to execute;timespan: maximum allowable age of cache item if found in cache]                                                                                                                                                                                                                                                                                                                                                                                                    | mixed: result of function                                                                                                 |
-| .cache.getperf              | function | .cache    | Return the performance statistics of the cache                                                                                                                                                                                                                                                   | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | table: cache performance                                                                                                  |
-| .cache.maxsize              | variable | .cache    | The maximum size in MB of the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation. To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want                                                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .cache.maxindividual        | variable | .cache    | The maximum size in MB of an individual item in the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation. To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want                                     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .tz.dg                      | function | .tz       | default from GMT. Convert a timestamp from GMT to the default timezone                                                                                                                                                                                                                           | [timestamp (list): timestamps to convert]                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | timestamp atom or list                                                                                                    |
-| .tz.lg                      | function | .tz       | local from GMT. Convert a timestamp from GMT to the specified local timezone                                                                                                                                                                                                                     | [symbol (list): timezone ids;timestamp (list): timestamps to convert]                                                                                                                                                                                                                                                                                                                                                                                                                                     | timestamp atom or list                                                                                                    |
-| .tz.gd                      | function | .tz       | GMT from default. Convert a timestamp from the default timezone to GMT                                                                                                                                                                                                                           | [timestamp (list): timestamps to convert]                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | timestamp atom or list                                                                                                    |
-| .tz.gl                      | function | .tz       | GMT from local. Convert a timestamp from the specified local timezone to GMT                                                                                                                                                                                                                     | [symbol (list): timezone ids; timestamp (list): timestamps to convert]                                                                                                                                                                                                                                                                                                                                                                                                                                    | timestamp atom or list                                                                                                    |
-| .tz.ttz                     | function | .tz       | Convert a timestamp from a specified timezone to a specified destination timezone                                                                                                                                                                                                                | [symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]                                                                                                                                                                                                                                                                                                                                                                                    | timestamp atom or list                                                                                                    |
-| .tz.default                 | variable | .tz       | Default timezone                                                                                                                                                                                                                                                                                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .tz.t                       | table    | .tz       | Table of timestamp information                                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .email.connectdefault       | function | .email    | connect to the default mail server specified in configuration                                                                                                                                                                                                                                    | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                                                                                           |
-| .email.senddefault          | function | .email    | connect to email server if not connected. Send email using default settings                                                                                                                                                                                                                      | [dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays). Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be \`html, default is \`text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. \`none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]   | size in bytes of sent email. -1 if failure                                                                                |
-| .email.test                 | function | .email    | send a test email                                                                                                                                                                                                                                                                                | [symbol(list):email address to send test email to]                                                                                                                                                                                                                                                                                                                                                                                                                                                        | size in bytes of sent email. -1 if failure                                                                                |
-| .hb.addprocs                | function | .hb       | Add a set of process types and names to the heartbeat table to actively monitor for heartbeats. Processes will be automatically added and monitored when the heartbeats are subscribed to, but this is to allow for the case where a process might already be dead and so can't be subscribed to | [symbol(list): process types; symbol(list): process names]                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                           |
-| .hb.processwarning          | function | .hb       | Callback invoked if any process goes into a warning state. Default implementation is to do nothing - modify as required                                                                                                                                                                          | [table: processes currently in warning state]                                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                                                                                           |
-| .hb.processerror            | function | .hb       | Callback invoked if any process goes into an error state. Default implementation is to do nothing - modify as required                                                                                                                                                                           | [table: processes currently in error state]                                                                                                                                                                                                                                                                                                                                                                                                                                                               |                                                                                                                           |
-| .hb.storeheartbeat          | function | .hb       | Store a heartbeat update. This function should be added to you update callback when a heartbeat is received                                                                                                                                                                                      | [table: the heartbeat table data to store]                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                           |
-| .hb.warningperiod           | function | .hb       | Return the warning period for a particular process type. Default is to return warningtolerance \* publishinterval. Can be overridden as required                                                                                                                                                 | [symbollist: the process types to return the warning period for]                                                                                                                                                                                                                                                                                                                                                                                                                                          | timespan list of warning period                                                                                           |
-| .hb.errorperiod             | function | .hb       | Return the error period for a particular process type. Default is to return errortolerance \* publishinterval. Can be overridden as required                                                                                                                                                     | [symbollist: the process types to return the error period for]                                                                                                                                                                                                                                                                                                                                                                                                                                            | timespan list of error period                                                                                             |
-| .rdb.moveandclear           | function | .rdb      | Move a variable (table) from one namespace to another, deleting its contents. Useful during the end-of-day roll down for tables you do not want to save to the HDB                                                                                                                               | [symbol: the namespace to move the table from; symbol:the namespace to move the variable to; symbol: the name of the variable]                                                                                                                                                                                                                                                                                                                                                                            | null                                                                                                                      |
-| .api.f                      | function | .api      | Find a function/variable/table/view in the current process                                                                                                                                                                                                                                       | [string:search string]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | table of matching elements                                                                                                |
-| .api.p                      | function | .api      | Find a public function/variable/table/view in the current process                                                                                                                                                                                                                                | [string:search string]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | table of matching public elements                                                                                         |
-| .api.u                      | function | .api      | Find a non-standard q public function/variable/table/view in the current process. This excludes the .q, .Q, .h, .o namespaces                                                                                                                                                                    | [string:search string]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | table of matching public elements                                                                                         |
-| .api.s                      | function | .api      | Search all function definitions for a specific string                                                                                                                                                                                                                                            | [string: search string]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | table of matching functions and definitions                                                                               |
-| .api.find                   | function | .api      | Generic method for finding functions/variables/tables/views. f,p and u are based on this                                                                                                                                                                                                         | [string: search string; boolean (list): public flags to include; boolean: whether the search is context senstive                                                                                                                                                                                                                                                                                                                                                                                          | table of matching elements                                                                                                |
-| .api.search                 | function | .api      | Generic method for searching all function definitions for a specific string. s is based on this                                                                                                                                                                                                  | [string: search string; boolean: whether the search is context senstive                                                                                                                                                                                                                                                                                                                                                                                                                                   | table of matching functions and definitions                                                                               |
-| .api.add                    | function | .api      | Add a function to the api description table                                                                                                                                                                                                                                                      | [symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]                                                                                                                                                                                                                                                                                                               | null                                                                                                                      |
-| .api.fullapi                | function | .api      | Return the full function api table                                                                                                                                                                                                                                                               | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | api table                                                                                                                 |
-| .api.m                      | function | .api      | Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required                                                                                                                                                                     | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | memory usage table                                                                                                        |
-| .api.mem                    | function | .api      | Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required                                                                                                                | [boolean:return views]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | memory usage table                                                                                                        |
-| .api.whereami               | function | .api      | Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]                                                                                                                                                                                             | function definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | symbol: the name of the current function                                                                                  |
-| .ps.publish                 | function | .ps       | Publish a table of data                                                                                                                                                                                                                                                                          | [symbol: name of table; table: table of data]                                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                                                                                           |
-| .ps.subscribe               | function | .ps       | Subscribe to a table and list of instruments                                                                                                                                                                                                                                                     | [symbol(list): table name. \` for all; symbol(list): symbols to subscribe to. \` for all]                                                                                                                                                                                                                                                                                                                                                                                                                 | mixed type list of table names and schemas                                                                                |
-| .ps.initialise              | function | .ps       | Initialise the pubsub routines. Any tables that exist in the top level can be published                                                                                                                                                                                                          | []                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |                                                                                                                           |
-| .async.deferred             | function | .async    | Use async messaging to simulate sync communication                                                                                                                                                                                                                                               | [int(list): handles to query; query]                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | (boolean list:success status; result list)                                                                                |
-| .async.postback             | function | .async    | Send an async message to a process and the results will be posted back within the postback function call                                                                                                                                                                                         | [int(list): handles to query; query; postback function]                                                                                                                                                                                                                                                                                                                                                                                                                                                   | boolean list: successful send status                                                                                      |
-| .cmp.showcomp               | function | .cmp      | Show which files will be compressed and how; driven from csv file                                                                                                                                                                                                                                | [\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]                                                                                                                                                                                                                                                                                                                                                                                                                                      | table of files to be compressed                                                                                           |
-| .cmp.compressmaxage         | function | .cmp      | Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress                                                                                                                                                               | [\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                                                                                           |
-| .cmp.docompression          | function | .cmp      | Run compression on files using parameters specified in configuration csv file                                                                                                                                                                                                                    | [\`:/path/to/database; \`:/path/to/configcsv]                                                                                                                                                                                                                                                                                                                                                                                                                                                             |                                                                                                                           |
-| .loader.loadallfiles        | function | .loader   | Generic loader function to read a directory of files in chunks and write them out to disk                                                                                                                                                                                                        | [dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol). Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)] |                                                                                                                           |
-| .sort.sorttab               | function | .sort     | Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)                                                                                                                                                                     | [2 item list of (tablename e.g. \`trade; partitions to sort and apply attributes to e.g. \`:/hdb/2000.01.01/trade\`:hdb/2000.01.02/trade)]                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                           |
-| .sort.getsortcsv            | function | .sort     | Read in the sort csv from the specified location                                                                                                                                                                                                                                                 | [symbol: the location of the file e.g. \`:config/sort.csv]                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                           |
-| .gc.run                     | function | .gc       | Run garbage collection, print debug info before and after                                                                                                                                                                                                                                        |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |                                                                                                                           |
-| .mem.objsize                | function | .mem      | Returns the calculated memory size in bytes used by an object. It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)                                                                                                                         | [q object]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | size of the object in bytes                                                                                               |
-| .tplog.check                | function | .tplog    | Checks if tickerplant log can be replayed. If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle                                                                             | [logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]                                                                                                                                                                                                                                                                                                                                                                       | handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt |
+API Table
+--------------------
 
-## grafana.q
+|name|vartype|namespace|descrip|params|return|
+|-|-|-|-|-|-|
+|.proc.createlog|function|.proc|Create the standard out and standard err log files. Redirect to them|[string: log directory; string: name of the log file;mixed: timestamp suffix for the file (can be null); boolean: suppress the generation of an alias link]|null|
+|.proc.rolllogauto|function|.proc|Roll the standard out/err log files|[]|null|
+|.proc.loadf|function|.proc|Load the specified file|[string: filename]|null|
+|.proc.loaddir|function|.proc|Load all the .q and .k files in the specified directory. If order.txt is found in the directory, use the ordering found in that file|[string: name of directory]|null|
+|.proc.getattributes|function|.proc|Called by external processes to retrieve the attributes (advertised functionality) of this process|[]|dictionary of attributes|
+|.proc.override|function|.proc|Override configuration varibles with command line parameters.  For example, if you set -.servers.HOPENTIMEOUT 5000 on the command line and call this function, then the command line value will be used|[]|null|
+|.proc.overrideconfig|function|.proc|Override configuration varibles with values in supplied parameter dictionary. Generic version of .proc.override|[dictionary: command line parameters.  .proc.params should be used]|null|
+|.lg.o|function|.lg|Log to standard out|[symbol: id of log message; string: message]|null|
+|.lg.e|function|.lg|Log to standard err|[symbol: id of log message; string: message]|null|
+|.lg.l|function|.lg|Log to either standard error or standard out, depending on the log level|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]|null|
+|.lg.err|function|.lg|Log to standard err|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters, used in the logging extension function]|null|
+|.lg.ext|function|.lg|Extra function invoked in standard logging function .lg.l.  Can be used to do more with the log message, e.g. publish externally|[symbol: log level; symbol: name of process; symbol: id of log message; string: message; dict: extra parameters]|null|
+|.err.ex|function|.err|Log to standard err, exit|[symbol: id of log message; string: message; int: exit code]|null|
+|.err.usage|function|.err|Throw a usage error and exit|[]|null|
+|.err.param|function|.err|Check a dictionary for a set of required parameters. Print an error and exit if not all required are supplied|[dict: parameters; symbol list: the required param values]|null|
+|.err.env|function|.err|Check if a list of required environment variables are set.  If not, print an error and exit|[symbol list: list of required environment variables]|null|
+|.usage.rolllogauto|function|.usage|Roll the .usage txt files|[]|null|
+|.usage.readlog|function|.usage|Read and return a usage log file as a table|[string: name of log file]|null|
+|.usage.logtodisk|variable|.usage|whether to log to disk|||
+|.usage.logtomemory|variable|.usage|whether to log to .usage.usage|||
+|.usage.ignore|variable|.usage|whether to check the ignore list for functions to ignore|||
+|.usage.ignorelist|variable|.usage|the list of functions to ignore|||
+|.usage.logroll|variable|.usage|whether to automatically roll the log file|||
+|.usage.usage|table|.usage|log of messages through the message handlers|||
+|.clients.clients|table|.clients|table containing client handles and session values|||
+|.sub.getsubscriptionhandles|function|.sub|Connect to a list of processes of a specified type|[symbol: process type to match; symbol: process name to match; dictionary:attributes of process]|table of process names, types and the handle connected on|
+|.sub.subscribe|function|.sub|Subscribe to a table or list of tables and specified instruments|[symbol (list):table names; symbol (list): instruments; boolean: whether to set the schema from the server; boolean: wether to replay the logfile; dictionary: procname,proctype,handle||
+|.pm.adduser|function|.pm|Adds a user to be permissioned as well as setting their password and the method used to hash it.|[symbol: the username; symbol: method used to authenticate; symbol: method used to hash the password; string: password, hashed using the proper method]|null|
+|.pm.addgroup|function|.pm|Add a group which will have access to certain tables and variables|[symbol: the name of the group; string: a description of the group]|null|
+|.pm.addrole|function|.pm|Add a role which will have access to certain functions|[symbol: the name of the role; string: a description of the role]|null|
+|.pm.addtogroup|function|.pm|Add a user to a group, giving them access to all of its variables|[symbol: the name of the user to add; symbol: group the user is to be added to]|null|
+|.pm.assignrole|function|.pm|Assign a user a role, giving them access to all of its functions|[symbol: the name of the user to add; symbol: role the user is to be assigned to]|null|
+|.pm.grantaccess|function|.pm|Give a group access to a variable|[symbol: the name of the variable the group should get access to; symbol: group that is to be given this access; symbol: the type of access that should be given, eg. read, write]|null|
+|.pm.grantfunction|function|.pm|Give a role access to a function|symbol: name of the function to be added; symbol: role that is to be given this access; TO CLARIFY|null|
+|.pm.createvirtualtable|function|.pm|Create a virtual table that a group might be able to access instead of the full table|[symbol: new name of the table; symbol: name of the actual table t add; TO CLARIFY]|null|
+|.pm.cloneuser|function|.pm|Add a new user that is identical to another user|[symbol: name of the new user; symbol: name of the user to be cloned; string: password of the new user]|null|
+|.access.addsuperuser|function|.access|Add a super user|[symbol: user]|null|
+|.access.addpoweruser|function|.access|Add a power user|[symbol: user]|null|
+|.access.adddefaultuser|function|.access|Add a default user|[symbol: user]|null|
+|.access.readpermissions|function|.access|Read the permissions from a directory|[string: directory containing the permissions files]|null|
+|.access.USERS|table|.access|Table of users and their types|||
+|.servers.opencon|function|.servers|open a connection to a process using the default timeout. If no user:pass supplied, the default one will be added if set|[symbol: the host:port[:user:pass]]|int: the process handle, null if the connection failed|
+|.servers.addh|function|.servers|open a connection to a server, store the connection details|[symbol: the host:port:user:pass connection symbol]|int: the server handle|
+|.servers.addw|function|.servers|add the connection details of a process behind the handle|[int: server handle]|null|
+|.servers.addnthawc|function|.servers|add the details of a connection to the table|[symbol: process name; symbol: process type; hpup: host:port:user:pass connection symbol; dict: attributes of the process; int: handle to the process;boolean: whether to check the handle is valid on insert|int: the handle of the process|
+|.servers.getservers|function|.servers|get a table of servers which match the given criteria|[symbol: pick the server based on the name value or the type value.  Can be either \`procname\`proctype; symbol(list): lookup values. \` for any; dict: requirements dictionary; boolean: whether to automatically open dead connections for the specified lookup values; boolean: if only one of each of the specified lookup values is required (means dead connections aren't opened if there is one available)]|table: processes details and requirements matches|
+|.servers.gethandlebytype|function|.servers|get a server handle for the supplied type|[symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]|int: handle of server|
+|.servers.gethpbytype|function|.servers|get a server hpup connection symbol for the supplied type|[symbol: process type; symbol: selection criteria. One of \`roundrobin\`any\`last]|symbol: h:p:u:p connection symbol of server|
+|.servers.startup|function|.servers|initialise all the connections.  Must processes should call this during initialisation|[]|null|
+|.servers.refreshattributes|function|.servers|refresh the attributes registered with the discovery service.  Should be called whenever they change e.g. end of day for an HDB|[]|null|
+|.servers.SERVERS|table|.servers|table containing server handles and session values|||
+|.timer.repeat|function|.timer|Add a repeating timer with default next schedule|[timestamp: start time; timestamp: end time; timespan: period; mixedlist: (function and argument list); string: description string]|null|
+|.timer.once|function|.timer|Add a one-off timer to fire at a specific time|[timestamp: execute time; mixedlist: (function and argument list); string: description string]|null|
+|.timer.remove|function|.timer|Delete a row from the timer schedule|[int: timer id to delete]|null|
+|.timer.removefunc|function|.timer|Delete a specific function from the timer schedule|[mixedlist: (function and argument list)]|null|
+|.timer.rep|function|.timer|Add a repeating timer - more flexibility than .timer.repeat|[timestamp: execute time; mixedlist: (function and argument list); short: scheduling algorithm for next timer; string: description string; boolean: whether to check if this new function is already present on the schedule]|null|
+|.timer.one|function|.timer|Add a one-off timer to fire at a specific time - more flexibility than .timer.once|[timestamp: execute time; mixedlist: (function and argument list); string: description string; boolean: whether to check if this new function is already present on the schedule]|null|
+|.timer.timer|table|.timer|The table containing the timer information|||
+|.cache.execute|function|.cache|Check the cache for a valid result set, return the results if found, execute the function, cache it and return if not|[mixed: function or string to execute;timespan: maximum allowable age of cache item if found in cache]|mixed: result of function|
+|.cache.getperf|function|.cache|Return the performance statistics of the cache|[]|table: cache performance|
+|.cache.maxsize|variable|.cache|The maximum size in MB of the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want|||
+|.cache.maxindividual|variable|.cache|The maximum size in MB of an individual item in the cache. This is evaluated using -22!, so may be incorrect due to power of 2 memory allocation.  To be conservative and ensure it isn't exceeded, set max size to half of the actual max size that you want|||
+|.tz.dg|function|.tz|default from GMT. Convert a timestamp from GMT to the default timezone|[timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.lg|function|.tz|local from GMT. Convert a timestamp from GMT to the specified local timezone|[symbol (list): timezone ids;timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.gd|function|.tz|GMT from default. Convert a timestamp from the default timezone to GMT|[timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.gl|function|.tz|GMT from local. Convert a timestamp from the specified local timezone to GMT|[symbol (list): timezone ids; timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.ttz|function|.tz|Convert a timestamp from a specified timezone to a specified destination timezone|[symbol (list): destination timezone ids; symbol (list): source timezone ids; timestamp (list): timestamps to convert]|timestamp atom or list|
+|.tz.default|variable|.tz|Default timezone|||
+|.tz.t|table|.tz|Table of timestamp information|||
+|.email.connectdefault|function|.email|connect to the default mail server specified in configuration|[]||
+|.email.senddefault|function|.email|connect to email server if not connected. Send email using default settings|[dictionary of email parameters. Required dictionary keys are to (symbol (list) of email address to send to), subject (character list), body (list of character arrays).  Optional parameters are cc (symbol(list) of addresses to cc), bodyType (can be \`html, default is \`text), attachment (symbol (list) of files to attach), image (symbol of image to append to bottom of email. \`none is no image), debug (int flag for debug level of connection library. 0i=no info, 1i=normal. 2i=verbose)]|size in bytes of sent email. -1 if failure|
+|.email.test|function|.email|send a test email|[symbol(list):email address to send test email to]|size in bytes of sent email. -1 if failure|
+|.hb.addprocs|function|.hb|Add a set of process types and names to the heartbeat table to actively monitor for heartbeats.  Processes will be automatically added and monitored when the heartbeats are subscribed to, but this is to allow for the case where a process might already be dead and so can't be subscribed to|[symbol(list): process types; symbol(list): process names]||
+|.hb.processwarning|function|.hb|Callback invoked if any process goes into a warning state.  Default implementation is to do nothing - modify as required|[table: processes currently in warning state]||
+|.hb.processerror|function|.hb|Callback invoked if any process goes into an error state. Default implementation is to do nothing - modify as required|[table: processes currently in error state]||
+|.hb.storeheartbeat|function|.hb|Store a heartbeat update.  This function should be added to you update callback when a heartbeat is received|[table: the heartbeat table data to store]||
+|.hb.warningperiod|function|.hb|Return the warning period for a particular process type.  Default is to return warningtolerance * publishinterval. Can be overridden as required|[symbollist: the process types to return the warning period for]|timespan list of warning period|
+|.hb.errorperiod|function|.hb|Return the error period for a particular process type.  Default is to return errortolerance * publishinterval. Can be overridden as required|[symbollist: the process types to return the error period for]|timespan list of error period|
+|.rdb.moveandclear|function|.rdb|Move a variable (table) from one namespace to another, deleting its contents.  Useful during the end-of-day roll down for tables you do not want to save to the HDB|[symbol: the namespace to move the table from; symbol:the namespace to move the variable to; symbol: the name of the variable]|null|
+|.api.f|function|.api|Find a function/variable/table/view in the current process|[string:search string]|table of matching elements|
+|.api.p|function|.api|Find a public function/variable/table/view in the current process|[string:search string]|table of matching public elements|
+|.api.u|function|.api|Find a non-standard q public function/variable/table/view in the current process.  This excludes the .q, .Q, .h, .o namespaces|[string:search string]|table of matching public elements|
+|.api.s|function|.api|Search all function definitions for a specific string|[string: search string]|table of matching functions and definitions|
+|.api.find|function|.api|Generic method for finding functions/variables/tables/views. f,p and u are based on this|[string: search string; boolean (list): public flags to include; boolean: whether the search is context senstive|table of matching elements|
+|.api.search|function|.api|Generic method for searching all function definitions for a specific string. s is based on this|[string: search string; boolean: whether the search is context senstive|table of matching functions and definitions|
+|.api.add|function|.api|Add a function to the api description table|[symbol:the name of the function; boolean:whether it should be called externally; string:the description; dict or string:the parameters for the function;string: what the function returns]|null|
+|.api.fullapi|function|.api|Return the full function api table|[]|api table|
+|.api.m|function|.api|Return the ordered approximate memory usage of each variable and view in the process. Views will be re-evaluated if required|[]|memory usage table|
+|.api.mem|function|.api|Return the ordered approximate memory usage of each variable and view in the process. Views are only returned if view flag is set to true. Views will be re-evaluated if required|[boolean:return views]|memory usage table|
+|.api.whereami|function|.api|Get the name of a supplied function definition. Can be used in the debugger e.g. .api.whereami[.z.s]|function definition|symbol: the name of the current function|
+|.ps.publish|function|.ps|Publish a table of data|[symbol: name of table; table: table of data]||
+|.ps.subscribe|function|.ps|Subscribe to a table and list of instruments|[symbol(list): table name. \` for all; symbol(list): symbols to subscribe to. \` for all]|mixed type list of table names and schemas|
+|.ps.initialise|function|.ps|Initialise the pubsub routines.  Any tables that exist in the top level can be published|[]||
+|.async.deferred|function|.async|Use async messaging to simulate sync communication|[int(list): handles to query; query]|(boolean list:success status; result list)|
+|.async.postback|function|.async|Send an async message to a process and the results will be posted back within the postback function call|[int(list): handles to query; query; postback function]|boolean list: successful send status|
+|.cmp.showcomp|function|.cmp|Show which files will be compressed and how; driven from csv file|[\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]|table of files to be compressed|
+|.cmp.compressmaxage|function|.cmp|Run compression on files using parameters specified in configuration csv file, and specifying the maximum age of files to compress|[\`:/path/to/database; \`:/path/to/configcsv; maxagefilestocompress]||
+|.cmp.docompression|function|.cmp|Run compression on files using parameters specified in configuration csv file|[\`:/path/to/database; \`:/path/to/configcsv]||
+|.loader.loadallfiles|function|.loader|Generic loader function to read a directory of files in chunks and write them out to disk|[dictionary of load parameters. Should have keys of headers (symbol list), types (character list), separator (character), tablename (symbol), dbdir (symbol).  Optional params of dataprocessfunc (diadic function), datecol (name of column to extract date from: symbol), chunksize (amount of data to read at once:int), compression (compression parameters to use e.g. 16 1 0:int list), gc (boolean flag of whether to run garbage collection:boolean); directory containing files to load (symbol)]||
+|.sort.sorttab|function|.sort|Sort and set the attributes for a table and set of partitions based on a configuration file (default is $KDBCONFIG/sort.csv)|[2 item list of (tablename e.g. \`trade; partitions to sort and apply attributes to e.g. \`:/hdb/2000.01.01/trade\`:hdb/2000.01.02/trade)]||
+|.sort.getsortcsv|function|.sort|Read in the sort csv from the specified location|[symbol: the location of the file e.g. \`:config/sort.csv]||
+|.gc.run|function|.gc|Run garbage collection, print debug info before and after|||
+|.mem.objsize|function|.mem|Returns the calculated memory size in bytes used by an object.  It may take a little bit of time for objects with lots of nested structures (e.g. lots of nested columns)|[q object]|size of the object in bytes|
+|.tplog.check|function|.tplog|Checks if tickerplant log can be replayed.  If it can or can replay the first X messages, then returns the log handle, else it will read log as byte stream and create a good log and then return the good log handle |[logfile (symbol), handle to the log file to check; lastmsgtoreplay (long), the index of the last message to be replayed from log ]|handle to log file, will be either the input log handle or handle to repaired log, depends on whether the log was corrupt|
 
+grafana.q
+----------
 Grafana is an open source analytics platform, used to display time-series data
 from a web application. Currently it supports a variety of data sources
-including Graphite, InfluxDb & Prometheus with users including the likes of
-Paypal, Ebay, Intel and Booking.com. However, there is no in-built support for
-direct analysis of data from kdb+. Thus, using the
+including Graphite, InfluxDb & Prometheus with users including the likes of 
+Paypal, Ebay, Intel and Booking.com.  However, there is no in-built support for
+direct analysis of data from kdb+. Thus, using the 
 [SimpleJSON data source](https://github.com/grafana/simple-json-datasource),
 we have engineered an adaptor to allow visualisation of kdb+ data.
 
 ### Requirements
-
 Grafana v5.2.2+
 (Tested on Kdb v3.5+)
-
 ### Getting Started
 
-1. Download and set up Grafana. This is well explained on the
-   [Grafana website](https://grafana.com/get), where you have the option to either
-   download the software locally or let Grafana host it for you. For the purpose
-   of this document, we host the software locally.
+1. Download and set up Grafana. This is well explained on the 
+[Grafana website](https://grafana.com/get), where you have the option to either
+download the software locally or let Grafana host it for you. For the purpose 
+of this document, we host the software locally.
 
 2. Pull down this repository with the adaptor already installed in code/common.
 
 3. In your newly installed Grafana folder (eg.grafana-5.2.2/) run the command:
-   `./bin/grafana-server web`.
-   This will start your Grafana server. If you would like to alter the port which
-   this is run on, this can be changed in:
-   `/grafana-5.2.2/conf/custom.ini`, Where custom.ini should be a copy of defaults.ini.
+    ```./bin/grafana-server web```.
+This will start your Grafana server. If you would like to alter the port which 
+this is run on, this can be changed in:
+    ```/grafana-5.2.2/conf/custom.ini```, Where custom.ini should be a copy of defaults.ini.
 
-4. You can now open the Grafana server in your web browser where you will be
-   greeted with a login page to fill in appropriately.
+4. You can now open the Grafana server in your web browser where you will be 
+greeted with a login page to fill in appropriately.
 
-5. Once logged in, navigate to the configurations->plugin section where you
-   will find the simple JSON adaptor, install this.
+5. Once logged in, navigate to the configurations->plugin section where you 
+will find the simple JSON adaptor, install this.
 
-6. Upon installation of the JSON you can now set-up your datasource.
+6. Upon installation of the JSON you can now set-up your datasource. 
 
 7. Host your data on a port accesible to Grafana, eg. the RDB.
 
-8. In the "add new datasource" panel, enter the details for the port in which
-   your data is hosted, making the type SimpleJSON.
+8. In the "add new datasource" panel, enter the details for the port in which 
+your data is hosted, making the type SimpleJSON.
 
-9. Run the test button on the bottom of your page, this should succeed and you
-   are ready to go!
+9. Run the test button on the bottom of your page, this should succeed and you 
+are ready to go!
 
 ### Using the adaptor
-
-As the adaptor is part of the TorQ framework it will automatically be loaded
-into TorQ sessions. From this point onwards you can proceed to use Grafana as
-it is intended, with the only difference coming in the form of the queries. Use
+As the adaptor is part of the TorQ framework it will automatically be loaded 
+into TorQ sessions. From this point onwards you can proceed to use Grafana as 
+it is intended, with the only difference coming in the form of the queries. Use 
 cases and further examples of the queries can be seen in our blogpost:
 [The Grafana-KDB Adaptor](https://www.aquaq.co.uk/q/ask-shall-receive-grafana-kdb-adaptor/).
 For information and examples of how to execute server side functions in queries, please
-read our followup blogpost on the subject: [Grafana kdb+ Adaptor Update](https://www.aquaq.co.uk/kdb/grafana-kdb-adaptor-update/).
-Here you can see examples of graphs, tables, heatmaps and single statistics.
+read our followup blogpost on the subject: [Grafana kdb+ Adaptor Update](https://www.aquaq.co.uk/kdb/grafana-kdb-adaptor-update/). 
+Here you can see examples of graphs, tables, heatmaps and single statistics. 
 The best explanation of the inputs allowed in the query section can be seen pictorially here:
 
 ![GrafanaQueries](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/graphics/grafana_chart.png?raw=true)
 
-Upon opening the query box, in the metrics tab, the user will be provided with
+Upon opening the query box, in the metrics tab, the user will be provided with 
 a populated drop down of all possible options. Server functions are not included
 in the dropdown, but can be called by entering the letter f followed by the value
-of `.grafana.del` (see below) before their function call. Due to the limitations
-of the JSON messages, it is not possible for our adaptor to distinguish between panels.
+of ``` .grafana.del ``` (see below) before their function call. Due to the limitations
+of the JSON messages, it is not possible for our adaptor to distinguish between panels. 
 Consequently, every possible option is returned for each panel, the user can
-reduce these choices by simply entering the first letter of their panel type,
-g for graph, t for table and o for other (heatmap or single stat). From here,
+reduce these choices by simply entering the first letter of their panel type, 
+g for graph, t for table and o for other (heatmap or single stat). From here, 
 you can follow the above diagram to specify your type of query.
 
 ### Limitations & Assumptions
+This adaptor has been built to allow visualisation of real-time and historical 
+data. It is capable of handling static and timeseries data.  In addition, the 
+drop-down options have been formed such that only one query is possible per 
+panel. If more than one query on a specfic panel is made it will throw an error. 
+To get around this, we added the options of including all "syms" in queries so 
+the options can be filtered out in the legend. 
 
-This adaptor has been built to allow visualisation of real-time and historical
-data. It is capable of handling static and timeseries data. In addition, the
-drop-down options have been formed such that only one query is possible per
-panel. If more than one query on a specfic panel is made it will throw an error.
-To get around this, we added the options of including all "syms" in queries so
-the options can be filtered out in the legend.
-
-Table queries should work for any table format supplied to the adaptor. However,
-time series data is limited by the requriment of a time column, in our adaptor
-we assume this column to be called time. This assumption can be modified to fit
-your data in the settings (config/settings/defualt.q) file which dictates the
+Table queries should work for any table format supplied to the adaptor. However, 
+time series data is limited by the requriment of a time column, in our adaptor 
+we assume this column to be called time. This assumption can be modified to fit 
+your data in the settings (config/settings/defualt.q) file which dictates the 
 following lines at the start of the script:
-
 ```
 // user defined column name of time column
 timecol:@[value;`.grafana.timecol;`time];
@@ -1493,26 +1524,26 @@ del:@[value;`.grafana.del;"."];
 
 ```
 
-`.grafana.timecol` represents the name of the time column and thus can be
-reassigned if your time column has a different name, eg. date. One more common
-modification could be changing the variable `.grafana.sym ` which defines
-the name of the the sym column, which is normally referenced in financial data.
-However if the data is non-financial this could be tailored to represent another
-identifier such as name or postcode. This column is used to populate the drop
-down options in the query selector.
+```.grafana.timecol``` represents the name of the time column and thus can be 
+reassigned if your time column has a different name, eg. date. One more common 
+modification could be changing the variable ```.grafana.sym ``` which defines 
+the name of the the sym column, which is normally referenced in financial data. 
+However if the data is non-financial this could be tailored to represent another 
+identifier such as name or postcode. This column is used to populate the drop 
+down options in the query selector. 
 
-`.grafana.timebackdate` is a user definable variable which dictates how
-far back into a hdb the adaptor will look to gather options for distinct syms to
-populate the dropdowns. It is important to note that this should be increased if
+```.grafana.timebackdate``` is a user definable variable which dictates how 
+far back into a hdb the adaptor will look to gather options for distinct syms to 
+populate the dropdowns. It is important to note that this should be increased if 
 all your required syms are not in the last 2 days. Optionally a user could hard
-code this list or implement their own search function to limit interrogation of
-the database. `.grafana.ticks` can be defined so that only n rows from the
+code this list or implement their own search function to limit interrogation of 
+the database. ```.grafana.ticks``` can be defined so that only n rows from the
 end of the table will be queried. This can be left as large as the user likes,
-but is included for managing large
-partitioned tables.
+but is included for managing large 
+partitioned tables. 
 
-One final important variable is `.grafana.del`, this dictates the delimeter
-between options in the drop down menus. This has significant repercussions if
-one of your columns includes full stops, eg. email adresses. As a result we have
-left this as definable so that the user can alter this to a non-disruptive value
+One final important variable is ```.grafana.del```, this dictates the delimeter 
+between options in the drop down menus. This has significant repercussions if 
+one of your columns includes full stops, eg. email adresses. As a result we have 
+left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.
