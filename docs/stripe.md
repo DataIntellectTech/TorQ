@@ -59,7 +59,7 @@ d| `RYVW`SNKZ`PGBO`EPSV
 9| `CWXD`KZJL`SYMB`EJDG
 ```
 
-The hex keys will be divided across the number of striped processes, example 4 RDBs, like so:
+The hex keys will be divided across the number of striped processes, for example 4 RDBs, like so:
 
 ```q
 q).Q.s1(hex:lower .Q.nA til base)!(base:16)#til numproc:4
