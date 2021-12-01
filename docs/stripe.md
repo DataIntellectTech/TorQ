@@ -35,7 +35,7 @@ q)f`AMD`AIG`AAPL`DELL`DOW`GOOG`HPQ`INTC`IBM`MSFT
 "40809edfcb"
 ```
 
-A hash map is based on the **`sym`** column is created like so:
+A hash map based on the **`sym`** column is created like so:
 
 ```q
 q)show sym:`$-100?(thrl cross .Q.A),thrl:(.Q.A cross .Q.A cross .Q.A)
