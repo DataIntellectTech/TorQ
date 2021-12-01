@@ -859,22 +859,30 @@ localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist
 
 **Ensure** **`.rdb.subfiltered: 0b`**
 
+---
+
 #### 3) Data striping for general subscribers
 
-Add the conditions required (using the hash function) to be loaded into the {subscriber}.q file
+##### {subscriber}.q
+
+Add the conditions required (using the data hash striping function).
 
 ```q
+...
 // Subscribe to all tables but with custom conditions
 conditions:1!flip`tabname`filters`columns!(`trade`quote;("sym in .ds.stripe[sym;0]";"sym in .ds.stripe[sym;1]");("";""))
 handletoSTP(`.u.sub;`;conditions)
 ...
-q)show conditions
+```
+
+```q
+q)conditions
 tabname| filters                    columns
 -------| ----------------------------------
 trade  | "sym in .ds.stripe[sym;0]" ""
 quote  | "sym in .ds.stripe[sym;1]" ""
 
-q).stpps.subrequestfiltered
+q)handletoSTP".stpps.subrequestfiltered"
 tbl       handle filts                            columns
 ---------------------------------------------------------
 logmsg    21     ()                                      
