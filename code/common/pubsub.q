@@ -75,11 +75,12 @@ selfiltered:{[x;y]
 pub:{[t;x]
   if[not count x;:()];
   if[count h:subrequestall[t];-25!(h;(`upd;t;x))];
-  if[t in subrequestfiltered`tbl;
-    {[t;x] data:eval(?;t;x`filts;0b;x`columns);neg[x`handle](`upd;t;data)}[t;] 
-      each select handle,filts,columns from subrequestfiltered where tbl=t
-  ];
- };
+  if[t in .stpps.subrequestfiltered`tbl;
+    {[t;x;sels] data:eval(?;x;sels`filts;0b;sels`columns);
+         if[count data;neg[sels`handle](`upd;t;data)]}[t;x;]
+           each select handle,filts,columns from .stpps.subrequestfiltered where tbl=t
+    ];
+   };
 
 // publish and clear tables
 pubclear:{
