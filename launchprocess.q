@@ -25,9 +25,20 @@ launch:{ [params]
         :()];
     
     /set default values with .Q.def and string the result for the startline:
-    params:string each .Q.def[`procname`proctype`U`localtime`T!(`;`;`$getenv[`KDBAPPCONFIG],"/passwords/accesslist.txt";1;0)] params; 
-    
-    syscomm[params;] "bash ",getenv[`TORQHOME],"/launchprocess.sh -procname ",params[`procname]," -proctype ",params[`proctype]," -U ",params[`U]     }
+    /for now, let the set of parameters which need to be provided with defaults be:
+    /(procname,proctype),U,localtime
+
+    deflt:`procname`proctype`U`localtime!(`;`;`$getenv[`KDBAPPCONFIG],"/passwords/accesslist.txt";1);
+    params:string each .Q.def[deflt] params; 
+   
+    $[4<count params;
+          [ extras:(-1*(count params)-4)#params; 
+            extraargs:{raze "-",string x[0]," ",string x[1]} each (key extras),'{`$x} each value extras];
+           
+          extraargs:" "];
+
+    sline:"bash ",getenv[`TORQHOME],"/launchprocess.sh -procname ",params[`procname]," -proctype ",params[`proctype]," -U ",params[`U]," -localtime ",params[`localtime],raze " ",'extraargs;
+    syscomm[params;] sline     }
 
 
 

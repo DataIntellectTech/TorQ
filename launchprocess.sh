@@ -7,6 +7,7 @@
 
 #for each cmd line argument, check if it is in the default set
 cnt=0
+extra_flag_cnt=0
 IFS='-'
 read -ra arg_arr <<< "$@"
 for arg in "${arg_arr[@]}"
@@ -30,27 +31,40 @@ do
 	qcmd )
 	    qcmd_arg=${sub_arg_arr[1]}
 	    ;;
+	p )
+	    p_arg=${sub_arg_arr[1]}
+	    ;;
 	* )
-	    other_args=${sub_arg_arr[1]}
+	    extra_flag_cnt=$(($extra_flag_cnt + 1))
       	    ;;
     esac
     fi
     cnt=$((cnt+1))	
 done
 
-#set default values
-localtime_arg=${localtime_arg:=1}
+#set default values (U and localtime have been given defaults in launchprocess.q)
 QCMD=${qcmd_arg:="q"}
-other_args=${other_args:=" "}
+p_arg=${p_arg:="0W"}
+
+#to deal with any number of extra flags and args, take the last (extra_flag_cnt) arguments from the arg_arr 
+extra_arg_arr=" "
+i=0
+a=$((extra_flag_cnt * -1))
+while [ $i -lt "$extra_flag_cnt" ]
+do 
+    extra_arg_arr+="-"${arg_arr[$(( $a+i ))]}
+    i=$(($i + 1))
+done
 
 #define the startline
-sline="q ${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $procname -U $U_arg -localtime $localtime_arg "
+sline="q ${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $procname -U $U_arg -localtime $localtime_arg -p $p_arg $extra_arg_arr"
 
 #fn to check if a process is running, returns a non-zero search result for success, returns null for failure
 findproc()  {
     pgrep -lf "$1" -u "$USER" | grep -ow "q"
 }
 
+echo "$sline"
 #check process isn't already running before attempting to start it
 if [[ -z $(findproc "$procname") ]]; then
     #run process in background and redirect input & output 
