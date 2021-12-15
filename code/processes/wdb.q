@@ -313,7 +313,17 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
 	      curr[0]:curr[0],select from get segment;
 	      curr[1]:curr[1],segment;		
       	$[islast or mergemaxrows < count curr[0];
-	        [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+	        
+                [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
+                 pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
+                 if[pattrtest;
+                  /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+                  .lg.o[`resort;"Re-sorting contents of subpartition"];
+                  curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
+                  .lg.o[`resort;"The p attribute can now be applied"];
+                 ];
+                
+                .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
 	        dest upsert curr[0];
 	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
 	        .os.deldir each string curr[1];
