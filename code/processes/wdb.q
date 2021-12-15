@@ -315,8 +315,8 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
       	$[islast or mergemaxrows < count curr[0];
 	        
                 [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
-                pattrtest:10h=type @[{@[x;y;`p#]}[curr[0];];.merge.getextrapartitiontype[tablename];{x}];
-                if[pattrtest;
+                 pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
+                 if[pattrtest;
                   /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
                   .lg.o[`resort;"Re-sorting contents of subpartition"];
                   curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
