@@ -104,16 +104,9 @@ queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
 
-//Function to generate random placeholder
-genrand:{system"S ",string `int$.z.T;rand 0Ng}
-
-//Generate random placeholder
-placehold:.gw.genrand[]
-
 // structure to store query results from back end servers
-// structure is queryid!(clienthandle;servertype!(handle;results))
-// structure is queryid!(clienthandle;(servertype or serverIDs)!(serverID;results))
-results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;.gw.placehold))  
+// structure is queryid!(clienthandle;(servertype or serverIDs)!(serverID;results;resultbool))
+results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;(::);0b))  
 
 // server handles - whether the server is currently running a query
 servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
@@ -194,14 +187,17 @@ finishquery:{[qid;err;serverh]
 getqueue:{select queryid,time,clienth,query,servertype,status:?[null submittime;`pending;`running],submittime from .gw.queryqueue where null returntime}
 
 // manage the result set dictionaries
-addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;.gw.placehold))}
+addemptyresult:{[queryid; clienth; servertypes] results[queryid]:(clienth;servertypes!(count servertypes,:())#enlist(0Ni;(::);0b))}
 addservertoquery:{[queryid;servertype;serverh] .[`.gw.results;(queryid;1);{.[x;(y 0;0);:;y 1]};(servertype;serverh)]}
 deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
 addserverresult:{[queryid;results]
  serverid:first exec serverid from .gw.servers where active, handle=.z.w;
- if[queryid in key .gw.results; .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results]];
+ if[queryid in key .gw.results;
+  .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results];
+  .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;2);:;1b]
+  ];
  setserverstate[.z.w;0b];
  runnextquery[];
  checkresults[queryid]}
@@ -216,12 +212,11 @@ addservererror:{[queryid;error]
  }
 // check if all results are in.  If so, send the results to the client
 checkresults:{[queryid]
- if[not any .gw.placehold~/: value (r:.gw.results[queryid])[1;;1];
+  if[all value (r:.gw.results[queryid])[1;;2];
   // get the rest of the detail from the query table
   querydetails:queryqueue[queryid];
   // apply the join function to the results
-  // If there only is one result, then just return it - ignore the join function
-  res:@[{(0b;$[1<count y;$[10h=type x;value(x;y); x @ y];first y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
+  res:@[{(0b;$[10h=type x;value(x;y); x @ y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
   // send the results back to the client.
   sendclientreply[queryid;last res;not res 0];
   // finish the query
@@ -262,7 +257,7 @@ removeserverhandle:{[serverh]
  // get the list of effected query ids
 
  // 1) queries sent to this server but no reply back yet
- qids:where {[res;id] any .gw.placehold~/:res[1;where id=res[1;;0];1]}[;serverid] each results;
+ qids:where {[res;id] any not res[1;where id=res[1;;0];2]}[;serverid] each results;
  // propagate an error back to each client
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server handling query closed the connection";0b] each qids;
  finishquery[qids;1b;serverh]; 
@@ -272,7 +267,7 @@ removeserverhandle:{[serverh]
  activeServerTypes:distinct exec servertype from .gw.servers where active, handle<>serverh;
 
  qids2:where {[res;id;aIDs;aTypes] 
-  s:where .gw.placehold~/:res[1;;1]; 
+  s:where not res[1;;2]; 
   $[11h=type s; not all s in aTypes; not all any each s in\: aIDs] 
   }[;serverid;activeServerIDs;activeServerTypes] each results _ 0Ni;
  sendclientreply[;.gw.errorprefix,"backend ",string[servertype]," server for running query closed the connection";0b] each qids2;
@@ -507,6 +502,8 @@ pgs:{.gw.call,:enlist[x]!enlist y};
 .z.po:{x@y;.gw.po[y]}@[value;`.z.po;{{[x]}}];
 .z.pg:{.gw.pgs[.z.w;1b];x@y}@[value;`.z.pg;{{[x]}}];
 .z.ps:{.gw.pgs[.z.w;0b];x@y}@[value;`.z.ps;{{[x]}}];
+// only wrap .z.ws if it is already defined
+if[@[{value x;1b};`.z.ws;{0b}];.z.ws:{.gw.pgs[.z.w;0b];x@y}.z.ws];
 
 // START UP
 // initialise connections

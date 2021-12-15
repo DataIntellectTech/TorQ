@@ -90,7 +90,7 @@ getdata:{[o]
 // join results together if from multiple processes
 autojoin:{[options]
     // if there is only one proc queried output the table
-    if[1=count options`procs;:{::}];
+    if[1=count options`procs;:first];
     // if there is no need for map reducable adjustment, return razed results
     if[not options`mapreduce;:raze];
     :mapreduceres[options;];
