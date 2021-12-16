@@ -1116,7 +1116,15 @@ ask    bid    ask1 bid1
 94.81  93.82  8.43 7.43
 </code></pre>
 
-<p>As seen in the aggregations section, only aggregations which can be factored across processes are enabled. This is because defining the irreducible aggregations would result in inaccuracies. Should the user wish to use these aggregations or define other joins and timeouts: they should adapt the<code>`join`postprocessing`timeouts</code> keys appropriately.</p>
+<p>Updates to the dataaccess gateway code sees an ability to perform all
+map-reducable aggregations (except median) currently available to be performed
+over multiple processes without the need for a grouping based upon the
+partitioning field. The gateway now collects all the appropriate aggregates
+needed to calculate a value, and then re-aggregates the collected data based
+upon groupings when brought back to the gateway process. For complete clarity
+the full list of aggregations that can span multiple processes without
+a partitioned grouping are as follows: <code>avg</code>, <code>cor</code>, <code>count</code>, <code>cov</code>, <code>dev</code>,
+<code>first</code>, <code>last</code>, <code>max</code>, <code>min</code>, <code>prd</code>, <code>sum</code>, <code>var</code>, <code>wavg</code> and <code>wsum</code>.</p>
 <h2 id="checkinputs">Checkinputs</h2>
 <p>A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  <code>.dataaccess.checkinputs</code>. which under the covers runs two different checking libraries:</p>
 <ul>
