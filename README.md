@@ -39,6 +39,11 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **4.2.0, Dec 2021**
+  * Added functionality to Data Access API
+  * Added Data Striping
+  * Bug fixes
+  * Improved testing
 - **4.1.1, Jun 2021**
   * Data Access API bug fixes
   * Improved attribute routing surrounding overlapping processes
