@@ -800,14 +800,13 @@ However, this can be easily resolved by using more hex values from the output by
 
 ##### $KDBCONFIG/process.csv
 
-The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**.
+The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to its respective **`${KDBCODE}/processes/rdb{i}.q`** file.
 
 > **NOTE**
 >
 > - The **`procname`** convention should always start with **`rdb1`**
 > - Increment by 1 for each RDB instance
 > - In the following format: **`rdb{i}`**
-> - There is no need to create separate **`rdb{i}.q`** files
 
 **`$KDBCONFIG/process.csv`** should look something like this:
 
@@ -815,10 +814,26 @@ The process file should contain the RDB instances by specifying a different **`p
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
 localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
 localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG},q
-localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
-localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
-localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
-localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
+localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb1.q,1,,q
+localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb2.q,1,,q
+localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb3.q,1,,q
+localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb4.q,1,,q
+```
+
+##### $KDBCONFIG/processes/rdb{i}.q
+Within each **`rdb{i}.q`** file, the **`subcsv`** variable should point to the correct csv file with the filter for striping.
+```q
+...
+subcsv:hsym first .proc.getconfigfile["rdbsub{i}.csv"]
+...
+```
+
+##### $KDBCONFIG/rdbsub.rdbsub{i}.csv
+The **`rdbsub{i}.csv`** should be modified like this:
+```csv
+tabname,filters,columns
+trade,sym in .ds.stripe[sym;{i-1}],
+quote,sym in .ds.stripe[sym;{i-1}],
 ```
 
 ##### $KDBAPPCONFIG/settings/rdb.q
@@ -849,10 +864,10 @@ Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
 localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
 localhost,{KDBBASEPORT}+2,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG} -.ds.numSeg 2,q
-localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1,q
-localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1,q
-localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
-localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
+localhost,{KDBBASEPORT}+3,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb1.q,1,-.rdb.subfiltered 1,q
+localhost,{KDBBASEPORT}+4,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb2.q,1,-.rdb.subfiltered 1,q
+localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb3.q,1,,q
+localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb4.q,1,,q
 ```
 
 ##### $KDBAPPCONFIG/settings/rdb.q
