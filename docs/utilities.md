@@ -820,15 +820,7 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb4.q,1,,q
 ```
 
-##### $KDBCONFIG/processes/rdb{i}.q
-Within each **`rdb{i}.q`** file, the **`subcsv`** variable should point to the correct csv file with the filter for striping.
-```q
-...
-subcsv:hsym first .proc.getconfigfile["rdbsub{i}.csv"]
-...
-```
-
-##### $KDBCONFIG/rdbsub.rdbsub{i}.csv
+##### $KDBCONFIG/rdbsub/rdbsub{i}.csv
 The **`rdbsub{i}.csv`** should be modified like this:
 ```csv
 tabname,filters,columns
