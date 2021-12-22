@@ -50,7 +50,9 @@ upd:@[value;`.stplg.upd;enlist[`]!enlist ()];
 zts:@[value;`.stplg.zts;enlist[`]!enlist ()];
 
 // Functions to add columns on updates
-updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist(count first x)#y),x}]
+// The conditional is necessary when x is a single row of data and the table contains compound (e.g. string) columns
+// Still there is an edge case where the first element of x is for a compound column
+updtab:@[value;`.stplg.updtab;enlist[`]!enlist {(enlist $[0>type first x;y;(count first x)#y]),x}]
 
 // If set to memorybatch, publish and write to disk will be run in batches
 // insert to table in memory, on a timer flush the table to disk and publish, update counts
