@@ -230,26 +230,30 @@ adjustqueries:{[options;part]
     // create a dictionary of procs and different queries
     query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
     // adjust query if striped
-    if[b;
+    if[b&`instruments in key options;
         modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in key part;
         
-        querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
+        querytable:0!(`serverid xkey update serverid:(first each k:key query)from value query)uj`serverid xkey modquery;
         // modify starttime, endtime and instruments based on stripe
-        querytable:update{$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]}'[attributes;starttime],
-            {$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]}'[attributes;endtime],
+        querytable:update
+            {$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;a]'[attributes;starttime],
+            {$[z;y;$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]]}[;;a]'[attributes;endtime],
             adjinstruments:{$[1=count skeysym:.ds.stripe[(),y;x 0];skeysym 0;skeysym]}'[attributes;instruments]
-            from querytable where serverid in modquery`serverid;
+                from querytable where serverid in modquery`serverid;
+
         // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
         querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
         querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
         // filter queries not required
         drops:exec serverid from querytable where 0=count each instruments;
+        // Input dictionary must have keys of type 11h
         querytable:enlist[`serverid]_update procs:{.gw.servers[x]`servertype}each serverid from 
             select from querytable where not serverid in drops;
         // return query as a dict of table
-        query:k[where not(first each k:key query)in drops]!querytable;
-
+        :query:k[where not(first each k)in drops]!querytable;
         ];
+    // Input dictionary must have keys of type 11h
+    if[b;:query:key[query]!update procs:.gw.servers'[first each key query]`servertype from value query];
     :query;
     };
 
