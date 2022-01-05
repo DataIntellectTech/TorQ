@@ -153,7 +153,26 @@ returntab:{[input;tab;reqno]
 
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
-    tabname:input[`tablename];
+    tabname:input`tablename;
+
+    // Check if any serverid by servertype is striped    
+    if[any anystriped:any each stripedbyservertype:exec{all`skeysym`skeytime in key x}each attributes by servertype from .gw.servers;
+        allstriped:all each stripedbyservertype;
+        allstripedservertypes:select from .gw.servers where servertype in where allstriped;
+        anystripedandnotallstriped:select from .gw.servers where(not{all`skeysym`skeytime in key x}each attributes)&
+            servertype in where anystriped&not allstriped;
+        unstripedservertypes:select from .gw.servers where servertype in where not anystriped;
+        servers:allstripedservertypes,select from(anyandunstriped:anystripedandnotallstriped,unstripedservertypes)where i=(first;i)fby servertype;
+        // Create a dictionary of the attributes against serverids
+        // asc sorts it by serverid
+        procdict:((exec serverid from allstripedservertypes),
+            asc value exec serverid by servertype from anyandunstriped)!(exec attributes from servers)@\:`date;
+        // If the response is a dictionary index into the tablename
+        procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
+        // returns the dictionary as min date/ max date
+        :procdict:@[procdict;key procdict;{:(min x; max x)}];
+        ];
+
     // Remove duplicate servertypes from the gw.servers
     servers:select from .gw.servers where i=(first;i)fby servertype;
     // extract the procs which have the table defined
@@ -173,29 +192,65 @@ partdict:{[input]
 // function to adjust the queries being sent to processes to prevent overlap of
 // time clause and data being queried on more than one process
 adjustqueries:{[options;part]
-    // if only one process then no need to adjust
-    if[2>count p:options`procs;:options];
+    // if only one process and not striped then no need to adjust
+    if[(not b:6h~type raze options`procs)&2>count p:options`procs;:options];
+
+    overlap:max{x~/:key y}[;part]each p;
+    part:key[part][where overlap]!value[part]where overlap;
+
     // get the date casting where relevant
     st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
     et:$[a;options`endtime;`date$options`endtime];
+
     // get the dates that are required by each process
-    dates:group key[part]where each{within[y;]each value x}[part]'[l:st+til 1+et-st];
+    dates:$[b;
+        {key[y]!where each flip x};
+        {group key[y]where each x}][;part]{within[y;]each value x}[part]'[l:st+til 1+et-st];
     dates:l{(min x;max x)}'[dates];
+
     // if start/end time not a date, then adjust dates parameter for the
     // correct types
     if[not a;
         // converts dates dictionary to timestamps/datetimes
         dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
         // convert first and last timestamp to start and end time
-        dates:@[dates;f;:;(start;dates[f:first key dates;1])];
-        dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]];
+        $[b;
+            dates:key[dates]!?[value[dates][;0]<start;start;value[dates][;0]],'?[value[dates][;1]>end;end:options`endtime;value[dates][;1]];
+            [dates:@[dates;f;:;(start;dates[f:first key dates;1])];
+            dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]]
+            ];
+        ];
+
     // adjust map reducable aggregations to get correct components
     if[(1<count dates)&`aggregations in key options;
         if[all key[o:options`aggregations]in key aggadjust;
             aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
             options:@[options;`aggregations;:;aggs]]];
+
     // create a dictionary of procs and different queries
-    :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
+    query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
+    // adjust query if striped
+    if[b;
+        modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in key part;
+        
+        querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
+        // modify starttime, endtime and instruments based on stripe
+        querytable:update{$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]}'[attributes;starttime],
+            {$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]}'[attributes;endtime],
+            adjinstruments:{$[1=count skeysym:.ds.stripe[(),y;x 0];skeysym 0;skeysym]}'[attributes;instruments]
+            from querytable where serverid in modquery`serverid;
+        // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
+        querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
+        querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
+        // filter queries not required
+        drops:exec serverid from querytable where 0=count each instruments;
+        querytable:enlist[`serverid]_update procs:{.gw.servers[x]`servertype}each serverid from 
+            select from querytable where not serverid in drops;
+        // return query as a dict of table
+        query:k[where not(first each k:key query)in drops]!querytable;
+
+        ];
+    :query;
     };
 
 // function to grab the correct aggregations needed for aggregating over
