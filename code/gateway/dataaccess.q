@@ -62,7 +62,9 @@ getdata:{[o]
     reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
     // Get the Procs
-    if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
+    // if procs not specified or if procs specifed but striped
+    if[(p&any where[any each exec{all`skeysym`skeytime in key x}each attributes by servertype from .gw.servers]in o`procs)|
+        not p:`procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
     // Get Default process behavior
     default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
