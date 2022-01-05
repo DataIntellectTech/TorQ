@@ -233,7 +233,7 @@ adjustqueries:{[options;part]
     if[b&`instruments in key options;
         modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in key part;
         
-        querytable:0!(`serverid xkey update serverid:(first each k:key query)from value query)uj`serverid xkey modquery;
+        querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
         // modify starttime, endtime and instruments based on stripe
         querytable:update
             {$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;a]'[attributes;starttime],
@@ -250,7 +250,7 @@ adjustqueries:{[options;part]
         querytable:enlist[`serverid]_update procs:{.gw.servers[x]`servertype}each serverid from 
             select from querytable where not serverid in drops;
         // return query as a dict of table
-        :query:k[where not(first each k)in drops]!querytable;
+        :query:k[where not(first each k:key query)in drops]!querytable;
         ];
     // Input dictionary must have keys of type 11h
     if[b;:query:key[query]!update procs:.gw.servers'[first each key query]`servertype from value query];
