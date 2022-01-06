@@ -245,7 +245,8 @@ adjustqueries:{[options;part]
         querytable:update
             {$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;a]'[attributes;starttime],
             {$[z;y;$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]]}[;;a]'[attributes;endtime],
-            adjinstruments:{$[1=count skeysym:.ds.stripe[(),y;x 0];skeysym 0;skeysym]}'[attributes;instruments]
+            // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
+            adjinstruments:{$[1=count s:skeysym where(skeysym:.ds.stripe[(),y;x 0])in y;s 0;s]}'[attributes;instruments]
                 from querytable where serverid in modquery`serverid;
 
         // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
