@@ -226,3 +226,17 @@ checkpostback:{[dict;parameter]
 checktimeout:{[dict;parameter]
     checktype[-16h;dict;parameter];
     :dict};
+
+checkprocs:{[dict;parameter]
+    dict[parameter]:servers:distinct dict parameter;
+
+    checktype[-11 11h;dict;parameter];
+
+    if[not all found:servers in exec distinct servertype from .gw.servers;
+        servers:$[1=count servers;servers;
+            $[1=count s:servers where not found;first s;s]];
+        '`$.checkinputs.formatstring[.schema.errors[`checkprocerror;`errormessage];`parameter`server!(parameter;servers)];
+        ];
+
+    :dict
+    };
