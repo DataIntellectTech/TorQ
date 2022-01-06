@@ -228,9 +228,9 @@ checktimeout:{[dict;parameter]
     :dict};
 
 checkprocs:{[dict;parameter]
-    dict[parameter]:servers:distinct dict parameter;
+    dict[parameter]:servers:distinct(),dict parameter;
 
-    checktype[-11 11h;dict;parameter];
+    checktype[11h;dict;parameter];
 
     if[not all found:servers in exec distinct servertype from .gw.servers;
         servers:$[1=count servers;servers;
@@ -238,5 +238,5 @@ checkprocs:{[dict;parameter]
         '`$.checkinputs.formatstring[.schema.errors[`checkprocerror;`errormessage];`parameter`server!(parameter;servers)];
         ];
 
-    :dict
+    :dict;
     };
