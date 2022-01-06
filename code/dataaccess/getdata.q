@@ -1,10 +1,15 @@
 // high level api functions for data retrieval
 
-
 getdata:{[inputparams]
-  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  if[any bool:.proc.proctype=key inputparams;
+    // check if itself is striped
+    inputparams:$[all(s:`skeysym`skeytime)in key att:.proc.getattributes[];
+      [inputparams:value[inputparams]where bool;
+      inputparams first where att[s]~/:inputparams`attributes];
+      inputparams .proc.proctype]];
+
   requestnumber:.requests.initlogger[inputparams];
-// [input parameters dict] generic function acting as main access point for data retrieval
+  // [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
   // validate input passed to getdata
   usersdict:inputparams;
@@ -35,10 +40,10 @@ getdata:{[inputparams]
         table:keycol xkey table]];
   ];
   f:{[input;x;y]y[x] input};
-// order the query after it's fetched
+  // order the query after it's fetched
   if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         
-// rename the columns  
+  // rename the columns  
   result:queryparams[`renamecolumn] xcol table;                                              
   if[10b~`sublist`procs in key inputparams;result:select [inputparams`sublist] from result];
     // apply post-processing function  
