@@ -171,8 +171,13 @@ partdict:{[input]
             asc value exec serverid by servertype from anyandunstriped)!(exec attributes from servers)@\:`date;
         // If the response is a dictionary index into the tablename
         procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
-        // returns the dictionary as min date/ max date
-        :procdict:@[procdict;key procdict;{:(min x; max x)}];
+        // Dictionary as min date/ max date
+        procdict:@[procdict;key procdict;{:(min x; max x)}];
+        // Exclude not in procs specified
+        if[(11h~type(),p:input`procs)&`procs in key input;
+            overlap:all each key[procdict]in\:exec serverid from .gw.servers where servertype in p;
+            procdict:key[procdict][w]!value[procdict]w:where overlap];
+        :procdict;
         ];
 
     // Remove duplicate servertypes from the gw.servers
