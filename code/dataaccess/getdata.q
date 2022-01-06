@@ -2,8 +2,8 @@
 
 getdata:{[inputparams]
   if[any bool:.proc.proctype=key inputparams;
-    // check if itself is striped
-    inputparams:$[all(s:`skeysym`skeytime)in key att:.proc.getattributes[];
+    // check if itself is striped and if there is a need to reroute queries
+    inputparams:$[(`attributes in cols value inputparams)&all(s:`skeysym`skeytime)in key att:.proc.getattributes[];
       [inputparams:value[inputparams]where bool;
       inputparams first where att[s]~/:inputparams`attributes];
       inputparams .proc.proctype]];
