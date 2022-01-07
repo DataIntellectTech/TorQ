@@ -49,3 +49,4 @@ checksublist,"Input parameter {parameter} input length incorrect it should be of
 prockey,"Procs key can only be used from a gateway"
 slisterror,"{parameter} input contains the following server(s) {server} not in .gw.servers"
 checkprocerror,"{parameter} input contains a server(s) {server} which wouldn't have otherwise been queried by the process"
+timeprocoverlap,"Specified {procs} do not contain data within {starttime} and {endtime}"
