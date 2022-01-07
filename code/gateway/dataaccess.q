@@ -200,10 +200,14 @@ partdict:{[input]
 // time clause and data being queried on more than one process
 adjustqueries:{[options;part]
     // if only one process and not striped then no need to adjust
-    if[(not b:6h~type raze options`procs)&2>count p:options`procs;:options];
+    if[(not b:6h~type raze key part)&2>count p:options`procs;:options];
 
     overlap:max{x~/:key y}[;part]each p;
     part:key[part][where overlap]!value[part]where overlap;
+
+    // no overlaps between procs and starttime and endtime
+    if[0=count part;
+        '`$.checkinputs.formatstring[.schema.errors[`timeprocoverlap;`errormessage];`procs`starttime`endtime!(p;options`starttime;options`endtime)]];
 
     // get the date casting where relevant
     st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
