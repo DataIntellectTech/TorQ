@@ -2,7 +2,7 @@
 
 getdata:{[inputparams]
   if[any bool:.proc.proctype=key inputparams;
-    // check if itself is striped and if there is a need to reroute queries
+  // check if itself is striped and if there is a need to reroute queries
     inputparams:$[(`attributes in cols value inputparams)&all(s:`skeysym`skeytime)in key att:.proc.getattributes[];
       [inputparams:value[inputparams]where bool;
       inputparams first where att[s]~/:inputparams`attributes];
@@ -60,5 +60,5 @@ buildquery:{[inputparams]
   inputparams:.dataaccess.checkinputs inputparams;                                           
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 
-  :.queryorder.orderquery queryparams}; 
-
+  :.queryorder.orderquery queryparams
+  }; 

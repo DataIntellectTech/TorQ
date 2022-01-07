@@ -61,21 +61,31 @@ getdata:{[o]
     // Input checking in the gateway
     reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
+
     // Get the Procs
-    // if procs not specified or if procs specifed but striped
+    // if procs is not specified OR if procs is specified but striped
     if[(p&any where[any each exec{all`skeysym`skeytime in key x}each attributes by servertype from .gw.servers]in o`procs)|
         not p:`procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
+    
     // Get Default process behavior
     default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
     if[`ordering in key o;options[`ordering]: go each options`ordering];
     o:adjustqueries[o;partdict o];
+
+    // Check if any freeform queries is going to any striped database
+    if[6h~type raze k:key o;
+        if[any(first each k)in exec serverid from .gw.servers where{all`skeysym`skeytime in key x}each attributes;
+            if[any key[options]like"*freeform*";
+                '`$.schema.errors[`freeformstripe;`errormessage]]]];
+
     options[`mapreduce]:0b;
     gr:$[`grouping in key options;options`grouping;`];
     if[`aggregations in key options;
         if[all key[options`aggregations]in key aggadjust;
             options[`mapreduce]:not`date in gr]];
+    
     // Execute the queries
     if[options`getquery;
         $[.gw.call .z.w;
