@@ -252,7 +252,7 @@ adjustqueries:{[options;part]
     query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
     // adjust query if striped
     if[b&`instruments in key options;
-        modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in key part;
+        modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in raze key part;
         
         querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
         // modify starttime, endtime and instruments based on stripe
