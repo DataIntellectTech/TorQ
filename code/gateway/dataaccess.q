@@ -263,7 +263,6 @@ adjustqueries:{[options;part]
             adjinstruments:{$[1=count s:skeysym where(skeysym:.ds.stripe[(),y;x 0])in y;s 0;s]}'[attributes;instruments]
                 from querytable where serverid in modquery`serverid;
 
-        // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
         querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
         querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
         // filter queries not required
