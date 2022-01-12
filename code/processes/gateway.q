@@ -355,60 +355,59 @@ getserversindependent:{[req;att;besteffort]
 
 // execute an asynchronous query
 asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
-    o:query 1;
-    // Check correct function called
-    if[sync<>.gw.call .z.w;
-        // if asyncexec used with sync request, signal an error.
-        // if syncexec used with async request, send async response using neg .z.w
-        @[neg .z.w;.gw.formatresponse[0b;not sync;"Incorrect function used: ",$[sync;"syncexec";"asyncexec"]];()];
-        :();
-        ];
-    if[.gw.permissioned;
-        if[not .pm.allowed[.z.u;query];
-            @[neg .z.w;.gw.formatresponse[0b;sync;"User is not permissioned to run this query from the gateway"];()];
-            :();
-            ];
-        ];
-    query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
-    /- if sync calls are allowed disable async calls to avoid query conflicts
-    $[.gw.synccallsallowed and .z.K<3.6;
-        errstr:.gw.errorprefix,"only synchronous calls are allowed";
-        [errstr:"";
-        if[99h<>type servertype;
-            $[6h~type raze servertype,();
-            
-                // its a list/mixed list of serverids e.g. 1 2 3 4 5i/(1i;3i;5 6i)
-                // servertype requires all to be of same type
-                [servertype:(),/:key o;
-                queryattributes:enlist[`servertype]!enlist distinct value[o]`procs;
-                // Input dictionary must have keys of type 11h
-                query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; 
-                    (`getdata;@[value o;`procs]!value o))];
+ o:query 1;
+ // Check correct function called
+ if[sync<>.gw.call .z.w;
+  // if asyncexec used with sync request, signal an error.
+  // if syncexec used with async request, send async response using neg .z.w
+  @[neg .z.w;.gw.formatresponse[0b;not sync;"Incorrect function used: ",$[sync;"syncexec";"asyncexec"]];()];
+  :();
+  ];
+ if[.gw.permissioned;
+  if[not .pm.allowed[.z.u;query];
+   @[neg .z.w;.gw.formatresponse[0b;sync;"User is not permissioned to run this query from the gateway"];()];
+   :();
+   ];
+  ];
+ query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
+ /- if sync calls are allowed disable async calls to avoid query conflicts
+ $[.gw.synccallsallowed and .z.K<3.6;
+  errstr:.gw.errorprefix,"only synchronous calls are allowed";
+  [errstr:"";
+  if[99h<>type servertype;
+   $[6h~type raze servertype,();
+    // its a list/mixed list of serverids e.g. 1 2 3 4 5i/(1i;3i;5 6i)
+    // servertype requires all to be of same type
+    [servertype:(),/:key o;
+    queryattributes:enlist[`servertype]!enlist distinct value[o]`procs;
+    // Input dictionary must have keys of type 11h
+    query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; 
+     (`getdata;@[value o;`procs]!value o))];
+    // its a list of servertypes e.g. `rdb`hdb
+    [servertype:distinct servertype,();
+    errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
+    if[10h=type errcheck; errstr:errcheck];
+    queryattributes:()!();]
+    ];
+   ];
+  if[99h=type servertype;
+   // its a dictionary of attributes
+   queryattributes:servertype;
+   res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
+   if[10h=type res; errstr:res];
+   if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
+   servertype:res;
+   ];
+   ]
+  ];
+ // error has been hit
+ if[count errstr;
+  @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errstr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errstr]];()];
+  :()];
 
-                // its a list of servertypes e.g. `rdb`hdb
-                [servertype:distinct servertype,();
-                errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
-                if[10h=type errcheck; errstr:errcheck];
-                queryattributes:()!();]
-                ];
-            ];
-        if[99h=type servertype;
-            // its a dictionary of attributes
-            queryattributes:servertype;
-            res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-            if[10h=type res; errstr:res];
-            if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
-            servertype:res;
-            ];]
-        ];
-    // error has been hit
-    if[count errstr;
-        @[neg .z.w;.gw.formatresponse[0b;sync;$[()~postback;errstr;$[-11h=type postback;enlist postback;postback],enlist[query],enlist errstr]];()];
-        :()];
-
-    addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
-    runnextquery[];
-    };
+ addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
+ runnextquery[];
+ };
 
 asyncexecjpt:asyncexecjpts[;;;;;0b]
 asyncexec:asyncexecjpt[;;raze;();0Wn]
