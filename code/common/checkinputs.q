@@ -232,10 +232,8 @@ checkprocs:{[dict;parameter]
 
     checktype[11h;dict;parameter];
 
-    if[not all found:servers in exec distinct servertype from .gw.servers;
-        servers:$[1=count servers;servers;
-            $[1=count s:servers where not found;first s;s]];
-        '`$.checkinputs.formatstring[.schema.errors[`checkprocerror;`errormessage];`parameter`server!(parameter;servers)];
+    if[count missing:servers except exec distinct servertype from .gw.servers;
+        '`$formatstring[.schema.errors[`checkprocerror;`errormessage];`parameter`server!(parameter;missing)];
         ];
 
     :dict;
