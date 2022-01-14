@@ -1401,3 +1401,42 @@ between options in the drop down menus. This has significant repercussions if
 one of your columns includes full stops, eg. email adresses. As a result we have 
 left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.
+
+## cloudutils.q
+
+The cloud utilities allow other processes to be programmatically launched, or 
+terminated, from inside a TorQ process. The two main functions here are 
+.sys.launch and .sys.kill. 
+
+.sys.launch is the q function which takes a dictionary of input parameters which
+are then passed to a bash script. This bash script functions like torq.sh in how
+it starts processes. It is important to note that the cloud utilities are only
+supported on Linux as a result. 
+
+`input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
+
+The input parameter dictionary, as shown above, should contain symbols as keys 
+and strings as values. Any standard or custom TorQ process can be launched 
+using .sys.launch, and as such the function can accept any desired command line
+parameters in the input dictionary. The minimum required are `procname and 
+`proctype. In the case that only these two are used the other arguments will be 
+given default values (show a table here containing the defaults, or perhaps the
+ deflt dictionary) 
+
+| Parameter | Default Value |
+| U | The password file used for the parent launching process, if none exists then the default is ${KDBAPPCONFIG}/passwords/accesslist.txt |
+| localtime | the localtime value of the parent lauching process |
+| p | 0W |
+| qcmd | "q" |
+
+The .sys.kill function is passed a single argument: the name of the process to
+be terminated, as a string. 
+
+If the default value of "0W" is used for the port, a random port will be chosen
+on which to launch the process. In this case the process will neeed to register
+itself with discovery in order for other processes to be able to connect to it.
+This is a standard behaviour for TorQ processes on startup (for more information
+see [Connection Management](http://aquaqanalytics.github.io/TorQ/conn/#connections)).  
+
+
+
