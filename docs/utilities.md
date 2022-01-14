@@ -821,6 +821,14 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
+##### $KDBCONFIG/rdbsub/rdbsub{i}.csv
+The **`rdbsub{i}.csv`** should be modified like this:
+```csv
+tabname,filters,columns
+trade,sym in .ds.stripe[sym;{i-1}],
+quote,sym in .ds.stripe[sym;{i-1}],
+```
+
 ##### $KDBAPPCONFIG/settings/rdb.q
 
 Set **`.rdb.subfiltered: 1b`**
