@@ -1,3 +1,5 @@
+\d .sys
+
 /a function to execute system commands and return a log message depending on the resulting exit code:
 /used for both launchprocess.sh and killprocess.sh
 syscomm:{[params;cmd]
@@ -5,17 +7,18 @@ syscomm:{[params;cmd]
     /cmd is the command to be executed, as a string
     
     prevexitcode:first "I"$system cmd,"; echo $?"; 
-    $[lok:99h=type params;[id:`launchprocess;pname:params[`procname]];[id:`killprocess;pname:params]];
+    id:$[lok:99h=type params;`launchprocess;`killprocess];
+    pname:$[lok;params[`procname];params];
     $[0=prevexitcode;
         .lg.o[id;"Successful execution: ",$[lok;"Starting ";"Terminating "],pname];
       1=prevexitcode;
         .lg.e[id;"Failed to ",$[lok;"start ";"terminate "],pname];
       2=prevexitcode;
-        .lg.e[id;pname,$[lok;"already ";"not "],"running"];
+        .lg.e[id;pname,$[lok;" already ";" not "],"running"];
       3=prevexitcode;
         .lg.e[id;pname," not found"];
         .lg.e[id;"Unknown error encountered"]
-     ]
+     ] 
  }
 
 /function which lets us call launchprocess.sh from inside a TorQ process
@@ -27,7 +30,9 @@ launch:{[params]
         :()];
 
     /set default values with .Q.def and string the result:
-    deflt:`procname`proctype`U`localtime!(`;`;`$getenv[`KDBAPPCONFIG],"/passwords/accesslist.txt";1);
+    pass_arg:first `$.Q.opt[.z.X]`U;
+    if[2>count pass_arg;pass_arg:`$getenv[`KDBAPPCONFIG],"/passwords/accesslist.txt"];
+    deflt:`procname`proctype`U`localtime`p`qcmd!(`;`;pass_arg;first string .proc.localtime;`$"0W";"q");
     params:string each .Q.def[deflt] params;
     
     /format the params dictionary as a series of command line args
