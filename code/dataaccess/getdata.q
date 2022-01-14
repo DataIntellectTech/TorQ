@@ -1,13 +1,9 @@
 // high level api functions for data retrieval
 
 getdata:{[inputparams]
-  if[any bool:.proc.proctype=key inputparams;
-  // check if itself is striped and if there is a need to reroute queries
-    inputparams:$[(`attributes in cols value inputparams)&all(s:`skeysym`skeytime)in key att:.proc.getattributes[];
-      [inputparams:value[inputparams]where bool;
-      inputparams first where att[s]~/:inputparams`attributes];
-      inputparams .proc.proctype]];
-
+  // if process is striped procname will be in the key
+  if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
+  if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   requestnumber:.requests.initlogger[inputparams];
   // [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];

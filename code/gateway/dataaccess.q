@@ -260,7 +260,8 @@ adjustqueries:{[options;part]
 		// filter queries not required
         drops:exec serverid from querytable where 0=count each instruments;
         // Input dictionary must have keys of type 11h
-        querytable:enlist[`serverid]_update procs:{.gw.servers[x]`servertype}each serverid from 
+        // Convert procs into procname if striped - e.g. if skey is 0 then procname is {proctype}{skey+1}
+        querytable:enlist[`serverid]_update procs:`${string[.gw.servers[x]`servertype],string y+1}'[serverid;attributes[;0]] from 
             select from querytable where not serverid in drops;
         // return query as a dict of table
         :k[where not(first each k:key query)in drops]!querytable;
