@@ -52,7 +52,9 @@ getdata:{[inputparams]
 \d .dataaccess
 
 buildquery:{[inputparams]
-  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  // if process is striped procname will be in the key
+  if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
+  if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   inputparams:.dataaccess.checkinputs inputparams;                                           
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 

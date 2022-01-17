@@ -226,13 +226,16 @@ adjustqueries:{[options;part]
 				from querytable where serverid in modquery`serverid;
 		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
 		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
-		// filter queries not required
-		drops:exec serverid from querytable where 0=count each instruments;
-		// Convert procs into procname if striped
-		querytable:enlist[`serverid]_update procs:`${string[.gw.servers[x]`servertype],string y+1}'[serverid;attributes[;0]]from 
-			select from querytable where not serverid in drops;
-		// return query as a dict of table
-		:k[where not(first each k:key query)in drops]!querytable;
+		// convert serverid atoms into their respective serverid lists
+        querytable:update serverid:{x where{any x in y}[;y]each x}[options`procs;serverid],
+            // get servertype
+            servertype:`${string .gw.servers'[x]`servertype}serverid,
+            // convert procs into procname if striped
+            procs:`${string[.gw.servers[x]`servertype],string y+1}'[serverid;attributes[;0]]from 
+                // filter queries not required
+                select from querytable where 0<count each instruments;
+        // return query as a dict of table
+        :(exec serverid from querytable)!querytable;
 		];
 	// Input dictionary must have keys of type 11h
 	:key[query]!update procs:.gw.servers'[first each key query]`servertype from value query;

@@ -372,32 +372,23 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
  $[.gw.synccallsallowed and .z.K<3.6;
-  errstr:.gw.errorprefix,"only synchronous calls are allowed";
-  [errstr:"";
-  if[99h<>type servertype;
-   $[6h~type raze servertype,();
-    // its a list/mixed list of serverids e.g. 1 2 3 4 5i/(1i;3i;5 6i)
-    // servertype requires all to be of same type
-    [servertype:(),/:key o;
-    queryattributes:enlist[`servertype]!enlist distinct value[o]`procs;
-    // Input dictionary must have keys of type 11h
-    query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; 
-     (`getdata;@[value o;`procs]!value o))];
-    // its a list of servertypes e.g. `rdb`hdb
-    [servertype:distinct servertype,();
-    errcheck:@[getserverids;servertype;{.gw.errorprefix,x}];
-    if[10h=type errcheck; errstr:errcheck];
-    queryattributes:()!();]
+   errstr:.gw.errorprefix,"only synchronous calls are allowed";
+   [errstr:"";
+   if[99h<>type servertype;
+     // its a (nested) list of serverid(s) e.g. 1 2 3 4i/(1i;3i;5 6i)
+	 // servertype requires all to be of same type
+     servertype:(),/:key o;
+	 queryattributes:enlist[`servertype]!enlist distinct value[o]$[`servertype in cols value o;`servertype;`procs];
+     query[2;1]:@[value o;`procs]!value o;
     ];
-   ];
-  if[99h=type servertype;
-   // its a dictionary of attributes
-   queryattributes:servertype;
-   res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
-   if[10h=type res; errstr:res];
-   if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
-   servertype:res;
-   ];
+   if[99h=type servertype;
+     // its a dictionary of attributes
+     queryattributes:servertype;
+     res:@[getserverids;queryattributes;{.gw.errorprefix,"getserverids: failed with error - ",x}];
+     if[10h=type res; errstr:res];
+     if[10h<>type res; if[0=count raze res; errstr:.gw.errorprefix,"no servers match given attributes"]];
+     servertype:res;
+    ];
    ]
   ];
  // error has been hit
