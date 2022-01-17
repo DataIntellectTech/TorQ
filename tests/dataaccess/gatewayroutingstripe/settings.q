@@ -55,8 +55,17 @@ query11:`tablename`starttime`endtime`columns!(`trade;hdbdate+0D;now;tradecols)
 / b - check without instruments and with aggregations
 query12:`tablename`starttime`endtime`aggregations!(`quote;hdbdate+0D;now;`max`min!(`ask`bid;`ask`bid))
 
+/set timeout for all querydict
+timeout:`timespan$00:00.01
+{querydict:get x;querydict[`timeout]:timeout;x set querydict}each k where (k:key`.)like"query[0-9]*"
+
 // Checker function
-checker:{[gwHandle;rdbHandles;hdbHandle;querydict]
+checker:{[gwHandle;rdbHandles;hdbHandles;querydict;checkavail]
+    // check availability for partial and no striped case
+    if[checkavail&((not all s)&any s)|all not s:rdbHandles@\:".rdb.subfiltered";
+        // simulate server in use
+        gwHandle"update inuse:1b from`.gw.servers where serverid in 1 3 5i"];
+
     // dataaccess API result                                                                                                 
 	daresult:gwHandle(`.dataaccess.getdata;querydict);
 
@@ -93,9 +102,10 @@ checker:{[gwHandle;rdbHandles;hdbHandle;querydict]
         $[all f:rdbHandles@\:".rdb.subfiltered";
             /and instruments given
             if[i;whichrdb:value[rdbHandles]key gwHandle(`.ds.map;gwHandle".ds.numseg";instr)];
-            /get first rdb where not striped
-            whichrdb:whichrdb(),first where not f];
-        rdbresult:raze whichrdb@\:rdbquery;
+            /get first avail rdb where not striped
+            [avail:gwHandle"exec not inuse from .gw.servers where servertype=`rdb";
+            whichrdb:whichrdb(),first where avail&not f]];
+        rdbresult:raze whichrdb@\:0N!rdbquery;
         ];
 	
 	// query hdb (assume unstriped)                                                                                          
@@ -113,7 +123,9 @@ checker:{[gwHandle;rdbHandles;hdbHandle;querydict]
             $[hdbquery like "*where*";
                 hdbquery,:"&sym in ",raze"`",/:string instr:(),querydict`instruments;
                 hdbquery,:" where sym in ",raze"`",/:string instr:(),querydict`instruments];];
-        hdbresult:hdbHandle@hdbquery;
+        /get first avail hdb
+        avail:gwHandle"exec first where not inuse from .gw.servers where servertype=`hdb";
+        hdbresult:value[hdbHandles][avail]@hdbquery;
         ];
 
 	// Combine rdb and hdb results

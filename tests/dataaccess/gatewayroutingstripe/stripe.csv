@@ -11,4 +11,5 @@ run,0,0,q,"stpHandle@/:`.u.upd,/:((`trade;trade:t[syms;row]);(`quote;quote:q[sym
 run,0,0,q,system"sleep 1",1,,"Wait for update to publish"
 run,0,0,q,"stpHandle@/:`.u.upd,/:((`trade;trade:t[rsyms;row]);(`quote;quote:q[rsyms;row]);(`heartbeat;`error))",1,,"Publish random syms table updates"
 run,0,0,q,system"sleep 1",1,,"Wait for update to publish"
-true,0,0,q,"all checker[gwHandle;rdbHandles;first hdbHandles]'[get each k where (k:key`.)like""query[0-9]*""]",1,,"Run all checks on RDBs and/or HDBs against dataaccess API"
+true,0,0,q,"all checker[gwHandle;rdbHandles;hdbHandles;;0b]'[get each k where (k:key`.)like""query[0-9]*""]",1,,"Run all query checks on RDBs and/or HDBs against dataaccess API"
+true,0,0,q,"all checker[gwHandle;rdbHandles;hdbHandles;;1b]'[get each k where (k:key`.)like""query[0-9]*""]",1,,"Run all availability checks on RDBs and/or HDBs against dataaccess API"
