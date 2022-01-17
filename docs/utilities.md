@@ -1413,21 +1413,21 @@ are then passed to a bash script. This bash script functions like torq.sh in how
 it starts processes. It is important to note that the cloud utilities are only
 supported on Linux as a result. 
 
-`input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
+    `q)input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
 
 The input parameter dictionary, as shown above, should contain symbols as keys 
 and strings as values. Any standard or custom TorQ process can be launched 
 using .sys.launch, and as such the function can accept any desired command line
 parameters in the input dictionary. The minimum required are `procname and 
 `proctype. In the case that only these two are used the other arguments will be 
-given default values (show a table here containing the defaults, or perhaps the
- deflt dictionary) 
+given default values. 
 
-| Parameter | Default Value |
-| U | The password file used for the parent launching process, if none exists then the default is ${KDBAPPCONFIG}/passwords/accesslist.txt |
-| localtime | the localtime value of the parent lauching process |
-| p | 0W |
-| qcmd | "q" |
+|    Parameter   |                                                    Default Value                                                          |
+| :------------: | :-----------------------------------------------------------------------------------------------------------------------: |
+|      U         | The password file used for the parent launching process, if none exists ${KDBAPPCONFIG}/passwords/accesslist.txt is used  |
+|  localtime     |                                 The .proc.localtime value of the parent launching process                                 |
+|      p         |                                             0W - a random port will be chosen                                             |
+|     qcmd       |                                                          q                                                                |
 
 The .sys.kill function is passed a single argument: the name of the process to
 be terminated, as a string. 
