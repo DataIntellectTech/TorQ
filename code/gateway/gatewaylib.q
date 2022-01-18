@@ -93,6 +93,38 @@ getserverscross:{[req;att;besteffort]
  (key s)!distinct each' flip each util[w]`found
  }
 
+// Input a table of ([]tablename;starttime;endtime;instruments;procs)
+// Or dict of `tablename`starttime`endtime`instruments`procs!(tablename;starttime;endtime;instruments;procs)
+// Returns a dict of serverid(s) that should be queried to cover all that data
+getservers:{[dict]
+    // Check if input is a table, get the dict
+    if[98h~type dict;
+        if[1<count dict;.z.s each dict]; /use recursive calls for each dict(row)
+        if[1=count dict;dict:first dict]]; 
+
+    // Check required keys
+    req:`tablename`starttime`endtime;
+    if[not all req in k:key dict;
+        '"Provide a dictionary with required keys: `tablename`starttime`endtime"];
+
+    // Check if correct keys
+    if[not all k in`tablename`starttime`endtime`instruments`procs;
+        '"Provide a dictionary with keys of only: `tablename`starttime`endtime`instruments`procs"];
+
+    // Checktype
+    validtypes:`tablename`starttime`endtime`instruments`procs!(enlist -11h;t;t:-12 -14 -15h;s;s:-11 11h);
+    {if[not(t:type y z)in x;
+        'string[z]," input type incorrect - valid type(s):",(" "sv string x)," - input type:",string t]}[;dict]'[validtypes k;k];
+
+    // Get the Procs in a (nested) list of serverid(s)
+    dict[`procs]:attributesrouting[dict;part:partdict dict];
+
+    // Adjust queries based on relevant data and stripe
+    d:adjustqueriesoverlap[dict;part];
+    servers:adjustqueriesstripe[dict;d];
+	:key[servers]!(`serverid`attributes)_value servers;
+    };
+
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
     // Get the tablename and timespan
