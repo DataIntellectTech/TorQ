@@ -54,6 +54,8 @@ query10:`tablename`starttime`endtime`instruments`columns!(`quote;hdbdate+0D;now;
 query11:`tablename`starttime`endtime`columns!(`trade;hdbdate+0D;now;tradecols)
 / b - check without instruments and with aggregations
 query12:`tablename`starttime`endtime`aggregations!(`quote;hdbdate+0D;now;`max`min!(`ask`bid;`ask`bid))
+/ c - check with procs, additional filter
+query13:`tablename`starttime`endtime`instruments`columns`procs!(`quote;hdbdate+0D;now;syms2;quotecols;`rdb)
 
 /set timeout for all querydict
 timeout:`timespan$00:00.01
@@ -81,51 +83,57 @@ checker:{[gwHandle;rdbHandles;hdbHandles;querydict;checkavail]
     /init results
     rdbresult:hdbresult:();
 
-    // query rdbs
-    if[.z.d in dates:`date$times:querydict`starttime`endtime;
-		rdbquery:query;
-        /not date format
-        if[not 14h~type times;
-            rdbtimes:`timestamp$0 0;
-            /starttime <= endtime
-            rdbtimes[0]:$[(t:times 0)<d:.z.d+00:00;d;t];
-            rdbtimes[1]:$[(t:times 1)>n:-00:00:00.000000001+.z.d+1;n;t];
-            rdbquery,:" where(time within(",(";"sv string rdbtimes),"))";];
-        /if instruments are given
-        whichrdb:rdbHandles;
-        if[i:`instruments in k;
-            $[rdbquery like "*where*";
-                rdbquery,:"&sym in ",raze"`",/:string instr:(),querydict`instruments;
-                rdbquery,:" where sym in ",raze"`",/:string instr:(),querydict`instruments];];
-        /check which rdb to query
-        /check if all striped
-        $[all f:rdbHandles@\:".rdb.subfiltered";
-            /and instruments given
-            if[i;whichrdb:value[rdbHandles]key gwHandle(`.ds.map;gwHandle".ds.numseg";instr)];
-            /get first avail rdb where not striped
-            [avail:gwHandle"exec not inuse from .gw.servers where servertype=`rdb";
-            whichrdb:whichrdb(),first where avail&not f]];
-        rdbresult:raze whichrdb@\:0N!rdbquery;
+    /procs not given or procs given and matches
+    if[(noprocs:not`procs in key querydict)|`rdb in p:querydict`procs;
+        // query rdbs
+        if[.z.d in dates:`date$times:querydict`starttime`endtime;
+            rdbquery:query;
+            /not date format
+            if[not 14h~type times;
+                rdbtimes:`timestamp$0 0;
+                /starttime <= endtime
+                rdbtimes[0]:$[(t:times 0)<d:.z.d+00:00;d;t];
+                rdbtimes[1]:$[(t:times 1)>n:-00:00:00.000000001+.z.d+1;n;t];
+                rdbquery,:" where(time within(",(";"sv string rdbtimes),"))";];
+            /if instruments are given
+            whichrdb:rdbHandles;
+            if[i:`instruments in k;
+                $[rdbquery like "*where*";
+                    rdbquery,:"&sym in ",raze"`",/:string instr:(),querydict`instruments;
+                    rdbquery,:" where sym in ",raze"`",/:string instr:(),querydict`instruments];];
+            /check which rdb to query
+            /check if all striped
+            $[all f:rdbHandles@\:".rdb.subfiltered";
+                /and instruments given
+                if[i;whichrdb:value[rdbHandles]key gwHandle(`.ds.map;gwHandle".ds.numseg";instr)];
+                /get first avail rdb where not striped
+                [avail:gwHandle"exec not inuse from .gw.servers where servertype=`rdb";
+                whichrdb:whichrdb(),first where avail&not f]];
+            rdbresult:raze whichrdb@\:rdbquery;
+            ];
         ];
-	
-	// query hdb (assume unstriped)                                                                                          
-	if[any .z.d>dates;
-        hdbquery:query;
-        /not date format
-        if[not 14h~type times;
-            hdbtimes:`timestamp$0 0;
-            /starttime <= endtime
-            hdbtimes[0]:times 0;
-            hdbtimes[1]:$[(t:times 1)<n:-00:00:00.000000001+.z.d+1;t;n];
-            hdbquery,:" where(time within(",(";"sv string hdbtimes),"))";];
-        /if instruments are given
-        if[`instruments in k;
-            $[hdbquery like "*where*";
-                hdbquery,:"&sym in ",raze"`",/:string instr:(),querydict`instruments;
-                hdbquery,:" where sym in ",raze"`",/:string instr:(),querydict`instruments];];
-        /get first avail hdb
-        avail:gwHandle"exec first where not inuse from .gw.servers where servertype=`hdb";
-        hdbresult:value[hdbHandles][avail]@hdbquery;
+
+    /procs not given or procs given and matches
+    if[noprocs|`hdb in p;
+        // query hdb (assume unstriped)
+        if[any .z.d>dates;
+            hdbquery:query;
+            /not date format
+            if[not 14h~type times;
+                hdbtimes:`timestamp$0 0;
+                /starttime <= endtime
+                hdbtimes[0]:times 0;
+                hdbtimes[1]:$[(t:times 1)<n:-00:00:00.000000001+.z.d+1;t;n];
+                hdbquery,:" where(time within(",(";"sv string hdbtimes),"))";];
+            /if instruments are given
+            if[`instruments in k;
+                $[hdbquery like "*where*";
+                    hdbquery,:"&sym in ",raze"`",/:string instr:(),querydict`instruments;
+                    hdbquery,:" where sym in ",raze"`",/:string instr:(),querydict`instruments];];
+            /get first avail hdb
+            avail:gwHandle"exec first where not inuse from .gw.servers where servertype=`hdb";
+            hdbresult:value[hdbHandles][avail]@hdbquery;
+            ];
         ];
 
 	// Combine rdb and hdb results
