@@ -150,3 +150,24 @@ checker:{[gwHandle;rdbHandles;hdbHandles;querydict;checkavail]
     // Sort by cols and check all rows match
     {(~) .{cols[x]xasc y}[x]@/:(x;y)}[daresult;tresult]
     }
+
+// Error checks
+/ time range is today, procs is hdb - no overlap
+error1:`tablename`starttime`endtime`instruments`columns`procs!(`trade;today;today;syms2;tradecols;`hdb)
+/ wrong procs name specified
+error2:`tablename`starttime`endtime`instruments`columns`procs!(`trade;today;today;syms2;tradecols;`wdb)
+/ return error if any freeform queries is going to any striped database, i.e. full striped
+/ partial and no striped cases should not return error
+error3:`tablename`starttime`endtime`freeformby`aggregations`freeformwhere!(`quote;hdbdate+0D;now;"sym";(`max`min)!((`ask`bid);(`ask`bid));"sym in `AMD`HPQ`DOW`MSFT`AIG`IBM")
+
+error:{[gwHandle;rdbHandles;querydict]
+	/trap the error (if any) for checks
+    trap:@[gwHandle;(`.dataaccess.getdata;error1);{x}];
+    if[trap like "*no info found for that table name and time range*";:1b];
+    if[trap like "*wouldn't have otherwise been queried by the processe*";:1b];
+    s:rdbHandles@\:".rdb.subfiltered";
+	/if all striped - check if error is correct
+	/partial and no striped cases will not result in an error
+    if[all s;:trap like "*Freeform queries are not allowed as the data is striped*"];
+    :98h~type trap;
+    }
