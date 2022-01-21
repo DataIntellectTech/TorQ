@@ -23,7 +23,7 @@ syscomm:{[params;cmd]
 
 /function which lets us call launchprocess.sh from inside a TorQ process
 /it takes a dictionary of parameters which will be passed to launchprocess.sh, i.e "-procname rdb1 -proctype rdb" etc.
-launch:{[params]
+bglaunch:{[params]
     /exit immediately if process name and type aren't provided
     if[not all `procname`proctype in key params;
         .lg.e[`launchprocess;"Process name and type must be provided"];
@@ -42,5 +42,5 @@ launch:{[params]
 
 /this function calls killprocess.sh from within a TorQ process, 
 /takes a single parameter, a string procname
-kill:{[procname] syscomm[procname;] "bash ",getenv[`TORQHOME],"/bin/killprocess.sh ",procname}
+bgkill:{[procname] syscomm[procname;] "bash ",getenv[`TORQHOME],"/bin/killprocess.sh ",procname}
 
