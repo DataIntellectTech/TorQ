@@ -1141,7 +1141,7 @@ are only supported on Linux as a result.
 
 ```q
 
-    `q)input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
+q)input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
 
 ```
 
