@@ -160,18 +160,10 @@ init:{[t]
  };
 
 // Striping data in a TorQ Installation
-// Limitation: only max 16 (hexidecimal digits 0-9 A-F) processes using this logic
-// Can expand beyond 16 processes if required - Modify lookup and modmd5 function to use more digits e.g. "8b" for a single map
-.ds.lookup:{[numseg;maxproc]
-    hexdg:lower .Q.nA til maxproc;
-    seg:til numseg;
-    hexdg!maxproc#til numseg
-    }[;16]
-
 // Hash function
-.ds.modmd5:{first each string first each md5'[string x]}
-
-.ds.map:{[numseg;sym] sym@/:group .ds.lookup[numseg] .ds.modmd5 sym}
+.ds.modmd5:{sum each md5'[string x]}
+// use mod to stripe into number of segments
+.ds.map:{[numseg;sym] sym@/:group .ds.modmd5[sym]mod numseg}
 
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
