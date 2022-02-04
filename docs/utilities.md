@@ -721,13 +721,13 @@ The advantages of striping include performance and throughput improvements. Segm
 
 The reduction in data access in each process cumulatively multiplies the data throughput by the number of processes. It also allows the process to complete its task faster and without interruption, thereby reducing latency.
 
-#### Example of data striping in TorQ
+**Example of data striping in TorQ**
 
 A simple but effective way of data striping is to do it divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
 
 A common method for data striping between processes is to use an instrument (sym) filter. For example, to stripe data across 2 RDB processes, data with symbols starting with A-M and N-L will be striped to RDB1 and RDB2 respectively. However, a major problem with this method is the uneven distribution of data (a lot of symbols tend to start with A for example).
 
-#### Data hash striping with MD5
+**Data hash striping with MD5**
 
 A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and for subsequent requests for those symbols, it looks them up. It is loaded into the segmented tickerplant to use as subscription requests. For this purpose, MD5 (Message-Digest algorithm 5) hash is chosen as it is a fast and [built-in](https://code.kx.com/q/ref/md5/) hash function in kdb+. It creates a hexadecimal byte array from an input string and the first hex value from the output byte array is used to create a hash map for the data hash striping.
 
@@ -796,9 +796,9 @@ However, this can be easily resolved by using more hex values from the output by
 
 ### Setting up data striping in TorQ
 
-#### 1) Example setup for data striping across **ALL** RDB instances
+**1) Example setup for data striping across ALL RDB instances**
 
-##### $KDBCONFIG/process.csv
+**$KDBCONFIG/process.csv**
 
 The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**.
 
@@ -821,7 +821,7 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-##### $KDBCONFIG/rdbsub/rdbsub{i}.csv
+**$KDBCONFIG/rdbsub/rdbsub{i}.csv**
 The **`rdbsub{i}.csv`** should be modified like this:
 ```csv
 tabname,filters,columns
@@ -829,18 +829,18 @@ trade,sym in .ds.stripe[sym;{i-1}],
 quote,sym in .ds.stripe[sym;{i-1}],
 ```
 
-##### $KDBAPPCONFIG/settings/rdb.q
+**$KDBAPPCONFIG/settings/rdb.q**
 
 Set **`.rdb.subfiltered: 1b`**
 
 ---
 
-#### 2) Example setup for data striping across **SOME** RDB instances
+**2) Example setup for data striping across SOME RDB instances**
 
 > - 2 RDB instances unfiltered
 > - 2 RDB instances striped
 
-##### $KDBCONFIG/process.csv
+**$KDBCONFIG/process.csv**
 
 Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column for the striped RDB instances. Add in **`-.ds.numseg {i}`** (count of striped RDB instances) in the **`extras`** column for the **`segmentedtickerplant`** instance.
 
@@ -863,15 +863,15 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-##### $KDBAPPCONFIG/settings/rdb.q
+**$KDBAPPCONFIG/settings/rdb.q**
 
 **Ensure** **`.rdb.subfiltered: 0b`**
 
 ---
 
-#### 3) Data striping for general subscribers
+**3) Data striping for general subscribers**
 
-##### {subscriber}.q
+**{subscriber}.q**
 
 Add the conditions required (using the data hash striping function).
 
