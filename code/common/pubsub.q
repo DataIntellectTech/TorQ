@@ -161,27 +161,23 @@ init:{[t]
 
 // Striping data in a TorQ Installation
 // Hash function
-.ds.modmd5:{sum each md5'[string x]}
+.ds.modmd5:{sum each md5'[string x]};
 // use mod to stripe into number of segments
-.ds.map:{[numseg;sym] sym@/:group .ds.modmd5[sym]mod numseg}
+.ds.map:{[numseg;sym] sym!.ds.modmd5[sym]mod numseg};
 
+// Initialise subscription request on startup
+.ds.subreq:()!();
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
     // If no updates, return
     if[0=count sym:distinct input;:()];
-    // Check if .ds.subreq (dict) exists
-    $[`subreq in key`.ds;
-        // If .ds.numseg changes - reset .ds.subreq
-        [
-            if[.ds.numseg<>1+max key .ds.subreq;`.ds.subreq set ()!()];
-            // If .ds.subreq exists - check for new sym and append to .ds.subreq
-            if[any new:not sym in raze value .ds.subreq;
-                `.ds.subreq set .ds.subreq,' .ds.map[.ds.numseg;sym where new];
-            ];
-        ];
-        // Initialize .ds.subreq if does not exists
-        `.ds.subreq set .ds.map[.ds.numseg;sym]
+    // Check for new sym(s)
+    if[any new:not sym in key .ds.subreq;
+        // Append to .ds.subreq
+        newsubreq:.ds.subreq, .ds.map[.ds.numseg;sym where new];
+        // Apply unique attr on key of .ds.subreq
+        `.ds.subreq set (`u#key newsubreq)!value newsubreq;
     ];
-    .ds.subreq skey
-    }
+    where skey=.ds.subreq
+    };
