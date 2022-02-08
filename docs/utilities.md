@@ -158,7 +158,7 @@ server must process the request when it is received to generate the
 result and return it to the waiting client. Asynchronous calls do not
 expect a response so allow for greater flexibility. The effect of
 synchronous calls can be replicated with asynchronous calls in one of
-two ways (further details in section gateway):
+two ways (further details in section gateway):
 
 -   deferred synchronous: the client sends an async request, then blocks
     on the handle waiting for the result. This allows the server more
@@ -721,19 +721,19 @@ The advantages of striping include performance and throughput improvements. Segm
 
 The reduction in data access in each process cumulatively multiplies the data throughput by the number of processes. It also allows the process to complete its task faster and without interruption, thereby reducing latency.
 
-#### Example of data striping in TorQ
+**Example of data striping in TorQ**
 
 A simple but effective way of data striping is to do it divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
 
 A common method for data striping between processes is to use an instrument (sym) filter. For example, to stripe data across 2 RDB processes, data with symbols starting with A-M and N-L will be striped to RDB1 and RDB2 respectively. However, a major problem with this method is the uneven distribution of data (a lot of symbols tend to start with A for example).
 
-#### Data hash striping with MD5
+**Data hash striping with MD5**
 
 A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and for subsequent requests for those symbols, it looks them up. It is loaded into the segmented tickerplant to use as subscription requests. For this purpose, MD5 (Message-Digest algorithm 5) hash is chosen as it is a fast and [built-in](https://code.kx.com/q/ref/md5/) hash function in kdb+. It creates a hexadecimal byte array from an input string and the first hex value from the output byte array is used to create a hash map for the data hash striping.
 
 ---
 
-For example, using the symbol **`AAPL`**, we get:
+For example, using the symbol `AAPL`, we get:
 
 ```q
 q)md5"AAPL"
@@ -750,7 +750,7 @@ q)f`AMD`AIG`AAPL`DELL`DOW`GOOG`HPQ`INTC`IBM`MSFT
 "40809edfcb"
 ```
 
-A hash map based on the **`sym`** column is created like so:
+A hash map based on the `sym` column is created like so:
 
 ```q
 q)show sym:`$-100?(thrl cross .Q.A),thrl:(.Q.A cross .Q.A cross .Q.A)
@@ -796,20 +796,20 @@ However, this can be easily resolved by using more hex values from the output by
 
 ### Setting up data striping in TorQ
 
-#### 1) Example setup for data striping across **ALL** RDB instances
+**1) Example setup for data striping across ALL RDB instances**
 
-##### $KDBCONFIG/process.csv
+**$KDBCONFIG/process.csv**
 
-The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**.
+The process file should contain the RDB instances by specifying a different `port` and `procname` column. Set the `load` column to `${KDBCODE}/processes/rdb.q`.
 
 > **NOTE**
 >
-> - The **`procname`** convention should always start with **`rdb1`**
+> - The `procname` convention should always start with `rdb1`
 > - Increment by 1 for each RDB instance
-> - In the following format: **`rdb{i}`**
-> - There is no need to create separate **`rdb{i}.q`** files
+> - In the following format: `rdb{i}`
+> - There is no need to create separate `rdb{i}.q` files
 
-**`$KDBCONFIG/process.csv`** should look something like this:
+`$KDBCONFIG/process.csv` should look something like this:
 
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -821,29 +821,37 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-##### $KDBAPPCONFIG/settings/rdb.q
+**$KDBCONFIG/rdbsub/rdbsub{i}.csv**
+The `rdbsub{i}.csv` should be modified like this:
+```csv
+tabname,filters,columns
+trade,sym in .ds.stripe[sym;{i-1}],
+quote,sym in .ds.stripe[sym;{i-1}],
+```
 
-Set **`.rdb.subfiltered: 1b`**
+**$KDBAPPCONFIG/settings/rdb.q**
+
+Set `.rdb.subfiltered: 1b`
 
 ---
 
-#### 2) Example setup for data striping across **SOME** RDB instances
+**2) Example setup for data striping across SOME RDB instances**
 
 > - 2 RDB instances unfiltered
 > - 2 RDB instances striped
 
-##### $KDBCONFIG/process.csv
+**$KDBCONFIG/process.csv**
 
-Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column for the striped RDB instances. Add in **`-.ds.numseg {i}`** (count of striped RDB instances) in the **`extras`** column for the **`segmentedtickerplant`** instance.
+Add in `-.rdb.subfiltered 1` (to enable striping) in the `extras` column for the striped RDB instances. Add in `-.ds.numseg {i}` (count of striped RDB instances) in the `extras` column for the `segmentedtickerplant` instance.
 
 > **NOTE**
 >
-> - It is **`-.rdb.subfiltered 1`** and not **`-.rdb.subfiltered 1b`**
+> - It is `-.rdb.subfiltered 1` and not `-.rdb.subfiltered 1b`
 > - The RDB instances **must** be grouped according to those being striped first
->   - i.e. **`rdb1`**, **`rdb2`** are striped and **`rdb3`**, **`rdb4`** are unfiltered
-> - **`-.ds.numseg {i}`** (count of striped RDB instances) **must** be added to overwrite the **`-.ds.numseg`** variable from initialization (defaults to number of **`rdb`** **`proctype`**).
+>   - i.e. `rdb1`, `rdb2` are striped and `rdb3`, `rdb4` are unfiltered
+> - `-.ds.numseg {i}` (count of striped RDB instances) **must** be added to overwrite the `-.ds.numseg` variable from initialization (defaults to number of `rdb proctype`).
 
-**`$KDBCONFIG/process.csv`** should look something like this:
+`$KDBCONFIG/process.csv` should look something like this:
 
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -855,15 +863,15 @@ localhost,{KDBBASEPORT}+5,rdb,rdb3,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,,q
 ```
 
-##### $KDBAPPCONFIG/settings/rdb.q
+**$KDBAPPCONFIG/settings/rdb.q**
 
-**Ensure** **`.rdb.subfiltered: 0b`**
+**Ensure** `.rdb.subfiltered: 0b`
 
 ---
 
-#### 3) Data striping for general subscribers
+**3) Data striping for general subscribers**
 
-##### {subscriber}.q
+**{subscriber}.q**
 
 Add the conditions required (using the data hash striping function).
 
@@ -891,6 +899,48 @@ quote     21     ,,(in;`sym;(`.ds.stripe;`sym;1))
 quote_iex 21     ()                                      
 trade     21     ,,(in;`sym;(`.ds.stripe;`sym;0))        
 trade_iex 21     ()                                      
+```
+
+<a name="gw"></a>
+
+gatewaylib.q
+--------
+
+This file defines some additional functionality in the `.gw` namespace loaded in by the gateway. The Dataaccess API uses some of the functions defined within this file to route queries based on segmented data availability.
+
+### Gateway Routing based on segmented data availability
+
+With the implementation of data striping, intraday data can be segmented into multiple processes. As such, the gateway needs to have an awareness of where the segemented data is located to route queries exactly. It may need to send queries to multiple processes, and join the result before returning the result, depending on the symbols or time periods being requested. The gateway routing can be used with the existing Dataaccess API to retrieve data. However, freeform queries using the Dataaccess API will not be allowed when the queries are routed to a striped process. 
+
+An easy to use hook `` `.gw.getservers`` is provided for other TorQ APIs to route queries appropriately when not using the Dataaccess API or freeform queries. The function returns a dictionary of serverid(s) that should be queried to cover all the data being requested. The input can be a table of `([] tablename;starttime;endtime;instruments;procs)` or a dictionary of `` `tablename`starttime`endtime`instruments`procs!(tablename;starttime;endtime;instruments;procs) ``. The required parameters of the input are `tablename`, `starttime` and `endtime`. If the input is a table of multiple rows, the output will be a list of dictionary corresponding to each row of the table.
+
+The gateway receives a report of the process attributes (for e.g. date and tables) for every connected server. The attributes report is extended to include which stripe of symbols and/or time period that it contains. Using this stripe, the gateway can route queries accurately to specific servers.
+
+Users can use the `` `.gw.getservers`` hook to route queries appropriately when not using the Dataaccess API or freeform queries as illustrated below:
+```q
+q)show querydict:`tablename`starttime`endtime`instruments!(`quote;.z.d;.z.d;`AMD`IBM`DELL`GOOG;`time`sym`bid`ask`bsize`asize)
+tablename  | `quote
+starttime  | 2022.02.04
+endtime    | 2022.02.04
+instruments| `AMD`IBM`DELL`GOOG
+q)hgw1(`.gw.getservers;querydict)
+ | tablename starttime  endtime    procs instruments servertype
+-| ------------------------------------------------------------
+1| quote     2022.02.04 2022.02.04 rdb1  `IBM`DELL   rdb       
+3| quote     2022.02.04 2022.02.04 rdb3  `AMD        rdb       
+4| quote     2022.02.04 2022.02.04 rdb4  `GOOG       rdb       
+```
+
+Each row of the result dictionary only has to be queried once. For e.g. from the result below: the key of the last row is `5 6i`, which means only either serverid `5i` or `6i` has to be queried depending on whichever is available, as the HDBs are unstriped.
+```q
+q)querydict[`starttime]:.z.d-1
+q)hgw1(`.gw.getservers;querydict)
+    | tablename starttime  endtime    procs instruments        servertype
+--  | -------------------------------------------------------------------
+1i  | quote     2022.02.04 2022.02.04 rdb1  `IBM`DELL          rdb       
+3i  | quote     2022.02.04 2022.02.04 rdb3  `AMD               rdb       
+4i  | quote     2022.02.04 2022.02.04 rdb4  `GOOG              rdb       
+5 6i| quote     2022.02.03 2022.02.03 hdb   `AMD`IBM`DELL`GOOG hdb       
 ```
 
 <a name="kafka"></a>
@@ -1307,6 +1357,46 @@ would serialise it separately for each subscriber. To take advantage of
 this, we’ve modified u.q. This can be turned off by setting .u.broadcast
 to false. It is enabled by default, but will only override default
 publishing if the kdb+ version being used is 3.4 or after.
+
+## bglaunchutils.q 
+
+The background launch utilities allow other processes to be programmatically launched, or
+terminated, from inside a TorQ process. The two main functions here are
+.sys.bglaunch and .sys.bgkill.
+
+.sys.bglaunch is the q function which takes a dictionary of input parameters which
+are then passed to a bash script. This bash script functions like torq.sh in how
+it starts processes. It is important to note that the background launch utilities
+are only supported on Linux as a result.
+
+```q
+
+q)input:`procname`proctype`localtime`p!("hdb1";"hdb";"0";"1234");
+
+```
+
+The input parameter dictionary, as shown above, should contain symbols as keys
+and strings as values. Any standard or custom TorQ process can be launched
+using .sys.bglaunch, and as such the function can accept any desired command line
+parameters in the input dictionary. The minimum required are `` `procname`` and
+`` `proctype``. In the case that only these two are used the other arguments will be
+given default values.
+
+|    Parameter   |                                                    Default Value                                                          |
+| :------------: | :-----------------------------------------------------------------------------------------------------------------------: |
+|      U         | The password file used for the parent launching process, if none exists ${KDBAPPCONFIG}/passwords/accesslist.txt is used  |
+|  localtime     |                                 The .proc.localtime value of the parent launching process                                 |
+|      p         |                                             0W - a random port will be chosen                                             |
+|     qcmd       |                                                          q                                                                |
+
+The .sys.bgkill function is passed a single argument: the `` `procname`` of the process to
+be terminated, as a string.
+
+If the default value of "0W" is used for the port, a random port will be chosen
+on which to launch the process. In this case the process will neeed to register
+itself with discovery in order for other processes to be able to connect to it.
+This is a standard behaviour for TorQ processes on startup (for more information
+see [Connection Management](http://aquaqanalytics.github.io/TorQ/conn/#connections)).
 
 <a name="api"></a>
 

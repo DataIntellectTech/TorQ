@@ -295,6 +295,49 @@ the full list of aggregations that can span multiple processes without
 a partitioned grouping are as follows: `avg`, `cor`, `count`, `cov`, `dev`,
 `first`, `last`, `max`, `min`, `prd`, `sum`, `var`, `wavg` and `wsum`.
 
+## Gateway Routing based on segmented data availability
+
+### Illustration of Gateway Routing queries for fully striped RDBs
+
+```q
+q)(hrdb1;hrdb2;hrdb3;hrdb4)@\:".rdb.subfiltered"
+1111b
+q)(hrdb1;hrdb2;hrdb3;hrdb4)@\:"exec distinct sym from quote"
+`u#`DOW`AAPL`IBM`DELL
+`u#`INTC`AIG
+`u#`AMD`HPQ
+`u#`MSFT`GOOG
+```
+
+Without a gateway routing process, the same query has to be run on all RDBs before joining the results. However, this is not efficient as some of the RDBs may not need to be queried depending on what is being requested. In the example query below, RDB2 returns an empty table result which shows that it does not even need to be queried. With the gateway routing process, the gateway has an awareness of the (symbol and time) stripe that each server contains. In addition, the query being sent to the respective server is modified based on its stripe. For example, RDB1 only receives the query ``"select time,sym,bid,ask,bsize,asize from quote where sym in`IBM`DELL"``.
+```q
+q)show tbls:(hrdb1;hrdb2;hrdb3;hrdb4)@\:"select time,sym,bid,ask,bsize,asize from quote where sym in`AMD`IBM`DELL`GOOG"
++`time`sym`bid`ask`bsize`asize!(2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.25319..
++`time`sym`bid`ask`bsize`asize!(`timestamp$();`symbol$();`float$();`float$();`long$();`long$())
++`time`sym`bid`ask`bsize`asize!(2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.25319..
++`time`sym`bid`ask`bsize`asize!(2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.253192000 2022.02.04D06:19:38.25319..
+```
+
+Dataaccess API example based on the query above:
+```q
+q)show querydict:`tablename`starttime`endtime`instruments`columns!(`quote;.z.d;.z.d;`AMD`IBM`DELL`GOOG;`time`sym`bid`ask`bsize`asize)
+tablename  | `quote
+starttime  | 2022.02.04
+endtime    | 2022.02.04
+instruments| `AMD`IBM`DELL`GOOG
+columns    | `time`sym`bid`ask`bsize`asize
+q)show hgw1(`.dataaccess.getdata;querydict)
+time                          sym  bid   ask   bsize asize
+----------------------------------------------------------
+2022.02.04D06:19:38.253192000 IBM  17.53 42.01 65    49   
+2022.02.04D06:19:38.253192000 IBM  68.54 76.16 53    20   
+2022.02.04D06:19:38.253192000 IBM  61.64 53.11 79    72   
+2022.02.04D06:19:38.253192000 DELL 47.42 42.94 72    27   
+..
+q)raze[tbls]~tbl:hgw1(`.dataaccess.getdata;querydict)
+1b
+```
+
 ## Checkinputs
 
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
