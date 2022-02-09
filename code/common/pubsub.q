@@ -166,16 +166,16 @@ init:{[t]
 .ds.map:{[numseg;sym] sym!.ds.modmd5[sym]mod numseg};
 
 // Initialise subscription request on startup
-.ds.subreq:(`u#())!();
+.ds.subreq:(`u#`$())!`int$();
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
     // If no updates, return
     if[0=count input;:()];
     // Check for new sym(s)
-    if[any new:not(sym:distinct input)in key .ds.subreq;
+    if[0N in val:.ds.subreq input;
         // Append to .ds.subreq - unique attr is maintained
-        .ds.subreq,:.ds.map[.ds.numseg;sym where new];
+        .ds.subreq,:.ds.map[.ds.numseg;distinct input where null val];
     ];
     where skey=.ds.subreq
     };
