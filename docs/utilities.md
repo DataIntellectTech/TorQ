@@ -825,8 +825,8 @@ localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist
 The **`rdbsub{i}.csv`** should be modified like this:
 ```csv
 tabname,filters,columns
-trade,sym in .ds.stripe[sym;{i-1}],
-quote,sym in .ds.stripe[sym;{i-1}],
+trade,.ds.stripe[sym;{i-1}],
+quote,.ds.stripe[sym;{i-1}],
 ```
 
 **$KDBAPPCONFIG/settings/rdb.q**
@@ -878,7 +878,7 @@ Add the conditions required (using the data hash striping function).
 ```q
 ...
 // Subscribe to all tables but with custom conditions
-conditions:1!flip`tabname`filters`columns!(`trade`quote;("sym in .ds.stripe[sym;0]";"sym in .ds.stripe[sym;1]");("";""))
+conditions:1!flip`tabname`filters`columns!(`trade`quote;(".ds.stripe[sym;0]";".ds.stripe[sym;1]");("";""))
 handletoSTP(`.u.sub;`;conditions)
 ...
 ```
@@ -887,17 +887,17 @@ handletoSTP(`.u.sub;`;conditions)
 q)conditions
 tabname| filters                    columns
 -------| ----------------------------------
-trade  | "sym in .ds.stripe[sym;0]" ""
-quote  | "sym in .ds.stripe[sym;1]" ""
+trade  | ".ds.stripe[sym;0]" ""
+quote  | ".ds.stripe[sym;1]" ""
 
 q)handletoSTP".stpps.subrequestfiltered"
 tbl       handle filts                            columns
 ---------------------------------------------------------
 logmsg    21     ()                                      
 packets   21     ()                                      
-quote     21     ,,(in;`sym;(`.ds.stripe;`sym;1))        
+quote     21     (`.ds.stripe;`sym;1)        
 quote_iex 21     ()                                      
-trade     21     ,,(in;`sym;(`.ds.stripe;`sym;0))        
+trade     21     (`.ds.stripe;`sym;0)        
 trade_iex 21     ()                                      
 ```
 

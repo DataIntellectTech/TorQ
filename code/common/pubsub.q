@@ -170,12 +170,14 @@ init:{[t]
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
-    // If no updates, return
-    if[0=count input;:()];
-    // Check for new sym(s)
-    if[0N in val:.ds.subreq input;
-        // Append to .ds.subreq - unique attr is maintained
-        .ds.subreq,:.ds.map[.ds.numseg;distinct input where null val];
-    ];
-    where skey=.ds.subreq
-    };
+  // If no updates, return
+  if[0=count input;:()];
+  // Check for new sym(s)
+  if[0N in val:.ds.subreq input;
+    // Append to .ds.subreq - unique attr is maintained
+    .ds.subreq,:.ds.map[.ds.numseg;distinct input where null val];
+    // Reassign val
+    val:.ds.subreq input;
+  ];
+  skey=val
+ };
