@@ -105,16 +105,16 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     [.lg.e[`subscribe;e:"unrecognised tickerplant type: ",string tptype]; 'e]];
  
   // pull out the full list of tables to subscribe to
-  utabs:@[proc`w;(tablesfunc;`);()];
+  0N!utabs:@[proc`w;(tablesfunc;`);()];
   // reduce down the subscription list
-  realsubs:reducesubs[tabs;utabs;instrs;proc];
+  0N!realsubs:reducesubs[tabs;utabs;instrs;proc];
   // check if anything to subscribe to, and jump out
   if[0=count realsubs`subtabs;
     .lg.o[`subscribe;"all tables have already been subscribed to"];
     :()];
 
   // pull out subscription details from the TP
-  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
+  0N!details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]];
@@ -129,7 +129,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     d:(`subtables`tplogdate!(details[`schemalist][;0];(first "D" $ -10 sublist string last first details[`logfilelist])^logdate));
     :d,{(where 101 = type each x)_x}(`i`icounts`d)!(details[`logfilelist][0;0];details[`rowcounts];details[`date])];
   if[tptype~`segmented;
-    retdic:`logdir`subtables!(details[`logdir];details[`schemalist][;0]);
+    0N!retdic:`logdir`subtables`tptype!(details[`logdir];details[`schemalist][;0];`segmented);
     :retdic,{(where 101 = type each x)_x}`i`icounts`d`tplogdate!details[`logfilelist`rowcounts`date`date];
     ]
  }
