@@ -31,6 +31,12 @@ subdetails:{[tabs;instruments]
  `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
  }
 
+// 
+segmentedsubdetails:{[tabs;instruments;id]
+ `schemalist`logfilelist`rowcounts`date`logdir`filters!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG;[select table,wcRef from tpconfig where segmentID=procmap[id]])
+ }
+
+
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
   .stpps.init[tables[] except `currlog];
@@ -70,6 +76,17 @@ setup:{[batch]
   // Default the timer to 1 second if not set
   if[not system "t";.lg.o[`timer;"defaulting timer to 1000ms"];system"t 1000"];
  };
+
+// load subfilters for rdb
+loadsubfilters:{[]
+	.sub.filterparams:@[{1!("S**";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
+	.rdb.subscribeto:raze value flip key .sub.filterparams;
+	.rdb.subscribesyms:.sub.filterparams;}
+
+// load config file if it exists
+// just giving some sample config
+tpconfig: ([] table:`trade`trade`quote`quote; segmentID:1 2 1 2; wcRef:`wcA`wcB`wcC`wcD)
+procmap: (enlist `rdb1)!(enlist 1)
 
 // Initialise process
 init:{
