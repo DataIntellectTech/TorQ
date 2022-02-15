@@ -160,10 +160,8 @@ init:{[t]
  };
 
 // Striping data in a TorQ Installation
-// Hash function
-.ds.modmd5:{sum each md5'[string x]};
 // use mod to stripe into number of segments
-.ds.map:{[numseg;sym] sym!.ds.modmd5[sym]mod numseg};
+.ds.map:{[numseg;sym] sym!(sum each string sym)mod numseg};
 
 // Initialise subscription request on startup
 .ds.subreq:(`u#`$())!`int$();
