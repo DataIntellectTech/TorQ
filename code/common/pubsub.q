@@ -169,7 +169,7 @@ init:{[t]
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
   // If no updates, return
-  if[0=count input;:()];
+  if[0=count input;:`boolean$()];
   // Check for new sym(s)
   if[0N in val:.ds.subreq input;
     // Append to .ds.subreq - unique attr is maintained
