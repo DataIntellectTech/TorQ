@@ -18,6 +18,9 @@ replaylog:1b                                //replay the tickerplant log file
 schema:1b                                   //retrieve the schema from the tickerplant
 tpconnsleepintv:10                          //number of seconds between attempts to connect to the tp                                                                 
 gc:1b                                       //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
+period:0D01                                    
+periodstokeep:4
+lasttimestamp:.z.p-4*period
 
 sortcsv:hsym first .proc.getconfigfile["sort.csv"]	//location of csv file
 reloadenabled:0b    //if true, the RDB will not save when .u.end is called but
