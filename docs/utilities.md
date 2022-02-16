@@ -751,7 +751,7 @@ MVOR| 0
 ..
 ```
 
-Using a hash function enables better distribution of symbols across databases:
+Using a hash function ensures better distribution of symbols across databases:
 
 ```q
 q)count each group sym!(sum each string sym)mod 4
