@@ -11,6 +11,8 @@ customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for
 
 \d .ds
 datastripe:1b
+period:0D01
+periodstokeep:6
 
 \d .proc
 loadcommoncode:0b               // do not load common code
