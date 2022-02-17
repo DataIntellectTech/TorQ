@@ -101,7 +101,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
       subfunc:{`schemalist`logfilelist`rowcounts`date!(.u.sub\:[x;y];enlist(.u`i`L);(.u `icounts);(.u `d))}];
     tptype=`segmented;
     [tablesfunc:`tablelist;
-      subfunc:`segmentedsubdetails];
+      subfunc:$[1b;`segmentedsubdetails;`subdetails]];
     [.lg.e[`subscribe;e:"unrecognised tickerplant type: ",string tptype]; 'e]];
  
   // pull out the full list of tables to subscribe to
