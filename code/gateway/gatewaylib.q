@@ -203,7 +203,7 @@ adjustqueriesstripe:{[options;dict]
 			{$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;dict`isdate]'[attributes;starttime],
 			{$[z;y;$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]]}[;;dict`isdate]'[attributes;endtime],
 			// query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
-			adjinstruments:{$[1=count s:skeysym where(skeysym:.ds.stripe[(),y;x 0])in y;s 0;s]}'[attributes;instruments]
+			adjinstruments:{$[1=count s:y where .ds.stripe[(),y;x 0];s 0;s]}'[attributes;instruments]
 				from querytable where serverid in modquery`serverid;
 		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
 		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
