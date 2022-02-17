@@ -138,9 +138,9 @@ getlogs[`day]:{[t]
 // If replayperiod set to `tailer, replay logs not yet saved down by tailer process
 // note: this is currently hardcoded to 4 hours back with intention to link up with information from tailer process once
 //       it has been implemented
-getlogs[`tailer]:{[t;y] 
-  flip value exec `long$msgcount,logname from getlogsfunc[t] where (.z.p-end)<`minute$60*y
-  }[;4];
+getlogs[`tailer]:{[t] 
+  flip value exec `long$msgcount,logname from getlogsfunc[t] where (.z.p-end)<.rdb.period*.rdb.periodstokeep
+  };
 
 
 
