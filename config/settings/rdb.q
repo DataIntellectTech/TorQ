@@ -38,3 +38,5 @@ loadprocesscode:1b  // whether to load the process specific code defined at ${KD
 CONNECTIONS:`hdb    // list of connections to make at start up
 STARTUP:1b          // create connections
 
+\d .ds
+datastripe:1b
