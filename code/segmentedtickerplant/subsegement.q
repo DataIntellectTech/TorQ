@@ -1,7 +1,7 @@
 \d .stpps
 
 // Function to extract where clause from config table
-filteroutput:{[tbl;segid] first .stpps.segmentfiltermap[exec wcRef from .stpps.segmentconfig where table=tbl , segmentid=segid]};
+filteroutput:{[tbl;segid] string first .stpps.segmentfiltermap[exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
 
 // Function to subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
