@@ -9,6 +9,9 @@ batchmode:`defaultbatch;        // [memorybatch|defaultbatch|immediate]
 replayperiod:`day               // [period|day|prior]
 customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
 
+\d .ds
+datastripe:1b
+
 \d .proc
 loadcommoncode:0b               // do not load common code
 loadprocesscode:1b              // load process code

@@ -9,5 +9,11 @@
 configload:{
      .stpps.segmentconfig:("SIS";enlist",")0: hsym first .proc.getconfigfile["segmenting.csv"];
      .stpps.segmentfiltermap:(!/) (("SS";enlist",")0: hsym first .proc.getconfigfile["filtermap.csv"])`wcRef`filter;
-     }
+     };
 
+initdatastripe:{
+     .lg.o[`init;"init datastriping"];
+     configload[];
+     };
+
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
