@@ -18,9 +18,6 @@ replaylog:1b                                //replay the tickerplant log file
 schema:1b                                   //retrieve the schema from the tickerplant
 tpconnsleepintv:10                          //number of seconds between attempts to connect to the tp                                                                 
 gc:1b                                       //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
-period:0D01                                    
-periodstokeep:4
-lasttimestamp:.z.p-4*period
 
 sortcsv:hsym first .proc.getconfigfile["sort.csv"]	//location of csv file
 reloadenabled:0b    //if true, the RDB will not save when .u.end is called but
@@ -32,6 +29,12 @@ pardefault:.z.D     //if the src defined in parvaluesrc returns null, use this d
 tpcheckcycles:0W    //specify the number of times the process will check for an available tickerplant
 subfiltered:0b      //allows subscription filters to be loaded and applied in the rdb
 connectonstart:1b   //rdb connects to tickerplant as soon as it is started
+
+\d .ds
+datastripe:1b
+period:0D01                                    
+periodstokeep:4
+lasttimestamp:.z.p-4*period
 
 \d .proc
 loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
