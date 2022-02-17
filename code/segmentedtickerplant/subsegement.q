@@ -1,7 +1,7 @@
 \d .stpps
 
 // Function to extract where clause from config table
-filteroutput:{[tbl;segid] string first .stpps.segmentfiltermap[exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
+segmentfilter:{[tbl;segid] string first .stpps.segmentfiltermap[exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
 
 // Function to subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
@@ -12,7 +12,7 @@ subsegment:{[tbl;segid];
      .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
      :(tbl;m)
   ];
-  $[segid~`;[filter:`]; [filter: filteroutput[tbl;segid]]];
+  $[segid~`;[filter:`]; [filter: segmentfilter[tbl;segid]]];
   $[filter~`;.stpps.suball[tbl]; .ps.subtablefiltered[string[tbl];filter;""]]
  };
 
