@@ -12,8 +12,8 @@
 .stpps.segmentfiltermap:(!/)([] wcRef:();filter:())`wcRef`filter;
 
 configload:{
-     @[{.stpps.segmentconfig:{("SIS";enlist",")0: hsym first .proc.getconfigfile[x]}[x]};"segmenting.csv";{.lg.o[`stp1;"Failed to load segmenting.csv, revert to defaut mode and no segmenting."]}];
-     @[{.stpps.segmentfiltermap:{(!/)(("SS";enlist",")0: hsym first .proc.getconfigfile[x])`wcRef`filter}[x]};"filtermap.csv";{.lg.o[`stp1;"Failed to load filtermap.csv, revert to defaut mode and no segmenting."]}]; 
+     @[{.stpps.segmentconfig:{("SIS";enlist",")0: hsym first .proc.getconfigfile[x]}[x]};"segmenting.csv";{.lg.o[`init;"Failed to load segmenting.csv"]}];
+     @[{.stpps.segmentfiltermap:{(!/)(("SS";enlist",")0: hsym first .proc.getconfigfile[x])`wcRef`filter}[x]};"filtermap.csv";{.lg.o[`init;"Failed to load filtermap.csv"]}]; 
      };
 
 initdatastripe:{
