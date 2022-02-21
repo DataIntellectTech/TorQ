@@ -9,7 +9,7 @@
 //creating empty versions of segmenting table and filter mapping so we can revert to default mode if issues with either csv
 
 .stpps.segmentconfig:([] table:();segmentID:();wcRef:());
-.stpps.segmentfiltermap:(!/)([] wcRef:();filter:())`wcRef`filter;
+.stpps.segmentfiltermap:exec wcRef!filter from ([] wcRef:();filter:());
 
 configload:{
      @[{.stpps.segmentconfig:{("SIS";enlist",")0: hsym first .proc.getconfigfile[x]}[x]};"segmenting.csv";{.lg.o[`init;"Failed to load segmenting.csv"]}];
