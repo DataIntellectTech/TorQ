@@ -56,3 +56,6 @@ STARTUP:1b                                                                      
 
 \d .ds
 datastripe:1b
+
+\d .proc
+loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
