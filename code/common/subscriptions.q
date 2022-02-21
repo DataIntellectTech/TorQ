@@ -114,7 +114,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     :()];
 
   // pull out subscription details from the TP
-  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs];.proc.procname);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
+  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs];.ds.segmentid[0]);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]];

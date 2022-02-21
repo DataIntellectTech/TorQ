@@ -5,5 +5,5 @@ segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
 	`rowcounts ; tabs#.stplg `rowcount;						//
 	`date ; (.eodtime `d);								//
 	`logdir ; `$getenv`KDBTPLOG;							//
-	`filters ; [select table,wcRef from tpconfig where segmentID=procmap[id]]	//
+	`filters ; ?[`tpconfig;enlist(=;`segmentID;id);0b;()]	//
 	)}
