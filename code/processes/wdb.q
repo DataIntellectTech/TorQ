@@ -67,6 +67,9 @@ gc:@[value;`gc;1b];                                                        /-gar
 
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 
+/failedreloadsummary:@[value;`failedreloadsummary;([id:()]time:();process:();error:())];
+reloadfailed:0b;
+
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
@@ -202,10 +205,17 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
+/- add entries to keyed table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-        `.wdb.d insert x;
-	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
+        `.wdb.d insert .z.w,x;
+	$[(last .wdb.d)[`status];
+	.lg.o[`reload;"the ",string[(last .wdb.d)`process]," has been successfully reloaded"];
+	.lg.o[`reload;"the ",string[(last .wdb.d)`process]," reload has failed check ",string[(last .wdb.d[])`process]," error log"]];
+	if[(.proc.cp[]>.wdb.timeouttime) or (.wdb.countreload=count .wdb.d);
+		$[(count select from .wdb.d  where status=1)=count .wdb.d;
+        	.lg.o[`reload;"all processes successfully reloaded"];
+        	.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"]];
+        	.lg.o[`handler;"releasing processes"];
 		.lg.o[`handler;"releasing processes"];
 		.wdb.flushend[];
 		.wdb.d:([id:()]time:();process:();status:();result:())];
@@ -215,7 +225,7 @@ handler:{
 /- notify the gateway that we are done
 flushend:{
 	if[not @[value;`.wdb.reloadcomplete;0b];
-	 @[{neg[x]"";neg[x][]};;()] each key d;
+	 @[{neg[x]"";neg[x][]};;()] each value flip key d;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
@@ -364,12 +374,12 @@ reloadproc:{[h;d;ptype]
 	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
 	$[eodwaittime>0;
 		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
-			[({@[`. `reload;x;{[ptype;h;e](neg .z.w)(`.wdb.handler;(h;.z.P;ptype;0b;"failed with error: ",e)); 
-				.lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y;z]];
-				 (neg .z.w)(`.wdb.handler;(z;.z.P;y;1b;"Success")); (neg .z.w)[]};d;ptype;h);h;ptype];
+			[({@[`. `reload;x;
+				{[ptype;e](neg .z.w)(`.wdb.handler;(.z.P;ptype;0b;"failed with error: ",e)); 
+				.lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
+				 (neg .z.w)(`.wdb.handler;(.z.P;y;1b;"Success")); (neg .z.w)[]};d;ptype);h;ptype];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
 	];
-		.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
 	}
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
