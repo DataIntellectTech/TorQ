@@ -2,7 +2,9 @@
 // Contains all TP functionality with additional flexibility
 // Configurable logging and subscriptions
 // Default settings create single TP log per table and rolls logs hourly
-
+// Subscription to a table can be made in two modes - all or filtered
+// All - publish all data for table
+// Filtered - apply filters to published data, filters defined on client side
 
 createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
 
