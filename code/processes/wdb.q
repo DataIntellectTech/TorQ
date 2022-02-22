@@ -209,13 +209,13 @@ handler:{
 	if[not .z.w in  key .wdb.d;
         	.wdb.d[.z.w]:x];
 	if[(not .wdb.d[.z.w]`status);
-		.lg.o[`reload;string[.wdb.d[.z.w]`process]," reload ", .wdb.d[.z.w]`result]];
+		.lg.o[`reload;string[.wdb.d[.z.w]`process]," reload ", string[.wdb.d[.z.w]`result]]];
 	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
 		.lg.o[`handler;"releasing processes"];
 		.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"];
 		.wdb.flushend[]];
-	/-clear out .wdb.d when reloads completed
-	if[.wdb.reloadcomplete;.wdb.d:([handle:()]process:();status:();result:())];
+	/-delete .wdb.d when reloads completed
+	if[.wdb.reloadcomplete;delete d from `.wdb];
 	};
 
 /- evaluate contents of d dictionary asynchronously
@@ -229,7 +229,7 @@ flushend:{
 	};
 
 /- initialise d, keyed tale to track status of local reloads
-d:([handle:()]process:();status:();result:());
+d:([`int$handle:()]`symbol$process:();`boolean$status:();`symbol$result:());
 
 /-initialise reload complete
 reloadcomplete:0b;
@@ -386,10 +386,10 @@ reloadproc:{[h;d;ptype]
                 {[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
                         [({@[`. `reload;x;
 	/-if process fails to reload message with error entered into .wdb.d and  output error to process error log
-                                {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;"failed with error: ",e));
+                                {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;`$"failed with error: ",e));
                                 .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
         /-Successful reload message to be sent to handler and entered into .wdb.d for end of reload summary logging
-	                         (neg .z.w)(`.wdb.handler;(y;1b;"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];       
+	                         (neg .z.w)(`.wdb.handler;(y;1b;`$"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];       
 		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
         ];
         .lg.o[`reload;string[ptype]," reload has finished"];
