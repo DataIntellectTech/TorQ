@@ -208,6 +208,8 @@ handler:{
 	/-insert process reload outcome into .wdb.d
 	if[not .z.w in  key .wdb.d;
         	.wdb.d[.z.w]:x];
+	if[(not .wdb.d[.z.w]`status);
+		.lg.o[`reload;string[.wdb.d[.z.w]`process]," reload ", .wdb.d[.z.w]`result]];
 	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
 		.lg.o[`handler;"releasing processes"];
 		.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"];
