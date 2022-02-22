@@ -205,11 +205,13 @@ endofdaysave:{[dir;pt]
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	.wdb.d[.z.w]:x;
+	if[not .z.w in  key .wdb.d;
+        	.wdb.d[.z.w]:x];
 	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
 		.lg.o[`handler;"releasing processes"];
-		.wdb.flushend[];
-		.wdb.d:()!()];
+		.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"];
+		.wdb.flushend[]];
+	if[.wdb.reloadcomplete;.wdb.d:([handle:()]process:();status:();result:())];
 	};
 
 /- evaluate contents of d dictionary asynchronously
@@ -223,7 +225,10 @@ flushend:{
 	};
 
 /- initialise d
-d:()!()
+d:([handle:()]process:();status:();result:());
+
+/-initialise reload complete
+reloadcomplete:0b;
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -372,13 +377,18 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
-	$[eodwaittime>0;
-		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
-		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
-	];
-	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
-	}
+        .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+        $[eodwaittime>0;
+                {[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
+                        [({@[`. `reload;x;
+                                {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;"failed with error: ",e));
+                                .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
+                                 (neg .z.w)(`.wdb.handler;(y;1b;"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];
+                @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
+        ];
+        .lg.o[`reload;string[ptype]," reload has finished"];
+        }
+
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]
