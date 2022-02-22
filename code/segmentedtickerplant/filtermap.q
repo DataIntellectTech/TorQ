@@ -4,7 +4,7 @@
 // Allows use of ` as argument for tables
 
 
-filtermap:{[tabs;segid] $[tabs~`;[tabs:.stpps.t; (tabs)!.stpps.segmentfilter\:[tabs;segid]]; (enlist tabs)!(enlist .stpps.segmentfilter\:[tabs;segid])]}
+filtermap:{[tabs;segid] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;segid]}
 
 \d . 
 
