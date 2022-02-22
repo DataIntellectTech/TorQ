@@ -71,12 +71,6 @@ setup:{[batch]
   if[not system "t";.lg.o[`timer;"defaulting timer to 1000ms"];system"t 1000"];
  };
 
-// load subfilters for rdb
-loadsubfilters:{[]
-	.sub.filterparams:@[{1!("S**";enlist",")0: x};.rdb.subcsv;{.lg.e[`loadsubfilters;"Failed to load .rdb.subcsv with error: ",x]}];
-	.rdb.subscribeto:raze value flip key .sub.filterparams;
-	.rdb.subscribesyms:.sub.filterparams;}
-
 // Initialise process
 init:{
   // Set up the update and publish functions
