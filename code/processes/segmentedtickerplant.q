@@ -2,7 +2,7 @@
 // Contains all TP functionality with additional flexibility
 // Configurable logging and subscriptions
 // Default settings create single TP log per table and rolls logs hourly
-// Allows for configurable filter application defined on client side
+
 
 createlogs:@[value;`createlogs;1b]; // allow tickerplant to create a log file
 
@@ -29,7 +29,7 @@ tablelist:{.stpps.t}
 // Subscribers who want to replay need this info
 // Modified to include information about filter used
 subdetails:{[tabs;instruments;segid]
- `schemalist`logfilelist`rowcounts`date`logdir`filter!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG; .stpps.filtermap\:[tabs;segid])
+ `schemalist`logfilelist`rowcounts`date`logdir`filter!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG; .stpps.filtermap[tabs;segid])
  }
 
 
