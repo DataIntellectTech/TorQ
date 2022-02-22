@@ -67,12 +67,19 @@ getdata:{[o]
     default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
-    if[`ordering in key o;options[`ordering]: go each options`ordering];
+    k:key o;
+    if[`ordering in k;options[`ordering]: go each options`ordering];
+    // Instruments wildcard `
+    if[`instruments in key o;
+        if[`~o`instruments;
+            o _: `instruments;
+            ];
+        ];
     o:adjustqueries[o;part];
     // Check if any freeform queries is going to any striped database
     if[exec count serverid from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in first each key o;
         if[any key[options]like"*freeform*";
-                '`$.schema.errors[`freeformstripe;`errormessage];
+            if[not`instruments in key options;'`$.schema.errors[`freeformstripe;`errormessage]];
             ];
         ];
     options[`mapreduce]:0b;
