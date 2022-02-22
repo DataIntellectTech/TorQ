@@ -55,7 +55,7 @@ CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                   
 STARTUP:1b                                                                                  // create connections
 
 \d .ds
-datastripe:1b
+datastripe:1b	    // default value to determine if segmentedtickerplant is striped
 
 \d .proc
 loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}

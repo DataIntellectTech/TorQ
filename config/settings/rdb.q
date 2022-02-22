@@ -39,4 +39,4 @@ CONNECTIONS:`hdb    // list of connections to make at start up
 STARTUP:1b          // create connections
 
 \d .ds
-datastripe:1b
+datastripe:1b	    // default value to determine if segmentedtickerplant is striped

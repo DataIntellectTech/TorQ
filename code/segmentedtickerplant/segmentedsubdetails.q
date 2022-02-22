@@ -5,5 +5,5 @@ segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
 	`rowcounts ; tabs#.stplg `rowcount;						//
 	`date ; (.eodtime `d);								//
 	`logdir ; `$getenv`KDBTPLOG;							//
-	`filters ; ?[`tpconfig;enlist(=;`segmentID;id);0b;()]	//
+	`filters ; @[{?[x;enlist(=;`segmentID;id);0b;()]};`tpconfig;0b]	//
 	)}
