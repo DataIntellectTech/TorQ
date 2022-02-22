@@ -38,7 +38,7 @@ tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-num
 tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed 
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
-sortslavetypes:@[value;`sortslavetypes;`sortslave];                        /-list of sort types to look for upon a sort being called with slave process
+sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
 
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
 subsyms:@[value;`subsyms;`];                                               /-list of syms to subscription to
@@ -67,17 +67,16 @@ gc:@[value;`gc;1b];                                                        /-gar
 
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 
-
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
 
 / - end of default parameters
 
-/ - define .z.pd in order to connect to any slave processes
+/ - define .z.pd in order to connect to any worker processes
 .z.pd:{$[.z.K<3.3;
         `u#`int$();
-	`u#exec w from .servers.getservers[`proctype;sortslavetypes;()!();1b;0b]]
+	`u#exec w from .servers.getservers[`proctype;sortworkertypes;()!();1b;0b]]
         }
 
 /- fix any backslashes on windows
@@ -181,7 +180,7 @@ savetables:$[writedownmode~`partbyattr;savetablesbypart;savetables];
 savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
-endofday:{[pt]
+endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
 	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
@@ -193,7 +192,8 @@ endofday:{[pt]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
-	.lg.o[`eod;"end of day is now complete"];
+    .lg.o[`eod;"end of day is now complete"];
+    .wdb.currentpartition:pt+1;
 	};
 	
 endofdaysave:{[dir;pt]
@@ -203,32 +203,27 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to keyed table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
+/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	 if[not .z.w in  key .wdb.d;
-        .wdb.d[.z.w]:x];
-	if[(.proc.cp[]>.wdb.timeouttime) or (.wdb.countreload=count .wdb.d);
-        	.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"];
-        	.lg.o[`handler;"releasing processes"];
-		.wdb.flushend[]];
-		if[.wdb.reloadcomplete;.wdb.d:([handle:()]process:();status:();result:())];
+	.wdb.d[.z.w]:x;
+	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
+		.lg.o[`handler;"releasing processes"];
+		.wdb.flushend[];
+		.wdb.d:()!()];
 	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
 flushend:{
 	if[not @[value;`.wdb.reloadcomplete;0b];
-	 @[{neg[x]"";neg[x][]};;()] each value flip key d;
+	 @[{neg[x]"";neg[x][]};;()] each key d;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
 	};
 
 /- initialise d
-d:([handle:()]process:();status:();result:());
-
-/-initialise reload complete
-reloadcomplete:0b;
+d:()!()
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -257,9 +252,9 @@ movetohdb:{[dw;hw;pt]
       not any a[dw]in(a:{key hsym`$x}) hw;
       [{[y;x] 
         $[not(b:`$last"/"vs x)in key y;
-          [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",y," with error: ",e]}[b;y;]];
-           .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",y]];
-          .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",y]];
+          [.[.os.ren;(x;y);{[x;y;e].lg.e[`mvtohdb;"Table ",string[x]," has failed to copy to ",string[y]," with error: ",e]}[b;y;]];
+           .lg.o[`mvtohdb;"Table ",string[b]," has been successfully moved to ",string[y]]];
+          .lg.e[`mvtohdb;"Table ",string[b]," was skipped because it already exists in ",string[y]]];
         }[hsym`$hw]'[dw,/:"/",/:string key hsym`$dw];
         if[0=count key hsym`$dw;@[.os.deldir;dw;{[x;y].lg.e[`mvtohdb;"Failed to delete folder ",x," with error: ",y]}[dw]]]];
      .lg.e[`mvtohdb;raze"Table(s) ",string[(key hsym`$hw)inter(key hsym`$dw)]," is present in both location. Operation will be aborted to avoid corrupting the hdb"]]
@@ -275,10 +270,10 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
   $[count[.z.pd[]]&0>system"s";
-    [.lg.o[`sort;"sorting on slave sort", string .z.p];
+    [.lg.o[`sort;"sorting on worker sort", string .z.p];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
-    [.lg.o[`sort;"sorting on master sort"];
+    [.lg.o[`sort;"sorting on main sort"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
     {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
   .lg.o[`sort;"finished sorting data"];
@@ -318,7 +313,17 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
 	      curr[0]:curr[0],select from get segment;
 	      curr[1]:curr[1],segment;		
       	$[islast or mergemaxrows < count curr[0];
-	        [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+	        
+                [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
+                 pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
+                 if[pattrtest;
+                  /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+                  .lg.o[`resort;"Re-sorting contents of subpartition"];
+                  curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
+                  .lg.o[`resort;"The p attribute can now be applied"];
+                 ];
+                
+                .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
 	        dest upsert curr[0];
 	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
 	        .os.deldir each string curr[1];
@@ -338,10 +343,10 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
   /- merge data from partitons
   $[(0 < count .z.pd[]) and ((system "s")<0);
-    [.lg.o[`merge;"merging on slave"];
+    [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
-    [.lg.o[`merge;"merging on master"];
+    [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
   /- if path exists, delete it
@@ -369,14 +374,10 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 reloadproc:{[h;d;ptype]
 	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
 	$[eodwaittime>0;
-		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
-			[({@[`. `reload;x;
-				{[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;"failed with error: ",e)); 
-				.lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
-				 (neg .z.w)(`.wdb.handler;(y;1b;"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];
+		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
 	];
-	.lg.o[`reload;string[ptype]," reload has finished"];
+	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
 	}
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
@@ -511,7 +512,7 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
-	
+
 \d .
 
 /- get the sort attributes for each table
@@ -521,12 +522,16 @@ getsortparams:{[]
 .wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortslavetypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
+
+/-  adds endofday and endofperiod functions to top level namespace
+endofday: .wdb.endofday;
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
 
 /- setting the upd and .u.end functions as the .wdb versions
-.u.end:{[pt] 
-	.wdb.endofday[.wdb.getpartition[]];
-	.wdb.currentpartition:pt+1;}
+.u.end:{[pt]
+	.wdb.endofday[.wdb.getpartition[];()!()];
+    }
 	
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];
