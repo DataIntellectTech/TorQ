@@ -203,35 +203,32 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
+/- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	/-insert process reload outcome into .wdb.reloadstatus 
-                .wdb.reloadstatus[.z.w]:.wdb.reloadsum;
+	/-insert process reload outcome into .wdb.reloadsummary 
+                .wdb.reloadsummary[.z.w]:.wdb.reloadstatus;
         /-log result of reload in wdb out log 
-                .lg.o[`reload;"the ", string[.wdb.reloadstatus[.z.w]`process]," process ", string[.wdb.reloadstatus[.z.w]`result]];
-        if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadstatus]=.wdb.countreload);
+                .lg.o[`reload;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
+        if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
                 .lg.o[`handler;"releasing processes"];
-                .lg.o[`reload;string[count select from .wdb.reloadstatus where status=1]," out of ", string[count .wdb.reloadstatus]," processes successfully reloaded"];
-        /-delete contents from .wdb.reloadstatus when reloads completed
+                .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
                 .wdb.flushend[];
-                delete from `.wdb.reloadstatus];
+        /-delete contents from .wdb.reloadsummary when reloads completed
+                delete from `.wdb.reloadsummary];
        	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
 flushend:{
 	if[not @[value;`.wdb.reloadcomplete;0b];
-	 @[{neg[x]"";neg[x][]};;()] each key reloadstatus;
+	 @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
 	};
 
-/- initialise reloadstatus, keyed tale to track status of local reloads
-reloadstatus:([`int$handle:()]`symbol$process:();`boolean$status:();`symbol$result:());
-
-/-initialise reload complete
-reloadcomplete:0b;
+/- initialise reloadsummary, keyed tale to track status of local reloads
+reloadsummary:([`int$handle:()]`symbol$process:();`boolean$status:();`symbol$result:());
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -380,18 +377,18 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-        /-default process message to be inserted into reload status table (.wdb.reloadstatus) will be changed if reload fails
-        .wdb.reloadsum:(ptype,1b,`$"successfully reloaded");
+        /-default message to be inserted into reload summary table (.wdb.reloadsummary) will be changed if reload fails
+        .wdb.reloadstatus:(ptype,1b,`$"successfully reloaded");
         /-count of processes to be reloaded 
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
         /-defining lambdas to be executed in conditional statement 
         /-async call back function executed when eodwaittime>0
         sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
         /-reload function sent to processes by sendfunc in order to call process to reload. Calls process to reload, if process fails to reload
-        /-execute lambda to set .wdb.reloadsum to an error message. Then message wdb to execute wdb.handler function.
+        /-execute lambda to set .wdb.reloadstatus to an error message. Then message wdb to execute wdb.handler function.
         reloadfunc:{[d;ptype]@[`. `reload;d;
-        /-lambda to execute if reload fails, sets .wdb.reloadsum to error message and logs error in process error log
-                         {[ptype;e](neg .z.w)(set;`.wdb.reloadsum;(ptype;0b;`$"reload failed with error: ",e));
+        /-lambda to execute if reload fails, sets .wdb.reloadstatus to error message and logs error in process error log
+                         {[ptype;e](neg .z.w)(set;`.wdb.reloadstatus;(ptype;0b;`$"reload failed with error: ",e));
                          .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[ptype]];
         /-send message to wdb to execute .wdb.handler function
                          (neg .z.w)(`.wdb.handler;`); (neg .z.w)[]};
