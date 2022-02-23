@@ -11,6 +11,9 @@ customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for
 
 \d .ds
 datastripe:1b
+segmentconfig:`segmenting.csv   // default segment config file
+filtermap:`filtermap.csv        // default filter map config file
+
 
 \d .proc
 loadcommoncode:0b               // do not load common code
