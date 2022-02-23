@@ -26,12 +26,13 @@ if[.stplg.multilog~`custom;
 // functions used by subscribers
 tablelist:{.stpps.t}
 
+// Function to handle single table argument in subdetails/segmentedsubdetails rowcounts
+tabrowcounts:{[tabs] if[tabs~`;tabs:.stpps.t]; flip ((),tabs)#.stplg ((),`rowcount)}
 
 
 // Subscribers who want to replay need this info
-// Modified to include information about filter used
-subdetails:{[tabs;instruments;segid]
- `schemalist`logfilelist`rowcounts`date`logdir`filter!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG; .stpps.filtermap[tabs;segid])
+subdetails:{[tabs;instruments]
+ `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabrowcounts[tabs];(.eodtime `d);`$getenv`KDBTPLOG)
  }
 
 
