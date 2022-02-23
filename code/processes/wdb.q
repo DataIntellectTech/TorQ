@@ -205,11 +205,11 @@ endofdaysave:{[dir;pt]
 
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	/-insert process reload outcome into .wdb.reloadstatus
+	/-insert process reload outcome into .wdb.reloadstatus 
         if[not .z.w in  key .wdb.reloadstatus;
                 .wdb.reloadstatus[.z.w]:x];
         if[(not .wdb.reloadstatus[.z.w]`status);
-                .lg.o[`reload;string[.wdb.reloadstatus[.z.w]`process]," reload ", string[.wdb.reloadstatus[.z.w]`result]]];
+                .lg.o[`reload;"the ", string[.wdb.reloadstatus[.z.w]`process]," process reload has ", string[.wdb.reloadstatus[.z.w]`result]]];
         if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadstatus]=.wdb.countreload);
                 .lg.o[`handler;"releasing processes"];
                 .lg.o[`reload;string[count select from .wdb.reloadstatus where status=1]," out of ", string[count .wdb.reloadstatus]," processes successfully reloaded"];
@@ -384,12 +384,13 @@ reloadproc:{[h;d;ptype]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
         $[eodwaittime>0;
                 {[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
-                        [({@[`. `reload;x;
-	/-if process fails to reload message with error entered into .wdb.reloadstatus and  output error to process error log
-                                {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;`$"failed with error: ",e));
-                                .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
-        /-Successful reload message to be sent to handler and entered into .wdb.reloadstatus for end of reload summary logging
-	                        (neg .z.w)(`.wdb.handler;(y;1b;`$"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];       
+                [({@[`. `reload;x;
+	/-error trap lambda to execute if process fails to reload error added to .wdb.reloadstatus and logged in process error log
+                        {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;`$"failed with error: ",e));
+                        .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
+        /-successful reload message to be sent to handler and entered into .wdb.reloadstatus for end of reload summary logging
+        /-this message will alway be sent to wdb however if process has failed .wdb.handler will not log this successful reload 
+	                 (neg .z.w)(`.wdb.handler;(y;1b;`$"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];       
 		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
         ];
         .lg.o[`reload;string[ptype]," reload has finished"];
