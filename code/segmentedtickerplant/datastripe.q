@@ -29,7 +29,7 @@ segmentmap:{[tbl;segid]
   string[.stpps.segmentfiltermap][first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
 // Function to use segmentfilterfunc and return "" incase of error
 segmentfilter:{[tbl;segid]
-  output:.[segmentmap;(tbl;segid) ;"" ];
+  output:.[segmentmap;(tbl;segid);""];
   $[(type output)~0h;"";output]};
 
   // Function to subscribe to particular segment using segmentID based on .u.sub
