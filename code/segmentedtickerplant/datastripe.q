@@ -26,10 +26,20 @@ initdatastripe:{
 
 \d .stpps
 
-filtermap:{[tabs;segid] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;segid]}
+filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
 \d .
 
+
+// the subdetails function adapted to also retrieve filters from the segmented tickerplant
+segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
+        `schemalist ; .ps.subscribe\:[tabs;instruments];                                //
+        `logfilelist ; .stplg.replaylog[tabs];                                          //
+        `rowcounts ; tabrowcounts[tabs];	                                        //
+        `date ; (.eodtime `d);                                                          //
+        `logdir ; `$getenv`KDBTPLOG;                                                    //
+        `filters ; .stpps.filtermap[tabs;id]                                            //
+        )}
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
