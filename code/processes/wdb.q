@@ -214,8 +214,8 @@ handler:{
 		.lg.o[`handler;"releasing processes"];
 		.lg.o[`reload;string[count select from .wdb.d where status=1]," out of ", string[count .wdb.d]," processes successfully reloaded"];
 		.wdb.flushend[]];
-	/-delete .wdb.d when reloads completed
-	if[.wdb.reloadcomplete;delete d from `.wdb];
+	/-delete contents from .wdb.d when reloads completed
+	if[.wdb.reloadcomplete;delete from `.wdb.d];
 	};
 
 /- evaluate contents of d dictionary asynchronously
