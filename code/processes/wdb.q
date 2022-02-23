@@ -206,17 +206,16 @@ endofdaysave:{[dir;pt]
 /- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
 	/-insert process reload outcome into .wdb.reloadstatus 
-        if[not .z.w in  key .wdb.reloadstatus;
-                .wdb.reloadstatus[.z.w]:x];
-        if[(not .wdb.reloadstatus[.z.w]`status);
-                .lg.o[`reload;"the ", string[.wdb.reloadstatus[.z.w]`process]," process reload has ", string[.wdb.reloadstatus[.z.w]`result]]];
+                .wdb.reloadstatus[.z.w]:.wdb.reloadsum;
+        /-log result of reload in wdb out log 
+                .lg.o[`reload;"the ", string[.wdb.reloadstatus[.z.w]`process]," process ", string[.wdb.reloadstatus[.z.w]`result]];
         if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadstatus]=.wdb.countreload);
                 .lg.o[`handler;"releasing processes"];
                 .lg.o[`reload;string[count select from .wdb.reloadstatus where status=1]," out of ", string[count .wdb.reloadstatus]," processes successfully reloaded"];
-                .wdb.flushend[]];
         /-delete contents from .wdb.reloadstatus when reloads completed
-        if[.wdb.reloadcomplete;delete from `.wdb.reloadstatus];
-	};
+                .wdb.flushend[];
+                delete from `.wdb.reloadstatus];
+       	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
@@ -381,16 +380,23 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
+        /-default process message to be inserted into reload status table (.wdb.reloadstatus) will be changed if reload fails
+        .wdb.reloadsum:(ptype,1b,`$"successfully reloaded");
+        /-count of processes to be reloaded 
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+        /-defining lambdas to be executed in conditional statement 
+        /-async call back function executed when eodwaittime>0
+        sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
+        /-reload function sent to processes by sendfunc in order to call process to reload. Calls process to reload, if process fails to reload
+        /-execute lambda to set .wdb.reloadsum to an error message. Then message wdb to execute wdb.handler function.
+        reloadfunc:{[d;ptype]@[`. `reload;d;
+        /-lambda to execute if reload fails, sets .wdb.reloadsum to error message and logs error in process error log
+                         {[ptype;e](neg .z.w)(set;`.wdb.reloadsum;(ptype;0b;`$"reload failed with error: ",e));
+                         .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[ptype]];
+        /-send message to wdb to execute .wdb.handler function
+                         (neg .z.w)(`.wdb.handler;`); (neg .z.w)[]};
         $[eodwaittime>0;
-                {[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}
-                [({@[`. `reload;x;
-	/-error trap lambda to execute if process fails to reload error added to .wdb.reloadstatus and logged in process error log
-                        {[ptype;e](neg .z.w)(`.wdb.handler;(ptype;0b;`$"failed with error: ",e));
-                        .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[y]];
-        /-successful reload message to be sent to handler and entered into .wdb.reloadstatus for end of reload summary logging
-        /-this message will alway be sent to wdb however if process has failed .wdb.handler will not log this successful reload 
-	                 (neg .z.w)(`.wdb.handler;(y;1b;`$"successfully reloaded")); (neg .z.w)[]};d;ptype);h;ptype];       
+                 sendfunc[(reloadfunc;d;ptype);h;ptype];       
 		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
         ];
         .lg.o[`reload;string[ptype]," reload has finished"];
