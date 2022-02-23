@@ -25,14 +25,14 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .stpps
 //function to grab where clause from config tables
-segmentfilterfunc:{[tbl;segid] 
-  string first .stpps.segmentfiltermap[exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
+segmentmap:{[tbl;segid]  
+  string[.stpps.segmentfiltermap][first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid]};
 // Function to use segmentfilterfunc and return "" incase of error
 segmentfilter:{[tbl;segid]
-  output:.[segmentfilterfunc;
+  output:.[segmentmap;
   (tbl;segid) ;
   "" ];
-  $[count output>0;output;""]};
+  $[(type output)~0h;"";output]};
 
   // Function to subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
@@ -43,7 +43,7 @@ subsegment:{[tbl;segid];
      .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
      :(tbl;m)
   ];
-  $[segid~`;[filter:`]; [filter: segmentfilter[tbl;segid]]];
+  filter:$[null segid; `;segmentfilter[tbl;segid]];
   $[filter~`;.stpps.suball[tbl]; .ps.subtablefiltered[string[tbl];filter;""]]
  };
 
