@@ -60,6 +60,8 @@ lasttimestamp:.z.p-4*period
 CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
 STARTUP:1b                                                                                  // create connections
 
+\d .ds
+datastripe:1b	    // default value to determine if segmentedtickerplant is striped
+
 \d .proc
 loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
-

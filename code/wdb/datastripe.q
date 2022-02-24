@@ -1,3 +1,8 @@
+\d .ds
+
+segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
+
+\d .
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
