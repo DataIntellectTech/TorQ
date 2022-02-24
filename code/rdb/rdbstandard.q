@@ -7,10 +7,11 @@
         if[any chk:not null idxs;
             idx:idxs f:first where chk;
             default[`skeysym]:"J"$-1_(15+idx)_filters f;
+            /stripe by time
+            /mock time window
+            times:til[.ds.numseg+1]*`time$23:59:59.999%.ds.numseg;
+            default[`skeytime]:(-1_times,'-1+next times)default`skeysym;
             ];
-        /additional check if striped by time can go here
-        /for now assume full day
-        default[`skeytime]:00:00:00.000 23:59:59.999;
         ];
     default}
 
