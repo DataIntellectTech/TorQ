@@ -28,6 +28,26 @@ initdatastripe:{
      configload[];
      };
 
+// Function to map the where clause from config table extracted by .stpps.segmentfilter function to tablename
+// Allows use of ` as argument for tables
+
+\d .stpps
+
+filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
+
+\d .
+
+
+// the subdetails function adapted to also retrieve filters from the segmented tickerplant
+segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
+        `schemalist ; .ps.subscribe\:[tabs;instruments];                                //
+        `logfilelist ; .stplg.replaylog[tabs];                                          //
+        `rowcounts ; tabrowcounts[tabs];	                                        //
+        `date ; (.eodtime `d);                                                          //
+        `logdir ; `$getenv`KDBTPLOG;                                                    //
+        `filters ; .stpps.filtermap[tabs;id]                                            //
+        )}
+
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .stpps
@@ -56,3 +76,4 @@ subsegment:{[tbl;segid];
  };
 
 \d .
+
