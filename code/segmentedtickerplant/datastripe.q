@@ -63,12 +63,12 @@ subsegment:{[tbl;segid];
 
 // the subdetails function adapted to also retrieve filters from the segmented tickerplant
 segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
-     `schemalist ; .stpps.subsegment\:[tabs;segid];                                //
-     `logfilelist ; .stplg.replaylog[tabs];                                          //
-     `rowcounts ; tabrowcounts[tabs];	                                             //
-     `date ; (.eodtime `d);                                                          //
-     `logdir ; `$getenv`KDBTPLOG;                                                    //
-     `filters ; .stpps.filtermap[tabs;segid]                                            //
+     `schemalist ; .stpps.subsegment\:[tabs;segid];                                 //
+     `logfilelist ; .stplg.replaylog[tabs];                                         //
+     `rowcounts ; tabrowcounts[tabs];	                                              //
+     `date ; (.eodtime `d);                                                         //
+     `logdir ; `$getenv`KDBTPLOG;                                                   //
+     `filters ; .stpps.filtermap[tabs;segid]                                        //
      )}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
