@@ -48,8 +48,6 @@ segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
         `filters ; .stpps.filtermap[tabs;id]                                            //
         )}
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
-
 \d .stpps
 //function to grab where clause from config tables
 segmentfilter:{[tbl;segid]
@@ -76,4 +74,6 @@ subsegment:{[tbl;segid];
  };
 
 \d .
+
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
