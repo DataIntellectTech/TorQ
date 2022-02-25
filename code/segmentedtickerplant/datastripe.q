@@ -54,7 +54,7 @@ subsegment:{[tbl;segid];
      filter:segmentfilter[tbl;segid];
      if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :((tbl;segid);m)
+          :(tbl;m)
      ];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
@@ -62,13 +62,13 @@ subsegment:{[tbl;segid];
 \d .
 
 // the subdetails function adapted to also retrieve filters from the segmented tickerplant
-segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
-     `schemalist ; .ps.subscribe\:[tabs;instruments];                                //
+segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
+     `schemalist ; .stpps.subsegment\:[tabs;segid];                                //
      `logfilelist ; .stplg.replaylog[tabs];                                          //
      `rowcounts ; tabrowcounts[tabs];	                                             //
      `date ; (.eodtime `d);                                                          //
      `logdir ; `$getenv`KDBTPLOG;                                                    //
-     `filters ; .stpps.filtermap[tabs;id]                                            //
+     `filters ; .stpps.filtermap[tabs;segid]                                            //
      )}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
