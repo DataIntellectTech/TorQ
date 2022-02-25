@@ -67,7 +67,7 @@ subsegment:{[tbl;segid];
   ];
   filter:segmentfilter[tbl;segid];
   if[filter~"";
-    .lg.o[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
+    .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
     :((tbl;segid);m)
   ];
  .ps.subtablefiltered[string[tbl];filter;""]
