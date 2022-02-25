@@ -35,45 +35,41 @@ initdatastripe:{
 
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
-\d .
+// Find where clause from config tables
+segmentfilter:{[tbl;segid]
+     wcref:first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid;
+     if[wcref~`;
+          .lg.o["Invalid pairing of table ",string[tbl]," and segmentID ",string[segid],""]];
+     .stpps.segmentfiltermap[wcref]
+     };
 
+// Subscribe to particular segment using segmentID based on .u.sub
+subsegment:{[tbl;segid];
+     //tablename and segmentid used to get filters
+     if[tbl~`;:.z.s[;segid] each .stpps.t];
+     if[not tbl in .stpps.t;
+          .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
+          :(tbl;m)
+     ];
+     filter:segmentfilter[tbl;segid];
+     if[filter~"";
+          .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
+          :((tbl;segid);m)
+     ];
+     .ps.subtablefiltered[string[tbl];filter;""]
+     };
+
+\d .
 
 // the subdetails function adapted to also retrieve filters from the segmented tickerplant
 segmentedsubdetails: {[tabs;instruments;id] (!). flip 2 cut (
-        `schemalist ; .ps.subscribe\:[tabs;instruments];                                //
-        `logfilelist ; .stplg.replaylog[tabs];                                          //
-        `rowcounts ; tabrowcounts[tabs];	                                        //
-        `date ; (.eodtime `d);                                                          //
-        `logdir ; `$getenv`KDBTPLOG;                                                    //
-        `filters ; .stpps.filtermap[tabs;id]                                            //
-        )}
-
-\d .stpps
-//function to grab where clause from config tables
-segmentfilter:{[tbl;segid]
-  wcref:first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid;
-  if[wcref~`;
-    .lg.o["Invalid pairing of table ",string[tbl]," and segmentID ",string[segid],""]];
-  .stpps.segmentfiltermap[wcref]
-  };
-
-  // Function to subscribe to particular segment using segmentID based on .u.sub
-subsegment:{[tbl;segid];
-//tablename and segmentid used to get filters
-  if[tbl~`;:.z.s[;segid] each .stpps.t];
-   if[not tbl in .stpps.t;
-     .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-     :(tbl;m)
-  ];
-  filter:segmentfilter[tbl;segid];
-  if[filter~"";
-    .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-    :((tbl;segid);m)
-  ];
- .ps.subtablefiltered[string[tbl];filter;""]
- };
-
-\d .
-
+     `schemalist ; .ps.subscribe\:[tabs;instruments];                                //
+     `logfilelist ; .stplg.replaylog[tabs];                                          //
+     `rowcounts ; tabrowcounts[tabs];	                                             //
+     `date ; (.eodtime `d);                                                          //
+     `logdir ; `$getenv`KDBTPLOG;                                                    //
+     `filters ; .stpps.filtermap[tabs;id]                                            //
+     )}
+        
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
