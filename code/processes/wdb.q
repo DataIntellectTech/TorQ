@@ -206,7 +206,7 @@ endofdaysave:{[dir;pt]
 /- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
 	/-insert process reload outcome into .wdb.reloadsummary 
-                .wdb.reloadsummary[.z.w]:.wdb.reloadstatus;
+                 .wdb.reloadsummary[.z.w]:x;
         /-log result of reload in wdb out log 
                 .lg.o[`reload;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
         if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
@@ -377,28 +377,23 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-        /-default message to be inserted into reload summary table (.wdb.reloadsummary) will be changed if reload fails
-        .wdb.reloadstatus:(ptype,1b,`$"successfully reloaded");
         /-count of processes to be reloaded 
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
-        /-defining lambdas to be executed in conditional statement 
+        /-defining lambdas to be in asynchronously calling processes to reload 
         /-async call back function executed when eodwaittime>0
         sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
-        /-reload function sent to processes by sendfunc in order to call process to reload. Calls process to reload, if process fails to reload
-        /-execute lambda to set .wdb.reloadstatus to an error message. Then message wdb to execute wdb.handler function.
-        reloadfunc:{[d;ptype]@[`. `reload;d;
-        /-lambda to execute if reload fails, sets .wdb.reloadstatus to error message and logs error in process error log
-                         {[ptype;e](neg .z.w)(set;`.wdb.reloadstatus;(ptype;0b;`$"reload failed with error: ",e));
-                         .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",e]}[ptype]];
-        /-send message to wdb to execute .wdb.handler function
-                         (neg .z.w)(`.wdb.handler;`); (neg .z.w)[]};
+        /-reload function sent to processes by sendfunc in order to call process to reload. If process fail to reload log error 
+        /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
+        reloadfunc:{[d;ptype] r:@[`. `reload;d;{x}];
+	$[10h = type r;
+                 ((neg .z.w)(`.wdb.handler;(ptype;0b;`$"reload failed with error ",r));(neg .z.w)[];
+                          .lg.e[`reloadproc;"failed to reload ",string[ptype]," from .wdb.reloadproc call. The error was : ",r]);
+                 ((neg .z.w)(`.wdb.handler;(ptype;1b;`$"reloaded successfully"))(neg .z.w)[])]};
         $[eodwaittime>0;
-                 sendfunc[(reloadfunc;d;ptype);h;ptype];       
+                 sendfunc[(reloadfunc;d;ptype);h;ptype];     
 		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
         ];
-        .lg.o[`reload;string[ptype]," reload has finished"];
         }
-
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]
