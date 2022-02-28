@@ -121,7 +121,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
-    if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist];vals!details[`filters][vals:where {not all null x} each details[`filters]]]];
+    if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist];
+         $[.ds.datastripe;vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()]]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
