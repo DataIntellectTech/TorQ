@@ -130,7 +130,7 @@ attributesrouting:{[options;procdict]
     // Get the tablename and timespan
     timespan:`date$options[`starttime`endtime];
     // See if any of the provided partitions are with the requested ones
-    procdict:{[x;timespan] (all x within timespan) or any timespan within x}[;timespan] each procdict;
+    procdict:{[x;timespan] (all x within timespan) or any timespan within x}[;timespan]each procdict;
     // Only return appropriate dates
     types:(key procdict) where value procdict;
     // If the dates are out of scope of processes then error
@@ -143,9 +143,9 @@ attributesrouting:{[options;procdict]
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     // Get the servers
-    servers:update striped:{all`skeysym`skeytime in key x}each attributes from .gw.servers;
+    servers:update striped:{`dataaccess in key x}each attributes from .gw.servers;
     // Filter the servers by servertype input
-    if[`procs in key input;select from servers where servertype in input`procs];
+    if[`procs in key input;delete from`servers where not servertype in input`procs];
 	// Servertypes that are all striped
     allstriped:select from servers where(all;striped)fby servertype;
     // Servertypes that has any but not all striped
