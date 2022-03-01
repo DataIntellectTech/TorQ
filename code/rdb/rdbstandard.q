@@ -30,6 +30,8 @@
                 / nested dict structure of
                 / (`date`tables`dataaccess)!(date;tables;`tablename!(tablename!(`instrumentfilters`timecolumns!(instrumentfilters;timecolumns))))
                 default,:enlist[`dataaccess]!enlist dataaccess;
+                / update date attribute for .gw.partdict and .gw.attributesrouting
+                default[`date]:first[d]+til 1+last deltas d:(min;max)@\:distinct(raze/)`date$value flip value[dataaccess`tablename]`timecolumns;
                 ];
             ];
         ];
