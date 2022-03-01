@@ -160,7 +160,7 @@ partdict:{[input]
     // Create a dictionary of the attributes against serverids
     procdict:serverids!(servers'[first each serverids]`attributes)@\:`date;
     // Dictionary as min date/ max date
-    @[procdict;key procdict;{:(min x; max x)}];
+    @[procdict;key procdict;{:(min x; max x)}]
     };
 
 adjustqueriesoverlap:{[options;part]
