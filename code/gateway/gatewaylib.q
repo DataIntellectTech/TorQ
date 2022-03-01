@@ -160,12 +160,7 @@ partdict:{[input]
     // Create a dictionary of the attributes against serverids
     procdict:serverids!(servers'[first each serverids]`attributes)@\:`date;
     // Dictionary as min date/ max date
-    procdict:@[procdict;key procdict;{:(min x; max x)}];
-    // If procs is explicitly specified in input request, filter to only those procs
-    if[(11h~type(),p:input`procs)&`procs in key input;
-        overlap:all each key[procdict]in\:exec serverid from .gw.servers where servertype in p;
-        procdict:key[procdict][w]!value[procdict]w:where overlap];
-    :procdict;
+    @[procdict;key procdict;{:(min x; max x)}];
     };
 
 adjustqueriesoverlap:{[options;part]
