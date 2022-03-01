@@ -385,10 +385,7 @@ reloadproc:{[h;d;ptype]
         /-reload function sent to processes by sendfunc in order to call process to reload. If process fail to reload log error 
         /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
         reloadfunc:{[d;ptype] r:@[`. `reload;d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];x}];
-	$[10h = type r;
-                 (reloadstatus:(ptype;0b;`$"reload failed with error ",r));
-                 (reloadstatus:(ptype;1b;`$"reloaded successfully"))];
-                 (neg .z.w)(`.wdb.handler;reloadstatus);(neg .z.w)[]};
+        (neg .z.w)(`.wdb.handler;(ptype;10h<>type r;$[10h~type r;`$"reload failed with error ",r;`$"reloaded successfully"]));(neg .z.w)[]};
         $[eodwaittime>0;
                  sendfunc[(reloadfunc;d;ptype);h;ptype];     
 		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
