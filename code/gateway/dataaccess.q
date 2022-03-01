@@ -61,23 +61,19 @@ getdata:{[o]
     // Input checking in the gateway
     reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
-    // Get the Procs in a (nested) list of serverid(s)
+    // Get the procs in a (nested) list of serverid(s)
     o[`procs]:.gw.attributesrouting[o;part:.gw.partdict o];
     // Get Default process behavior
-    default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
+    default:`timeout`postback`sublist`getquery`optimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
     k:key o;
     if[`ordering in k;options[`ordering]: go each options`ordering];
-    // Instruments wildcard `
-    if[`instruments in key o;
-        if[`~o`instruments;
-            o _: `instruments;
-            ];
-        ];
+    // Instruments wildcard (`)
+    if[(`~o`instruments)&`instruments in key o;o _: `instruments];
     o:adjustqueries[o;part];
     // Check if any freeform queries is going to any striped database
-    if[exec count serverid from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in first each key o;
+    if[exec count serverid from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each key o;
         if[any key[options]like"*freeform*";
             if[not`instruments in key options;'`$.schema.errors[`freeformstripe;`errormessage]];
             ];

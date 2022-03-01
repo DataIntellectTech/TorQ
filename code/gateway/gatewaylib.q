@@ -130,9 +130,9 @@ attributesrouting:{[options;procdict]
     // Get the tablename and timespan
     timespan:`date$options[`starttime`endtime];
     // See if any of the provided partitions are with the requested ones
-    procdict:{[x;timespan] (all x within timespan) or any timespan within x}[;timespan]each procdict;
+    procdict:{[x;timespan] (all x within timespan)or any timespan within x}[;timespan]each procdict;
     // Only return appropriate dates
-    types:(key procdict) where value procdict;
+    types:(key procdict)where value procdict;
     // If the dates are out of scope of processes then error
     if[0=count types;
         '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
@@ -191,14 +191,20 @@ adjustqueriesstripe:{[options;dict]
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
 	// adjust query if instruments given
 	if[`instruments in key options;
-		modquery:select serverid,{x`skeysym`skeytime}each attributes from .gw.servers where({all`skeysym`skeytime in key x}each attributes)&serverid in raze key dict`part;
+        // modify query based on `instrumentsfilter`timecolumns
+        modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from 
+            .gw.servers where({`dataaccess in key x}each attributes)&serverid in raze key dict`part;
+        timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
+        // get time segment based on timecolumn specified
+        modquery:update inftc:.[inftc;(::;1);:;.[inftc;(::;1;timecolumn)]]from modquery;
+        // union join based on serverid
 		querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
 		// modify starttime, endtime and instruments based on stripe
 		querytable:update
-			{$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;dict`isdate]'[attributes;starttime],
-			{$[z;y;$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]]}[;;dict`isdate]'[attributes;endtime],
+			{$[z;y;$[(stripest:x[1]0)<`time$y;y;stripest+`date$y]]}[;;dict`isdate]'[inftc;starttime],
+			{$[z;y;$[(stripeet:x[1]1)<`time$y;stripeet+`date$y;y]]}[;;dict`isdate]'[inftc;endtime],
 			// query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
-			adjinstruments:{$[1=count s:y where .ds.stripe[(),y;x 0];s 0;s]}'[attributes;instruments]
+			adjinstruments:{inf:get"`",x 0;$[1=count s:y where inf y,();s 0;s]}'[inftc;instruments]
 				from querytable where serverid in modquery`serverid;
 		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
 		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
@@ -207,9 +213,9 @@ adjustqueriesstripe:{[options;dict]
             // get servertype
             servertype:`${string .gw.servers'[x]`servertype}serverid,
             // convert procs into procname if striped
-            procs:`${string[.gw.servers[x]`servertype],string y+1}'[serverid;attributes[;0]]from 
+            procs:.gw.servers[;`attributes;`procname]@/:serverid from 
                 // filter queries not required
-                select from querytable where 0<count each instruments;
+                select from querytable where(0<count each instruments)&0<count each inftc[;1];
         // return query as a dict of table
         :(exec serverid from querytable)!querytable;
 		];
