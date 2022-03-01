@@ -14,10 +14,10 @@
 //checks csv files load correctly. If not, process exited and message sent to error logs.
 
 configload:{
-     if[()~key hsym first .proc.getconfigfile[string .ds.segmentconfig];.lg.e[`init;"The following file can not be found: ",string .ds.segmentconfig]];
-     if[()~key hsym first .proc.getconfigfile[string .ds.filtermap];.lg.e[`init;"The following file can not be found: ",string .ds.filtermap]];
-     @[{.stpps.segmentconfig:{("SIS";enlist",")0: hsym first .proc.getconfigfile[string x]}[x]};.ds.segmentconfig;{.lg.e[`init;"Failure in loading ",string .ds.segmentconfig]}];
-     @[{.stpps.segmentfiltermap:{(!/)(("S*";enlist",")0: hsym first .proc.getconfigfile[string x])`wcRef`filter}[x]};.ds.filtermap;{.lg.e[`init;"Failure in loading ",string .ds.filtermap]}];
+     if[()~key hsym scpath:first .proc.getconfigfile[string .ds.segmentconfig];.lg.e[`init;"The following file can not be found: ",string .ds.segmentconfig]];
+     if[()~key hsym fmpath:first .proc.getconfigfile[string .ds.filtermap];.lg.e[`init;"The following file can not be found: ",string .ds.filtermap]];
+     @[{.stpps.segmentconfig:("SIS";enlist",")0: hsym x};sfpath;{.lg.e[`init;"Failure in loading ",string y]}[;sfpath]];
+     @[{.stpps.segmentfiltermap:{(!/)(("S*";enlist",")0: hsym x)`wcRef`filter}[x]};fmpath;{.lg.e[`init;"Failure in loading ",string y]}[;fmpath]];
      };
 
 initdatastripe:{
