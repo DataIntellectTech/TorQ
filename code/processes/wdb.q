@@ -390,7 +390,8 @@ reloadproc:{[h;d;ptype]
         syncreloadfunc:{[h;d;ptype] r:@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];e}[ptype]];
         .lg.o[`reloadproc;"the ", string[ptype]," ", $[10h~type r; "failed to reload with error ",r;"successfully reloaded"]]}; 
         $[eodwaittime>0;
-                 sendfunc[(reloadfunc;d;ptype);h;ptype];     
+                 (.lg.o[`reloadproc;"reload call has been sent to ", string[ptype]];
+                         sendfunc[(reloadfunc;d;ptype);h;ptype]);     
 		 syncreloadfunc[h;d;ptype]
         ];
         }
