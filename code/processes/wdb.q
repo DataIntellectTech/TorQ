@@ -208,7 +208,7 @@ handler:{
 	/-insert process reload outcome into .wdb.reloadsummary 
                  .wdb.reloadsummary[.z.w]:x;
         /-log result of reload in wdb out log 
-                .lg.o[`reload;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
+                .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
         if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
                 .lg.o[`handler;"releasing processes"];
                 .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
@@ -386,9 +386,12 @@ reloadproc:{[h;d;ptype]
         /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
         reloadfunc:{[d;ptype] r:@[`. `reload;d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];x}];
         (neg .z.w)(`.wdb.handler;(ptype;10h<>type r;$[10h~type r;`$"reload failed with error ",r;`$"reloaded successfully"]));(neg .z.w)[]};
+        /-reload function to be executed if eodwaitime = 0 - sync message processes to reload and log if reload was successful or failed
+        syncreloadfunc:{[h;d;ptype] r:@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];e}[ptype]];
+        .lg.o[`reloadproc;"the ", string[ptype]," ", $[10h~type r; "failed to reload with error ",r;"successfully reloaded"]]}; 
         $[eodwaittime>0;
                  sendfunc[(reloadfunc;d;ptype);h;ptype];     
-		 @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
+		 syncreloadfunc[h;d;ptype]
         ];
         }
 
