@@ -17,7 +17,7 @@ configload:{
      if[()~key hsym scpath:first .proc.getconfigfile[string .ds.segmentconfig];.lg.e[`init;"The following file can not be found: ",string .ds.segmentconfig]];
      if[()~key hsym fmpath:first .proc.getconfigfile[string .ds.filtermap];.lg.e[`init;"The following file can not be found: ",string .ds.filtermap]];
      @[{.stpps.segmentconfig:("SIS";enlist",")0: hsym x};scpath;{.lg.e[`init;"Failure in loading ",string y]}[;sfpath]];
-     @[{.stpps.segmentfiltermap:{(!/)(("S*";enlist",")0: hsym x)`wcRef`filter}[x]};fmpath;{.lg.e[`init;"Failure in loading ",string y]}[;fmpath]];
+     @[{.stpps.segmentfiltermap:(!/)(("S*";enlist",")0: hsym x)`wcRef`filter};fmpath;{.lg.e[`init;"Failure in loading ",string y]}[;fmpath]];
      };
 
 initdatastripe:{
