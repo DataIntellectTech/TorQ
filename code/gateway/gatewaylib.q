@@ -191,21 +191,20 @@ adjustqueriesstripe:{[options;dict]
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
     modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from 
-        .gw.servers where({`dataaccess in key x}each attributes)&serverid in raze key dict`part;
+        .gw.servers where({(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes)&serverid in raze key dict`part;
     timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
     // get time segment based on timecolumn specified
     modquery:update inftc:.[inftc;(::;1);:;.[inftc;(::;1;timecolumn)]]from modquery;
     // union join based on serverid
     querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
+    // convert times to timestamps
+    querytable:update starttime:`timestamp$starttime,endtime:(`timestamp$endtime)+?[(endtime=starttime)&dict`isdate;0D23:59:59.999999999;0] from querytable;
     // modify starttime and endtime based on stripe
     querytable:update 
-        timeoverlaps:{[id;st;et;tc] stet:$[id;@[`timestamp$@[2#2022.03.03;1;+;1];1;-;1];`timestamp$(st,et)];
-            // if no overlap return empty list
-            $[(stet[1]<tc 0)|stet[0]>tc 1;`timestamp$();
-                [@[stet;0;:;$[stet[0]<tc 0;tc 0;stet[0]]];
-                @[stet;1;:;$[stet[1]>tc 1;tc 1;stet[1]]]]]}[dict`isdate]'[starttime;endtime;inftc[;1]]
+        // if no overlap return empty list
+        timeoverlaps:{[id;st;et;tc] $[(et<tc 0)|st>tc 1;`timestamp$();($[st<tc 0;tc 0;st];$[et>tc 1;tc 1;et])]}[dict`isdate]'[starttime;endtime;inftc[;1]]
             from querytable where serverid in modquery`serverid;
-    querytable:update starttime:timeoverlaps[;0],endtime:timeoverlaps[;1] from querytable;
+    querytable:update starttime:timeoverlaps[;0],endtime:timeoverlaps[;1] from querytable where serverid in modquery`serverid; 
     querytable:enlist[`timeoverlaps]_querytable;
     
 	if[i:`instruments in key options;
@@ -220,8 +219,8 @@ adjustqueriesstripe:{[options;dict]
 
     // filter queries not required
     querytable:$[i;
-        select from querytable where(0<count each inftc[;1])&(not null each starttime)&0<count each instruments;
-        select from querytable where(0<count each inftc[;1])&not null each starttime];
+        select from querytable where(0=count each inftc)|(0<count each inftc[;1])&(not null each starttime)&0<count each instruments;
+        select from querytable where(0=count each inftc)|(0<count each inftc[;1])&not null each starttime];
     // convert serverid atoms into their respective serverid lists
     querytable:update serverid:{x where{any x in y}[;y]each x}[options`procs;serverid],
         // get servertype
@@ -229,7 +228,7 @@ adjustqueriesstripe:{[options;dict]
         // convert procs into procname if striped
         procs:.gw.servers[;`attributes;`procname]@/:serverid 
             from querytable;
-
+    querytable:update procs:servertype from querytable where not serverid in modquery`serverid;
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
     :(exec serverid from querytable)!querytable;

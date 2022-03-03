@@ -31,7 +31,7 @@
                 / (`date`tables`procname`dataaccess)!(date;tables;procname;`tablename!(tablename!(`instrumentfilters`timecolumns!(instrumentfilters;timecolumns))))
                 default,:enlist[`dataaccess]!enlist dataaccess;
                 / update date attribute for .gw.partdict and .gw.attributesrouting
-                default[`date]:first[d]+til 1+last deltas d:(min;max)@\:distinct(raze/)`date$value flip value[dataaccess`tablename]`timecolumns;
+                default[`date]:first[d]+til 1+last deltas d:(min;max)@\:distinct(raze/)`date$value each value(dataaccess`tablename)[;`timecolumns];
                 ];
             ];
         ];
