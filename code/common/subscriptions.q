@@ -53,7 +53,7 @@ createtables:{
   (@[`.;;:;].)each x where not 0=count each x;
  }
 
-replay:{[tabs;realsubs;schemalist;logfilelist;filters]
+replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // realsubs is a dict of `subtabs`errtabs`instrs
   // schemalist is a list of (tablename;schema)
   // logfilelist is a list of (log count; logfile) 
@@ -80,6 +80,8 @@ replay:{[tabs;realsubs;schemalist;logfilelist;filters]
   // return updated version of realsubs
   @[realsubs;`subtabs;:;subtabs]
  }
+
+replay:replay0[;;;;()!()]
 
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // if proc dictionary is empty then exit - no connection
@@ -121,8 +123,10 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
-    if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist];
-         $[.ds.datastripe;vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()]]];
+    if[replaylog;
+         $[.ds.datastripe;
+             realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];vals!details[`filters][vals:where {not all null x} each details[`filters]]];
+             realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
