@@ -190,8 +190,9 @@ adjustqueriesstripe:{[options;dict]
     // create a dictionary of procs and different queries
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
-    modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from 
-        .gw.servers where({(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes)&serverid in raze key dict`part;
+    modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from
+        (select from .gw.servers where({`dataaccess in key x}each attributes)&serverid in raze key dict`part)
+            where{(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes;
     timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
     // get time segment based on timecolumn specified
     modquery:update inftc:.[inftc;(::;1);:;.[inftc;(::;1;timecolumn)]]from modquery;
