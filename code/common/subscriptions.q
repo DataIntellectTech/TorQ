@@ -53,7 +53,7 @@ createtables:{
   (@[`.;;:;].)each x where not 0=count each x;
  }
 
-replay:{[tabs;realsubs;schemalist;logfilelist]
+replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // realsubs is a dict of `subtabs`errtabs`instrs
   // schemalist is a list of (tablename;schema)
   // logfilelist is a list of (log count; logfile) 
@@ -69,13 +69,19 @@ replay:{[tabs;realsubs;schemalist;logfilelist]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
-  {[d] @[{.lg.o[`subscribe;"replaying log file ",.Q.s1 x]; -11!x;};d;{.lg.e[`subscribe;"could not replay the log file: ", x]}]}each logfilelist;
+  {[d;filter] .[{.lg.o[`subscribe;"replaying log file ",.Q.s1 x]; -11!x;
+         // apply filters if in datastriping mode
+         if[.ds.datastripe; .[set;] each (key y),'enlist each replayfilter each (key y),' value enlist each y;
+                .lg.o[`subscribe;"filtering tables ", .Q.s1 key y]] 
+         };(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters] each logfilelist;
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
   // return updated version of realsubs
   @[realsubs;`subtabs;:;subtabs]
  }
+
+replay:replay0[;;;;()!()]
 
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // if proc dictionary is empty then exit - no connection
@@ -101,7 +107,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
       subfunc:{`schemalist`logfilelist`rowcounts`date!(.u.sub\:[x;y];enlist(.u`i`L);(.u `icounts);(.u `d))}];
     tptype=`segmented;
     [tablesfunc:`tablelist;
-      subfunc:`subdetails];
+      subfunc:$[.ds.datastripe;`segmentedsubdetails;`subdetails]];
     [.lg.e[`subscribe;e:"unrecognised tickerplant type: ",string tptype]; 'e]];
  
   // pull out the full list of tables to subscribe to
@@ -114,10 +120,13 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     :()];
 
   // pull out subscription details from the TP
-  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]);{.lg.e[`subscribe;"subscribe failed : ",x];()}];
+  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
-    if[replaylog;realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]];
+    if[replaylog;
+         $[.ds.datastripe;
+             realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];vals!details[`filters][vals:where {not all null x} each details[`filters]]];
+             realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
@@ -149,6 +158,12 @@ replayupd:{[f;tabs;syms;t;x]
   // call upd on the data
   f[t;x]
  }
+
+
+// function to filter subscribed tables by segment id after log replay
+replayfilter:{filters:@[parse;"select from t where ", x[1]] 2;
+  filteredtab:@[eval;(?;x[0];filters;0b;())]
+  };
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
