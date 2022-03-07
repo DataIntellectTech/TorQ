@@ -1,0 +1,22 @@
+action,params,proc,mode,starttime,endtime,period
+tableticking,`comp`vars!(0b;(`quote;5;`minute)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+chkslowsub,`comp`vars!(0b;1000000),`tickerplant,repeat,09:00:00.000000000,19:00:00.000000000,0D00:10:00
+tableticking,`comp`vars!(0b;(`quote;5;`minute)),`rdb1,single,12:00:00.000000000,0N,0N
+constructcheck,`comp`vars!(0b;(`quote;`table)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+constructcheck,`comp`compallow`compproc`vars!(1b;0;`hdb1;(`date;`variable)),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
+attrcheck,`comp`vars!(0b;(`quote;`s`g;`time`sym)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+schemacheck,`comp`vars!(0b;(`quote;`time`sym`bid`ask`bsize`asize`mode`ex`src;"psffjjccs";`````````;`s`g```````)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:15:00
+freeform,`comp`vars!(0b;"select from trade where date=2020.01.02"),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:03:00
+symfilecheck,(`comp`vars!(0b;(.dqe.hdbdir;`sym))),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:10:00
+xmarketalert,`comp`vars!(0b;(`quote)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+infinitychk,`comp`vars ! (0b; (`quote; `bid`ask; 20)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+nullchk,`comp`vars ! (0b; (`quote; `bid`ask; 10)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+pctAvgDailyChange,`comp`vars!(0b;(`symcount;`quote;`resultstab;2;0)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:02:00
+datechk,`comp`vars!(0b;0N),`hdb1;`hdb2,repeat,00:10:00.000000000,0Wn,0D00:01:00
+dfilechk,`comp`vars!(0b;`trade),`hdb1,repeat,09:00:00.000000000,0Wn,0D00:01:00
+refdatacheck,`comp`vars!(0b;(`trade;`quote;`sym;`sym)),`rdb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+symfilegrowth,(`comp`vars!(0b;(2;5;0b))),`dqe1,single,09:05:00.000000000,0N,0N
+tablecomp,`comp`compallow`compproc`vars!(1b;0;`hdb1;`quote),`hdb2,repeat,09:00:00.000000000,0Wn,0D00:02:00
+advancedsymdtd,`comp`vars!(0b;(`advancedres;`bycount;`sym)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+advancedperdtd,`comp`vars!(0b;(`advancedres;`bycount;`sym.ex;25)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:05:00
+medianfunc,`comp`vars!(0b;(`advancedres;`bycount;`sym;5;25)),`dqedb1,repeat,09:00:00.000000000,0Wn,0D00:05:00

@@ -1,0 +1,6 @@
+name|query|resulthandler|gateway|joinfunction|proctype|procname|start|end|period|timeoutinterval|daysofweek
+rdbmemorycheck|.checks.memorycheck[1500000000]|emailalert[02:00;enlist getenv`DEMOEMAILRECEIVER]|||rdb|rdb1|00:00:00|23:59:59|00:05:00|00:00:20|0 1 2 3 4 5 6
+rdbcountcheck|.checks.tablecount[`trade`quote;0D00:01;.proc.cp[];`time;1]|emailalert[00:10;enlist getenv`DEMOEMAILRECEIVER]|||rdb|rdb1|00:00:00|23:59:59|00:01|00:00:20|0 1 2 3 4 5 6
+hdbdatecheck|.checks.hdbdatecheck[.proc.cd[] - 1;`trade`quote]|emailalert[00:10;enlist getenv`DEMOEMAILRECEIVER]|||hdb|hdb1|02:00|02:00|00:00|00:01|0 3 4 5 6
+eodreport|hloc[.proc.cd[];.proc.cd[];0D01]|emailreport[getenv[`TORQHOME]; enlist getenv`DEMOEMAILRECEIVER;"eodreport";"csv"]|||rdb||18:00|18:00|00:00|00:05|2 3 4 5 6
+eodgwreport|hloc[2014.01.01;.proc.cd[];0D01]|emailreport[getenv[`TORQHOME]; enlist getenv`DEMOEMAILRECEIVER;"eodreportGW";"csv"]|gateway|raze|hdb||18:00|18:00|00:01|00:05|2 3 4 5 6

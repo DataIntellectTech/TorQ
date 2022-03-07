@@ -1,0 +1,5 @@
+function,path,match,exclude,age,agemin,checkfordirectory
+zip,{KDBLOG}/,*.log,,10,,
+rm,{KDBLOG}/,*.gz,,30,,
+zip,{KDBTPLOG}/,database20*,*.gz,1,,
+tardir,{KDBTPLOG}/,database20*,,1,,1

@@ -1,0 +1,2 @@
+family|metric|process|query|resultchecker|params|period|runtime
+datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresultmetric|`varname`cond!(`datadogcheck;`true)|0D00:01|0D00:00:00.5

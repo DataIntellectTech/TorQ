@@ -1,0 +1,2 @@
+path,match,function,newonly,movetodirectory
+{KDBPCAPS},*.pcap,sendpackets,1,
