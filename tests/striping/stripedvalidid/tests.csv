@@ -1,6 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.rdb.subtables:(),1,,"Clear subscription tables"
 before,0,0,q,.rdb.subscribe[],1,,"Subscribe to all data from stp"
+before,0,0,q,system "sleep 5",1,,"Wait for tables to populate"
 true,0,0,q,.ds.datastripe=1b,1,,"Check datastriping is set to 1"
 true,0,0,q,1=first .ds.segmentid,1,,"check value of segid set to null"
 true,0,0,q,2= count select distinct sym from trade,1,,"check filters applied to trade"
