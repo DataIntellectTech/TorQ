@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # path to test directory
-testpath=$KDBTESTS/striping/default
+testpath=${KDBTESTS}/striping/default
 
 # start procs
 ${TORQHOME}/torq.sh start discovery1 stp1 feed1 -csv ${testpath}/process.csv

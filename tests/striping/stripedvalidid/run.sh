@@ -2,7 +2,7 @@
 
 # path to test directory
 testpath=$KDBTESTS/striping/stripedvalidid
-SETENV=$testpath/setconfig.sh
+export SETENV=$testpath/setconfig.sh
 
 # start procs
 ${TORQHOME}/torq.sh start discovery1 stp1 feed1 -csv ${testpath}/appconfig/process.csv
