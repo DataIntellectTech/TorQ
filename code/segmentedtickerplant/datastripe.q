@@ -65,8 +65,3 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      )}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 0ab6cf4adbfec872e02ce88e6e75888729639fcf
