@@ -143,7 +143,7 @@ attributesrouting:{[options;procdict]
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     // Get the servers
-    servers:update striped:{`dataaccess in key x}each attributes from .gw.servers;
+    servers:update striped:{`dataaccess in key x}each attributes from .gw.servers where not servertype=`hdb;
     // Filter the servers by servertype input
     if[`procs in key input;delete from`servers where not servertype in input`procs];
 	// Servertypes that are all striped
@@ -191,7 +191,7 @@ adjustqueriesstripe:{[options;dict]
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
     modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from
-        (select from .gw.servers where({`dataaccess in key x}each attributes)&serverid in raze key dict`part)
+        (select from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each options`procs)
             where{(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes;
     timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
     // get time segment based on timecolumn specified
@@ -199,7 +199,7 @@ adjustqueriesstripe:{[options;dict]
     // union join based on serverid
     querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
     // convert times to timestamps
-    querytable:update starttime:`timestamp$starttime,endtime:(`timestamp$endtime)+?[(endtime=starttime)&dict`isdate;0D23:59:59.999999999;0] from querytable;
+    querytable:update starttime:`timestamp$starttime,endtime:(`timestamp$endtime)+?[dict`isdate;0D23:59:59.999999999;0]from querytable;
     // modify starttime and endtime based on stripe
     querytable:update 
         // if no overlap return empty list
@@ -212,7 +212,12 @@ adjustqueriesstripe:{[options;dict]
 		// modify instruments based on stripe
         querytable:update 
             // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
-			adjinstruments:{inf:get"`",x 0;$[1=count s:y where inf y,();s 0;s]}'[inftc;instruments]
+			adjinstruments:
+                // check if instrumentsfilter exists
+                {$[""~x 0;
+                    $[1=count y;y 0;y];
+                    [inf:get"`",x 0;$[1=count s:y where inf y,();s 0;s]]
+                    ]}'[inftc;instruments]
                 from querytable where serverid in modquery`serverid;
 		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
 		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
@@ -229,7 +234,7 @@ adjustqueriesstripe:{[options;dict]
         // convert procs into procname if striped
         procs:.gw.servers[;`attributes;`procname]@/:serverid 
             from querytable;
-    querytable:update procs:servertype from querytable where not serverid in modquery`serverid;
+    querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
     :(exec serverid from querytable)!querytable;

@@ -1,5 +1,5 @@
 // Get the relevant RDB attributes
-.proc.getattributes:{default:`date`tables`procname!(.rdb.rdbpartition;tbls:tables[];.proc.procname);
+.proc.getattributes:{default:`date`tables`procname!(.rdb.rdbpartition;tables[];.proc.procname);
     if[.rdb.subfiltered;
         / check if process attributes file exist
         if[count key fh:hsym`$getenv[`KDBCONFIG],"/processattributes.csv";
