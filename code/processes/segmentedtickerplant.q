@@ -27,7 +27,7 @@ if[.stplg.multilog~`custom;
 tablelist:{.stpps.t}
 
 // Function to handle single table argument in subdetails/segmentedsubdetails rowcounts
-tabrowcounts:{[tabs] if[tabs~`;tabs:.stpps.t]; flip ((),tabs)#.stplg ((),`rowcount)}
+tabrowcounts:tabrowcounts:{[tabs] if[tabs~`;tabs:.stpps.t]; ((),tabs)#.stplg.rowcount}
 
 
 // Subscribers who want to replay need this info
