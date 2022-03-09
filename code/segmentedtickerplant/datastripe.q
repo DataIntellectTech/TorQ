@@ -58,7 +58,7 @@ subsegment:{[tbl;segid];
 segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `schemalist ; .stpps.subsegment\:[tabs;segid];                                 //
      `logfilelist ; .stplg.replaylog[tabs];                                         //
-     `rowcounts ; tabrowcounts[tabs];	                                              //
+     `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              //
      `date ; (.eodtime `d);                                                         //
      `logdir ; `$getenv`KDBTPLOG;                                                   //
      `filters ; .stpps.filtermap[tabs;segid]                                        //
