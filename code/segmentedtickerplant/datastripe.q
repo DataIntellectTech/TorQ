@@ -1,6 +1,6 @@
-//Defining a function that loads configurable .csv files into memory so relevant filters can be applied to data.
-//calls segmenting.csv which customer edits as to how many segments there will be.
-//calls filtermap.csv which customer edits as to what filters should be applied to each segment.
+//configload loads configurable .csv files into memory so relevant filters can be applied to data.
+//loads segmenting.csv which defines how many segments there will be.
+//loads filtermap.csv which defines what filters should be applied to each segment.
 
 //.ds.segmentconfig/segmentfiltermap are variables which can take different csv files. These files can be chosen on in process.csv.
 //error trap these .ds variables incase this file is loaded stand alone.
@@ -8,14 +8,15 @@
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
 
-//if statements check segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
+//if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
 //configload transfoms segmenting.csv into table format so it can be accessed.
 //configload transforms filtermap.csv into table format then into a mapping of wcRef to filter which can be accessed and applied to data.
 //checks csv files load correctly. If not, process exited and message sent to error logs.
 
 configload:{
-     if[()~key hsym scpath:first .proc.getconfigfile[string .ds.segmentconfig];.lg.e[`init;"The following file can not be found: ",string .ds.segmentconfig]];
-     if[()~key hsym fmpath:first .proc.getconfigfile[string .ds.filtermap];.lg.e[`init;"The following file can not be found: ",string .ds.filtermap]];
+     scpath:first .proc.getconfigfile[string .ds.segmentconfig];
+     fmpath:first .proc.getconfigfile[string .ds.filtermap];
+     {if[()~key hsym x;.lg.e[`init;"The following file can not be found: ",string x]]} each (scpath;fmpath);
      @[{.stpps.segmentconfig:("SIS";enlist",")0: hsym x};scpath;{.lg.e[`init;"Failure in loading ",string y]}[;scpath]];
      @[{.stpps.segmentfiltermap:(!/)(("S*";enlist",")0: hsym x)`wcRef`filter};fmpath;{.lg.e[`init;"Failure in loading ",string y]}[;fmpath]];
      };
