@@ -183,5 +183,5 @@ SAVEFILE:`:KUTR.csv;    // test results savefile
 
 // data striping
 \d .ds
-datastripe:1b
+datastripe:0b
 numseg:0i;		// default value for process.csv to overwrite and pubsub.q check
