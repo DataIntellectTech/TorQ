@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.stpps.segmentconfig:([] table:`$();segmentID:`int$();wcRef:`$()),1,,"Setting empty table to test .stpps.segmentfilter"
+before,0,0,q,.stpps.segmentfiltermap:enlist[`$()]!enlist[""],1,,"Setting empty table to test .stpps.segmentfilter"
+before,0,0,q,error_list:(`trade;"Incorrect pairing of table trade and segmentID 1 not found in .stpps.segmentconfig"),1,,"Setting the error we expect to get from .stpps.subsegment[`trade;1]"
+before,0,0,q,error_subsegment:.stpps.subsegment[`trade;1],1,,"Setting the error from .stpps.subsegment[`trade;1]"
+true,0,0,q,.stpps.segmentfilter[`;1]~"",1,,"Check the output is an empty string"
+true,0,0,q,error_list~error_subsegment,1,,"Check the error message matches the actual error"
+true,0,0,q,(count .stpps.subrequestfiltered)=0,1,,"Check that no tables have been subbed too"
+fail,0,0,q,.stpps.segmentfilter[`;`],1,,"This should fail because the segid must be an integer"
