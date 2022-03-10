@@ -2,9 +2,6 @@
 //loads segmenting.csv which defines how many segments there will be.
 //loads filtermap.csv which defines what filters should be applied to each segment.
 
-//.ds.segmentconfig/segmentfiltermap are variables which can take different csv files. These files can be chosen on in process.csv.
-//error trap these .ds variables incase this file is loaded stand alone.
-
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
 
