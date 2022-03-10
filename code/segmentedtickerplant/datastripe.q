@@ -64,8 +64,8 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
      `logdir ; `$getenv`KDBTPLOG;                                                   
-     `filters ; .stpps.filtermap[tabs;segid]                                        
-
+     `filters ; .stpps.filtermap[tabs;segid]
+	)}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
