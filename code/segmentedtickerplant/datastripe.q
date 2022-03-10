@@ -31,7 +31,6 @@ initdatastripe:{
 // Allows use of ` as argument for tables
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
-
 // Find where clause from config tables
 segmentfilter:{[tbl;segid]
      wcref:first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid;
