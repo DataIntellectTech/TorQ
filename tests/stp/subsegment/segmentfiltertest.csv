@@ -1,7 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,.stpps.segmentconfig:([] table:`$();segmentID:`int$();wcRef:`$()),1,,"Setting empty table to test .stpps.segmentfilter"
 before,0,0,q,.stpps.segmentfiltermap:enlist[`$()]!enlist[""],1,,"Setting empty table to test .stpps.segmentfilter"
-before,0,0,q,.stpps.segmentfiltermap:enlist[`wca]!enlist["sym in `IBM"],1,,"test"
+before,0,0,q,.stpps.segmentfiltermap:enlist[`wca]!enlist["sym in `IBM"],1,,"Assigning a map for `wca"
 before,0,0,q,`.stpps.segmentconfig upsert (`quote;1;`wca),1,,"Adding data to config table"
 before,0,0,q,`.stpps.segmentconfig upsert (`trade;1;`wca),1,,"Adding data to config table"
 before,0,0,q,`.stpps.segmentconfig upsert (`trade;2;`wcb),1,,"Adding data to config table"
