@@ -17,5 +17,5 @@ reload:{
 		}each t:tables[`.];
 	/ update date attribute for .gw.partdict and .gw.attributesrouting
 	default[`date]:asc default[`date]union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$raze[value each timecolumns][;1]from timecolumns;
-	default,:enlist[`dataaccess]!enlist enlist[`tablename]!enlist t!timecolumns;
+	default,:enlist[`dataaccess]!enlist enlist[`tablename]!enlist t!select instrumentfilter:{""}'[i],timecolumns from timecolumns;
     default}
