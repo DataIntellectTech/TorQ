@@ -92,8 +92,8 @@ autojoin:{[options]
     // if there is only one proc queried output the table
     if[1=count options`procs;:first];
     // if there is no need for map reducable adjustment, return razed results
-    if[not options`mapreduce;:raze];
-    :mapreduceres[options;];
+    $[not options`mapreduce;tab:raze;tab:mapreduceres[options;]];
+    :(options`postprocessing)[tab]
     };
 
 // function to correctly reduce two tables to one
@@ -142,7 +142,7 @@ returntab:{[input;tab;reqno]
     // Sort the joined table in the gateway
     if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
     // Return the sublist from the table then apply the post processing function
-    tab:select [input`sublist] from tab;
+    tab:select [input`sublist] from  tab;
     // Undergo post processing
     tab:(input[`postprocessing])[tab];
     // Update the logger
