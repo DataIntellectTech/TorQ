@@ -26,11 +26,10 @@ initdatastripe:{
      configload[];
      };
 
-// Function to map the where clause from config table extracted by .stpps.segmentfilter function to tablename
-// Allows use of ` as argument for tables
-
 \d .stpps
 
+// Function to map the where clause from config table extracted by .stpps.segmentfilter function to tablename
+// Allows use of ` as argument for tables
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
 // Find where clause from config tables
@@ -52,6 +51,7 @@ subsegment:{[tbl;segid];
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
           :(tbl;m);
      ];
+     
      .ps.subtablefiltered[string[tbl];filter;""]
      };
 
@@ -59,15 +59,13 @@ subsegment:{[tbl;segid];
 
 // the subdetails function adapted to also retrieve filters from the segmented tickerplant
 segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
-     `schemalist ; .stpps.subsegment\:[tabs;segid];
-     `logfilelist ; .stplg.replaylog[tabs];
-     `rowcounts ; tabrowcounts[tabs];
-     `date ; (.eodtime `d);
-     `logdir ; `$getenv`KDBTPLOG;
+     `schemalist ; .stpps.subsegment\:[tabs;segid];                                 
+     `logfilelist ; .stplg.replaylog[tabs];                                         
+     `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
+     `date ; (.eodtime `d);                                                         
+     `logdir ; `$getenv`KDBTPLOG;                                                   
      `filters ; .stpps.filtermap[tabs;segid]
-     )}
+	)}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
-
-
 
