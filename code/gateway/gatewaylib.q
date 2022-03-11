@@ -145,7 +145,7 @@ partdict:{[input]
     // Get the servers
     servers:update striped:{`dataaccess in key x}each attributes from .gw.servers where not servertype=`hdb;
     // Filter the servers by servertype input
-    if[`procs in key input;delete from`servers where not servertype in input`procs];
+    if[`procs in key input;servers:delete from servers where not servertype in input`procs];
 	// Servertypes that are all striped
     allstriped:select from servers where(all;striped)fby servertype;
     // Servertypes that has any but not all striped
@@ -199,11 +199,11 @@ adjustqueriesstripe:{[options;dict]
     // union join based on serverid
     querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
     // convert times to timestamps
-    querytable:update starttime:`timestamp$starttime,endtime:(`timestamp$endtime)+?[dict`isdate;0D23:59:59.999999999;0]from querytable;
+    querytable:update starttime:`timestamp$starttime,endtime:(`timestamp$endtime)+?[-14h=type each endtime;0D23:59:59.999999999;0]from querytable;
     // modify starttime and endtime based on stripe
     querytable:update 
         // if no overlap return empty list
-        timeoverlaps:{[id;st;et;tc] $[(et<tc 0)|st>tc 1;`timestamp$();($[st<tc 0;tc 0;st];$[et>tc 1;tc 1;et])]}[dict`isdate]'[starttime;endtime;inftc[;1]]
+        timeoverlaps:{[st;et;tc] $[(et<tc 0)|st>tc 1;`timestamp$();($[st<tc 0;tc 0;st];$[et>tc 1;tc 1;et])]}'[starttime;endtime;inftc[;1]]
             from querytable where serverid in modquery`serverid;
     querytable:update starttime:timeoverlaps[;0],endtime:timeoverlaps[;1] from querytable where serverid in modquery`serverid; 
     querytable:enlist[`timeoverlaps]_querytable;
