@@ -1,0 +1,10 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,taskset -c 4 q
+localhost,{KDBBASEPORT}+101,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-.ds.numseg 2 -schemafile ${TORQHOME}/database.q,taskset -c 6 q
+localhost,{KDBBASEPORT}+102,rdb,rdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 8 q
+localhost,{KDBBASEPORT}+103,rdb,rdb2,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.subfiltered 1 -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 8 q
+localhost,{KDBBASEPORT}+104,rdb,rdb3,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 8 q
+localhost,{KDBBASEPORT}+105,rdb,rdb4,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 8 q
+localhost,{KDBBASEPORT}+106,hdb,hdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${testpath}/hdb,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 6 q
+localhost,{KDBBASEPORT}+107,hdb,hdb2,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${testpath}/hdb,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 6 q
+localhost,{KDBBASEPORT}+108,gateway,gateway1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,-.ds.numseg 2 -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,taskset -c 6 q
