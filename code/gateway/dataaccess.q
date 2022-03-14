@@ -103,7 +103,6 @@ razeresults:{[options;res]
 
 //apply sublist and post processing to joined results
 processres:{[options;res]
-    //if[(98h)or(99h)~type res;res: select [(options`sublist)] from res];
     if[(options`sublist)<>0W;res:(options`sublist) sublist res];
     (options`postprocessing)res
     };
