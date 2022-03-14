@@ -95,7 +95,7 @@ autojoin:{[options]
     :$[not options`mapreduce;razeresults[options;];mapreduceres[options;]];
     };
 
-// raze results and apply postprocessing and sublist
+// raze results and call process res to apply postprocessing and sublist
 razeresults:{[options;res]
     res:raze res;
     processres[options;res]
