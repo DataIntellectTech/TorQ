@@ -275,7 +275,6 @@ sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 DELL| 29.37  28.33  7.87   6.84
 DOW | 24.52  23.48  2.56   1.55
-
 ```
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
@@ -285,7 +284,6 @@ ask    bid    ask1 bid1
 -----------------------
 214.41 213.49 8.8  7.82
 94.81  93.82  8.43 7.43
-
 ```
 Updates to the dataaccess gateway code sees an ability to perform all
 map-reducable aggregations (except median) currently available to be performed
@@ -871,7 +869,6 @@ q).dataaccess.buildquery (`tablename`starttime`endtime`freeformby`freeformcolumn
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-
 q)getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
