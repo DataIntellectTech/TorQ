@@ -79,10 +79,10 @@ getdata:{[o]
         $[.gw.call .z.w;
             :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
-    $[.gw.call .z.w;
-        //if sync
+    :$[.gw.call .z.w;
+        // if sync
         .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
-        //if async
+        // if async
         .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
     };
 
