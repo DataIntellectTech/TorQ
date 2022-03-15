@@ -86,6 +86,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   @[realsubs;`subtabs;:;subtabs]
  }
 
+// used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
 replay:replay0[;;;;()!()]
 
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
@@ -129,9 +130,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
-         $[.ds.datastripe;
-             realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];vals!details[`filters][vals:where {not all null x} each details[`filters]]];
-             realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]]];
+       filter:$[.ds.datastripe;
+         vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
+       realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];filter]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 

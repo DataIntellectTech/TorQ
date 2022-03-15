@@ -135,7 +135,8 @@ getlogs[`day]:{[t]
   flip value exec `long$msgcount,logname from getlogshelp[t]
  };
 
-// If replayperiod set to `tailer, replay logs not yet saved down by tailer process
+// If replayperiod set to `tailer, only replays appropriate logs
+// TODO {link up with tailer process once written to communicate exactly which logs needs replayed, current code is a placeholder for this to get an approximation of correct logs} 
 getlogs[`tailer]:{[t] 
   flip value exec `long$msgcount,logname from getlogshelp[t] where (.proc.cp[]-end)<.ds.period*.ds.periodstokeep
   };
