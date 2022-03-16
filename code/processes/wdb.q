@@ -384,14 +384,14 @@ reloadproc:{[h;d;ptype]
         sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
         /-reload function sent to processes by sendfunc in order to call process to reload. If process fail to reload log error 
         /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
-        reloadfunc:{[d;ptype] r:@[`. `reload;d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];x}];
-                (neg .z.w)(`.wdb.handler;(ptype;10h<>type r;$[10h~type r;`$"reload failed with error ",r;`$"reloaded successfully"]));(neg .z.w)[]};
+        reloadfunc:{[d;ptype] r:@[{(1b;`. `reload x)};d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];(0b;x)}];
+                (neg .z.w)(`.wdb.handler;(ptype;first r;$[first r;`$"reloaded successfully";`$"reload failed with error ",last r]));(neg .z.w)[]};
         /-reload function to be executed if eodwaitime = 0 - sync message processes to reload and log if reload was successful or failed
-        syncreloadfunc:{[h;d;ptype] r:@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];e}[ptype]];
-                .lg.o[`reloadproc;"the ", string[ptype]," ", $[10h~type r; "failed to reload with error ",r;"successfully reloaded"]]}; 
+        syncreloadfunc:{[h;d;ptype] r:@[h;({(1b;`reload x)};d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];(0b;e)}[ptype]];
+                .lg.o[`reloadproc;"the ", string[ptype]," ", $[first r; "successfully reloaded"; "failed to reload with error ",last r]]}; 
+        .lg.o[`reloadproc;"sending reload call to ", string[ptype]];
         $[eodwaittime>0;
-                 (.lg.o[`reloadproc;"reload call has been sent to ", string[ptype]];
-                         sendfunc[(reloadfunc;d;ptype);h;ptype]);     
+                 sendfunc[(reloadfunc;d;ptype);h;ptype];     
 		 syncreloadfunc[h;d;ptype]
         ];
         }
