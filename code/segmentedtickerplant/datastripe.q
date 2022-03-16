@@ -44,12 +44,12 @@ subsegment:{[tbl;segid];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      if[not tbl in .stpps.t;
           .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-          :(tbl;m);
+          :();
      ];
      filter:segmentfilter[tbl;segid];
      if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :(tbl;m);
+          :();
      ];
      
      .ps.subtablefiltered[string[tbl];filter;""]
