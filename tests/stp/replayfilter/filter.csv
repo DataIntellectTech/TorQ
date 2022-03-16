@@ -1,5 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.tst.a:.sub.replay0[tabs;realsubs;schemalist;logfilelist;()!()],1,,"Get all syms subscribed to trades table"
+before,0,0,q,.tst.a:.sub.replay0[tabs;realsubs;schemalist;logfilelist;()!()],1,,"Replay log file with no filter"
 before,0,0,q,.tst.trade:select from trade where sym in `IBM`GOOG,1,,"Select filtered entries from trades"
 before,0,0,q,.tst.quote:select from quote where sym in `IBM`GOOG,1,,"Select filtered entries from quotes"
 before,0,0,q,trade:0#trade,1,,"Clear trades table"

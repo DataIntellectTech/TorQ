@@ -1,5 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.tst.a:.sub.replay[tabs;realsubs;schemalist;logfilelist],1,,"Replay log file with using .sub.replay"
+before,0,0,q,.tst.a:.sub.replay[tabs;realsubs;schemalist;logfilelist],1,,"Replay log file using .sub.replay"
 before,0,0,q,.tst.trade:trade,1,,"Save trades table"
 before,0,0,q,.tst.quote:quote,1,,"Save quotes table"
 before,0,0,q,trade:0#trade,1,,"Clear trades table"
