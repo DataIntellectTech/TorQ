@@ -206,9 +206,9 @@ endofdaysave:{[dir;pt]
 /- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
 	/-insert process reload outcome into .wdb.reloadsummary 
-                 .wdb.reloadsummary[.z.w]:x;
+        .wdb.reloadsummary[.z.w]:x;
         /-log result of reload in wdb out log 
-                .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
+        .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
         if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
                 .lg.o[`handler;"releasing processes"];
                 .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
@@ -228,7 +228,7 @@ flushend:{
 	};
 
 /- initialise reloadsummary, keyed tale to track status of local reloads
-reloadsummary:([`int$handle:()]`symbol$process:();`boolean$status:();`symbol$result:());
+reloadsummary:([handle:`int$()]process:`symbol$();status:`boolean$();result:`symbol$());
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
