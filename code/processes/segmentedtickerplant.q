@@ -26,9 +26,9 @@ if[.stplg.multilog~`custom;
 // functions used by subscribers
 tablelist:{.stpps.t}
 
-// subscribers who want to replay need this info 
+// Subscribers who want to replay need this info
 subdetails:{[tabs;instruments]
- `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
+ `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];((),tabs)#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
  }
 
 // Generate table and schema information and set up default table UPD functions
