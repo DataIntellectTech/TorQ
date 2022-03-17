@@ -122,7 +122,7 @@ getlogs[`period]:{[t]
   distinct flip (.stplg.msgcount;exec tbl!logname from `..currlog where tbl in t)@\:t
  };
 
-getlogsfunc:{[t]
+getlogshelp:{[t]
   // set the msgcount to 0Wj for all logs which have closed
   lnames:select seq,tbls,logname,end,msgcount:0Wj from .stpm.metatable where any each tbls in\: t;
   // Meta table does not store counts for live logs, so these are populated here
@@ -132,12 +132,13 @@ getlogsfunc:{[t]
 
 // If replayperiod set to `day, replay all of today's logs
 getlogs[`day]:{[t]
-  flip value exec `long$msgcount,logname from getlogsfunc[t]
+  flip value exec `long$msgcount,logname from getlogshelp[t]
  };
 
-// If replayperiod set to `tailer, replay logs not yet saved down by tailer process
+// If replayperiod set to `tailer, only replays appropriate logs
+// TODO {link up with tailer process once written to communicate exactly which logs needs replayed, current code is a placeholder for this to get an approximation of correct logs} 
 getlogs[`tailer]:{[t] 
-  flip value exec `long$msgcount,logname from getlogsfunc[t] where (.proc.cp[]-end)<.ds.period*.ds.periodstokeep
+  flip value exec `long$msgcount,logname from getlogshelp[t] where (.proc.cp[]-end)<.ds.period*.ds.periodstokeep
   };
 
 

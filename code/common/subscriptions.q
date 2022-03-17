@@ -69,11 +69,16 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
-  {[d;filter] .[{.lg.o[`subscribe;"replaying log file ",.Q.s1 x]; -11!x;
-         // apply filters if in datastriping mode
-         if[.ds.datastripe; .[set;] each (key y),'enlist each replayfilter each (key y),' value enlist each y;
-                .lg.o[`subscribe;"filtering tables ", .Q.s1 key y]] 
-         };(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters] each logfilelist;
+  // replays log files and applies filters if in datastriping mode
+  f:{[lf;td]
+  // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
+    .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
+    if[.ds.datastripe; .[set;] each (key td),'enlist each replayfilter each (key td),' value enlist each td;  
+       .lg.o[`subscribe;"filtering tables ", .Q.s1 key td]]
+    };
+  {[d;filter;func] .[func;(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;f] each logfilelist;
+
+
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
@@ -81,6 +86,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   @[realsubs;`subtabs;:;subtabs]
  }
 
+// used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
 replay:replay0[;;;;()!()]
 
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
@@ -124,9 +130,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
-         $[.ds.datastripe;
-             realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];vals!details[`filters][vals:where {not all null x} each details[`filters]]];
-             realsubs:replay[tabs;realsubs;details[`schemalist];details[`logfilelist]]]];
+       filter:$[.ds.datastripe;
+         vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
+       realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];filter]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
@@ -161,8 +167,10 @@ replayupd:{[f;tabs;syms;t;x]
 
 
 // function to filter subscribed tables by segment id after log replay
-replayfilter:{filters:@[parse;"select from t where ", x[1]] 2;
-  filteredtab:@[eval;(?;x[0];filters;0b;())]
+replayfilter:{[tw]
+  // tw is a list with values (tablename; whereclause) 
+  filters:@[parse;"select from t where ", tw[1]] 2;
+  filteredtab:@[eval;(?;tw[0];filters;0b;())]
   };
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
