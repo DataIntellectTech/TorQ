@@ -104,8 +104,7 @@ razeresults:{[options;res]
 //apply sublist and post processing to joined results
 processres:{[options;res]
     res:(options`postprocessing)res;
-    if[(options`sublist)<>0W;res:(options`sublist) sublist res];
-    res
+    :$[(options`sublist)<>0W;(options`sublist) sublist res;res];
     };
 
 // function to correctly reduce two tables to one
