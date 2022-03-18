@@ -33,12 +33,3 @@ run,0,0,q,mapreducemulti:getdict[`mapreducemulti],1,,"add sublist to query dicti
 run,0,0,q,mapreducemulti[`sublist`postprocessing]:(sublistvalue;{0!x}),1,,"add postprocessing and sublist query dictionary"
 true,0,0,q,98h ~ type g(`.dataaccess.getdata;mapreducemulti),1,,"check table is returned from single proc query"
 true,0,0,q,sublistvalue ~ count g(`.dataaccess.getdata;mapreducemulti),1,,"count of query should equal value added to sublist key"
-
-
-
-
-
-
-
-
-
