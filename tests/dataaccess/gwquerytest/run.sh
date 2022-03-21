@@ -21,5 +21,3 @@ ${TORQHOME}/torq.sh start all -csv ${testpath}/process.csv
 
 # Shut down procs
 ${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv
-
-
