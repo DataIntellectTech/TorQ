@@ -227,6 +227,8 @@ adjustqueriesstripe:{[options;dict]
     querytable:$[i;
         select from querytable where(0=count each inftc)|(0<count each inftc[;1])&(not null each starttime)&0<count each instruments;
         select from querytable where(0=count each inftc)|(0<count each inftc[;1])&not null each starttime];
+    // if no results
+    if[0=count querytable;'`$"gateway error - no info found for that table name and time range."];
     // convert serverid atoms into their respective serverid lists
     querytable:update serverid:{x where{any x in y}[;y]each x}[options`procs;serverid],
         // get servertype
