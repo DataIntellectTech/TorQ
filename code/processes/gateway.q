@@ -376,9 +376,9 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
    [errstr:"";
    if[99h<>type servertype;
      // its a (nested) list of serverid(s) e.g. 1 2 3 4i/(1i;3i;5 6i)
-	   // servertype requires all to be of same type
+     // servertype requires all to be of same type
      servertype:(),/:key o;
-	   queryattributes:enlist[`servertype]!enlist distinct value[o]$[`servertype in cols value o;`servertype;`procs];
+     queryattributes:enlist[`servertype]!enlist distinct value[o]$[`servertype in cols value o;`servertype;`procs];
      query[2;1]:@[value o;`procs]!value o;
     ];
    if[99h=type servertype;
