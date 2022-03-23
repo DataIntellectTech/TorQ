@@ -22,7 +22,7 @@ getdata:{[inputparams]
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," queryorder passed"];
   // execute the queries                                                    
   table:raze value each query;                                                               
-  if[(.proc.proctype=`rdb);
+  if[(.proc.proctype in`rdb`wdb);
   // change defaulttime.date to date on rdb process query result
     if[(`$(string .checkinputs.getdefaulttime inputparams),".date") in (cols table);
       table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];    
