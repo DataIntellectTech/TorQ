@@ -19,8 +19,8 @@ segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying k
 
 initdatastripe:{
 	// update endofday and endofperiod functions
-    endofday::endofday;
+    endofday::.rdb.endofday;
     endofperiod::.rdb.datastripeendofperiod;
     };
 
-if[.ds.datastripe;initdatastripe[]];
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

@@ -27,8 +27,6 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
 
-.ds.access
-
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
@@ -61,9 +59,9 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	
 savealltablesoverperiod:{[dir;nextp]
 	t:nextp;
-	savetablesoverperiodnew[dir;;t]each .wdb.tablelist[];
+	savetablesoverperiod[dir;;t]each .wdb.tablelist[];
 	};
 
 
-/ .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;`.ds.taildir;`.z.p);"Saving tables"]
+.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
 
