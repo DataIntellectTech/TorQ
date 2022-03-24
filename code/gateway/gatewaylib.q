@@ -237,6 +237,10 @@ adjustqueriesstripe:{[options;dict]
         procs:.gw.servers[;`attributes;`procname]@/:serverid 
             from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
+
+    // optimize hdb query
+    if[(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
+        querytable:update optimhdb:1b from querytable where servertype=`hdb];
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
     :(exec serverid from querytable)!querytable;

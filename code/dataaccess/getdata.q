@@ -4,6 +4,11 @@ getdata:{[inputparams]
   // if process is striped procname will be in the key
   if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  // optimize hdb query
+  if[`optimhdb in key inputparams;
+    if[inputparams`optimhdb;
+      inputparams[`starttime]:`date$inputparams[`starttime];
+      inputparams[`endtime]:`date$inputparams[`endtime]]];
   requestnumber:.requests.initlogger[inputparams];
   // [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
@@ -14,6 +19,8 @@ getdata:{[inputparams]
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," checkinputs passed"];
   // extract validated parameters from input dictionary
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  // optimize hdb query
+  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   // log success of eqp
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," extractqueryparams passed"];  
   // re-order the passed parameters to build an efficient query  
@@ -57,6 +64,8 @@ buildquery:{[inputparams]
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   inputparams:.dataaccess.checkinputs inputparams;
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  // optimize hdb query
+  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 
   :.queryorder.orderquery queryparams
   }; 
