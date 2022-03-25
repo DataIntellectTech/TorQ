@@ -16,7 +16,7 @@
         filtermap:1!("S*";enlist",")0:hsym`$getenv[`KDBCONFIG],"/filtermap.csv";
         instrumentsfilter:1!select tablename:table,instrumentsfilter:{ssr[x;"sym";""]}each filter from segment ij filtermap;
         inftc:instrumentsfilter uj timecolumns;
-        dataaccess:enlist[`dataaccess]!enlist enlist[`tablename]!enlist(exec tablename from inftc)!value inftc;
+        dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
         default,:dataaccess;
         ];
     default}
