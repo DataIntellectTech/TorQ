@@ -190,7 +190,7 @@ adjustqueriesstripe:{[options;dict]
     // create a dictionary of procs and different queries
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
-    modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns]from
+    modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns],segid:attributes[;`dataaccess;`segid]from
         (select from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each options`procs)
             where{(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes;
     timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
@@ -234,10 +234,19 @@ adjustqueriesstripe:{[options;dict]
         // get servertype
         servertype:`${string .gw.servers'[x]`servertype}serverid,
         // convert procs into procname if striped
-        procs:.gw.servers[;`attributes;`procname]@/:serverid 
-            from querytable;
+        procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
+    // filter overlap timings between rdb and wdb (tailer) process
+    segids:exec distinct[segid]except 0N from querytable;
+    if[count segids;
+        querytable:{y;if[exec all`rdb`wdb in servertype from x where segid=y;
+            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`rdb;
+            wdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`wdb;
+            if[rdbtimes[0]<wdbtimes 1;wdbtimes[1]:rdbtimes[0]-1;
+                :update starttime:wdbtimes 0,endtime:wdbtimes 1 from x where(segid=y)&servertype=`wdb]];x}/[querytable;segids]];
+
+    querytable:`inftc`segid _ querytable;
     // optimize hdb query
     if[(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
         querytable:update optimhdb:1b from querytable where servertype=`hdb];
