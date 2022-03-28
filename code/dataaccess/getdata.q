@@ -19,6 +19,10 @@ getdata:{[inputparams]
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," checkinputs passed"];
   // extract validated parameters from input dictionary
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  if[count queryparams`partitionfilter;
+    partrange:.[queryparams;(`partitionfilter;0;2)];
+    partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
   if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   // log success of eqp
@@ -64,6 +68,10 @@ buildquery:{[inputparams]
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   inputparams:.dataaccess.checkinputs inputparams;
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  if[count queryparams`partitionfilter;
+    partrange:.[queryparams;(`partitionfilter;0;2)];
+    partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
   if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 

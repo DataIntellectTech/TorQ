@@ -244,11 +244,12 @@ adjustqueriesstripe:{[options;dict]
             rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`rdb;
             wdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`wdb;
             if[rdbtimes[0]<wdbtimes 1;wdbtimes[1]:rdbtimes[0]-1;
-                :update starttime:wdbtimes 0,endtime:wdbtimes 1 from x where(segid=y)&servertype=`wdb]];x}/[querytable;segids]];
+                :update starttime:wdbtimes 0,endtime:wdbtimes 1 from x where(segid=y)&servertype=`wdb]];x}/[querytable;segids];
+        querytable:delete from querytable where starttime>endtime];
 
     querytable:`inftc`segid _ querytable;
     // optimize hdb query
-    if[(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
+    if[(not`timecolumn in key options)&(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
         querytable:update optimhdb:1b from querytable where servertype=`hdb];
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
