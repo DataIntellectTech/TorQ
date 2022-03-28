@@ -1,0 +1,7 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.ds.segmentconfig:`emptyseg.csv,,,"assinging empty csv to our variable"
+before,0,0,q,.ds.filtermap:`emptyfilt.csv,,,"assinging empty csv to our variable"
+before,0,0,q,".lg.e:{[f;x;y] .tests.err,:enlist y;f[x;y]}[.lg.e]",,,"redefining .lg.e so we can check errors have been logged"
+before,0,0,q,configload[],,,"running config load function"
+true,0,0,q,any .tests.err like "The following file can not be found:*emptyseg.csv",,,"checking The following file does not exist: was sent to error logs"
+true,0,0,q,any .tests.err like "The following file can not be found:*emptyfilt.csv",,,"checking The following file does not exist: was sent to error logs"
