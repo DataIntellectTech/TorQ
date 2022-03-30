@@ -38,21 +38,24 @@ segmentfilter:{[tbl;segid]
      .stpps.segmentfiltermap[wcref]
      };
 
+.proc.loadf[getenv[`KDBCONFIG],"/settings/ignorelist.q"];
+
 // Subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
      //tablename and segmentid used to get filters
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      if[not tbl in .stpps.t;
           .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-          :();
+          :(tbl);
      ];
      filter:segmentfilter[tbl;segid];
-     if[filter~"";
+     $[tbl in .stpps.ignorelist;[ .stpps.suball[tbl]];
+     [if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :();
+          :(tbl;schemas[tbl]);
      ];
      
-     .ps.subtablefiltered[string[tbl];filter;""]
+     .ps.subtablefiltered[string[tbl];filter;""]]]
      };
 
 \d .
