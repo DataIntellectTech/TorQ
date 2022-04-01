@@ -7,6 +7,7 @@
 
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
+.ds.ignoredtables:@[value;`.ds.filtermap;`ignoredtables.csv];
 
 //if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
 //configload transfoms segmenting.csv into table format so it can be accessed.
@@ -46,13 +47,13 @@ subsegment:{[tbl;segid];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      if[not tbl in .stpps.t;
           .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-          :(tbl);
+          :(tbl;`err`msg!(`table;m));
      ];
      filter:segmentfilter[tbl;segid];
      $[tbl in .stpps.ignorelist;[ .stpps.suball[tbl]];
      [if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :(tbl;schemas[tbl]);
+          :(tbl;`err`msg!(`segmentid;m));
      ];
      
      .ps.subtablefiltered[string[tbl];filter;""]]]

@@ -203,27 +203,32 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
+/- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	.wdb.d[.z.w]:x;
-	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
-		.lg.o[`handler;"releasing processes"];
-		.wdb.flushend[];
-		.wdb.d:()!()];
-	};
+	/-insert process reload outcome into .wdb.reloadsummary 
+        .wdb.reloadsummary[.z.w]:x;
+        /-log result of reload in wdb out log 
+        .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
+        if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
+                .lg.o[`handler;"releasing processes"];
+                .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
+                .wdb.flushend[];
+        /-delete contents from .wdb.reloadsummary when reloads completed
+                delete from `.wdb.reloadsummary];
+       	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
 flushend:{
 	if[not @[value;`.wdb.reloadcomplete;0b];
-	 @[{neg[x]"";neg[x][]};;()] each key d;
+	 @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
 	};
 
-/- initialise d
-d:()!()
+/- initialise reloadsummary, keyed tale to track status of local reloads
+reloadsummary:([handle:`int$()]process:`symbol$();status:`boolean$();result:`symbol$());
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -372,13 +377,24 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
-	$[eodwaittime>0;
-		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
-		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
-	];
-	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
-	}
+        /-count of processes to be reloaded 
+        .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+        /-defining lambdas to be in asynchronously calling processes to reload 
+        /-async call back function executed when eodwaittime>0
+        sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
+        /-reload function sent to processes by sendfunc in order to call process to reload. If process fail to reload log error 
+        /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
+        reloadfunc:{[d;ptype] r:@[{(1b;`. `reload x)};d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];(0b;x)}];
+                (neg .z.w)(`.wdb.handler;(ptype;first r;$[first r;`$"reloaded successfully";`$"reload failed with error ",last r]));(neg .z.w)[]};
+        /-reload function to be executed if eodwaitime = 0 - sync message processes to reload and log if reload was successful or failed
+        syncreloadfunc:{[h;d;ptype] r:@[h;({(1b;`reload x)};d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];(0b;e)}[ptype]];
+                .lg.o[`reloadproc;"the ", string[ptype]," ", $[first r; "successfully reloaded"; "failed to reload with error ",last r]]}; 
+        .lg.o[`reloadproc;"sending reload call to ", string[ptype]];
+        $[eodwaittime>0;
+                 sendfunc[(reloadfunc;d;ptype);h;ptype];     
+		 syncreloadfunc[h;d;ptype]
+        ];
+        }
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]

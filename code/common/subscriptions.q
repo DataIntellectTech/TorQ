@@ -62,7 +62,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   origupd:@[value;`..upd;{{[x;y]}}];
   // only use tables user has access to
   subtabs:realsubs[`subtabs];
-  if[count where nullschema:0=count each schemalist;
+  if[count where nullschema:0=count each schemalist; // change needed here 
     tabs:(schemalist where not nullschema)[;0];
     subtabs:tabs inter realsubs[`subtabs]];
   // set the replayupd function to be upd globally
@@ -128,6 +128,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // pull out subscription details from the TP
   details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
+    if[.ds.datastripe;checkvalidfilter[details[`schemalist]]];
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
        filter:$[.ds.datastripe;
@@ -148,6 +149,15 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     :retdic,{(where 101 = type each x)_x}`i`icounts`d`tplogdate!details[`logfilelist`rowcounts`date`date];
     ]
  }
+
+checkvalidfilter:{[schemalist]
+  // Check the tables subscribed to have are valid and have valid filters provided by the tickerplant in datastriping mode
+  // schemalist will return valid (`tablename;schematable) or invalid (`tablename;`err`msg!(`errtype;"error message"))
+  errors:where 99h = type each schemalist[;1];
+  invalidtables:schemalist[;0] errors;
+  errmsg:exec msg from (.rian.schemalist[;1] errors) where err in `segmentid;
+  .lg.e[`riansub;] each errmsg;
+  };
 
 // wrapper function around upd which is used to only replay syms and tables from the log file that
 // the subscriber has requested
