@@ -58,7 +58,8 @@ getdata:{[inputparams]
     if[10b~in[`postprocessing`procs;key inputparams];                                                           
         result:.eqp.processpostback[result;inputparams`postprocessing];];
    .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
-   :result
+   // add procname and proctype to results for traceability
+   :flip flip[result],`procname`proctype!(.proc.procname;.proc.proctype)
   };
 
 \d .dataaccess
