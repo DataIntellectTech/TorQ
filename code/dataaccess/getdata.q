@@ -22,6 +22,7 @@ getdata:{[inputparams]
   if[count queryparams`partitionfilter;
     partrange:.[queryparams;(`partitionfilter;0;2)];
     partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    if[count partrange=1;partrange:2#partrange];
     queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
   if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
@@ -71,6 +72,7 @@ buildquery:{[inputparams]
   if[count queryparams`partitionfilter;
     partrange:.[queryparams;(`partitionfilter;0;2)];
     partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    if[count partrange=1;partrange:2#partrange];
     queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
   if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
