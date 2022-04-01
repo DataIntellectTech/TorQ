@@ -269,7 +269,7 @@ maxAsk maxBid minAsk minBid
 The cross process aggregations also work with groupings and freeformby keys, for example 
 
 ```
-q)querydict1:`tablename`starttime`endtime`aggregations`ordering`head!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;"sym";`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
+q)querydict1:`tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;"sym";`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
 q)g(`.dataaccess.getdata;querydict1)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
@@ -278,7 +278,7 @@ DOW | 24.52  23.48  2.56   1.55
 ```
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
-q)querydict2:`tablename`starttime`endtime`aggregations`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
+q)querydict2:`tablename`starttime`endtime`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
 q)g(`.dataaccess.getdata;querydict2)
 ask    bid    ask1 bid1
 -----------------------
@@ -570,8 +570,7 @@ querynumber| user  starttime                     endtime                       h
 2          | admin 2021.03.25D14:52:20.546227000 2021.03.25D14:52:20.546341000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;15;(,`max)!,`ask`bid;`sym)                            0       `endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
 
 // The bad query errored out in the gateway, consequently only the good query is seen in the rdb logs
-
-q).dataaccess.stats
+q)g".dataaccess.stats"
 querynumber| user    starttime                     endtime                       handle request                                                                                                                                                                          success error
 -----------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1          | gateway 2021.03.25D14:52:03.381980000 2021.03.25D14:52:03.407870000 10     `tablename`starttime`endtime`aggregations`grouping`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym;1b;`hdb`rdb) 1
@@ -638,7 +637,7 @@ For every key in the dictionary the following examples provide a query, output a
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
 ```
-getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+q)getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -657,7 +656,7 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+q)getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -676,7 +675,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.0
 Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`bid ```
 
 ```
-getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+q)getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
 sym  time                          bid
 ----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.01
@@ -696,7 +695,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20
 Run a free form select using the ``` `freeformcolumn ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
+q)getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
 sym  time                          mid
 -----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.44
@@ -734,7 +733,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`
 Group average ``` `mid```, by ``` instru:sym ``` using the ``` `freeformby ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
+q)getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"sym")
 instr| avgmid
 -----| --------
 AAPL | 70.63876
@@ -743,8 +742,8 @@ AMD  | 36.46488
 DELL | 8.34496
 DOW  | 22.8436
 
-q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
-? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`instr)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"sym")
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 
 ```
 
@@ -753,7 +752,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!
 Group max ask by  6 hour buckets using the ``` `timebar ``` parameter
 
 ```
-getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+q)getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
 time                         | maxAsk
 -----------------------------| ------
 2021.01.21D12:00:00.000000000| 98.99
@@ -775,7 +774,7 @@ Max of both ``` `bidprice ``` and ``` `askprice ```
 
 
 ```
-getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+q)getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
 maxAsk maxBid
 -------------
 109.5  108.6
@@ -791,7 +790,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+q)getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -811,7 +810,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`filters!(`quote;2021.01.20
 Use the ``` `freefromwhere ``` parameter to execute the same filter as above
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
+q)getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -831,7 +830,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformwhere!(`quote;2021
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
 
 ```
-getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+q)getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
@@ -850,7 +849,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`ordering!(`quote;2000.01.0
 Use the ``` `renamecolumn ``` parameter to rename the columns 
 
 ```
-getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+q)getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
 newdate    newsym| newprice
 -----------------| --------
 2021.01.18 IBM   | 69.64
@@ -859,6 +858,10 @@ newdate    newsym| newprice
 2021.01.19 AAPL  | 111.67
 2021.01.18 INTC  | 70.77
 2021.01.19 INTC  | 65.6
+q).dataaccess.buildquery (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+? `trade ((=;`sym;,`IBM);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000))  `date`sym!`time.date`sym (,`price)!,(max;`price)
+? `trade ((=;`sym;,`AAPL);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000)) `date`sym!`time.date`sym (,`price)!,(max;`price)
+? `trade ((=;`sym;,`INTC);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000)) `date`sym!`time.date`sym (,`price)!,(max;`price)
 ```
 
 **Postprocessing**
@@ -866,17 +869,16 @@ newdate    newsym| newprice
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-q)getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q)getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
 
-q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 ? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
 
 ```
 More complex example collecting the avg price across multiple processes in the gateway g
 ``` 
-
 q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{flip x})"
 sumAsk  | 1.288549e+09
 countAsk| 28738958
@@ -892,17 +894,17 @@ avgprice
 Use the ``` `sublist``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
 
 ```
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 AAPL| 171.23 170.36 56.35  55.32
 GOOG| 101.09 99.96  45.57  44.47
 
-q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 ? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
 
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)"
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);3)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 INTC| 68.51  67.56  44.59  43.63

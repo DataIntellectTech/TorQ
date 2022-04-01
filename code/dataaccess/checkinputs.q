@@ -53,7 +53,7 @@ filldefaulttimecolumn:{[dict]
  checkcolumns:{[table;columns;parameter]
     if[not all(`~columns)& parameter~`columns;
         columns,:();
-        avblecols:`date,cols table;
+        avblecols:`i`date,cols table;
         if[any not in[columns;avblecols];
             badcol:columns where not in[columns;avblecols];
             '`$.checkinputs.formatstring[.schema.errors[`checkcolumns;`errormessage];`badcol`tab`parameter!(badcol;table;parameter)]]];};
