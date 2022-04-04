@@ -112,7 +112,7 @@ endofday:{[date;processdata]
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
 	notifyhdb[;date] each hdbs;
 	};
-	
+
 reload:{[date]
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
@@ -232,3 +232,8 @@ $[.rdb.connectonstart;
 /-GMT offset rounded to nearest 15 mins and added to roll time
 .timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
+
+//Updating ignorelist for datastriping as tables that are not subscribed don't need to be reloaded
+if[.ds.datastripe;.rdb.tabtypes:type each (value each .rdb.subtables)];
+if[.ds.datastripe;.rdb.ignorelist:.rdb.ignorelist,.rdb.subtables[where .rdb.tabtypes<>98h]];
+

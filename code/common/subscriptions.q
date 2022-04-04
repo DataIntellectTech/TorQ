@@ -150,13 +150,13 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     ]
  }
 
-checkvalidfilter:{[schemalist]
+checkvalidfilter:{[schemalist;ignoredtables]
   // Check the tables subscribed to have are valid and have valid filters provided by the tickerplant in datastriping mode
   // schemalist will return valid (`tablename;schematable) or invalid (`tablename;`err`msg!(`errtype;"error message"))
   errors:where 99h = type each schemalist[;1];
   invalidtables:schemalist[;0] errors;
-  errmsg:exec msg from (.rian.schemalist[;1] errors) where err in `segmentid;
-  .lg.e[`riansub;] each errmsg;
+  errmsg:exec msg from (schemalist[;1] errors) where err in `segmentid;
+  .lg.e[`sub;] each errmsg;
   };
 
 // wrapper function around upd which is used to only replay syms and tables from the log file that

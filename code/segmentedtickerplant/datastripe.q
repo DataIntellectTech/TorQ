@@ -7,7 +7,7 @@
 
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
-.ds.ignoredtables:@[value;`.ds.filtermap;`ignoredtables.csv];
+.ds.ignoredtables:@[value;`.ds.ignoredtables;`ignoredtables.csv];
 
 //if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
 //configload transfoms segmenting.csv into table format so it can be accessed.
@@ -39,7 +39,9 @@ segmentfilter:{[tbl;segid]
      .stpps.segmentfiltermap[wcref]
      };
 
-.proc.loadf[getenv[`KDBCONFIG],"/settings/ignorelist.q"];
+//Setting the path to the csv containing the tables that will not be segmented. Reading in the ignoredtables.csv
+igtpath:first .proc.getconfigfile[string .ds.ignoredtables];
+@[{.stpps.ignoredtables:("S ";enlist",")0: hsym x}.stpps.igtpath];
 
 // Subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
@@ -50,7 +52,7 @@ subsegment:{[tbl;segid];
           :(tbl;`err`msg!(`table;m));
      ];
      filter:segmentfilter[tbl;segid];
-     $[tbl in .stpps.ignorelist;[ .stpps.suball[tbl]];
+     $[tbl in .stpps.ignoredtables;[.stpps.suball[tbl]];
      [if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
           :(tbl;`err`msg!(`segmentid;m));
@@ -68,7 +70,8 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
      `logdir ; `$getenv`KDBTPLOG;                                                   
-     `filters ; .stpps.filtermap[tabs;segid]
+     `filters ; .stpps.filtermap[tabs;segid];
+     `ignoredtables ; (flip .stpps.ignoredtables)[`tables]
 	)}
         
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
