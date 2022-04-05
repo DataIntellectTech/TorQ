@@ -26,3 +26,5 @@ getquery,0,.checkinputs.isboolean,,Returns the queries in each of the process
 dryrun,0,.checkinputs.isboolean,,Calculates the number of MB processed
 firstlastsort,0,.checkinputs.checkinstrumentcolumn,,Allows for use of firstlastsort (not supported by dataaccess)
 optimisation,0,.checkinputs.isboolean,,Toggle optimastion in queryorder
+trace,0,.checkinputs.isboolean,,Toggle trace in getdata - return table with additional procname and proctype columns
+debug,0,.checkinputs.isboolean,,Toggle debug in getdata - return a table of ([] procname; proctype; query; result)
