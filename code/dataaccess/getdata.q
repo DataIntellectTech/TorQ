@@ -4,7 +4,7 @@ getdata:{[inputparams]
   // if process is striped procname will be in the key
   if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
-  // optimize hdb query
+  // optimize hdb query from the gateway
   if[`optimhdb in key inputparams;
     if[inputparams`optimhdb;
       inputparams[`starttime]:`date$inputparams[`starttime];
@@ -35,10 +35,10 @@ getdata:{[inputparams]
   // execute the queries
   table:raze value each query;
   if[(.proc.proctype in`rdb`wdb);
-  // change defaulttime.date to date on rdb process query result
+    // change defaulttime.date to date on rdb process query result
     if[(`$(string .checkinputs.getdefaulttime inputparams),".date") in (cols table);
       table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];
-  // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
+    // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
     if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));
         table:update date:.z.d from table;
       if[98h=type table;table:`date xcols table]
@@ -53,11 +53,12 @@ getdata:{[inputparams]
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];
   // rename the columns  
   result:queryparams[`renamecolumn] xcol table;
-  if[10b~`sublist`procs in key inputparams;result:select [inputparams`sublist] from result];
-    // apply post-processing function
-    if[10b~in[`postprocessing`procs;key inputparams];
-        result:.eqp.processpostback[result;inputparams`postprocessing];];
+  // apply sublist and/or post-processing function(s) if getdata is called from process
+  singleproc:not`procs in key inputparams;
+  if[singleproc&`sublist in key inputparams;result:select [inputparams`sublist] from result];
+  if[singleproc&`postprocessing in key inputparams;result:.eqp.processpostback[result;inputparams`postprocessing]];
   .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
+  if[singleproc;:result];
   // add procname and proctype columns to table result for traceability
   if[`trace in key inputparams;
     if[inputparams`trace;

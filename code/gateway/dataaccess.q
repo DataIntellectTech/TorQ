@@ -72,6 +72,7 @@ getdata:{[o]
     // Instruments wildcard (`)
     if[(`~o`instruments)&`instruments in key o;o _: `instruments];
     o:adjustqueries[o;part];
+    options[`procs]:key o;
     // Check if any freeform queries is going to any striped database
     if[exec count serverid from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each key o;
         if[any key[options]like"*freeform*";
@@ -133,12 +134,16 @@ mapreduceres:{[options;res]
 returntab:{[joinfn;input;tab]
     // Join the tables together with the join function
     tab:joinfn[tab];
-    // Sort the joined table in the gateway
-    if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
-    // Return the sublist from the table then apply the post processing function
-    tab:select [input`sublist] from tab;
-    // Undergo post processing
-    tab:(input[`postprocessing])[tab];
+    // Check if type is correct
+    // e.g. if tables joined from `hdb and `rdb it will return type 0h
+    if[(type tab)in 98 99h;
+        // Sort the joined table in the gateway
+        if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
+        // Return the sublist from the table then apply the post processing function
+        tab:select [input`sublist] from tab;
+        // Undergo post processing
+        tab:(input[`postprocessing])[tab];
+        ];
     // Update the logger
     reqno:.requests.initlogger[input];
     .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
