@@ -1,0 +1,187 @@
+18:34:54 | Executing...
+taskset -c 0,1 /usr/bin/rlwrap q /home/mkanjuga/TorQestrator/TorQ/torq.q -stackid 7410 -proctype hdb -procname hdb1 -U /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/passwords/accesslist.txt -localtime 1 -g 1 -T 60 -w 4000 -load /home/mkanjuga/TorQestrator/data/hdb  -procfile /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/customprocess.csv  -debug
+
+(::;::)
+################################################################################
+#                                                                              #
+#                                 TorQ v4.2.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.10.0                      #
+#                                                                              #
+################################################################################
+2022.04.05D18:34:54.831016000|homer.aquaq.co.uk|torq|/home/mkanjuga/TorQestrator/TorQ/torq.q_19408_0|INF|init|trap mode (initialisation errors will be caught and thrown, rather than causing an exit) is set to 0
+2022.04.05D18:34:54.831035000|homer.aquaq.co.uk|torq|/home/mkanjuga/TorQestrator/TorQ/torq.q_19408_0|INF|init|stop mode (initialisation errors cause the process loading to stop) is set to 0
+2022.04.05D18:34:54.831578000|homer.aquaq.co.uk|torq|/home/mkanjuga/TorQestrator/TorQ/torq.q_19408_0|INF|init|attempting to read required process parameters proctype,procname from file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/customprocess.csv
+2022.04.05D18:34:54.832077000|homer.aquaq.co.uk|torq|/home/mkanjuga/TorQestrator/TorQ/torq.q_19408_0|INF|readprocfile|port set to 7413
+2022.04.05D18:34:54.832110000|homer.aquaq.co.uk|torq|/home/mkanjuga/TorQestrator/TorQ/torq.q_19408_0|INF|init|read in process parameters of proctype=hdb; procname=hdb1
+2022.04.05D18:34:54.832880000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ/config/settings/default.q found
+2022.04.05D18:34:54.832891000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/config/settings/default.q
+2022.04.05D18:34:54.833701000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/config/settings/default.q
+2022.04.05D18:34:54.833718000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ/config/settings/hdb.q found
+2022.04.05D18:34:54.833726000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/config/settings/hdb.q
+2022.04.05D18:34:54.833783000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/config/settings/hdb.q
+2022.04.05D18:34:54.833793000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ/config/settings/hdb1.q not found
+2022.04.05D18:34:54.833800000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|environment variable KDBSERVCONFIG not set, not loading app specific config
+2022.04.05D18:34:54.833808000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|environment variable KDBAPPCONFIG set, loading app specific config from /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/
+2022.04.05D18:34:54.833819000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/default.q found
+2022.04.05D18:34:54.833831000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/default.q
+2022.04.05D18:34:54.833866000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/default.q
+2022.04.05D18:34:54.833875000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/hdb.q not found
+2022.04.05D18:34:54.833883000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|config file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/settings/hdb1.q not found
+2022.04.05D18:34:54.833921000|homer.aquaq.co.uk|hdb|hdb1|INF|init|.proc.loadcommoncode flag set to 1
+2022.04.05D18:34:54.833931000|homer.aquaq.co.uk|hdb|hdb1|INF|init|.proc.loadprocesscode flag set to 1
+2022.04.05D18:34:54.833939000|homer.aquaq.co.uk|hdb|hdb1|INF|init|.proc.loadnamecode flag set to 0
+2022.04.05D18:34:54.833947000|homer.aquaq.co.uk|hdb|hdb1|INF|init|.proc.loadhandlers flag set to 1
+2022.04.05D18:34:54.833955000|homer.aquaq.co.uk|hdb|hdb1|INF|init|.proc.logroll flag set to 1
+2022.04.05D18:34:54.833987000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading q and k files from directory /home/mkanjuga/TorQestrator/TorQ/code/common
+2022.04.05D18:34:54.834066000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|found load order file order.txt
+2022.04.05D18:34:54.834085000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading files in order u.q api.q apidetails.q timer.q pubsub.q subscriptions.q timezone.q eodtime.q
+2022.04.05D18:34:54.834100000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/u.q
+2022.04.05D18:34:54.834332000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/u.q
+2022.04.05D18:34:54.834341000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/api.q
+2022.04.05D18:34:54.834878000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/api.q
+2022.04.05D18:34:54.834889000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/apidetails.q
+2022.04.05D18:34:54.835479000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/apidetails.q
+2022.04.05D18:34:54.835489000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/timer.q
+2022.04.05D18:34:54.835988000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/timer.q
+2022.04.05D18:34:54.835998000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/pubsub.q
+2022.04.05D18:34:54.836824000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/pubsub.q
+2022.04.05D18:34:54.836835000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/subscriptions.q
+2022.04.05D18:34:54.837798000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/subscriptions.q
+2022.04.05D18:34:54.837809000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/timezone.q
+2022.04.05D18:34:54.842336000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/timezone.q
+2022.04.05D18:34:54.842353000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/eodtime.q
+2022.04.05D18:34:54.842587000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/eodtime.q
+2022.04.05D18:34:54.842598000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/analyticslib.q
+2022.04.05D18:34:54.843215000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/analyticslib.q
+2022.04.05D18:34:54.843229000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/async.q
+2022.04.05D18:34:54.843415000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/async.q
+2022.04.05D18:34:54.843424000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/bglaunchutils.q
+2022.04.05D18:34:54.843661000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/bglaunchutils.q
+2022.04.05D18:34:54.843670000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/cache.q
+2022.04.05D18:34:54.844036000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/cache.q
+2022.04.05D18:34:54.844047000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/checkinputs.q
+2022.04.05D18:34:54.845242000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/checkinputs.q
+2022.04.05D18:34:54.845254000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/compress.q
+2022.04.05D18:34:54.846240000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/compress.q
+2022.04.05D18:34:54.846252000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/dataaccess.q
+2022.04.05D18:34:54.846494000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/dataaccess.q
+2022.04.05D18:34:54.846504000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/datadog.q
+2022.04.05D18:34:54.846789000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/datadog.q
+2022.04.05D18:34:54.846799000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/dataloader.q
+2022.04.05D18:34:54.847343000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/dataloader.q
+2022.04.05D18:34:54.847352000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/datareplay.q
+2022.04.05D18:34:54.847736000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/datareplay.q
+2022.04.05D18:34:54.847745000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/datastripe.q
+2022.04.05D18:34:54.847790000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/datastripe.q
+2022.04.05D18:34:54.847798000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/dbwriteutils.q
+2022.04.05D18:34:54.848227000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/dbwriteutils.q
+2022.04.05D18:34:54.848237000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/email.q
+2022.04.05D18:34:54.848874000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/email.q
+2022.04.05D18:34:54.848888000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/execas.q
+2022.04.05D18:34:54.848950000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/execas.q
+2022.04.05D18:34:54.848958000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/grafana.q
+2022.04.05D18:34:54.850059000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/grafana.q
+2022.04.05D18:34:54.850073000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/heartbeat.q
+2022.04.05D18:34:54.850591000|homer.aquaq.co.uk|hdb|hdb1|INF|init|adding heartbeat functions to the timer
+2022.04.05D18:34:54.850718000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/heartbeat.q
+2022.04.05D18:34:54.850727000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/help.q
+2022.04.05D18:34:54.851296000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/help.q
+2022.04.05D18:34:54.851306000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/html.q
+2022.04.05D18:34:54.851873000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/html.q
+2022.04.05D18:34:54.851884000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/json.k
+2022.04.05D18:34:54.852095000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/json.k
+2022.04.05D18:34:54.852104000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/kafka.q
+2022.04.05D18:34:54.852235000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/kafka.q
+2022.04.05D18:34:54.852244000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/memusage.q
+2022.04.05D18:34:54.852520000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/memusage.q
+2022.04.05D18:34:54.852530000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/merge.q
+2022.04.05D18:34:54.852931000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/merge.q
+2022.04.05D18:34:54.852944000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/monitoringchecks.q
+2022.04.05D18:34:54.853261000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/monitoringchecks.q
+2022.04.05D18:34:54.853271000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/os.q
+2022.04.05D18:34:54.853706000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/os.q
+2022.04.05D18:34:54.853718000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/rmvr.q
+2022.04.05D18:34:54.853823000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/rmvr.q
+2022.04.05D18:34:54.853831000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/subscribercutoff.q
+2022.04.05D18:34:54.853973000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/subscribercutoff.q
+2022.04.05D18:34:54.853982000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/common/tplogutils.q
+2022.04.05D18:34:54.854340000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/common/tplogutils.q
+2022.04.05D18:34:54.854350000|homer.aquaq.co.uk|hdb|hdb1|INF|init|Environment variable KDBSERVCODE not set, not loading specific /common code
+2022.04.05D18:34:54.854358000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading q and k files from directory /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/code/common
+2022.04.05D18:34:54.854368000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|specified directory /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/code/common doesn't exist
+2022.04.05D18:34:54.854376000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading q and k files from directory /home/mkanjuga/TorQestrator/TorQ/code/hdb
+2022.04.05D18:34:54.854421000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/hdb/hdbstandard.q
+2022.04.05D18:34:54.854489000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/hdb/hdbstandard.q
+2022.04.05D18:34:54.854496000|homer.aquaq.co.uk|hdb|hdb1|INF|init|Environment variable KDBSERVCODE not set, not loading specific /hdb code
+2022.04.05D18:34:54.854503000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading q and k files from directory /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/code/hdb
+2022.04.05D18:34:54.854574000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/code/hdb/examplequeries.q
+2022.04.05D18:34:54.854662000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/code/hdb/examplequeries.q
+2022.04.05D18:34:54.854691000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading q and k files from directory /home/mkanjuga/TorQestrator/TorQ/code/handlers
+2022.04.05D18:34:54.854727000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|found load order file order.txt
+2022.04.05D18:34:54.854745000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading files in order dotz.q ldap.q writeaccess.q controlaccess.q permissions.q trackclients.q logusage.q apidetails.q zpsignore.q
+2022.04.05D18:34:54.854756000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/dotz.q
+2022.04.05D18:34:54.855137000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/dotz.q
+2022.04.05D18:34:54.855147000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/ldap.q
+2022.04.05D18:34:54.855613000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/ldap.q
+2022.04.05D18:34:54.855625000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/writeaccess.q
+2022.04.05D18:34:54.855692000|homer.aquaq.co.uk|hdb|hdb1|INF|readonly|read only mode is disabled
+2022.04.05D18:34:54.855753000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/writeaccess.q
+2022.04.05D18:34:54.855761000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/controlaccess.q
+2022.04.05D18:34:54.856388000|homer.aquaq.co.uk|hdb|hdb1|INF|access|access controls are disabled
+2022.04.05D18:34:54.856463000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/controlaccess.q
+2022.04.05D18:34:54.856472000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/permissions.q
+2022.04.05D18:34:54.857937000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/permissions.q
+2022.04.05D18:34:54.857948000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/trackclients.q
+2022.04.05D18:34:54.858258000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/trackclients.q
+2022.04.05D18:34:54.858269000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/logusage.q
+2022.04.05D18:34:54.858851000|homer.aquaq.co.uk|hdb|hdb1|INF|usage|creating usage log file /home/mkanjuga/TorQestrator/data/logs/usage_hdb1_2022.04.05.log
+2022.04.05D18:34:54.858876000|homer.aquaq.co.uk|hdb|hdb1|INF|logging|creating alias using command ln -sf usage_hdb1_2022.04.05.log /home/mkanjuga/TorQestrator/data/logs/usage_hdb1.log
+2022.04.05D18:34:54.863087000|homer.aquaq.co.uk|hdb|hdb1|INF|init|adding timer function to roll usage logs on a daily schedule starting at 2022.04.06D00:00:00.000000000
+2022.04.05D18:34:54.863180000|homer.aquaq.co.uk|hdb|hdb1|INF|init|adding timer function to flush in-memory usage logs with interval: 0D00:30:00.000000000
+2022.04.05D18:34:54.863351000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/logusage.q
+2022.04.05D18:34:54.863394000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/apidetails.q
+2022.04.05D18:34:54.864244000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/apidetails.q
+2022.04.05D18:34:54.864273000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/zpsignore.q
+2022.04.05D18:34:54.864499000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/zpsignore.q
+2022.04.05D18:34:54.864525000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/TorQ/code/handlers/trackservers.q
+2022.04.05D18:34:54.866005000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|attempting to load external connection username:password from file
+2022.04.05D18:34:54.866101000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ/config/passwords/default.txt found
+2022.04.05D18:34:54.866155000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ/config/passwords/hdb.txt found
+2022.04.05D18:34:54.866201000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ/config/passwords/hdb1.txt not found
+2022.04.05D18:34:54.866223000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/passwords/default.txt not found
+2022.04.05D18:34:54.866244000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/passwords/hdb.txt not found
+2022.04.05D18:34:54.866264000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|password file /home/mkanjuga/TorQestrator/TorQ-Finance-Starter-Pack/appconfig/passwords/hdb1.txt not found
+2022.04.05D18:34:54.869180000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/TorQ/code/handlers/trackservers.q
+2022.04.05D18:34:54.869271000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|loading /home/mkanjuga/TorQestrator/data/hdb
+2022.04.05D18:34:54.869425000|homer.aquaq.co.uk|hdb|hdb1|INF|fileload|successfully loaded /home/mkanjuga/TorQestrator/data/hdb
+2022.04.05D18:34:54.869465000|homer.aquaq.co.uk|hdb|hdb1|INF|init|Resetting .z.pi to kdb+ default value
+2022.04.05D18:34:54.870399000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|attempting to connect to discovery services
+2022.04.05D18:34:54.870456000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|attempting to open handle to :homer.aquaq.co.uk:7411
+2022.04.05D18:34:54.871187000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|connection to :homer.aquaq.co.uk:7411 successful
+2022.04.05D18:34:54.871647000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|registering with discovery services
+2022.04.05D18:34:54.871667000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|requesting processes from discovery service
+2022.04.05D18:34:54.871680000|homer.aquaq.co.uk|hdb|hdb1|INF|conn|no processes found
+################################################################################
+#                                                                              #
+#                                 TorQ v4.2.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.10.0                      #
+#                                                                              #
+################################################################################
