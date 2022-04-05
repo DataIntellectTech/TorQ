@@ -150,7 +150,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     ]
  }
 
-checkvalidfilter:{[schemalist;ignoredtables]
+checkvalidfilter:{[schemalist]
   // Check the tables subscribed to have are valid and have valid filters provided by the tickerplant in datastriping mode
   // schemalist will return valid (`tablename;schematable) or invalid (`tablename;`err`msg!(`errtype;"error message"))
   errors:where 99h = type each schemalist[;1];
