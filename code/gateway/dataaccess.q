@@ -99,9 +99,9 @@ getdata:{[o]
 // join results together if from multiple processes
 autojoin:{[options]
     // if there is only one proc queried output the table
-    if[1=count options`procs;:first];
-    // if there is no need for map reducable adjustment, return razed results
-    if[not options`mapreduce;:raze];
+    if[1=count options`procs;:returntab[first;options]];
+    // if there is no need for map reducable adjustment, return joinf results
+    if[not options`mapreduce;:returntab[$[null joinf:options`join;raze;joinf];options]];
     :mapreduceres[options;];
     };
 
@@ -124,12 +124,13 @@ mapreduceres:{[options;res]
             a!a:(),options[`timebar;2];
             0b];
     // select aggs by gr from res
-    :?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
+    tab:?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
+    // post processing in gw
+    :returntab[{x};options;tab];
     };
 
 // mixture of all the post processing functions in gw
-returntab:{[input;tab;reqno]
-    joinfn:input[`join];
+returntab:{[joinfn;input;tab]
     // Join the tables together with the join function
     tab:joinfn[tab];
     // Sort the joined table in the gateway
@@ -139,8 +140,9 @@ returntab:{[input;tab;reqno]
     // Undergo post processing
     tab:(input[`postprocessing])[tab];
     // Update the logger
+    reqno:.requests.initlogger[input];
     .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
-    :tab
+    :tab;
     };
 
 // Adjust queries based on relevant data and stripe
@@ -157,8 +159,7 @@ adjustqueries:{[options;part]
 	:.gw.adjustqueriesstripe[options;dict];
 	};
 
-// function to grab the correct aggregations needed for aggregating over
-// multiple processes
+// function to grab the correct aggregations needed for aggregating over multiple processes
 mapreduce:{[aggs;gr]
     // if there is a date grouping any aggregation is allowed
     if[`date in gr;:aggs];
