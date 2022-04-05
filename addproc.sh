@@ -19,6 +19,7 @@ suffix=$2
 
 #work out new procname based on second and third arg provided
 newprocname="$inputprocname"."$suffix"
+newprocname1="$inputprocname"\."$suffix"
 
 #determine port number increment based on number of lines in the process.csv
 #if that port is already in use, increment by 1 till succesful
@@ -49,8 +50,8 @@ else
 #calculated port number and provided suffix will be used in the replicated process name
 #replicated process starts automatically using customprocess.csv in -csv flag
 #run summary of all processes in customprocess.csv
-	grep $inputprocname ${KDBAPPCONFIG}/process.csv | awk -F',' -vOFS=',' '{ $2 = "{KDBBASEPORT}+" '"$portnum"'; $4 = $4"."'"$suffix"' }1' >> ${KDBAPPCONFIG}/customprocess.csv
+	grep $inputprocname ${KDBAPPCONFIG}/process.csv | awk -F',' -vOFS=',' '{ $2 = "{KDBBASEPORT}+" '"$portnum"'; $4 ="'$newprocname'" }1' >> ${KDBAPPCONFIG}/customprocess.csv
     	echo "$inputprocname replicated as $newprocname" 
-	bash torq.sh start $newprocname -csv ${KDBAPPCONFIG}/customprocess.csv
-	bash torq.sh summary -csv ${KDBAPPCONFIG}/customprocess.csv
+	bash torq.sh start $newprocname 
+	bash torq.sh summary
 fi
