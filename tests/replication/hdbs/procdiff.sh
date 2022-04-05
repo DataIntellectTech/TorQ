@@ -13,4 +13,4 @@ if [ ! -s procdiff.txt ] && [ -s debugorig.tmp ] && [ -s debugreplica.tmp ]; the
 else
 	echo 'Test fail'
 fi
-#rm debugorig debugreplica debugorig.tmp debugreplica.tmp
+rm debugorig debugreplica debugorig.tmp debugreplica.tmp
