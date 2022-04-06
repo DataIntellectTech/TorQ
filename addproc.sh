@@ -1,12 +1,15 @@
 #!/bin/bash
 
-#this script takes two argument from the cmd line: procname and an integer
-#it replicates the process from first argument and names it using second
+#this script takes an existing procname as an argument to determine what process to replicate
+#procname is configured automatically based on the last process replica name
 #all new processes are started automatically to avoid port number overlap upon running the script multiple times without starting the new procs first
 #new processes are written to customprocess.csv which also contains the original processes 
 #after process replication a summmary of all procs is provided
 #stop any process replica using: 
 #bash {TORQHOME}/torq.sh stop <PROCNAME/ALL> -csv ${KDBAPPCONFIG}/customprocess.csv
+#to automatize the process summary/start/stop using torq.sh for processes in both process.csv and customprocess.csv do:
+# 	-copy all contents of process.csv into customprocess.csv before running the script
+#	-configure ${TORQPROCESSES} in setenv.sh to point to customprocess.csv 
 
 #source the relevant setenv.sh
 source setenv.sh
@@ -14,10 +17,15 @@ source setenv.sh
 #input procname from cmd line
 inputprocname=$1
 
+#get the last replica of inputed procname
 var=$(bash ${TORQHOME}/torq.sh procs | grep $inputprocname | tail -n 1)
 
-next=$((${var: -1} + 1))
-#work out new procname based on second and third arg provided
+#work out new procname based var
+if [ `echo $var | grep -P -o '\d' | wc -l` == 1 ] ; then
+	next=2
+else
+	next=$((${var: -1} + 1))
+fi
 newprocname="$inputprocname"."$next"
 
 #determine port number increment based on number of lines in the process.csv
@@ -36,18 +44,21 @@ CUSTOMPROCNAMES="$(sed '1d' ${KDBAPPCONFIG}/customprocess.csv | awk -F',' '{prin
 
 #check for correct argument number and content:
 #check if inputed procname matches a procname in process.csv
-#check if second argument is an integer
-#check if new procname is already in use
-#if any of the arguments invalid, print the user guide, else proceed with replication
-if [ "$(echo $PROCNAMES | grep -w $inputprocname)" == "" ] || [ $# != 1 ] || [ "$(echo $PROCNAMES | grep -w $newprocname)" != "" ] || [ "$(echo $CUSTOMPROCNAMES | grep -w $newprocname)" != "" ] ; then
-	echo -e 'Error: invalid arguments.\n\nUse valid procname as first argument, e.g. rdb1.\nUse positive integer as second argument.\nNew procname cannot be identical to already exsting one.\n\n'
-	echo 'Valid procnames: ' $PROCNAMES
-	echo -e '\nProcnames in customprocess.csv already in use: ' $CUSTOMPROCNAMES
+#check number of arguments is greater than 1
+#check in number of arguments is lower than one
+#check if inputed procname is already a replica 
+if [ "$(echo $PROCNAMES | grep -w $inputprocname)" == "" ] ; then
+	echo -e '\nUnavailable procname. Use: \n' $PROCNAMES
+elif [ $# -gt 1 ] ; then
+	echo -e '\nToo many arguments.'
+elif [ $# -lt 1 ] ; then
+	echo -e '\nProcname needed. Use: \n ' $PROCNAMES
 else
        
-#use the inputed procname to replicate the process and append to it
-#calculated port number and provided suffix will be used in the replicated process name
-#replicated process starts automatically using customprocess.csv in -csv flag
+#use the inputed procname to determine what process to replicate:
+#use configured port number and process name 
+#add new process to customprocess.csv
+#starts the replicated process automatically using customprocess.csv in the -csv flag
 #run summary of all processes in customprocess.csv
 	grep $inputprocname ${KDBAPPCONFIG}/process.csv | awk -F',' -vOFS=',' '{ $2 = "{KDBBASEPORT}+" '"$portnum"'; $4 ="'$newprocname'" }1' >> ${KDBAPPCONFIG}/customprocess.csv
     	echo "$inputprocname replicated as $newprocname" 
