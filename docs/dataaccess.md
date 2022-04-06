@@ -234,12 +234,14 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 
 **Gateway Accepted Keys**
 
-|Input Key|Example        |Default behaviour              |Description                                       |
-|---------|---------------|-------------------------------|--------------------------------------------------|
-|postback |`{0N!x}`       |()                             |Post back function for retuning async queries only|
-|join     |`raze`         |`.dataaccess.multiprocjoin`    |Join function to merge the tables                 |
-|timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                     |
-|procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*     |
+|Input Key|Example        |Default behaviour              |Description                                                |
+|---------|---------------|-------------------------------|-----------------------------------------------------------|
+|postback |`{0N!x}`       |()                             |Post back function for retuning async queries only         |
+|join     |`raze`         |`.dataaccess.multiprocjoin`    |Join function to merge the tables                          |
+|timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                              |
+|procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*              |
+|trace    |`1b`           |0b                             |Return result with additional procname and proctype columns|
+|debug    |`1b`           |0b                             |Return a table of ([] procname; proctype; query; result)   |
 
 \* By default, `.dataaccess.forceservers` is set to `0b`. In this case, only a subset of `.dataaccess.attributesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
@@ -336,6 +338,177 @@ time                          sym  bid   ask   bsize asize
 ..
 q)raze[tbls]~tbl:hgw1(`.dataaccess.getdata;querydict)
 1b
+```
+
+### Illustration of Gateway Routing queries for (TorQ Cloud) RDB, Tailer and HDB processes
+
+The RDB and Tailer processes are set up with data segmented using the striping function (by sym) that lives in pubsub.q
+```q
+q)hstp1".stpps.subrequestfiltered"
+tbl   handle filts              columns
+---------------------------------------
+quote 13     `.ds.stripe `sym 0        
+trade 13     `.ds.stripe `sym 0        
+quote 14     `.ds.stripe `sym 1        
+trade 14     `.ds.stripe `sym 1        
+quote 15     `.ds.stripe `sym 2        
+trade 15     `.ds.stripe `sym 2        
+quote 16     `.ds.stripe `sym 3        
+trade 16     `.ds.stripe `sym 3        
+quote 17     `.ds.stripe `sym 0        
+trade 17     `.ds.stripe `sym 0        
+quote 18     `.ds.stripe `sym 1        
+trade 18     `.ds.stripe `sym 1        
+quote 19     `.ds.stripe `sym 2        
+trade 19     `.ds.stripe `sym 2        
+quote 20     `.ds.stripe `sym 3        
+trade 20     `.ds.stripe `sym 3        
+```
+
+The gateway tracks the attributes of the sym and time filters of each segment for query routing purposes
+```q
+q)hgw1"select servertype!attributes from .gw.servers"
+   | attributes                                                              ..
+---| ------------------------------------------------------------------------..
+rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+hdb| `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
+hdb| `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
+wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+
+q)hgw1"select daattr:attributes[;`dataaccess]from .gw.servers"
+daattr                                                                                                                                                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;0]";".ds.stripe[;0]";"";"");(`time`exchtime!(2022.04.06D03:00:21.109232215 0W;2022.04.06D03:00:00.83..
+`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;1]";".ds.stripe[;1]";"";"");(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:55:54.99..
+`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;2]";".ds.stripe[;2]";"";"");(`time`exchtime!(2022.04.06D03:00:04.819006555 0W;2022.04.06D02:59:27.33..
+`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;3]";".ds.stripe[;3]";"";"");(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:52:50.60..
+`segid`tablename!(0N;`heartbeat`logmsg`quote`trade!+`instrumentsfilter`timecolumns!(("";"";"";"");((,`time)!,-0W 2022.04.05D23:59:59.999999999;(,`time)!,-0W 2022.04.05D23:59:59.999999999;`date`time..
+`segid`tablename!(0N;`heartbeat`logmsg`quote`trade!+`instrumentsfilter`timecolumns!(("";"";"";"");((,`time)!,-0W 2022.04.05D23:59:59.999999999;(,`time)!,-0W 2022.04.05D23:59:59.999999999;`date`time..
+`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;0]";".ds.stripe[;0]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;1]";".ds.stripe[;1]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;2]";".ds.stripe[;2]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;3]";".ds.stripe[;3]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+```
+
+Querying RDB and Tailer processes with overlapping time periods
+
+```q
+q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb`wdb);querydict
+tablename  | `trade
+starttime  | 2022.03.30
+endtime    | 2022.03.31
+columns    | `time`exchtime`sym`price
+instruments| `ABKMO`PIFC`PILOD`EJO`DKGCM`FOMFB`MEF`GDIDD`BCDC`HKNC
+getquery   | 1b
+procs      | `rdb`wdb
+
+q)hgw1(`.dataaccess.getdata;querydict)
+`rdb
+(?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.03.31D03:00:20.399392796 2022.03.31D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+`rdb
+(?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.03.31D03:00:28.226148779 2022.03.31D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+`wdb
+(?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.03.31D00:00:00.000000000 2022.03.31D03:00:20.399392795));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+`wdb
+(?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.03.31D00:00:00.000000000 2022.03.31D03:00:28.226148778));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+
+q)querydict[`getquery]:0b;r1:`time`sym xasc hgw1(`.dataaccess.getdata;querydict);r1
+time                          exchtime                      sym   price
+-----------------------------------------------------------------------
+2022.03.31D00:03:00.289905062 2022.03.31D00:02:35.604955527 GDIDD      
+2022.03.31D00:05:03.254815615 2022.03.31D00:05:35.459603903 PILOD      
+2022.03.31D00:06:12.844973336 2022.03.31D00:07:28.960058042 BCDC       
+2022.03.31D00:08:53.972272030 2022.03.31D00:08:15.781874587 GDIDD      
+2022.03.31D00:09:33.103842440 2022.03.31D00:09:47.690247116 HKNC       
+..
+q)r2:`time`sym xasc select time,exchtime,sym,price from(trade2,trade)where sym in symtoquery;r1~r2
+1b
+```
+
+Querying the first time period after EOD, both RDB and Tailer processes will contain exactly the same data, hence the gateway will only route/prioritise the queries to the RDB (in-memory data).
+
+```q
+q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb`wdb)
+q)hgw1(`.dataaccess.getdata;querydict)
+`rdb
+(?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+`rdb
+(?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
+```
+
+With the attributes tracking, the gateway can accurately route queries. For e.g. if we want to query a HDB proc with a different time column:
+```q
+q)querydict[`procs]:`hdb;querydict[`getquery]:1b;querydict[`starttime]:.z.d;querydict[`timecolumn]:`exchtime;querydict
+tablename  | `trade
+starttime  | 2022.03.31
+endtime    | 2022.03.31
+columns    | `time`exchtime`sym`price
+instruments| `ABKMO`PIFC`PILOD`EJO`DKGCM`FOMFB`MEF`GDIDD`BCDC`HKNC
+getquery   | 1b
+procs      | `hdb
+timecolumn | `exchtime
+
+q)hgw1(`.dataaccess.getdata;querydict)
+`hdb
+(?;`trade;((within;`date;,2022.03.30);(in;`sym;,`ABKMO`PIFC`PILOD`EJO`DKGCM`FOMFB`MEF`GDIDD`BCDC`HKNC);(within;`exchtime;2022.03.31D00:00:00.000000000 2022.03.31D00:03:51.528461000));0b;`time`excht..
+```
+
+## Data tracing and debugging modes
+
+As the number of processes scale up significantly, it is important to have some form of data tracibility. The data tracing and debugging modes can be useful from a support or testing perspertive. It may also be helpful in data cleaning. With data trace mode enabled, the resulting table is returned with additional procname and proctype columns that it was queried from. With data debug mode enabled, a table of ([] procname; proctype; query; result) is returned. Data debug mode can be useful to check why certain (for e.g. postprocessing, join or aggreagation) functions are failing. Data tracing and debugging modes can be enabled together as well.
+
+### Illustration of Data tracing/debugging results from multiple processes
+
+With data trace mode enabled:
+```q
+q)querydict:`tablename`starttime`endtime`getquery`procs`trace!(`trade;.z.d-1;.z.d;0b;`rdb;1b);querydict
+tablename| `trade
+starttime| 2022.04.05
+endtime  | 2022.04.06
+getquery | 0b
+procs    | `rdb
+trace    | 1b
+
+q)hgw1(`.dataaccess.getdata;querydict)
+time                          exchtime                      sym   price size stop cond ex side procname proctype
+----------------------------------------------------------------------------------------------------------------
+2022.04.06D02:55:50.603630000 2022.04.06D02:59:50.603468000 GNDGL 31.16 63   0    A    O  buy  rdb1     rdb     
+2022.04.06D02:57:53.799644000 2022.04.06D03:01:53.799484000 GNDGL 31.16 63   0    A    O  buy  rdb1     rdb     
+2022.04.06D02:58:54.199604000 2022.04.06D02:54:54.199444000 PTPRF 83.68 20   1    K    O  sell rdb1     rdb     
+2022.04.06D02:58:54.199604000 2022.04.06D02:58:54.199444000 SFOX  61.21 59   0    8    N  sell rdb1     rdb     
+2022.04.06D02:58:54.199604000 2022.04.06D02:55:54.199444000 TGPM  53.15 41   0    9    N  buy  rdb1     rdb     
+2022.04.06D02:55:50.603630000 2022.04.06D02:56:50.603468000 WWRY  34.02 51   1    E    N  sell rdb2     rdb     
+2022.04.06D02:55:50.603630000 2022.04.06D02:56:50.603468000 MZGPC 81.59 62   1    W    N  sell rdb2     rdb     
+2022.04.06D02:57:53.799644000 2022.04.06D02:58:53.799484000 WWRY  34.02 51   1    E    N  sell rdb2     rdb     
+2022.04.06D02:57:53.799644000 2022.04.06D02:58:53.799484000 MZGPC 81.59 62   1    W    N  sell rdb2     rdb     
+2022.04.06D02:58:54.199604000 2022.04.06D03:00:54.199444000 CHTDB 51.35 76   1    G    N  sell rdb2     rdb     
+2022.04.06D02:58:54.199604000 2022.04.06D02:56:54.199444000 DACXF 32.98 76   1    P    O  buy  rdb3     rdb     
+..
+```
+
+With data debug mode enabled:
+```q
+q)querydict:`tablename`starttime`endtime`getquery`procs`debug!(`trade;.z.d-1;.z.d;0b;`rdb;1b);querydict
+tablename| `trade
+starttime| 2022.04.05
+endtime  | 2022.04.06
+getquery | 0b
+procs    | `rdb
+debug    | 1b
+
+q)hgw1(`.dataaccess.getdata;querydict)
+procname proctype query                                                                                             result                                                                           ..
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------..
+rdb1     rdb      `rdb (?;`trade;,(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999);0b;()) +`time`exchtime`sym`price`size`stop`cond`ex`side!(2022.04.06D02:55:50.603630000 2..
+rdb2     rdb      `rdb (?;`trade;,(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999);0b;()) +`time`exchtime`sym`price`size`stop`cond`ex`side!(2022.04.06D02:55:50.603630000 2..
+rdb3     rdb      `rdb (?;`trade;,(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999);0b;()) +`time`exchtime`sym`price`size`stop`cond`ex`side!(2022.04.06D02:58:54.199604000 2..
+rdb4     rdb      `rdb (?;`trade;,(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999);0b;()) +`time`exchtime`sym`price`size`stop`cond`ex`side!(2022.04.06D02:55:50.603630000 2..
 ```
 
 ## Checkinputs
