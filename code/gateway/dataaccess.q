@@ -102,7 +102,7 @@ autojoin:{[options]
     // if there is only one proc queried output the table
     if[1=count options`procs;:returntab[first;options]];
     // if there is no need for map reducable adjustment, return joinf results
-    if[not options`mapreduce;:returntab[$[null joinf:options`join;raze;joinf];options]];
+    if[not options`mapreduce;:returntab[$[null joinf:options`join;uj/;joinf];options]];
     :mapreduceres[options;];
     };
 
@@ -134,16 +134,12 @@ mapreduceres:{[options;res]
 returntab:{[joinfn;input;tab]
     // Join the tables together with the join function
     tab:joinfn[tab];
-    // Check if type is correct
-    // e.g. if tables joined from `hdb and `rdb it will return type 0h
-    if[(type tab)in 98 99h;
-        // Sort the joined table in the gateway
-        if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
-        // Return the sublist from the table then apply the post processing function
-        tab:select [input`sublist] from tab;
-        // Undergo post processing
-        tab:(input[`postprocessing])[tab];
-        ];
+    // Sort the joined table in the gateway
+    if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
+    // Return the sublist from the table then apply the post processing function
+    tab:select [input`sublist] from tab;
+    // Undergo post processing
+    tab:(input[`postprocessing])[tab];
     // Update the logger
     reqno:.requests.initlogger[input];
     .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
