@@ -14,11 +14,11 @@ source setenv.sh
 #input procname from cmd line
 inputprocname=$1
 
-#input wanted name suffix
-suffix=$2
+var=$(bash ${TORQHOME}/torq.sh procs | grep $inputprocname | tail -n 1)
 
+next=$((${var: -1} + 1))
 #work out new procname based on second and third arg provided
-newprocname="$inputprocname"."$suffix"
+newprocname="$inputprocname"."$next"
 
 #determine port number increment based on number of lines in the process.csv
 #if that port is already in use, increment by 1 till succesful
@@ -39,7 +39,7 @@ CUSTOMPROCNAMES="$(sed '1d' ${KDBAPPCONFIG}/customprocess.csv | awk -F',' '{prin
 #check if second argument is an integer
 #check if new procname is already in use
 #if any of the arguments invalid, print the user guide, else proceed with replication
-if [ "$(echo $PROCNAMES | grep -w $inputprocname)" == "" ] || [ $# != 2 ] || [[ ! "$suffix" =~ ^[0-9]+$ ]] || [ "$(echo $PROCNAMES | grep -w $newprocname)" != "" ] || [ "$(echo $CUSTOMPROCNAMES | grep -w $newprocname)" != "" ] ; then
+if [ "$(echo $PROCNAMES | grep -w $inputprocname)" == "" ] || [ $# != 1 ] || [ "$(echo $PROCNAMES | grep -w $newprocname)" != "" ] || [ "$(echo $CUSTOMPROCNAMES | grep -w $newprocname)" != "" ] ; then
 	echo -e 'Error: invalid arguments.\n\nUse valid procname as first argument, e.g. rdb1.\nUse positive integer as second argument.\nNew procname cannot be identical to already exsting one.\n\n'
 	echo 'Valid procnames: ' $PROCNAMES
 	echo -e '\nProcnames in customprocess.csv already in use: ' $CUSTOMPROCNAMES

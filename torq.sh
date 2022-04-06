@@ -55,7 +55,7 @@ parameter() {
 
 findproc() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")                                                     # get line number for file
-  pgrep -f "\-stackid ${KDBBASEPORT} \-proctype $(getfield "$procno" proctype) \-procname $1"       # get pid of process
+  pgrep -f -o "\-stackid ${KDBBASEPORT} \-proctype $(getfield "$procno" proctype) \-procname $1 "       # get pid of process
  }
 
 startline() {
