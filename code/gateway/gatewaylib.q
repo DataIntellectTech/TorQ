@@ -112,9 +112,7 @@ getservers:{[dict]
         '"Provide a dictionary with keys of only: `tablename`starttime`endtime`instruments`procs"];
 
     // Checktype
-    validtypes:`tablename`starttime`endtime`instruments`procs!(enlist -11h;t;t:-12 -14 -15h;s;s:-11 11h);
-    {if[not(t:type y z)in x;
-        'string[z]," input type incorrect - valid type(s):",(" "sv string x)," - input type:",string t]}[;dict]'[validtypes k;k];
+    dict:.checkinputs.checkinputs dict;
 
     // Get the Procs in a (nested) list of serverid(s)
     dict[`procs]:attributesrouting[dict;part:partdict dict];
@@ -122,7 +120,7 @@ getservers:{[dict]
     // Adjust queries based on relevant data and stripe
     d:adjustqueriesoverlap[dict;part];
     servers:adjustqueriesstripe[dict;d];
-	:key[servers]!(`serverid`attributes)_value servers;
+	:key[servers]!(`serverid`attributes`checksperformed`optimhdb)_value servers;
     };
 
 // Dynamic routing finds all processes with relevant data 
