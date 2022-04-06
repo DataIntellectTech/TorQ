@@ -58,8 +58,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	};
 	
 savealltablesoverperiod:{[dir;nextp]
-	t:nextp;
-	savetablesoverperiod[dir;;t]each .wdb.tablelist[];
+	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
 	};
 
 
