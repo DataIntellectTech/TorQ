@@ -1,0 +1,5 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,loadtablekeycols[],1,,"Loading the config file tablekeycols"
+true,0,0,q,.ds.tablekeycols[`trade]~`sym,1,,"Testing the tablekeycols dictionary maps to the correct values"
+true,0,0,q,.ds.tablekeycols[`quote]~`src,1,,"Testing the tablekeycols dictionary maps
+ to the correct values"
