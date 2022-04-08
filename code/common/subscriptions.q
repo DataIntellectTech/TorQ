@@ -126,7 +126,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     :()];
 
   // pull out subscription details from the TP
-  details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
+  .adam.details:details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
     if[.ds.datastripe;checkvalidfilter[details[`schemalist]]];
     if[setschema;createtables[details[`schemalist]]];
