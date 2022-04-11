@@ -30,6 +30,8 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
+	/- get process specific taildir location
+	dir:` sv dir,.proc.procname,`;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
 	.lg.o[`save;"saving ",string[tablename]," data to partition ",
