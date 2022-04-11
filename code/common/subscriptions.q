@@ -128,7 +128,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // pull out subscription details from the TP
   details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
-//  if[.ds.datastripe;checkvalidfilter[details[`schemalist]]];
+  if[.ds.datastripe;checkvalidfilter[details[`schemalist]]];
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
        filter:$[.ds.datastripe;
@@ -150,14 +150,14 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     ]
  }
 
-//checkvalidfilter:{[schemalist]
+checkvalidfilter:{[schemalist]
   // Check the tables subscribed to have are valid and have valid filters provided by the tickerplant in datastriping mode
   // schemalist will return valid (`tablename;schematable) or invalid (`tablename;`err`msg!(`errtype;"error message"))
-//  errors:where 99h = type each schemalist[;1];
-//  invalidtables:schemalist[;0] errors;
-//    if[(count invalidtables) > 0;errmsg:exec msg from (schemalist[;1] errors) where err in `segmentid];
-//  if[(count invalidtables)>0;.lg.e[`sub;] each errmsg];
-//  };
+  errors:where 99h = type each schemalist[;1];
+  invalidtables:schemalist[;0] errors;
+  if[(count invalidtables) > 0;errmsg:exec msg from (schemalist[;1] errors) where err in `segmentid];
+  if[(count invalidtables)>0;.lg.e[`sub;] each errmsg];
+  };
 
 // wrapper function around upd which is used to only replay syms and tables from the log file that
 // the subscriber has requested
