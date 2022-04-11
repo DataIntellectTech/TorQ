@@ -46,7 +46,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- load config mapping tablenames to keycolumns
 	loadtablekeycols[];
 	/- function to get keycol for table from access table
-	keycol:.ds.tablekeycols[tablename]; / do we need to consider access table in this??
+	keycol:@[value;.ds.tablekeycols[tablename];`sym];
 	/- get distint values to partition table on
 	partitionlist:raze value each ?[tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
