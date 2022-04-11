@@ -30,6 +30,8 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
+	/- get process specific taildir location
+	dir:` sv dir,.proc.procname,`;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
 	.lg.o[`save;"saving ",string[tablename]," data to partition ",
@@ -43,18 +45,16 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	};	
 
 savetablesoverperiod:{[dir;tablename;nextp]
-	/- load config mapping tablenames to keycolumns
-	loadtablekeycols[];
 	/- function to get keycol for table from access table
-	keycol:@[value;.ds.tablekeycols[tablename];`sym];
+	keycol:.ds.tablekeycols[tablename];
 	/- get distint values to partition table on
-	partitionlist:raze value each ?[tablename;();1b;enlist[keycol]!enlist keycol];
+	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
 	enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[dir;tablename;keycol;nextp]'[partitionlist];
 	/-upsert table to partition
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 	/- delete data from last period
-	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
+	.[{![[`.]x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
