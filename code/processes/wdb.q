@@ -82,7 +82,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
+hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;

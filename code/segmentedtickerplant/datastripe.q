@@ -7,6 +7,7 @@
 
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
+.ds.ignoredtables:@[value;`.ds.ignoredtables;`ignoredtables.csv];
 
 //if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
 //configload transfoms segmenting.csv into table format so it can be accessed.
@@ -38,6 +39,9 @@ segmentfilter:{[tbl;segid]
      .stpps.segmentfiltermap[wcref]
      };
 
+igtpath:first .proc.getconfigfile[string .ds.ignoredtables];
+@[{.stpps.ignoredtables:("S ";enlist",")0: hsym x}.stpps.igtpath];
+
 // Subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
      //tablename and segmentid used to get filters
@@ -47,12 +51,13 @@ subsegment:{[tbl;segid];
           :();
      ];
      filter:segmentfilter[tbl;segid];
-     if[filter~"";
+     $[tbl in .stpps.ignoredtables;[.stpps.suball[tbl]];
+     [if[filter~"";
           .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
           :();
      ];
      
-     .ps.subtablefiltered[string[tbl];filter;""]
+     .ps.subtablefiltered[string[tbl];filter;""]]]
      };
 
 \d .
