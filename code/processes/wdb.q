@@ -545,3 +545,6 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
+
+/- get the access table
+.ds.loadtablekeycols[]
