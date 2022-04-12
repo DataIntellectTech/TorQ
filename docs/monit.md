@@ -4,12 +4,12 @@ Monitoring TorQ
 There are lots of standard tools available to monitor a TorQ stack. It can be easily integrated with incumbent monitoring systems. We have outlined how to use two of our preferred options below- Monit and Datadog. Some of their features overlap and some are complementary. 
 
 Monit
-=====
+-----
 
 **Monit** is a small open source utility for monitoring and managing UNIX systems. Monit's ease of use makes it the perfect tool for tracking the status of TorQ processes.
 
-Installation
-------------
+### Installation
+
 Monit is included in most Unix distributions but can also be downloaded from [here](https://mmonit.com/monit/#download). This monit addition to TorQ allows the monit config files to be easily generated, based on the contents of the process.csv file. 
 
 The basic monit directory which has been added to TorQ can be seen below: 
@@ -26,8 +26,7 @@ ${TORQHOME}
 
 It is important to mention that AquaQ will not offer support for **monitalert.cfg** and **monitrc**. Those two files have been added as an example on how **monit** can be configured to monitor your system and to offer an out-of-the-box configuration that you can use to test that **monit** works.  If the monit installation contains an updated version of monitrc, this should be used instead. 
 
-Features
---------
+### Features
 
 Monit is only available for UNIX and it comes with a bash script that you can use to generate the configuration and start the processes. More details on how you use this script can be found below. 
 
@@ -55,8 +54,8 @@ check process tickerplant1
     mode active
 ```
 
-Usage Guide
------------
+### Usage Guide
+
 If you want to use **monit** to monitor your UNIX system and TorQ processes you must first generate the configuration files and then start **monit**. We will assume that you start with a fresh copy of TorQ. 
 
 1. Install TorQ and the any optional customisations (e.g. the TorQ Finanace Starter Pack)
@@ -74,7 +73,7 @@ However, you can also use your own configuration files by either creating a new 
 The start function also take a parameter **("string")** whch can specify the location of the **monitrc**.
 
 Datadog 
-=======
+-------
 
 Datadog is a monitoring service for cloud-scale applications, providing
 monitoring of servers, databases, tools, and services, through a SaaS-based data
@@ -89,8 +88,7 @@ a Linux host.
 
 **Note:** The Datadog Agent used in this integration is version 7, and may not be backwards or forwards compatible with other versions. See the Datadog documentation for more detail. 
 
-Installation
-------------
+### Installation
 
 Please Note: At this time the integration of Datadog with TorQ is supported on a unix host. We have not yet provided instructions or functionality for the use of Datadog with TorQ on other operating systems.
 
@@ -125,8 +123,7 @@ The `setupdatadog.sh` script is provided as a quick-start install to set up data
 + Datadog.yaml, which contains the port number to listen on, and enables the agent to receive metrics and events from processes. 
 + Process.yaml, which determines which processes datadog will retrieve CPU and memory stats for. This file is generated using the process.csv, and by default all processes will be monitored. If you wish to monitor only certain processes, a "datadog" column can be added to the process.csv, and a value of 1 or 0 added to each of the processes (1 meaning monitored, 0 meaning not monitored).
 
-Features
---------
+### Features
 
 ![Simple Datadog Integration](graphics/datadog1.png)
 
@@ -191,8 +188,7 @@ family|metric|process|query|resultchecker|params|period|runtime
 datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresultmetric|`varname`cond!(`datadogcheck;`true)|0D00:01|0D00:00:00.5
 ```
 
-Usage Guide
------------
+### Usage Guide
 
 If you wish to incorporate Datadog into your system as a monitoring tool, you can follow the instructions in the video above or the written instructions as follows. This will configure datadog according to default settings, and will not enable error logging or any monitoring functions unless configured by the user.  
 
@@ -205,8 +201,7 @@ If you wish to incorporate Datadog into your system as a monitoring tool, you ca
 
 The agent is now reporting process stats, and these can be visualised on the datadog UI. For more detailed metrics and events, enable the error logging using `.dg.enabled:1b` and configure the monitor process to run some checks. 
 
-Using the Datadog UI
---------------------
+### Using the Datadog UI
 
 You can visualise your metrics and events on a dashboard, and configure monitors and alerts. 
 
@@ -221,8 +216,6 @@ Alternatively, you can create your own custom dashboard according to the documen
 You can create custom monitors using the guidelines in the Datadog documentation
 [here](https://docs.datadoghq.com/monitors/monitor_types/)
 
-Monitoring Multiple Hosts
--------------------------
+### Monitoring Multiple Hosts
 
 Depending on your datadog pricing plan, the option to monitor multiple hosts is provided. To integrate Datadog and TorQ across all hosts, you will need to install the agent on each host, and follow the installation instructions as above. If your TorQ setup is operating across different hosts, you will need to establish which processes to monitor on which host by configuring a "datadog" column in the process.csv as discussed earlier.
-
