@@ -46,7 +46,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
 savetablesoverperiod:{[dir;tablename;nextp]
 	/- function to get keycol for table from access table
-	keycol:@[value;.ds.tablekeycols[tablename];keycol:`sym];
+	keycol:$[.ds.tablekeycols[tablename]=`;`sym;.ds.tablekeycols[tablename]];
 	/- get distint values to partition table on
 	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
