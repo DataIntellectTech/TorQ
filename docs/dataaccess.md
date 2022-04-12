@@ -12,7 +12,7 @@ Other key upgrades of the API are:
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
-A more conceptual discussion of the API can be seen in this [blog post](https://www.aquaq.co.uk/torq-2/data-access-api/).
+A more conceptual discussion of the API can be seen in this [blog post](https://www.aquaq.co.uk/torq-2/data-access-api/)
 
 Configuration
 -------------
@@ -110,7 +110,7 @@ If an invalid key pair is desired the user should convert all inputs to the q-SQ
 
 \*\* More complete examples are provided in the Examples section below
 
-### Example function call
+**Example function call**
 
 ```
 q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`bid`bsize)
@@ -146,15 +146,15 @@ q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!
 (?;`quote;((within;`date;2021.01.20 2021.03.17);(=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
 ```
 
-Aggregations
-------------
+### Aggregations
+
 The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form:
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
 Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway section). The key accepts the following table of inputs:
 
-### Table of Avaliable Aggregations
+**Table of Avaliable Aggregations**
 
 |Aggregation|Description                                          |Example                                          |Cross Process Enabled (See Gateway)|
 |-----------|-----------------------------------------------------|-------------------------------------------------|-----------------------------------|
@@ -195,8 +195,8 @@ min | `price`time
 wavg| ,`bid`bsize
 ```
 
-Filters
--------
+### Filters
+
 The filters key is a dictionary led method of controlling which entries of a given table are being queried by setting out a criteria. The dictionary uses a table column as the key and the entries as the condition to be applied to that column. Any condition to be applied should be entered as a nest of two item lists for each condition and each sublist entered as an operator first followed by conditional values, for example:
 
 ``` `col1`col2`...`coln!((op;cond);((op;cond);(op;cond));...;(op;cond)```
@@ -205,7 +205,7 @@ For negative conditionals, the not and ~: operators can be included as the first
 
 ``` enlist`col1!enlist(not;within;`cond1`cond2)```
 
-### Table of Available Filters
+**Table of Available Filters**
 
 |Operator    |Description                                          |Example                                          |
 |------------|-----------------------------------------------------|-------------------------------------------------|
@@ -221,8 +221,8 @@ For negative conditionals, the not and ~: operators can be included as the first
 |`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
 |`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```         |
 
-Gateway
--------
+### Gateway
+
 The documentation for the gateway outside the API can be found [here](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/Processes.md)
 
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
@@ -232,7 +232,7 @@ Accepting a uniform dictionary allows queries to be sent to the gateway using `.
 - Determines the query type to send to the process(es)
 - Provide further optional arguments to better determine the behaviour of the function see table below:
 
-### Gateway Accepted Keys
+**Gateway Accepted Keys**
 
 |Input Key|Example        |Default behaviour              |Description                                       |
 |---------|---------------|-------------------------------|--------------------------------------------------|
@@ -295,15 +295,15 @@ the full list of aggregations that can span multiple processes without
 a partitioned grouping are as follows: `avg`, `cor`, `count`, `cov`, `dev`,
 `first`, `last`, `max`, `min`, `prd`, `sum`, `var`, `wavg` and `wsum`.
 
-Checkinputs
------------
+### Checkinputs
+
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
 
 - `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable.
 - `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
 
 
-### Description of Fields in checkinputs.csv
+**Description of Fields in checkinputs.csv**
 
 |Field        |Description                                                            |
 |-------------|-----------------------------------------------------------------------|
@@ -312,7 +312,7 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |checkfunction|Function to determine whether the given value is valid                 |
 |invalid pairs|Whether a parameter is invalid in combination with some other parameter|
 
-### Example `checkinputs.csv`
+**Example `checkinputs.csv`**
 
 |parameter|required|checkfunction|invalidpairs|description|
 |---------|--------|-------------|------------|-----------|
@@ -353,8 +353,8 @@ docs|0|.checkinputs.isboolean||info about docs function|
 
 Furthermore, using the `.checkinputs.isboolean` function would provide the user with a more comprehesive error message than `'type` see messages below.
 
-Custom API Errors
------------------
+### Custom API Errors
+
 Below is a list of all the errors the API will return:
 Error|Function|Library|
 |-----|---------|-------------|
@@ -393,8 +393,8 @@ Error|Function|Library|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
-Table Properties Configuration
-------------------------------
+### Table Properties Configuration
+
 Although the default configuration is often the best, there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
 
 Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET).
@@ -465,8 +465,8 @@ For this example the following `tableproperties.csv` should be defined.
 |hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
 
 
-Query Optimisation
--------------------
+### Query Optimisation
+
 The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries as well as return intuative results.
 This is done by:
 
@@ -477,8 +477,8 @@ Furthermore, columns are ordered to put date then sym columns to the left.
 
 Optimisation can be toggled off by setting the value of ``` `queryoptimisation``` in the input dictionary to `0b`.
 
-Debugging and Optimisation
---------------------------
+### Debugging and Optimisation
+
 A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:
 
 1. The user has a filter against a table attributes
