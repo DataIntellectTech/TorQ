@@ -379,9 +379,113 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Monitoring
+      </label>
+    
     <a href="./" title="Monitoring" class="md-nav__link md-nav__link--active">
       Monitoring
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#monit" class="md-nav__link">
+    Monit
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-guide" class="md-nav__link">
+    Usage Guide
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datadog" class="md-nav__link">
+    Datadog
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-guide_1" class="md-nav__link">
+    Usage Guide
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-datadog-ui" class="md-nav__link">
+    Using the Datadog UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-multiple-hosts" class="md-nav__link">
+    Monitoring Multiple Hosts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -439,6 +543,97 @@
     
   
   
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#monit" class="md-nav__link">
+    Monit
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-guide" class="md-nav__link">
+    Usage Guide
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#datadog" class="md-nav__link">
+    Datadog
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation_1" class="md-nav__link">
+    Installation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#features_1" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#usage-guide_1" class="md-nav__link">
+    Usage Guide
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-the-datadog-ui" class="md-nav__link">
+    Using the Datadog UI
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#monitoring-multiple-hosts" class="md-nav__link">
+    Monitoring Multiple Hosts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -454,9 +649,9 @@
                 
                 <h1 id="monitoring-torq">Monitoring TorQ</h1>
 <p>There are lots of standard tools available to monitor a TorQ stack. It can be easily integrated with incumbent monitoring systems. We have outlined how to use two of our preferred options below- Monit and Datadog. Some of their features overlap and some are complementary. </p>
-<h1 id="monit">Monit</h1>
+<h2 id="monit">Monit</h2>
 <p><strong>Monit</strong> is a small open source utility for monitoring and managing UNIX systems. Monit's ease of use makes it the perfect tool for tracking the status of TorQ processes.</p>
-<h2 id="installation">Installation</h2>
+<h3 id="installation">Installation</h3>
 <p>Monit is included in most Unix distributions but can also be downloaded from <a href="https://mmonit.com/monit/#download">here</a>. This monit addition to TorQ allows the monit config files to be easily generated, based on the contents of the process.csv file. </p>
 <p>The basic monit directory which has been added to TorQ can be seen below: </p>
 <pre><code>${TORQHOME}
@@ -470,7 +665,7 @@
 </code></pre>
 
 <p>It is important to mention that AquaQ will not offer support for <strong>monitalert.cfg</strong> and <strong>monitrc</strong>. Those two files have been added as an example on how <strong>monit</strong> can be configured to monitor your system and to offer an out-of-the-box configuration that you can use to test that <strong>monit</strong> works.  If the monit installation contains an updated version of monitrc, this should be used instead. </p>
-<h2 id="features">Features</h2>
+<h3 id="features">Features</h3>
 <p>Monit is only available for UNIX and it comes with a bash script that you can use to generate the configuration and start the processes. More details on how you use this script can be found below. </p>
 <p>We have also included a standard <strong>monitrc</strong> which will: </p>
 <ul>
@@ -493,7 +688,7 @@
     mode active
 </code></pre>
 
-<h2 id="usage-guide">Usage Guide</h2>
+<h3 id="usage-guide">Usage Guide</h3>
 <p>If you want to use <strong>monit</strong> to monitor your UNIX system and TorQ processes you must first generate the configuration files and then start <strong>monit</strong>. We will assume that you start with a fresh copy of TorQ. </p>
 <ol>
 <li>Install TorQ and the any optional customisations (e.g. the TorQ Finanace Starter Pack)</li>
@@ -509,7 +704,7 @@
 <li>Start monit by executing bash monit.sh start </li>
 </ol>
 <p>The start function also take a parameter <strong>("string")</strong> whch can specify the location of the <strong>monitrc</strong>.</p>
-<h1 id="datadog">Datadog</h1>
+<h2 id="datadog">Datadog</h2>
 <p>Datadog is a monitoring service for cloud-scale applications, providing
 monitoring of servers, databases, tools, and services, through a SaaS-based data
 analytics platform. This documentation provides a guideline on how to integrate TorQ and Datadog on
@@ -520,7 +715,7 @@ a Linux host.</p>
 
 <p></br></p>
 <p><strong>Note:</strong> The Datadog Agent used in this integration is version 7, and may not be backwards or forwards compatible with other versions. See the Datadog documentation for more detail. </p>
-<h2 id="installation_1">Installation</h2>
+<h3 id="installation_1">Installation</h3>
 <p>Please Note: At this time the integration of Datadog with TorQ is supported on a unix host. We have not yet provided instructions or functionality for the use of Datadog with TorQ on other operating systems.</p>
 <p>The Datadog Agent is software that runs on your host, collecting events and metrics from the host and sending them to Datadog, where you can analyze your monitoring and performance data. We have provided the functionality to monitor system metrics such as CPU and memory usage, report process errors to Datadog, perform data checks and visualise the results on a custom dashboard. The datadog agent can be installed <a href="https://www.datadoghq.com/">here</a>. Note that there are multiple price plans for Datadog, and the functionality available to you is dependent on your plan. </p>
 <p>A 14-day free trial is available, on which all the monitoring provided within this integration will work. </p>
@@ -547,7 +742,7 @@ An easy one-step install is provided as shown in the video above.</p>
 <li>Datadog.yaml, which contains the port number to listen on, and enables the agent to receive metrics and events from processes. </li>
 <li>Process.yaml, which determines which processes datadog will retrieve CPU and memory stats for. This file is generated using the process.csv, and by default all processes will be monitored. If you wish to monitor only certain processes, a "datadog" column can be added to the process.csv, and a value of 1 or 0 added to each of the processes (1 meaning monitored, 0 meaning not monitored).</li>
 </ul>
-<h2 id="features_1">Features</h2>
+<h3 id="features_1">Features</h3>
 <p><img alt="Simple Datadog Integration" src="../graphics/datadog1.png" /></p>
 <ul>
 <li>Send Metrics and Events</li>
@@ -596,7 +791,7 @@ We have provided an example check (<strong>.dg.isok</strong>) and (<strong>.dg.s
 datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresultmetric|`varname`cond!(`datadogcheck;`true)|0D00:01|0D00:00:00.5
 </code></pre>
 
-<h2 id="usage-guide_1">Usage Guide</h2>
+<h3 id="usage-guide_1">Usage Guide</h3>
 <p>If you wish to incorporate Datadog into your system as a monitoring tool, you can follow the instructions in the video above or the written instructions as follows. This will configure datadog according to default settings, and will not enable error logging or any monitoring functions unless configured by the user.  </p>
 <ol>
 <li>Install Datadog agent on your host according to instructions <a href="https://docs.datadoghq.com/getting_started/agent/?tab=datadogussite">here</a></li>
@@ -609,7 +804,7 @@ datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresult
 </li>
 </ol>
 <p>The agent is now reporting process stats, and these can be visualised on the datadog UI. For more detailed metrics and events, enable the error logging using <code>.dg.enabled:1b</code> and configure the monitor process to run some checks. </p>
-<h2 id="using-the-datadog-ui">Using the Datadog UI</h2>
+<h3 id="using-the-datadog-ui">Using the Datadog UI</h3>
 <p>You can visualise your metrics and events on a dashboard, and configure monitors and alerts. </p>
 <p>An example dashboard has been provided in <code>$TORQHOME/datadog/Example_TorQ_Monitoring_Dashboard.json.</code> This displays simple metrics such as process cpu %, process memory % and relative changes in these, as well as TorQ-specific process checks and a stream of any errors from TorQ processes. To import this into your datadog UI, go to the dashboards section <a href="https://app.datadoghq.com/dashboard/">here</a> And click <strong>add new screenboard</strong>. In the settings section, select <strong>import  dashboard json</strong> and copy and paste the json or browse your files to select the json dashboard you want to import. You will be prompted with whether or  not you want to replace whatever is on the screenboard - click yes. Your dashboard will then load and display as below. The appearance of the dashboard will depend on whether you've enabled the extended error logging, and configured the monitor process. </p>
 <p><img alt="Example Dashboard" src="../graphics/datadog2.png" /></p>
@@ -617,7 +812,7 @@ datadog|okcheck|rdb1;sort1;gateway1;hdb1;hdb2;wdb1;feed1|.dg.isok|.dg.sendresult
 <p><strong>Monitors</strong> can be set up to track metrics and establish alerts based on critical changes. We've provided some example monitors, designed to notify if a process goes down, or system resources reach a limit. To import an example monitor, go to the "Monitors" section on your datadog account, click <strong>New Monitor</strong>, then <strong>Import Monitor</strong>, and copy and paste the JSON of the monitor you'd like to use into the text box provided, then click save. The monitor will then become available and start alerting.</p>
 <p>You can create custom monitors using the guidelines in the Datadog documentation
 <a href="https://docs.datadoghq.com/monitors/monitor_types/">here</a></p>
-<h2 id="monitoring-multiple-hosts">Monitoring Multiple Hosts</h2>
+<h3 id="monitoring-multiple-hosts">Monitoring Multiple Hosts</h3>
 <p>Depending on your datadog pricing plan, the option to monitor multiple hosts is provided. To integrate Datadog and TorQ across all hosts, you will need to install the agent on each host, and follow the installation instructions as above. If your TorQ setup is operating across different hosts, you will need to establish which processes to monitor on which host by configuring a "datadog" column in the process.csv as discussed earlier.</p>
                 
                   
