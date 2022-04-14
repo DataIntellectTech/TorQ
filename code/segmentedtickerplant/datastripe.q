@@ -7,6 +7,7 @@
 
 .ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
 .ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
+.ds.systemtables:@[value;`.ds.systemtables;`systemtables.csv];
 .ds.ignoredtables:@[value;`.ds.ignoredtables;`ignoredtables.csv];
 
 //if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
@@ -40,8 +41,11 @@ segmentfilter:{[tbl;segid]
      };
 
 //Setting the path to the csv containing the tables that will not be segmented. Reading in the ignoredtables.csv
+stpath:first .proc.getconfigfile[string .ds.systemtables];
+@[{.stpps.systemtables:("S ";enlist",")0: hsym x}.stpps.stpath];
 igtpath:first .proc.getconfigfile[string .ds.ignoredtables];
 @[{.stpps.ignoredtables:("S ";enlist",")0: hsym x}.stpps.igtpath];
+
 
 // Subscribe to particular segment using segmentID based on .u.sub
 subsegment:{[tbl;segid];
@@ -52,12 +56,13 @@ subsegment:{[tbl;segid];
           :(tbl;`err`msg!(`table;m));
      ];
      filter:segmentfilter[tbl;segid];
-     $[tbl in .stpps.ignoredtables;[.stpps.suball[tbl]];
-     [if[filter~"";
-          .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :(tbl;`err`msg!(`segmentid;m));
-     ];
-     
+     $[tbl in .stpps.systemtables;[.stpps.suball[tbl]];
+     [if[filter~"";$[tbl in .stpps.ignoredtables;
+                    [.lg.o[`sub;m:"Table ",string[tbl]," is in ignoredtables.csv and will not be subscribed to"];
+                    :(tbl;`err`msg!(`ignoredtable;m));];
+                    [.lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
+                    :(tbl;`err`msg!(`segmentid;m));]
+                    ]];
      .ps.subtablefiltered[string[tbl];filter;""]]]
      };
 
@@ -71,6 +76,7 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `date ; (.eodtime `d);                                                         
      `logdir ; `$getenv`KDBTPLOG;                                                   
      `filters ; .stpps.filtermap[tabs;segid];
+     `systemtables ; (flip .stpps.systemtables)[`tables];
      `ignoredtables ; (flip .stpps.ignoredtables)[`tables]
 	)}
         
