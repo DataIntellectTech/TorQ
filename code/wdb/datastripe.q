@@ -27,6 +27,14 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
 
+// function to get handle for rdb and send access table
+pubaccess:{[access;procname]
+	/- get rdb handle
+	w: first .sub.getsubscriptionhandles[`rdb;procname;()!()]`w;
+	/- send command down handle to remove specified period
+	@[w;(`.rdb.datastripeendofperiod;(access[`end];access[`end];access[`tablename]))]}
+	
+
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
@@ -53,6 +61,8 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 	/- delete data from last period
 	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
+	/- create an access table (temp)
+	access:`start`end`tablename`keycol!(.z.p-.z.n;.z.p;tablename;keycol);
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
