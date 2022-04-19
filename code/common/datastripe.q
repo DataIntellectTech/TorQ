@@ -4,6 +4,13 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
+tablekeycolsconfig:@[value;`.ds.tablekeycolsconfig;`tablekeycols.csv];    // getting the location of the tablekeycols.csv config file
+
+loadtablekeycols:{[]                                                          // loading the tablekeycols config as a dictionary
+    keypath:first .proc.getconfigfile[string .ds.tablekeycolsconfig];
+    @[{.ds.tablekeycols:(!/)(("SS";enlist",")0: hsym x)`tablename`keycol};keypath;{.lg.e[`init;"Failure in loading ",string y]}[;keypath]];
+    };
+
 \d .
 
 .rdb.datastripeendofperiod:{[currp;nextp;data]
@@ -23,4 +30,4 @@ initdatastripe:{
     endofperiod::.rdb.datastripeendofperiod;
     };
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]]
