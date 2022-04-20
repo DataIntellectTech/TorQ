@@ -28,11 +28,11 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 \d .ds
 
 // function to get handle for rdb and send access table
-pubaccess:{[access;procname]
+pubaccess:{[accesstab]
 	/- get rdb handle
-	w: first .sub.getsubscriptionhandles[`rdb;procname;()!()]`w;
+	w: .sub.getsubscriptionhandles[`rdb;();()!()]`w;
 	/- send command down handle to remove specified period
-	@[w;(`.rdb.datastripeendofperiod;(access[`end];access[`end];access[`tablename]))]}
+	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename])}
 	
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
@@ -65,6 +65,8 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
 	/- create an access table (temp)
 	access:`start`end`tablename`keycol!(.z.p-.z.n;.z.p;tablename;keycol);
+	/- publish access table to rdb and clear tables in rdb
+	pubaccess[access]
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
