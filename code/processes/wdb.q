@@ -21,11 +21,16 @@ mode:@[value;`mode;`saveandsort];                                          /-the
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`partbyattr];                         /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
+
+if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`col];];        /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in two ways:
+                                                                           /- 1. part                      -       the entire partition is merged to the hdb 
+                                                                           /- 2. col                       -       each column in the temporary partitions are merged individually 
+
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
@@ -295,52 +300,76 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
+mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
+  .lg.o[`merge;"reading partition ", string segment];	
+  curr[0]:curr[0],select from get segment;
+  curr[1]:curr[1],segment;		
+  $[islast or mergemaxrows < count curr[0];
+    [
+      .lg.o[`resort;"Checking that the contents of this subpartition conform"];
+      pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
+      if[pattrtest;
+        /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+        .lg.o[`resort;"Re-sorting contents of subpartition"];
+        curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
+        .lg.o[`resort;"The p attribute can now be applied"];
+        ];
+      .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+      dest upsert curr[0];
+      .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+      .os.deldir each string curr[1];
+      (();())];
+    curr]
+  };
+
+mergebycol:{[tablename;dest;segment;islast]
+  .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
+  /- function to save column by column data from segments to hdb
+  {[dest;segment;col]
+    /-filepath to hdb partition column where data will be saved to
+    destcol:(` sv dest, col);
+    /-data from column in temp storage to be saved in hdb
+    destdata: get ` sv segment, col;
+    /-upsert data to hdb column
+    .[upsert;(destcol;destdata);{[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];'e}]
+  }[dest;segment;] each cols tablename;
+  /-once all columns have been upserted create .d file to preserve order of columns
+  if[islast;
+  .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
+  (` sv dest,`.d) set cols tablename];
+  /- remove partition from temporary storage
+  .lg.o[`merge;"Removing ", string[segment]];
+  .os.deldir string segment;
+  };
+
 merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
   setcompression[hdbsettings[`compression]];
   /- get list of partition directories for specified table 
   partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tableinfo[0]];
   /- exit function if no subdirectories are found
 
-  dest:` sv .Q.par[hdbsettings[`hdbdir];pt;tableinfo[0]],`;
+  dest:.Q.par[hdbsettings[`hdbdir];pt;tableinfo[0]];
   .lg.o[`merge;"merging ",(string tableinfo[0])," to ",string dest];
 
   $[0=count partdirs;
     [
       .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
-      dest set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
+      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
       //.lg.o[`merge;"setting attributes"];
       //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
       //.lg.o[`merge;"merge complete"];
     ];
-    [  
-      {[tablename;dest;mergemaxrows;curr;segment;islast]
-	      .lg.o[`merge;"reading partition ", string segment];	
-	      curr[0]:curr[0],select from get segment;
-	      curr[1]:curr[1],segment;		
-      	$[islast or mergemaxrows < count curr[0];
-	        
-                [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
-                 pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
-                 if[pattrtest;
-                  /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-                  .lg.o[`resort;"Re-sorting contents of subpartition"];
-                  curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
-                  .lg.o[`resort;"The p attribute can now be applied"];
-                 ];
-                
-                .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-	        dest upsert curr[0];
-	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-	        .os.deldir each string curr[1];
-	        (();())];
-	        curr]
-	    }[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
-	    /- set the attributes
-	    .lg.o[`merge;"setting attributes"];
+    [
+      $[mergemode~`part;
+        [dest: ` sv dest,`;
+          mergebypart[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];  
+        mergebycol[tableinfo[0];dest]'[partdirs; 1 _ ((count partdirs)#0b),1b]];
+      /- set the attributes
+      .lg.o[`merge;"setting attributes"];
       @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
-	    .lg.o[`merge;"merge complete"];
-	    /- run a garbage collection (if enabled)
-	    if[gc;.gc.run[]];	
+      .lg.o[`merge;"merge complete"];
+      /- run a garbage collection (if enabled)
+      if[gc;.gc.run[]];	
     ]
   ]
  };	
