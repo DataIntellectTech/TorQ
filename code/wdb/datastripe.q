@@ -33,8 +33,7 @@ pubaccess:{[accesstab]
 	w: .sub.getsubscriptionhandles[`rdb;();()!()]`w;
 	/- send command down handle to remove specified period
 	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename]);
-	/- append the access table to the access table in the rdb
-	(neg w)@\:(`insert;`.rdb.access;accesstab[`end`tablename`keycol])}
+	};
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table

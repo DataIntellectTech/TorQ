@@ -16,6 +16,9 @@ loadtablekeycols:{[]                                                          //
 .rdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
     
+    // update the access table in the rdb
+    .rdb.access,:`start`tablename`keycol!(nextp;data;.rdb.tablekeycols[data]);
+
     // remove periods of data from tables
     t:tables[`.] except .rdb.ignorelist;
     lasttime:currp-.ds.periodstokeep*(nextp-currp);
