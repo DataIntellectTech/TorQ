@@ -4,6 +4,8 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
+deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
+
 \d .
 
 .rdb.datastripeendofperiod:{[currp;nextp;data]
