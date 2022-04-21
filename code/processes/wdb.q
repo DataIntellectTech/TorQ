@@ -547,4 +547,4 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 upd:.wdb.upd
 
 /- get the access table
-.ds.loadtablekeycols[]
+.wdb.tablekeycols:.ds.loadtablekeycols[]

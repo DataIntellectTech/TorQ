@@ -32,8 +32,9 @@ pubaccess:{[accesstab]
 	/- get rdb handle
 	w: .sub.getsubscriptionhandles[`rdb;();()!()]`w;
 	/- send command down handle to remove specified period
-	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename])}
-	
+	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename]);
+	/- append the access table to the access table in the rdb
+	(neg w)@\:(`insert;`.rdb.access;accesstab[`end`tablename`keycol])}
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
@@ -54,7 +55,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
 savetablesoverperiod:{[dir;tablename;nextp]
 	/- function to get keycol for table from access table
-	keycol:$[.ds.tablekeycols[tablename]=`;`sym;.ds.tablekeycols[tablename]];
+	keycol:$[.wdb.tablekeycols[tablename]=`;`sym;.wdb.tablekeycols[tablename]];
 	/- get distint values to partition table on
 	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
