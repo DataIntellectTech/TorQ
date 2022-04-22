@@ -66,7 +66,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- create an access table (temp)
 	access:`start`end`tablename`keycol!(.z.p-.z.n;.z.p;tablename;keycol);
 	/- publish access table to rdb and clear tables in rdb
-	pubaccess[access]
+	pubaccess[access];
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};

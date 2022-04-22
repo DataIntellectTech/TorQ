@@ -50,7 +50,7 @@ eodwaittime:0D00:00:10.000                                                      
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
 \d .ds
-datastripe:1b
+datastripe:0b
 period:0D01                                    
 periodstokeep:4
 lasttimestamp:.z.p-4*period
