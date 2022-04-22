@@ -27,10 +27,10 @@ writedownmode:@[value;`writedownmode;`partbyattr];                         /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`col];];        /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in two ways:
+if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`hybrid]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in two ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
-
+partcounts:()!();                                                          /-dictionary of keys partition directories and values the count of the values in the partition
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
@@ -87,7 +87,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
+hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
@@ -108,7 +108,8 @@ maxrows:{[tabname] numrows^numtab[tabname]}
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
 /- keyed table to track the size of tables on disk
-tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
+tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$());
+partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());
 
 /- function to return a list of tables that the wdb process has been configured to deal within
 tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
@@ -147,12 +148,15 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		(`$"_"^.Q.an .Q.an?"_" sv string 
 		/- convert to symbols and replace any null values with `NONE
 		`NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];	
-	/- upsert selected data matched on partition to specific directory 	
+	/- upsert selected data matched on partition to specific directory (drop trailing slash on directory key) 	
 	.[
-		upsert;
+	        {partcounts[(first ` vs x)]+:((count y);(-22!y));x upsert y};
 		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
 		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
-	];		
+	];
+        .lg.o[`track;"appending details to partsizes"];
+        /-key in partsizes are directory to partition, need to drop training slash
+	partsizes[first ` vs directory]+:(count r;-22!r);
 	};
 	
 savetablesbypart:{[dir;pt;forcesave;tablename]
@@ -171,7 +175,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 		.lg.o[`save;"enumerated ",(string tablename)," table"];		
 		/- upsert data to specific partition directory 
 		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
-		/- empty the table
+                /- empty the table
 		.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
 		@[`.;tablename;0#];
 		/- run a garbage collection (if enabled)
@@ -303,7 +307,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
   .lg.o[`merge;"reading partition ", string segment];	
   curr[0]:curr[0],select from get segment;
-  curr[1]:curr[1],segment;		
+  curr[1]:curr[1],segment;
   $[islast or mergemaxrows < count curr[0];
     [
       .lg.o[`resort;"Checking that the contents of this subpartition conform"];
@@ -315,63 +319,81 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
         .lg.o[`resort;"The p attribute can now be applied"];
         ];
       .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-      dest upsert curr[0];
-      .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-      .os.deldir each string curr[1];
+      mergeresult:.[{x upsert y;1b};(dest;curr[0]);                     
+                     {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];0b}]; 
+      if[mergeresult;.lg.o[`merge;"removing segments", (", " sv string curr[1])];
+        .os.deldir each string curr[1]];
       (();())];
     curr]
   };
 
-mergebycol:{[tablename;dest;segment;islast]
+mergebycol:{[tabname;dest;segment;islast]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
   /- function to save column by column data from segments to hdb
-  {[dest;segment;col]
-    /-filepath to hdb partition column where data will be saved to
-    destcol:(` sv dest, col);
-    /-data from column in temp storage to be saved in hdb
-    destdata: get ` sv segment, col;
-    /-upsert data to hdb column
-    .[upsert;(destcol;destdata);{[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];'e}]
-  }[dest;segment;] each cols tablename;
-  /-once all columns have been upserted create .d file to preserve order of columns
-  if[islast;
-  .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
-  (` sv dest,`.d) set cols tablename];
+  mergeresults:{[dest;segment;col]
+                 /-filepath to hdb partition column where data will be saved to
+                 destcol:(` sv dest, col);
+                 /-data from column in temp storage to be saved in hdb
+                 destdata: get ` sv segment, col;
+                 /-upsert data to hdb column
+                 .[{x upsert y;1b};(destcol;destdata);
+                   {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];0b}]
+  }[dest;segment;] each cols tabname;
+  /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
+  if[islast and ()~key (` sv dest,`.d);
+    .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
+    (` sv dest,`.d) set cols tabname];
   /- remove partition from temporary storage
-  .lg.o[`merge;"Removing ", string[segment]];
-  .os.deldir string segment;
+  if[all mergeresults; 
+    .lg.o[`merge;"Removing ", string[segment]];
+    .os.deldir string segment];
   };
+
+mergehybrid:{[tabname;dest;partdirs;mergelimit]
+  /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of rows is over the limit  
+  overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
+  if[(count overlimit)<>count partdirs;
+    partdirs:partdirs except overlimit;
+    mergebypart[tabname;(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];
+  if[0<>count overlimit;
+    mergebycol[tabname;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]];
+  };     
 
 merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
   setcompression[hdbsettings[`compression]];
+  /- get tablename
+  tabname:tableinfo[0];
   /- get list of partition directories for specified table 
-  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tableinfo[0]];
+  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tabname];
   /- exit function if no subdirectories are found
 
-  dest:.Q.par[hdbsettings[`hdbdir];pt;tableinfo[0]];
-  .lg.o[`merge;"merging ",(string tableinfo[0])," to ",string dest];
+  dest:.Q.par[hdbsettings[`hdbdir];pt;tabname];
+  .lg.o[`merge;"merging ",string[tabname]," to ",string dest];
 
   $[0=count partdirs;
     [
-      .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
-      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
+      .lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
+      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
       //.lg.o[`merge;"setting attributes"];
-      //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+      //@[dest;;`p#] each .merge.getextrapartitiontype[tabname];
       //.lg.o[`merge;"merge complete"];
     ];
-    [
+   [
       $[mergemode~`part;
-        [dest: ` sv dest,`;
-          mergebypart[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];  
-        mergebycol[tableinfo[0];dest]'[partdirs; 1 _ ((count partdirs)#0b),1b]];
+        [ dest: ` sv dest,`;
+          mergebypart[tabname;dest;(mergelimits[tabname])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];
+        mergemode~`col;
+          mergebycol[tabname;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
+          mergehybrid[tabname;dest;partdirs;mergelimits[tabname]]
+      ];
       /- set the attributes
       .lg.o[`merge;"setting attributes"];
-      @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
+      @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
       .lg.o[`merge;"merge complete"];
       /- run a garbage collection (if enabled)
-      if[gc;.gc.run[]];	
+      if[gc;.gc.run[]];
     ]
-  ]
+  ] 
  };	
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
