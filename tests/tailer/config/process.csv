@@ -1,5 +1,0 @@
-host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
-localhost,{KDBBASEPORT}+1,discovery,discovery1,,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
-localhost,{KDBBASEPORT},segmentedtickerplant,stp1,,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-tplogdir ${KDBTPLOG},q
-localhost,{KDBBASEPORT}+2,rdb,rdb1,,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.ds.tablekeycolsconfig $testpath/config/tablekeycols.csv,q
-localhost,{KDBBASEPORT}+3,feed,feed1,,1,0,,,${KDBAPPCODE}/tick/feed.q,1,,q

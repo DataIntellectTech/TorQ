@@ -11,6 +11,8 @@ loadtablekeycols:{[]                                                          //
     @[{tablekeycols:(!/)(("SS";enlist",")0: hsym x)`tablename`keycol};keypath;{.lg.e[`init;"Failure in loading ",string y]}[;keypath]]
     };
 
+deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
+
 \d .
 
 .rdb.datastripeendofperiod:{[currp;nextp;data]
@@ -33,4 +35,4 @@ initdatastripe:{
     endofperiod::.rdb.datastripeendofperiod;
     };
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]]
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

@@ -7,19 +7,18 @@ td:hsym `$getenv`KDBTAIL
 \d .
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
-    .lg.o[`reload;"reload command has been called remotely"];
-    
+    .lg.o[`reload;"reload command has been called remotely"];    
     // remove periods of data from tables
     t:tables[`.] except .wdb.ignorelist;
     lasttime:currp-.ds.periodstokeep*(nextp-currp);
-    tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
+    tabs:.ds.deletetablebefore'[t;`time;lasttime];
+    / tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     };
 
 
 initdatastripe:{
 	// update endofday and endofperiod functions
-    //endofday::endofday;
     endofperiod::.wdb.datastripeendofperiod;
     };
 
@@ -36,15 +35,18 @@ pubaccess:{[accesstab]
 	};
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
+	/- function takes a (dir)ectory handle, tablename as a symbol
+	/- column to key table on, an enumerated table and a timestamp.
+	/- partitions the data on the keycol and upserts it to the given dir
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 	/- get process specific taildir location
 	dir:` sv dir,.proc.procname,`;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
-	.lg.o[`save;"saving ",string[tablename]," data to partition ",
-		/- create directory location for selected partition
-		string directory:` sv .Q.par[dir;partitionint;tablename],`];
+	/- create directory location for selected partition
+	directory:` sv .Q.par[dir;partitionint;tablename],`;
+	.lg.o[`save;"saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
 	/- upsert select data matched on partition to specific directory
 	.[upsert;
 	  (directory;enumdata);
@@ -62,6 +64,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/-upsert table to partition
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 	/- delete data from last period
+	.[.ds.deletetablebefore;(tablename;`time;nextp)];
 	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
 	/- create an access table (temp)
 	access:`start`end`tablename`keycol!(.z.p-.z.n;.z.p;tablename;keycol);
@@ -72,8 +75,9 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	};
 	
 savealltablesoverperiod:{[dir;nextp]
-	t:nextp;
-	savetablesoverperiod[dir;;t]each .wdb.tablelist[];
+	/- function takes the tailer hdb directory handle and a timestamp
+	/- saves each table up to given period to their respective partitions
+	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
 	};
 
 
