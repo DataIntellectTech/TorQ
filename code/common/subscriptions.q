@@ -128,7 +128,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // pull out subscription details from the TP
   details:@[proc`w;(subfunc;realsubs[`subtabs];realsubs[`instrs]),$[.ds.datastripe;.ds.segmentid;()];{.lg.e[`subscribe;"subscribe failed : ",x];()}];
   if[count details;
-  if[.ds.datastripe;checkvalidfilter[details[`schemalist];details[`ignoredtables]]];
+  if[.ds.datastripe;checkvalidfilter[details`schemalist;details`ignoredtables]];
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
        filter:$[.ds.datastripe;
@@ -155,7 +155,7 @@ checkvalidfilter:{[schemalist;ignoredtables]
   // schemalist will return valid (`tablename;schematable) or invalid (`tablename;`err`msg!(`errtype;"error message"))
   errors:where 99h = type each schemalist[;1];
   invalidtables:(schemalist[;0] errors) except ignoredtables;
-  if[(count invalidtables) > 0;[ errmsg:exec msg from (schemalist[;1] errors) where err in `segmentid;.lg.e[`sub;] each errmsg]];
+  if[0<count invalidtables; .lg.e[`sub] each exec msg from (schemalist[;1] errors) where err=`segmentid];
   };
 
 // wrapper function around upd which is used to only replay syms and tables from the log file that

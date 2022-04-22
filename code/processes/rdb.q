@@ -234,5 +234,6 @@ $[.rdb.connectonstart;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
 
 //Updating ignorelist for datastriping as tables that are not subscribed don't need to be reloaded
-if[.ds.datastripe;.rdb.tabtypes:type each (value each .rdb.subtables)];
-if[.ds.datastripe;.rdb.ignorelist:.rdb.ignorelist,.rdb.subtables[where .rdb.tabtypes<>98h]];
+if[.ds.datastripe;
+  .rdb.ignorelist:.rdb.ignorelist,.rdb.subtables[where 98h<>type each value each .rdb.subtables];
+  ];

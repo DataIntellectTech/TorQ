@@ -42,9 +42,9 @@ segmentfilter:{[tbl;segid]
 
 //Setting the path to the csv containing the tables that will not be segmented. Reading in the ignoredtables.csv
 stpath:first .proc.getconfigfile[string .ds.systemtables];
-@[{.stpps.systemtables:("S ";enlist",")0: hsym x}.stpps.stpath];
+[{.stpps.systemtables:("S ";enlist",")0: hsym x}.stpps.stpath];
 igtpath:first .proc.getconfigfile[string .ds.ignoredtables];
-@[{.stpps.ignoredtables:("S ";enlist",")0: hsym x}.stpps.igtpath];
+[{.stpps.ignoredtables:("S ";enlist",")0: hsym x}.stpps.igtpath];
 
 
 // Subscribe to particular segment using segmentID based on .u.sub
@@ -57,13 +57,14 @@ subsegment:{[tbl;segid];
      ];
      filter:segmentfilter[tbl;segid];
      $[tbl in .stpps.systemtables;[.stpps.suball[tbl]];
-     [if[filter~"";$[tbl in .stpps.ignoredtables;
+     [$[tbl in .stpps.ignoredtables;
                     [.lg.o[`sub;m:"Table ",string[tbl]," is in ignoredtables.csv and will not be subscribed to"];
                     :(tbl;`err`msg!(`ignoredtable;m));];
+       $[filter~"";             
                     [.lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
                     :(tbl;`err`msg!(`segmentid;m));]
-                    ]];
-     .ps.subtablefiltered[string[tbl];filter;""]]]
+                    ;
+                    [.ps.subtablefiltered[string[tbl];filter;""]]]]]]
      };
 
 \d .
