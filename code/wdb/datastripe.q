@@ -36,9 +36,9 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	dir:` sv dir,.proc.procname,`;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
-	.lg.o[`save;"saving ",string[tablename]," data to partition ",
-		/- create directory location for selected partition
-		string directory:` sv .Q.par[dir;partitionint;tablename],`];
+	/- create directory location for selected partition
+	directory:` sv .Q.par[dir;partitionint;tablename],`;
+	.lg.o[`save;"saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
 	/- upsert select data matched on partition to specific directory
 	.[upsert;
 	  (directory;enumdata);
