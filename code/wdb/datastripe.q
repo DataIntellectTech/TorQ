@@ -38,7 +38,8 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	partitionint:`$string (where s=value [`.]`sym)0;
 	/- create directory location for selected partition
 	directory:` sv .Q.par[dir;partitionint;tablename],`;
-	.lg.o[`save;"saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
+	.lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
+	.lg.o[`save;"Saving data down to ",string[directory]];
 	/- upsert select data matched on partition to specific directory
 	.[upsert;
 	  (directory;enumdata);
