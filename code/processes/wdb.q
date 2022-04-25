@@ -30,7 +30,6 @@ writedownmode:@[value;`writedownmode;`partbyattr];                         /-the
 if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`hybrid]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in two ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
-partcounts:()!();                                                          /-dictionary of keys partition directories and values the count of the values in the partition
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
