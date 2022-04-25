@@ -309,44 +309,51 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
   curr[0]:curr[0],select from get segment;
   curr[1]:curr[1],segment;
   $[islast or mergemaxrows < count curr[0];
-    [
-      .lg.o[`resort;"Checking that the contents of this subpartition conform"];
-      pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
-      if[pattrtest;
-        /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-        .lg.o[`resort;"Re-sorting contents of subpartition"];
-        curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
-        .lg.o[`resort;"The p attribute can now be applied"];
-        ];
-      .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-      mergeresult:.[{x upsert y;1b};(dest;curr[0]);                     
-                     {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];0b}]; 
-      if[mergeresult;.lg.o[`merge;"removing segments", (", " sv string curr[1])];
-        .os.deldir each string curr[1]];
-      (();())];
-    curr]
+    [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
+     pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
+     if[pattrtest;
+       /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+       .lg.o[`resort;"Re-sorting contents of subpartition"];
+       curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
+       .lg.o[`resort;"The p attribute can now be applied"];
+       ];
+     .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
+     /-merge columns and return boolean based on success of merge
+     mergeresult:.[{x upsert y;1b};(dest;curr[0]);                     
+       {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];0b}]; 
+     /-if merge successful, delete directory partition directory from temporary storage
+     if[mergeresult;
+        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+        .os.deldir each string curr[1]
+       ];
+     (();())
+    ];
+    curr
+  ]
   };
 
 mergebycol:{[tabname;dest;segment;islast]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
-  /- function to save column by column data from segments to hdb
+  /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
   mergeresults:{[dest;segment;col]
-                 /-filepath to hdb partition column where data will be saved to
-                 destcol:(` sv dest, col);
-                 /-data from column in temp storage to be saved in hdb
-                 destdata: get ` sv segment, col;
-                 /-upsert data to hdb column
-                 .[{x upsert y;1b};(destcol;destdata);
-                   {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];0b}]
-  }[dest;segment;] each cols tabname;
+    /-filepath to hdb partition column where data will be saved to
+    destcol:(` sv dest, col);
+    /-data from column in temp storage to be saved in hdb
+    destdata: get ` sv segment, col;
+    /-upsert data to hdb column
+    .[{x upsert y;1b};(destcol;destdata);
+      {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];0b}]
+    }[dest;segment;] each cols tabname;
   /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
   if[islast and ()~key (` sv dest,`.d);
     .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
-    (` sv dest,`.d) set cols tabname];
-  /- remove partition from temporary storage
+    (` sv dest,`.d) set cols tabname
+    ];
+  /- if upserts of all columns have been successful remove partition from temporary storage
   if[all mergeresults; 
     .lg.o[`merge;"Removing ", string[segment]];
-    .os.deldir string segment];
+    .os.deldir string segment
+    ];
   };
 
 mergehybrid:{[tabname;dest;partdirs;mergelimit]
@@ -354,9 +361,13 @@ mergehybrid:{[tabname;dest;partdirs;mergelimit]
   overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
-    mergebypart[tabname;(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];
+    .lg.o[`merge;"mergeing ",  (", " sv string partdirs), " by whole partition"];
+    mergebypart[tabname;(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]
+    ];
   if[0<>count overlimit;
-    mergebycol[tabname;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]];
+    .lg.o[`merge;"mergeing ",  (", " sv string partdirs), " column by column"];
+    mergebycol[tabname;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]
+    ];
   };     
 
 merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
@@ -366,33 +377,30 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
   /- get list of partition directories for specified table 
   partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tabname];
   /- exit function if no subdirectories are found
-
   dest:.Q.par[hdbsettings[`hdbdir];pt;tabname];
   .lg.o[`merge;"merging ",string[tabname]," to ",string dest];
-
   $[0=count partdirs;
-    [
-      .lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
-      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
-      //.lg.o[`merge;"setting attributes"];
-      //@[dest;;`p#] each .merge.getextrapartitiontype[tabname];
-      //.lg.o[`merge;"merge complete"];
+    [.lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
+     (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
+     //.lg.o[`merge;"setting attributes"];
+     //@[dest;;`p#] each .merge.getextrapartitiontype[tabname];
+     //.lg.o[`merge;"merge complete"];
     ];
-   [
-      $[mergemode~`part;
-        [ dest: ` sv dest,`;
-          mergebypart[tabname;dest;(mergelimits[tabname])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]];
-        mergemode~`col;
-          mergebycol[tabname;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
-          mergehybrid[tabname;dest;partdirs;mergelimits[tabname]]
+   [$[mergemode~`part;
+      [dest: ` sv dest,`;
+       mergebypart[tabname;dest;(mergelimits[tabname])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];
       ];
-      /- set the attributes
-      .lg.o[`merge;"setting attributes"];
-      @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
-      .lg.o[`merge;"merge complete"];
-      /- run a garbage collection (if enabled)
-      if[gc;.gc.run[]];
-    ]
+    mergemode~`col;
+      mergebycol[tabname;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
+      mergehybrid[tabname;dest;partdirs;mergelimits[tabname]]
+    ];
+    /- set the attributes
+    .lg.o[`merge;"setting attributes"];
+    @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
+    .lg.o[`merge;"merge complete"];
+    /- run a garbage collection (if enabled)
+    if[gc;.gc.run[]];
+   ]
   ] 
  };	
 	
@@ -406,7 +414,11 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
   /- if path exists, delete it
-  if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
+  if[all not () ~/: key each key .wdb.partsizes; 
+    .lg.o[`merge;"deleting temp storage directory"];
+    .os.deldir .os.pth[string .Q.par[savedir;pt;`]]];
+  /- delete contents of row tracking table
+  delete from `.wdb.partsizes;
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload; 
