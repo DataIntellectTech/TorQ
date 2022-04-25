@@ -1,0 +1,5 @@
+2022.04.25D10:50:01.086186000|homer.aquaq.co.uk|wdb|test1|ERR|KUexecerr|true error in file :/home/creid/TorQ/tests/tailer/access/tests.csv on line 3 - .rdb.access. Code: '2=count .rdb.access'
+2022.04.25D10:50:01.086272000|homer.aquaq.co.uk|wdb|test1|ERR|KUexecerr|true error in file :/home/creid/TorQ/tests/tailer/access/tests.csv on line 4 - .wdb.tablekeycols. Code: '2=count .wdb.tablekeycols'
+2022.04.25D10:50:01.086324000|homer.aquaq.co.uk|wdb|test1|ERR|KUexecerr|true error in file :/home/creid/TorQ/tests/tailer/access/tests.csv on line 5 - .rdb.access. Code: '98=type .rdb.access'
+2022.04.25D10:50:01.086374000|homer.aquaq.co.uk|wdb|test1|ERR|KUexecerr|true error in file :/home/creid/TorQ/tests/tailer/access/tests.csv on line 6 - .wdb.tablekeycols. Code: '99=type .wdb.tablekeycols'
+2022.04.25D10:50:01.086982000|homer.aquaq.co.uk|wdb|test1|ERR|KUexecerr|after error in file :/home/creid/TorQ/tests/tailer/access/tests.csv on line 7 - temphdbdir. Code: 'wdbh".os.deldir temphdbdir"'

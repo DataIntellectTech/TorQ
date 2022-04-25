@@ -1,0 +1,35 @@
+2022.04.25D10:50:21.074221000|homer.aquaq.co.uk|wdb|test1|INF|logging|creating alias using command ln -sf out_access_2022_04_25_10_50_21_071811000.log /home/creid/TorQ/tests/tailer/access/2022.04.25//logs//out_access.log
+################################################################################
+#                                                                              #
+#                                 TorQ v4.2.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.10.0                      #
+#                                                                              #
+################################################################################
+2022.04.25D10:50:21.076193000|homer.aquaq.co.uk|wdb|test1|INF|k4unit|start
+2022.04.25D10:50:21.076219000|homer.aquaq.co.uk|wdb|test1|INF|k4unit|:/home/creid/TorQ/tests/tailer/access/tests.csv 4 test(s)
+2022.04.25D10:50:21.076491000|homer.aquaq.co.uk|wdb|test1|INF|conn|attempting to open handle to :homer.aquaq.co.uk:52854
+2022.04.25D10:50:21.076859000|homer.aquaq.co.uk|wdb|test1|INF|conn|connection to :homer.aquaq.co.uk:52854 successful
+2022.04.25D10:50:21.077791000|homer.aquaq.co.uk|wdb|test1|INF|k4unit|end
+"k4unit Test Results"
+action ms bytes lang code                      repeat file                                            msx bytesx ok okms okbytes valid timestamp               csvline
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+true   0  0     q    2=count .rdb.access       1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      0  1    1       0     2022.04.25T11:50:21.077 3      
+true   0  0     q    2=count .wdb.tablekeycols 1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      0  1    1       0     2022.04.25T11:50:21.077 4      
+true   0  0     q    98=type .rdb.access       1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      0  1    1       0     2022.04.25T11:50:21.077 5      
+true   0  0     q    99=type .wdb.tablekeycols 1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      0  1    1       0     2022.04.25T11:50:21.077 6      
+"k4unit Test Errors"
+action ms bytes lang code                      repeat file                                            msx bytesx okms okbytes valid timestamp               csvline
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+true   0  0     q    2=count .rdb.access       1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      1    1       0     2022.04.25T11:50:21.077 3      
+true   0  0     q    2=count .wdb.tablekeycols 1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      1    1       0     2022.04.25T11:50:21.077 4      
+true   0  0     q    98=type .rdb.access       1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      1    1       0     2022.04.25T11:50:21.077 5      
+true   0  0     q    99=type .wdb.tablekeycols 1      :/home/creid/TorQ/tests/tailer/access/tests.csv 0   0      1    1       0     2022.04.25T11:50:21.077 6      
