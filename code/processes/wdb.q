@@ -149,7 +149,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		`NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];	
 	/- upsert selected data matched on partition to specific directory (drop trailing slash on directory key) 	
 	.[
-	        {partcounts[(first ` vs x)]+:((count y);(-22!y));x upsert y};
+		upsert;
 		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
 		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
 	];
