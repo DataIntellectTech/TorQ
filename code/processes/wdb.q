@@ -318,13 +318,11 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
        ];
      .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
      /-merge columns and return boolean based on success of merge
-     mergeresult:.[{x upsert y;1b};(dest;curr[0]);                     
-       {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];0b}]; 
+     .[{x upsert y};(dest;curr[0]);                     
+       {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];}]; 
      /-if merge successful, delete directory partition directory from temporary storage
-     if[mergeresult;
-        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-        .os.deldir each string curr[1]
-       ];
+     .lg.o[`merge;"removing segments", (", " sv string curr[1])];
+     .os.deldir each string curr[1];
      (();())
     ];
     curr
@@ -334,14 +332,14 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
 mergebycol:{[tabname;dest;segment;islast]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
   /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
-  mergeresults:{[dest;segment;col]
+  {[dest;segment;col]
     /-filepath to hdb partition column where data will be saved to
     destcol:(` sv dest, col);
     /-data from column in temp storage to be saved in hdb
     destdata: get ` sv segment, col;
     /-upsert data to hdb column
-    .[{x upsert y;1b};(destcol;destdata);
-      {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];0b}]
+    .[{x upsert y};(destcol;destdata);
+      {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
     }[dest;segment;] each cols tabname;
   /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
   if[islast and ()~key (` sv dest,`.d);
@@ -349,10 +347,8 @@ mergebycol:{[tabname;dest;segment;islast]
     (` sv dest,`.d) set cols tabname
     ];
   /- if upserts of all columns have been successful remove partition from temporary storage
-  if[all mergeresults; 
     .lg.o[`merge;"Removing ", string[segment]];
     .os.deldir string segment
-    ];
   };
 
 mergehybrid:{[tabname;dest;partdirs;mergelimit]
@@ -413,9 +409,10 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
   /- if path exists, delete it
-  if[all not () ~/: key each key .wdb.partsizes; 
+  if[not () ~ key p:.Q.par[savedir;pt;`]; 
     .lg.o[`merge;"deleting temp storage directory"];
-    .os.deldir .os.pth[string .Q.par[savedir;pt;`]]];
+    .os.deldir .os.pth[string .Q.par[savedir;pt;`]]
+    ];
   /- delete contents of row tracking table
   delete from `.wdb.partsizes;
   /-call the posteod function
