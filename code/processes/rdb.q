@@ -237,3 +237,7 @@ $[.rdb.connectonstart;
 if[.ds.datastripe;
   .rdb.ignorelist:.rdb.ignorelist,.rdb.subtables[where 98h<>type each value each .rdb.subtables];
   ];
+if[.ds.datastripe;
+  .rdb.subtables:.rdb.subtables[where 98h=type each value each .rdb.subtables];
+  ];
+
