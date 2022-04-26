@@ -318,7 +318,7 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
        ];
      .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
      /-merge columns and return boolean based on success of merge
-     .[{x upsert y};(dest;curr[0]);                     
+     .[upsert;(dest;curr[0]);                     
        {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];}]; 
      /-if merge successful, delete directory partition directory from temporary storage
      .lg.o[`merge;"removing segments", (", " sv string curr[1])];
@@ -338,17 +338,17 @@ mergebycol:{[tabname;dest;segment;islast]
     /-data from column in temp storage to be saved in hdb
     destdata: get ` sv segment, col;
     /-upsert data to hdb column
-    .[{x upsert y};(destcol;destdata);
+    .[upsert;(destcol;destdata);
       {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
-    }[dest;segment;] each cols tabname;
+  }[dest;segment;] each cols tabname;
   /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
   if[islast and ()~key (` sv dest,`.d);
     .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
     (` sv dest,`.d) set cols tabname
     ];
   /- if upserts of all columns have been successful remove partition from temporary storage
-    .lg.o[`merge;"Removing ", string[segment]];
-    .os.deldir string segment
+  .lg.o[`merge;"Removing ", string[segment]];
+  .os.deldir string segment
   };
 
 mergehybrid:{[tabname;dest;partdirs;mergelimit]
