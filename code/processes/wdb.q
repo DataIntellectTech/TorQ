@@ -27,9 +27,10 @@ writedownmode:@[value;`writedownmode;`partbyattr];                         /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`hybrid]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in two ways:
+if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`hybrid]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
+                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
