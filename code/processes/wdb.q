@@ -87,7 +87,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
+hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
@@ -108,8 +108,8 @@ maxrows:{[tabname] numrows^numtab[tabname]}
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
 /- keyed table to track the size of tables on disk
-tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$());
-partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());
+tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
+partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$())
 
 /- function to return a list of tables that the wdb process has been configured to deal within
 tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
@@ -154,8 +154,8 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
 		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
 	];
-        .lg.o[`track;"appending details to partsizes"];
-        /-key in partsizes are directory to partition, need to drop training slash
+	.lg.o[`track;"appending details to partsizes"];
+	/-key in partsizes are directory to partition, need to drop training slash
 	partsizes[first ` vs directory]+:(count r;-22!r);
 	};
 	
