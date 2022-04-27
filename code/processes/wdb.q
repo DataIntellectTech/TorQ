@@ -147,7 +147,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		(`$"_"^.Q.an .Q.an?"_" sv string 
 		/- convert to symbols and replace any null values with `NONE
 		`NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];	
-	/- upsert selected data matched on partition to specific directory (drop trailing slash on directory key) 	
+	/- upsert selected data matched on partition to specific directory 	
 	.[
 		upsert;
 		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
