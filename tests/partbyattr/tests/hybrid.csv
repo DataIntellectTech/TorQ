@@ -1,7 +1,4 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.servers.startup[],1,,"Start TorQ connection management"
-before,0,0,q,.proc.sys "sleep 3",1,,"Wait for proc to start"
-before,0,0,q,.sort.getsortcsv[.wdb.sortcsv],1,,"Get test sort.csv file"
 before,0,0,q,w:gethandle[`wdbhybrid],1,,"Open wdb handle"
 before,0,0,q,w(set;`.wdb.mergemode;`hybrid),1,,"set mergemode to the standard"
 before,0,0,q,w".sort.getsortcsv[.wdb.sortcsv]",1,,"Get test sort.csv file"
