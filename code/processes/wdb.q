@@ -411,7 +411,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   /- if path exists, delete it
   if[not () ~ key p:.Q.par[savedir;pt;`]; 
     .lg.o[`merge;"deleting temp storage directory"];
-    .os.deldir .os.pth[string .Q.par[savedir;pt;`]]
+    .os.deldir .os.pth[string p]
     ];
   /- delete contents of row tracking table
   delete from `.wdb.partsizes;
