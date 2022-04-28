@@ -16,3 +16,6 @@ upderr:{[t;x].tst.err:x};
 
 // Test db name
 testlogdb:"testlog";
+
+processcsv:getenv[`KDBTESTS],"/stp/subscription/process.csv";
+stopproc:startorstopproc["stop";;processcsv];

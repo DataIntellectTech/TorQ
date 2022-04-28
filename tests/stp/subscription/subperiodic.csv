@@ -13,4 +13,8 @@ true,0,0,q,currlog[`trade;`logname]~exec last logname from met,1,,"Check logname
 true,0,0,q,(0#trade)~(last exec schema from met)[`trade],1,,"Check trade schema saved to meta table"
 true,0,0,q,(0#quote)~(last exec schema from met)[`quote],1,,"Check quote schema saved to meta table"
 true,0,0,q,`error~.tst.err,1,,"Check errors were logged to disk"
-after,0,0,q,"system ""rm -rf "",1_string stpHandle(`.stplg.dldir)",1,,"Delete logs folder"
+after,0,0,q,logdir2:1_string stpHandle(`.stplg.dldir),1,,"get path to logs folder"
+after,0,0,q,stopproc["stp1"];,1,,"stop stp"
+after,0,0,q,.os.deldir logdir2,1,,"delete logs"
+after,0,0,q,.os.deldir logdir1,1,,"delete logs"
+
