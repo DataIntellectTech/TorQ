@@ -12,7 +12,7 @@ testpath=${KDBTESTS}/dataaccess/queryorder
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
   -proctype rdb -procname dailyrdb1 \
   -test ${testpath} \
-  -load ${KDBTESTS}/helperfunctions.q ${testpath}/../settings.q ${testpath}/settings.q ${testpath}/../mockdata.q \
+  -load ${KDBTESTS}/helperfunctions.q ${testpath}/../settings.q ${testpath}/settings.q ${testpath}/../mockdata.q ${testpath}/hdb \
   -testresults ${KDBTESTS}/dataaccess/results/ \
   -runtime $run \
   -procfile ${testpath}/config/process.csv \
