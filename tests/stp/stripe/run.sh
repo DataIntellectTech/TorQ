@@ -1,8 +1,5 @@
 #!/bin/bash
 
-cd $HOME/TorQ/deploy/TorQ/latest
-source setenv.sh
-
 # Handle command-line arguments
 source $KDBTESTS/flagparse.sh
 
