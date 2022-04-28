@@ -31,8 +31,10 @@ pubaccess:{[accesstab]
 	/- get rdb handle
 	w: .sub.getsubscriptionhandles[`rdb;();()!()]`w;
 	/- send command down handle to remove specified period
-	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename]);
+	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`start];accesstab[`end];accesstab[`tablename]);
 	/- update the wdb access table
+	/.wdb.access: update end:accesstab[`end] from .wdb.access where tablename=accesstab[`tablename] and start=accesstab[`start];
+	/.wdb.access,:(`start`end`tablename`keycol!(accesstab[`end];0Np;accesstab[`tablename];accesstab[`keycol]));
 	.wdb.access,:accesstab;
 	};
 
@@ -74,7 +76,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- publish access table to rdb and clear tables in rdb
 	pubaccess[access];
 	/- save access table
-	(` sv(dir;`access.csv)) set .wdb.access;
+	(` sv(dir;`access)) set .wdb.access;
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};

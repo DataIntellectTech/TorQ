@@ -549,3 +549,5 @@ upd:.wdb.upd
 /- get the access table
 .wdb.tablekeycols:.ds.loadtablekeycols[];
 .wdb.access:([] start:0Np ; end:0Np ; tablename:() ; keycol:());
+/- clear access table on disk
+(` sv (.ds.td;`access)) set .wdb.access;
