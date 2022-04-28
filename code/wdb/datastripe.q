@@ -32,6 +32,8 @@ pubaccess:{[accesstab]
 	w: .sub.getsubscriptionhandles[`rdb;();()!()]`w;
 	/- send command down handle to remove specified period
 	(neg w)@\:(`.rdb.datastripeendofperiod;accesstab[`end];accesstab[`end];accesstab[`tablename]);
+	/- update the wdb access table
+	.wdb.access,:accesstab;
 	};
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
@@ -67,10 +69,12 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- delete data from last period
 	.[.ds.deletetablebefore;(tablename;`time;nextp)];
 	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
-	/- create an access table (temp)
-	access:`start`end`tablename`keycol!(.z.p-.z.n;.z.p;tablename;keycol);
+	/- create an access dict with trapping for case where previous end time value is null
+	access:`start`end`tablename`keycol!(.z.d^last .wdb.access[`end] where .wdb.access[`tablename]=tablename;nextp;tablename;keycol);
 	/- publish access table to rdb and clear tables in rdb
 	pubaccess[access];
+	/- save access table
+	(` sv(dir;`access.csv)) set .wdb.access;
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
