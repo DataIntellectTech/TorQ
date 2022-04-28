@@ -1,5 +1,5 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`gateway;
+.servers.CONNECTIONS:`discovery`gateway;
 .servers.USERPASS:`admin:admin;
 
 testpath:hsym`$getenv[`KDBTESTS],"/dataaccess/gwquerytest";
