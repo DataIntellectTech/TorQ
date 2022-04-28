@@ -8,4 +8,3 @@ true,0,0,q,(count xdaily) ~count h"select from xdaily",1,,"Check all rows of dat
 true,0,0,q,0~w"count xdaily",1,,"Check xdaily has been deleted from in memory table"
 after,0,0,q,.os.deldir string .wdb.savedir,1,,"remove temporary storage directory"
 afterall,0,0,q,.os.deldir string[.wdb.hdbdir],1,,"remove test hdb directory"
-

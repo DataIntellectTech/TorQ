@@ -15,4 +15,3 @@ data:{
  }
 /- generate mock data for in memory table in wdb to be saved to disk
 data[];
-
