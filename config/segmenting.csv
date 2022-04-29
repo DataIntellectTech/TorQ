@@ -1,1 +1,1 @@
-table,segmentID,wcRef
+table,subscription,segmentID,filter,keycol
