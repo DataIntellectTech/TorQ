@@ -1,7 +1,9 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.wdb.ignorelist,:`KUT`KUTR,1,,"add KUT and KUTR to list of ignored tables"
-true,0,0,q,0=count .wdb.access,1,,"finding length of wdb access table"
+before,0,0,q,"rdbh:gethandle[`rdb1]",1,,"Get rdb handle"
+true,0,0,q,5=count .wdb.access,1,,"finding length of wdb access table"
+true,0,0,q,rdbh"2=count .rdb.access",1,,"check count of access table in rdb"
 run,0,0,q,.ds.savetablesoverperiod[.ds.td;`trade;.z.p],1,,"run savedown function for trade table"
-true,0,0,q,1=count .wdb.access,1,,"checking length of wdb access table after saving down table"
+true,0,0,q,6=count .wdb.access,1,,"checking length of wdb access table after saving down table"
+true,0,0,q,rdbh"2=count .rdb.access",1,,"check count of access table in rdb after savedown"
 run,0,0,q,.wdb.endofday[.wdb.getpartition[];()!()],1,,"run end of day function on wdb"
 true,0,0,q,0=count .wdb.access,1,,"finding length of wdb access table after running end of day function"
