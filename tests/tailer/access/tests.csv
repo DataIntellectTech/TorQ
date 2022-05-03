@@ -1,10 +1,7 @@
-action,ms,bytes,lang,code,repeate,minver,comment
-true,0,0,q,2=count .rdb.access,1,,"Check size of access table in rdb"
-true,0,0,q,2=count .wdb.tablekeycols,1,,"Check size of access dict in wdb"
-true,0,0,q,98=type .rdb.access,1,,"Check type of rdb access table"
-true,0,0,q,99=type .wdb.tablekeycols,1,,"Check type of wdb access dict"
-run,0,0,q,.ds.savealltablesoverperiod[.ds.td;.z.p],1,,"run savedown function"
-true,0,0,q,4=count .rdb.access,1,,"Check rdb access table has updated"
-true,0,0,q,0=count trade,1,,"Check trade table in rdb has been cleared"
-true,0,0,q,0=count quote,1,,"Check quote table in rdb has been cleared"
-after,0,0,q,wdbh".os.deldir temphdbdir",1,,"Delete temp HDB"
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.wdb.ignorelist,:`KUT`KUTR,1,,"add KUT and KUTR to list of ignored tables"
+true,0,0,q,0=count .wdb.access,1,,"finding length of wdb access table"
+run,0,0,q,.ds.savetablesoverperiod[.ds.td;`trade;.z.p],1,,"run savedown function for trade table"
+true,0,0,q,1=count .wdb.access,1,,"checking length of wdb access table after saving down table"
+run,0,0,q,.wdb.endofday[.wdb.getpartition[];()!()],1,,"run end of day function on wdb"
+true,0,0,q,0=count .wdb.access,1,,"finding length of wdb access table after running end of day function"
