@@ -46,7 +46,7 @@ subsegment:{[tbl;segid];
      filter:segmentfilter[tbl;segid];
      $[tbl in .stpps.fullsubscriptions;[.stpps.suball[tbl]];
      [$[tbl in .stpps.ignoredtables;
-                    [.lg.o[`sub;m:"Table ",string[tbl]," is in ignoredtables.csv and will not be subscribed to"];
+                    [.lg.o[`sub;m:"Table ",string[tbl]," is to be ignored and will not be subscribed to"];
                     :();];
        [$[filter~"";             
                     [.lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
