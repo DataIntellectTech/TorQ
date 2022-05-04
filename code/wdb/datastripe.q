@@ -87,6 +87,4 @@ savealltablesoverperiod:{[dir;nextp]
 	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
 	};
 
-
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
-

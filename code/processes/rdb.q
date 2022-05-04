@@ -235,4 +235,4 @@ $[.rdb.connectonstart;
 
 /- get the access table
 .rdb.tablekeycols:.ds.loadtablekeycols[]
-.rdb.access:([]start:.z.p ; end:0Np ; tablename:key .rdb.tablekeycols)
+.rdb.access:([]start:00:00+.z.d ; end:0Np ; tablename:key .rdb.tablekeycols)

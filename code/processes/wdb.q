@@ -552,7 +552,4 @@ upd:.wdb.upd
 .wdb.tablekeycols:.ds.loadtablekeycols[];
 .wdb.access:([] start:0Np ; end:0Np ; tablename:() ; keycol:());
 /- clear access table on disk
-(` sv (.ds.td;`access)) set .wdb.access;
-
-/- save reloaded data to disk
-.ds.savealltablesoverperiod[.ds.td;.z.p]
+/(` sv (.ds.td;`access)) set .wdb.access;
