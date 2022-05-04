@@ -1,10 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.stpps.segmentconfig:([] table:`$();segmentID:`int$();wcRef:`$()),1,,"Setting empty table to test .stpps.segmentfilter"
-before,0,0,q,.stpps.segmentfiltermap:enlist[`$()]!enlist[""],1,,"Setting empty table to test .stpps.segmentfilter"
-before,0,0,q,.stpps.segmentfiltermap:enlist[`wca]!enlist["sym in `IBM"],1,,"Assigning a map for `wca"
-before,0,0,q,`.stpps.segmentconfig upsert (`quote;1;`wca),1,,"Adding data to config table"
-before,0,0,q,`.stpps.segmentconfig upsert (`trade;1;`wca),1,,"Adding data to config table"
-before,0,0,q,`.stpps.segmentconfig upsert (`trade;2;`wcb),1,,"Adding data to config table"
+before,0,0,q,.stpps.segmentconfig:([] table:`$();subscription:`$();segmentID:`int$();filter:`char$();keycol:`$()),1,,"Setting empty table to test .stpps.segmentfilter"
+before,0,0,q,`.stpps.segmentconfig upsert (`quote;`segmented;1;"sym in `IBM";`sym),1,,"Adding data to config table"
+before,0,0,q,`.stpps.segmentconfig upsert (`trade;`segmented;1;"sym in `IBM",`sym),1,,"Adding data to config table"
 before,0,0,q, where_clause:"sym in `IBM",1,,"Settign where clause to test .stpps.segmentfilter"
 before,0,0,q, .stpps.subsegment[`quote;1],1,,"Subscribing to quotes with segid 1"
 true,0,0,q, (.stpps.segmentfilter[`quote;1])~where_clause,1,,"Checking where clause returned matches what is expected"

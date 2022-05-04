@@ -7,7 +7,6 @@
 
 //if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
 //configload transfoms segmenting.csv into table format so it can be accessed.
-//configload transforms filtermap.csv into table format then into a mapping of wcRef to filter which can be accessed and applied to data.
 //checks csv files load correctly. If not, process exited and message sent to error logs.
 
 configload:{
@@ -36,6 +35,7 @@ segmentfilter:{[tbl;segid]
      };
 
 // Subscribe to particular segment using segmentID based on .u.sub
+// Uses .stpps.segmentconfig to handle subscriptions for each table
 subsegment:{[tbl;segid];
      //tablename and segmentid used to get filters
      if[tbl~`;:.z.s[;segid] each .stpps.t];
