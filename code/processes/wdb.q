@@ -21,7 +21,7 @@ mode:@[value;`mode;`saveandsort];                                          /-the
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`partbyattr];                         /-the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
