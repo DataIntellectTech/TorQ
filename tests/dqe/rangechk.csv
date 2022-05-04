@@ -9,5 +9,5 @@ before,0,0,q,ftlower:([]bid:101#0;ask:101#0),1,,"create false length variable fo
 true,0,0,q,first .dqc.rangechk[`t;`bid`ask;low;upp;90],1,,"Check for true test"
 true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;tlower;tupper;90],1,,"Check for false test"
 true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;ftlower;tupper;90],1,,"Check for different length false test"
-true,0,0,q,not first .dqc.rangechk[`t;`bid`ask];upp;low;90],1,,"Check for false input test"
+true,0,0,q,not first .dqc.rangechk[`t;`bid`ask;upp;low;90],1,,"Check for false input test"
 after,0,0,q,"delete t,low,upp,tlower,tupper,ftlower from `.",1,,"delete all test tables and variables"
