@@ -25,7 +25,7 @@ deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
     // update the access table in the rdb
-    .rdb.access:update start:lasttime from .rdb.access where tablename=data;
+    .rdb.access:update start:lasttime from .rdb.access where tablename=data,start<lasttime;
     
     };
 

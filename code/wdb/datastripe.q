@@ -36,6 +36,7 @@ pubaccess:{[accesstab]
 	/.wdb.access: update end:accesstab[`end] from .wdb.access where tablename=accesstab[`tablename] and start=accesstab[`start];
 	/.wdb.access,:(`start`end`tablename`keycol!(accesstab[`end];0Np;accesstab[`tablename];accesstab[`keycol]));
 	.wdb.access,:accesstab;
+	/![.wdb.access;enlist (=;`tablename;(`accesstab;enlist `tablename));0b;(enlist `end)!enlist (`accesstab;enlist `end)];
 	};
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
