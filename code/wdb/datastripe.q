@@ -62,8 +62,13 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
 savetablesoverperiod:{[dir;tablename;nextp]
 	/- function to get keycol for table from access table
+<<<<<<< HEAD
 	keycol:$[.wdb.tablekeycols[tablename]=`;`sym;.wdb.tablekeycols[tablename]];
 	/- get distint values to partition table on
+=======
+	keycol:`sym; / variable keycol functionality added in TCS-73
+	/- get distinct values to partition table on
+>>>>>>> torq5_develop
 	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
 	enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[dir;tablename;keycol;nextp]'[partitionlist];
@@ -71,6 +76,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 	/- delete data from last period
 	.[.ds.deletetablebefore;(tablename;`time;nextp)];
+<<<<<<< HEAD
 	.[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
 	/- create an access dict with trapping for case where previous end time value is null
 	access:`start`end`tablename`keycol!(.z.d^last .wdb.access[`end] where .wdb.access[`tablename]=tablename;nextp;tablename;keycol);
@@ -78,6 +84,9 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	pubaccess[access];
 	/- save access table
 	(` sv(dir;`access)) set .wdb.access;
+=======
+	/ .[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
+>>>>>>> torq5_develop
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
@@ -88,4 +97,10 @@ savealltablesoverperiod:{[dir;nextp]
 	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
 	};
 
+<<<<<<< HEAD
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+=======
+
+.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+
+>>>>>>> torq5_develop
