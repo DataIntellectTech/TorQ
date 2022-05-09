@@ -1,0 +1,36 @@
+{
+    "1": [
+        {
+            "subscriptiondefault": "ignore" ,
+            "trade": "" ,
+	    "quote": "sym in `AAPL" ,
+	    "logmsg": "" ,
+	    "packets": "" 
+	    
+        }
+    ],
+
+    "2": [
+        {
+            "subscriptiondefault": "all" ,
+            "quote": "sym in `AAPL" 
+
+        }
+    ],
+
+    "3": [
+	{
+	    "subscriptiondefault": "ignore" ,
+	    "quote": "ex=\"O\""
+
+	}
+    ],
+
+    "4": [
+	{ 
+	    "subscriptiondefault": "all",
+	    "trade": "ignore this table"
+
+	}
+    ]	
+}
