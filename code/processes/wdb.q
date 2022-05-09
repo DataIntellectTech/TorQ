@@ -529,17 +529,6 @@ getsortparams:{[]
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
 endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-datastripeendofperiod:{[currp;nextp;data]
-    .lg.o[`reload;"reload command has been called remotely"];
-    // remove periods of data from tables
-    t:tables[`.] except .wdb.ignorelist;
-    lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-    tabs:.ds.deletetablebefore'[t;`time;lasttime];
-    / tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
-    };
-
-if[.ds.datastripe=1b; endofperiod:datastripeendofperiod];
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]
@@ -561,5 +550,5 @@ upd:.wdb.upd
 
 /- get the access table
 .wdb.tablekeycols:.ds.loadtablekeycols[];
-.wdb.access:([tablename:key .wdb.tablekeycols] start:.z.d+00:00 ; end:0Np ; keycol:value .wdb.tablekeycols);
+.wdb.access:([table:key .wdb.tablekeycols] start:.z.d+00:00 ; end:0Np ; keycol:value .wdb.tablekeycols);
 /![.wdb.access;enlist (=;`tablename;enlist `trade);0b;(enlist `start)!enlist (*:;(`trade;enlist `time))];
