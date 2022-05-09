@@ -16,7 +16,7 @@ td:hsym `$getenv`KDBTAIL
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
     // update the access table in the wdb
-    .wdb.access:update end:lasttime from .wdb.access where tablename in t,end<lasttime;
+    .wdb.access:update end:lasttime from .wdb.access where table in t,end<lasttime;
     
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp]
