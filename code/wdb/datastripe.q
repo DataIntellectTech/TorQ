@@ -22,16 +22,19 @@ td:hsym `$getenv`KDBTAIL
     .ds.savealltablesoverperiod[.ds.td;nextp]
 
     // update the access table on disk
-    atab:get(` sv(dir;.proc.procname;`access));
+    atab:get(` sv(dir;.proc.procname;`access;`$(string .z.d)));
     atab,:.wdb.access;
-    (` sv(dir;.proc.procname;`access)) set atab;
+    (` sv(dir;.proc.procname;`access;`$(string .z.d))) set atab;
 
     };
 
 
 initdatastripe:{
-	// update endofday and endofperiod functions
+    // update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
+    .wdb.tablekeycols:.ds.loadtablekeycols[];
+    .wdb.tablekeycols:.ds.loadtablekeycols
+    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:.ds.getstarttime each (key .wdb.tablekeycols) ; keycol:value .wdb.tablekeycols);
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
