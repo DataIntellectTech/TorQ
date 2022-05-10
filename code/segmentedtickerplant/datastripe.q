@@ -15,7 +15,7 @@ initdatastripe:{
 
 \d .stpps
 
-substripe:{[tbl;segid];
+subsegment:{[tbl;segid];
      //casting segid to an symbol as json is restrictive
      segid:`$string segid;
      //setting the default for non-configured tables
@@ -34,11 +34,11 @@ substripe:{[tbl;segid];
 
 // the subdetails function adapted to also retrieve filters from the segmented tickerplant
 segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
-     `schemalist ; .stpps.substripe\:[tabs;segid];                                 
+     `schemalist ; .stpps.subsegment\:[tabs;segid];                                 
      `logfilelist ; .stplg.replaylog[tabs];                                         
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
      `logdir ; `$getenv`KDBTPLOG
-	)};
+	)}
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
