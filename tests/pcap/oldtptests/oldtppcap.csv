@@ -21,3 +21,4 @@ true,0,0,q,quote~rdbhandle"select from quote",1,,"Check rdb correctly received q
 after,0,0,q,.os.deldir[alreadyprocessed],1,,"Delete filealerterprocessed folder from test folder"
 after,0,0,q,rdbhandle"quote:0#quote",1,,"Clear quote table"
 after,0,0,q,rdbhandle"packets:0#packets",1,,"Clear packets table"
+after,0,0,q,".os.deldir[testpcapfolder,""/oldtptests/logs""]",1,,"Delete log file created by tp"
