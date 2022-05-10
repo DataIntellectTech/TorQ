@@ -33,8 +33,7 @@ initdatastripe:{
     // update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.tablekeycols:.ds.loadtablekeycols
-    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:.ds.getstarttime each (key .wdb.tablekeycols) ; keycol:value .wdb.tablekeycols);
+    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:.ds.getstarttime each (key .wdb.tablekeycols) ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
@@ -60,7 +59,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	  (directory;enumdata);
 	  {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
 	];
-	};	
+	};
 
 savetablesoverperiod:{[dir;tablename;nextp]
     /- function to get keycol for table from access table

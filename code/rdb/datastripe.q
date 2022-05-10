@@ -22,7 +22,7 @@ initdatastripe:{
     endofday::.rdb.endofday;
     endofperiod::.rdb.datastripeendofperiod;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
-    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; keycol:value .rdb.tablekeycols);
+    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; keycol:value .rdb.tablekeycols ; segmentID:first .ds.segmentid);
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
