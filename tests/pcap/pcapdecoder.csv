@@ -23,3 +23,7 @@ true,0,0,q,(count quote)~count rdbhandle"select from quote",1,,"Check rdb correc
 after,0,0,q,rdbhandle"quote:0#quote",1,,"Clear quote table"
 after,0,0,q,rdbhandle"packets:0#packets",1,,"Clear packets table"
 after,0,0,q,.os.deldir[alreadyprocessed],1,,"Delete filealerterprocessed folder from test folder"
+after,0,0,q,stphandle:gethandle[`stp1],1,,"get handle to stp"
+after,0,0,q,logfile:stphandle(`.stplg.dldir),1,,"get path to log file"
+after,0,0,q,"startorstopproc[""stop"";""all"";getenv[`KDBTESTS],""/pcap/process.csv""]",1,,"stop stp"
+after,0,0,q,.os.deldir[logfile],1,,"delete log file"
