@@ -2,29 +2,33 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
-td:hsym `$getenv`KDBTAIL
+td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
 \d .
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];    
-    // remove periods of data from tables
-    t:tables[`.] except .wdb.ignorelist;
-    lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-    tabs:.ds.deletetablebefore'[t;`time;lasttime];
-    / tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
-    
-    // update the access table in the wdb
-    .wdb.access:update end:lasttime from .wdb.access where table in t,end<lasttime;
     
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp]
 
+    // remove periods of data from tables
+    t:tables[`.] except .wdb.ignorelist;
+    lasttime:nextp-.ds.periodstokeep*(nextp-currp);
+
+    // update the access table in the wdb
+    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:nextp ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
+
+    tabs:.ds.deletetablebefore'[t;`time;lasttime];
+    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
+    
+    // update the access table in the wdb
+    /.wdb.access:update end:lasttime from .wdb.access where table in t,end<lasttime;
+
     // update the access table on disk
-    atab:get(` sv(dir;.proc.procname;`access;`$(string .z.d)));
+    atab:get(` sv(.ds.td;.proc.procname;`access));
     atab,:.wdb.access;
-    (` sv(dir;.proc.procname;`access;`$(string .z.d))) set atab;
+    (` sv(.ds.td;.proc.procname;`access)) set atab;
 
     };
 
@@ -33,7 +37,8 @@ initdatastripe:{
     // update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:.ds.getstarttime each (key .wdb.tablekeycols) ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
+    .wdb.access:([table:key .wdb.tablekeycols] start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
+    (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

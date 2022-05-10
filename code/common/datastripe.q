@@ -13,6 +13,7 @@ loadtablekeycols:{[]                                                          //
     };
 
 getstarttime:{[x] first x[`time]};
+getendtime:{[x] last x[`time]};
 
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
 
