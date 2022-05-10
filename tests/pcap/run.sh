@@ -18,8 +18,7 @@ ${TORQHOME}/torq.sh start discovery1 stp1 rdb1 -csv ${testpath}/process.csv
   -testresults ${KDBTESTS}/pcap/results/ \
   $quiet $write $debug
 
-#stop stp test processes
-${TORQHOME}/torq.sh stop discovery1 stp1 rdb1 -csv ${testpath}/process.csv
+#stp test procs are stopped in pcapdecoder.csv
 
 #start processes with tickerplant to test pcap on tickerplant
 ${TORQHOME}/torq.sh start discovery1 tickerplant1 rdb1 -csv ${testpath}/process.csv
