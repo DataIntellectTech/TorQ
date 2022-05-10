@@ -18,29 +18,17 @@ initdatastripe:{
 substripe:{[tbl;segid];
      //casting segid to an symbol as json is restrictive
      segid:`$string segid;
-     //setting the default non-configured table
+     //setting the default for non-configured tables
      default:first (flip .stpps.stripeconfig[segid])[`subscriptiondefault];
-     if[default~"ignore";.stpps.substripeignore[tbl;segid]];
-     if[default~"all";.stpps.substripeall[tbl;segid]];
-//     if[default~"all except list";.stpps.substripeignorelisted[tbl;segid]];
-     };
-
-substripeignore:{[tbl;segid]
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      stripedtables:inter [key flip .stpps.stripeconfig[segid];.stpps.t];
+     if[default~"all";suballtabs: except[.stpps.t;stripedtables]];
+     if[default~"ignore"; ignoredtables: except[.stpps.t;stripedtables]];
      filter:first (flip .stpps.stripeconfig[segid])[tbl];
-     if[tbl in stripedtables;.ps.subtablefiltered[string[tbl];filter;""]]
+     if[tbl in ignoredtables; :()];
+     .ps.subtablefiltered[string[tbl];filter;""]
      };
 
-substripeall:{[tbl;segid]
-     if[tbl~`;:.z.s[;segid] each .stpps.t];
-     stripedtables:inter [key flip .stpps.stripeconfig[segid];.stpps.t];
-     filter:first (flip .stpps.stripeconfig[segid])[tbl];
-     ignoredtables:`$();
-     if[filter~"ignore this table";stripedtables:stripedtables where stripedtables<>tbl;ignoredtables:ignoredtables,tbl];
-     if[tbl in stripedtables;.ps.subtablefiltered[string[tbl];filter;""]];
-     if[&[not(tbl in stripedtables);not(tbl in ignoredtables)];.stpps.suball[tbl]]
-     };
 
 \d .
 
@@ -50,7 +38,7 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `logfilelist ; .stplg.replaylog[tabs];                                         
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
-     `logdir ; `$getenv`KDBTPLOG                                                   
-	)}
+     `logdir ; `$getenv`KDBTPLOG
+	)};
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
