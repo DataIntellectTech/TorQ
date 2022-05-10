@@ -1,0 +1,2 @@
+quote:([]receivedtime:`timestamp$(); quotetime:`timestamp$(); sym:`g#`symbol$(); bid:`float$(); ask:`float$(); bsize:`long$(); asize:`long$(); mode:`char$(); ex:`char$(); src:`symbol$())
+packets:([]receivedtime:`timestamp$(); packettime:`timestamp$(); sym:`symbol$(); src:`symbol$(); dest:`symbol$(); srcport:`long$(); destport:`long$(); seq:`long$(); ack:`long$(); win:`long$(); tsval:`long$(); tsecr:`long$(); flags:(); protocol:`symbol$(); length:`long$(); len:`long$(); data:())
