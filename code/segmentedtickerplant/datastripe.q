@@ -15,6 +15,13 @@ initdatastripe:{
 
 \d .stpps
 
+filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
+
+segmentfilter:{[tbl;segid]
+     segid:`$string segid;
+     (flip .stpps.stripeconfig[segid])[tbl]
+     };
+
 subsegment:{[tbl;segid];
      //casting segid to an symbol as json is restrictive
      segid:`$string segid;
@@ -38,7 +45,8 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `logfilelist ; .stplg.replaylog[tabs];                                         
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
-     `logdir ; `$getenv`KDBTPLOG
+     `logdir ; `$getenv`KDBTPLOG;
+     `filters ; .stpps.filtermap[tabs;segid]
 	)}
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
