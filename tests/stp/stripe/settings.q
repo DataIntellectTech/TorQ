@@ -29,3 +29,5 @@ upderr:{[t;x].tst.err:x};
 
 // Test db name
 testlogdb:"testlog";
+
+y:til 4;
