@@ -17,14 +17,15 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
 
     // update the access table in the wdb
-    .wdb.access:([table:key .wdb.tablekeycols] start:.ds.getstarttime each (key .wdb.tablekeycols) ; end:nextp ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
+    // on first save down we need to replace the null valued start time in the access table
+    // using the first value in the saved data
+    .wdb.access:update start:(.ds.getstarttime each (key .wdb.tablekeycols))^start from .wdb.access;
+    // update end time using last value in data before tables are cleared
+    .wdb.access:update end:.ds.getendtime each (key .rdb.tablekeycols) from .wdb.access;
 
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
-    // update the access table in the wdb
-    /.wdb.access:update end:lasttime from .wdb.access where table in t,end<lasttime;
-
     // update the access table on disk
     atab:get(` sv(.ds.td;.proc.procname;`access));
     atab,:.wdb.access;
