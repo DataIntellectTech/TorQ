@@ -1,8 +1,8 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 comment,0,0,q,Start of dupchk function tests,1,,"comment"
-before,0,0,q,.dqe.results:get hsym `$getenv[`KDBTESTS],"/dqe/dupchktab",1,,"Set up test table"
+before,0,0,q,".dqe.results:get hsym `$getenv[`KDBTESTS],""/dqe/dupchktab""",1,,"Set up test table"
 before,0,0,q,param:(enlist `comp)!(enlist 0b),1,,"Set up param variable"
-run,0,0,q,.dqe.dupchk[`manual;1;param;`rdb1],1,,"Will fail the last id 1 that is still on started"
+fail,0,0,q,.dqe.dupchk[`manual;1;param;`rdb1],1,,"Will fail the last id 1 that is still on started"
 run,0,0,q,.dqe.dupchk[`manual;1;param;`rdb2],1,,"Nothing happens as process is not in table"
 run,0,0,q,.dqe.dupchk[`manual;2;param;`rdb1],1,,"Nothing happens as last row for id 2 has failed"
 run,0,0,q,.dqe.dupchk[`manual;3;param;`hdb1],1,,"Nothing happens as last row for id 2 has completed"
