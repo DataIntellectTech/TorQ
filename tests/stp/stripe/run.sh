@@ -22,10 +22,10 @@ ${QCMD} ${TORQHOME}/torq.q \
   $debug $stop $write $quiet
 
 # Shut down stp1
-${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv
+${TORQHOME}/torq.sh stp1 all -csv ${testpath}/process.csv
 
- Performance tests
- Start stpperf
+#Performance tests
+#Start stpperf
 ${TORQHOME}/torq.sh start stpperf -csv ${testpath}/process.csv
  Procs will stop automatically once tests are completed
 echo Performance tests are running in the background
