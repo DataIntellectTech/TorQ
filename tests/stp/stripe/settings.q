@@ -30,4 +30,5 @@ upderr:{[t;x].tst.err:x};
 // Test db name
 testlogdb:"testlog";
 
-y:til 4;
+//Get the rdb procnum ie rdb1 procnum = 1
+getprocnum:{[h] value -1#string[h".proc.procname"]}
