@@ -18,20 +18,21 @@ initdatastripe:{
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
 segmentfilter:{[tbl;segid]
-     segid:`$string segid;
-     (flip .stpps.stripeconfig[segid])[tbl]
+     id:`$string segid;
+     first (flip .stpps.stripeconfig[id])[tbl]
      };
 
 subsegment:{[tbl;segid];
      //casting segid to an symbol as json is restrictive
-     segid:`$string segid;
+     id:`$string segid;
      //setting the default for non-configured tables
-     default:first (flip .stpps.stripeconfig[segid])[`subscriptiondefault];
+     default:first (flip .stpps.stripeconfig[id])[`subscriptiondefault];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
-     stripedtables:inter [key flip .stpps.stripeconfig[segid];.stpps.t];
+     stripedtables:inter [key flip .stpps.stripeconfig[id];.stpps.t];
      if[default~"all";suballtabs: except[.stpps.t;stripedtables]];
      if[default~"ignore"; ignoredtables: except[.stpps.t;stripedtables]];
-     filter:first (flip .stpps.stripeconfig[segid])[tbl];
+     filter:first (flip .stpps.stripeconfig[id])[tbl];
+     if[filter~"ignore this table";ignoredtables:tbl]
      if[tbl in ignoredtables; :()];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
