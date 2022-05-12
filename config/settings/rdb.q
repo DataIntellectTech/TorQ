@@ -33,7 +33,7 @@ connectonstart:1b   //rdb connects to tickerplant as soon as it is started
 \d .ds
 datastripe:0b
 period:0D01                                    
-periodstokeep:4
+/periodstokeep:4
 lasttimestamp:.z.p-4*period
 
 \d .proc

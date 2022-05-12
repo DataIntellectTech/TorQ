@@ -7,10 +7,7 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 \d .
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
-    .lg.o[`reload;"reload command has been called remotely"];    
-    
-    // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;nextp]
+    .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
     t:tables[`.] except .wdb.ignorelist;
@@ -19,9 +16,13 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    .wdb.access:update start:(.ds.getstarttime each (key .wdb.tablekeycols))^start from .wdb.access;
-    // update end time using last value in data before tables are cleared
-    .wdb.access:update end:.ds.getendtime each (key .rdb.tablekeycols) from .wdb.access;
+    .wdb.access:update start:(.ds.getstarttime each (key .wdb.tablekeycols))^start from .wdb.access; 
+    
+    // call the savedown function
+    .ds.savealltablesoverperiod[.ds.td;nextp]
+
+    // update the wdb access table
+    .wdb.access:update end:nextp from .wdb.access;
 
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
@@ -38,8 +39,9 @@ initdatastripe:{
     // update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access:([table:key .wdb.tablekeycols] start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid);
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid)];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
+    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
