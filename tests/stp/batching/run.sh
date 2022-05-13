@@ -10,7 +10,7 @@ testpath=${KDBTESTS}/stp/batching
 ${TORQHOME}/torq.sh start discovery1 stp1 rdb1
 
 # Start up test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -schemafile ${TORQHOME}/database.q \
   -test ${testpath} \

@@ -10,7 +10,7 @@ testpath=${KDBTESTS}/stp/upds
 ${TORQHOME}/torq.sh start discovery1 stp1 -csv ${KDBTESTS}/stp/upds/process.csv
 
 # Start test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \

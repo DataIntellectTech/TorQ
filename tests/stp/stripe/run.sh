@@ -11,8 +11,7 @@ export perfpath=${testpath}/performance
 ${TORQHOME}/torq.sh start discovery1 stp1 rdb1 rdb2 rdb3 rdb4 -csv ${testpath}/process.csv
 
 # Start test proc
-QCMD='taskset -c 0,1 /usr/bin/rlwrap q'
-${QCMD} ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \

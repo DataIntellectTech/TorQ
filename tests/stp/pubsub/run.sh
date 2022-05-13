@@ -8,7 +8,7 @@ testpath=${KDBTESTS}/stp/pubsub
 
 ${TORQHOME}/torq.sh start discovery1 ps1 -csv ${testpath}/process.csv
 
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \

@@ -10,7 +10,7 @@ testpath=${KDBTESTS}/stp/tpvalidation
 ${TORQHOME}/torq.sh start discovery1 tp1 rdball rdbsymfilt wdball wdbsymfilt wdbtabfilt -csv ${testpath}/process.csv
 
 # Start test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
