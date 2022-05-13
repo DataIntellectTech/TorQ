@@ -6,7 +6,7 @@ source $KDBTESTS/flagparse.sh
 #directory path to tests
 testpath=${KDBTESTS}/gateway
 
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype gateway -procname gateway1 \
   -test ${testpath} \
   -testresults ${testpath}/results/ \
