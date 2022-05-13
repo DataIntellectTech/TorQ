@@ -6,8 +6,6 @@ source $KDBTESTS/flagparse.sh
 # Path to query order test directory
 testpath=${KDBTESTS}/dataaccess/queryorder
 
-.${TORQHOME}/torq.sh start all 
-
 # Start test proc
 ${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype rdb -procname dailyrdb1 \
