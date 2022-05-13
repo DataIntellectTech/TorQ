@@ -29,7 +29,7 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
     
     // update the access table on disk
     atab:get(` sv(.ds.td;.proc.procname;`access));
-    atab,:.wdb.access;
+    atab,:() xkey .wdb.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
 
     };
@@ -42,6 +42,8 @@ initdatastripe:{
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid)];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
+    .wdb.access:`table xkey .wdb.access;
+
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
