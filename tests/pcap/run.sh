@@ -10,7 +10,7 @@ testpath=${KDBTESTS}/pcap
 ${TORQHOME}/torq.sh start discovery1 stp1 rdb1 -csv ${testpath}/process.csv
 
 #start test process
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -load ${KDBCODE}/processes/filealerter.q ${KDBTESTS}/helperfunctions.q \
   -proctype filealerter -procname filealerter1 \
   -test ${KDBTESTS}/pcap \
@@ -23,7 +23,7 @@ ${TORQHOME}/torq.sh start discovery1 stp1 rdb1 -csv ${testpath}/process.csv
 #start processes with tickerplant to test pcap on tickerplant
 ${TORQHOME}/torq.sh start discovery1 tickerplant1 rdb1 -csv ${testpath}/process.csv
 
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -load ${KDBCODE}/processes/filealerter.q ${KDBTESTS}/helperfunctions.q \
   -proctype filealerter -procname filealerter2 \
   -test ${KDBTESTS}/pcap/oldtptests \
