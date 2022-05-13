@@ -7,7 +7,7 @@ testpath=${KDBTESTS}/bglaunchprocess/
 ${TORQHOME}/torq.sh start all -csv ${testpath}/process.csv
 
 #Start test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
 	-proctype test -procname test1 \
 	-test ${testpath} \
 	-load ${TORQHOME}/code/common/bglaunchutils.q ${testpath}/settings.q     \
