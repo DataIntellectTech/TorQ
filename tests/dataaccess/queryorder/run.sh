@@ -9,7 +9,7 @@ testpath=${KDBTESTS}/dataaccess/queryorder
 .${TORQHOME}/torq.sh start all 
 
 # Start test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype rdb -procname dailyrdb1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/../settings.q ${testpath}/settings.q ${testpath}/../mockdata.q ${testpath}/hdb \
