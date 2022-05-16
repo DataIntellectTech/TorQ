@@ -10,4 +10,4 @@ ${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
   -proctype gateway -procname gateway1 \
   -test ${testpath} \
   -testresults ${testpath}/results/ \
-  $quiet $write $debug
+  $quiet $stop $write $debug
