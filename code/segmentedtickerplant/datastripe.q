@@ -5,6 +5,9 @@ configload:{
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
      {if[()~key hsym x;.lg.e[`init;"The following file can not be found: ",string scpath]]};
      .stpps.stripeconfig:.j.k raze read0 scpath;
+     defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
+     errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
+     {if[0<count errors;.lg.e[`sub;m:"subscriptiondefault not defined for segment/segments ",string[x]," "]]}each errors;
      };
 
 initdatastripe:{
@@ -29,11 +32,14 @@ subsegment:{[tbl;segid];
      default:first (flip .stpps.stripeconfig[id])[`subscriptiondefault];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      stripedtables:inter [key flip .stpps.stripeconfig[id];.stpps.t];
-     if[default~"all";suballtabs: except[.stpps.t;stripedtables]];
+     if[default~"all";suballtabs: except[.stpps.t;stripedtables];
+     .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]];
      if[default~"ignore"; ignoredtables: except[.stpps.t;stripedtables]];
      filter:first (flip .stpps.stripeconfig[id])[tbl];
-     if[filter~"ignore this table";ignoredtables:tbl]
-     if[tbl in ignoredtables; :()];
+     if[filter~"ignoredtable";ignoredtables:tbl];
+     if[tbl in ignoredtables;
+      .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
+ :()];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
 

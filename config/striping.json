@@ -12,16 +12,16 @@
 
     "2": [
         {
-            "subscriptiondefault": "all" ,
-            "quote": "sym in `AAPL" 
+            "subscriptiondefault": "all",
+	    "quote": "sym in `AAPL" 
 
         }
     ],
 
     "3": [
 	{
-	    "subscriptiondefault": "ignore" ,
-	    "quote": "ex=\"O\""
+            "subscriptiondefault": "ignore",
+    	    "quote": "ex=\"O\""
 
 	}
     ],
@@ -29,7 +29,9 @@
     "4": [
 	{ 
 	    "subscriptiondefault": "all",
-	    "trade": "ignore this table"
+	    "trade": "ignoredtable",
+	    "quote": "sym in `MSFT"
+
 
 	}
     ]	
