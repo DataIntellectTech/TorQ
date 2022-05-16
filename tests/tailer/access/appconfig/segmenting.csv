@@ -1,0 +1,5 @@
+table,segmentID,wcRef
+trade,1,wca
+quote,1,wca
+trade,2,wcb
+quote,2,wcb

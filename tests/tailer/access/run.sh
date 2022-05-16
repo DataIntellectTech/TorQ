@@ -1,26 +1,19 @@
 #!/bin/bash
 
-# Path to test directory
-testpath=${KDBTESTS}/tailer/access
+# path to test directory
+testpath=$KDBTESTS/tailer/access
+KDBTAIL=${testpath}/taildir
 
-# Start procs
-${TORQHOME}/torq.sh start discovery1 stp1 gateway1 rdb1 -procfile ${testpath}/process.csv
+# start procs
+${TORQHOME}/torq.sh start discovery1 stp1 rdb1 feed1 -csv ${testpath}/appconfig/process.csv
 
-
-# Start test proc
+# start test proc
 $QCMD ${TORQHOME}/torq.q \
-  -proctype wdb -procname wdb1 \
-  -test ${testpath} \
-  -load ${KDBTESTS}/helperfunctions.q ${TORQHOME}/code/processes/wdb.q $testpath/settings.q\
-  -testresults ${KDBTESTS}/tailer/access/ \
-  -runtime $run \
-  -procfile ${testpath}/process.csv \
-  -debug #$stop $write $quiet
+	-load ${KDBCODE}/processes/wdb.q $KDBTESTS/helperfunctions.q ${testpath}/settings.q \
+	-proctype wdb -procname wdb1 \
+	-test ${testpath} \
+	-.ds.datastripe 1 -segid 1 \
+	-trap -debug
 
-#$QCMD ${TORQHOME}/torq.q \
-#      -proctype wdb \
-#      -procname wdb1 -test ${KDBTESTS}/tailer/savedown/ \
-#      -procfile ${KDBTESTS}/tailer/savedown/process.csv \
-#      -load ${KDBCODE}/processes/wdb.q -debug \
-
-${TORQHOME}/torq.sh stop all -procfile ${testpath}/process.csv
+# shut down procs
+${TORQHOME}/torq.sh stop all -csv ${testpath}/appconfig/process.csv
