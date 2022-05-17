@@ -16,13 +16,3 @@ getstarttime:{[x] first x[`time]};
 getendtime:{[x] last x[`time]};
 
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
-
-\d .
-
-initdatastripe:{
-	// update endofday and endofperiod functions
-    endofday::.rdb.endofday;
-    /endofperiod::.rdb.datastripeendofperiod;
-    };
-
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

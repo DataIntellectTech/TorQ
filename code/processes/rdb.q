@@ -204,20 +204,6 @@ upd:.rdb.upd
 /- adds endofday and endofperiod functions to top level namespace
 endofday: .rdb.endofday;
 endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-datastripeendofperiod:{[currp;nextp;data]
-    .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data];
-
-    // remove periods of data from tables
-    t:tables[`.] except .rdb.ignorelist;
-    lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-    tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
-
-    // update the access table in the rdb
-    .rdb.access:update start:lasttime from .rdb.access where tablename=data,start<lasttime;
-    };
-
-if[.ds.datastripe=1b;endofperiod:datastripeendofperiod];
 
 /-set .u.end for the tickerplant to call at end of day
 .u.end:{[d] .rdb.endofday[d;()!()]}
@@ -246,7 +232,3 @@ $[.rdb.connectonstart;
 /-GMT offset rounded to nearest 15 mins and added to roll time
 .timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
-
-/- get the access table
-.rdb.tablekeycols:.ds.loadtablekeycols[]
-.rdb.access:([]start:00:00+.z.d ; end:0Np ; tablename:key .rdb.tablekeycols)

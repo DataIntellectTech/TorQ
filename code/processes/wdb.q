@@ -194,8 +194,6 @@ endofday:{[pt;processdata]
 	@[`.wdb;`tabsizes;0#];
     .lg.o[`eod;"end of day is now complete"];
     .wdb.currentpartition:pt+1;
-    /- reset the access table for new day
-    .wdb.access:([] start:0Np ; end:0Np ; tablename:() ; keycol:());
 	};
 	
 endofdaysave:{[dir;pt]
