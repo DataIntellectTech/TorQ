@@ -12,17 +12,26 @@ datastripeendofperiod:{[currp;nextp;data]
 
     // update the access table in the rdb
     .rdb.access:update start:lasttime^(.ds.getstarttime each (key .rdb.tablekeycols)) from .rdb.access;
+    ext[.rdb.access];
 
     };
 
 \d .
 
+ext:{[accesstab]
+
+    .rdb.access:accesstab;
+
+    }
+
 initdatastripe:{
-        // update endofday and endofperiod functions
+    // update endofday and endofperiod functions
     endofday::.rdb.endofday;
     endofperiod::.rdb.datastripeendofperiod;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
-    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; keycol:value .rdb.tablekeycols ; segmentID:first .ds.segmentid);
+    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; keycol:value .rdb.tablekeycols);
+    ext[.rdb.access];
+
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

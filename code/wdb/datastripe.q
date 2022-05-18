@@ -9,7 +9,7 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 // user definable function to modify the access table, call with access table as input
 ext:{[accesstab]
 
-    `table xkey select table,start,end,keycol from accesstab
+    .wdb.access:accesstab;
 
     };
 
@@ -49,7 +49,7 @@ initdatastripe:{
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
-    .wdb.access:ext[.wdb.access];
+    ext[.wdb.access];
     };
 
 
