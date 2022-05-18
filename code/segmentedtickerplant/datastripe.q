@@ -51,13 +51,12 @@ subsegment:{[tbl;segid];
           :();
      ];
      filter:segmentfilter[tbl;segid];
-     $[tbl in .stpps.ignoredtables;[.stpps.suball[tbl]];
-     [if[filter~"";
-          .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :();
-     ];
-     
-     .ps.subtablefiltered[string[tbl];filter;""]]]
+     $[tbl in .stpps.ignoredtables;
+          .stpps.suball[tbl];
+          if[filter~"";
+               .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
+               :();];
+          .ps.subtablefiltered[string[tbl];filter;""]]
      };
 
 \d .

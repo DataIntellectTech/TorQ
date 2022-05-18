@@ -12,7 +12,7 @@ loadtablekeycols:{[]                                                          //
     @[{tablekeycols:(!/)(("SS";enlist",")0: hsym x)`tablename`keycol};keypath;{.lg.e[`init;"Failure in loading ",string y]}[;keypath]]
     };
 
-getstarttime:{[x] first x[`time]};
-getendtime:{[x] last x[`time]};
+getstarttime:{[x] min x[`time]};
+getendtime:{[x] max x[`time]};
 
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
