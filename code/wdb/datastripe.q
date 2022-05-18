@@ -9,7 +9,7 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 // user definable function to modify the access table, call with access table as input
 ext:{[accesstab]
 
-    .wdb.access:accesstab;
+    .wdb.access:`table xkey select table,start,end,keycol from accesstab;
 
     };
 
