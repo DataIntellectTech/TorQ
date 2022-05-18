@@ -6,6 +6,13 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
 \d .
 
+// user definable function to modify the access table, call with access table as input
+ext:{[accesstab]
+
+    `table xkey select table,start,end,keycol from accesstab
+
+    };
+
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
 
@@ -16,13 +23,12 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    .wdb.access:update start:(.ds.getstarttime each (key .wdb.tablekeycols))^start from .wdb.access; 
-    
-    // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;nextp]
-
-    // update the wdb access table
+    .wdb.access:update start:(lasttime^(.ds.getstarttime each (key .wdb.tablekeycols)))^start from .wdb.access;
     .wdb.access:update end:nextp from .wdb.access;
+    ext[.wdb.access];
+
+    // call the savedown function
+    .ds.savealltablesoverperiod[.ds.td;nextp];
 
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
@@ -34,17 +40,18 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
     };
 
-
 initdatastripe:{
     // update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
+    
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols ; segmentID:first .ds.segmentid)];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:`sym)];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
-
+    .wdb.access:ext[.wdb.access];
     };
+
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
