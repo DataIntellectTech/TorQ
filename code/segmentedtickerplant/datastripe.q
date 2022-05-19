@@ -6,11 +6,11 @@
 
 configload:{
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
-     {if[()~key hsym x;.lg.e[`init;"The following file can not be found: ",string scpath]]};
-     .stpps.stripeconfig:.j.k raze read0 scpath;
+     if[()~key hsym scpath;.lg.e[`init;"The qollowing file can not be found: ",string scpath]];
+     .stpps.stripeconfig:.j.k read1 scpath;
      defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
      errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
-     {if[0<count errors;.lg.e[`sub;m:"subscriptiondefault not defined for segment/segments ",string[x]," "]]}each errors;
+     {if[0<count x;.lg.e[`sub;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment ",string[x]," "]]}each errors;
      };
 
 initdatastripe:{
@@ -22,11 +22,9 @@ initdatastripe:{
 \d .stpps
 
 //makes a dictionary of tables and there filters for segmentedsubdetails
-
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
 //grabs filters from the config files and for the "ignoretable" filter converts to "" to allow segmentedsudetails to run
-
 segmentfilter:{[tbl;segid]
      id:`$string segid;
      filter:first (flip .stpps.stripeconfig[id])[tbl];
@@ -45,19 +43,18 @@ subsegment:{[tbl;segid];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
      stripedtables:inter [key flip .stpps.stripeconfig[id];.stpps.t];
 //if the defualt is "all" tables not mentioned in striping.json will be subscribed unfiltered
-     if[default~"all";suballtabs: except[.stpps.t;stripedtables];
+     if[default~"all";suballtabs: .stpps.t except stripedtables;
      .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]];
 //if default is ignore creates a list to of tables to ignore
-     if[default~"ignore"; ignoredtables: except[.stpps.t;stripedtables]];
+     if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
      filter:.stpps.segmentfilter[tbl;segid];
 //for case when filter is "ignoretable" adds that table to ignoredtables list
      if[(first (flip .stpps.stripeconfig[id])[tbl])~"ignoretable";ignoredtables:ignoredtables,tbl];
      if[tbl in ignoredtables;
       .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
- :()];
+      :()];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
-
 
 \d .
 
