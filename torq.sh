@@ -230,7 +230,13 @@ flagextras() {
 flagcsv() {
   flag "$*"
   CSVPATH="${BASH_ARGV[$N]}"                                                                        # assign specifed csv file
- }
+  if [ -f "$CSVPATH" ]; then
+          newproc=$(echo $CSVPATH | awk -F/ '{print $NF}')                                                  # find new process name from flagged file
+          currproc=$(cat $SETENV | grep TORQPROCESSES= | awk -F/ '{print $NF}')                             # find previous process name from setenv.sh
+          sed -i 's/'$currproc'/'$newproc'/g' $SETENV                                                       # replace new process with previous in setenv.sh
+          echo "Your process csv has been switched in setenv.sh to your specified csv file: ${newproc}"    # inform the user that their csv file has been changed
+  fi
+}
 
 getextras() {
   if [[ $(echo ${BASH_ARGV[*]} | grep -e extras) ]]; then                                            
