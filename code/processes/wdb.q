@@ -357,7 +357,7 @@ mergehybrid:{[tabname;dest;partdirs;mergelimit]
   overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
-    .lg.o[`merge;"mergeing ",  (", " sv string partdirs), " by whole partition"];
+    .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
     mergebypart[tabname;(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]
     ];
   if[0<>count overlimit;
@@ -378,9 +378,6 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
   $[0=count partdirs;
     [.lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
-     //.lg.o[`merge;"setting attributes"];
-     //@[dest;;`p#] each .merge.getextrapartitiontype[tabname];
-     //.lg.o[`merge;"merge complete"];
     ];
    [$[mergemode~`part;
       [dest: ` sv dest,`;
