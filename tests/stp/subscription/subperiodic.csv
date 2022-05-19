@@ -17,4 +17,3 @@ after,0,0,q,logdir2:1_string stpHandle(`.stplg.dldir),1,,"get path to logs folde
 after,0,0,q,stopproc["stp1"];,1,,"stop stp"
 after,0,0,q,.os.deldir logdir2,1,,"delete logs"
 after,0,0,q,.os.deldir logdir1,1,,"delete logs"
-
