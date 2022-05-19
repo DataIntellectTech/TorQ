@@ -13,7 +13,6 @@ customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for
 segmentconfig:`segmenting.csv   // default segmenting config file
 filtermap:`filtermap.csv        // default filter mapping config file
 period:0D01
-/periodstokeep:4
 
 \d .proc
 loadcommoncode:0b               // do not load common code

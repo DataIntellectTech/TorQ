@@ -11,13 +11,14 @@ datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
 
     // update the access table in the rdb
-    .rdb.access:update start:lasttime^(.ds.getstarttime each (key .rdb.tablekeycols)) from .rdb.access;
+    .rdb.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols) from .rdb.access;
     ext[.rdb.access];
 
     };
 
 \d .
 
+// user definable function to modify the access table
 ext:{[accesstab]
 
     .rdb.access:accesstab;

@@ -23,8 +23,7 @@ ext:{[accesstab]
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    .wdb.access:update start:(lasttime^(.ds.getstarttime each (key .wdb.tablekeycols)))^start from .wdb.access;
-    .wdb.access:update end:nextp from .wdb.access;
+    .wdb.access:update end:nextp,start:(lasttime^(.ds.getstarttime each (key .wdb.tablekeycols)))^start from .wdb.access;
     ext[.wdb.access];
 
     // call the savedown function
@@ -45,7 +44,7 @@ initdatastripe:{
     endofperiod::.wdb.datastripeendofperiod;
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:`sym)];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols)];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
@@ -80,7 +79,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
 savetablesoverperiod:{[dir;tablename;nextp]
     /- function to get keycol for table from access table
-    keycol:$[.wdb.tablekeycols[tablename]=`;`sym;.wdb.tablekeycols[tablename]];
+    keycol:$[null .wdb.tablekeycols[tablename];`sym;.wdb.tablekeycols[tablename]];
     /- get distint values to partition table on
     partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
     /- enumerate table to be upserted and get each table by sym
