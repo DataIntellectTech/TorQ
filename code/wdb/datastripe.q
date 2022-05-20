@@ -23,7 +23,7 @@ ext:{[accesstab]
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    .wdb.access:update end:nextp,start:(lasttime^(.ds.getstarttime each (key .wdb.tablekeycols)))^start from .wdb.access;
+    .wdb.access:update end:nextp,start:(.ds.getstarttime each key .wdb.tablekeycols)^start from .wdb.access;
     ext[.wdb.access];
 
     // call the savedown function
@@ -33,14 +33,14 @@ ext:{[accesstab]
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
     // update the access table on disk
-    atab:get(` sv(.ds.td;.proc.procname;`access));
+    atab:get ` sv(.ds.td;.proc.procname;`access);
     atab,:() xkey .wdb.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
 
     };
 
 initdatastripe:{
-    // update endofday and endofperiod functions
+    // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];
@@ -79,8 +79,8 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
 savetablesoverperiod:{[dir;tablename;nextp]
     /- function to get keycol for table from access table
-    keycol:$[null .wdb.tablekeycols[tablename];`sym;.wdb.tablekeycols[tablename]];
-    /- get distint values to partition table on
+    keycol:`sym^.wdb.tablekeycols tablename;
+    /- get distinct values to partition table on
     partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
     /- enumerate table to be upserted and get each table by sym
     enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[dir;tablename;keycol;nextp]'[partitionlist];
@@ -88,12 +88,11 @@ savetablesoverperiod:{[dir;tablename;nextp]
     upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;nextp)];
-    .[{![x;enlist(<;`time;y);0b;0#`]};(tablename;nextp)];
-
+    
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
-	
+
 savealltablesoverperiod:{[dir;nextp]
 	/- function takes the tailer hdb directory handle and a timestamp
 	/- saves each table up to given period to their respective partitions

@@ -15,4 +15,5 @@ loadtablekeycols:{[]                                                          //
 getstarttime:{[x] min x[`time]};
 getendtime:{[x] max x[`time]};
 
+// function to clear tables before given time
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
