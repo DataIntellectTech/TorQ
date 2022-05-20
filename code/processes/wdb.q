@@ -402,6 +402,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
+     if[mergemode~`hybrid;
+       {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
+       ];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
