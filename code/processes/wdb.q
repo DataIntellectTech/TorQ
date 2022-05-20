@@ -21,13 +21,13 @@ mode:@[value;`mode;`saveandsort];                                          /-the
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`partbyattr];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`hybrid]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`col]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
@@ -330,7 +330,7 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
   ]
   };
 
-mergebycol:{[tabname;dest;segment;islast]
+mergebycol:{[tableinfo;dest;segment;islast]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
   /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
   {[dest;segment;col]
@@ -341,11 +341,11 @@ mergebycol:{[tabname;dest;segment;islast]
     /-upsert data to hdb column
     .[upsert;(destcol;destdata);
       {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
-  }[dest;segment;] each cols tabname;
+  }[dest;segment;] each cols tableinfo[1];
   /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
   if[islast and ()~key (` sv dest,`.d);
     .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
-    (` sv dest,`.d) set cols tabname
+    (` sv dest,`.d) set cols tableinfo[1]
     ];
   /- if upserts of all columns have been successful remove partition from temporary storage
   .lg.o[`merge;"Removing ", string[segment]];
@@ -384,7 +384,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
        mergebypart[tabname;dest;(mergelimits[tabname])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];
       ];
     mergemode~`col;
-      mergebycol[tabname;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
+      mergebycol[tableinfo;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
       mergehybrid[tabname;dest;partdirs;mergelimits[tabname]]
     ];
     /- set the attributes
