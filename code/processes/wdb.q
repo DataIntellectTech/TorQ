@@ -27,7 +27,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergemode:@[value;`mergemode;`col];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`hybrid];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
@@ -352,17 +352,17 @@ mergebycol:{[tableinfo;dest;segment;islast]
   .os.deldir string segment
   };
 
-mergehybrid:{[tabname;dest;partdirs;mergelimit]
+mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of rows is over the limit  
   overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
-    mergebypart[tabname;(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]
+    mergebypart[tableinfo[0];(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]
     ];
   if[0<>count overlimit;
     .lg.o[`merge;"mergeing ",  (", " sv string partdirs), " column by column"];
-    mergebycol[tabname;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]
+    mergebycol[tableinfo;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]
     ];
   };     
 
@@ -385,7 +385,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
       ];
     mergemode~`col;
       mergebycol[tableinfo;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
-      mergehybrid[tabname;dest;partdirs;mergelimits[tabname]]
+      mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
