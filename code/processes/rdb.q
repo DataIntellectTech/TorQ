@@ -234,7 +234,4 @@ $[.rdb.connectonstart;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
 
 //Updating .rdb.subtables to only include tables that actually subscribed
-//if[.ds.datastripe;
-//  .rdb.subtables:.rdb.subtables[where 98h=type each value each .rdb.subtables];
-//  ];
 .rdb.subtables:$[.ds.datastripe;tables[] except `heartbeat;.rdb.subtables];
