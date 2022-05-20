@@ -21,13 +21,13 @@ mode:@[value;`mode;`saveandsort];                                          /-the
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
 
-writedownmode:@[value;`writedownmode;`partbyattr];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-if[writedownmode~`partbyattr;mergemode:@[value;`mergemode;`col]];          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`col];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
