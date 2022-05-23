@@ -32,6 +32,7 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-spe
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
+tailreadertypes:@[value;`tailreadertypes;`tailreader]                      /-list of tail reader types to look for and call in tailreader reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
@@ -222,6 +223,17 @@ flushend:{
 	 .wdb.reloadcomplete:1b];
 	};
 
+/- evaluate contents of d dictionary asynchronously
+/- flush tailreader handles after timeout
+flushtailreload:{
+  if[not @[value;`.wdb.tailreloadcomplete;0b];
+   @[{neg[x]"";neg[x][]};;()] each key d;
+   .lg.o[`tail;"tailreload is now complete"];
+   .wdb.tailreloadcomplete:1b];
+  };
+
+
+
 /- initialise d
 d:()!()
 
@@ -234,6 +246,17 @@ doreload:{[pt]
 		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
 	];
 	};
+
+dotailreload:{[pt]
+  /-send reload request to tailreaders
+  .wdb.tailreloadcomplete:0b;
+  getprocs[;pt].wdb.tailreadertypes;
+  if[eodwaittime>0;
+    .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushtailreload[]");"release all tailreaders as timer has expired";0b];
+  ];
+  };
+
+
 
 // set .z.zd to control how data gets compressed
 setcompression:{[compression] if[3=count compression;
@@ -371,8 +394,8 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	};
 
 /-function to send reload message to rdbs/hdbs
-reloadproc:{[h;d;ptype]
-	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+reloadproc:{[h;d;ptype;reloadlist]
+	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
 	$[eodwaittime>0;
 		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
 		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
@@ -383,11 +406,11 @@ reloadproc:{[h;d;ptype]
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]
 	a:exec (w!x) from .servers.getservers[`proctype;x;()!();1b;0b];
-	/-exit if no valid handle
+	0N!a; /-exit if no valid handle
 	if[0=count a; .lg.e[`connection;"no connection to the ",(string x)," could be established... failed to reload ",string x];:()];
 	.lg.o[`connection;"connection to the ", (string x)," has been located"];
 	/-send message along each handle a
-	reloadproc[;y;value a] each key a;
+	reloadproc[;y;value a;x] each key a;
 	}
 
 /-function to send messages to gateway	
@@ -404,7 +427,7 @@ informgateway:{[message]
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
-	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
+	$[count sortprocs:.mformsoreservers.getservers[`proctype;sorttypes;()!();1b;0b];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
@@ -522,7 +545,7 @@ getsortparams:{[]
 .wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `
 
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
