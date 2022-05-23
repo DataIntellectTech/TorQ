@@ -479,7 +479,7 @@ informgateway:{[message]
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
-	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
+	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[
 		if[mergemode~`hybrid;{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
