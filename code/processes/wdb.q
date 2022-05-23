@@ -304,6 +304,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
+/-function to read entire partitions into memory from temp storage and save to hdb
 mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
   .lg.o[`merge;"reading partition ", string segment];	
   curr[0]:curr[0],select from get segment;
@@ -330,6 +331,7 @@ mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
   ]
   };
 
+/-read in data from partition column by column rather than read in entie partition and move to hdb
 mergebycol:{[tableinfo;dest;segment;islast]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
   /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
@@ -352,6 +354,7 @@ mergebycol:{[tableinfo;dest;segment;islast]
   .os.deldir string segment
   };
 
+/-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .wdb.partsizes) and mergebypart for remaining functions
 mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of rows is over the limit  
   overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
@@ -402,6 +405,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
+     /-upsert .wdb.partsize data to sort workers if merge method requires for it for reference for byte limit 
      if[mergemode~`hybrid;
        {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
        ];
