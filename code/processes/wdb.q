@@ -481,7 +481,10 @@ informgateway:{[message]
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
+		[// upsert data from .wdb.partizes lookup table to sort proc + call .wdb.endofdaysort on sort proc
+		if[mergemode~`hybrid;{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
+		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
 		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]]];
