@@ -201,6 +201,8 @@ endofday:{[pt;processdata]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
+	.lg.o[`eod;"deleting data from partsizes"];
+	@[`.wdb;`partsizes;0#];
     .lg.o[`eod;"end of day is now complete"];
     .wdb.currentpartition:pt+1;
 	};
@@ -412,7 +414,10 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
      if[(mergemode~`hybrid)or(mergemode~`part);
        {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
        ];
-     merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
+     merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist);
+     /-clear out in memory table from sort worker processes
+     {(neg x)({delete from `.wdb.partsizes};`);(neg x)(::)} each .z.pd[];
+    ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
