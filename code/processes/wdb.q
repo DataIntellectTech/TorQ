@@ -304,32 +304,34 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
-/-function to read entire partitions into memory from temp storage and save to hdb
-mergebypart:{[tablename;dest;mergemaxrows;curr;segment;islast]
-  .lg.o[`merge;"reading partition ", string segment];	
-  curr[0]:curr[0],select from get segment;
-  curr[1]:curr[1],segment;
-  $[islast or mergemaxrows < count curr[0];
-    [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
-     pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
-     if[pattrtest;
-       /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-       .lg.o[`resort;"Re-sorting contents of subpartition"];
-       curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
-       .lg.o[`resort;"The p attribute can now be applied"];
-       ];
-     .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-     /-merge columns and return boolean based on success of merge
-     .[upsert;(dest;curr[0]);                     
-       {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string curr[1])];}]; 
-     /-if merge successful, delete directory partition directory from temporary storage
-     .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-     .os.deldir each string curr[1];
-     (();())
-    ];
-    curr
-  ]
+/-function to return chunks that will be called in batch by mergebypart function
+getpartchunks:{[partdirs;mergelimit]
+  /-get table for function which only contains data for relevant partitions
+  t:select from .wdb.partsizes where ptdir in partdirs;
+  (where r={$[z<x+y;y;x+y]}\[0;r:exec rowcount from t;mergelimit]) cut exec ptdir from t
   };
+
+mergebypart:{[tablename;dest;mergemaxrows;partchunks]
+   .lg.o[`merge;"reading partition/partitions ", (", " sv string[partchunks])];
+   chunks:get each partchunks;
+   /-if multiple chunks have been read in chunks will be a list of tabs, if this is the case - join into single tab
+   if[98<>type chunks;chunks:(,/)chunks];
+     .lg.o[`resort;"Checking that the contents of this subpartition conform"];
+      pattrtest:@[{@[x;y;`p#];0b}[chunks;];.merge.getextrapartitiontype[tablename];{1b}];
+      if[pattrtest;
+       /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+        .lg.o[`resort;"Re-sorting contents of subpartition"];
+        chunks: xasc[.merge.getextrapartitiontype[tablename];chunks];
+        .lg.o[`resort;"The p attribute can now be applied"];
+        ];
+      .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
+      /-merge columns and return boolean based on success of merge
+      .[upsert;(dest;chunks);                     
+        {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
+      /-if merge successful, delete directory partition directory from temporary storage
+      .lg.o[`merge;"removing segments", (", " sv string[partchunks])];
+      .os.deldir each string partchunks;
+   };
 
 /-read in data from partition column by column rather than read in entie partition and move to hdb
 mergebycol:{[tableinfo;dest;segment;islast]
@@ -349,7 +351,6 @@ mergebycol:{[tableinfo;dest;segment;islast]
     .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
     (` sv dest,`.d) set cols tableinfo[1]
     ];
-  /- if upserts of all columns have been successful remove partition from temporary storage
   .lg.o[`merge;"Removing ", string[segment]];
   .os.deldir string segment
   };
@@ -361,11 +362,12 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
-    mergebypart[tableinfo[0];(` sv dest,`);mergelimit]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b]
+    partchunks:getpartchunks[partdirs;mergelimit];
+    mergebypart[tableinfo[0];(` sv dest,`);mergelimit]'[partchunks];
     ];
   if[0<>count overlimit;
-    .lg.o[`merge;"mergeing ",  (", " sv string partdirs), " column by column"];
-    mergebycol[tableinfo;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b]
+    .lg.o[`merge;"mergeing ",  (", " sv string overlimit), " column by column"];
+    mergebycol[tableinfo;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b];
     ];
   };     
 
@@ -384,7 +386,8 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
     ];
    [$[mergemode~`part;
       [dest: ` sv dest,`;
-       mergebypart[tabname;dest;(mergelimits[tabname])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];
+       partchunks:getpartchunks[partdirs;mergelimits[tabname]];
+       mergebypart[tabname;dest;(mergelimits[tabname])]'[partchunks];
       ];
     mergemode~`col;
       mergebycol[tableinfo;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
@@ -406,7 +409,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
      /-upsert .wdb.partsize data to sort workers if merge method requires for it for reference for byte limit 
-     if[mergemode~`hybrid;
+     if[(mergemode~`hybrid)or(mergemode~`part);
        {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
        ];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
@@ -486,7 +489,7 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[
-		if[mergemode~`hybrid;{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
+		if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
