@@ -199,12 +199,10 @@ endofday:{[pt;processdata]
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
-	.lg.o[`eod;"deleting data from tabsizes"];
-	@[`.wdb;`tabsizes;0#];
-	.lg.o[`eod;"deleting data from partsizes"];
-	@[`.wdb;`partsizes;0#];
-    .lg.o[`eod;"end of day is now complete"];
-    .wdb.currentpartition:pt+1;
+	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
+	@[`.wdb;$[r;`partsizes;`tabsizes];0#];
+	.lg.o[`eod;"end of day is now complete"];
+	.wdb.currentpartition:pt+1;
 	};
 	
 endofdaysave:{[dir;pt]
