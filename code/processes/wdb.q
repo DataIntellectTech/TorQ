@@ -366,7 +366,7 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
     mergebypart[tableinfo[0];(` sv dest,`);mergelimit]'[partchunks];
     ];
   if[0<>count overlimit;
-    .lg.o[`merge;"mergeing ",  (", " sv string overlimit), " column by column"];
+    .lg.o[`merge;"merging ",  (", " sv string overlimit), " column by column"];
     mergebycol[tableinfo;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b];
     ];
   };     
