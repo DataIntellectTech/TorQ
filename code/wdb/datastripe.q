@@ -6,12 +6,11 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
 \d .
 
-// user definable function to modify the access table, call with access table as input
-ext:{[accesstab]
+// user definable functions to modify the access table or change how the access table is updated
+// leave blank by default
+modaccess:{[accesstab]};
 
-    .wdb.access:`table xkey select table,start,end,keycol from accesstab;
-
-    };
+modupdate:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
@@ -24,7 +23,7 @@ ext:{[accesstab]
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     .wdb.access:update end:nextp,start:(.ds.getstarttime each key .wdb.tablekeycols)^start from .wdb.access;
-    ext[.wdb.access];
+    modupdate[.wdb.access];
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp];
@@ -48,7 +47,7 @@ initdatastripe:{
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
-    ext[.wdb.access];
+    modaccess[.wdb.access];
     };
 
 
