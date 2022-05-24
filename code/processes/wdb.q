@@ -232,8 +232,6 @@ flushtailreload:{
    .wdb.tailreloadcomplete:1b];
   };
 
-
-
 /- initialise d
 d:()!()
 
@@ -255,8 +253,6 @@ dotailreload:{[pt]
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
   };
-
-
 
 // set .z.zd to control how data gets compressed
 setcompression:{[compression] if[3=count compression;
@@ -406,7 +402,7 @@ reloadproc:{[h;d;ptype;reloadlist]
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]
 	a:exec (w!x) from .servers.getservers[`proctype;x;()!();1b;0b];
-	0N!a; /-exit if no valid handle
+  /-exit if no valid handle
 	if[0=count a; .lg.e[`connection;"no connection to the ",(string x)," could be established... failed to reload ",string x];:()];
 	.lg.o[`connection;"connection to the ", (string x)," has been located"];
 	/-send message along each handle a

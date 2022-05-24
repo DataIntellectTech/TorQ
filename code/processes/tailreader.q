@@ -1,12 +1,13 @@
 \d .tr 
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
-getpartition:@[value;`getpartition;
-  {{@[value;`.wdb.currentpartition;
-    (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                      /-function to determine the partition value
+determinepartition:{{@[value;`.tr.currentpartition;                        /function to determine the partition value
+    (`date^partitiontype)$(.z.D,.z.d)gmttime]}
+  }; 
+getpartition:@[value;`getpartition;determinepartition[]];                      /-check if partition value exists and if not generate one
 segmentid: "J"$.proc.params[`segid]
-td:hsym `$getenv`KDBTAIL																							 /-load in taildir env variables
-.tr.currentpartition:.tr.getpartition[];															 /-obtain  partition value
+taildir:hsym `$getenv`KDBTAIL																							 /-load in taildir env variables
+.tr.currentpartition:.tr.getpartition;															 /-obtain  partition value
 
 \d .
 endofday:{[pt]
@@ -22,12 +23,12 @@ endofday:{[pt]
 reload:{
   /- function to define the access table and IDB dir and then reload both tables
   /- reload is triggered by tailer after savedown occurs
-  dir:(raze/)1_string[.tr.td],"/wdb",string .tr.segmentid,"/";
+  dir:(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/";
   wdbdir::`$ dir,string currentpartition;
   accesstabdir::`$ dir,"access";
   @[.Q.l ;wdbdir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   @[.Q.l ;accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
- }
+  }
 
 currentpartition:.tr.currentpartition																	 /- bring currentpartition into default namespace 
 reload[]																															 /- reload accestable and IDB on tailreader startup

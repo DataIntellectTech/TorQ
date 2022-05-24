@@ -53,7 +53,7 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- get distinct values to partition table on
 	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
-  symdir:` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition;
+  symdir:` sv .ds.td,.proc.procname;
 	enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[symdir;tablename;keycol;nextp]'[partitionlist];
 	/-upsert table to partition
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
