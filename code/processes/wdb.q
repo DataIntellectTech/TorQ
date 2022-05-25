@@ -413,8 +413,10 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
        {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
        ];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist);
-     /-clear out in memory table from sort worker processes
-     {(neg x)({delete from `.wdb.partsizes};`);(neg x)(::)} each .z.pd[];
+     /-clear out in memory table and call sort worker processes to do the same
+     .lg.o[`eod;"Delete from .wdb.partsizes"];
+     delete from `.wdb.partsizes;
+     {(neg x)({.lg.o[`eod;"Delete from .wdb.partsizes"];delete from `.wdb.partsizes};`);(neg x)(::)} each .z.pd[];
     ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
@@ -424,8 +426,6 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
     .lg.o[`merge;"deleting temp storage directory"];
     .os.deldir .os.pth[string p]
     ];
-  /- delete contents of row tracking table
-  delete from `.wdb.partsizes;
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload; 
