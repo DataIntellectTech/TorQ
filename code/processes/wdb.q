@@ -27,7 +27,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergemode:@[value;`mergemode;`hybrid];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`col];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
@@ -334,7 +334,7 @@ mergebypart:{[tablename;dest;mergemaxrows;partchunks]
    };
 
 /-read in data from partition column by column rather than read in entie partition and move to hdb
-mergebycol:{[tableinfo;dest;segment;islast]
+mergebycol:{[tableinfo;dest;segment]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
   /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
   {[dest;segment;col]
@@ -347,10 +347,6 @@ mergebycol:{[tableinfo;dest;segment;islast]
       {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
   }[dest;segment;] each cols tableinfo[1];
   /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
-  if[islast and ()~key (` sv dest,`.d);
-    .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
-    (` sv dest,`.d) set cols tableinfo[1]
-    ];
   .lg.o[`merge;"Removing ", string[segment]];
   .os.deldir string segment
   };
@@ -367,7 +363,11 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
     ];
   if[0<>count overlimit;
     .lg.o[`merge;"merging ",  (", " sv string overlimit), " column by column"];
-    mergebycol[tableinfo;dest]'[overlimit; 1 _ ((count overlimit)#0b),1b];
+    mergebycol[tableinfo;dest]'[overlimit];
+    if[()~key (` sv dest,`.d);
+      .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
+      (` sv dest,`.d) set cols tableinfo[1];
+      ];
     ];
   };     
 
@@ -390,8 +390,11 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
        mergebypart[tabname;dest;(mergelimits[tabname])]'[partchunks];
       ];
     mergemode~`col;
-      mergebycol[tableinfo;dest]'[partdirs; 1 _ ((count partdirs)#0b),1b];
-      mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
+      [mergebycol[tableinfo;dest]'[partdirs];
+       .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
+       (` sv dest,`.d) set cols tableinfo[1];
+      ];
+       mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
