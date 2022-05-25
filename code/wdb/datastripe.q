@@ -44,10 +44,10 @@ initdatastripe:{
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols)];
+    modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
-    modaccess[.wdb.access];
     };
 
 

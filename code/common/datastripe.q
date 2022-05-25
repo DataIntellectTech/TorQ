@@ -12,7 +12,7 @@ loadtablekeycols:{[]                                                          //
     @[{tablekeycols:(!/)(("SS";enlist",")0: hsym x)`tablename`keycol};keypath;{.lg.e[`init;"Failure in loading ",string y]}[;keypath]]
     };
 
-getstarttime:{[x] min x[`time]};
+getstarttime:{[x] $[0Wp~min x[`time];0Np;min x[`time]]};
 getendtime:{[x] max x[`time]};
 
 // function to clear tables before given time
