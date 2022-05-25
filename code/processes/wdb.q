@@ -27,7 +27,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergemode:@[value;`mergemode;`col];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`hybrid];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
@@ -311,7 +311,7 @@ getpartchunks:{[partdirs;mergelimit]
   (where r={$[z<x+y;y;x+y]}\[0;r:exec rowcount from t;mergelimit]) cut exec ptdir from t
   };
 
-mergebypart:{[tablename;dest;mergemaxrows;partchunks]
+mergebypart:{[tablename;dest;partchunks]
    .lg.o[`merge;"reading partition/partitions ", (", " sv string[partchunks])];
    chunks:get each partchunks;
    /-if multiple chunks have been read in chunks will be a list of tabs, if this is the case - join into single tab
@@ -359,7 +359,7 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
     partchunks:getpartchunks[partdirs;mergelimit];
-    mergebypart[tableinfo[0];(` sv dest,`);mergelimit]'[partchunks];
+    mergebypart[tableinfo[0];(` sv dest,`)]'[partchunks];
     ];
   if[0<>count overlimit;
     .lg.o[`merge;"merging ",  (", " sv string overlimit), " column by column"];
@@ -387,7 +387,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
    [$[mergemode~`part;
       [dest: ` sv dest,`;
        partchunks:getpartchunks[partdirs;mergelimits[tabname]];
-       mergebypart[tabname;dest;(mergelimits[tabname])]'[partchunks];
+       mergebypart[tabname;dest]'[partchunks];
       ];
     mergemode~`col;
       [mergebycol[tableinfo;dest]'[partdirs];
