@@ -27,7 +27,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergemode:@[value;`mergemode;`hybrid];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`hybrid]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
@@ -346,9 +346,6 @@ mergebycol:{[tableinfo;dest;segment]
     .[upsert;(destcol;destdata);
       {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
   }[dest;segment;] each cols tableinfo[1];
-  /-if all columns have been upserted and there is no .d file create .d file to preserve order of columns 
-  .lg.o[`merge;"Removing ", string[segment]];
-  .os.deldir string segment
   };
 
 /-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .wdb.partsizes) and mergebypart for remaining functions
@@ -368,6 +365,8 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
       .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
       (` sv dest,`.d) set cols tableinfo[1];
       ];
+    .lg.o[`merge;"Removing ", ", " sv string overlimit];
+    .os.deldir each string overlimit;
     ];
   };     
 
@@ -393,6 +392,8 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
       [mergebycol[tableinfo;dest]'[partdirs];
        .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
        (` sv dest,`.d) set cols tableinfo[1];
+       .lg.o[`merge;"Removing ", ", " sv string partdirs];
+       .os.deldir each string partdirs;
       ];
        mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
