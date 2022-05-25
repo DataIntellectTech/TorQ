@@ -30,10 +30,10 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
 mergemode:@[value;`mergemode;`hybrid];				          /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
-                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on row limit      
+                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
-mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
+mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
+mergetablebytes:@[value;`mergetablebytes;`quote`trade!1000000 500000];     /-specify number of bytes per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
@@ -104,8 +104,8 @@ if[not any saveenabled,sortenabled; .lg.e[`init;"process mode not configured cor
 /- extract user defined row counts	
 maxrows:{[tabname] numrows^numtab[tabname]}
 
-/- extract user defined row counts for merge process
-mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
+/- extract user defined bytes counts for merge process
+mergemaxbytes:{[tabname] mergenumbytes^mergetablebytes[tabname]}
 
 /- keyed table to track the size of tables on disk
 tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
@@ -192,7 +192,7 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits
-	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
+	mergelimits:(tablelist[],())!({[x] mergenumbytes^mergemaxbytes[x]}tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
@@ -308,7 +308,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 getpartchunks:{[partdirs;mergelimit]
   /-get table for function which only contains data for relevant partitions
   t:select from .wdb.partsizes where ptdir in partdirs;
-  (where r={$[z<x+y;y;x+y]}\[0;r:exec rowcount from t;mergelimit]) cut exec ptdir from t
+  (where r={$[z<x+y;y;x+y]}\[0;r:exec bytes from t;mergelimit]) cut exec ptdir from t
   };
 
 mergebypart:{[tablename;dest;partchunks]
@@ -353,8 +353,8 @@ mergebycol:{[tableinfo;dest;segment]
 
 /-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .wdb.partsizes) and mergebypart for remaining functions
 mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
-  /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of rows is over the limit  
-  overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit;
+  /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of bytes is over the limit  
+  overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,bytes > mergelimit;
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
@@ -495,8 +495,8 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[
-		if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
+		 if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
+		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
