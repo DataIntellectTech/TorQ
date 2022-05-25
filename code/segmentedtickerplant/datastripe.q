@@ -38,10 +38,11 @@ subsegment:{[tbl;segid];
      //setting the default for non-configured tables
      default:.stpps.segmentfilter[`subscriptiondefault;segid];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
-     stripedtables:inter [key flip .stpps.stripeconfig[id];.stpps.t];
+     stripedtables:.stpps.t inter key flip .stpps.stripeconfig[id];
      //if the defualt is "all" tables not mentioned in striping.json will be subscribed unfiltered
      if[default~"all";suballtabs: .stpps.t except stripedtables;
-     .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]];
+       if[tbl in suballtabs;
+          .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]]];
      //if default is ignore creates a list to of tables to ignore
      if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
      filter:.stpps.segmentfilter[tbl;segid];
