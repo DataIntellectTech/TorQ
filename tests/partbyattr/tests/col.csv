@@ -1,8 +1,10 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,w:gethandle[`wdbpart],1,,"Open wdb handle"
+before,0,0,q,.servers.startup[],1,,"Start TorQ connection management"
+before,0,0,q,.proc.sys "sleep 3",1,,"Wait for proc to start"
+before,0,0,q,w:gethandle[`wdbcol],1,,"Open wdb handle"
 before,0,0,q,h:gethandle[`hdb1],1,,"Open hdb handle"
 before,0,0,q,s:exec w from .servers.SERVERS where proctype in `wdb`sort`sortworker,1,,"get handles to sort and sort worker processes"
-before,0,0,q,s@\:(set;`.wdb.mergemode;`part),1,,"change mergemethod in all sort and sortworker procs"
+before,0,0,q,s@\:(set;`.wdb.mergemode;`col),1,,"change mergemethod in all sort and sortworker procs"
 before,0,0,q,w".sort.getsortcsv[.wdb.sortcsv]",1,,"Get test sort.csv file"
 run,0,0,q,w(`.u.end;.z.d),1,,"trigger end of day function to save and merge data with today's date as the partition"
 run,0,0,q,system"sleep 3",,"wait for updates to publish"
@@ -15,4 +17,4 @@ true,0,0,q,(count xdaily2) ~ count h"select from xdaily2",1,,"Check all rows of 
 true,0,0,q,(cols xdaily2) ~ h"1_ cols xdaily2",1,,"Check all rows of data have been merged to hdb"
 true,0,0,q,0~w"count xdaily2",1,,"Check xdaily has been deleted from in memory table"
 after,0,0,q,.os.deldir w"string .wdb.savedir",1,,"remove temporary storage directory"
-after,0,0,q,.os.deldir w"string .wdb.hdbdir",1,,"remove test hdb partition"
+after,0,0,q,.os.deldir w"string .Q.dd[.wdb.hdbdir;`$string[.z.d]]",1,,"remove test hdb partition"

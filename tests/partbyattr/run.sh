@@ -12,7 +12,7 @@ mkdir ${testpath}/testhdb
 ${TORQHOME}/torq.sh start all -csv ${testpath}/config/process.csv
 
 # Start test proc
-/usr/bin/rlwrap q ${TORQHOME}/torq.q \
+${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
  -proctype test -procname test1 \
  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${testpath}/mockdata.q \
  -test ${testpath}/tests \
