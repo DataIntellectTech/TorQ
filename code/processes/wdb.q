@@ -33,7 +33,7 @@ mergemode:@[value;`mergemode;`hybrid]; 				           /-the partbyattr writdown 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
 mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
-mergetablebytes:@[value;`mergetablebytes;`quote`trade!1000000 500000];     /-specify number of bytes per table for merge process
+mergetablebytes:@[value;`mergetablebytes;`quote`trade!2000000 500000];     /-specify number of bytes per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
@@ -407,9 +407,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
     @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
-    .lg.o[`merge;"merge complete"];
-    /- run a garbage collection (if enabled)
-    if[gc;.gc.run[]];
+    .lg.o[`merge;string[tabname]," merge complete"];
    ]
   ] 
  };	
@@ -427,11 +425,18 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
      /-clear out in memory table and call sort worker processes to do the same
      .lg.o[`eod;"Delete from .wdb.partsizes"];
      delete from `.wdb.partsizes;
-     {(neg x)({.lg.o[`eod;"Delete from .wdb.partsizes"];delete from `.wdb.partsizes};`);(neg x)(::)} each .z.pd[];
+     {(neg x)({.lg.o[`eod;"Delete from .wdb.partsizes"];
+               delete from `.wdb.partsizes;
+               /- run a garbage collection if enabled
+               if[gc;.gc.run[]]};`);(neg x)(::)} each .z.pd[];
     ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-     merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
+     merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist);
+     /- run a garbage collection (if enabled)
+     if[gc;.gc.run[]];
+    ]
+   ];
   /- if path exists, delete it
   if[not () ~ key p:.Q.par[savedir;pt;`]; 
     .lg.o[`merge;"deleting temp storage directory"];
