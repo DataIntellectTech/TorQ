@@ -7,16 +7,19 @@ reload:{
 \d .proc
 getattributes:{
 	timecolumns:gettimecolumns each t:tables[`.];
-	attrtable:`date`tables`procname!(@[value;`date;`date$()];tables[];.proc.procname);
+	attrtable:`date`tables`procname!(
+		@[value;`date;`date$()] union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$last each raze value each timecolumns from timecolumns;
+		tables[];
+		.proc.procname);
     	/ select table using max date if date col exists
 	/ get all cols that contains date (of type "pdz")
 	attrtable[`dataaccess]:`segid`tablename!(first .ds.segmentid;t!select wc:{""}'[i],timecolumns from timecolumns);
     	attrtable}
-// Get temporal cols and the time window theya contain
+// Get temporal cols and the time windows they contain
 gettimecolumns:{
 	tcols:exec c from meta t:$[`date in cols x;
 	select from x where date=max date;
-                value x]where t in"pdz";
+                value x] where t in "pdz";
 	/ date cols
 	dcols:exec c from meta t where t="d";
 	/ functional exec to get the max value (defaults to -1+`timestamp$.z.d for endtimestamp)

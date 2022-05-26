@@ -2,7 +2,12 @@
 /- Get the relevant RDB attributes
 getattributes:{
     timecolumns:1!gettimecolumns each tables[`.];
-    attrtable:`date`tables`procname!(.rdb.rdbpartition[];tables[];.proc.procname);
+    attrtable:`date`tables`procname!
+	({[timecolumns]
+	  d:exec(min;max)@\:distinct`date$first each raze value each timecolumns from timecolumns;
+	  first[d]+til 1+last deltas d}[timecolumns];
+	tables[];
+	.proc.procname);
     if[.ds.datastripe;
         /- get segmentfilter from segmenting.csv and filtermap.csv
         /- assumes striping by sym
