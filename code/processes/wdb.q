@@ -328,9 +328,6 @@ mergebypart:{[tablename;dest;partchunks]
    /-merge columns and return boolean based on success of merge
    .[upsert;(dest;chunks);                     
      {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
-   /-if merge successful, delete directory partition directory from temporary storage
-   .lg.o[`merge;"removing segments", (", " sv string[partchunks])];
-   .os.deldir each string partchunks;
    };
 
 /-read in data from partition column by column rather than read in entie partition and move to hdb
@@ -369,8 +366,6 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
       .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
       (` sv dest,`.d) set cols tableinfo[1];
       ];
-    .lg.o[`merge;"Removing ", ", " sv string overlimit];
-    .os.deldir each string overlimit;
     ];
   };     
 
@@ -399,11 +394,11 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
        /-merging data column at a time means no .d file is created so need to create one after function executed
        .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
        (` sv dest,`.d) set cols tableinfo[1];
-       .lg.o[`merge;"Removing ", ", " sv string partdirs];
-       .os.deldir each string partdirs;
       ];
        mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
+    .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
+    .os.deldir each string partdirs;
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
     @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
