@@ -8,9 +8,18 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
 // user definable functions to modify the access table or change how the access table is updated
 // leave blank by default
-modaccess:{[accesstab]};
+modaccess:{[accesstab]
 
-modupdate:{[accesstab]};
+    .wdb.access:select table,start,end,keycol from accesstab;
+    .wdb.access:update localstart:start+01:00,localend:end+01:00,segID:first .ds.segmentid from accesstab;
+
+    };
+
+modupdate:{[accesstab]
+
+    .wdb.access:update localstart:start+01:00,localend:end+01:00 from accesstab;
+
+    };
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
