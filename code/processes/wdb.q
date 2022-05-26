@@ -341,7 +341,8 @@ mergebycol:{[tableinfo;dest;segment]
     /-filepath to hdb partition column where data will be saved to
     destcol:(` sv dest, col);
     /-data from column in temp storage to be saved in hdb
-    destdata: get ` sv segment, col;
+    destdata: get segcol:` sv segment, col;
+    .lg.o[`merge;"merging ", string[segcol], " to ", string[destcol]];
     /-upsert data to hdb column
     .[upsert;(destcol;destdata);
       {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
@@ -355,12 +356,15 @@ mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
+    /-get partition chunks to merge in batch
     partchunks:getpartchunks[partdirs;mergelimit];
     mergebypart[tableinfo[0];(` sv dest,`)]'[partchunks];
     ];
+  /-if columns are over the byte limit merge column by column
   if[0<>count overlimit;
     .lg.o[`merge;"merging ",  (", " sv string overlimit), " column by column"];
     mergebycol[tableinfo;dest]'[overlimit];
+    /-if all partitions are over limit no .d file will have been created - check for .d file and if none exists create one
     if[()~key (` sv dest,`.d);
       .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
       (` sv dest,`.d) set cols tableinfo[1];
@@ -383,13 +387,16 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
     [.lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
     ];
+   /-if there are partitions to merge - merge with correct function
    [$[mergemode~`part;
       [dest: ` sv dest,`;
+       /-get chunks to partitions to merge in batch
        partchunks:getpartchunks[partdirs;mergelimits[tabname]];
        mergebypart[tabname;dest]'[partchunks];
       ];
     mergemode~`col;
       [mergebycol[tableinfo;dest]'[partdirs];
+       /-merging data column at a time means no .d file is created so need to create one after function executed
        .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
        (` sv dest,`.d) set cols tableinfo[1];
        .lg.o[`merge;"Removing ", ", " sv string partdirs];
