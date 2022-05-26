@@ -316,21 +316,21 @@ mergebypart:{[tablename;dest;partchunks]
    chunks:get each partchunks;
    /-if multiple chunks have been read in chunks will be a list of tabs, if this is the case - join into single tab
    if[98<>type chunks;chunks:(,/)chunks];
-     .lg.o[`resort;"Checking that the contents of this subpartition conform"];
-      pattrtest:@[{@[x;y;`p#];0b}[chunks;];.merge.getextrapartitiontype[tablename];{1b}];
-      if[pattrtest;
-       /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-        .lg.o[`resort;"Re-sorting contents of subpartition"];
-        chunks: xasc[.merge.getextrapartitiontype[tablename];chunks];
-        .lg.o[`resort;"The p attribute can now be applied"];
-        ];
-      .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
-      /-merge columns and return boolean based on success of merge
-      .[upsert;(dest;chunks);                     
-        {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
-      /-if merge successful, delete directory partition directory from temporary storage
-      .lg.o[`merge;"removing segments", (", " sv string[partchunks])];
-      .os.deldir each string partchunks;
+   .lg.o[`resort;"Checking that the contents of this subpartition conform"];
+   pattrtest:@[{@[x;y;`p#];0b}[chunks;];.merge.getextrapartitiontype[tablename];{1b}];
+   if[pattrtest;
+     /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
+     .lg.o[`resort;"Re-sorting contents of subpartition"];
+     chunks: xasc[.merge.getextrapartitiontype[tablename];chunks];
+     .lg.o[`resort;"The p attribute can now be applied"];
+     ];
+   .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
+   /-merge columns and return boolean based on success of merge
+   .[upsert;(dest;chunks);                     
+     {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
+   /-if merge successful, delete directory partition directory from temporary storage
+   .lg.o[`merge;"removing segments", (", " sv string[partchunks])];
+   .os.deldir each string partchunks;
    };
 
 /-read in data from partition column by column rather than read in entie partition and move to hdb
