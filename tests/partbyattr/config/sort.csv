@@ -1,7 +1,7 @@
 tabname,att,column,sort
 default,p,sym,1
 default,,time,1
-xdaily,p,sym,1
-xdaily,,time,1
+xdaily1,p,sym,1
+xdaily1,,time,1
 xdaily2,p,sym,1
 xdaily2,,time,1

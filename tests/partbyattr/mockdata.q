@@ -7,6 +7,6 @@ data:{[numrows;table]
   size:1000*price;
   ex:numrows?`o`n;
   table set ([]time;sym;bidprice:0.9*price;bidsize:0.9*size;askprice:1.1*price;asksize:1.1*size;ex);
- }
+ };
 /- generate mock data for in memory tables in wdb to be saved to disk
-data'[100000 500000;`xdaily1`xdaily2];
+data'[(100000;50000);`xdaily1`xdaily2];

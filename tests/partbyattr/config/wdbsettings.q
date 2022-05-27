@@ -1,6 +1,5 @@
 //variables needed to configure wdb to merge and save data to our test directories
 .wdb.writedownmode:`partbyattr;
-//.wdb.mergemethod:`hybrid;
 .wdb.sortcsv:hsym`$getenv[`KDBTESTS],"/partbyattr/config/sort.csv";
 .wdb.hdbdir:hsym`$getenv[`KDBTESTS],"/partbyattr/testhdb";
 .wdb.savedir:hsym`$getenv[`KDBTESTS],"/partbyattr/testwdbhdb";
