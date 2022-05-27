@@ -398,7 +398,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
        mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
-    .os.deldir each string partdirs;
+    .os.deldir[string[tabledir],"/*"];
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
     @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
