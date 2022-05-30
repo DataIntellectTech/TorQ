@@ -8,20 +8,12 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 
 // user definable functions to modify the access table or change how the access table is updated
 // leave blank by default
-modaccess:{[accesstab]
-
-    .wdb.access:select table,start,end,keycol from accesstab;
-    .wdb.access:update localstart:start+01:00,localend:end+01:00,segID:first .ds.segmentid from accesstab;
-
-    };
-
-modupdate:{[accesstab]
-
-    .wdb.access:update localstart:start+01:00,localend:end+01:00 from accesstab;
-
-    };
+modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
+
+    if[.proc.localtime~1b;currp:currp-.ds.timediff;nextp:nextp-.ds.timediff];
+
     .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
@@ -31,8 +23,10 @@ modupdate:{[accesstab]
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    .wdb.access:update end:nextp,start:(.ds.getstarttime each key .wdb.tablekeycols)^start from .wdb.access;
-    modupdate[.wdb.access];
+    starttimes:.ds.getstarttime each key .wdb.tablekeycols;
+    .wdb.access:update exchangestart:starttimes^exchangestart, exchangeend:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np] from .wdb.access;
+    .wdb.access:update localstart:exchangestart+.ds.timediff, localend:exchangeend+.ds.timediff from .wdb.access;
+    modaccess[.wdb.access];
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp];
@@ -52,7 +46,7 @@ initdatastripe:{
     endofperiod::.wdb.datastripeendofperiod;
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; keycol:value .wdb.tablekeycols)];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; exchangestart:0Np ; exchangeend:0Np ; localstart:0Np ; localend:0Np ; keycol:value .wdb.tablekeycols)];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
