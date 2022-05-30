@@ -1,12 +1,32 @@
-data:{[numrows;table]
-  starttime:09:00:00.000;
-  endtime:17:00:00.000;
-  time:.z.D+`#asc starttime+numrows?endtime-starttime;
+tradedata:{[numrows]
+  time:numrows#.z.p;
   sym:numrows?`AUDUSD`EURUSD`USDCHF;
-  price:10+numrows?100;
-  size:1000*price;
-  ex:numrows?`o`n;
-  table set ([]time;sym;bidprice:0.9*price;bidsize:0.9*size;askprice:1.1*price;asksize:1.1*size;ex);
+  price:10+numrows?100.0;
+  size:`int$1000*price;
+  stop:numrows?0b;
+  cond:numrows?"ABK";
+  ex:numrows?"NO";
+  side:numrows?`buy`sell;
+  `xdailyt set ([]time;`g#sym;price;size;stop;cond;ex;side);
  };
+
+quotedata:{[numrows]
+  time:numrows#.z.p;
+  sym:numrows?`AUDUSD`EURUSD`USDCHF;
+  bid:10+numrows?100.0;
+  ask:bid*1.1;
+  bsize:`long$100*bid;
+  asize:`long$10*bsize;
+  mode:numrows?" YRL";
+  ex:numrows?"NO";
+  src:numrows?`GETGO`DB`SUN;
+  `xdailyq set ([]time;`g#sym;bid;ask;asize;bsize;mode;ex;src);
+ };
+
 /- generate mock data for in memory tables in wdb to be saved to disk
-data'[(100000;50000);`xdaily1`xdaily2];
+gendata:{[numquotes;numtrades]
+ tradedata[numtrades];
+ quotedata[numquotes];
+ };
+
+gendata[100000;50000];

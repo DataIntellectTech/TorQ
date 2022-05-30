@@ -1,2 +1,2 @@
-xdaily1:([]time:`timestamp$();sym:`symbol$();bidprice:`float$();bidsize:`float$();askprice:`float$();asksize:`float$();ex:`symbol$())
-xdaily2:([]time:`timestamp$();sym:`symbol$();bidprice:`float$();bidsize:`float$();askprice:`float$();asksize:`float$();ex:`symbol$())
+xdailyq:([]time:`timestamp$(); sym:`g#`symbol$(); bid:`float$(); ask:`float$(); bsize:`long$(); asize:`long$(); mode:`char$(); ex:`char$(); src:`symbol$())
+xdailyt:([]time:`timestamp$(); sym:`g#`symbol$(); price:`float$(); size:`int$(); stop:`boolean$(); cond:`char$(); ex:`char$();side:`symbol$())
