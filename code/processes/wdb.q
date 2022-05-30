@@ -398,7 +398,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
        mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
-    .os.deldir[string[tabledir],"/*"];
+    .os.deldir .os.pth[[string[tabledir]]];
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
     @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
@@ -433,9 +433,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
     ]
    ];
   /- if path exists, delete it
-  if[not () ~ key p:.Q.par[savedir;pt;`]; 
+  if[not () ~ key savedir; 
     .lg.o[`merge;"deleting temp storage directory"];
-    .os.deldir .os.pth[string p]
+    .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
     ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
