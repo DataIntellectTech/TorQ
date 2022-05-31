@@ -12,8 +12,6 @@ modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
 
-    if[.proc.localtime~1b;currp:currp-.ds.timediff;nextp:nextp-.ds.timediff];
-
     .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
@@ -24,12 +22,11 @@ modaccess:{[accesstab]};
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each key .wdb.tablekeycols;
-    .wdb.access:update exchangestart:starttimes^exchangestart, exchangeend:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np] from .wdb.access;
-    .wdb.access:update localstart:exchangestart+.ds.timediff, localend:exchangeend+.ds.timediff from .wdb.access;
+    .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .wdb.access;
     modaccess[.wdb.access];
 
     // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;nextp];
+    .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
 
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
@@ -46,7 +43,7 @@ initdatastripe:{
     endofperiod::.wdb.datastripeendofperiod;
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; exchangestart:0Np ; exchangeend:0Np ; localstart:0Np ; localend:0Np ; keycol:value .wdb.tablekeycols)];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; stptime:0Np ; keycol:value .wdb.tablekeycols)];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
@@ -78,7 +75,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp;part]
     ];
     };
 
-savetablesoverperiod:{[dir;tablename;nextp]
+savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
     keycol:`sym^.wdb.tablekeycols tablename;
     /- get distinct values to partition table on
@@ -89,16 +86,16 @@ savetablesoverperiod:{[dir;tablename;nextp]
     /-upsert table to partition
     @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
     /- delete data from last period
-    .[.ds.deletetablebefore;(tablename;`time;nextp)];
+    .[.ds.deletetablebefore;(tablename;`time;lasttime)];
     
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;nextp]
+savealltablesoverperiod:{[dir;nextp;lasttime]
 	/- function takes the tailer hdb directory handle and a timestamp
 	/- saves each table up to given period to their respective partitions
-	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
+	savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
 	};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
