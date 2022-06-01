@@ -37,16 +37,19 @@ subsegment:{[tbl;segid];
      ignoredtables:`$();
      //setting the default for non-configured tables
      default:.stpps.segmentfilter[`subscriptiondefault;segid];
-     if[tbl~`;:.z.s[;segid] each .stpps.t];
-     if[not tbl in .stpps.t;
-          .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-          :();
-     ];
-     filter:segmentfilter[tbl;segid];
-     if[tbl in .stpps.ignoredtables;:.stpps.suball[tbl]];
-     if[filter~"";
-          .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :();];
+     stripedtables:.stpps.t inter key flip .stpps.stripeconfig[id];
+     //if the default is "all" tables not mentioned in striping.json will be subscribed unfiltered
+     if[default~"all";suballtabs: .stpps.t except stripedtables;
+       if[tbl in suballtabs;
+          .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]]];
+     //if default is ignore creates a list to of tables to ignore
+     if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
+     filter:.stpps.segmentfilter[tbl;segid];
+     //for case when filter is "ignoretable" adds that table to ignoredtables list
+     if[(first (flip .stpps.stripeconfig[id])[tbl])~"ignoretable";ignoredtables:ignoredtables,tbl];
+     if[tbl in ignoredtables;
+      .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
+      :()];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
 
