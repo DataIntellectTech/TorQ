@@ -21,7 +21,7 @@ modaccess:{[accesstab]};
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    starttimes:.ds.getstarttime each key .wdb.tablekeycols;
+    starttimes:.ds.getstarttime each t;
     .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .wdb.access;
     modaccess[.wdb.access];
 
@@ -42,8 +42,9 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
-    .wdb.tablekeycols:.ds.loadtablekeycols[];
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .wdb.tablekeycols ; start:0Np ; end:0Np ; stptime:0Np ; keycol:value .wdb.tablekeycols)];
+    .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
+    t:tables[`.] except .wdb.ignorelist;
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:value .wdb.tablekeycols)];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
@@ -93,9 +94,10 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     };
 
 savealltablesoverperiod:{[dir;nextp;lasttime]
-	/- function takes the tailer hdb directory handle and a timestamp
-	/- saves each table up to given period to their respective partitions
-	savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
+    /- function takes the tailer hdb directory handle and a timestamp
+    /- saves each table up to given period to their respective partitions
+    t:tables[`.] except .wdb.ignorelist;
+    savetablesoverperiod[dir;;nextp;lasttime]each t;
 	};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
