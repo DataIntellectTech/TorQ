@@ -24,8 +24,19 @@ filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[
 //grabs filters from the config files and for the "ignoretable" filter converts to "" to allow segmentedsudetails to run
 segmentfilter:{[tbl;segid]
      id:`$string segid;
-     filter:first (flip .stpps.stripeconfig[id])[tbl];
+     filter:first first (flip .stpps.stripeconfig[id])[tbl];
      $[filter~"ignoretable";filter:"";filter]
+     };
+
+//makes a dictionary out of tables and their keycols for segmentedsubdetails
+keycolmap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentkeycol\:[(),tabs;id]}
+
+//grabs keycols from the config files and for no keycol given converts to "sym"
+segmentkeycol:{[tbl;segid]
+     id:`$string segid;
+     keycol:last last (flip .stpps.stripeconfig[id])[tbl];
+     $[keycol~"";keycol:"sym";keycol];
+     `$keycol
      };
 
 //subscribe to a table using segmentID to determine filtering
@@ -62,7 +73,8 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
      `logdir ; `$getenv`KDBTPLOG;
-     `filters ; .stpps.filtermap[tabs;segid]
+     `filters ; .stpps.filtermap[tabs;segid];
+     `keycols ; .stpps.keycolmap[tabs;segid] 
 	)}
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

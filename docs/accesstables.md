@@ -1,0 +1,7 @@
+The rdb and wdb each contain an access table, .rdb.access and .wdb.access. These access tables are used by the gateway to route queries to the correct location on disk or in memory when data is being saved down intraday. The access table is a keyed table mapping the tables the process is subscribed to to start and end times, the local time on the stp at the last savedown, and the keycolumn, which by default is sym.
+
+The end of period functions in the rdb and wdb are triggered when the stp sends its end of period function. These functions take the arguments currp, nextp and data. currp is the time at the start of the current period, nextp is time at the the start of the next period, data is a dictionary containing information about the tickerplant: proctype, procname, tables and current time.
+
+When the rdb runs its endofperiod function it clears all data from its tables from before the start of the next period (nextp) minus the number of periods to keep (a variable set in the config, 0 by default) multiplied by the period length (nextp - currp). It will then find the first value in the remaining tables and record this time in its access table. Its end time will remain null, and the stptime will receive a value from the data argument.
+
+When the wdb runs its endofperiod function it will save all data from the start of day up to the time nextp to disk and then clear its tables in the same way as the rdb. In the access table it will record the first time saved to disk (the first value received in the table after the start of day. 
