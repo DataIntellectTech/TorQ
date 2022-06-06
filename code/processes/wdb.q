@@ -27,13 +27,18 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
-mergemode:@[value;`mergemode;`hybrid]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
+mergebybytelimit:@[value;`mergebybytelimit;0b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
+
+mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
+
 mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
-mergetablebytes:@[value;`mergetablebytes;`quote`trade!2000000 500000];     /-specify number of bytes per table for merge process
+mergetablebytes:@[value;`mergetablebytes;`quote`trade!1500000 250000];     /-specify number of bytes per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
@@ -103,6 +108,9 @@ if[not any saveenabled,sortenabled; .lg.e[`init;"process mode not configured cor
 
 /- extract user defined row counts	
 maxrows:{[tabname] numrows^numtab[tabname]}
+
+/- extract user defined row counts for merge process
+mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
 /- extract user defined bytes counts for merge process
 mergemaxbytes:{[tabname] mergenumbytes^mergetablebytes[tabname]}
@@ -191,8 +199,9 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 /- eod - flush remaining data to disk
 endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
-	/- create a dictionary of tables and merge limits
-	mergelimits:(tablelist[],())!({[x] mergenumbytes^mergemaxbytes[x]}tablelist[]),();	
+	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
+	.lg.o[`merge;"merging partitons by ",$[mergebybytelimit;"byte estimate";"row count"]," limit"];
+	mergelimits:(tablelist[],())!($[mergebybytelimit;mergemaxbytes;mergemaxrows] tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
@@ -308,7 +317,8 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 getpartchunks:{[partdirs;mergelimit]
   /-get table for function which only contains data for relevant partitions
   t:select from .wdb.partsizes where ptdir in partdirs;
-  (where r={$[z<x+y;y;x+y]}\[0;r:exec bytes from t;mergelimit]) cut exec ptdir from t
+  r:$[mergebybytelimit;exec bytes from t;exec rowcount from t];
+  (where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]) cut exec ptdir from t
   };
 
 mergebypart:{[tablename;dest;partchunks]
