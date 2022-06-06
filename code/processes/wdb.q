@@ -32,13 +32,11 @@ mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mo
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergebybytelimit:@[value;`mergebybytelimit;0b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
+mergebybytelimit:@[value;`mergebybytelimit;1b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
+mergenumbytes:@[value;`mergenumbytes;500000];                             /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
-
-mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
-mergetablebytes:@[value;`mergetablebytes;`quote`trade!1500000 250000];     /-specify number of bytes per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
@@ -111,9 +109,6 @@ maxrows:{[tabname] numrows^numtab[tabname]}
 
 /- extract user defined row counts for merge process
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
-
-/- extract user defined bytes counts for merge process
-mergemaxbytes:{[tabname] mergenumbytes^mergetablebytes[tabname]}
 
 /- keyed table to track the size of tables on disk
 tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
@@ -201,7 +196,7 @@ endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
 	.lg.o[`merge;"merging partitons by ",$[mergebybytelimit;"byte estimate";"row count"]," limit"];
-	mergelimits:(tablelist[],())!($[mergebybytelimit;mergemaxbytes;mergemaxrows] tablelist[]),();	
+	mergelimits:(tablelist[],())!($[mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
