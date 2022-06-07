@@ -7,7 +7,7 @@
 \d .wdb
 
 /- merge limit configuration - default is 0b row count limit
-.merge.mergebybytelimit:0b;
+.merge.mergebybytelimit:1b;
 
 /- define default parameters
 mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
@@ -369,6 +369,8 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
      merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist);
+     .lg.o[`eod;"Delete from partsizes"];
+     delete from `.merge.partsizes;
      /- run a garbage collection (if enabled)
      if[gc;.gc.run[]];
     ]
