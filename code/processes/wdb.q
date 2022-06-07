@@ -354,7 +354,10 @@ mergebycol:{[tableinfo;dest;segment]
 /-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .wdb.partsizes) and mergebypart for remaining functions
 mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of bytes is over the limit  
-  overlimit:exec ptdir from .wdb.partsizes where ptdir in partdirs,bytes > mergelimit;
+  overlimit:$[mergebybytelimit;
+              exec ptdir from .wdb.partsizes where ptdir in partdirs,bytes > mergelimit;
+              exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit
+             ];
   if[(count overlimit)<>count partdirs;
     partdirs:partdirs except overlimit;
     .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
