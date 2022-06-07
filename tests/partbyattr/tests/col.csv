@@ -18,7 +18,7 @@ true,0,0,q,(count xdailyq) ~ count h"select from xdailyq",1,,"Check all rows of 
 true,0,0,q,(cols xdailyq) ~ h"1_ cols xdailyq",1,,"Check all rows of data have been merged to hdb"
 true,0,0,q,0~w"count xdailyq",1,,"Check xdaily has been deleted from in memory table"
 run,0,0,q,"s:s,w",1,,"join wdb handle with sort handles"
-true,0,0,q,0~sum s@\:"count .wdb.partsizes",1,,"check partsizes lookup has been cleared out in wdb and sort procs"
+true,0,0,q,0~sum s@\:"count .merge.partsizes",1,,"check partsizes lookup has been cleared out in wdb and sort procs"
 true,0,0,q,(`symbol$())~key w".wdb.savedir",1,,"check temporary storage ahs been removed"
 after,0,0,q,.os.deldir w"string .wdb.savedir",1,,"remove temporary storage directory"
 after,0,0,q,.os.deldir w"string .Q.dd[.wdb.hdbdir;`$string[.z.d]]",1,,"remove test hdb partition"
