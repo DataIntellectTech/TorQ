@@ -32,7 +32,8 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-spe
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
-tailreadertypes:@[value;`tailreadertypes;`tailreader]                      /-list of tail reader types to look for and call in tailreader reload
+trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
+tailreadertypes:trtype                                                     /-list of tail reader types to look for and call in tailreader reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp

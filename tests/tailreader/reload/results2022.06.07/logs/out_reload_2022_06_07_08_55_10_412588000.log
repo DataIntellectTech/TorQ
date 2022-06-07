@@ -1,0 +1,39 @@
+2022.06.07D08:55:10.413614000|homer.aquaq.co.uk|tailreader|tr1|INF|logging|creating alias using command ln -sf out_reload_2022_06_07_08_55_10_412588000.log /home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/results2022.06.07//logs//out_reload.log
+################################################################################
+#                                                                              #
+#                                 TorQ v4.2.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.10.0                      #
+#                                                                              #
+################################################################################
+2022.06.07D08:55:10.414850000|homer.aquaq.co.uk|tailreader|tr1|INF|k4unit|start
+2022.06.07D08:55:10.414869000|homer.aquaq.co.uk|tailreader|tr1|INF|k4unit|:/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 10 test(s)
+2022.06.07D08:55:10.415191000|homer.aquaq.co.uk|tailreader|tr1|INF|k4unit|end
+"k4unit Test Results"
+action ms bytes lang code                                                                                  repeat file                                                                 msx bytesx ok okms okbytes valid timestamp               csvline
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+run    0  0     q    wdbdir: `$ raze (getenv[`KDBTESTS]; "/tailreader/reload/testwdb/2022.06.01")          1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   1872   1  1    1       1     2022.06.07T09:55:10.414 2      
+run    0  0     q    accesstabdir:  `$ raze (getenv[`KDBTESTS]; "/tailreader/reload/testaccess")           1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   1904   1  1    1       1     2022.06.07T09:55:10.414 3      
+run    0  0     q    dir:raze (getenv[`KDBTESTS] ; "/tailreader/reload/testwdb/")                          1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   1584   1  1    1       1     2022.06.07T09:55:10.414 4      
+run    0  0     q    reload[]                                                                              1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      0  1    1       0     2022.06.07T09:55:10.415 5      
+true   0  0     q    (0<n2:count select from quote ) & 0< n1:count select from trade                       1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      0  1    1       0     2022.06.07T09:55:10.415 6      
+true   0  0     q    0<count testaccess                                                                    1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      1  1    1       1     2022.06.07T09:55:10.415 7      
+run    0  0     q    delete trade from `.                                                                  1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   1888   1  1    1       1     2022.06.07T09:55:10.415 8      
+run    0  0     q    delete quote from `.                                                                  1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   1888   1  1    1       1     2022.06.07T09:55:10.415 9      
+run    0  0     q    wdbdir: `$ raze (getenv[`KDBTESTS]; "/tailreader/reload/testwdb/2022.06.02");reload[] 1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      0  1    1       0     2022.06.07T09:55:10.415 10     
+true   0  0     q    (n2 <> count select from quote)& n1 <> count select from trade                        1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      0  1    1       0     2022.06.07T09:55:10.415 11     
+"k4unit Test Errors"
+action ms bytes lang code                                                                                  repeat file                                                                 msx bytesx okms okbytes valid timestamp               csvline
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+run    0  0     q    reload[]                                                                              1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      1    1       0     2022.06.07T09:55:10.415 5      
+true   0  0     q    (0<n2:count select from quote ) & 0< n1:count select from trade                       1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      1    1       0     2022.06.07T09:55:10.415 6      
+run    0  0     q    wdbdir: `$ raze (getenv[`KDBTESTS]; "/tailreader/reload/testwdb/2022.06.02");reload[] 1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      1    1       0     2022.06.07T09:55:10.415 10     
+true   0  0     q    (n2 <> count select from quote)& n1 <> count select from trade                        1      :/home/esantiano/TorQCloud-up/TorQ/tests/tailreader/reload/tests.csv 0   0      1    1       0     2022.06.07T09:55:10.415 11     
