@@ -32,8 +32,8 @@ mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mo
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergebybytelimit:@[value;`mergebybytelimit;1b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
-mergenumbytes:@[value;`mergenumbytes;500000];                             /-default number of bytes for merge process
+mergebybytelimit:@[value;`mergebybytelimit;0b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
+mergenumbytes:@[value;`mergenumbytes;500000];                              /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
