@@ -32,8 +32,7 @@ mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mo
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergebybytelimit:@[value;`mergebybytelimit;0b];                            /-enable merge process to be done by partition bytesize estimate (default is partition rowcount)
-mergenumbytes:@[value;`mergenumbytes;500000];                              /-default number of bytes for merge process
+mergenumbytes:@[value;`mergenumbytes;500000];                             /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
@@ -112,7 +111,6 @@ mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
 /- keyed table to track the size of tables on disk
 tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
-partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$())
 
 /- function to return a list of tables that the wdb process has been configured to deal within
 tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
@@ -159,7 +157,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 	];
 	.lg.o[`track;"appending details to partsizes"];
 	/-key in partsizes are directory to partition, need to drop training slash
-	partsizes[first ` vs directory]+:(count r;-22!r);
+	.merge.partsizes[first ` vs directory]+:(count r;-22!r);
 	};
 	
 savetablesbypart:{[dir;pt;forcesave;tablename]
@@ -195,8 +193,8 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
 	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
-	.lg.o[`merge;"merging partitons by ",$[mergebybytelimit;"byte estimate";"row count"]," limit"];
-	mergelimits:(tablelist[],())!($[mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
+	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
+	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
@@ -204,7 +202,8 @@ endofday:{[pt;processdata]
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
-	@[`.wdb;$[r;`partsizes;`tabsizes];0#];
+	/@[`.wdb;$[r;`partsizes;`tabsizes];0#];
+	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	.lg.o[`eod;"end of day is now complete"];
 	.wdb.currentpartition:pt+1;
 	};
@@ -308,75 +307,6 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
-/-function to return chunks that will be called in batch by mergebypart function
-getpartchunks:{[partdirs;mergelimit]
-  /-get table for function which only contains data for relevant partitions
-  t:select from .wdb.partsizes where ptdir in partdirs;
-  r:$[mergebybytelimit;exec bytes from t;exec rowcount from t];
-  (where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]) cut exec ptdir from t
-  };
-
-mergebypart:{[tablename;dest;partchunks]
-   .lg.o[`merge;"reading partition/partitions ", (", " sv string[partchunks])];
-   chunks:get each partchunks;
-   /-if multiple chunks have been read in chunks will be a list of tabs, if this is the case - join into single tab
-   if[98<>type chunks;chunks:(,/)chunks];
-   .lg.o[`resort;"Checking that the contents of this subpartition conform"];
-   pattrtest:@[{@[x;y;`p#];0b}[chunks;];.merge.getextrapartitiontype[tablename];{1b}];
-   if[pattrtest;
-     /-p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-     .lg.o[`resort;"Re-sorting contents of subpartition"];
-     chunks: xasc[.merge.getextrapartitiontype[tablename];chunks];
-     .lg.o[`resort;"The p attribute can now be applied"];
-     ];
-   .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
-   /-merge columns and return boolean based on success of merge
-   .[upsert;(dest;chunks);                     
-     {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
-   };
-
-/-read in data from partition column by column rather than read in entie partition and move to hdb
-mergebycol:{[tableinfo;dest;segment]
-  .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
-  /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
-  {[dest;segment;col]
-    /-filepath to hdb partition column where data will be saved to
-    destcol:(` sv dest, col);
-    /-data from column in temp storage to be saved in hdb
-    destdata: get segcol:` sv segment, col;
-    .lg.o[`merge;"merging ", string[segcol], " to ", string[destcol]];
-    /-upsert data to hdb column
-    .[upsert;(destcol;destdata);
-      {[destcol;e].lg.e[`merge;"failed to save data to ", string[destcol], " with error : ",e];}]
-  }[dest;segment;] each cols tableinfo[1];
-  };
-
-/-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .wdb.partsizes) and mergebypart for remaining functions
-mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
-  /-exec partition directories for this table from the tracking table .wdb.partsizes, where the number of bytes is over the limit  
-  overlimit:$[mergebybytelimit;
-              exec ptdir from .wdb.partsizes where ptdir in partdirs,bytes > mergelimit;
-              exec ptdir from .wdb.partsizes where ptdir in partdirs,rowcount > mergelimit
-             ];
-  if[(count overlimit)<>count partdirs;
-    partdirs:partdirs except overlimit;
-    .lg.o[`merge;"merging ",  (", " sv string partdirs), " by whole partition"];
-    /-get partition chunks to merge in batch
-    partchunks:getpartchunks[partdirs;mergelimit];
-    mergebypart[tableinfo[0];(` sv dest,`)]'[partchunks];
-    ];
-  /-if columns are over the byte limit merge column by column
-  if[0<>count overlimit;
-    .lg.o[`merge;"merging ",  (", " sv string overlimit), " column by column"];
-    mergebycol[tableinfo;dest]'[overlimit];
-    /-if all partitions are over limit no .d file will have been created - check for .d file and if none exists create one
-    if[()~key (` sv dest,`.d);
-      .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
-      (` sv dest,`.d) set cols tableinfo[1];
-      ];
-    ];
-  };     
-
 merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
   setcompression[hdbsettings[`compression]];
   /- get tablename
@@ -394,16 +324,16 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
    [$[mergemode~`part;
       [dest: ` sv dest,`;
        /-get chunks to partitions to merge in batch
-       partchunks:getpartchunks[partdirs;mergelimits[tabname]];
-       mergebypart[tabname;dest]'[partchunks];
+       partchunks:.merge.getpartchunks[partdirs;mergelimits[tabname]];
+       .merge.mergebypart[tabname;dest]'[partchunks];
       ];
     mergemode~`col;
-      [mergebycol[tableinfo;dest]'[partdirs];
+      [.merge.mergebycol[tableinfo;dest]'[partdirs];
        /-merging data column at a time means no .d file is created so need to create one after function executed
        .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
        (` sv dest,`.d) set cols tableinfo[1];
       ];
-       mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
+       .merge.mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
     .os.deldir .os.pth[[string[tabledir]]];
@@ -419,17 +349,17 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   /- merge data from partitons
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
-     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
-     /-upsert .wdb.partsize data to sort workers if merge method requires for it for reference for byte limit 
+     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+     /-upsert .merge.partsize data to sort workers if merge method requires for it for reference for byte limit 
      if[(mergemode~`hybrid)or(mergemode~`part);
-       {(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each .z.pd[];
+       {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
        ];
      merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist);
-     /-clear out in memory table and call sort worker processes to do the same
-     .lg.o[`eod;"Delete from .wdb.partsizes"];
-     delete from `.wdb.partsizes;
-     {(neg x)({.lg.o[`eod;"Delete from .wdb.partsizes"];
-               delete from `.wdb.partsizes;
+     /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
+     .lg.o[`eod;"Delete from partsizes"];
+     delete from `.merge.partsizes;
+     {(neg x)({.lg.o[`eod;"Delete from partsizes"];
+               delete from `.merge.partsizes;
                /- run a garbage collection if enabled
                if[gc;.gc.run[]]};`);(neg x)(::)} each .z.pd[];
     ];	
@@ -511,7 +441,7 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[
-		 if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.wdb.partsizes;y);(neg x)(::)}[;.wdb.partsizes] each exec w from sortprocs;];
+		 if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;];
 		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
@@ -653,3 +583,6 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
+
+/- merge limit configuration - default is 0b row count limit 
+.merge.mergebybytelimit:0b;
