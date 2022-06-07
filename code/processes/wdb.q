@@ -6,6 +6,9 @@
 
 \d .wdb
 
+/- merge limit configuration - default is 0b row count limit
+.merge.mergebybytelimit:0b;
+
 /- define default parameters
 mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
                                                                            /- 1. saveandsort               -               the process will subscribe for data,
@@ -583,6 +586,3 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
-
-/- merge limit configuration - default is 0b row count limit 
-.merge.mergebybytelimit:0b;
