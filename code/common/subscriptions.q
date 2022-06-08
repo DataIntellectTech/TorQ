@@ -136,6 +136,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
+  // get the keycol dictionary from the TP details
+  .ds.tablekeycols:details[`keycols];
+
   // return the names of the tables that have been subscribed for and
   // the date from the name of the tickerplant log file (assuming the tp log has a name like `: sym2014.01.01
   // plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)

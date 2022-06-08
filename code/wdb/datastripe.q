@@ -15,7 +15,7 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
-    t:tables[`.] except .wdb.ignorelist;
+    t:key .ds.tablekeycols;
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
 
     // update the access table in the wdb
@@ -42,12 +42,10 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
-    .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
-    t:tables[`.] except .wdb.ignorelist;
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:value .wdb.tablekeycols)];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:key .ds.tablekeycols ; start:0Np ; end:0Np ; stptime:0Np ; keycol:value .ds.tablekeycols)];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
-    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
+    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .ds.tablekeycols);
     .wdb.access:`table xkey .wdb.access;
     };
 
@@ -78,12 +76,12 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp;part]
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
-    keycol:`sym^.wdb.tablekeycols tablename;
+    keycol:`sym^.ds.tablekeycols tablename;
     /- get distinct values to partition table on
     partitionlist: ?[tablename;();();(distinct;keycol)];
     /- enumerate and then split by keycol
     enumkeycol: .Q.en[dir;?[tablename;enlist (<;`time;nextp);0b;()]];
-    splitkeycol: {[s;enumkeycol] ?[enumkeycol;enlist (=;`sym;s);0b;()]}[;enumkeycol]'[enlist partitionlist];
+    splitkeycol: {[enumkeycol;s] ?[enumkeycol;enlist (=;`sym;enlist s);0b;()]}[enumkeycol;] each partitionlist;
     /-upsert table to partition
     @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
     /- delete data from last period

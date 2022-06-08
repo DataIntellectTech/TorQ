@@ -3,7 +3,7 @@
     .lg.o[`reload;"reload command has been called remotely"];
 
     // get list of tables except ignored tables
-    t:tables[`.] except .rdb.ignorelist;
+    t:key .ds.tablekeycols;
 
     // clear data from tables
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
@@ -11,7 +11,7 @@
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
 
     // update the access table in the rdb
-    .rdb.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .rdb.access;
+    .rdb.access:update start:lasttime^(.ds.getstarttime each key .ds.tablekeycols), stptime:data[][`time] from .rdb.access;
     modaccess[.rdb.access];
 
     };
@@ -22,8 +22,7 @@ modaccess:{[accesstab]};
 initdatastripe:{
     // update endofperiod function
     endofperiod::.rdb.datastripeendofperiod;
-    .rdb.tablekeycols:.ds.loadtablekeycols[];
-    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; stptime:0Np ; keycol:value .rdb.tablekeycols);
+    .rdb.access:([table:key .ds.tablekeycols] start:.ds.getstarttime each (key .ds.tablekeycols) ; end:0Np ; stptime:0Np ; keycol:value .ds.tablekeycols);
     modaccess[.rdb.access];
 
     };
