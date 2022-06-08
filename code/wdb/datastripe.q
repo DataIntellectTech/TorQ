@@ -16,6 +16,26 @@ td:hsym `$getenv`KDBTAIL
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     };
 
+//functions used to check correct access tables
+.wdb.endtimes:{exec end from .wdb.access};
+.wdb.endtimesCheck:{.wdb.endtimes[]~(count .wdb.endtimes[])#correctendtime:.wdb.currentpartition+24:00};
+
+
+//function called at eod, saves down remaining data, sends message to eod process to begin, resets access table
+.wdb.datastripeendofday:{[pt;processdata]
+        .lg.o[`eod;"end of day message receivedd - ",spt:string pt];
+        /- create a dictionary of tables and merge limits
+        .wdb.mergelimits:(.wdb.tablelist[],())!({[x] .wdb.mergenumrows^.wdb.mergemaxrows[x]}.wdb.tablelist[]),();
+        .wdb.tablist:.wdb.tablelist[]!{0#value x} each .wdb.tablelist[];
+        /- if savemode enabled, flush all data to disk
+        if[.wdb.saveenabled;.ds.endofdaysave[.ds.td;.z.p]];
+        /-check if end periods in access table are correct, run sort process, else kill process and log error
+        $[endtimesCheck[];.wdb.datastripeendofdaysort[];.lg.e[`eod;"Tailer Savedown has not been completed for all tables"]];
+        .lg.o[`eod;"end of day is now complete"];
+        .wdb.currentpartition:pt+1;
+        /- reset the access table for new day
+        .wdb.access:([] start:0Np ; end:0Np ; tablename:() ; keycol:());
+        };
 
 initdatastripe:{
 	// update endofday and endofperiod functions
@@ -25,6 +45,14 @@ initdatastripe:{
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
+
+/eodsavedown function
+endofdaysave:{[dir;nextp]
+        /- save remaining table rows to disk
+        .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
+        .ds.savealltablesoverperiod[dir;nextp];
+        .lg.o[`savefinish;"finished saving data to disk"];
+        };
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- function takes a (dir)ectory handle, tablename as a symbol
