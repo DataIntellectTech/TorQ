@@ -174,7 +174,7 @@ end:{[d]
   /- roll over the log you need a new log for next days data 
   .ctp.refreshtp[d+1];
   /- push endofday messages to subscribers
-  (neg union/[w[;;0]])@\:(`.u.end;d)
+  (neg union[@[value;(`.stpps.allsubhandles;`);()]; @[{union/[(value x)[;;0]]};`.u.w;()]])@\:(`.u.end;d)
   }
 
 \d .
