@@ -1,24 +1,14 @@
-//configload loads configurable .csv files into memory so relevant filters can be applied to data.
-//loads segmenting.csv which defines how many segments there will be.
-//loads filtermap.csv which defines what filters should be applied to each segment.
+//Allows config file to be overwritten in process.csv
+.ds.stripeconfig:@[value;`.ds.stripeconfig;`striping.json];
 
-//.ds.segmentconfig/segmentfiltermap are variables which can take different csv files. These files can be chosen on in process.csv.
-//error trap these .ds variables incase this file is loaded stand alone.
-
-.ds.segmentconfig:@[value;`.ds.segmentconfig;`segmenting.csv];
-.ds.filtermap:@[value;`.ds.filtermap;`filtermap.csv];
-
-//if statement checks segmenting.csv and filtermap.csv exist. If not, process exited and message sent to error logs.
-//configload transfoms segmenting.csv into table format so it can be accessed.
-//configload transforms filtermap.csv into table format then into a mapping of wcRef to filter which can be accessed and applied to data.
-//checks csv files load correctly. If not, process exited and message sent to error logs.
-
+//Loads the striping.json config file checks if each subscriptiondefault is set for each segment and errors if not defined
 configload:{
-     scpath:first .proc.getconfigfile[string .ds.segmentconfig];
-     fmpath:first .proc.getconfigfile[string .ds.filtermap];
-     {if[()~key hsym x;.lg.e[`init;"The following file can not be found: ",string x]]} each (scpath;fmpath);
-     @[{.stpps.segmentconfig:("SIS";enlist",")0: hsym x};scpath;{.lg.e[`init;"Failure in loading ",string y]}[;scpath]];
-     @[{.stpps.segmentfiltermap:(!/)(("S*";enlist",")0: hsym x)`wcRef`filter};fmpath;{.lg.e[`init;"Failure in loading ",string y]}[;fmpath]];
+     scpath:first .proc.getconfigfile[string .ds.stripeconfig];
+     if[()~key hsym scpath;.lg.e[`init;"The following file can not be found: ",string scpath]];
+     .stpps.stripeconfig:.j.k read1 scpath;
+     defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
+     errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
+     {if[0<count x;.lg.e[`sub;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment ",string[x]," "]]}each errors;
      };
 
 initdatastripe:{
@@ -28,30 +18,39 @@ initdatastripe:{
 
 \d .stpps
 
-// Function to map the where clause from config table extracted by .stpps.segmentfilter function to tablename
-// Allows use of ` as argument for tables
+//makes a dictionary of tables and their filters for segmentedsubdetails
 filtermap:{[tabs;id] if[tabs~`;tabs:.stpps.t]; ((),tabs)!.stpps.segmentfilter\:[(),tabs;id]}
 
-// Find where clause from config tables
+//grabs filters from the config files and for the "ignoretable" filter converts to "" to allow segmentedsudetails to run
 segmentfilter:{[tbl;segid]
-     wcref:first exec wcRef from .stpps.segmentconfig where table=tbl , segmentID=segid;
-     .stpps.segmentfiltermap[wcref]
+     id:`$string segid;
+     filter:first (flip .stpps.stripeconfig[id])[tbl];
+     $[filter~"ignoretable";filter:"";filter]
      };
 
-// Subscribe to particular segment using segmentID based on .u.sub
+//subscribe to a table using segmentID to determine filtering
 subsegment:{[tbl;segid];
-     //tablename and segmentid used to get filters
+//casting segid to an symbol as json is restrictive
+     id:`$string segid;
+     if[not (id in (key .stpps.stripeconfig));
+       .lg.e[`sub;m:"Segment ",string[segid]," is not defined in striping.json"];:()];
+     ignoredtables:`$();
+     //setting the default for non-configured tables
+     default:.stpps.segmentfilter[`subscriptiondefault;segid];
      if[tbl~`;:.z.s[;segid] each .stpps.t];
-     if[not tbl in .stpps.t;
-          .lg.e[`sub;m:"Table ",string[tbl]," not in list of stp pub/sub tables"];
-          :();
-     ];
-     filter:segmentfilter[tbl;segid];
-     if[filter~"";
-          .lg.e[`sub;m:"Incorrect pairing of table ",string[tbl]," and segmentID ",string[segid]," not found in .stpps.segmentconfig"];
-          :();
-     ];
-     
+     stripedtables:.stpps.t inter key flip .stpps.stripeconfig[id];
+     //if the defualt is "all" tables not mentioned in striping.json will be subscribed unfiltered
+     if[default~"all";suballtabs: .stpps.t except stripedtables;
+       if[tbl in suballtabs;
+          .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]]];
+     //if default is ignore creates a list to of tables to ignore
+     if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
+     filter:.stpps.segmentfilter[tbl;segid];
+     //for case when filter is "ignoretable" adds that table to ignoredtables list
+     if[(first (flip .stpps.stripeconfig[id])[tbl])~"ignoretable";ignoredtables:ignoredtables,tbl];
+     if[tbl in ignoredtables;
+      .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
+      :()];
      .ps.subtablefiltered[string[tbl];filter;""]
      };
 
@@ -63,9 +62,8 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `logfilelist ; .stplg.replaylog[tabs];                                         
      `rowcounts ; ((),tabs)#.stplg `rowcount;	                                              
      `date ; (.eodtime `d);                                                         
-     `logdir ; `$getenv`KDBTPLOG;                                                   
+     `logdir ; `$getenv`KDBTPLOG;
      `filters ; .stpps.filtermap[tabs;segid]
 	)}
-        
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
