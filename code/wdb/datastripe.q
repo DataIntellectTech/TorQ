@@ -40,6 +40,7 @@ td:hsym `$getenv`KDBTAIL
 initdatastripe:{
 	// update endofday and endofperiod functions
     endofperiod::.wdb.datastripeendofperiod;
+    endofday::.wdb.datastripeendofday;
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
