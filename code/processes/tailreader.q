@@ -15,7 +15,7 @@ wdbdir:`$ basedir,string currentpartition                                      /
 endofday:{[pt]
   /- end of day function that will be triggered by EOD Sorter once IDB is copied to HDB
   /-  updates partition and loads in next days partition
-  .lg.o[`eod;"end of day message received - ",spt:string pt];
+  .lg.o[`eod;"End of day message received - ",spt:string pt];
     currentpartition::pt+1;
     reload[];
   }
@@ -34,7 +34,6 @@ reload:{
 
 basedir:.tr.basedir								   /-bring basedir variable into default namespace
 wdbdir:.tr.wdbdir							           /-bring wdbdir variables into default namespace
-
 currentpartition:.tr.currentpartition																	 /- bring currentpartition into default namespace 
 $[not ()~ key hsym wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];  /-checks to see if the IDB exists and if so loads in the accestable and IDB on tailreader startup
 																																									/- if not logs as INF not ERR as it is expected on first time use that there is no data to load in

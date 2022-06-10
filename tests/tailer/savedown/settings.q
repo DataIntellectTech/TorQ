@@ -1,7 +1,6 @@
 // IPC connection parameters
 .servers.CONNECTIONS:`wdb;
 .servers.USERPASS:`admin:admin;
-
 // Paths to process CSV and temp HDB directory
 processcsv:getenv[`KDBTESTS],"/tailer/savedown/process.csv";
 temphdbdir:hsym `$getenv[`KDBTESTS],"/tailer/savedown/tmphdb/";
