@@ -1,4 +1,0 @@
-action,ms,bytes,lang,code,repeat,minver,comment
-before,,,q,"checktable:([] table:`trade`quote; segmentID:`int$(1,1); wcRef:`wcA`wcA)",,,"creating the table we expect configload to create"
-before,,,q,configload[],,,"running config load"
-true,,,q,checktable~.stpps.segmentconfig,,,"checking the expected table matches the table created by configload"

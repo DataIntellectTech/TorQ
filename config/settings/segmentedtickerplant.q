@@ -10,8 +10,6 @@ replayperiod:`day               // [period|day|prior|tailer]
 customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
 
 \d .ds
-segmentconfig:`segmenting.csv   // default segmenting config file
-filtermap:`filtermap.csv        // default filter mapping config file
 period:0D01
 
 \d .proc
