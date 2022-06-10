@@ -59,8 +59,7 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp;part]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
-    /- partitions the data on the keycol and upserts it to the given dir
-    
+    /- partitions the data on the keycol and upserts it to the given dir 
     /- get process specific taildir location
     dir:` sv dir,.proc.procname,`;
     /- get symbol enumeration
@@ -79,13 +78,17 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp;part]
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
     keycol:`sym^.wdb.tablekeycols tablename;
+
     /- get distinct values to partition table on
     partitionlist: ?[tablename;();();(distinct;keycol)];
+
     /- enumerate and then split by keycol
     enumkeycol: .Q.en[dir;?[tablename;enlist (<;`time;nextp);0b;()]];
-    splitkeycol: {[s;enumkeycol] ?[enumkeycol;enlist (=;`sym;s);0b;()]}[;enumkeycol]'[enlist partitionlist];
+    splitkeycol: {[enumkeycol;s] ?[enumkeycol;enlist (=;`sym;enlist s);0b;()]}[enumkeycol;] each partitionlist;
+
     /-upsert table to partition
     @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
+
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;lasttime)];
     
