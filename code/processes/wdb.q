@@ -546,7 +546,8 @@ getsortparams:{[]
 
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
-endofperiod
+/- added 
+endofperiod savealltablesoverperiod to endofperiod method
 {[currp;nextp;data]
     .lg.o[`reload;"reload command has been called remotely"];
     // remove periods of data from tables
