@@ -63,7 +63,7 @@ mergebypart:{[tablename;dest;partchunks]
 /-read in data from partition column by column rather than read in entie partition and move to hdb
 mergebycol:{[tableinfo;dest;segment]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
-  /- function to save column by column data from segments to hdb and return 1b for successful merge 0b for failed merge
+  /- function to save column by column data from segments to hdb 
   {[dest;segment;col]
     /-filepath to hdb partition column where data will be saved to
     destcol:(` sv dest, col);
