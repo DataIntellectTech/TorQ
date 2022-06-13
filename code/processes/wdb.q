@@ -544,19 +544,7 @@ getsortparams:{[]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `
 
-/-  adds endofday and endofperiod functions to top level namespace
-endofday: .wdb.endofday;
-/- added savealltablesoverperiod to endofperiod method
-endofperiod:{[currp;nextp;data]
-    .lg.o[`reload;"reload command has been called remotely"];
-    // remove periods of data from tables
-    t:tables[`.] except .wdb.ignorelist;
-    lasttime:currp-.ds.periodstokeep*(nextp-currp);
-    tabs:.ds.deletetablebefore'[t;`time;lasttime];
-    / tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
-    savealltablesoverperiod[.ds.td;.z.p]
-    }
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
 
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]
