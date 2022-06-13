@@ -14,6 +14,7 @@ td:hsym `$getenv`KDBTAIL
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     / tabs:{![x;enlist (<;y;z);0b;0#`]}'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
+    savealltablesoverperiod[.ds.td;.z.p]
     };
 
 
