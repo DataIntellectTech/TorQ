@@ -544,6 +544,8 @@ getsortparams:{[]
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `
 
+/-  adds endofday and endofperiod functions to top level namespace
+endofday: .wdb.endofday;
 endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
 
 /- setting the upd and .u.end functions as the .wdb versions
