@@ -6,8 +6,7 @@
 
 \d .wdb
 
-/- merge limit configuration - default is 0b row count limit
-.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];              /- merge limit configuration - default is 0b row count limit, 1b is bytesize limit 
 
 /- define default parameters
 mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
@@ -35,7 +34,7 @@ mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mo
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergenumbytes:@[value;`mergenumbytes;500000];                             /-default number of bytes for merge process
+mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
@@ -159,7 +158,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
 	];
 	.lg.o[`track;"appending details to partsizes"];
-	/-key in partsizes are directory to partition, need to drop training slash
+	/-key in partsizes are directory to partition, need to drop training slash in directory key
 	.merge.partsizes[first ` vs directory]+:(count r;-22!r);
 	};
 	
@@ -205,7 +204,6 @@ endofday:{[pt;processdata]
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
-	/@[`.wdb;$[r;`partsizes;`tabsizes];0#];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	.lg.o[`eod;"end of day is now complete"];
 	.wdb.currentpartition:pt+1;
@@ -316,9 +314,10 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
   tabname:tableinfo[0];
   /- get list of partition directories for specified table 
   partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tabname];
-  /- exit function if no subdirectories are found
+  /- get directory destination for permanent storage
   dest:.Q.par[hdbsettings[`hdbdir];pt;tabname];
   .lg.o[`merge;"merging ",string[tabname]," to ",string dest];
+  /- exit function if no subdirectories are found
   $[0=count partdirs;
     [.lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
@@ -353,7 +352,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
-     /-upsert .merge.partsize data to sort workers if merge method requires for it for reference for byte limit 
+     /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method 
      if[(mergemode~`hybrid)or(mergemode~`part);
        {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
        ];
@@ -443,11 +442,14 @@ informgateway:{[message]
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
+        // set what type of merge method to be used
 	mergemethod:.wdb.mergemode;
         .lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-		[
-		 if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;];
+		[if[(mergemode~`hybrid)or(mergemode~`part);
+			// for part and hybrid method sort procs need access to partsizes table data - upsert data tp sort procs
+			{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;
+		   ];
 		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);] each exec w from sortprocs;
 		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];

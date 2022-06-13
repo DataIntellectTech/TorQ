@@ -1,7 +1,7 @@
 \d .merge
-.merge.mergebybytesize:0b;
+.merge.mergebybytesize:0b;                                                    /- merge limit configuration - default is 0b row count limit 1b is byte size limit
 
-partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());
+partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());             /- partsizes table used to keep track of table row count and bytesize estimate when data is written to disk
 
 /- function to get additional partition(s) defined by parted attribute in sort.csv
 getextrapartitiontype:{[tablename]
@@ -34,7 +34,7 @@ getextrapartitions:{[tablename;extrapartitiontype]
         value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
         };
 
-/-function to return chunks that will be called in batch by mergebypart function
+/-function to return partition directory chunks that will be called in batch by mergebypart function
 getpartchunks:{[partdirs;mergelimit]
   /-get table for function which only contains data for relevant partitions
   t:select from .merge.partsizes where ptdir in partdirs;
@@ -42,6 +42,7 @@ getpartchunks:{[partdirs;mergelimit]
   (where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]) cut exec ptdir from t
   };
 
+/-merge entire partition from temporary storage to permanent storage
 mergebypart:{[tablename;dest;partchunks]
    .lg.o[`merge;"reading partition/partitions ", (", " sv string[partchunks])];
    chunks:get each partchunks;
@@ -56,15 +57,14 @@ mergebypart:{[tablename;dest;partchunks]
      .lg.o[`resort;"The p attribute can now be applied"];
      ];
    .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
-   /-merge columns and return boolean based on success of merge
+   /-merge columns to permanent storage
    .[upsert;(dest;chunks);                     
      {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
    };
 
-/-read in data from partition column by column rather than read in entie partition and move to hdb
+/-merge data from partition in temporary storage to permanent storage, column by column rather than by entire partition
 mergebycol:{[tableinfo;dest;segment]
   .lg.o[`merge;"upserting columns from ", (string[segment]), " to ", string[dest]];
-  /- function to save column by column data from segments to hdb 
   {[dest;segment;col]
     /-filepath to hdb partition column where data will be saved to
     destcol:(` sv dest, col);
@@ -77,7 +77,7 @@ mergebycol:{[tableinfo;dest;segment]
   }[dest;segment;] each cols tableinfo[1];
   };
 
-/-hybrid method of the two functions above, calls the mergebycol function for partitions over a bytesize limit (kept track in .merge.partsizes) and mergebypart for remaining functions
+/-hybrid method of the two functions above, calls the mergebycol function for partitions over a rowcount/bytesize limit (kept track in .merge.partsizes) and mergebypart for remaining functions
 mergehybrid:{[tableinfo;dest;partdirs;mergelimit]
   /-exec partition directories for this table from the tracking table partsizes, where the number of bytes is over the limit  
    overlimit:$[.merge.mergebybytelimit;
