@@ -1,4 +1,5 @@
 \d .merge
+.merge.mergebybytesize:0b;
 
 partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());
 
