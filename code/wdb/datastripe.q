@@ -98,10 +98,10 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;nextp]
+savealltablesoverperiod:{[dir;nextp;lasttime]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
-    savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
+    savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .wdb.dotailreload[`]};
 
