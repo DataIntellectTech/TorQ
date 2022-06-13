@@ -38,7 +38,9 @@ getextrapartitions:{[tablename;extrapartitiontype]
 getpartchunks:{[partdirs;mergelimit]
   /-get table for function which only contains data for relevant partitions
   t:select from .merge.partsizes where ptdir in partdirs;
+  /-get list of limits (rowcount or bytesize) to be used to get chunks of partitions to get merged in batch
   r:$[.merge.mergebybytelimit;exec bytes from t;exec rowcount from t];
+  /-return list of partitions to be called in batch by merge by part function
   (where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]) cut exec ptdir from t
   };
 
