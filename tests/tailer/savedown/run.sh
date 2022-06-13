@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $KDBTESTS/flagparse.sh
+
 # Path to test directory
 testpath=${KDBTESTS}/tailer/savedown
 
