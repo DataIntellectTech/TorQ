@@ -70,4 +70,6 @@ savealltablesoverperiod:{[dir;nextp]
 	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
   /- trigger reload of access tables and intradayDBs in all tail reader processes
 	.wdb.dotailreload[`]};
-.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+
+// savealltablesoverperiod is now called by the endofperiod method, triggered by tickerplant, as such this is unnecessary
+//.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
