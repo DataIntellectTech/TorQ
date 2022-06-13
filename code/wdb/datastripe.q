@@ -33,7 +33,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 	/- get process specific taildir location
-	dir:` sv dir,.proc.procname,`;
+	dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
 	/- create directory location for selected partition
@@ -53,7 +53,8 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- get distinct values to partition table on
 	partitionlist:raze value each ?[[`.]tablename;();1b;enlist[keycol]!enlist keycol];
 	/- enumerate table to be upserted and get each table by sym
-	enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[dir;tablename;keycol;nextp]'[partitionlist];
+  symdir:` sv .ds.td,.proc.procname;
+	enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[symdir;tablename;keycol;nextp]'[partitionlist];
 	/-upsert table to partition
 	upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 	/- delete data from last period
@@ -62,13 +63,11 @@ savetablesoverperiod:{[dir;tablename;nextp]
 	/- run a garbage collection (if enabled)
 	.gc.run[];
 	};
-	
+
 savealltablesoverperiod:{[dir;nextp]
 	/- function takes the tailer hdb directory handle and a timestamp
 	/- saves each table up to given period to their respective partitions
 	savetablesoverperiod[dir;;nextp]each .wdb.tablelist[];
-	};
-
-
+  /- trigger reload of access tables and intradayDBs in all tail reader processes
+	.wdb.dotailreload[`]};
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
-

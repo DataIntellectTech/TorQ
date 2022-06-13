@@ -1,0 +1,8 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+before,0,0,q,.tr.segmentid:1,1,,"Sets segment id to load in the correct test IDB"
+before,0,0,q,currentpartition:2022.06.01,1,,"Sets date of test IDB"
+run,0,0,q,reload[],1,,"Loads in initial IDB and access table"
+true,0,0,q,(0<n2:count select from quote ) & 0< n1:count select from trade,1,,"Checks test IDB loaded in properly and stores table counts"
+true,0,0,q,`access in tables[],1,,"Checks test access table loaded in"
+run,0,0,q,endofday[currentpartition],1,,"Runs end of day function"
+true,0,0,q,(n2 <> count select from quote)& n1 <> count select from trade,1,,"Checks that the next day's data has been loaded in after EOD"
