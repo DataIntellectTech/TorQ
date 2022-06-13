@@ -7,7 +7,7 @@
 \d .wdb
 
 /- merge limit configuration - default is 0b row count limit
-.merge.mergebybytelimit:1b;
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];
 
 /- define default parameters
 mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
@@ -310,7 +310,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
-merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
+merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]    
   setcompression[hdbsettings[`compression]];
   /- get tablename
   tabname:tableinfo[0];
@@ -324,13 +324,13 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
     ];
    /-if there are partitions to merge - merge with correct function
-   [$[mergemode~`part;
+   [$[mergemethod~`part;
       [dest: ` sv dest,`;
        /-get chunks to partitions to merge in batch
        partchunks:.merge.getpartchunks[partdirs;mergelimits[tabname]];
        .merge.mergebypart[tabname;dest]'[partchunks];
       ];
-    mergemode~`col;
+    mergemethod~`col;
       [.merge.mergebycol[tableinfo;dest]'[partdirs];
        /-merging data column at a time means no .d file is created so need to create one after function executed
        .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
@@ -348,7 +348,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]
   ] 
  };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
+endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
   /- merge data from partitons
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
@@ -357,7 +357,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
      if[(mergemode~`hybrid)or(mergemode~`part);
        {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
        ];
-     merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist);
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] peach flip (key tablist;value tablist);
      /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
      .lg.o[`eod;"Delete from partsizes"];
      delete from `.merge.partsizes;
@@ -368,7 +368,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
     ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-     merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist);
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
      .lg.o[`eod;"Delete from partsizes"];
      delete from `.merge.partsizes;
      /- run a garbage collection (if enabled)
@@ -388,11 +388,11 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   };
 	
 /- end of day sort [depends on writedown mode]
-endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
+endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
 	/- set compression level (.z.zd)
 	setcompression[hdbsettings[`compression]];
 	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings];
+	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod];
 	endofdaysortdate[dir;pt;key tablist;hdbsettings]
 	];
 	/- reset compression level (.z.zd)  
@@ -443,15 +443,16 @@ informgateway:{[message]
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
-	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
+	mergemethod:.wdb.mergemode;
+        .lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[
 		 if[(mergemode~`hybrid)or(mergemode~`part);{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;];
-		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
+		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);] each exec w from sortprocs;
 		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
-		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]]];
+		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]]];
 	};
 
 /-function to set the timer for the save to disk function	
