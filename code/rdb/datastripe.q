@@ -2,9 +2,6 @@
 
     .lg.o[`reload;"reload command has been called remotely"];
 
-    // get list of tables except ignored tables
-    t:tables[`.] except .rdb.ignorelist;
-
     // clear data from tables
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
@@ -23,7 +20,8 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.rdb.datastripeendofperiod;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
-    .rdb.access:([table:key .rdb.tablekeycols] start:.ds.getstarttime each (key .rdb.tablekeycols) ; end:0Np ; stptime:0Np ; keycol:value .rdb.tablekeycols);
+    t:tables[`.] except .rdb.ignorelist;
+    .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
 
     };
