@@ -238,6 +238,8 @@ flushend:{
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
+	/- run a garbage collection (if enabled)
+	if[gc;.gc.run[]];
 	};
 
 /- initialise reloadsummary, keyed tale to track status of local reloads
@@ -370,8 +372,6 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
      merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
      .lg.o[`eod;"Delete from partsizes"];
      delete from `.merge.partsizes;
-     /- run a garbage collection (if enabled)
-     if[gc;.gc.run[]];
     ]
    ];
   /- if path exists, delete it
@@ -381,8 +381,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
     ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
-  if[permitreload; 
+  $[permitreload; 
     doreload[pt];
+    if[gc;.gc.run[]];
     ];
   };
 	
