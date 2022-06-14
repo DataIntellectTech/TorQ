@@ -33,7 +33,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 	/- get unique sym from table
 	s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 	/- get process specific taildir location
-	dir:` sv .ds.td,(`$raze string `TDB,.ds.segmentid),`;
+	dir:` sv dir,(`$raze string `TDB,.ds.segmentid),`;
 	/- get symbol enumeration
 	partitionint:`$string (where s=value [`.]`sym)0;
 	/- create directory location for selected partition
