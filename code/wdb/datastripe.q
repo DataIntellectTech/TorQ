@@ -65,7 +65,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         /- get process specific taildir location
         dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
         /- get symbol enumeration
-        partitionint:`$string (where s=value [`.]`sym)0;
+        partitionint:`$string (where s=value [`.]keycol)0;
         /- create directory location for selected partition
         directory:` sv .Q.par[dir;partitionint;tablename],`;
         .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
@@ -86,7 +86,7 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
 
     /- enumerate and then split by keycol
     enumkeycol: .Q.en[dir;?[tablename;enlist (<;`time;nextp);0b;()]];
-    splitkeycol: {[enumkeycol;s] ?[enumkeycol;enlist (=;`sym;enlist s);0b;()]}[enumkeycol;] each partitionlist;
+    splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
     @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
