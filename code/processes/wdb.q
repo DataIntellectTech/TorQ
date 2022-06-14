@@ -4,9 +4,9 @@
 /-the row check is set on a timer - the interval may be specified by the user
 /-at eod the on-disk data may be sorted and attributes applied as specified in the sort.csv file
 
-\d .wdb
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];              /- merge limit configuration - default is 0b row count limit, 1b is bytesize limit
 
-.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];              /- merge limit configuration - default is 0b row count limit, 1b is bytesize limit 
+\d .wdb
 
 /- define default parameters
 mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
@@ -34,7 +34,7 @@ mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mo
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
 
-mergenumbytes:@[value;`mergenumbytes;5000000];                             /-default number of bytes for merge process
+mergenumbytes:@[value;`mergenumbytes;500000000];                             /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
