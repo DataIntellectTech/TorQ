@@ -11,37 +11,46 @@ td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
 modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
-
     .lg.o[`reload;"reload command has been called remotely"];
-
     // remove periods of data from tables
     t:tables[`.] except .wdb.ignorelist;
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
     .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .wdb.access;
     modaccess[.wdb.access];
-
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
-    
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
     atab,:() xkey .wdb.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
-
     };
+
+.wdb.datastripeendofday:{[pt;processdata]
+    .lg.o[`eod;"end of day message received - ",spt:string pt];
+    //create a dictionary of tables and merge limits
+    .wdb.mergelimits:(.wdb.tablelist[],())!({[x] .wdb.mergenumrows^.wdb.mergemaxrows[x]}.wdb.tablelist[]),();
+    .wdb.tablist:.wdb.tablelist[]!{0#value x} each .wdb.tablelist[];
+    //if savemode enabled, flush all remaining data to disk
+    if[.wdb.saveenabled;.ds.endofdaysave[.ds.td;.z.p];
+    //check if end periods in access table are correct, run sort process, else kill process and log error
+    $[endtimesCheck[];.wdb.datastripeendofdaysort[];.lg.e[`eod;"EOD Tailer savedown has not been completed for all subscribed tables"]];
+    .lg.o[`eod;"EOD is now complete"];
+    .wdb.currentpartition:pt+1
+    //reset access table for new day
+    .wdb.access:9[] start:0Np ; end:0Np ; tablename:() ; keycol:());
+    };    
+
 
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
-    
+    endofday::.wdb.datastripeendofday
     .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
     t:tables[`.] except .wdb.ignorelist;
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
@@ -55,6 +64,14 @@ initdatastripe:{
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
+
+//EOD savedown function
+endofdaysave:{[dir;nextp]
+        //save remaning table rows to disk
+        .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
+        //initate .wdb.datastripeendofperiod here
+        .lg.o[`savefinish;"finished saving remaining data to disk"];
+        };
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         /- function takes a (dir)ectory handle, tablename as a symbol
