@@ -1,5 +1,5 @@
 \d .merge
-.merge.mergebybytesize:0b;                                                    /- merge limit configuration - default is 0b row count limit 1b is byte size limit
+mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];                        /- merge limit configuration - default is 0b row count limit 1b is byte size limit
 
 partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());             /- partsizes table used to keep track of table row count and bytesize estimate when data is written to disk
 
