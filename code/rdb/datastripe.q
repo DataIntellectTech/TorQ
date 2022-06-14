@@ -21,7 +21,7 @@ initdatastripe:{
     endofperiod::.rdb.datastripeendofperiod;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .rdb.ignorelist;
-    .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:.rdb.tablekeycols[t]);
+    .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
 
     };

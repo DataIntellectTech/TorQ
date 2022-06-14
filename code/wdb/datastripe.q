@@ -44,7 +44,7 @@ initdatastripe:{
     
     .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
     t:tables[`.] except .wdb.ignorelist;
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:.wdb.tablekeycols[t])];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each (key .wdb.tablekeycols);
