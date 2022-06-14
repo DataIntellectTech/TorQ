@@ -36,7 +36,7 @@ mergemode:`part                                                                 
 												
 mergenumrows:100000                                                                         // default number of rows for merge process
 mergenumtab:`quote`trade!10000 50000                                                        // specify number of rows per table
-mergenumbytes:5000000                                                                        // default partition bytesize for merge limit in merge process (only used when .merge.mergebybytelimit=1b) 
+mergenumbytes:500000000                                                                     // default partition bytesize for merge limit in merge process (only used when .merge.mergebybytelimit=1b) 
 
 tpconnsleepintv:10                                                                          // number of seconds between attempts to connect to the tp
 upd:insert                                                                                  // value of the upd function
