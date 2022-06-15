@@ -38,6 +38,29 @@ modaccess:{[accesstab]};
 
     };
 
+//functions used to check correct access tables
+.wdb.endtimes:{exec end from .wdb.access};
+.wdb.endtimesCheck:{.wdb.endtimes[]~(count .wdb.endtimes[])#correctendtime:.wdb.currentpartition+24:00};
+
+.wdb.datastripeendofday:{[pt;processdata]
+    
+    .lg.o[`eod;"end of day message received - ",spt:string pt];
+    
+    //create a dictionary of tables and merge limits
+    .wdb.mergelimits:(.wdb.tablelist[],())!({[x] .wdb.mergenumrows^.wdb.mergemaxrows[x]}.wdb.tablelist[]),();
+    .wdb.tablist:.wdb.tablelist[]!{0#value x} each .wdb.tablelist[];
+    
+    //if savemode enabled, flush all remaining data to disk
+    if[.wdb.saveenabled;.ds.endofdaysave[.ds.td;.z.p]];
+    
+    //check if end periods in access table are correct, run sort process, else kill process and log error
+    //$[endtimesCheck[];.wdb.datastripeendofdaysort[];.lg.e[`eod;"EOD Tailer savedown has not been completed for all subscribed tables"]];
+    //.lg.o[`eod;"EOD is now complete"];
+    //.wdb.currentpartition:pt+1;
+    //reset access table for new day
+    //.wdb.access:([] start:0Np ; end:0Np ; tablename:() ; keycol:());
+    };
+
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
@@ -55,6 +78,14 @@ initdatastripe:{
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
+
+//EOD savedown function
+endofdaysave:{[dir;nextp]
+        //save remaning table rows to disk
+        .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
+        //initate .wdb.datastripeendofperiod here
+        .lg.o[`savefinish;"finished saving remaining data to disk"];
+        };
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         /- function takes a (dir)ectory handle, tablename as a symbol
