@@ -1,8 +1,6 @@
 \d .ds
 
-segmentid:
-0  5  6  7  8
- "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
+segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
 //temporary change to variable as callum working on fix
 td:hsym `$getenv`KDBTAIL
