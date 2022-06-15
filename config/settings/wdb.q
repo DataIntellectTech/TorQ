@@ -1,4 +1,5 @@
 // Bespoke WDB config
+.merge.mergebybytelimit:0b                                                                  // merge limit configuration - default is 0b row count limit 1b is byte size limit
 \d .wdb
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
@@ -28,9 +29,14 @@ writedownmode:`default                                                          
                                                                                             //                       at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                                             // 2. partbyattr       - the data is partitioned by [ partitiontype ] and the column(s)assigned the parted attributed in sort.csv
                                                                                             //                       at EOD the data will be merged from each partiton before being moved to hdb
+mergemode:`part                                                                             // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+                                                                                            // 1. part                      -       the entire partition is merged to the hdb 
+                                                                                            // 2. col                       -       each column in the temporary partitions are merged individually 
+                                                                                            // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit  
 												
 mergenumrows:100000                                                                         // default number of rows for merge process
 mergenumtab:`quote`trade!10000 50000                                                        // specify number of rows per table
+mergenumbytes:500000000                                                                     // default partition bytesize for merge limit in merge process (only used when .merge.mergebybytelimit=1b) 
 
 tpconnsleepintv:10                                                                          // number of seconds between attempts to connect to the tp
 upd:insert                                                                                  // value of the upd function
