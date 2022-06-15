@@ -51,8 +51,7 @@ tpcheckcycles:0W                                                                
 
 \d .ds
 datastripe:1b
-period:0D01                                    
-periodstokeep:4
+period:0D01
 lasttimestamp:.z.p-4*period
 
 // Server connection details

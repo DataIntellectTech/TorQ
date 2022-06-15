@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.rdb.subtables:(),1,,"Clear subscription tables"
+before,0,0,q,.rdb.subscribe[],1,,"Subscribe to all data from stp"
+before,0,0,q,system "sleep 5",1,,"Wait for tables to populate"
+before,0,0,q,rdbh:gethandle[`rdb1],1,,"Get rdb handle"
+before,0,0,q,stph:gethandle[`stp1],1,,"Get stp handle"
+true,0,0,q,.ds.datastripe=1b,1,,"Check datastriping is set to 1"
+true,0,0,q,5=count .wdb.access,1,,"Check length of access table in wdb"
+true,0,0,q,rdbh"5=count .rdb.access",1,,"Check length of access table in rdb"
+run,0,0,q,stph".stplg.endofperiod[.z.d+11:50;.z.d+12:00;.stplg.endofperioddata]",1,,"Run end of period function from stp"
+after,0,0,q,".tst.h"".stpps.closesub .z.w""",1,,"Close subscription"
+after,0,0,q,trade:0#trade,1,,"Clear tables"
+after,0,0,q,quote:0#quote,1,,"Clear tables"
