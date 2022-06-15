@@ -1,7 +1,7 @@
 \d .proc
 /- Get the relevant WDB attributes
 getattributes:{
-    timecolumns:1!gettimecolumns each tables[`.];
+    timecolumns:1!except[gettimecolumns each tables[`.];(::)];
     attrtable:`date`tables`procname!
 	/-lambda execs all datebased columns from table supplied
         ({[timecolumns]
@@ -23,7 +23,8 @@ getattributes:{
     attrtable}
 /- Get names of all cols of type "p", "d", or "z" and the timeranges they span as a nested dictionary structure
 gettimecolumns:{
-    tcols:exec c from meta value x where t in"pdz";
+    tcols:exec c from meta value x where t in "pdz";
+    if[not count tcols;:(::)];
     (`tablename`timecolumns)!(x;
         /functional select to get the min value (defaults to `timestamp$.z.d for starttimestamp)
         ?[x;();();tcols!(enlist,/:enlist each($;enlist`timestamp),/:enlist each((?),/:enlist each(=;0W),/:mtcols),'`.z.d,'mtcols:enlist each min,/:tcols),\:0Wp])}
