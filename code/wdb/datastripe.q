@@ -2,7 +2,8 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
-td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
+//temporary change to variable as callum working on fix
+td:hsym `$getenv`KDBTAIL
 
 \d .
 
@@ -115,12 +116,12 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- get distinct values to partition table on
     partitionlist: ?[tablename;();();(distinct;keycol)];
 
-    /- enumerate and then split by keycol
-    enumkeycol: .Q.en[dir;?[tablename;enlist (<;`time;nextp);0b;()]];
-    splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
+    /-temporary code for correct direc structure, callum working on fix
+    symdir:` sv .ds.td,.proc.procname;
+    enumdata:{[dir;tablename;keycol;nextp;s] .Q.en[dir;0!?[[`.]tablename;((<;`time;nextp);(=;keycol;enlist s));0b;()]]}[symdir;tablename;keycol;nextp]'[partitionlist];
 
     /-upsert table to partition
-    @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
+    upserttopartition[dir;tablename;keycol;;nextp] each enumdata;
 
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;lasttime)];
