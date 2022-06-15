@@ -1,6 +1,8 @@
 \d .ds
 
-segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
+segmentid:
+0  5  6  7  8
+ "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
 //temporary change to variable as callum working on fix
 td:hsym `$getenv`KDBTAIL
@@ -65,7 +67,7 @@ modaccess:{[accesstab]};
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
-    
+    endofday::.wdb.datastripeendofday;
     .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
     t:tables[`.] except .wdb.ignorelist;
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
