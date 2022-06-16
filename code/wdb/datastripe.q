@@ -75,16 +75,19 @@ initdatastripe:{
     .wdb.access:`table xkey .wdb.access;
     };
 
+.wdb.endofperioddata:@[value;`.wdb.endofdaydata;{ {`proctype`procname`tables`time!(.proc.proctype;.proc.procname;.stpps.t;.z.P)} }];
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
 
 //EOD savedown function
-endofdaysave:{[dir;nextp]
-        //save remaning table rows to disk
+endofdaysave:{[] 		 
+        //save remaining table rows to disk
         .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
         //initate .wdb.datastripeendofperiod here
+        currp:first exec distinct end from .wdb.access where end<>0N;
+        .wdb.datastripeendofperiod[currp;`timestamp$.z.d+1;.wdb.endofperioddata];
         .lg.o[`savefinish;"finished saving remaining data to disk"];
         };
 
