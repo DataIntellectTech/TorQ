@@ -34,7 +34,7 @@ mergenumbytes:@[value;`mergenumbytes;500000000];                        // defau
 mergemethod:@[value;`mergemethod;`part];                                // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                         // 1. part                      -       the entire partition is merged to the hdb 
                                                                         // 2. col                       -       each column in the temporary partitions are merged individually 
-                                                                        // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit or row count
+                                                                        // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit       
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]         // a dict of table!function used to manipuate tables at EOD save
@@ -171,8 +171,6 @@ finishreplay:{[h;p;td]
  savetab[td;h;p] each tabsincountorder[.replay.tablestoreplay];
  // sort data and apply the attributes
  if[sortafterreplay;applysortandattr[.replay.pathlist]];
-
- if[partandmerge;postreplaymerge[td;p;h]];
 
  // invoke any user defined post replay function
  .save.postreplay[h;p];
@@ -339,19 +337,25 @@ merge:{[dir;pt;tablename;mergelimits;h]
  if[0=count partdirs; :()];
  // merge the data in chunks depending on max rows for table
  // destination for data to be userted to [backslashes corrected for windows]
- $[mergemethod~`part;
-   [dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
-    /-get chunks to partitions to merge in batch
-    partchunks:.merge.getpartchunks[partdirs;mergelimits[tablename]];
-    .merge.mergebypart[tablename;dest]'[partchunks];
+ $[0 = count partdirs inter exec ptdir from .merge.partsizes;
+   [.lg.w[`merge;"no records for ", string[tablename]];
+    (` sv dest,`) set @[.Q.en[h;value tablename];.merge.getextrapartitiontype[tablename];`p#];
    ];
-   mergemethod~`col;
-   [.merge.mergebycol[(tablename;value tablename);dest]'[partdirs];
-    /- merging data by column does not create .d file - set it here after merge
-    .lg.o[`merge;"setting .d file"];
-    (` sv dest,`.d) set cols value tablename;
-   ];
-   .merge.mergehybrid[(tablename;value tablename);dest;partdirs;mergelimits[tablename]]
+   [$[mergemethod~`part;
+      [dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
+       /-get chunks to partitions to merge in batch
+       partchunks:.merge.getpartchunks[partdirs;mergelimits[tablename]];
+       .merge.mergebypart[tablename;dest]'[partchunks];
+      ];
+      mergemethod~`col;
+       [.merge.mergebycol[(tablename;value tablename);dest]'[partdirs];
+       /- merging data by column does not create .d file - set it here after merge
+       .lg.o[`merge;"setting .d file"];
+       (` sv dest,`.d) set cols value tablename;
+       ];
+       .merge.mergehybrid[(tablename;value tablename);dest;partdirs;mergelimits[tablename]]
+       ]
+     ]
    ];
  .lg.o[`merge;"deleting ", string[tablename], " from temp storage"]; 
  .os.deldir each .os.pth each string partdirs;
@@ -412,6 +416,7 @@ initandrun:{
   // Replay all logs and exit
   .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];
   .replay.replaylog each .replay.logstoreplay;
+  if[partandmerge;postreplaymerge[tempdir;.replay.replaydate;hdbdir]];  
   .lg.o[`replay;"replay complete"];
   if[.replay.exitwhencomplete;exit 0];
  };
