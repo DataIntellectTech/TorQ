@@ -332,11 +332,11 @@ merge:{[dir;pt;tablename;mergelimits;h]
  if[0=count raze k inter\: tablename; :()]; 
  // get list of partition directories containing specified table
  partdirs:` sv' (intdir,'parts) where not ()~/:parts:k inter\: tablename; // get each of the directories that hold the table
+ // permanent storage destination, where data being merged too
  dest:.Q.par[h;pt;tablename];
  // exit function if no subdirectories are found
  if[0=count partdirs; :()];
- // merge the data in chunks depending on max rows for table
- // destination for data to be userted to [backslashes corrected for windows]
+ // if no table data set empty table. If data to merge, merge with correct merge function   
  $[0 = count partdirs inter exec ptdir from .merge.partsizes;
    [.lg.w[`merge;"no records for ", string[tablename]];
     (` sv dest,`) set @[.Q.en[h;value tablename];.merge.getextrapartitiontype[tablename];`p#];
