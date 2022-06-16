@@ -2,7 +2,7 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
-td:hsym `$"/"sv (getenv`KDBTAIL;string .z.d)
+td:hsym `$getenv`KDBTAIL
 
 \d .
 
@@ -85,11 +85,12 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     partitionlist: ?[tablename;();();(distinct;keycol)];
 
     /- enumerate and then split by keycol
-    enumkeycol: .Q.en[dir;?[tablename;enlist (<;`time;nextp);0b;()]];
+    symdir:` sv dir,.proc.procname;
+    enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
-    @[upserttopartition[dir;tablename;keycol;;nextp;partitionlist] ; splitkeycol ; ];
+    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol;
 
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;lasttime)];
