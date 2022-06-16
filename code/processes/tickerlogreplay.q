@@ -1,9 +1,10 @@
 // Script to replay tickerplant log files
 
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];           // merge limit configuration - default is 0b row count limit, 1b is bytesize limit
+
 \d .replay
 
 // Variables
-mergemethod:@[value;`mergemethod;`hybrid]
 firstmessage:@[value;`firstmessage;0]                                   // the first message to execute
 segmentedmode:@[value;`segmentedmode;1b]                                // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
 autoreplay:@[value;`autoreplay;1b]                                      // replay tplogs automatically set to 1b to be backward compatible.
@@ -29,6 +30,11 @@ partandmerge:@[value;`partandmerge;0b];                                 // setti
 tempdir:@[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
+mergenumbytes:@[value;`mergenumbytes;500000000];                        // default number of bytes for merge process
+mergemethod:@[value;`mergemethod;`part];                                // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+                                                                        // 1. part                      -       the entire partition is merged to the hdb 
+                                                                        // 2. col                       -       each column in the temporary partitions are merged individually 
+                                                                        // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit or row count
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]         // a dict of table!function used to manipuate tables at EOD save
@@ -273,7 +279,7 @@ mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 // post replay function for merge replay, invoked after all the tables have been written down for a given log file
 postreplaymerge:{[td;p;h]
  .os.md[.os.pth[string .Q.par[td;p;`]]]; // ensures directory exists before removed
- mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();	
+ mergelimits:(tabsincountorder[.replay.tablestoreplay],())!$[.merge.mergebybytelimit;(count tabsincountorder[.replay.tablestoreplay])#mergenumbytes;({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay])],();	
  // merge the tables from each partition in the tempdir together
  merge[td;p;;mergelimits;h] each tabsincountorder[.replay.tablestoreplay];
  .os.deldir .os.pth[string .Q.par[td;p;`]]; // delete the contents of tempdir after merge completion
