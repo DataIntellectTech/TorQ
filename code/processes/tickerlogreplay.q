@@ -3,6 +3,7 @@
 \d .replay
 
 // Variables
+mergemethod:@[value;`mergemethod;`hybrid]
 firstmessage:@[value;`firstmessage;0]                                   // the first message to execute
 segmentedmode:@[value;`segmentedmode;1b]                                // if using segmented tickerplant, then set to true, otherwise set false for old tickerplant
 autoreplay:@[value;`autoreplay;1b]                                      // replay tplogs automatically set to 1b to be backward compatible.
@@ -270,7 +271,7 @@ initialupd:{[t;x]
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 
 // post replay function for merge replay, invoked after all the tables have been written down for a given log file
-postreplaymerge:{[td;p;h] 
+postreplaymerge:{[td;p;h]
  .os.md[.os.pth[string .Q.par[td;p;`]]]; // ensures directory exists before removed
  mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();	
  // merge the tables from each partition in the tempdir together
@@ -292,6 +293,8 @@ upserttopartition:{[h;dir;tablename;tabdata;pt;expttype;expt]
   upsert;
   (directory;r:update `sym!sym from ?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
   {[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
+  /-key in partsizes are directory to partition, need to drop training slash in directory key
+  .merge.partsizes[first ` vs directory]+:(count r;-22!r);
   };
 
 savetablesbypart:{[dir;pt;tablename;h]
@@ -325,28 +328,29 @@ merge:{[dir;pt;tablename;mergelimits;h]
  if[0=count raze k inter\: tablename; :()]; 
  // get list of partition directories containing specified table
  partdirs:` sv' (intdir,'parts) where not ()~/:parts:k inter\: tablename; // get each of the directories that hold the table
- 
+ dest:.Q.par[h;pt;tablename];
  // exit function if no subdirectories are found
  if[0=count partdirs; :()];
  // merge the data in chunks depending on max rows for table
  // destination for data to be userted to [backslashes corrected for windows]
-        
- dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
- {[tablename;dest;mergemaxrows;curr;segment;islast]
- .lg.o[`merge;"reading partition ", string segment];
- curr[0]:curr[0],select from get segment;
- curr[1]:curr[1],segment;
- $[islast or mergemaxrows < count curr[0];
-  [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-  dest upsert curr[0];
-  .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-  .os.deldir each string curr[1];
-  (();())];
-  curr]
- }[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];   
+ $[mergemethod~`part;
+   [dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
+    /-get chunks to partitions to merge in batch
+    partchunks:.merge.getpartchunks[partdirs;mergelimits[tablename]];
+    .merge.mergebypart[tablename;dest]'[partchunks];
+   ];
+   mergemethod~`col;
+   [.merge.mergebycol[(tablename;value tablename);dest]'[partdirs];
+    /- merging data by column does not create .d file - set it here after merge
+    .lg.o[`merge;"setting .d file"];
+    (` sv dest,`.d) set cols value tablename;
+   ];
+   .merge.mergehybrid[(tablename;value tablename);dest;partdirs;mergelimits[tablename]]
+   ];
+ .lg.o[`merge;"deleting ", string[tablename], " from temp storage"]; 
+ .os.deldir each .os.pth each string partdirs;
  // set the attributes
  .lg.o[`merge;"setting attributes"];
-  
  @[dest;;`p#] each .merge.getextrapartitiontype[tablename]; 
  .lg.o[`merge;"merge complete"];
  // run a garbage collection (if enabled)
