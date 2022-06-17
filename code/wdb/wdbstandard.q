@@ -1,7 +1,7 @@
 \d .proc
 /- Get the relevant WDB attributes
 getattributes:{
-    timecolumns:1!except[gettimecolumns each tables[`.];(::)];
+    timecolumns:1!except[(::),gettimecolumns each tables[`.];(::)];
     attrtable:`date`tables`procname!
 	/-lambda execs all datebased columns from table supplied
         ({[timecolumns]

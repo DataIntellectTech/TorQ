@@ -1,7 +1,7 @@
 \d .proc
 /- Get the relevant RDB attributes
 getattributes:{
-    timecolumns:1!except[gettimecolumns each tables[`.];(::)];
+    timecolumns:1!except[(::),gettimecolumns each tables[`.];(::)];
     attrtable:`date`tables`procname!
 	({[timecolumns]
 	  d:exec(min;max)@\:distinct`date$first each raze value each timecolumns from timecolumns;

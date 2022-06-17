@@ -6,7 +6,7 @@ reload:{
 // Get the relevant HDB attributes
 \d .proc
 getattributes:{
-	timecolumns:except[gettimecolumns each t:tables[`.];(::)];
+	timecolumns:except[(::),gettimecolumns each t:tables[`.];(::)];
 	attrtable:`date`tables`procname!(
 		@[value;`date;`date$()] union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$last each raze value each timecolumns from timecolumns;
 		tables[];
