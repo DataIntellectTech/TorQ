@@ -1,3 +1,7 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,,testtrade:update exctime:time-1D from trade,1,,"Set up exctime column"
+before,0,0,,a:([]a:`X`X;b:`X`X),1,,"Set up table for `dataaccess`tablename test"
 true,0,0,,(.z.d-1) in .proc.getattributes[]`date,1,,"Test delayed exctime reports correctly"
+comment,0,0,,,0,,""
+true,0,0,,not `a in key .[.proc.getattributes[];`dataaccess`tablename],0,,"Test that tables without temporal columns aren't reported by the proc"
+
