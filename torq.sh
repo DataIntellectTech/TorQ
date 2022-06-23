@@ -68,7 +68,7 @@ startline() {
     sline="$sline$a";                                                                               # append to startup line
   done
   qcmd=$(getfield "$procno" "qcmd")
-  if [ -z $qcmd ]; then                                                                             # if qcmd is undefined then default to $QCMD
+  if [ -z $qcmd ] || [ $QCMDOVERRIDE ]; then                                                        # if qcmd is undefined or override is enabled then default to $QCMD  
     qcmd="$QCMD"
   fi
   sline="$qcmd $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
