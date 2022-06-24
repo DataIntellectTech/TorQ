@@ -27,8 +27,6 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-
-    tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
     // update the access table on disk
@@ -60,25 +58,30 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 \d .ds
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
-        /- function takes a (dir)ectory handle, tablename as a symbol
-        /- column to key table on, an enumerated table and a timestamp.
-        /- partitions the data on the keycol and upserts it to the given dir
-        /- get unique sym from table
-        s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
-        /- get process specific taildir location
-        dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
-        /- get symbol enumeration
-        partitionint:`$string (where s=value [`.]keycol)0;
-        /- create directory location for selected partition
-        directory:` sv .Q.par[dir;partitionint;tablename],`;
-        .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
-        .lg.o[`save;"Saving data down to ",string[directory]];
-        /- upsert select data matched on partition to specific directory
-        .[upsert;
-          (directory;enumdata);
-          {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
-        ];
-        };
+    /- function takes a (dir)ectory handle, tablename as a symbol
+    /- column to key table on, an enumerated table and a timestamp.
+    /- partitions the data on the keycol and upserts it to the given dir
+    
+    /- get unique sym from table
+    s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
+
+    /- get process specific taildir location
+    dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
+
+    /- get symbol enumeration
+    partitionint:`$string (where s=value [`.]keycol)0;
+
+    /- create directory location for selected partition
+    directory:` sv .Q.par[dir;partitionint;tablename],`;
+    .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
+    .lg.o[`save;"Saving data down to ",string[directory]];
+
+    /- upsert select data matched on partition to specific directory
+    .[upsert;
+        (directory;enumdata);
+        {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
+    ];
+    };
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
@@ -93,7 +96,7 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
-    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol;
+    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol;
 
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;lasttime)];
