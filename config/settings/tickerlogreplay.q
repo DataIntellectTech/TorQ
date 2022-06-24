@@ -1,6 +1,6 @@
 // default configuration for the tickerplant replay
 
-.merge.mergebybytelimit:1b              // merge limit configuration - default is 0b row count limit 1b is byte size limit
+.merge.mergebybytelimit:0b              // merge limit configuration - 0b is by row count, 1b is by byte size.
 
 \d .replay
 
