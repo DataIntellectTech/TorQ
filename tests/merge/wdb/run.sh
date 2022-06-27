@@ -4,7 +4,7 @@
 source $KDBTESTS/flagparse.sh
 
 # Path to test directory
-testpath=${KDBTESTS}/partbyattr
+testpath=${KDBTESTS}/merge/wdb
 
 mkdir ${testpath}/testhdb
 
@@ -16,7 +16,7 @@ ${RLWRAP} ${QCMD} ${TORQHOME}/torq.q \
  -proctype test -procname test1 \
  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${testpath}/mockdata.q \
  -test ${testpath}/tests \
- -testresults ${KDBTESTS}/partbyattr/results/ \
+ -testresults ${KDBTESTS}/merge/wdb/results/ \
  -runtime $run \
  -procfile ${testpath}/config/process.csv \
   $debug $stop $write $quiet
