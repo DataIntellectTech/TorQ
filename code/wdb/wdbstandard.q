@@ -26,5 +26,6 @@ gettimecolumns:{
     tcols:exec c from meta value x where t in "pdz";
     if[not count tcols;:(::)];
     (`tablename`timecolumns)!(x;
-        /functional select to get the min value (defaults to `timestamp$.z.d for starttimestamp)
-        ?[x;();();tcols!(enlist,/:enlist each($;enlist`timestamp),/:enlist each((?),/:enlist each(=;0W),/:mtcols),'`.z.d,'mtcols:enlist each min,/:tcols),\:0Wp])}
+    /- functional exec to get the min value (defaults to `timestamp$.z.d for starttimestamp)
+        ?[x;();();
+          tcols!(enlist,/:enlist each($;enlist`timestamp),/:enlist each((?),/:enlist each(in[;(0Wd;0Wp;0wz)]),/:mtcols),'`.z.d,'mtcols:enlist each min,/:tcols),\:0Wp])}
