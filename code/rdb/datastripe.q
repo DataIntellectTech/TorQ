@@ -2,6 +2,8 @@
 
     .lg.o[`reload;"reload command has been called remotely"];
 
+    t:tables[`.] except .rdb.ignorelist;
+
     // clear data from tables
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
