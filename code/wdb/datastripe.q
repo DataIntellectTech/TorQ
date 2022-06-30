@@ -27,7 +27,7 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
+    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
@@ -96,7 +96,7 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
-    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol;
+    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol; 
 
     /- delete data from last period
     .[.ds.deletetablebefore;(tablename;`time;lasttime)];
