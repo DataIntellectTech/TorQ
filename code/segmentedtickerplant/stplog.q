@@ -191,6 +191,7 @@ rolllog:{[multilog;dir;tabs;p]
 
 // Creates dictionary of process data to be used at endofday/endofperiod - configurable but default provided
 endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)} }];
+endofperioddata:@[value;`.stplg.endofperioddata;{ {`proctype`procname`tables`time!(.proc.proctype;.proc.procname;.stpps.t;.z.P)} }];
 
 // endofperiod function defined in SCTP
 // passes on eop messages to subscribers and rolls logs
@@ -298,6 +299,8 @@ init:{[dbname]
 
 // Close logs on clean exit
 .z.exit:{
+  // Set .proc.initialised to true, allows error messages to exit process on startup (stops infinite "Bad Exit!").
+  .proc.initialised:1b;
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
   // exit before logs are touched if process is an sctp NOT in create mode
