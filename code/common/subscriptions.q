@@ -54,7 +54,7 @@ createtables:{
  }
 
 replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
-  // realsubs is a dict of `subtabs`errtabs`instrs
+ // realsubs is a dict of `subtabs`errtabs`instrs
   // schemalist is a list of (tablename;schema)
   // logfilelist is a list of (log count; logfile) 
   .lg.o[`subscribe;"replaying the log file(s)"];
@@ -65,19 +65,30 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[count where nullschema:0=count each schemalist;
     tabs:(schemalist where not nullschema)[;0];
     subtabs:tabs inter realsubs[`subtabs]];
+
   // set the replayupd function to be upd globally
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
+  logmetatab::.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
   // replays log files and applies filters if in datastriping mode
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
     .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
-    if[.ds.datastripe; .[set;] each (key td),'enlist each replayfilter each (key td),' value enlist each td;  
-       .lg.o[`subscribe;"filtering tables ", .Q.s1 key td]]
+  /  .lg.o[`test;"x is ",.Q.s1 replayfilter each (key td),'value enlist each td];
+    x::replayfilter each (key td),'value enlist each td;
+    filterflags::(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
+    y::td;
+    z:: replayfilter;
+    filtertab::(key td) where filterflags;
+    if[.ds.datastripe & any filterflags; .[set;] each filtertab,'enlist each replayfilter each filtertab,' enlist each td filtertab;  
+       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]]
     };
+/replayfilter
+/  ss[;string[`quote], raze "." vs  string .z.d] string `stp1_quote20220704210000
+  
   {[d;filter;func] .[func;(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;f] each logfilelist;
-
+	/	.lg.o[`test;"td is",.Q.s1 logfilelist];
 
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
