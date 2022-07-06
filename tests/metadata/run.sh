@@ -13,7 +13,7 @@ ${TORQHOME}/../devTorQCloud/torq.sh start all -procfile ${testpath}/process.csv
 ${QCMD} ${TORQHOME}/torq.q -e 1 \
   -proctype rdb -procname rdb1 \
   -test ${testpath} \
-  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${TORQHOME}/code/processes/rdb.q \
+  -load ${KDBTESTS}/helperfunctions.q ${TORQHOME}/code/processes/rdb.q \
   -testresults ${KDBTESTS}/metadata/results/ \
   -runtime $run \
   -procfile ${testpath}/process.csv \
