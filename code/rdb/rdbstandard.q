@@ -9,14 +9,13 @@ getattributes:{
 	tables[];
 	.proc.procname);
     if[.ds.datastripe;
-        /- get segmentfilter from segmenting.csv and filtermap.csv
-        /- assumes striping by sym
-        segmenting:("SIS";enlist",")0:hsym`$getenv[`KDBCONFIG],"/segmenting.csv";
-        segment:select wcRef,table from segmenting where segmentID in .ds.segmentid;
-        filtermap:1!("S*";enlist",")0:hsym`$getenv[`KDBCONFIG],"/filtermap.csv";
-        wc:1!select tablename:table,wc:{ssr[x;"sym";""]}each filter from segment ij filtermap;
-        wcandtcs:wc uj timecolumns;
-        dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(first .ds.segmentid;(exec tablename from wcandtcs)!value wcandtcs);
+	filtermap:flip @[.j.k read1 hsym`$getenv[`KDBAPPCONFIG],"/striping.json";`$string first .ds.segmentid];
+	filtermap:([]tablename:key filtermap)!([]wc:value filtermap);
+	/- Match tables (and their timewindows) against the whereclause they've used to subscribe
+	tablename:((key timecolumns)!select wc,timecolumns from update wc:{""}'[i],timecolumns from timecolumns)
+		    lj
+                      filtermap;
+	dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(first .ds.segmentid;tablename);
         attrtable,:dataaccess;
         ];
     attrtable}
