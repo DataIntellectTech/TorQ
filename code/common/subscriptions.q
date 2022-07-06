@@ -70,8 +70,10 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
-  logmetatab::.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+  logmetatab::.servers.gethandlebytype[eval ` sv `,.proc.proctype,`tickerplanttypes;`last]`.stpm.metatable;
+  earliesttime:.z.p - (.servers.gethandlebytype[eval ` sv `,.proc.proctype,`tickerplanttypes;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
   // replays log files and applies filters if in datastriping mode
+  if[.ds.datastripe;logfilelist:exec logname from logmetatab where start>earliesttime];
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
     .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
