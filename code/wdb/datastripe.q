@@ -22,8 +22,8 @@ modaccess:{[accesstab]};
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
-    .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .wdb.access;
-    modaccess[.wdb.access];
+    .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .ds.access;
+    modaccess[.ds.access];
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
@@ -31,7 +31,7 @@ modaccess:{[accesstab]};
     
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
-    atab,:() xkey .wdb.access;
+    atab,:() xkey .ds.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
 
     };
@@ -45,11 +45,11 @@ initdatastripe:{
     t:tables[`.] except .wdb.ignorelist;
 
     // create or load the access table
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
-    modaccess[.wdb.access];
-    (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
-    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each t;
-    .wdb.access:`table xkey .wdb.access;
+    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    modaccess[.ds.access];
+    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;
+    .ds.access:{[x] last .ds.access where .ds.access[`table]=x} each t;
+    .ds.access:`table xkey .ds.access;
     };
 
 
