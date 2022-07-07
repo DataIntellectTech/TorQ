@@ -78,11 +78,8 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
     .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
   /  .lg.o[`test;"x is ",.Q.s1 replayfilter each (key td),'value enlist each td];
-    x::replayfilter each (key td),'value enlist each td;
-    filterflags::(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
-    y::td;
-    z:: replayfilter;
-    filtertab::(key td) where filterflags;
+    filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
+    filtertab:(key td) where filterflags;
     if[.ds.datastripe & any filterflags; .[set;] each filtertab,'enlist each replayfilter each filtertab,' enlist each td filtertab;  
        .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]]
     };
