@@ -73,7 +73,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   logmetatab::.servers.gethandlebytype[eval ` sv `,.proc.proctype,`tickerplanttypes;`last]`.stpm.metatable;
   earliesttime:.z.p - (.servers.gethandlebytype[eval ` sv `,.proc.proctype,`tickerplanttypes;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
   // replays log files and applies filters if in datastriping mode
-  if[.ds.datastripe;currentlogfiles:exec logname from logmetatab where start>earliesttime;logfilelist:logfilelist logfilelist[;1]?currentlogfiles];
+  if[.ds.datastripe;logfilelist:exec logname from logmetatab where start>earliesttime];
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
     .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;

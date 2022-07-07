@@ -4,6 +4,7 @@
 
 segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
+datastripe:$[not((),0N)~.ds.segmentid;1b;0b]           // datastripe variable defined for the system based on whether segid is defined
 
 tablekeycolsconfig:@[value;`.ds.tablekeycolsconfig;`tablekeycols.csv];    // getting the location of the tablekeycols.csv config file
 
