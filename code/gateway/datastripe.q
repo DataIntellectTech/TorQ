@@ -7,18 +7,15 @@ getaccess:{[]
     handles:(.servers.getservers[`proctype;;()!();1b;1b] .ds.subscribers)[`w];
 
     // get data from access tables in each subscriber and append to gateway access table
-    .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:())];
-    .gw.access: .gw.access ,/ ({[x] x"`location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access"} each handles);
+    .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:() ; proctype:())];
+    .gw.access,: raze {x(`.ds.getaccess;`)} each handles;
 
-    }
+    };
 
-.gw.endofperiod:{[currp;nextp;data]
-    getaccess[];
-    }
+\ .d
 
 initdatastripe:{[]
     getaccess[];
-    endofperiod::.gw.endofperiod;
-    }
+    };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

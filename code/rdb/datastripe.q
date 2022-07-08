@@ -30,3 +30,4 @@ initdatastripe:{
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
+.ds.getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
