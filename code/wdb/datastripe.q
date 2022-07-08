@@ -34,6 +34,10 @@ modaccess:{[accesstab]};
     atab,:() xkey .ds.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
 
+    // update the access table in the gateway
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw[handles];
+
     };
 
 initdatastripe:{
