@@ -31,3 +31,11 @@ initdatastripe:{
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 .ds.getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+.ds.updategw:{[h]
+
+    newtab:.ds.getaccess[];
+    h(`updateaccess;newtab);
+
+    };

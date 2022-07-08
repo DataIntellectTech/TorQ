@@ -12,6 +12,14 @@ getaccess:{[]
 
     };
 
+// create a function to update the access table at end of period
+updateaccess:{[newtab]
+
+    // append newtab to access table
+    .gw.access,: newtab;
+
+    };
+
 \ .d
 
 initdatastripe:{[]
