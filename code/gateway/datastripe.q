@@ -1,10 +1,10 @@
+\ .ds
+
 // create a function which will retrieve the access tables from the subscribers
 getaccess:{[]
 
-    // get handles for subscribers
-    rdbhandles: first value flip ?[`.gw.servers;enlist (=;`servertype;enlist `rdb);0b;(enlist `handle)!(enlist `handle)];
-    wdbhandles: first value flip ?[`.gw.servers;enlist (=;`servertype;enlist `wdb);0b;(enlist `handle)!(enlist `handle)];
-    handles:rdbhandles,wdbhandles;
+    // get handle(w) for each proctype given in list given by .server.getservers
+    handles:(.servers.getservers[`proctype;;()!();1b;1b] `rdb`wdb)[`w];
 
     // get data from access tables in each subscriber and append to gateway access table
     .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:())];
