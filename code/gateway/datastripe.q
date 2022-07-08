@@ -1,5 +1,3 @@
-/\ .ds
-
 // create a function which will retrieve the access tables from the subscribers
 getaccess:{[]
 
@@ -9,9 +7,18 @@ getaccess:{[]
     handles:rdbhandles,wdbhandles;
 
     // get data from access tables in each subscriber and append to gateway access table
-    .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:())]
-    .gw.access: .gw.access ,/ {[x] x"`location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access"} each handles;
+    .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:())];
+    .gw.access: .gw.access ,/ ({[x] x"`location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access"} each handles);
 
     }
 
-/getaccess[]
+.gw.endofperiod:{[currp;nextp;data]
+    getaccess[];
+    }
+
+initdatastripe:{[]
+    getaccess[];
+    endofperiod::.gw.endofperiod;
+    }
+
+if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
