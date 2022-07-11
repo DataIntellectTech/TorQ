@@ -723,13 +723,13 @@ The reduction in data access in each process cumulatively multiplies the data th
 
 **Example of data striping in TorQ**
 
-A simple but effective way of data striping is to do it divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
+A simple but effective way of data striping is to divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
 
 A common method for data striping between processes is to use an instrument (sym) filter. For example, to stripe data across 2 RDB processes, data with symbols starting with A-M and N-L will be striped to RDB1 and RDB2 respectively. However, a major problem with this method is the uneven distribution of data (a lot of symbols tend to start with A for example).
 
 **Data hash striping**
 
-A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and for subsequent requests for those symbols, it looks them up. It is loaded into the segmented tickerplant to use as subscription requests. The hash function has to be highly performant as it will potentially be invoked ~100-1000times/s in a core (potential bottleneck) component. For this purpose, a fast, simple and non-cryptographic hash function is created to segment the data since the performance of the segmented tickerplant is of paramount importance. The hash map is created by summing the ASCII codes of each input string then dividing by the number of segements.
+A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and then for subsequent requests for those symbols, look them up. It is loaded into the segmented tickerplant to use as subscription requests. The hash function has to be highly performant as it will potentially be invoked ~100-1000 times per second in a core (potential bottleneck) component. For this purpose, a fast, simple and non-cryptographic hash function is created to segment the data since the performance of the segmented tickerplant is of paramount importance. The hash map is created by summing the ASCII codes of each input string then dividing by the number of segments.
 
 ---
 
