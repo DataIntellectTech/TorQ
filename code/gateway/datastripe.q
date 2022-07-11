@@ -8,7 +8,7 @@ getaccess:{[]
 
     // get data from access tables in each subscriber and append to gateway access table, with trapping to default to empty table
     .gw.access: @[value;`.gw.access;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:() ; proctype:())];
-    .gw.access,: ;raze @[{[x] x(`.ds.getaccess;`)};;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:() ; proctype:())] each handles;
+    .gw.access,: raze @[{[x] x(`.ds.getaccess;`)};;([location:() ; table:()] start:() ; end:() ; stptime:() ; keycol:() ; proctype:())] each handles;
 
     };
 
