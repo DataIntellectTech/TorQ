@@ -36,7 +36,7 @@ modaccess:{[accesstab]};
 
     // update the access table in the gateway
     handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    .ds.updategw[handles];
+    .ds.updategw each handles;
 
     };
 

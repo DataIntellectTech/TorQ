@@ -23,7 +23,7 @@ updateaccess:{[newtab]
 \d .
 
 initdatastripe:{[]
-    getaccess[];
+    .ds.getaccess[];
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

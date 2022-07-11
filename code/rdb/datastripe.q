@@ -14,8 +14,8 @@
     modaccess[.ds.access];
 
     // update the access table in the gateway
-    .ds.handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    .ds.updategw[.ds.handles];
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw each handles;
 
     };
 
