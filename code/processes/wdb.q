@@ -194,6 +194,7 @@ endofday:{[pt;processdata]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
+    // if[.ds.datastripe;.ds.resetrdbwindow[]];
     .lg.o[`eod;"end of day is now complete"];
     .wdb.currentpartition:pt+1;
 	};
@@ -284,6 +285,12 @@ reloadsymfile:{[symfilepath]
   .lg.o[`sort; "reloading the sym file from: ",string symfilepath];
   @[load; symfilepath; {.lg.e[`sort;"failed to reload sym file: ",x]}]
  }
+
+resetrdbwindow:{
+    .lg.o[`rdbwindow;"resetting rdb moving time window"];
+    rdbprocs:.servers.getservers[`proctype;.wdb.rdbtypes;()!();1b;0b];
+    {neg[x]".rdb.tailsortcomplete:1b";neg[x][]}each exec w from rdbprocs;
+    };
 
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
@@ -376,6 +383,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   if[permitreload; 
     doreload[pt];
     ];
+  if[.ds.datastripe;resetrdbwindow[]];
   };
 	
 /- end of day sort [depends on writedown mode]
@@ -424,7 +432,7 @@ informgateway:{[message]
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
-	$[count sortprocs:.mformsoreservers.getservers[`proctype;sorttypes;()!();1b;0b];
+	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
