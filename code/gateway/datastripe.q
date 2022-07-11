@@ -1,4 +1,4 @@
-\ .ds
+\d .ds
 
 // create a function which will retrieve the access tables from the subscribers
 getaccess:{[]
@@ -20,7 +20,7 @@ updateaccess:{[newtab]
 
     };
 
-\ .d
+\d .
 
 initdatastripe:{[]
     getaccess[];
