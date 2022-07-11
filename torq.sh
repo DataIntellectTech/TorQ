@@ -18,7 +18,7 @@ if [ -z $QCON ]; then
   QCON="qcon"                                                                                       # set default value if not already defined
 fi
 
-if [ -z "$QCMD" ]; then                                                                               # set default value if not already defined
+if [ -z "$QCMD" ]; then                                                                             # set default value if not already defined
   QCMD="q"
 fi 
 
