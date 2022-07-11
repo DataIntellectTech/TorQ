@@ -42,6 +42,6 @@ getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc
 updategw:{[h]
 
     newtab:getaccess[];
-    h(`updateaccess;newtab);
+    neg[h](`.ds.updateaccess;newtab);
 
     };
