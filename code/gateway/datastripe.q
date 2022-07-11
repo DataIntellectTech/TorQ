@@ -22,8 +22,4 @@ updateaccess:{[newtab]
 
 \d .
 
-initdatastripe:{[]
-    .ds.getaccess[];
-    };
-
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
+.proc.addinitlist[(`.ds.getaccess;`)];
