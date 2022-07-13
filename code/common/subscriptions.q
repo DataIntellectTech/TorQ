@@ -70,23 +70,20 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
-  logmetatab::.servers.gethandlebytype[.rdb.tickerplanttypes;`last]`.stpm.metatable;
   // replays log files and applies filters if in datastriping mode
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
     .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
-  /  .lg.o[`test;"x is ",.Q.s1 replayfilter each (key td),'value enlist each td];
-    x::replayfilter each (key td),'value enlist each td;
-    filtertab:any (key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
-    if[.ds.datastripe & filtertab; .[set;] each (key td),'enlist each replayfilter each (key td),' value enlist each td;  
-       .lg.o[`subscribe;"filtering tables ", .Q.s1 key td]]
+  // if datastriping is enabled request the tplog meta table from the stp
+    if[.ds.datastripe; 
+    [logmetatab::.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+    filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
+    filtertab:(key td) where filterflags;
+    if[any filterflags; .[set;] each filtertab,'enlist each replayfilter each filtertab,' enlist each td filtertab;     
+       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]]
+    ]];
     };
-/replayfilter
-/  ss[;string[`quote], raze "." vs  string .z.d] string `stp1_quote20220704210000
-  
   {[d;filter;func] .[func;(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;f] each logfilelist;
-	/	.lg.o[`test;"td is",.Q.s1 logfilelist];
-    z::logfilelist;
 
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
@@ -94,6 +91,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // return updated version of realsubs
   @[realsubs;`subtabs;:;subtabs]
  }
+
 
 // used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
 replay:replay0[;;;;()!()]
