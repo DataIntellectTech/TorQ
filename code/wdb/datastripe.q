@@ -36,6 +36,9 @@ modaccess:{[accesstab]};
 
     };
 
+//Function to check if a segid is defined if datastriping is on
+checksegid:{if[.ds.datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datastriping is turned on however no segment id has been defined for this process"]]]}
+
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
@@ -47,6 +50,7 @@ initdatastripe:{
     // create or load the access table
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.wdb.access];
+    checksegid[];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each t;
     .wdb.access:`table xkey .wdb.access;
