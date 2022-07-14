@@ -83,13 +83,14 @@ init:{
   .stplg.init[string .proc.procname];
  };
 
-//Loads the striping.json config file checks if each subscriptiondefault is set for each segment and errors if not defined
+// Loads the striping.json config file and logs any problems
 configload:{[scpath]
      @[jsonchecks; 
-       .stpps.stripeconfig:@[{.j.k read1 x};scpath;{.lg.o[`configload;"Failed to load in json file: ",x]}];
-       {.lg.o[`configload;"Datastriping is not enabled"]}]
+       .stpps.stripeconfig:@[{.j.k read1 x};scpath;{.lg.o[`configload;"Failed to load in striping.json file: ",x]}];
+       {.lg.o[`configload;"Datastriping is not enabled due to problems with striping.json"]}]
      };
 
+// Checks if each subscriptiondefault is set for each segment and errors if not defined
 jsonchecks:{[.stpps.stripeconfig]
      // check defaults are ignore or all
      defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
@@ -103,18 +104,17 @@ jsonchecks:{[.stpps.stripeconfig]
      //Enable datastriping if all checks pass
      $[min (0=count errors; 0=count wrongtables);
       (.lg.o[`jsonchecks;"config checks complete and datastriping is on"];.ds.datastripe:1b);
-      .lg.o[`jsonchecks;"config checks error"]]
+      .lg.o[`jsonchecks;"Datastriping is not enabled due to failed config checks"]]
      };
-	 
+
+// Initialise config check
 configcheck:{
      .lg.o[`configcheck;"initiate config check"];
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
-     // Check striping.json file exists then check if empty
-     $[()~key hsym scpath; .lg.o[`configcheck;"The following file can not be found: ",string scpath];
-        $[()~read0 scpath; .lg.o[`configcheck;"The following file is empty: ",string scpath]; 
-        configload[scpath]]]
+     // Check striping.json file exists then runs configload
+     $[()~key hsym scpath; .lg.o[`configcheck;"Datastriping is not enabled as the following file can not be found: ",string .ds.stripeconfig]; configload[scpath]]
      };
 
-// Have the init function called from torq.q
+// Have the init function and config check called from torq.q
 .proc.addinitlist(`init;`);
 .proc.addinitlist(`configcheck;`);
