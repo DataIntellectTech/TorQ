@@ -70,6 +70,12 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
+  //gets the name of log files from the current periods to keep in order to replay them  
+  if[.ds.datastripe;
+    earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
+    currentlogfiles:exec logname from logmetatab where start>earliesttime;
+    logfilelist:logfilelist logfilelist[;1]?currentlogfiles
+    ];
   // replays log files and applies filters if in datastriping mode
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
