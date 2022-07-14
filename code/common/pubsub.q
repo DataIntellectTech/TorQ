@@ -154,7 +154,16 @@ init:{[t]
 
 // Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return table name and schema to subscriber
 .ps.subtablefiltered:{[tab;filters;columns]
-  .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for filters: ",filters," and columns: ",columns];
+  //creates empty strings to be edited under certain conditions
+  bfilters:"";
+  bcolumns:"";
+  
+  //conditions met to edit strings accordingly
+  if[count filters;bfilters:" filters: "];
+  if[count columns;bcolumns:" columns: "];
+  if[((count filters) + count columns)>count filters;bcolumns:" and", bcolumns];
+  
+  .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for",bfilters,filters,bcolumns,columns];
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
   $[10h~type last val;'last val;val]
  };
