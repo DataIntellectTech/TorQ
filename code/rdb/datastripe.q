@@ -18,6 +18,10 @@
 // user definable function to modify the access table
 modaccess:{[accesstab]};
 
+//Function to check if a segid is defined if datastriping is on
+checksegid:{if[.ds.datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datastriping is turned on however no segment id has been defined for this process"]]]}
+
+
 initdatastripe:{
     // update endofperiod function
     endofperiod::.rdb.datastripeendofperiod;
@@ -25,7 +29,8 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
-
+    checksegid[];
+    
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
