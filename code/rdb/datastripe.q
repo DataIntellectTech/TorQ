@@ -18,7 +18,6 @@
 // user definable function to modify the access table
 modaccess:{[accesstab]};
 
-
 initdatastripe:{
     // update endofperiod function
     endofperiod::.rdb.datastripeendofperiod;
@@ -26,8 +25,7 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
-    checksegid[];
-    
+    .ds.checksegid[];    
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
