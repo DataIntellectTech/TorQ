@@ -36,8 +36,6 @@ modaccess:{[accesstab]};
 
     };
 
-//Function to check if a segid is defined if datastriping is on
-checksegid:{if[.ds.datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datastriping is turned on however no segment id has been defined for this process"]]]}
 
 initdatastripe:{
     // update endofperiod function
