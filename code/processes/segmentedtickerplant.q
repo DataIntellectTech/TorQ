@@ -91,7 +91,7 @@ configload:{[scpath]
      };
 
 // Checks if each subscriptiondefault is set for each segment and errors if not defined
-jsonchecks:{[.stpps.stripeconfig]
+jsonchecks:{[]
      // check defaults are ignore or all
      defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
      errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
