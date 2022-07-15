@@ -100,7 +100,7 @@ jsonchecks:{[]
      keydict: key(flip .stpps.stripeconfig[`segid]);
      stripedtables: .stpps.t inter keydict;
      wrongtables:(keydict except `subscriptiondefault) except stripedtables;
-     {if[0<count x;.lg.o[`jsonchecks;m:"Table ",string[x]," is not recognised"]]}each wrongtables;
+     if[0<count wrongtables;.lg.o[`jsonchecks;"Table(s) ",(" " sv string[wrongtables])," not recognised"]];
      //Enable datastriping if all checks pass
      $[min (0=count errors; 0=count wrongtables);
       (.lg.o[`jsonchecks;"config checks complete and datastriping is on"];.ds.datastripe:1b);
