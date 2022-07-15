@@ -102,9 +102,11 @@ jsonchecks:{[]
      wrongtables:(keydict except `subscriptiondefault) except stripedtables;
      if[0<count wrongtables;.lg.o[`jsonchecks;"Table(s) ",(" " sv string[wrongtables])," not recognised"]];
      //Enable datastriping if all checks pass
-     $[min (0=count errors; 0=count wrongtables);
-      (.lg.o[`jsonchecks;"config checks complete and datastriping is on"];.ds.datastripe:1b);
-      .lg.o[`jsonchecks;"Datastriping is not enabled due to failed config checks"]]
+     .ds.datastripe:min (0=count errors; 0=count wrongtables);
+     $[.ds.datastripe;
+      .lg.o[`jsonchecks;"config checks complete and datastriping is on"];
+      .lg.o[`jsonchecks;"Datastriping is not enabled due to failed config checks"]
+     ];
      };
 
 // Initialise config check
