@@ -114,7 +114,10 @@ configcheck:{
      .lg.o[`configcheck;"initiate config check"];
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
      // Check striping.json file exists then runs configload
-     $[()~key hsym scpath; .lg.o[`configcheck;"Datastriping is not enabled as the following file can not be found: ",string .ds.stripeconfig]; configload[scpath]]
+     $[()~key hsym scpath;
+       .lg.o[`configcheck;"Datastriping is not enabled as the following file can not be found: ",string .ds.stripeconfig];
+       configload[scpath]
+     ];
      };
 
 // Have the init function and config check called from torq.q
