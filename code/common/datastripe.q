@@ -17,3 +17,6 @@ getendtime:{[x] max x[`time]};
 
 // function to clear tables before given time
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
+
+//Function to check if a segid is defined if datastriping is on
+checksegid:{if[datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datastriping is turned on however no segment id has been defined for this process"]]]}
