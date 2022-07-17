@@ -71,11 +71,11 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
   //gets the name of log files from the current periods to keep in order to replay them  
-  if[.ds.datastripe;
-    earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
-    currentlogfiles:exec logname from logmetatab where start>earliesttime;
-    logfilelist:logfilelist logfilelist[;1]?currentlogfiles
-    ];
+  /if[.ds.datastripe;
+  /  earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
+   / currentlogfiles:exec logname from logmetatab where start>earliesttime;
+   / logfilelist:logfilelist logfilelist[;1]?currentlogfiles
+   / ];
   // replays log files and applies filters if in datastriping mode
   f:{[lf;td]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
@@ -83,11 +83,13 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // if datastriping is enabled request the tplog meta table from the stp
     if[.ds.datastripe; 
     [logmetatab::.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+
     filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
     filtertab:(key td) where filterflags;
-    if[any filterflags; .[set;] each filtertab,'enlist each replayfilter each filtertab,' enlist each td filtertab;     
-       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]]
-    ]];
+    .lg.o[`subscribe;"replaying log file ",.Q.s1 eval last tables[]];
+    if[any filterflags;set'[filtertab; replayfilter[filtertab;td]]; /set'[filtertab;replayfilter'[filtertab;td]];     
+       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]
+    ]]];
     };
   {[d;filter;func] .[func;(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;f] each logfilelist;
 
@@ -180,10 +182,11 @@ replayupd:{[f;tabs;syms;t;x]
 
 
 // function to filter subscribed tables by segment id after log replay
-replayfilter:{[tw]
-  // tw is a list with values (tablename; whereclause) 
-  filters:@[parse;"select from t where ", tw[1]] 2;
-  filteredtab:@[eval;(?;tw[0];filters;0b;())]
+replayfilter:{[filtertab;td]
+  filters:@'[parse;"select from x where ",/: td[filtertab]];
+  x::td;
+  y::filtertab;
+  {@[eval;(?;x;y[2];0b;())]}'[filtertab;filters]; 
   };
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
