@@ -95,7 +95,7 @@ jsonchecks:{[]
      // check defaults are ignore or all
      defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
      errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
-     {if[0<count x;.lg.o[`jsonchecks;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment ",string[x]," "]]}each errors;
+     if[0<count errors;.lg.o[`jsonchecks;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment(s) "," " sv string[errors]]];
      // check for valid tables
      keydict: key(flip .stpps.stripeconfig[`segid]);
      stripedtables: .stpps.t inter keydict;
