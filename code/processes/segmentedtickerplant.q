@@ -87,7 +87,7 @@ init:{
 configload:{[scpath]
      @[jsonchecks; 
        .stpps.stripeconfig:@[{.j.k read1 x};scpath;{.lg.o[`configload;"Failed to load in striping.json file: ",x]}];
-       {.lg.o[`configload;"Datastriping is not enabled due to problems with striping.json"]}]
+       {.lg.o[`configload;"Datastriping is not enabled due to problems with striping.json: ",x]}]
      };
 
 // Checks if each subscriptiondefault is set for each segment and errors if not defined
