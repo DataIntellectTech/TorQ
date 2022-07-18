@@ -93,13 +93,13 @@ configload:{[scpath]
 // Checks if each subscriptiondefault is set for each segment and errors if not defined
 jsonchecks:{[]
      // check defaults are ignore or all
-     defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
+     defaults:value first each .stpps.stripeconfig[;`subscriptiondefault];
      errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
-     if[0<count errors;.lg.o[`jsonchecks;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment(s) "," " sv string[errors]]];
+     if[0<count errors;.lg.o[`jsonchecks;"subscriptiondefault not defined as \"ignore\" or \"all\" for segment(s) "," " sv string[errors]]];
      // check for valid tables
-     keydict: key(flip .stpps.stripeconfig[`segid]);
-     stripedtables: .stpps.t inter keydict;
-     wrongtables:(keydict except `subscriptiondefault) except stripedtables;
+     configtables: key(flip .stpps.stripeconfig[`segid]);
+     stripedtables: .stpps.t inter configtables;
+     wrongtables:(configtables except `subscriptiondefault) except stripedtables;
      if[0<count wrongtables;.lg.o[`jsonchecks;"Table(s) ",(" " sv string[wrongtables])," not recognised"]];
      //Enable datastriping if all checks pass
      .ds.datastripe:min (0=count errors; 0=count wrongtables);
