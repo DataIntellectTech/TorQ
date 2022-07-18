@@ -85,16 +85,16 @@ init:{
 
 // Loads the striping.json config file and logs any problems
 configload:{[scpath]
-     @[jsonchecks; 
-       .stpps.stripeconfig:@[{.j.k read1 x};scpath;{.lg.o[`configload;"Failed to load in striping.json file: ",x]}];
-       {.lg.o[`configload;"Datastriping is not enabled due to problems with striping.json: ",x]}]
+      // Check for successful json read in and carry out jsonchecks
+      .stpps.stripeconfig:@[{.j.k read1 x}; scpath;{.lg.e[`configload;"Failed to load in striping.json file: ",x]}];
+      jsonchecks[]
      };
 
 // Checks if each subscriptiondefault is set for each segment and errors if not defined
 jsonchecks:{[]
      // check defaults are ignore or all
      defaults:value first each .stpps.stripeconfig[;`subscriptiondefault];
-     errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
+     errors:1+ where not defaults in\:("ignore";"all");
      if[0<count errors;.lg.o[`jsonchecks;"subscriptiondefault not defined as \"ignore\" or \"all\" for segment(s) "," " sv string[errors]]];
      // check for valid tables
      configtables: key(flip .stpps.stripeconfig[`segid]);
@@ -105,7 +105,7 @@ jsonchecks:{[]
      .ds.datastripe:min (0=count errors; 0=count wrongtables);
      $[.ds.datastripe;
       .lg.o[`jsonchecks;"config checks complete and datastriping is on"];
-      .lg.o[`jsonchecks;"Datastriping is not enabled due to failed config checks"]
+      .lg.e[`jsonchecks;"Datastriping is not enabled due to failed config checks"]
      ];
      };
 
@@ -113,11 +113,13 @@ jsonchecks:{[]
 configcheck:{
      .lg.o[`configcheck;"initiate config check"];
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
-     // Check striping.json file exists then runs configload
+     // Check striping.json file exists and is not empty then run configload
      $[()~key hsym scpath;
        .lg.o[`configcheck;"Datastriping is not enabled as the following file can not be found: ",string .ds.stripeconfig];
-       configload[scpath]
-     ];
+       $[()~read0 scpath; 
+         .lg.o[`configcheck;"Datastriping is not enabled as the following file is empty: ",string .ds.stripeconfig];
+	 configload[scpath]]
+      ];
      };
 
 // Have the init function and config check called from torq.q
