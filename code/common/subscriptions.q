@@ -65,34 +65,34 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[count where nullschema:0=count each schemalist;
     tabs:(schemalist where not nullschema)[;0];
     subtabs:tabs inter realsubs[`subtabs]];
-
+  filterfunc:{[lf;td;logmetatab]
+  // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
+    .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
+  // if datastriping is enabled request the tplog meta table from the stp
+    if[.ds.datastripe;
+    [filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
+    filtertab:(key td) where filterflags;
+    if[any filterflags; set'[filtertab; replayfilter[;td] each filtertab]; /set'[filtertab;replayfilter'[filtertab;td]];
+       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab];
+    ]]];
+    };
   // set the replayupd function to be upd globally
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
   //gets the name of log files from the current periods to keep in order to replay them  
-  /if[.ds.datastripe;
-  /  earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
-   / currentlogfiles:exec logname from logmetatab where start>earliesttime;
-   / logfilelist:logfilelist logfilelist[;1]?currentlogfiles
-   / ];
-  // replays log files and applies filters if in datastriping mode
-  f:{[lf;td]
-  // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
-    .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
-  // if datastriping is enabled request the tplog meta table from the stp
-    if[.ds.datastripe; 
-    [logmetatab::.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+  if[.ds.datastripe;
+    logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+    earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
+    currentlogfiles:exec logname from logmetatab where start>earliesttime;
+    logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
+ 
+    {[logfilelist;filter;metatab;filterfunc] .[filterfunc;(logfilelist;filter;metatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab;filterfunc] each logfilelist;
+   ];
 
-    filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
-    filtertab:(key td) where filterflags;
-    .lg.o[`subscribe;"replaying log file ",.Q.s1 eval last tables[]];
-    if[any filterflags;set'[filtertab; replayfilter[filtertab;td]]; /set'[filtertab;replayfilter'[filtertab;td]];     
-       .lg.o[`subscribe;"filtering tables ", .Q.s1 filtertab]
-    ]]];
-    };
-  {[d;filter;func] .[func;(d;filter);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;f] each logfilelist;
-
+   logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+  .lg.o[`subscribe;"acquired metatab "];
+  
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
@@ -183,10 +183,7 @@ replayupd:{[f;tabs;syms;t;x]
 
 // function to filter subscribed tables by segment id after log replay
 replayfilter:{[filtertab;td]
-  filters:@'[parse;"select from x where ",/: td[filtertab]];
-  x::td;
-  y::filtertab;
-  {@[eval;(?;x;y[2];0b;())]}'[filtertab;filters]; 
+  (filters:@[parse;"select from x where ", td[filtertab]]); {@[eval;(?;x;y[2];0b;())]}[filtertab;filters]
   };
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
