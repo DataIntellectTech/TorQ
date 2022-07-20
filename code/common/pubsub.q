@@ -161,7 +161,7 @@ init:{[t]
   //conditions met to edit strings accordingly
   if[count filters;bfilters:" filters: "];
   if[count columns;bcolumns:" columns: "];
-  if[((count filters) + count columns)>count filters;bcolumns:" and", bcolumns];
+  if[(count filters) & (count columns);bcolumns:" and", bcolumns];
   
   .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for",bfilters,filters,bcolumns,columns];
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
