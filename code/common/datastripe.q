@@ -4,7 +4,7 @@
 
 
 // Casting segid to symbol to enable free naming of segments
-// segmentid variable defined by applying key to dictionary of input values
+// segmentid taken from -segid process parameter
   
 segmentid: `$.proc.params[`segid]
 
