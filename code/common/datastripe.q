@@ -5,7 +5,6 @@
 
 // Casting segid to symbol to enable free naming of segments
 // segmentid taken from -segid process parameter
-  
 segmentid: `$.proc.params[`segid]
 
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
