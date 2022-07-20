@@ -25,7 +25,7 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
-
+    .ds.checksegid[];    
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
