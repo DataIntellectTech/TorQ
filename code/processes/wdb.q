@@ -194,7 +194,6 @@ endofday:{[pt;processdata]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
 	.lg.o[`eod;"deleting data from tabsizes"];
 	@[`.wdb;`tabsizes;0#];
-    // if[.ds.datastripe;.ds.resetrdbwindow[]];
     .lg.o[`eod;"end of day is now complete"];
     .wdb.currentpartition:pt+1;
 	};
@@ -222,6 +221,7 @@ flushend:{
 	 @[{neg[x]"";neg[x][]};;()] each key d;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
+         if[.ds.datastripe;resetrdbwindow[]];
 	 .wdb.reloadcomplete:1b];
 	};
 
@@ -286,6 +286,7 @@ reloadsymfile:{[symfilepath]
   @[load; symfilepath; {.lg.e[`sort;"failed to reload sym file: ",x]}]
  }
 
+/- notify rdb when tail sort process complete
 resetrdbwindow:{
     .lg.o[`rdbwindow;"resetting rdb moving time window"];
     rdbprocs:.servers.getservers[`proctype;.wdb.rdbtypes;()!();1b;0b];
@@ -383,7 +384,6 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]
   if[permitreload; 
     doreload[pt];
     ];
-  if[.ds.datastripe;resetrdbwindow[]];
   };
 	
 /- end of day sort [depends on writedown mode]

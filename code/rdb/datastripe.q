@@ -5,10 +5,12 @@
 
     t:tables[`.] except .rdb.ignorelist;
 
+    // check if tail sort process is complete
     if[.rdb.tailsortcomplete;.rdb.extendperiods:.ds.periodstokeep];
 
     // clear data from tables
     lasttime:nextp-.rdb.extendperiods*(nextp-currp);
+    // if eop occurs while tail sort in progress, extend number of periods kept in memory until tailsort complete
     tabs:$[.rdb.tailsortcomplete;.ds.deletetablebefore'[t;`time;lasttime];.rdb.extendperiods+:1];
     .lg.o[`reload;"Kept ",string[.rdb.extendperiods]," period",$[.rdb.extendperiods>1;"s";""]," of data from : ",", " sv string[t]];
 
@@ -18,6 +20,7 @@
 
     };
 
+// end of day function - no savedown functionality, just wipes tables and updates date partition
 .rdb.datastripeendofday:{[date;processdata]
     .rdb.tailsortcomplete:0b;
     // add date+1 to rdbpartition global

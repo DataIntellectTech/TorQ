@@ -56,11 +56,6 @@ initdatastripe:{
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
-resetrdbwindow:{
-    .lg.o[`rdbwindow;"resetting moving rdb time window"];
-    rdbprocs:.servers.getservers[`proctype;.wdb.rdbtypes;()!();1b;0b];
-    {neg[x]".rdb.tailsortcomplete:1b";neg[x][]}each exec w from rdbprocs;
-    };
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     /- function takes a (dir)ectory handle, tablename as a symbol
