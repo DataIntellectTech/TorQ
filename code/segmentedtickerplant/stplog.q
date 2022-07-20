@@ -259,7 +259,7 @@ checkends:{
   // jump out early if don't have to do either
   if[nextendUTC > x; :()];
   // check for endofperiod
-  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[],(enlist `p)!enlist x1;not .eodtime.nextroll < x]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofperioddata[],(enlist `p)!enlist x1;not .eodtime.nextroll < x]];
   // check for endofday
   if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; stpeod[.eodtime.d;.stplg.endofdaydata[],(enlist `p)!enlist x]];
  };
