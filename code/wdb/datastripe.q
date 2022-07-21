@@ -27,7 +27,9 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
+    
+    tabs:.ds.deletetablebefore'[t;`time;lasttime];
+    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
@@ -40,16 +42,14 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
-    // load in variables
-    .wdb.tablekeycols:.ds.loadtablekeycols[];
+    .wdb.tablekeycols:.ds.loadtablekeycols[];  // replace with dictionaries from json file
     t:tables[`.] except .wdb.ignorelist;
 
-    // create or load the access table
+    // load the access table; fall back to generating table if load fails
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.wdb.access];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
-    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each t;
-    .wdb.access:`table xkey .wdb.access;
+    .wdb.access:select by table from .wdb.access where table in t;
     };
 
 
@@ -58,30 +58,25 @@ if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 \d .ds
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
-    /- function takes a (dir)ectory handle, tablename as a symbol
-    /- column to key table on, an enumerated table and a timestamp.
-    /- partitions the data on the keycol and upserts it to the given dir
-    
-    /- get unique sym from table
-    s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
-
-    /- get process specific taildir location
-    dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
-
-    /- get symbol enumeration
-    partitionint:`$string (where s=value [`.]keycol)0;
-
-    /- create directory location for selected partition
-    directory:` sv .Q.par[dir;partitionint;tablename],`;
-    .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
-    .lg.o[`save;"Saving data down to ",string[directory]];
-
-    /- upsert select data matched on partition to specific directory
-    .[upsert;
-        (directory;enumdata);
-        {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
-    ];
-    };
+        /- function takes a (dir)ectory handle, tablename as a symbol
+        /- column to key table on, an enumerated table and a timestamp.
+        /- partitions the data on the keycol and upserts it to the given dir
+        /- get unique sym from table
+        s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
+        /- get process specific taildir location
+        dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
+        /- get symbol enumeration
+        partitionint:`$string (where s=value [`.]keycol)0;
+        /- create directory location for selected partition
+        directory:` sv .Q.par[dir;partitionint;tablename],`;
+        .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
+        .lg.o[`save;"Saving data down to ",string[directory]];
+        /- upsert select data matched on partition to specific directory
+        .[upsert;
+          (directory;enumdata);
+          {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
+        ];
+        };
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
@@ -110,7 +105,6 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     /- saves each table up to given period to their respective partitions
     savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
     /- trigger reload of access tables and intradayDBs in all tail reader processes
-    .lg.o[`debugsave;"Calling dotailreload function..."];
     .wdb.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
