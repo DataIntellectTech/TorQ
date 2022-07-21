@@ -299,6 +299,8 @@ init:{[dbname]
 
 // Close logs on clean exit
 .z.exit:{
+  // Set .proc.initialised to true, allows error messages to exit process on startup (stops infinite "Bad Exit!").
+  .proc.initialised:1b;
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
   // exit before logs are touched if process is an sctp NOT in create mode

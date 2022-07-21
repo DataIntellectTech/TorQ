@@ -2,6 +2,8 @@
 
     .lg.o[`reload;"reload command has been called remotely"];
 
+    t:tables[`.] except .rdb.ignorelist;
+
     // clear data from tables
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
@@ -23,7 +25,7 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
-
+    .ds.checksegid[];    
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
