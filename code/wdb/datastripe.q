@@ -43,7 +43,7 @@ initdatastripe:{
     t:tables[`.] except .wdb.ignorelist;
 
     // create or load the access table
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([table:t] start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.wdb.access];
     .ds.checksegid[];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
