@@ -27,7 +27,7 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-    
+
     tabs:.ds.deletetablebefore'[t;`time;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
     
