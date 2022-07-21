@@ -2,7 +2,9 @@
 
 \d .ds
 
-segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
+// Casting segid to symbol to enable free naming of segments
+// segmentid taken from -segid process parameter
+segmentid:`$.proc.params[`segid];
 
 
 tablekeycolsconfig:@[value;`.ds.tablekeycolsconfig;`tablekeycols.csv];    // getting the location of the tablekeycols.csv config file
