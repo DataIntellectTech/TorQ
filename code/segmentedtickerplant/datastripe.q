@@ -1,21 +1,6 @@
 //Allows config file to be overwritten in process.csv
 .ds.stripeconfig:@[value;`.ds.stripeconfig;`striping.json];
 
-//Loads the striping.json config file checks if each subscriptiondefault is set for each segment and errors if not defined
-configload:{
-     scpath:first .proc.getconfigfile[string .ds.stripeconfig];
-     if[()~key hsym scpath;.lg.e[`init;"The following file can not be found: ",string scpath]];
-     .stpps.stripeconfig:.j.k read1 scpath;
-     defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
-     errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
-     {if[0<count x;.lg.e[`sub;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment ",string[x]," "]]}each errors;
-     };
-
-initdatastripe:{
-     .lg.o[`init;"init datastriping"];
-     configload[];
-     };
-
 \d .stpps
 
 //makes a dictionary of tables and their filters for segmentedsubdetails
@@ -65,5 +50,3 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `logdir ; `$getenv`KDBTPLOG;
      `filters ; .stpps.filtermap[tabs;segid]
 	)}
-
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
