@@ -30,9 +30,7 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
-    atab:get ` sv(.ds.td;.proc.procname;`access);
-    atab,:() xkey .wdb.access;
-    (` sv(.ds.td;.proc.procname;`access)) set atab;
+    (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
 
     };
 
@@ -49,8 +47,6 @@ initdatastripe:{
     modaccess[.wdb.access];
     .ds.checksegid[];
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
-    .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each t;
-    .wdb.access:`table xkey .wdb.access;
     };
 
 
