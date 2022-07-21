@@ -111,7 +111,7 @@ jsonchecks:{[]
 
 // Initialise config check
 configcheck:{
-     .lg.o[`configcheck;"initiate config check"];
+     .lg.o[`configcheck;"initiate config check on ",string[.ds.stripeconfig]," as .ds.torqv5mode is activated"];
      scpath:first .proc.getconfigfile[string .ds.stripeconfig];
      // Check striping.json file exists and is not empty then run configload
      $[()~key hsym scpath;
@@ -124,4 +124,4 @@ configcheck:{
 
 // Have the init function and config check called from torq.q
 .proc.addinitlist(`init;`);
-.proc.addinitlist(`configcheck;`);
+$[.ds.torqv5mode;.proc.addinitlist[(`configcheck;`)];.lg.o[`init;"Vanilla torq will run, datastriping is turned off"]];
