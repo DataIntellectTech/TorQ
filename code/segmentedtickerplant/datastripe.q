@@ -36,7 +36,9 @@ subsegment:{[tbl;segid];
      if[tbl in ignoredtables;
       .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
       :()];
-     .ps.subtablefiltered[string[tbl];filter;""]
+      
+     //if a filter has been provided use subtablefiltered, if not use subtable for all syms
+     $[count filter;.ps.subtablefiltered[string[tbl];filter;""];.ps.subtable[string[tbl]]]
      };
 
 \d .
