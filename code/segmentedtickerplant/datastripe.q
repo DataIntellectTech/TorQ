@@ -53,7 +53,7 @@ subsegment:{[tbl;segid];
       :()];
       
      //if a filter has been provided use subtablefiltered, if not use subtable for all syms
-     $[count filter;.ps.subtablefiltered[string[tbl];filter;""];.ps.subtable[string[tbl]]
+     $[count filter;.ps.subtablefiltered[string[tbl];filter;""];.ps.subtable[string[tbl]]]
      };
 
 \d .
