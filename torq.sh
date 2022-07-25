@@ -18,7 +18,7 @@ if [ -z $QCON ]; then
   QCON="qcon"                                                                                       # set default value if not already defined
 fi
 
-if [ -z $QCMD ]; then                                                                               # set default value if not already defined
+if [ -z "$QCMD" ]; then                                                                             # set default value if not already defined
   QCMD="q"
 fi 
 
@@ -132,7 +132,7 @@ summary() {
         printf "%s | %s | down |" "$(date '+%H:%M:%S')" "$1"                                        # summary table row for down process
     else
         pid=$((findproc "$1")|awk 'END{print}')
-        port=$(echo $(netstat -nlp 2>/dev/null | grep "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
+        port=$(echo $(netstat -nlp 2>/dev/null | grep -w "$pid" | awk '{ print $4 }' | awk -F: '{ print $2 }'))  # get port process is running on
         printf "%s | %s | up | %s | %s" "$(date '+%H:%M:%S')" "$1" "$pid" "$port"                   # summary table row for running process
     fi
   fi

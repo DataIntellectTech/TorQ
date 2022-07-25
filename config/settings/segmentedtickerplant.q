@@ -11,6 +11,7 @@ customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for
 
 \d .ds
 period:0D01
+torqv5mode:0b                   // if true torqv5, if false vanilla torq
 
 \d .proc
 loadcommoncode:0b               // do not load common code

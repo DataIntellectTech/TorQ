@@ -2,7 +2,9 @@
 
 \d .ds
 
-segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
+// Casting segid to symbol to enable free naming of segments
+// segmentid taken from -segid process parameter
+segmentid:`$.proc.params[`segid];
 
 
 tablekeycolsconfig:@[value;`.ds.tablekeycolsconfig;`tablekeycols.csv];    // getting the location of the tablekeycols.csv config file
@@ -17,3 +19,6 @@ getendtime:{[x] max x[`time]};
 
 // function to clear tables before given time
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
+
+//Function to check if a segid is defined if datastriping is on
+checksegid:{if[datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datastriping is turned on however no segment id has been defined for this process"]]]}

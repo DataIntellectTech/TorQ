@@ -106,6 +106,10 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   tptype:@[proc`w;({@[value;`tptype;`standard]};`);`];
   if[null tptype; .lg.e[`subscribe;e:"could not determine tickerplant type"]; 'e];
  
+  // datastriping check on the tickerplant
+  .ds.datastripe:@[proc`w;({@[value;`.ds.datastripe;0b]};`);`];
+  .lg.o[`subscribe;"datastriping is turned ",$[.ds.datastripe;"on";"off"]];
+ 
   // depending on the type of tickerplant being subscribed to, change the functions for requesting
   // the tables and subscriptions
   $[tptype=`standard;

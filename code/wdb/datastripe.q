@@ -51,9 +51,11 @@ initdatastripe:{
     // create or load the access table
     .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.ds.access];
+    .ds.checksegid[];
     (` sv(.ds.td;.proc.procname;`access)) set .ds.access;
     .ds.access:{[x] last .ds.access where .ds.access[`table]=x} each t;
     .ds.access:`table xkey .ds.access;
+
     };
 
 
