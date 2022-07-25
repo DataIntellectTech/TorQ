@@ -10,9 +10,7 @@
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
 
     // update the access table in the rdb
-    t:tables[`.] except .rdb.ignorelist;
-    starttimes:.ds.getstarttime each t;
-    .rdb.access:update start:starttimes, stptime:data[][`time] from .rdb.access;
+    .rdb.access:update start:.ds.getstarttime each table, stptime:data[][`time] from .rdb.access;
     modaccess[.rdb.access];
 
     };
