@@ -12,8 +12,7 @@
     // update the access table in the rdb
     t:tables[`.] except .rdb.ignorelist;
     starttimes:.ds.getstarttime each t;
-    .rdb.access:update start:starttimes, stptime:data[][`time] from .rdb.access;
-    /.rdb.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .rdb.access;
+    .rdb.access:update start:starttimes^start, stptime:data[][`time] from .rdb.access;
     modaccess[.rdb.access];
 
     };
