@@ -11,7 +11,7 @@ td:hsym `$getenv`KDBTAIL
 modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
-    // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[], and (enlist `p)!enlist .z.p+.eodtime.dailyadj
+    // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[]
 
     .lg.o[`reload;"reload command has been called remotely"];
 
