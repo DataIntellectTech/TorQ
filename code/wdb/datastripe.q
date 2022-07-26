@@ -11,7 +11,7 @@ td:hsym `$getenv`KDBTAIL
 modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
-    // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[]
+    // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[], and (enlist `p)!enlist .z.p+.eodtime.dailyadj
 
     .lg.o[`reload;"reload command has been called remotely"];
 
@@ -23,7 +23,7 @@ modaccess:{[accesstab]};
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
-    .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .wdb.access;
+    .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .wdb.access;
     modaccess[.wdb.access];
 
     // call the savedown function
