@@ -236,5 +236,5 @@ $[.rdb.connectonstart;
 //Updating .rdb.subtables to only include tables that actually subscribed
 .rdb.subtables:$[.ds.datastripe;tables[] except `heartbeat;.rdb.subtables];
 
-//Initialise datastripe
+/- initialise datastripe
 if[.ds.datastripe;initdatastripe[];.lg.o[`dsinit;"datastripe on: initialising datastripe"]];
