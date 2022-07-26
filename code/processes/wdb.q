@@ -565,3 +565,6 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
+
+/- initialise datastripe
+if[.ds.datastripe;initdatastripe[];.lg.o[`dsinit;"datastripe on: initialising datastripe"]];
