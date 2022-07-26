@@ -23,8 +23,8 @@ modaccess:{[accesstab]};
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
-    .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .wdb.access;
-    modaccess[.wdb.access];
+    .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .ds.access;
+    modaccess[.ds.access];
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
@@ -32,8 +32,12 @@ modaccess:{[accesstab]};
     
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
-    atab,:() xkey .wdb.access;
+    atab,:() xkey .ds.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
+
+    // update the access table in the gateway
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw each handles;
 
     };
 
@@ -46,15 +50,12 @@ initdatastripe:{
     t:tables[`.] except .wdb.ignorelist;
 
     // load the access table; fall back to generating table if load fails
-    .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
-    modaccess[.wdb.access];
+    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    modaccess[.ds.access];
     .ds.checksegid[];
-    (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
-    .wdb.access:select by table from .wdb.access where table in t;
+    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;       
+    .ds.access:select by table from .ds.access where table in t;
     };
-
-
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
 
@@ -114,3 +115,13 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     .wdb.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+
+getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+updategw:{[h]
+
+    newtab:getaccess[];
+    neg[h](`.ds.updateaccess;newtab);
+
+    };
