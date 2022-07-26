@@ -10,6 +10,8 @@ td:hsym `$getenv`KDBTAIL
 // leave blank by default
 modaccess:{[accesstab]};
 
+.wdb.tablekeycols:.ds.loadtablekeycols[];
+
 .wdb.datastripeendofperiod:{[currp;nextp;data]
 
     .lg.o[`reload;"reload command has been called remotely"];
@@ -37,7 +39,7 @@ modaccess:{[accesstab]};
     };
 
 initdatastripe:{
-    // update endofperiod function
+    // reassigning endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
     // load in variables
@@ -53,7 +55,7 @@ initdatastripe:{
     };
 
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
+if[.ds.datastripe;initdatastripe];
 
 \d .ds
 

@@ -25,8 +25,8 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.rdb.access];
-
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
+/.ds.replaystarttime:.z.p - .stplg.multilogperiod * .ds.periodstokeep;
 

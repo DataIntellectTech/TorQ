@@ -89,8 +89,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   //get tplog metadata table from stp  
     [logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
   //gets the name of log files from the current periods to keep in order to replay them
-    earliesttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep;
-    currentlogfiles:exec logname from logmetatab where start>earliesttime;
+    currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
   //alters log file list to only includ log files from the current periods
     logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
   //run replay and filtering of logs

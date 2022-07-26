@@ -235,6 +235,7 @@ flushtailreload:{
 
 /- initialise d
 d:()!()
+/.proc.loadf[getenv[`KDBCODE],"/wdb/datastripe.q"];
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -449,8 +450,9 @@ subscribe:{[]
 		.lg.o[`subscribe;"tickerplant found - subscribing to ", string (subproc: first s)`procname];
 		/- return the tables subscribed to and the tickerplant log date
 		subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
-		/- check the tp logdate against the current date and correct if necessary 
-		fixpartition[subto];];}
+		/- check the tp logdate against the current date and correct if necessary
+    if[0b~.ds.datastripe;fixpartition[subto]];];} 
+    
 		
 /- function to rectify data written to wrong partition
 fixpartition:{[subto] 
@@ -470,14 +472,16 @@ fixpartition:{[subto]
 		];
 	}
 
+
 /- will check on each upd to determine where data should be flushed to disk (if max row limit has been exceeded)
 replayupd:{[f;t;d]
 	/- execute the supplied function        
         f . (t;d);
 	/- if the data count is greater than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:maxrows[t];
+  show key `.;
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-		savetables[savedir;getpartition[];0b;t]]	
+		$[.ds.datastripe;.ds.savetablesoverperiod[.ds.td;;.z.p;.z.p+10:00]each .wdb.tablelist[];savetables[savedir;getpartition[];0b;t]]]	
 	}[upd];
 
 /-function to initialise the wdb	
@@ -506,6 +510,17 @@ clearwdbdata:{[]
 		.lg.o[`deletewdbdata;"no directory found at ",1_string wdbpart]		
 	];
 	};
+
+cleartaildir:{
+  $[0N! saveenabled and not () ~ key ` sv(.ds.td;.proc.procname);
+   [.lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname)),") prior to log replay"];
+   @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
+    .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
+    ];
+    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname)]
+  ];
+ 
+  };
 	
 / - function to check that the tickerplant is connected and subscription has been setup
 notpconnected:{[]
@@ -557,7 +572,7 @@ endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. curren
 .lg.o[`init;"setting the log replay upd function"];
 upd:.wdb.replayupd;
 / - clear any wdb data in the current partition
-.wdb.clearwdbdata[];
+$[.ds.datastripe;.wdb.cleartaildir[];.wdb.clearwdbdata[]];
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer
