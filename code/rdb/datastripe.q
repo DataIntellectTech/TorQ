@@ -28,5 +28,4 @@ initdatastripe:{
     .ds.checksegid[];    
     };
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
