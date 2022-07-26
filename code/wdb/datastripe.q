@@ -11,6 +11,7 @@ td:hsym `$getenv`KDBTAIL
 modaccess:{[accesstab]};
 
 .wdb.datastripeendofperiod:{[currp;nextp;data]
+    // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[], and (enlist `p)!enlist .z.p+.eodtime.dailyadj
 
     .lg.o[`reload;"reload command has been called remotely"];
 
@@ -22,7 +23,7 @@ modaccess:{[accesstab]};
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
-    .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`time] from .ds.access;
+    .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .ds.access;
     modaccess[.ds.access];
 
     // call the savedown function
@@ -48,17 +49,13 @@ initdatastripe:{
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .wdb.ignorelist;
 
-    // create or load the access table
+    // load the access table; fall back to generating table if load fails
     .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.ds.access];
     .ds.checksegid[];
-    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;
-    .ds.access:{[x] last .ds.access where .ds.access[`table]=x} each t;
-    .ds.access:`table xkey .ds.access;
-
+    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;       
+    .ds.access:select by table from .ds.access where table in t;
     };
-
-
 
 \d .ds
 
