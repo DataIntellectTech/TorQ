@@ -29,7 +29,7 @@ subsegment:{[tbl;segid];
        if[tbl in suballtabs;
           .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]]];
      if[tbl in stripedtables;
-       .lg.o[`sub;"Table ",string[tbl]," is to be subscribed filtered for segment ",string[segid],""]]
+       .lg.o[`sub;"Table ",string[tbl]," is to be subscribed filtered for segment ",string[segid],""]];
      //if default is ignore creates a list to of tables to ignore
      if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
      filter:.stpps.segmentfilter[tbl;segid];
