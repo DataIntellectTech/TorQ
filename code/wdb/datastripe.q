@@ -59,7 +59,6 @@ initdatastripe:{
     };
 
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
 \d .ds
 
