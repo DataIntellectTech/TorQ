@@ -31,7 +31,7 @@ subfiltered:0b      //allows subscription filters to be loaded and applied in th
 connectonstart:1b   //rdb connects to tickerplant as soon as it is started
 
 \d .ds
-datastripe:1b
+datastripe:0b
 period:0D01
 lasttimestamp:.z.p-4*period
 

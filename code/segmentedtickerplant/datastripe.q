@@ -1,21 +1,6 @@
 //Allows config file to be overwritten in process.csv
 .ds.stripeconfig:@[value;`.ds.stripeconfig;`striping.json];
 
-//Loads the striping.json config file checks if each subscriptiondefault is set for each segment and errors if not defined
-configload:{
-     scpath:first .proc.getconfigfile[string .ds.stripeconfig];
-     if[()~key hsym scpath;.lg.e[`init;"The following file can not be found: ",string scpath]];
-     .stpps.stripeconfig:.j.k read1 scpath;
-     defaults:{first (flip .stpps.stripeconfig[x])[`subscriptiondefault]}each key .stpps.stripeconfig;
-     errors:1+ where {[x] not ("ignore"~x) or ("all"~x)}each defaults;
-     {if[0<count x;.lg.e[`sub;m:"subscriptiondefault not defined as \"ignore\" or \"all\" for segment ",string[x]," "]]}each errors;
-     };
-
-initdatastripe:{
-     .lg.o[`init;"init datastriping"];
-     configload[];
-     };
-
 \d .stpps
 
 //makes a dictionary of tables and their filters for segmentedsubdetails
@@ -43,6 +28,8 @@ subsegment:{[tbl;segid];
      if[default~"all";suballtabs: .stpps.t except stripedtables;
        if[tbl in suballtabs;
           .lg.o[`sub;m:"Table ",string[tbl]," is to be subscribed unfiltered for segment ",string[segid],""]]];
+     if[tbl in stripedtables;
+       .lg.o[`sub;"Table ",string[tbl]," is to be subscribed filtered for segment ",string[segid],""]];
      //if default is ignore creates a list to of tables to ignore
      if[default~"ignore"; ignoredtables: .stpps.t except stripedtables];
      filter:.stpps.segmentfilter[tbl;segid];
@@ -51,7 +38,9 @@ subsegment:{[tbl;segid];
      if[tbl in ignoredtables;
       .lg.o[`sub;m:"Table ",string[tbl]," is to be ignored for segment ",string[segid],""];
       :()];
-     .ps.subtablefiltered[string[tbl];filter;""]
+      
+     //if a filter has been provided use subtablefiltered, if not use subtable for all syms
+     $[count filter;.ps.subtablefiltered[string[tbl];filter;""];.ps.subtable[string[tbl];""]]
      };
 
 \d .
@@ -65,5 +54,3 @@ segmentedsubdetails: {[tabs;instruments;segid] (!). flip 2 cut (
      `logdir ; `$getenv`KDBTPLOG;
      `filters ; .stpps.filtermap[tabs;segid]
 	)}
-
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];

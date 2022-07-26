@@ -15,8 +15,12 @@
     .lg.o[`reload;"Kept ",string[.rdb.extendperiods]," period",$[.rdb.extendperiods>1;"s";""]," of data from : ",", " sv string[t]];
 
     // update the access table in the rdb
-    .rdb.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .rdb.access;
-    modaccess[.rdb.access];
+    .ds.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .ds.access;
+    modaccess[.ds.access];
+
+    // update the access table in the gateway
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw each handles;
 
     };
 
@@ -42,10 +46,20 @@ initdatastripe:{
     .rdb.tailsortcomplete:1b;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .rdb.ignorelist;
-    .rdb.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
-    modaccess[.rdb.access];
-
+    .ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
+    modaccess[.ds.access];
+    .ds.checksegid[];    
     };
 
-if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
 
+\d .ds
+
+getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+updategw:{[h]
+
+    newtab:getaccess[];
+    neg[h](`.ds.updateaccess;newtab);
+
+    };
