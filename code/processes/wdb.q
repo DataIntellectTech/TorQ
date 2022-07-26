@@ -567,4 +567,6 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 upd:.wdb.upd
 
 /- initialise datastripe
-if[.ds.datastripe;initdatastripe[];.lg.o[`dsinit;"datastripe on: initialising datastripe"]];
+if[.ds.datastripe;
+  .lg.o[`dsinit;"datastripe on: initialising datastripe"];
+  initdatastripe[]];
