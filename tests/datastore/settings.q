@@ -6,3 +6,5 @@
     .rdb.rdbpartition:: .rdb.rdbpartition except date;
     .lg.o[`rdbpartition;"rdbpartition contains - ","," sv string .rdb.rdbpartition];
     }
+
+.ds.datastripe:1b

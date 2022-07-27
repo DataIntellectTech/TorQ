@@ -12,10 +12,11 @@ ${TORQHOME}/../deploy/torq.sh start all -procfile ${testpath}/process.csv
 $QCMD ${TORQHOME}/torq.q \
   -proctype rdb -procname test1 \
   -test ${testpath} \
-  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
+  -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${KDBCODE}/processes/rdb.q \
   -testresults ${KDBTESTS}/datastore \
   -runtime $run \
   -procfile ${testpath}/process.csv \
+  -segid 1 \
   $debug $stop $write $quiet
 
 #$QCMD ${TORQHOME}/torq.q \
