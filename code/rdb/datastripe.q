@@ -44,3 +44,4 @@ updategw:{[h]
     neg[h](`.ds.updateaccess;newtab);
 
     };
+    
