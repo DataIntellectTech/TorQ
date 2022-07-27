@@ -10,7 +10,7 @@
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[tabs]];
 
     // update the access table in the rdb
-    .ds.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .ds.access;
+    .ds.access:update start:.ds.getstarttime each table, stptime:data[][`time] from .ds.access;
     modaccess[.ds.access];
 
     // update the access table in the gateway
@@ -44,3 +44,4 @@ updategw:{[h]
     neg[h](`.ds.updateaccess;newtab);
 
     };
+    
