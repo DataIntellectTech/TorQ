@@ -61,14 +61,24 @@ getdata:{[o]
     // Input checking in the gateway
     reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
-    // Get the Procs
-    if[not `procs in key o;o[`procs]:attributesrouting[o;partdict[o]]];
+    // Get the procs in a (nested) list of serverid(s)
+    o[`procs]:.gw.attributesrouting[o;part:.gw.partdict o];
     // Get Default process behavior
-    default:`timeout`postback`sublist`getquery`queryoptimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
+    default:`timeout`postback`sublist`getquery`optimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
     options:default,o;
-    if[`ordering in key o;options[`ordering]: go each options`ordering];
-    o:adjustqueries[o;partdict o];
+    k:key o;
+    if[`ordering in k;options[`ordering]: go each options`ordering];
+    // Instruments wildcard (`)
+    if[(`~o`instruments)&`instruments in key o;o _: `instruments];
+    o:adjustqueries[o;part];
+    options[`procs]:key o;
+    // Check if any freeform queries is going to any striped database
+    if[exec count serverid from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each key o;
+        if[any key[options]like"*freeform*";
+            if[not`instruments in key options;'`$.schema.errors[`freeformstripe;`errormessage]];
+            ];
+        ];
     options[`mapreduce]:0b;
     gr:$[`grouping in key options;options`grouping;`];
     if[`aggregations in key options;
@@ -90,9 +100,9 @@ getdata:{[o]
 // join results together if from multiple processes
 autojoin:{[options]
     // if there is only one proc queried output the table
-    if[1=count options`procs;:first];
-    // if there is no need for map reducable adjustment, return razed results
-    if[not options`mapreduce;:raze];
+    if[1=count options`procs;:returntab[first;options]];
+    // if there is no need for map reducable adjustment, return joinf results
+    if[not options`mapreduce;:returntab[$[null joinf:options`join;uj/;joinf];options]];
     :mapreduceres[options;];
     };
 
@@ -115,28 +125,13 @@ mapreduceres:{[options;res]
             a!a:(),options[`timebar;2];
             0b];
     // select aggs by gr from res
-    :?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
-    };
-
-
-// Dynamic routing finds all processes with relevant data 
-attributesrouting:{[options;procdict]
-    // Get the tablename and timespan
-    timespan:`date$options[`starttime`endtime];
-    // See if any of the provided partitions are with the requested ones
-    procdict:{[x;timespan] (all x within timespan) or any timespan within x}[;timespan] each procdict;
-    // Only return appropriate dates
-    types:(key procdict) where value procdict;
-    // If the dates are out of scope of processes then error
-    if[0=count types;
-        '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
-       ];
-    :types;
+    tab:?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
+    // post processing in gw
+    :returntab[{x};options;tab];
     };
 
 // mixture of all the post processing functions in gw
-returntab:{[input;tab;reqno]
-    joinfn:input[`join];
+returntab:{[joinfn;input;tab]
     // Join the tables together with the join function
     tab:joinfn[tab];
     // Sort the joined table in the gateway
@@ -146,60 +141,26 @@ returntab:{[input;tab;reqno]
     // Undergo post processing
     tab:(input[`postprocessing])[tab];
     // Update the logger
+    reqno:.requests.initlogger[input];
     .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
-    :tab
+    :tab;
     };
 
-
-// Generates a dictionary of `tablename!mindate;maxdate
-partdict:{[input]
-    tabname:input[`tablename];
-    // Remove duplicate servertypes from the gw.servers
-    servers:select from .gw.servers where i=(first;i)fby servertype;
-    // extract the procs which have the table defined
-    servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
-    // Create a dictionary of the attributes against servertypes
-    procdict:(exec servertype from servers)!(exec attributes from servers)@'(key each exec attributes from servers)[;0];
-    // If the response is a dictionary index into the tablename
-    procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
-    // returns the dictionary as min date/ max date
-    procdict:asc @[procdict;key procdict;{:(min x; max x)}];
-    // prevents overlap if more than one process contains a specified date
-    if[1<count procdict;
-        procdict:{:$[y~`date$();x;$[within[x 0;(min y;max y)];(1+max[y];x 1);x]]}':[procdict]];
-    :procdict;
-    };
-
-// function to adjust the queries being sent to processes to prevent overlap of
-// time clause and data being queried on more than one process
+// Adjust queries based on relevant data and stripe
 adjustqueries:{[options;part]
-    // if only one process then no need to adjust
-    if[2>count p:options`procs;:options];
-    // get the date casting where relevant
-    st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
-    et:$[a;options`endtime;`date$options`endtime];
-    // get the dates that are required by each process
-    dates:group key[part]where each{within[y;]each value x}[part]'[l:st+til 1+et-st];
-    dates:l{(min x;max x)}'[dates];
-    // if start/end time not a date, then adjust dates parameter for the
-    // correct types
-    if[not a;
-        // converts dates dictionary to timestamps/datetimes
-        dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
-        // convert first and last timestamp to start and end time
-        dates:@[dates;f;:;(start;dates[f:first key dates;1])];
-        dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]];
-    // adjust map reducable aggregations to get correct components
-    if[(1<count dates)&`aggregations in key options;
-        if[all key[o:options`aggregations]in key aggadjust;
-            aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
-            options:@[options;`aggregations;:;aggs]]];
-    // create a dictionary of procs and different queries
-    :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
-    };
+    // Get the overlapping part(itions) from options`procs found by attributesrouting
+	dict:.gw.adjustqueriesoverlap[options;part];
+	// adjust map reducable aggregations to get correct components
+	if[(1<count dict`dates)&`aggregations in key options;
+		if[all key[o:options`aggregations]in key aggadjust;
+			aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
+			options:@[options;`aggregations;:;aggs]]];
+    // Modify queries based on striped processes
+    // Return query as a dict of table
+	:.gw.adjustqueriesstripe[options;dict];
+	};
 
-// function to grab the correct aggregations needed for aggregating over
-// multiple processes
+// function to grab the correct aggregations needed for aggregating over multiple processes
 mapreduce:{[aggs;gr]
     // if there is a date grouping any aggregation is allowed
     if[`date in gr;:aggs];

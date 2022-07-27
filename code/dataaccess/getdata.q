@@ -1,10 +1,16 @@
 // high level api functions for data retrieval
 
-
 getdata:{[inputparams]
-  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  // if process is striped procname will be in the key
+  if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
+  if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  // optimize hdb query from the gateway
+  if[`optimhdb in key inputparams;
+    if[inputparams`optimhdb;
+      inputparams[`starttime]:`date$inputparams[`starttime];
+      inputparams[`endtime]:`date$inputparams[`endtime]]];
   requestnumber:.requests.initlogger[inputparams];
-// [input parameters dict] generic function acting as main access point for data retrieval
+  // [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
   // validate input passed to getdata
   usersdict:inputparams;
@@ -13,47 +19,72 @@ getdata:{[inputparams]
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," checkinputs passed"];
   // extract validated parameters from input dictionary
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  if[count queryparams`partitionfilter;
+    partrange:.[queryparams;(`partitionfilter;0;2)];
+    partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    if[count partrange=1;partrange:2#partrange];
+    queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
+  // optimize hdb query
+  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   // log success of eqp
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," extractqueryparams passed"];  
-  // re-order the passed parameters to build an efficient query  
+  // re-order the passed parameters to build an efficient query
   query:.queryorder.orderquery queryparams;
   // log success of queryorder
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," queryorder passed"];
-  // execute the queries                                                    
-  table:raze value each query;                                                               
-  if[(.proc.proctype=`rdb);
-  // change defaulttime.date to date on rdb process query result
+  // execute the queries
+  table:raze value each query;
+  if[(.proc.proctype in`rdb`wdb);
+    // change defaulttime.date to date on rdb process query result
     if[(`$(string .checkinputs.getdefaulttime inputparams),".date") in (cols table);
-      table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];    
-  // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
-    if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));   
-        table:update date:.z.d from table;                                                    
-      if[98h=type table;table:`date xcols table]                                              
+      table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];
+    // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
+    if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));
+        table:update date:.z.d from table;
+      if[98h=type table;table:`date xcols table]
       if[99h=type table;keycol:cols key table;
         table:0!table;
         table:`date xcols table;
         table:keycol xkey table]];
   ];
   f:{[input;x;y]y[x] input};
-// order the query after it's fetched
+  // order the query after it's fetched
   if[not 0~count (queryparams`ordering);
-    table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         
-// rename the columns  
-  result:queryparams[`renamecolumn] xcol table;                                              
-  if[10b~`sublist`procs in key inputparams;result:select [inputparams`sublist] from result];
-    // apply post-processing function  
-    if[10b~in[`postprocessing`procs;key inputparams];                                                           
-        result:.eqp.processpostback[result;inputparams`postprocessing];];
-   .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
-   :result
+    table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];
+  // rename the columns  
+  result:queryparams[`renamecolumn] xcol table;
+  // apply sublist and/or post-processing function(s) if getdata is called from process
+  singleproc:not`procs in key inputparams;
+  if[singleproc&`sublist in key inputparams;result:select [inputparams`sublist] from result];
+  if[singleproc&`postprocessing in key inputparams;result:.eqp.processpostback[result;inputparams`postprocessing]];
+  .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
+  if[singleproc;:result];
+  // add procname and proctype columns to table result for traceability
+  if[`trace in key inputparams;
+    if[inputparams`trace;
+      result:flip flip[result],`procname`proctype!(.proc.procname;.proc.proctype)]];
+  // return result in a raw format of ([] procname; proctype; query; result) for tracing/debugging
+  if[`debug in key inputparams;
+    if[inputparams`debug;
+      result:([] procname:.proc.procname;proctype:.proc.proctype;query:enlist .dataaccess.buildquery[inputparams];result:enlist result)]];
+  :result;
   };
 
 \d .dataaccess
 
 buildquery:{[inputparams]
-  if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
-  inputparams:.dataaccess.checkinputs inputparams;                                           
+  // if process is striped procname will be in the key
+  if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
+  if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
+  inputparams:.dataaccess.checkinputs inputparams;
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
+  if[count queryparams`partitionfilter;
+    partrange:.[queryparams;(`partitionfilter;0;2)];
+    partrange:distinct?[partrange>=.z.d;.z.d-1;partrange];
+    if[count partrange=1;partrange:2#partrange];
+    queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
+  // optimize hdb query
+  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 
-  :.queryorder.orderquery queryparams}; 
-
+  :.queryorder.orderquery queryparams;
+  }; 
