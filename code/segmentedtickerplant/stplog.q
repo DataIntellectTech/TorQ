@@ -201,6 +201,7 @@ endofperiod:{[currentpd;nextpd;data]
   .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!(currentpd;nextpd)];
   .stpps.endp[currentpd;nextpd;data];                   // sends endofperiod message to subscribers
   currperiod::nextpd;                                   // increments current period
+  nextperiod::multilogperiod+currperiod;                // increments next period
   if[.sctp.loggingmode=`create;periodrollover[data]]    // logs only rolled if in create mode
   };
 
@@ -209,7 +210,7 @@ endofperiod:{[currentpd;nextpd;data]
 stpeoperiod:{[currentpd;nextpd;data;rolllogs]
   .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
   .stpps.endp[currentpd;nextpd;data];                      // sends endofperiod message to subscribers
-  currperiod::nextperiod;                                  // increments current period
+  currperiod::nextpd;                                      // increments current period
   if[(data`p)>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];            // timer off
   getnextendUTC[];                                         // grabs next end time
