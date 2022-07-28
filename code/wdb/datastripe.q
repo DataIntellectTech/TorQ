@@ -37,9 +37,7 @@ modaccess:{[accesstab]};
     };
 
 initdatastripe:{
-    // update endofday & endofperiod functions
-    /- datastripeendofday[] propagation on stand-by; awaiting confirmation of requirement.
-    /- endofday::.wdb.datastripeendofday;
+    // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
     // load in variables
@@ -112,7 +110,6 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     /- saves each table up to given period to their respective partitions
     savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
     /- trigger reload of access tables and intradayDBs in all tail reader processes
-    .lg.o[`debugsave;"Calling dotailreload function..."];
     .wdb.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
