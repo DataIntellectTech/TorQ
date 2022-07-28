@@ -10,69 +10,29 @@ td:hsym `$getenv`KDBTAIL
 // leave blank by default
 modaccess:{[accesstab]};
 
-.wdb.datastripeendofday:{[pt;processdata]
-    //- WORK-IN-PROGRESS
-    "If you can see this, please ask Conor Gallagher to finish his ticket!"
-
-    .lg.o[`eod;"end of day message received - ",spt:string pt];
-    /- create a dictionary of tables and merge limits
-    mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();
-    tablist:tablelist[]!{0#value x} each tablelist[];
-    / - if save mode is enabled then flush all data to disk
-    if[saveenabled;
-        endofdaysave[savedir;pt];
-
-
-
-        //- Create Access table query; use response for if-else statement - sorting must wait until after *all* savedowns are finished!
-
-        if[(enlist 23:59:59.000) ~ distinct exec time from select end.time from .wdb.access where end <> 0N;
-        / - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-        $[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)]];
-        
-
-
-
-    .lg.o[`eod;"deleting data from tabsizes"];
-    @[`.wdb;`tabsizes;0#];
-    .lg.o[`eod;"end of day is now complete"];
-    .wdb.currentpartition:pt+1;
-    };
-
 .wdb.datastripeendofperiod:{[currp;nextp;data]
 
     .lg.o[`reload;"reload command has been called remotely"];
 
-    .lg.o[`debugperiod1;"Filtering data from tables..."];
     // remove periods of data from tables
     t:tables[`.] except .wdb.ignorelist;
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
 
-    .lg.o[`debugperiod2;"Updating access table. Current stptime type is: ",exec t from (meta .wdb.access)`stptime];
-    .lg.o[`debugperiod2a;"stptime value is: ",.Q.s1 data[][`p]];
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
     starttimes:.ds.getstarttime each t;
-    .lg.o[`debugperiod2b;"starttimes variable defined. Incoming stptime type is: ",.Q.s1[type data[][`p]]];
     .wdb.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .wdb.access;
-    .lg.o[`debugperiod2c;".wdb.access updated. stptime type is: ",exec t from (meta .wdb.access)`stptime];
     modaccess[.wdb.access];
 
     // call the savedown function
-    .lg.o[`debugperiod3;"Calling endofperiod savedown function..."];
     .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
-    .lg.o[`debugperiod4;"Updating on-disk access table. stptime type is: ",exec t from (meta .wdb.access)`stptime];
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
-    .lg.o[`debugperiod4a;"On-disk access table loaded into memory. stptime type is: ",exec t from (meta .wdb.access)`stptime];
     atab,:() xkey .wdb.access;
-    .lg.o[`debugperiod4b;"Access table appended to. stptime type is: ",exec t from (meta .wdb.access)`stptime];
     (` sv(.ds.td;.proc.procname;`access)) set atab;
-
-    .lg.o[`debugperiod5;"endofperiod function complete."];
 
     };
 
