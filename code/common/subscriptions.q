@@ -65,21 +65,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[count where nullschema:0=count each schemalist;
     tabs:(schemalist where not nullschema)[;0];
     subtabs:tabs inter realsubs[`subtabs]];
-  // function to replay tplogs and apply relevant filters if required.
-  filterfunc:{[lf;td;logmetatab]
-  // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
-  // logmetatab is the tplog metadata table loaded into the stp from the tplogs directory
-    .lg.o[`subscribe;"replaying log file ",.Q.s1 lf]; -11!lf;
-  // checks if the log file contains a table that requires filtering
-    filterflags:(key td) in  raze (select from logmetatab where logname=@[lf;1])`tbls;
-    filtertab:(key td) where filterflags;
-  // filters tables replayed by the logs if required
-    if[any filterflags;
-       .lg.o[`subscribe;"filtering table(s) ", (.Q.s1 ` sv filtertab), " started at:", .Q.s1 .z.P];
-       set'[filtertab; applyfilters[;td] each filtertab];
-       .lg.o[`subscribe;"finished filtering",(.Q.s1 ` sv filtertab), " at ", .Q.s1 .z.P];
-    ];
-    };
+  
   // set the replayupd function to be upd globally
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
@@ -87,14 +73,14 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // if datastriping is on replays only logs from current periods and applys filtering
     if[.ds.datastripe;
   //get tplog metadata table from stp  
-    [logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+    logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
   //gets the name of log files from the current periods to keep in order to replay them
     currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
   //alters log file list to only includ log files from the current periods
     logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
   //run replay and filtering of logs
-   {[logfilelist;filter;metatab;filterfunc] .[filterfunc;(logfilelist;filter;metatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab;filterfunc] each logfilelist; 
-   ]];
+   {[logfilelist;filter;metatab;filterfunc] .[filterfunc;(logfilelist;filter;metatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab;.ds.filterfunc] each logfilelist; 
+   ];
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
@@ -105,7 +91,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
 
 // used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
 replay:replay0[;;;;()!()]
-
+filter:()!();
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // if proc dictionary is empty then exit - no connection
   if[0=count proc;.lg.o[`subscribe;"no connections made"]; :()];
@@ -147,9 +133,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
-       filter:$[.ds.datastripe;
+       .sub.filterdict:$[.ds.datastripe;
          vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
-       realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];filter]];
+       realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];.sub.filterdict]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
@@ -183,10 +169,6 @@ replayupd:{[f;tabs;syms;t;x]
  }
 
 
-// function to filter replayed tables with where clause from striping.json
-applyfilters:{[filtertab;td]
-  (filters:@[parse;"select from x where ", td[filtertab]]); 
-  {@[eval;(?;x;y[2];0b;())]}[filtertab;filters]}
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
@@ -204,6 +186,7 @@ autoreconnect:{[rows]
 pc:{[result;W] update active:0b from `.sub.SUBSCRIPTIONS where w=W;result}
 // set .z.pc handler to update the subscriptions table
 .z.pc:{.sub.pc[x y;y]}@[value;`.z.pc;{[x]}];
+
 
 // if timer is set, trigger reconnections
 $[.timer.enabled and checksubscriptionperiod > 0;

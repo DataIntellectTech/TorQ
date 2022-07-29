@@ -479,9 +479,8 @@ replayupd:{[f;t;d]
         f . (t;d);
 	/- if the data count is greater than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:maxrows[t];
-  show key `.;
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-		$[.ds.datastripe;.ds.savetablesoverperiod[.ds.td;;.z.p;.z.p+10:00]each .wdb.tablelist[];savetables[savedir;getpartition[];0b;t]]]	
+		$[.ds.datastripe;(.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[];.ds.applyfilters[ enlist t;.sub.filterdict]);savetables[savedir;getpartition[];0b;t]]]	
 	}[upd];
 
 /-function to initialise the wdb	
@@ -494,7 +493,7 @@ startup:{[]
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
 		//check if tickerplant is available and if not exit with error 
-		.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
+		.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles];
 		subscribe[]; 
 		];		
 	}
@@ -573,6 +572,8 @@ endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. curren
 upd:.wdb.replayupd;
 / - clear any wdb data in the current partition
 $[.ds.datastripe;.wdb.cleartaildir[];.wdb.clearwdbdata[]];
+.wdb.logmetatab:()!();
+
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer
