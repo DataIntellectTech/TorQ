@@ -45,6 +45,9 @@ getdata:{[inputparams]
     if[10b~in[`postprocessing`procs;key inputparams];                                                           
         result:.eqp.processpostback[result;inputparams`postprocessing];];
    .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
+    if[`trace in key inputparams;
+    if[inputparams`trace;
+      result:update procname:.proc.procname,proctype:.proc.proctype from result]];
    :result
   };
 
