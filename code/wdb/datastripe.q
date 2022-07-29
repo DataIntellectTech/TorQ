@@ -18,7 +18,11 @@ modaccess:{[accesstab]};
     // remove periods of data from tables
     t:tables[`.] except .wdb.ignorelist;
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-
+    
+    // call the savedown function
+    .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
+    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
+    
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
@@ -26,10 +30,6 @@ modaccess:{[accesstab]};
     .ds.access:update start:.ds.getstarttime each table, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .ds.access;
     modaccess[.ds.access];
 
-    // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
-    
     // update the access table on disk
     atab:get ` sv(.ds.td;.proc.procname;`access);
     atab,:() xkey .ds.access;
