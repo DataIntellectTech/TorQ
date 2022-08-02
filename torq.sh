@@ -6,15 +6,15 @@ else
   dirpath="$(cd "$(dirname "$0")" && pwd)"
 fi
 
-if [ -z $SETENV ]; then
+if [ -z "$SETENV" ]; then
   SETENV=${dirpath}/setenv.sh                                                                       # set environment if not predefined
 fi
 
-if [ -z $RLWRAP ]; then
+if [ -z "$RLWRAP" ]; then
   RLWRAP="rlwrap"                                                                                   # set environment if not predefined
 fi
 
-if [ -z $QCON ]; then
+if [ -z "$QCON" ]; then
   QCON="qcon"                                                                                       # set default value if not already defined
 fi
 
@@ -68,7 +68,7 @@ startline() {
     sline="$sline$a";                                                                               # append to startup line
   done
   qcmd=$(getfield "$procno" "qcmd")
-  if [ -z $qcmd ]; then                                                                             # if qcmd is undefined then default to $QCMD
+  if [ -z "$qcmd" ]; then                                                                             # if qcmd is undefined then default to $QCMD
     qcmd="$QCMD"
   fi
   sline="$qcmd $sline $(getfield "$procno" extras) -procfile $CSVPATH $EXTRAS"                      # append csv file and extra arguments to startup line
