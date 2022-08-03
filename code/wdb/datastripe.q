@@ -59,6 +59,15 @@ initdatastripe:{
 
 \d .ds
 
+createsymlink:{[tdpath;hdbpath;symfile]
+    /- function to create symlink to HDB sym file in taildir
+    tdsympath:1_raze string tdpath,"/",.proc.procname,"/",symfile;
+    hdbsympath:1_raze string hdbpath,"/",symfile;
+
+    /- linux command to create symlink in specified dirs
+    system"ln -s ",hdbsympath," ",tdsympath;
+    };
+
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
@@ -68,6 +77,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 
     /- get process specific taildir location
+    basedir:` sv dir,.proc.procname;
     dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
 
     /- get symbol enumeration
@@ -83,6 +93,9 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         (directory;enumdata);
         {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
     ];
+
+    /- check if sym file exists in taildir, create sym link to HDB sym file if not
+    if[not `sym in key hsym basedir;createsymlink[.ds.td;.wdb.hdbdir;`sym]];
     };
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
@@ -93,7 +106,7 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     partitionlist: ?[tablename;();();(distinct;keycol)];
 
     /- enumerate and then split by keycol
-    symdir:` sv dir,.proc.procname;
+    symdir:.wdb.hdbdir;
     enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
