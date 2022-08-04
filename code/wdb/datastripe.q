@@ -31,9 +31,9 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
-    atab:get ` sv(.ds.td;.proc.procname;`access);
+    atab:get ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     atab,:() xkey .ds.access;
-    (` sv(.ds.td;.proc.procname;`access)) set atab;
+    (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set atab;
 
     // update the access table in the gateway
     handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
@@ -50,10 +50,10 @@ initdatastripe:{
     t:tables[`.] except .wdb.ignorelist;
 
     // load the access table; fall back to generating table if load fails
-    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
     modaccess[.ds.access];
     .ds.checksegid[];
-    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;       
+    (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set .ds.access;       
     .ds.access:select by table from .ds.access where table in t;
     };
 
