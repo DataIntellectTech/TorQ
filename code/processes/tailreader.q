@@ -25,7 +25,7 @@ reload:{
   /- reload is triggered by tailer after savedown occurs
   .tr.basedir:(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/";
   .tr.wdbdir:`$ .tr.basedir,string .tr.currentpartition;
-  accesstabdir:`$ .tr.basedir,"access";
+  accesstabdir:`$ (string .tr.wdbdir),"/access";
   .lg.o[`load;"Loading intradayDB"];
   @[.Q.l ;.tr.wdbdir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   .lg.o[`load;"intradayDB loaded"];
