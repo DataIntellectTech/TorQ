@@ -33,9 +33,13 @@ reload:{
   .ds.access:@[get;hsym accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
+  mostrecent:`location`table xkey update location:.proc.procname, proctype:.proc.proctype from .ds.access;
+  (neg .servers.getservers[`proctype;`gateway;()!();1b;1b][`w]) @\:(`.ds.updateaccess;mostrecent);
   load hsym `$.tr.basedir,"sym"
   }
 
+/-startup
+.servers.startup[];
 /- checks to see if the IDB exists and if so loads in the accestable and IDB on tailreader startup
 $[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
