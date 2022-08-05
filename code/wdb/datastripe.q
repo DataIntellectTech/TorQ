@@ -31,7 +31,8 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
-    atab:get ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
+    accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)
+    atab:get accesspath;
     atab,:() xkey .ds.access;
     (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set atab;
 
