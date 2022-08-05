@@ -55,7 +55,7 @@ initdatastripe:{
     .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
-    (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set .ds.access;       
+    accesspath set .ds.access;       
     .ds.access:select by table from .ds.access where table in t;
     };
 
