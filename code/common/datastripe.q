@@ -42,4 +42,3 @@ applyfilters:{[filtertab;td]
    .lg.o[`subscribe;"finished filtering table(s) ", (", " sv string filtertab), " at: ",string .z.P];
     ];
   }
-

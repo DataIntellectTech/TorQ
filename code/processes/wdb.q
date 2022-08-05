@@ -450,7 +450,7 @@ subscribe:{[]
 		.lg.o[`subscribe;"tickerplant found - subscribing to ", string (subproc: first s)`procname];
 		/- return the tables subscribed to and the tickerplant log date
 		subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
-		/- check the tp logdate against the current date and correct if necessary
+		/- check the tp logdate against the current date and correct if necessary and if datastriping is off
     if[0b~.ds.datastripe;fixpartition[subto]];];} 
     
 		
@@ -471,7 +471,6 @@ fixpartition:{[subto]
 		  .[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]]];
 		];
 	}
-
 
 /- will check on each upd to determine where data should be flushed to disk (if max row limit has been exceeded)
 replayupd:{[f;t;d]
@@ -513,13 +512,15 @@ clearwdbdata:{[]
 	];
 	};
 
+/ - if there is data in the tailDB directory for the partition remove it before replay
+/ - is only run during datastriping mode
 cleartaildir:{
-  $[saveenabled and not () ~ key ` sv(.ds.td;.proc.procname);
-   [.lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname)),") prior to log replay"];
+  $[saveenabled and not () ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
+   [.lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
    @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
     .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
     ];
-    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname)]
+    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)]
   ];
  
   };
@@ -575,8 +576,6 @@ endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. curren
 upd:.wdb.replayupd;
 / - clear any wdb data in the current partition
 $[.ds.datastripe;.wdb.cleartaildir[];.wdb.clearwdbdata[]];
-.wdb.logmetatab:()!();
-
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer

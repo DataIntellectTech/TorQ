@@ -65,7 +65,6 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[count where nullschema:0=count each schemalist;
     tabs:(schemalist where not nullschema)[;0];
     subtabs:tabs inter realsubs[`subtabs]];
-  
   // set the replayupd function to be upd globally
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
@@ -89,10 +88,9 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   @[realsubs;`subtabs;:;subtabs]
  }
 
-
 // used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
 replay:replay0[;;;;()!()]
-filter:()!();
+
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // if proc dictionary is empty then exit - no connection
   if[0=count proc;.lg.o[`subscribe;"no connections made"]; :()];
@@ -168,8 +166,6 @@ replayupd:{[f;tabs;syms;t;x]
   // call upd on the data
   f[t;x]
  }
-
-
 
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 

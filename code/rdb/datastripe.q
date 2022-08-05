@@ -28,5 +28,3 @@ initdatastripe:{
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
-/.ds.replaystarttime:.z.p - .stplg.multilogperiod * .ds.periodstokeep;
-
