@@ -480,7 +480,10 @@ replayupd:{[f;t;d]
 	/- if the data count is greater than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:maxrows[t];
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-		$[.ds.datastripe;(.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[];.ds.applyfilters[ enlist t;.sub.filterdict]);savetables[savedir;getpartition[];0b;t]]]	
+		/- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
+    $[.ds.datastripe;
+     (.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[];.ds.applyfilters[ enlist t;.sub.filterdict]);
+     savetables[savedir;getpartition[];0b;t]]]	
 	}[upd];
 
 /-function to initialise the wdb	
@@ -511,7 +514,7 @@ clearwdbdata:{[]
 	};
 
 cleartaildir:{
-  $[0N! saveenabled and not () ~ key ` sv(.ds.td;.proc.procname);
+  $[saveenabled and not () ~ key ` sv(.ds.td;.proc.procname);
    [.lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname)),") prior to log replay"];
    @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
     .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];

@@ -18,8 +18,6 @@ getendtime:{[x] max x[`time]};
 // function to clear tables before given time
 deletetablebefore:{![x;enlist (<;y;z);0b;0#`]}
 
-
-
 filterfunc:{[lf;td;logmetatab]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
   // logmetatab is the tplog metadata table loaded into the stp from the tplogs directory
@@ -30,18 +28,18 @@ filterfunc:{[lf;td;logmetatab]
     if[count filtertab;applyfilters[filtertab;td]];
     };
 
-
+// function to apply datastriping filter from a filter dictionary to a table
 tablesfilter:{[filtertab;td]
-  filterparse:@[parse;"select from x where ", td[filtertab]];
-  {@[eval;(?;x;y[2];0b;())]}[filtertab;filterparse]
+  filterparse:@[parse;"exec from x where ", td[filtertab]];
+  {eval(?;x;y[2];0b;())}[filtertab;filterparse]
   }
 
 // function to filter replayed tables with where clause from striping.json
 applyfilters:{[filtertab;td]
   if[count filtertab;
-  .lg.o[`subscribe;"filtering table(s) ", (.Q.s1 ` sv filtertab), " started at:", .Q.s1 .z.P];
-       set'[filtertab; tablesfilter[;td] each filtertab];
-       .lg.o[`subscribe;"finished filtering",(.Q.s1 ` sv filtertab), " at ", .Q.s1 .z.P];
+   .lg.o[`subscribe;"filtering table(s) ", (", " sv string filtertab), " started at: ",string .z.P];    
+   set'[filtertab; tablesfilter[;td] each filtertab];
+   .lg.o[`subscribe;"finished filtering table(s) ", (", " sv string filtertab), " at: ",string .z.P];
     ];
   }
 

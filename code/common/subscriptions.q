@@ -76,10 +76,11 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
     logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
   //gets the name of log files from the current periods to keep in order to replay them
     currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
-  //alters log file list to only includ log files from the current periods
+  //alters log file list to only include log files from the current periods
     logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
   //run replay and filtering of logs
-   {[logfilelist;filter;metatab;filterfunc] .[filterfunc;(logfilelist;filter;metatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab;.ds.filterfunc] each logfilelist; 
+   /{.[.ds.filterfunc;(x;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]} each logfilelist;
+   {[logfile;filters;logmetatab] .[.ds.filterfunc;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
    ];
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
