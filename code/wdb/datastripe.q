@@ -51,7 +51,8 @@ initdatastripe:{
     t:tables[`.] except .wdb.ignorelist;
 
     // load the access table; fall back to generating table if load fails
-    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    default:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t)
+    .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
     (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set .ds.access;       
