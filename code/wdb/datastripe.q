@@ -34,7 +34,7 @@ modaccess:{[accesstab]};
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     atab:get accesspath;
     atab,:() xkey .ds.access;
-    (` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access)) set atab;
+    accesspath set atab;
 
     // update the access table in the gateway
     handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
