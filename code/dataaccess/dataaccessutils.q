@@ -10,7 +10,7 @@ readtableproperties:{[tablepropertiepath]
   table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
   table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;
-  table:update  `date ^ partitionfield from table where proctype<>`rdb;
+  table:update  `date ^ partitionfield from table where proctype=`hdb;
   .lg.o[`readtableproperties;"Table properties successfully loaded"];
   :table;
       };

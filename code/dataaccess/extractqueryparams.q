@@ -28,7 +28,7 @@ extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparam
 
 extractpartitionfilter:{[inputparams;queryparams]
   //If an RDB return the partitionfilters as empty
-  if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
+  if[inputparams[`metainfo;`proctype] in `rdb`tr_seg1;:@[queryparams;`partitionfilter;:;()]];
   //Get the  partition range function 
   getpartrangef:.checkinputs.gettableproperty[inputparams;`getpartitionrange];
   // Get the time column

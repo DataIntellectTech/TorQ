@@ -35,6 +35,8 @@ reload:{
   .lg.o[`load;"loaded accesstable"];
   mostrecent:`location`table xkey update location:.proc.procname, proctype:.proc.proctype from .ds.access;
   (neg .servers.getservers[`proctype;`gateway;()!();1b;1b][`w]) @\:(`.ds.updateaccess;mostrecent);
+  /-update metainfo table for the dataaccessapi
+  if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]]
   load hsym `$.tr.basedir,"sym"
   }
 
