@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+before,0,0,q,configcheck[],1,,"Runs check functions on the json file"
+true,0,0,q,.ds.stripeconfig~"striping.json",1,,"Shows json config is specified to be striping.json as default"
+true,0,0,q,.ds.datastripe=1b,1,,"Checks datastriping has been activated by checks"
