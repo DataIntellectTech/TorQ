@@ -78,7 +78,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 
     /- get process specific taildir location
     basedir:` sv dir,.proc.procname;
-    dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
+    dir:` sv basedir,`$ string .wdb.currentpartition;
 
     /- get symbol enumeration
     partitionint:`$string (where s=value [`.]keycol)0;
