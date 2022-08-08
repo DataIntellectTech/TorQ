@@ -65,7 +65,11 @@ createsymlink:{[tdpath;hdbpath;symfile]
     hdbsympath:1_raze string hdbpath,"/",symfile;
 
     /- linux command to create symlink in specified dirs
-    system"ln -s ",hdbsympath," ",tdsympath;
+    symlink:{system"ln -s ",x," ",y};
+    .[symlink;
+        (hdbsympath;tdsympath);
+        {[e] .lg.e[`createsymlink;"Failed to create symlink : ",e];e}
+    ];
     };
 
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
@@ -94,7 +98,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
     ];
 
-    /- check if sym file exists in taildir, create sym link to HDB sym file if not
+    /- check if sym file exists in taildir, create symlink to HDB sym file if not
     if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
 
