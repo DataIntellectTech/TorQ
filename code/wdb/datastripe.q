@@ -61,7 +61,7 @@ initdatastripe:{
 
 createsymlink:{[tdpath;hdbpath;symfile]
     /- function to create symlink to HDB sym file in taildir
-    tdsympath:1_raze string tdpath,"/",.proc.procname,"/",symfile;
+    tdsympath:1_raze string tdpath,"/",symfile;
     hdbsympath:1_raze string hdbpath,"/",symfile;
 
     /- linux command to create symlink in specified dirs
@@ -95,7 +95,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     ];
 
     /- check if sym file exists in taildir, create sym link to HDB sym file if not
-    if[not `sym in key hsym basedir;createsymlink[.ds.td;.wdb.hdbdir;`sym]];
+    if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
