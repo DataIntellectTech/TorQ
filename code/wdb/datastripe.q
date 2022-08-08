@@ -111,13 +111,3 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     .wdb.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
-
-getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
-
-// function to update the access table in the gateway. Takes the gateway handle as argument
-updategw:{[h]
-
-    newtab:getaccess[];
-    neg[h](`.ds.updateaccess;newtab);
-
-    };

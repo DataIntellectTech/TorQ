@@ -11,6 +11,18 @@ currentpartition:getpartition;                                             /-obt
 basedir:(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/"       /-define associated tailer base directory
 wdbdir:`$ basedir,string currentpartition                                  /-define IDB direction
 
+\d .ds
+
+getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+updategw:{[h]
+
+    newtab:getaccess[];
+    neg[h](`.ds.updateaccess;newtab);
+
+    };
+
 \d .
 endofday:{[pt]
   /- end of day function that will be triggered by EOD Sorter once IDB is copied to HDB
