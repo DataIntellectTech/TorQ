@@ -31,7 +31,7 @@ filterfunc:{[lf;td;logmetatab]
 // function to apply datastriping filter from a filter dictionary to a table
 tablesfilter:{[filtertab;td]
   filterparse:@[parse;"exec from x where ", td[filtertab]];
-  {eval(?;x;y[2];0b;())}[filtertab;filterparse]
+  eval(?;filtertab;filterparse[2];0b;())
   }
 
 // function to filter replayed tables with where clause from striping.json
