@@ -32,8 +32,6 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-spe
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
-trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-tailreadertypes:trtype                                                     /-list of tail reader types to look for and call in tailreader reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
@@ -84,7 +82,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
-hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)
+$[.proc.proctype=`wdb;hdbsettings:(`compression`hdbdir)!(compression;hdbdir);hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)]
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
@@ -224,14 +222,6 @@ flushend:{
 	 .wdb.reloadcomplete:1b];
 	};
 
-/- evaluate contents of d dictionary asynchronously
-/- flush tailreader handles after timeout
-flushtailreload:{
-  if[not @[value;`.wdb.tailreloadcomplete;0b];
-   @[{neg[x]"";neg[x][]};;()] each key d;
-   .lg.o[`tail;"tailreload is now complete"];
-   .wdb.tailreloadcomplete:1b];
-  };
 
 /- initialise d
 d:()!()
@@ -245,15 +235,6 @@ doreload:{[pt]
 		.timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
 	];
 	};
-
-dotailreload:{[pt]
-  /-send reload request to tailreaders
-  .wdb.tailreloadcomplete:0b;
-  getprocs[;pt].wdb.tailreadertypes;
-  if[eodwaittime>0;
-    .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushtailreload[]");"release all tailreaders as timer has expired";0b];
-  ];
-  };
 
 // set .z.zd to control how data gets compressed
 setcompression:{[compression] if[3=count compression;
@@ -390,25 +371,6 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 	resetcompression[16 0 0]
 	};
 
-/-function to send reload message to rdbs/hdbs
-reloadproc:{[h;d;ptype;reloadlist]
-	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
-	$[eodwaittime>0;
-		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
-		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
-	];
-	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
-	}
-
-/-function to discover rdbs/hdbs and attempt to reconnect	
-getprocs:{[x;y]
-	a:exec (w!x) from .servers.getservers[`proctype;x;()!();1b;0b];
-  /-exit if no valid handle
-	if[0=count a; .lg.e[`connection;"no connection to the ",(string x)," could be established... failed to reload ",string x];:()];
-	.lg.o[`connection;"connection to the ", (string x)," has been located"];
-	/-send message along each handle a
-	reloadproc[;y;value a;x] each key a;
-	}
 
 /-function to send messages to gateway	
 informgateway:{[message]
@@ -542,7 +504,9 @@ getsortparams:{[]
 .wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `
+$[.proc.proctype =`wdb;
+    .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `;
+    .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `]
 
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
@@ -567,6 +531,6 @@ if[.wdb.saveenabled;.wdb.starttimer[]];
 upd:.wdb.upd
 
 /- initialise datastripe
-if[.ds.datastripe;
+if[.proc.proctype <>`wdb;if[.ds.datastripe;
   .lg.o[`dsinit;"datastripe on: initialising datastripe"];
-  initdatastripe[]];
+  initdatastripe[]];]
