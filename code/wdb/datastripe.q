@@ -49,6 +49,7 @@ initdatastripe:{
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .wdb.ignorelist;
+    accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
 
     // load the access table; fall back to generating table if load fails
     default:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t);
