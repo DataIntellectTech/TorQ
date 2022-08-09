@@ -68,7 +68,7 @@ symlink:{
 
     /- create symlink
     basedir:` sv .ds.td,.proc.procname;
-    createsymlink[basedir;.wdb.hdbdir;`sym];
+    if[not `sym in key basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     .lg.o[`symlink;"creating symlink"];
     };
 
