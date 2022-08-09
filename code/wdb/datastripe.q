@@ -59,6 +59,19 @@ initdatastripe:{
 
 \d .ds
 
+symlink:{
+    /- function to create HDB sym file and symlink to this sym file at start up
+    /- create HDB sym file
+    symdir:`$raze string .wdb.hdbdir,"/sym";
+    if[not `sym in key .wdb.hdbdir;symdir set `symbol$()];
+    .lg.o[`hdbsym;"creating HDB symfile"];
+
+    /- create symlink
+    basedir:` sv .ds.td,.proc.procname;
+    createsymlink[basedir;.wdb.hdbdir;`sym];
+    .lg.o[`symlink;"creating symlink"];
+    };
+
 createsymlink:{[tdpath;hdbpath;symfile]
     /- function to create symlink to HDB sym file in taildir
     tdsympath:1_raze string tdpath,"/",symfile;
