@@ -572,5 +572,5 @@ if[.ds.datastripe;
   initdatastripe[]];
 
 /- create HDB sym file and taildir symlink
-if[.ds.datastripe;
+if[.ds.datastripe & not `sym in key .wdb.hdbdir;
   .ds.symlink[]];
