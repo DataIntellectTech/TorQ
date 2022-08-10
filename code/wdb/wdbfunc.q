@@ -1,3 +1,4 @@
+\d .wdb
 reloadproc:{[h;d;ptype;reloadlist]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
         $[eodwaittime>0;
