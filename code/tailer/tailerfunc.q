@@ -1,3 +1,4 @@
+\d .wdb
 trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 tailreadertypes:trtype
 
