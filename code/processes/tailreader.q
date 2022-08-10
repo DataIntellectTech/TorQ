@@ -5,10 +5,9 @@ determinepartition:{{@[value;`.tr.currentpartition;                        /-fun
     (`date^partitiontype)$(.z.D,.z.d)gmttime]}
   }; 
 getpartition:@[value;`getpartition;determinepartition[]];                  /-check if partition value exists and if not generate one
-segmentid: "J"$.proc.params[`segid]
 taildir:hsym `$getenv`KDBTAIL						   /-load in taildir env variables
 .tr.currentpartition:.tr.getpartition;					   /-obtain  partition value
-basedir:(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/"       /-define associated tailer base directory
+basedir:(raze/)1_string[.tr.taildir],"/wdb",string .ds.segmentid,"/"       /-define associated tailer base directory
 wdbdir:`$ basedir,string currentpartition                                      /-define IDB direction
 
 \d .
@@ -23,7 +22,7 @@ endofday:{[pt]
 reload:{
   /- function to define the access table and IDB dir and then reload both tables
   /- reload is triggered by tailer after savedown occurs
-  basedir::(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/";
+  basedir::(raze/)1_string[.tr.taildir],"/wdb",string .ds.segmentid,"/";
   wdbdir::`$ basedir,string currentpartition;
   accesstabdir::`$ basedir,"access";
   
