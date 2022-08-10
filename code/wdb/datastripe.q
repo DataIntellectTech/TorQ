@@ -74,8 +74,8 @@ symlink:{
 
 createsymlink:{[tdpath;hdbpath;symfile]
     /- function to create symlink to HDB sym file in taildir
-    tdsympath:1_raze string tdpath,"/",symfile;
-    hdbsympath:1_raze string hdbpath,"/",symfile;
+    tdsympath:1_string ` sv (tdpath;symfile);
+    hdbsympath:1_string ` sv (hdbpath;symfile);
 
     /- linux command to create symlink in specified dirs
     symlink:{system"ln -s ",x," ",y};
