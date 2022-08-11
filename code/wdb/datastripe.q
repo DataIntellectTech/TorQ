@@ -45,7 +45,6 @@ initdatastripe:{
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .wdb.ignorelist;
-    show t;
 
     // create or load the access table
     .wdb.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
