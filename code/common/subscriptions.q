@@ -78,8 +78,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   //alters log file list to only include log files from the current periods
     logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
   //run replay and filtering of logs
-   /{.[.ds.filterfunc;(x;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]} each logfilelist;
-   {[logfile;filters;logmetatab] .[.ds.filterfunc;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
+   {[logfile;filters;logmetatab] .[.ds.filterreplayed;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
    ];
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
@@ -183,7 +182,6 @@ autoreconnect:{[rows]
 pc:{[result;W] update active:0b from `.sub.SUBSCRIPTIONS where w=W;result}
 // set .z.pc handler to update the subscriptions table
 .z.pc:{.sub.pc[x y;y]}@[value;`.z.pc;{[x]}];
-
 
 // if timer is set, trigger reconnections
 $[.timer.enabled and checksubscriptionperiod > 0;

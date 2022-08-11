@@ -13,6 +13,7 @@
     .rdb.access:update start:lasttime^(.ds.getstarttime each key .rdb.tablekeycols), stptime:data[][`time] from .rdb.access;
     modaccess[.rdb.access];
 
+
     };
 
 // user definable function to modify the access table
@@ -28,3 +29,4 @@ initdatastripe:{
     };
 
 if[.ds.datastripe;.proc.addinitlist[(`initdatastripe;`)]];
+

@@ -235,7 +235,6 @@ flushtailreload:{
 
 /- initialise d
 d:()!()
-/.proc.loadf[getenv[`KDBCODE],"/wdb/datastripe.q"];
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -451,7 +450,7 @@ subscribe:{[]
 		/- return the tables subscribed to and the tickerplant log date
 		subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
 		/- check the tp logdate against the current date and correct if necessary and if datastriping is off
-    if[0b~.ds.datastripe;fixpartition[subto]];];} 
+	if[0b~.ds.datastripe;fixpartition[subto]];];} 
     
 		
 /- function to rectify data written to wrong partition
@@ -480,9 +479,9 @@ replayupd:{[f;t;d]
 	if[(rpc:count[value t]) > lmt:maxrows[t];
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
 		/- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-    $[.ds.datastripe;
-     (.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[];.ds.applyfilters[ enlist t;.sub.filterdict]);
-     savetables[savedir;getpartition[];0b;t]]]	
+		$[.ds.datastripe;
+			[.ds.applyfilters[enlist t;.sub.filterdict];.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[]];
+			savetables[savedir;getpartition[];0b;t]]]	
 	}[upd];
 
 /-function to initialise the wdb	
@@ -515,15 +514,14 @@ clearwdbdata:{[]
 / - if there is data in the tailDB directory for the partition remove it before replay
 / - is only run during datastriping mode
 cleartaildir:{
-  $[saveenabled and not () ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
-   [.lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
-   @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
-    .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
-    ];
-    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)]
+  if[not saveenabled and not () ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
+    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)];
+    :();
   ];
- 
-  };
+  .lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
+  @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
+  .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
+	};
 	
 / - function to check that the tickerplant is connected and subscription has been setup
 notpconnected:{[]
