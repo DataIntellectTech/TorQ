@@ -30,8 +30,8 @@ applyfilters:{[filtertab;td]
 // function to apply datastriping filter from a filter dictionary to a table
 filtertable:{[filtertab;td]
   filterparse:@[parse;"exec from x where ", td[filtertab]];
-  {eval(?;x;y[2];0b;())}[filtertab;filterparse]
-  }
+  eval(?;filtertab;filterparse[2];0b;())
+	}
 
 filterreplayed:{[lf;td;logmetatab]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values
