@@ -30,7 +30,6 @@ reloadproc:{[h;d;ptype;reloadlist]
         .lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
         }
 
-
 getprocs:{[x;y]
         a:exec (w!x) from .servers.getservers[`proctype;x;()!();1b;0b];
         /-exit if no valid handle
