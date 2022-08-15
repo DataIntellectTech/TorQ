@@ -52,7 +52,6 @@ if[.ds.datastripe;
   .lg.o[`dsinit;"datastripe on: initialising datastripe"];
   initdatastripe[]];
 
-
 /- create HDB sym file and taildir symlink
 if[.ds.datastripe;
   .ds.symlink[]];
