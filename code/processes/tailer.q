@@ -1,26 +1,30 @@
 \d .wdb
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
 hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)
+
+\d .tailer
 trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 tailreadertypes:trtype
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
 flushtailreload:{
-  if[not @[value;`.wdb.tailreloadcomplete;0b];
+  if[not @[value;`.tailer.tailreloadcomplete;0b];
    @[{neg[x]"";neg[x][]};;()] each key d;
    .lg.o[`tail;"tailreload is now complete"];
-   .wdb.tailreloadcomplete:1b];
+   .tailer.tailreloadcomplete:1b];
   };
 
 dotailreload:{[pt]
   /-send reload request to tailreaders
-  .wdb.tailreloadcomplete:0b;
-  getprocs[;pt].wdb.tailreadertypes;
+  .tailer.tailreloadcomplete:0b;
+  .wdb.getprocs[;pt].tailer.tailreadertypes;
   if[eodwaittime>0;
-    .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushtailreload[]");"release all tailreaders as timer has expired";0b];
+    .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
   };
+
+\d .wdb
 reloadproc:{[h;d;ptype;reloadlist]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
         $[eodwaittime>0;
@@ -39,7 +43,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.tailreadertypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
 
 \d .
 
