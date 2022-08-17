@@ -2,9 +2,10 @@
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
 hdbsettings[`taildir]:getenv`KDBTAIL
 
+if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
+
 \d .tailer
-trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-tailreadertypes:trtype
+tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
@@ -48,10 +49,9 @@ getprocs:{[x;y]
 \d .
 
 /- initialise datastripe
-if[.ds.datastripe;
-  .lg.o[`dsinit;"datastripe on: initialising datastripe"];
-  initdatastripe[]];
+.lg.o[`dsinit;"initialising datastripe"];
+initdatastripe[];
+
 
 /- create HDB sym file and taildir symlink
-if[.ds.datastripe;
-  .ds.symlink[]];
+.ds.symlink[];
