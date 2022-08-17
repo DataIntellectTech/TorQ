@@ -1,4 +1,4 @@
-// Bespoke WDB config
+// Bespoke tailer config
 \d .wdb
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
