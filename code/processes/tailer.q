@@ -1,6 +1,6 @@
 \d .wdb
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
-hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)
+hdbsettings[`taildir]:getenv`KDBTAIL
 
 \d .tailer
 trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
