@@ -52,6 +52,8 @@ initdatastripe:{
     (` sv(.ds.td;.proc.procname;`access)) set .wdb.access;
     .wdb.access:{[x] last .wdb.access where .wdb.access[`table]=x} each t;
     .wdb.access:`table xkey .wdb.access;
+    .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
+    .wdb.dotailreload[`];
     };
 
 
@@ -96,7 +98,7 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     symdir:` sv dir,.proc.procname;
     enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
-
+    
     /-upsert table to partition
     upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol; 
 

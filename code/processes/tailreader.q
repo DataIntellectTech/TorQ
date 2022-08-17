@@ -26,7 +26,7 @@ reload:{
   basedir::(raze/)1_string[.tr.taildir],"/wdb",string .tr.segmentid,"/";
   wdbdir::`$ basedir,string currentpartition;
   accesstabdir::`$ basedir,"access";
-  
+  .lg.o[`reload;"reload of tailDB triggered by tailer"];
  @[.Q.l ;wdbdir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
  @[.Q.l ;accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
   load hsym `$basedir,"sym"

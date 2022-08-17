@@ -480,7 +480,7 @@ replayupd:{[f;t;d]
 		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
 		/- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
 		$[.ds.datastripe;
-			[.ds.applyfilters[enlist t;.sub.filterdict];.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[]];
+	[.ds.applyfilters[enlist t;.sub.filterdict];.ds.savetablesoverperiod[.ds.td;;.z.p+10:00;.z.p]each .wdb.tablelist[]];
 			savetables[savedir;getpartition[];0b;t]]]	
 	}[upd];
 
