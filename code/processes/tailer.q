@@ -1,6 +1,7 @@
 \d .wdb
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
 hdbsettings[`taildir]:getenv`KDBTAIL
+.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
 
 if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
 
@@ -44,7 +45,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
+.servers.CONNECTIONS: distinct .servers.CONNECTIONS,.tailer.tailreadertypes
 
 \d .
 
