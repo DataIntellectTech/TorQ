@@ -19,7 +19,7 @@ dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
   .wdb.getprocs[;pt].tailer.tailreadertypes;
-  if[eodwaittime>0;
+  if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
   };
