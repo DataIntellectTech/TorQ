@@ -6,7 +6,9 @@ hdbsettings[`taildir]:getenv`KDBTAIL
 if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
 
 \d .tailer
-tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
+procpairs: @[{flip("SS";":")0: x}; `$ getenv[`KDBAPPCONFIG],"/procpairs";{[e] .lg.e[`tailerstartup;"Unable to load procpairs config : ",e];'e}]             /-loads in procpairs file
+procpairdic:procpairs[;0]!procpairs[;1]                                       /-creates dictionary of tailer proctypes and linked tailreaders proctypes
+show tailreadertypes:procpairdic[.proc.proctype]                              /-use tailer proctype to identify tailreader proctype from procpairs file
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
