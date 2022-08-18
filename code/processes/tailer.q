@@ -10,7 +10,7 @@ tailreadertypes:trtype
 /- flush tailreader handles after timeout
 flushtailreload:{
   if[not @[value;`.tailer.tailreloadcomplete;0b];
-   @[{neg[x]"";neg[x][]};;()] each key d;
+   @[{neg[x]"";neg[x][]};;()] each key .wdb.d;
    .lg.o[`tail;"tailreload is now complete"];
    .tailer.tailreloadcomplete:1b];
   };
@@ -18,7 +18,7 @@ flushtailreload:{
 dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
-  .wdb.getprocs[;pt].tailer.tailreadertypes;
+  .wdb.getprocs[;pt]each .tailer.tailreadertypes;
   if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
