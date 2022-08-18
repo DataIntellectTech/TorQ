@@ -140,14 +140,11 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
 savealltablesoverperiod:{[dir;nextp;lasttime]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
-    /- only saves those tables with counts exceeding the threshold
-    totals:{count get x}each .wdb.tablelist[];
-    $[max totals>rowthresh;.lg.o[`save;"Saving ",(" " sv string tablist where totals>rowthresh)," table(s)"];.lg.o[`save;"No tables above threshold, no tables saved"]];
-    savetablesoverperiod[dir;;nextp;lasttime]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
-    /- trigger reload of access table and intradayDBs in all tail reader processes
+    savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
+    /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-.timer.repeat[00:00+.z.d;0W;.wdb.period;(`.ds.savealltablesoverperiod;.ds.td;.z.p;.z.p-.wdb.period);"Saving tables"];
+.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
