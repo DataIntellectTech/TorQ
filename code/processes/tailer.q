@@ -45,9 +45,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 
-.servers.CONNECTIONS: distinct .servers.CONNECTIONS,.tailer.tailreadertypes
-.servers.reset[];
-.servers.startup[];
+.servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
 
 \d .
 
