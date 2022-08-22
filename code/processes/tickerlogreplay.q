@@ -1,5 +1,7 @@
 // Script to replay tickerplant log files
 
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];           // merge limit configuration - default is 0b row count limit, 1b is bytesize limit
+
 \d .replay
 
 // Variables
@@ -28,6 +30,11 @@ partandmerge:@[value;`partandmerge;0b];                                 // setti
 tempdir:@[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
+mergenumbytes:@[value;`mergenumbytes;500000000];                        // default number of bytes for merge process
+mergemethod:@[value;`mergemethod;`part];                                // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+                                                                        // 1. part                      -       the entire partition is merged to the hdb 
+                                                                        // 2. col                       -       each column in the temporary partitions are merged individually 
+                                                                        // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit       
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:@[value;`savedownmanipulation;()!()]         // a dict of table!function used to manipuate tables at EOD save
@@ -165,8 +172,6 @@ finishreplay:{[h;p;td]
  // sort data and apply the attributes
  if[sortafterreplay;applysortandattr[.replay.pathlist]];
 
- if[partandmerge;postreplaymerge[td;p;h]];
-
  // invoke any user defined post replay function
  .save.postreplay[h;p];
  }
@@ -270,9 +275,9 @@ initialupd:{[t;x]
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]};
 
 // post replay function for merge replay, invoked after all the tables have been written down for a given log file
-postreplaymerge:{[td;p;h] 
+postreplaymerge:{[td;p;h]
  .os.md[.os.pth[string .Q.par[td;p;`]]]; // ensures directory exists before removed
- mergelimits:(tabsincountorder[.replay.tablestoreplay],())!({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay]),();	
+ mergelimits:(tabsincountorder[.replay.tablestoreplay],())!$[.merge.mergebybytelimit;(count tabsincountorder[.replay.tablestoreplay])#mergenumbytes;({[x] mergenumrows^mergemaxrows[x]}tabsincountorder[.replay.tablestoreplay])],();	
  // merge the tables from each partition in the tempdir together
  merge[td;p;;mergelimits;h] each tabsincountorder[.replay.tablestoreplay];
  .os.deldir .os.pth[string .Q.par[td;p;`]]; // delete the contents of tempdir after merge completion
@@ -292,6 +297,8 @@ upserttopartition:{[h;dir;tablename;tabdata;pt;expttype;expt]
   upsert;
   (directory;r:update `sym!sym from ?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
   {[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
+  /-key in partsizes are directory to partition, need to drop training slash in directory key
+  .merge.partsizes[first ` vs directory]+:(count r;-22!r);
   };
 
 savetablesbypart:{[dir;pt;tablename;h]
@@ -325,28 +332,35 @@ merge:{[dir;pt;tablename;mergelimits;h]
  if[0=count raze k inter\: tablename; :()]; 
  // get list of partition directories containing specified table
  partdirs:` sv' (intdir,'parts) where not ()~/:parts:k inter\: tablename; // get each of the directories that hold the table
- 
+ // permanent storage destination, where data being merged too
+ dest:.Q.par[h;pt;tablename];
  // exit function if no subdirectories are found
  if[0=count partdirs; :()];
- // merge the data in chunks depending on max rows for table
- // destination for data to be userted to [backslashes corrected for windows]
-        
- dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
- {[tablename;dest;mergemaxrows;curr;segment;islast]
- .lg.o[`merge;"reading partition ", string segment];
- curr[0]:curr[0],select from get segment;
- curr[1]:curr[1],segment;
- $[islast or mergemaxrows < count curr[0];
-  [.lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-  dest upsert curr[0];
-  .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-  .os.deldir each string curr[1];
-  (();())];
-  curr]
- }[tablename;dest;(mergelimits[tablename])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];   
+ // if no table data set empty table. If data to merge, merge with correct merge function   
+ $[0 = count partdirs inter exec ptdir from .merge.partsizes;
+   [.lg.w[`merge;"no records for ", string[tablename]];
+    (` sv dest,`) set @[.Q.en[h;value tablename];.merge.getextrapartitiontype[tablename];`p#];
+   ];
+   [$[mergemethod~`part;
+      [dest:` sv .Q.par[h;pt;tablename],`; // provides path to where to move data to	
+       /-get chunks to partitions to merge in batch
+       partchunks:.merge.getpartchunks[partdirs;mergelimits[tablename]];
+       .merge.mergebypart[tablename;dest]'[partchunks];
+      ];
+      mergemethod~`col;
+       [.merge.mergebycol[(tablename;value tablename);dest]'[partdirs];
+       /- merging data by column does not create .d file - set it here after merge
+       .lg.o[`merge;"setting .d file"];
+       (` sv dest,`.d) set cols value tablename;
+       ];
+       .merge.mergehybrid[(tablename;value tablename);dest;partdirs;mergelimits[tablename]]
+       ]
+     ]
+   ];
+ .lg.o[`merge;"deleting ", string[tablename], " from temp storage"]; 
+ .os.deldir each .os.pth each string partdirs;
  // set the attributes
  .lg.o[`merge;"setting attributes"];
-  
  @[dest;;`p#] each .merge.getextrapartitiontype[tablename]; 
  .lg.o[`merge;"merge complete"];
  // run a garbage collection (if enabled)
@@ -402,6 +416,7 @@ initandrun:{
   // Replay all logs and exit
   .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];
   .replay.replaylog each .replay.logstoreplay;
+  if[partandmerge;postreplaymerge[tempdir;.replay.replaydate;hdbdir]];  
   .lg.o[`replay;"replay complete"];
   if[.replay.exitwhencomplete;exit 0];
  };

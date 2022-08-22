@@ -4,6 +4,8 @@
 /-the row check is set on a timer - the interval may be specified by the user
 /-at eod the on-disk data may be sorted and attributes applied as specified in the sort.csv file
 
+.merge.mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];              /- merge limit configuration - default is 0b row count limit, 1b is bytesize limit
+
 \d .wdb
 
 /- define default parameters
@@ -26,6 +28,13 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
+
+mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+                                                                           /- 1. part                      -       the entire partition is merged to the hdb 
+                                                                           /- 2. col                       -       each column in the temporary partitions are merged individually 
+                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
+
+mergenumbytes:@[value;`mergenumbytes;500000000];                             /-default number of bytes for merge process
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
@@ -147,7 +156,10 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 		upsert;
 		(directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);		
 		{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
-	];		
+	];
+	.lg.o[`track;"appending details to partsizes"];
+	/-key in partsizes are directory to partition, need to drop training slash in directory key
+	.merge.partsizes[first ` vs directory]+:(count r;-22!r);
 	};
 	
 savetablesbypart:{[dir;pt;forcesave;tablename]
@@ -166,7 +178,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 		.lg.o[`save;"enumerated ",(string tablename)," table"];		
 		/- upsert data to specific partition directory 
 		upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;				
-		/- empty the table
+                /- empty the table
 		.lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
 		@[`.;tablename;0#];
 		/- run a garbage collection (if enabled)
@@ -182,18 +194,19 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 /- eod - flush remaining data to disk
 endofday:{[pt;processdata]
 	.lg.o[`eod;"end of day message received - ",spt:string pt];	
-	/- create a dictionary of tables and merge limits
-	mergelimits:(tablelist[],())!({[x] mergenumrows^mergemaxrows[x]}tablelist[]),();	
+	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
+	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
+	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
-	.lg.o[`eod;"deleting data from tabsizes"];
-	@[`.wdb;`tabsizes;0#];
-    .lg.o[`eod;"end of day is now complete"];
-    .wdb.currentpartition:pt+1;
+	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
+	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+	.lg.o[`eod;"end of day is now complete"];
+	.wdb.currentpartition:pt+1;
 	};
 	
 endofdaysave:{[dir;pt]
@@ -203,27 +216,34 @@ endofdaysave:{[dir;pt]
 	.lg.o[`savefinish;"finished saving data to disk"];
 	};
 
-/- add entries to dictionary of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
+/- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-	.wdb.d[.z.w]:x;
-	if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.d]=.wdb.countreload);
-		.lg.o[`handler;"releasing processes"];
-		.wdb.flushend[];
-		.wdb.d:()!()];
-	};
+	/-insert process reload outcome into .wdb.reloadsummary 
+        .wdb.reloadsummary[.z.w]:x;
+        /-log result of reload in wdb out log 
+        .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
+        if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
+                .lg.o[`handler;"releasing processes"];
+                .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
+                .wdb.flushend[];
+        /-delete contents from .wdb.reloadsummary when reloads completed
+                delete from `.wdb.reloadsummary];
+       	};
 
 /- evaluate contents of d dictionary asynchronously
 /- notify the gateway that we are done
 flushend:{
 	if[not @[value;`.wdb.reloadcomplete;0b];
-	 @[{neg[x]"";neg[x][]};;()] each key d;
+	 @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
 	 informgateway(`reloadend;`);
 	 .lg.o[`sort;"end of day sort is now complete"];
 	 .wdb.reloadcomplete:1b];
+	/- run a garbage collection (if enabled)
+	if[gc;.gc.run[]];
 	};
 
-/- initialise d
-d:()!()
+/- initialise reloadsummary, keyed tale to track status of local reloads
+reloadsummary:([handle:`int$()]process:`symbol$();status:`boolean$();result:`symbol$());
 
 doreload:{[pt]
 	.wdb.reloadcomplete:0b;
@@ -290,80 +310,89 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
-merge:{[dir;pt;tableinfo;mergelimits;hdbsettings]    
+merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]    
   setcompression[hdbsettings[`compression]];
+  /- get tablename
+  tabname:tableinfo[0];
   /- get list of partition directories for specified table 
-  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tableinfo[0]];
+  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tabname];
+  /- get directory destination for permanent storage
+  dest:.Q.par[hdbsettings[`hdbdir];pt;tabname];
+  .lg.o[`merge;"merging ",string[tabname]," to ",string dest];
   /- exit function if no subdirectories are found
-
-  dest:` sv .Q.par[hdbsettings[`hdbdir];pt;tableinfo[0]],`;
-  .lg.o[`merge;"merging ",(string tableinfo[0])," to ",string dest];
-
   $[0=count partdirs;
-    [
-      .lg.w[`merge;"no records found for ",(string tableinfo[0]),", merging empty table"];
-      dest set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tableinfo[0]];`p#];
-      //.lg.o[`merge;"setting attributes"];
-      //@[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
-      //.lg.o[`merge;"merge complete"];
+    [.lg.w[`merge;"no records found for ",(string tabname),", merging empty table"];
+     (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
     ];
-    [  
-      {[tablename;dest;mergemaxrows;curr;segment;islast]
-	      .lg.o[`merge;"reading partition ", string segment];	
-	      curr[0]:curr[0],select from get segment;
-	      curr[1]:curr[1],segment;		
-      	$[islast or mergemaxrows < count curr[0];
-	        
-                [.lg.o[`resort;"Checking that the contents of this subpartition conform"];
-                 pattrtest:@[{@[x;y;`p#];0b}[curr[0];];.merge.getextrapartitiontype[tablename];{1b}];
-                 if[pattrtest;
-                  /p attribute could not be applied, data must be re-sorted by subpartition col (sym):
-                  .lg.o[`resort;"Re-sorting contents of subpartition"];
-                  curr[0]: xasc[.merge.getextrapartitiontype[tablename];curr[0]];
-                  .lg.o[`resort;"The p attribute can now be applied"];
-                 ];
-                
-                .lg.o[`merge;"upserting ",(string count curr[0])," rows to ",string dest];
-	        dest upsert curr[0];
-	        .lg.o[`merge;"removing segments", (", " sv string curr[1])];
-	        .os.deldir each string curr[1];
-	        (();())];
-	        curr]
-	    }[tableinfo[0];dest;(mergelimits[tableinfo[0]])]/[(();());partdirs; 1 _ ((count partdirs)#0b),1b];		
-	    /- set the attributes
-	    .lg.o[`merge;"setting attributes"];
-      @[dest;;`p#] each .merge.getextrapartitiontype[tableinfo[0]];
-	    .lg.o[`merge;"merge complete"];
-	    /- run a garbage collection (if enabled)
-	    if[gc;.gc.run[]];	
-    ]
-  ]
+   /-if there are partitions to merge - merge with correct function
+   [$[mergemethod~`part;
+      [dest: ` sv dest,`;
+       /-get chunks to partitions to merge in batch
+       partchunks:.merge.getpartchunks[partdirs;mergelimits[tabname]];
+       .merge.mergebypart[tabname;dest]'[partchunks];
+      ];
+    mergemethod~`col;
+      [.merge.mergebycol[tableinfo;dest]'[partdirs];
+       /-merging data column at a time means no .d file is created so need to create one after function executed
+       .lg.o[`merge;"creating file ", (string ` sv dest,`.d)];
+       (` sv dest,`.d) set cols tableinfo[1];
+      ];
+       .merge.mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
+    ];
+    .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
+    .os.deldir .os.pth[[string[tabledir]]];
+    /- set the attributes
+    .lg.o[`merge;"setting attributes"];
+    @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
+    .lg.o[`merge;string[tabname]," merge complete"];
+   ]
+  ] 
  };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings]		
+endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
   /- merge data from partitons
   $[(0 < count .z.pd[]) and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
-     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]]  each .z.pd[];
-     merge[dir;pt;;mergelimits;hdbsettings] peach flip (key tablist;value tablist)];	
+     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+     /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method 
+     if[(mergemode~`hybrid)or(mergemode~`part);
+       {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
+       ];
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] peach flip (key tablist;value tablist);
+     /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
+     .lg.o[`eod;"Delete from partsizes"];
+     delete from `.merge.partsizes;
+     {(neg x)({.lg.o[`eod;"Delete from partsizes"];
+               delete from `.merge.partsizes;
+               /- run a garbage collection if enabled
+               if[gc;.gc.run[]]};`);(neg x)(::)} each .z.pd[];
+    ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-     merge[dir;pt;;mergelimits;hdbsettings] each flip (key tablist;value tablist)]];
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
+     .lg.o[`eod;"Delete from partsizes"];
+     delete from `.merge.partsizes;
+    ]
+   ];
   /- if path exists, delete it
-  if[not () ~ key p:.Q.par[savedir;pt;`]; .os.deldir .os.pth[string p]];
+  if[not () ~ key savedir; 
+    .lg.o[`merge;"deleting temp storage directory"];
+    .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
+    ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
-  if[permitreload; 
+  $[permitreload; 
     doreload[pt];
+    if[gc;.gc.run[]];
     ];
   };
 	
 /- end of day sort [depends on writedown mode]
-endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
+endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
 	/- set compression level (.z.zd)
 	setcompression[hdbsettings[`compression]];
 	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings];
+	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod];
 	endofdaysortdate[dir;pt;key tablist;hdbsettings]
 	];
 	/- reset compression level (.z.zd)  
@@ -372,13 +401,24 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
-	.wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
-	$[eodwaittime>0;
-		{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
-		@[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
-	];
-	.lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
-	}
+        /-count of processes to be reloaded 
+        .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+        /-defining lambdas to be in asynchronously calling processes to reload 
+        /-async call back function executed when eodwaittime>0
+        sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
+        /-reload function sent to processes by sendfunc in order to call process to reload. If process fail to reload log error 
+        /-and call .wdb.handler with failed reload message. If reload is successful call .wdb.handler with successful reload message.
+        reloadfunc:{[d;ptype] r:@[{(1b;`. `reload x)};d;{.lg.e[`reloadproc;"failed to reload from .wdb.reloadproc call. The error was : ",x];(0b;x)}];
+                (neg .z.w)(`.wdb.handler;(ptype;first r;$[first r;`$"reloaded successfully";`$"reload failed with error ",last r]));(neg .z.w)[]};
+        /-reload function to be executed if eodwaitime = 0 - sync message processes to reload and log if reload was successful or failed
+        syncreloadfunc:{[h;d;ptype] r:@[h;({(1b;`reload x)};d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],". The error was : ",e];(0b;e)}[ptype]];
+                .lg.o[`reloadproc;"the ", string[ptype]," ", $[first r; "successfully reloaded"; "failed to reload with error ",last r]]}; 
+        .lg.o[`reloadproc;"sending reload call to ", string[ptype]];
+        $[eodwaittime>0;
+                 sendfunc[(reloadfunc;d;ptype);h;ptype];     
+		 syncreloadfunc[h;d;ptype]
+        ];
+        }
 
 /-function to discover rdbs/hdbs and attempt to reconnect	
 getprocs:{[x;y]
@@ -403,12 +443,19 @@ informgateway:{[message]
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
-	.lg.o[`informsortandreload;"attempting to contact sort process to initiate data sort"];
+        // set what type of merge method to be used
+	mergemethod:.wdb.mergemode;
+        .lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-		{.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings);] each exec w from sortprocs;
+		[if[(mergemode~`hybrid)or(mergemode~`part);
+			// for part and hybrid method sort procs need access to partsizes table data - upsert data tp sort procs
+			{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;
+		   ];
+		 {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);] each exec w from sortprocs;
+		];
 		[.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
 		 // try to run the sort locally
-		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]]];
+		 endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]]];
 	};
 
 /-function to set the timer for the save to disk function	

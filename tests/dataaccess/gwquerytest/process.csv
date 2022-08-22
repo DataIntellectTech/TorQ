@@ -1,0 +1,5 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+101,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+102,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/gwquerytest/rdbhelper.q ${TORQHOME}/tests/dataaccess/checkinputs/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-dataaccess ${KDBTESTS}/dataaccess/checkinputs/config/tableproperties.csv,q
+localhost,{KDBBASEPORT}+103,hdb,hdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/checkinputs/settings.q ${TORQHOME}/tests/dataaccess/mockdata.q,1,-dataaccess ${KDBTESTS}/dataaccess/checkinputs/config/tableproperties.csv,q
+localhost,{KDBBASEPORT}+107,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/gateway.q,1,-dataaccess ${KDBTESTS}/dataaccess/checkinputs/config/tableproperties.csv,q

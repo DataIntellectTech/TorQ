@@ -1,21 +1,21 @@
-# Data Access API
-
-# Introduction and Key Features
-
+Data Access API
+===============
+Introduction and Key Features
+-----------------------------
 The Dataaccess API is a TorQ upgrade designed for seamless cross process data retrival.
 
 Other key upgrades of the API are:
 - Compatibility with non kdb+ processes such as Google BigQuery and qREST
-- Consistent queries across all processes 
+- Consistent queries across all processes
 - Data retrieval does not require q-SQL knowledge only q dictionary manipulation
 - User friendly interface including more comprehensible error messages
 - Queries are automatically optimised for each process
 - Thorough testing allowing ease of further development
 
-A more conceptual discussion of the API can be seen at [Blog Post](https://www.aquaq.co.uk/torq-2/data-access-api/)
+A more conceptual discussion of the API can be seen in this [blog post](https://www.aquaq.co.uk/torq-2/data-access-api/)
 
-# Configuration
-
+Configuration
+-------------
 The API can be initialised in a TorQ proccess by either:
 
 1) Pass `"-dataaccess /path/to/tableproperties.csv"` on the startup line (see Example table properties file below for format)
@@ -23,7 +23,7 @@ The API can be initialised in a TorQ proccess by either:
 
 In both cases the filepath should point to `tableproperties.csv` a `.csv` containing information about all the tables you want the API to query. The following table describes each of the columns of tableproperties.csv:
 
-**Description of fields in tableproperties.csv**
+### Description of fields in tableproperties.csv
 
 |Field               |Description                                                                                        |Default                                 |
 |--------------------|---------------------------------------------------------------------------------------------------|----------------------------------------|
@@ -36,7 +36,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 |rolltimezone        |Timezone of the Rollover Function                                                                  |.eodtime.rolltimezone                   |
 |datatimezone        |Timezone of the primary time column timestamps                                                     |.eodtime.datatimezone                   |
 |partitionfield      |Partition field of the data                                                                        |```$[.Q.qp[];.Q.pf;`]```                |
- 
+
 \* The Default behaviour of primarytimecolumn is:
 
 1. If the table is defined in the tickerplant schema file then primarytimecolumn is set to be the time column defined by the tickerplant.
@@ -44,7 +44,7 @@ In both cases the filepath should point to `tableproperties.csv` a `.csv` contai
 3. Else if a unique column of type d exist then it is used.
 4. Else the API will error.
 
-**Example Default Configuration File**
+### Example Default Configuration File
 
 If the user wishes to use the TorQ FSP (see section below) the following example will suffice:
 
@@ -53,7 +53,7 @@ If the user wishes to use the TorQ FSP (see section below) the following example
 ||trade|time|sym|sym|||||
 ||quote|time|sym|sym|||||
 
-This table will be configured as if it were the following 
+This table will be configured as if it were the following
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
@@ -64,19 +64,19 @@ This table will be configured as if it were the following
 
 A more complete explanation into the configuration can be seen in the Table Properties Configuration section.
 
-# Usage
-
+Usage
+-----
 When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the Gateway section).
 
-The `getdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`. 
+The `getdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`.
 
-- `.dataaccess.checkinputs` checks if the input dictionary is valid (See custom API errors) 
-- `.eqp.extractqueryparams` converts the arguments into q-SQL 
+- `.dataaccess.checkinputs` checks if the input dictionary is valid (See custom API errors)
+- `.eqp.extractqueryparams` converts the arguments into q-SQL
 - `.queryorder.orderquery` is the API's query optimiser (See Debugging and Optimisation)
 
-`getdata's` input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists getdata's accepted arguments: 
+`getdata's` input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists getdata's accepted arguments:
 
-**Valid Inputs**
+### Valid Inputs
 
 |Parameter     |Required|Example\*\*                                                                                   |Invalidpairs\*               |Description                                                                     |
 |--------------|----------|-----------------------------------------------------------------------------------------|---------------|--------------------------------------------------------------------------------|
@@ -92,7 +92,7 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 |filters       |No       |\`sym\`bid\`bsize!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43))         |                 |Dictionary of ordered filters to apply to keys of dictionary|
 |freeformwhere |No       |"sym=\`AAPL, src=\`BARX, price within 60 85"                                              |                 |Where clause in string format                                                   |
 |freeformby    |No       |"sym:sym, source:src"                                                                     |                 |By clause in string format
-|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations     |Select clause in string format 
+|freeformcolumn|No       |"time, sym,mid\:0.5\*bid+ask"                                                             |aggregations     |Select clause in string format
 |ordering      |No       |enlist(\`desc\`bidprice)                                                                  |                 |List ordering results ascending or descending by column
 |renamecolumn  |No       | \`old1\`old2\`old3!\`new1\`new2\`new3                                                    |                 |Either a dictionary of old!new or list of column names|
 |postprocessing|No       |{flip x}                                                                                  |                 |Post-processing of the data|
@@ -102,7 +102,7 @@ The `getdata` function is split into three sub functions:` .dataaccess.checkinpu
 
 \* Invalid pairs are two dictionary keys not allowed to be defined simultaneously, this is done to prevent unexpected behaviour such as the following query:
 
-```select price,mprice:max price from trade``` 
+```select price,mprice:max price from trade```
 
 Although the above is a valid query the result may be unexpected as the column lengths don't match up.
 
@@ -146,9 +146,9 @@ q).dataaccess.getdata `tablename`starttime`endtime`instruments`columns`getquery!
 (?;`quote;((within;`date;2021.01.20 2021.03.17);(=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.03.16D12:00:00.000000000));0b;`sym`time`bid`bsize!`sym`time`bid`bsize)
 ```
 
-## Aggregations 
+### Aggregations
 
-The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form: 
+The aggregations key is a dictionary led method of perfoming mathematical operations on columns of a table. The dictionary should be of the form:
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
@@ -168,7 +168,7 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 |`last`     |Return the final value in a list                     |```(enlist`last)!enlist enlist `price```         |Yes                                |
 |`max`      |Return the maximum value of a list                   |```(enlist`max)!enlist enlist `price```          |Yes                                |
 |`med`      |Return the median value of a list                    |```(enlist`med)!enlist enlist `price```          |No                                 |
-|`min`      |Return the minimum value of a list                   |```(enlist`min)!enlist enlist `price```          |Yes                                |   
+|`min`      |Return the minimum value of a list                   |```(enlist`min)!enlist enlist `price```          |Yes                                |
 |`prd`      |Return the product of a list                         |```(enlist`prd)!enlist enlist `price```          |Yes                                |
 |`sum`      |Return the total of a list                           |```(enlist`sum)!enlist enlist `price```          |No                                 |
 |`var`      |Return the Variance of a list                        |```(enlist`var)!enlist enlist `price```          |No                                 |
@@ -177,7 +177,7 @@ Certain aggregations are cross proccess enabled, that is they can be calculated 
 
 The postprocessing key provides a work around for creating these cross process aggregations (see the postprocessing example in Further Examples section).
 
-The following function can be used to merge two aggregation dictionaries: 
+The following function can be used to merge two aggregation dictionaries:
 
 ```
 q)f:{{(key x,y)!{:$[0=count raze x[z];y[z];$[2=count raze y[z];($[1=count x[z];raze x[z];x[z]];raze y[z]);raze x[z],raze y[z]]]}[x;y;] each key x,y}/[x]}
@@ -195,7 +195,7 @@ min | `price`time
 wavg| ,`bid`bsize
 ```
 
-## Filters
+### Filters
 
 The filters key is a dictionary led method of controlling which entries of a given table are being queried by setting out a criteria. The dictionary uses a table column as the key and the entries as the condition to be applied to that column. Any condition to be applied should be entered as a nest of two item lists for each condition and each sublist entered as an operator first followed by conditional values, for example:
 
@@ -221,14 +221,14 @@ For negative conditionals, the not and ~: operators can be included as the first
 |`like`      |column symbol or string matches input string pattern |```(enlist`col)!enlist(like;input)```            |
 |`not`       |negative conditional when used with in,like or within|```(enlist`col)!enlist(not;in/like/within;input)```         |
 
-# Gateway
+### Gateway
 
 The documentation for the gateway outside the API can be found [here](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/Processes.md)
 
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
- 
+
 - Leverage the checkinputs library from within the gateway and catch errors before they hit the process
-- Uses `.gw.servers` to dynamically determine the appropriate processes to execute `getdata` in 
+- Uses `.gw.servers` to dynamically determine the appropriate processes to execute `getdata` in
 - Determines the query type to send to the process(es)
 - Provide further optional arguments to better determine the behaviour of the function see table below:
 
@@ -266,10 +266,10 @@ maxAsk maxBid minAsk minBid
 ---------------------------
 94.81  93.82  8.43   7.43
 ```
-The cross process aggregations also work with groupings and freeformby keys, for example 
+The cross process aggregations also work with groupings and freeformby keys, for example
 
 ```
-q)querydict1:`tablename`starttime`endtime`aggregations`ordering`head!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;"sym";`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
+q)querydict1:`tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;2021.03.16D01:00:00.000000000;2021.03.17D18:00:00.000000000;"sym";`max`min!(`ask`bid;`ask`bid);`desc`maxAsk;-2)
 q)g(`.dataaccess.getdata;querydict1)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
@@ -278,7 +278,7 @@ DOW | 24.52  23.48  2.56   1.55
 ```
 Such behaviour is not demonstrated when using freeform queries, for example:
 ```
-q)querydict2:`tablename`starttime`endtime`aggregations`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
+q)querydict2:`tablename`starttime`endtime`freeformcolumn!(`quote;2021.02.08D00:00:00.000000000;2021.02.09D09:00:00.000000000;"max ask,min ask,max bid, min bid")
 q)g(`.dataaccess.getdata;querydict2)
 ask    bid    ask1 bid1
 -----------------------
@@ -295,11 +295,11 @@ the full list of aggregations that can span multiple processes without
 a partitioned grouping are as follows: `avg`, `cor`, `count`, `cov`, `dev`,
 `first`, `last`, `max`, `min`, `prd`, `sum`, `var`, `wavg` and `wsum`.
 
-## Checkinputs
+### Checkinputs
 
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
 
-- `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable. 
+- `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable.
 - `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
 
 
@@ -345,9 +345,9 @@ A key goal of the API is to prevent unwanted behaviour and return helpful error 
 |optimisation|0|.checkinputs.isboolean||Toggle optimastion in queryorder
 
 
-The csv file enables developers simple extension, modification or deletion of the accepted inputs. 
+The csv file enables developers simple extension, modification or deletion of the accepted inputs.
 
-For example if the user want to add a key ``` `docs``` which accepts a boolean input they would add the following line to `checkinputs.csv` 
+For example if the user want to add a key ``` `docs``` which accepts a boolean input they would add the following line to `checkinputs.csv`
 
 docs|0|.checkinputs.isboolean||info about docs function|
 
@@ -393,17 +393,17 @@ Error|Function|Library|
 |Ordering parameter vague. Ordering by a column that aggregated more than once|checkordering|checkinputs|
 |Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter|checkordering|checkinputs|
 
-## Table Properties Configuration
+### Table Properties Configuration
 
 Although the default configuration is often the best, there are examples when the user will have to define there own `tableproperties.csv` file. This will happen whenever a process has tables spanning timezones or a table has two columns of type p. We provide a complete example for clearer explanation:
 
-Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET). 
+Suppose a vanilla TorQ process has two tables trade and quote for a New York FX market (timezone ET).
 
-In our scenario the TorQ system is GMT based and the rollover times are as follows: 
-- trade rolls over at midnight GMT  
-- quote rolls over at 01:00 am New York time (ET) 
+In our scenario the TorQ system is GMT based and the rollover times are as follows:
+- trade rolls over at midnight GMT
+- quote rolls over at 01:00 am New York time (ET)
 
-The meta for tables in the hdb are:  
+The meta for tables in the hdb are:
 
 ```
 q)meta trade
@@ -442,20 +442,20 @@ The quote table is more complicated as it has two time columns extime and time.
 - The extime column is the time when the trade was made
 - The time column is the time when the data entered the tickerplant
 
-The time column is the most illuminating into the partition structure. 
+The time column is the most illuminating into the partition structure.
 
-The reason extime is not the primary time column is due to the latency between the exchange and TorQ process. 
+The reason extime is not the primary time column is due to the latency between the exchange and TorQ process.
 Suppose the latency from the feed to tickerplant was a consistent 200ms. Now consider the following quote
 
-- Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET) 
+- Quote1 comes into the exchange at 2020.02.02D00:59:59.900000000(ET)
 - Quote1 comes into the tickerplant at 2020.02.03D06:00:00.100000000(GMT)
 - Quote1 will be in partition 2020.02.03
- 
+
 As such the partitioning structure is dependent on the time column not the extime column.
- 
+
 The p attribute on the sym column shows why it should be used as the attribute column.
 
-For this example the following `tableproperties.csv` should be defined.   
+For this example the following `tableproperties.csv` should be defined.
 
 |proctype|tablename|primarytimecolumn|attributecolumn|instrumentcolumn|rolltimeoffset|rolltimezone|datatimezone|partitionfield|
 |--------|---------|-----------------|---------------|----------------|--------------|------------|------------|--------------|
@@ -463,9 +463,9 @@ For this example the following `tableproperties.csv` should be defined.
 |hdb     |trade    |time             |sym            |sym             |00:00         |GMT         |GMT         |date          |
 |rdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |              |
 |hdb     |quote    |time             |sym            |sym             |01:00         |ET          |GMT         |date          |
- 
 
-## Query Optimisation
+
+### Query Optimisation
 
 The queries are automatically optimised using `.queryorder.orderquery` this function is designed to improve the performance of certain queries as well as return intuative results.
 This is done by:
@@ -482,14 +482,14 @@ Optimisation can be toggled off by setting the value of ``` `queryoptimisation``
 A key focus of the API is to improve accessibility whilst maintaining a strong performance. There are cases where the accessibilty impedes the usabilty or the query speed drops below what could be developed. In these situations one should ensure:
 
 1. The user has a filter against a table attributes
-2. The query only pulls in the essential data 
+2. The query only pulls in the essential data
 3. The output of `dataaccess.buildquery` is what is expected.
 
-## Metrics 
-
+Metrics
+-------
 ### Introduction
 
-A test was performed to determine the performance of: 
+A test was performed to determine the performance of:
 
 - The `getdata` function with optimisation on
 - The `getdata` function with optimisation off
@@ -497,7 +497,7 @@ A test was performed to determine the performance of:
 
 ### Methodology
 
-Each query was run against 10/100/1000 sym TorQ stack each with a 5GB HDB (68 million rows over 22 partitions) and a 120 MB RDB (2 million rows) quotes table. 
+Each query was run against 10/100/1000 sym TorQ stack each with a 5GB HDB (68 million rows over 22 partitions) and a 120 MB RDB (2 million rows) quotes table.
 
 ### Query List
 
@@ -510,10 +510,9 @@ Each query was run against 10/100/1000 sym TorQ stack each with a 5GB HDB (68 mi
 |Optimised3|```(`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.02.25D12;`bsize`sym`bid!(enlist(not;within;5 43);enlist(like;\"*OW\");((<;85);(>;83.5)))))```|
 |kdb3|```select from quote where bid within(83.5;85),not bsize within(5;43),sym like "*OW"```|
 
-
 ### Results
 
-The results show the average execution time in ms for each query 
+The results show the average execution time in ms for each query
 
 |Queryname   |10 syms |100 syms|1000 syms|
 |------------|--------|--------|---------|
@@ -534,7 +533,8 @@ The results show the average execution time in ms for each query
 - Case 3 - Demonstrates the performance boost of the API's optimiser, this occurs whenever a kdb+ query is not optimised
 
 
-## Testing Library
+Testing Library
+---------------
 Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
 
 1. Set environment variables
@@ -542,7 +542,8 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 3. Navigate to the appropriate testing directory
 4. Run `. run.sh -d`
 
-## Logging
+Logging
+-------
 Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user, startime, endtime, handle, success and any error messages are upserted to the `.dataaccess.stats` table for example when a good and bad query are sent to the gateway:
 
 ```
@@ -561,7 +562,7 @@ q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`grouping!(`quot
 ```
 The following are the gateway and rdb logs:
 ```
-// The logging in the gateway returns 
+// The logging in the gateway returns
 
 q)g".dataaccess.stats"
 querynumber| user  starttime                     endtime                       handle request                                                                                                                                        success error
@@ -570,8 +571,7 @@ querynumber| user  starttime                     endtime                       h
 2          | admin 2021.03.25D14:52:20.546227000 2021.03.25D14:52:20.546341000 11     `tablename`starttime`endtime`aggregations`grouping!(`quote;2021.02.12D00:00:00.000000000;15;(,`max)!,`ask`bid;`sym)                            0       `endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-7h
 
 // The bad query errored out in the gateway, consequently only the good query is seen in the rdb logs
-
-q).dataaccess.stats
+q)g".dataaccess.stats"
 querynumber| user    starttime                     endtime                       handle request                                                                                                                                                                          success error
 -----------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 1          | gateway 2021.03.25D14:52:03.381980000 2021.03.25D14:52:03.407870000 10     `tablename`starttime`endtime`aggregations`grouping`checksperformed`procs!(`quote;2021.02.12D00:00:00.000000000;2021.03.25D14:52:03.380478000;(,`max)!,`ask`bid;`sym;1b;`hdb`rdb) 1
@@ -579,11 +579,11 @@ querynumber| user    starttime                     endtime                      
 ```
 Logging can be toggled off from within a process by setting the value of `.dataaccess.logging` to `0b`.
 
-# Further Integration
-
+Further Integration
+-------------------
 This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
 
-## Implementation with TorQ FSP
+### Implementation with TorQ FSP
 
 The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag ` -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
 
@@ -595,8 +595,8 @@ localhost,{KDBBASEPORT}+4,hdb,hdb2,${TORQAPPHOME}/appconfig/passwords/accesslist
 localhost,{KDBBASEPORT}+7,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,-dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv,q
 ```
 
-## Implementation with q-REST
- 
+### Implementation with q-REST
+
 The API is compatible with q-REST. To do this:
 
 1. Download [q-REST](https://github.com/AquaQAnalytics/q-REST)
@@ -623,22 +623,20 @@ q-REST requires some modifications to the input dictionary:
 3. The second argument in a `like` filter should be have ' rather than " e.g ```(like; 'AMD')```
 
 
-## Implementation with Google BigQuery
+### Implementation with Google BigQuery
 
-As key goal of the API has been TorQ's integration with other SQL databases such as Google BigQuery the successful outcome is discussed in the following blog:
+As key goal of the API has been TorQ's integration with other SQL databases such as Google BigQuery the successful outcome is discussed in this [blog](https://www.aquaq.co.uk/aquaqs-bigquery-api/).
 
-```!!! ADD A BLOG HERE!!!```
+Further Examples
+----------------
+For every key in the dictionary the following examples provide a query, output and the functional select executed from within the process.
 
-# Further Examples
-
-For every key in the dictionary the following examples provide a query, output and the functional select executed from within the process. 
-
-**Time default**
+### Time default
 
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
 ```
-getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+q)getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -652,12 +650,12 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b ()
 ```
 
-**Intsrument Filter**
+### Instrument Filter
 
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+q)getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -671,12 +669,11 @@ q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.0
 ? `quote ((=;`sym;,`AAPL);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b ()
 ```
 
-**Columns**
+### Columns
 
 Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`bid ```
-
 ```
-getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+q)getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
 sym  time                          bid
 ----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.01
@@ -691,12 +688,12 @@ q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20
 
 ```
 
-**Free form select**
+### Free form select
 
 Run a free form select using the ``` `freeformcolumn ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
+q)getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
 sym  time                          mid
 -----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.44
@@ -711,7 +708,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn!(`quote;202
 ```
 This can be used in conjunction with the `columns` parameter, however the `columns` parameters will be returned first. It is advised to use the `columns` parameter for returning existing columns and the `freeformcolumn` for any derived columns.
 
-**Grouping**
+### Grouping
 
 Use ``` `grouping ``` parameter to group average ``` `mid```, by ``` `sym ```
 
@@ -729,12 +726,12 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 ```
 
-**String style grouping**
+### String style grouping
 
 Group average ``` `mid```, by ``` instru:sym ``` using the ``` `freeformby ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
+q)getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"sym")
 instr| avgmid
 -----| --------
 AAPL | 70.63876
@@ -743,17 +740,17 @@ AMD  | 36.46488
 DELL | 8.34496
 DOW  | 22.8436
 
-q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
-? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`instr)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"sym")
+? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) (,`sym)!,`sym (,`avgmid)!,(avg;(*;0.5;(+;`bid;`ask)))
 
 ```
 
-**Time bucket**
+### Time bucket
 
 Group max ask by  6 hour buckets using the ``` `timebar ``` parameter
 
 ```
-getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+q)getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
 time                         | maxAsk
 -----------------------------| ------
 2021.01.21D12:00:00.000000000| 98.99
@@ -769,13 +766,13 @@ q).dataaccess.buildquery (`tablename`starttime`endtime`aggregations`instruments`
 
 ```
 
-**Aggregations**
+### Aggregations
 
 Max of both ``` `bidprice ``` and ``` `askprice ```
 
 
 ```
-getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+q)getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
 maxAsk maxBid
 -------------
 109.5  108.6
@@ -783,15 +780,14 @@ maxAsk maxBid
 q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
 ? `quote ,(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
 
-
 ```
 
-**Filters**
+### Filters
 
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+q)getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -806,12 +802,12 @@ q).dataaccess.buildquery `tablename`starttime`endtime`filters!(`quote;2021.01.20
 ...
 ```
 
-**Free form Filters**
+### Free form Filters
 
 Use the ``` `freefromwhere ``` parameter to execute the same filter as above
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
+q)getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -826,12 +822,12 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformwhere!(`quote;2021
 
 
 ```
-**Ordering**
+### Ordering
 
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
 
 ```
-getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+q)getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
@@ -845,12 +841,12 @@ q).dataaccess.buildquery `tablename`starttime`endtime`ordering!(`quote;2000.01.0
 ? `quote ,(within;`time;2000.01.01D00:00:00.000000000 2000.01.06D10:00:00.000000000) 0b ()
 ```
 
-**Rename Columns**
+### Rename Columns
 
-Use the ``` `renamecolumn ``` parameter to rename the columns 
+Use the ``` `renamecolumn ``` parameter to rename the columns
 
 ```
-getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+q)getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
 newdate    newsym| newprice
 -----------------| --------
 2021.01.18 IBM   | 69.64
@@ -859,24 +855,27 @@ newdate    newsym| newprice
 2021.01.19 AAPL  | 111.67
 2021.01.18 INTC  | 70.77
 2021.01.19 INTC  | 65.6
+q).dataaccess.buildquery (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+? `trade ((=;`sym;,`IBM);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000))  `date`sym!`time.date`sym (,`price)!,(max;`price)
+? `trade ((=;`sym;,`AAPL);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000)) `date`sym!`time.date`sym (,`price)!,(max;`price)
+? `trade ((=;`sym;,`INTC);(within;`time;2021.01.18D00:00:00.000000000 2021.01.20D00:00:00.000000000)) `date`sym!`time.date`sym (,`price)!,(max;`price)
 ```
 
-**Postprocessing**
+### Postprocessing
 
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-q)getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q)getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
 
-q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q).dataaccess.buildquery `tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 ? `quote ,(within;`time;2021.02.12D00:00:00.000000000 2021.02.12D12:00:00.000000000) 0b `maxAsk`maxBid!((max;`ask);(max;`bid))
 
 ```
 More complex example collecting the avg price across multiple processes in the gateway g
-``` 
-
+```
 q)g".dataaccess.getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;.z.p;(`sum`count)!2#`ask;{flip x})"
 sumAsk  | 1.288549e+09
 countAsk| 28738958
@@ -887,22 +886,22 @@ avgprice
 
 ```
 
-**Sublist**
+### Sublist
 
 Use the ``` `sublist``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
 
 ```
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 AAPL| 171.23 170.36 56.35  55.32
 GOOG| 101.09 99.96  45.57  44.47
 
-q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 ? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
 
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)"
+q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;"sym";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);3)
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 INTC| 68.51  67.56  44.59  43.63
