@@ -89,28 +89,21 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
     /- partitions the data on the keycol and upserts it to the given dir
-    
     /- get unique sym from table
     s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
-
-    /- get process specific taildir location
     basedir:` sv dir,.proc.procname;
     dir:` sv basedir,`$ string .wdb.currentpartition;
-
     /- get symbol enumeration
     partitionint:`$string (where s=value [`.]keycol)0;
-
     /- create directory location for selected partition
     directory:` sv .Q.par[dir;partitionint;tablename],`;
     .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
     .lg.o[`save;"Saving data down to ",string[directory]];
-
     /- upsert select data matched on partition to specific directory
     .[upsert;
         (directory;enumdata);
         {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
     ];
-
     /- check if sym file exists in taildir, create symlink to HDB sym file if not
     if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
@@ -118,36 +111,40 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
     keycol:`sym^.wdb.tablekeycols tablename;
-
     /- get distinct values to partition table on
     partitionlist: ?[tablename;();();(distinct;keycol)];
-
     /- enumerate and then split by keycol
     symdir:` sv dir,.proc.procname;
     enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
-
     /-upsert table to partition
-    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol; 
-
+    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol;
     /- delete data from last period
-    .[.ds.deletetablebefore;(tablename;`time;lasttime)];
-    
+    ![;();0b;`symbol$()]each tablename; 
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;nextp;lasttime]
+savealltablesoverperiod:{[]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
-    /- only saves those tables with counts exceeding the threshold
+    dir:.ds.td; 
+    nextp:.z.p;
+    lasttime:.z.p-`second$.wdb.period;
     totals:{count get x}each .wdb.tablelist[];
-    $[max totals>.wdb.rowthresh;.lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];.lg.o["No tables above threshold, no tables saved"]];
-    savetablesoverperiod[dir;;nextp;lasttime]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
-    /- trigger reload of access table and intradayDBs in all tail reader processes
-    .tailer.dotailreload[`]};
+    .wdb.timepartition:.z.p;
+    if[max totals>.wdb.rowthresh;
+        .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];
+        savetablesoverperiod[dir;;nextp;lasttime]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
+    /- trigger reload of access tables and intradayDBs in all tail reader processes
+    .tailer.dotailreload[`]
+    ];  
+    if[min totals<.wdb.rowthresh;
+        .lg.o[`save;"No tables above threshold, no tables saved"]
+    ];
+    };
 
-.timer.repeat[00:00+.z.d;0W;.wdb.period;(`.ds.savealltablesoverperiod;.ds.td;.z.p;.z.p-`second$.wdb.period);"Saving tables"];
+.timer.repeat[00:00+.z.d;0W;0D00:00:20;(`.ds.savealltablesoverperiod;`);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
