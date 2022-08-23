@@ -26,15 +26,10 @@ if[.stplg.multilog~`custom;
 // functions used by subscribers
 tablelist:{.stpps.t}
 
-// Function to handle single table argument in subdetails/segmentedsubdetails rowcounts
-tabrowcounts:{[tabs] if[tabs~`;tabs:.stpps.t]; flip ((),tabs)#.stplg ((),`rowcount)}
-
-
 // Subscribers who want to replay need this info
 subdetails:{[tabs;instruments]
- `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabrowcounts[tabs];(.eodtime `d);`$getenv`KDBTPLOG)
+ `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];((),tabs)#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
  }
-
 
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
@@ -88,5 +83,6 @@ init:{
   .stplg.init[string .proc.procname];
  };
 
-// Have the init function called from torq.q
+// Have the init function and config check called from torq.q
 .proc.addinitlist(`init;`);
+$[.ds.torqv5mode;.proc.addinitlist[(`configcheck;`)];.lg.o[`init;"Vanilla torq will run, datastriping is turned off"]];

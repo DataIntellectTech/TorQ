@@ -30,6 +30,11 @@ tpcheckcycles:0W    //specify the number of times the process will check for an 
 subfiltered:0b      //allows subscription filters to be loaded and applied in the rdb
 connectonstart:1b   //rdb connects to tickerplant as soon as it is started
 
+\d .ds
+datastripe:0b
+period:0D01
+lasttimestamp:.z.p-4*period
+
 \d .proc
 loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
 
@@ -38,5 +43,3 @@ loadprocesscode:1b  // whether to load the process specific code defined at ${KD
 CONNECTIONS:`hdb    // list of connections to make at start up
 STARTUP:1b          // create connections
 
-\d .ds
-datastripe:1b	    // default value to determine if segmentedtickerplant is striped

@@ -10,11 +10,8 @@ replayperiod:`day               // [period|day|prior|tailer]
 customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
 
 \d .ds
-datastripe:1b
-segmentconfig:`segmenting.csv   // default segmenting config file
-filtermap:`filtermap.csv        // default filter mapping config file
 period:0D01
-periodstokeep:4
+torqv5mode:0b                   // if true torqv5, if false vanilla torq
 
 \d .proc
 loadcommoncode:0b               // do not load common code

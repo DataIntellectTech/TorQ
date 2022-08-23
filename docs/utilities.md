@@ -723,13 +723,13 @@ The reduction in data access in each process cumulatively multiplies the data th
 
 **Example of data striping in TorQ**
 
-A simple but effective way of data striping is to do it divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
+A simple but effective way of data striping is to divide the data randomly across all processes. This will ensure an even distribution of data. However, querying (locating and retrieving) data can become complicated.
 
 A common method for data striping between processes is to use an instrument (sym) filter. For example, to stripe data across 2 RDB processes, data with symbols starting with A-M and N-L will be striped to RDB1 and RDB2 respectively. However, a major problem with this method is the uneven distribution of data (a lot of symbols tend to start with A for example).
 
 **Data hash striping**
 
-A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and for subsequent requests for those symbols, it looks them up. It is loaded into the segmented tickerplant to use as subscription requests. The hash function has to be highly performant as it will potentially be invoked ~100-1000times/s in a core (potential bottleneck) component. For this purpose, a fast, simple and non-cryptographic hash function is created to segment the data since the performance of the segmented tickerplant is of paramount importance. The hash map is created by summing the ASCII codes of each input string then dividing by the number of segements.
+A way to get around this problem is to stripe the data using a hash value which allows for better distribution. The hash function will store the mappings for the symbols that it has already computed and then for subsequent requests for those symbols, look them up. It is loaded into the segmented tickerplant to use as subscription requests. The hash function has to be highly performant as it will potentially be invoked ~100-1000 times per second in a core (potential bottleneck) component. For this purpose, a fast, simple and non-cryptographic hash function is created to segment the data since the performance of the segmented tickerplant is of paramount importance. The hash map is created by summing the ASCII codes of each input string then dividing by the number of segments.
 
 ---
 
@@ -793,7 +793,7 @@ localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist
 ```
 
 **$KDBCONFIG/rdbsub/rdbsub{i}.csv**
-The `rdbsub{i}.csv` should be modified like this:
+The **`rdbsub{i}.csv`** should be modified like this:
 ```csv
 tabname,filters,columns
 trade,.ds.stripe[sym;{i-1}],
@@ -802,11 +802,11 @@ quote,.ds.stripe[sym;{i-1}],
 
 **$KDBAPPCONFIG/settings/rdb.q**
 
-Set `.rdb.subfiltered: 1b` (default is 0b)
+Set **`.rdb.subfiltered: 1b`** (default is 0b)
 
 **$KDBAPPCONFIG/settings/default.q**
 
-Add `.ds.numseg: {4}i`
+Add **`.ds.numseg: {4}i`**
 
 ---
 
@@ -817,13 +817,13 @@ Add `.ds.numseg: {4}i`
 
 **$KDBCONFIG/process.csv**
 
-Add in `-.rdb.subfiltered 1` (to enable striping) in the `extras` column for the striped RDB instances.
+Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column for the striped RDB instances.
 
 > **NOTE**
 >
 > - It is `-.rdb.subfiltered 1` and not `-.rdb.subfiltered 1b`
 > - The RDB instances **must** be grouped according to those being striped first
->   - i.e. `rdb1`, `rdb2` are striped and `rdb3`, `rdb4` are unfiltered
+>   - i.e. **`rdb1`**, **`rdb2`** are striped and **`rdb3`**, **`rdb4`** are unfiltered
 
 `$KDBCONFIG/process.csv` should look something like this:
 
@@ -839,11 +839,11 @@ localhost,{KDBBASEPORT}+6,rdb,rdb4,${TORQAPPHOME}/appconfig/passwords/accesslist
 
 **$KDBAPPCONFIG/settings/rdb.q**
 
-**Ensure** `.rdb.subfiltered: 0b`
+**Ensure `.rdb.subfiltered: 0b`**
 
 **$KDBAPPCONFIG/settings/default.q**
 
-Add `.ds.numseg: {2}i`
+Add **`.ds.numseg: {2}i`**
 
 ---
 

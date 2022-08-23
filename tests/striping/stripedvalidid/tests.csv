@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.rdb.subtables:(),1,,"Clear subscription tables"
+before,0,0,q,.rdb.subscribe[],1,,"Subscribe to all data from stp"
+before,0,0,q,system "sleep 5",1,,"Wait for tables to populate"
+before,0,0,q,sym1:`MSFT`AAPL,1,,"set list of sym values"
+before,0,0,q,sym2:`AAPL`MSFT,1,,"set list of sym values"
+true,0,0,q,.ds.datastripe=1b,1,,"Check datastriping is set to 1"
+true,0,0,q,1=first .ds.segmentid,1,,"check value of segid set to null"
+true,0,0,q,(sym1~distinct trade.sym)|(sym2~distinct trade.sym),1,,"check filters applied to trade"
+true,0,0,q,(sym1~distinct quote.sym)|(sym2~distinct quote.sym),1,,"check filters applied to quote"
+after,0,0,q,".tst.h"".stpps.closesub .z.w""",1,,"Close subscription"
+after,0,0,q,trade:0#trade,1,,"Clear tables"
+after,0,0,q,quote:0#quote,1,,"Clear tables"
