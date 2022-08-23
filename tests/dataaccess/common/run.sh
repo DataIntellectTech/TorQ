@@ -19,5 +19,3 @@ ${TORQHOME}/torq.sh start discovery1
   -procfile ${testpath}/config/process.csv \
   -dataaccess ${testpath}/config/tableproperties.csv \
   $debug $stop $write $quiet
-
-${TORQHOME}/torq.sh stop discovery1

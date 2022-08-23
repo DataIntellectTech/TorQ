@@ -1,7 +1,5 @@
 // default configuration for the tickerplant replay
 
-.merge.mergebybytelimit:0b              // merge limit configuration - 0b is by row count, 1b is by byte size.
-
 \d .replay
 
 // Variables
@@ -30,14 +28,9 @@ sortcsv:hsym first .proc.getconfigfile["sort.csv"]               //location of  
 
 compression:()                          //specify the compress level, empty list if no required
 partandmerge:0b                         //setting to do a replay where the data is partitioned and then merged on disk
-mergemethod:`part                       //can merge data from temporary storage to the hdb in three ways:
-                                        // 1. part                      -       the entire partition is merged to the hdb 
-                                        // 2. col                       -       each column in the temporary partitions are merged individually 
-                                        // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit 
 tempdir:`:tempmergedir                  //location to save data for partandmerge replay
 mergenumrows:10000000;                  //default number of rows for merge process
 mergenumtab:`quote`trade!10000 50000;   //specify number of rows per table for merge process
-mergenumbytes:500000000                 // default partition bytesize for merge limit in merge process (only used when .merge.mergebybytelimit=1b)
 
 / - settings for the common save code (see code/common/save.q)
 .save.savedownmanipulation:()!()        // a dict of table!function used to manipuate tables at EOD save

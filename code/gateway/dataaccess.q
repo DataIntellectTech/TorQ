@@ -80,7 +80,7 @@ getdata:{[o]
             :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
     :$[.gw.call .z.w;
-        // if sync
+        //if sync
         .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
         // if async
         .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
@@ -92,19 +92,8 @@ autojoin:{[options]
     // if there is only one proc queried output the table
     if[1=count options`procs;:first];
     // if there is no need for map reducable adjustment, return razed results
-    :$[not options`mapreduce;razeresults[options;];mapreduceres[options;]];
-    };
-
-// raze results and call process res to apply postprocessing and sublist
-razeresults:{[options;res]
-    res:raze res;
-    processres[options;res]
-    };
-
-//apply sublist and post processing to joined results
-processres:{[options;res]
-    res:(options`postprocessing)res;
-    :$[(options`sublist)<>0W;(options`sublist) sublist res;res];
+    if[not options`mapreduce;:raze];
+    :mapreduceres[options;];
     };
 
 // function to correctly reduce two tables to one
@@ -126,9 +115,7 @@ mapreduceres:{[options;res]
             a!a:(),options[`timebar;2];
             0b];
     // select aggs by gr from res
-    res:?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
-    //apply sublist and postprocesing to map reduced results
-    processres[options;res]
+    :?[res;();gr;raze{mapaggregate[x 0;camel x 1]}'[aggs]];
     };
 
 
@@ -146,6 +133,23 @@ attributesrouting:{[options;procdict]
        ];
     :types;
     };
+
+// mixture of all the post processing functions in gw
+returntab:{[input;tab;reqno]
+    joinfn:input[`join];
+    // Join the tables together with the join function
+    tab:joinfn[tab];
+    // Sort the joined table in the gateway
+    if[`ordering in key input;tab:{.[y;(z;x)]}/[tab;(input[`ordering])[;0];(input[`ordering])[;1]]];
+    // Return the sublist from the table then apply the post processing function
+    tab:select [input`sublist] from tab;
+    // Undergo post processing
+    tab:(input[`postprocessing])[tab];
+    // Update the logger
+    .requests.updatelogger[reqno;`endtime`success!(.proc.cp[];1b)];
+    :tab
+    };
+
 
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]

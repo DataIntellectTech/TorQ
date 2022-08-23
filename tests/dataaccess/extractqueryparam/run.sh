@@ -20,4 +20,3 @@ ${TORQHOME}/torq.sh start discovery1
   -dataaccess ${testpath}/config/tableproperties.csv \
   $debug $stop $write $quiet
 
-${TORQHOME}/torq.sh stop discovery1

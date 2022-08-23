@@ -8,8 +8,8 @@ rangechk:{[tn;colslist;tlower;tupper;thres]
   tab:get tn;
   if[1<>sum differ count each (tab;tupper;tlower);
     :(0b; "ERROR: Input tables are different lengths.")
-    ];
-  if[any any tupper<tlower;:(0b;"ERROR: tlower and tupper wrong way round.")];
+    ]
+  if[any any tupper<tlower;:(0b;"ERROR: tlower and tupper wrong way round.")]
   /- exclude columns that do not have pre-defined limits
   colslist:((),colslist) except exec c from meta tab where t in "csSC ";
   tupper:colslist#tupper;
