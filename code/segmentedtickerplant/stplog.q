@@ -122,14 +122,26 @@ getlogs[`period]:{[t]
   distinct flip (.stplg.msgcount;exec tbl!logname from `..currlog where tbl in t)@\:t
  };
 
-// If replayperiod set to `day, replay all of today's logs
-getlogs[`day]:{[t]
+getlogshelp:{[t]
   // set the msgcount to 0Wj for all logs which have closed
-  lnames:select seq,tbls,logname,msgcount:0Wj from .stpm.metatable where any each tbls in\: t;
+  lnames:select seq,tbls,logname,end,msgcount:0Wj from .stpm.metatable where any each tbls in\: t;
   // Meta table does not store counts for live logs, so these are populated here
   lnames:update msgcount:sum each .stplg.msgcount[tbls] from lnames where seq=.stplg.i;
-  flip value exec `long$msgcount,logname from lnames
+  lnames
+  }
+
+// If replayperiod set to `day, replay all of today's logs
+getlogs[`day]:{[t]
+  flip value exec `long$msgcount,logname from getlogshelp[t]
  };
+
+// If replayperiod set to `tailer, only replays appropriate logs
+// TODO {link up with tailer process once written to communicate exactly which logs needs replayed, current code is a placeholder for this to get an approximation of correct logs} 
+getlogs[`tailer]:{[t] 
+  flip value exec `long$msgcount,logname from getlogshelp[t] where (.proc.cp[]-end)<.ds.period*.ds.periodstokeep
+  };
+
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -179,6 +191,7 @@ rolllog:{[multilog;dir;tabs;p]
 
 // Creates dictionary of process data to be used at endofday/endofperiod - configurable but default provided
 endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.proctype;.proc.procname;.stpps.t)} }];
+endofperioddata:@[value;`.stplg.endofperioddata;{ {`proctype`procname`tables`time!(.proc.proctype;.proc.procname;.stpps.t;.z.P)} }];
 
 // endofperiod function defined in SCTP
 // passes on eop messages to subscribers and rolls logs
@@ -193,15 +206,15 @@ endofperiod:{[currentpd;nextpd;data]
 
 // stp runs function to send out end of period messages and roll logs
 // eop log roll is stopped if eod is also going to be triggered (roll is not stopped in SCTP)
-stpeoperiod:{[currentpd;nextpd;data;rolllogs]
+stpeoperiod:{[data;rolllogs]
   .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
-  .stpps.endp[currentpd;nextpd;data];                      // sends endofperiod message to subscribers
+  .stpps.endp[currperiod;nextperiod;data];                 // sends endofperiod message to subscribers
   currperiod::nextperiod;                                  // increments current period
   if[(data`p)>nextperiod::multilogperiod+currperiod;
     system"t 0";'"next period is in the past"];            // timer off
   getnextendUTC[];                                         // grabs next end time
   if[rolllogs;periodrollover[data]];                       // roll if appropriate
-  .lg.o[`stpeoperiod;"end of period complete, new values for current and next period are ",.Q.s1 (currentpd;nextpd)];
+  .lg.o[`stpeoperiod;"end of period complete, new values for current and next period are ",.Q.s1 (currperiod;nextperiod)];
   }
 
 // common eop log rolling logic for STP and SCTP
@@ -246,7 +259,7 @@ checkends:{
   // jump out early if don't have to do either
   if[nextendUTC > x; :()];
   // check for endofperiod
-  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[],(enlist `p)!enlist x1;not .eodtime.nextroll < x]];
+  if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg.endofperioddata[],(enlist `p)!enlist x1;not .eodtime.nextroll < x]];
   // check for endofday
   if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; stpeod[.eodtime.d;.stplg.endofdaydata[],(enlist `p)!enlist x]];
  };
@@ -286,6 +299,8 @@ init:{[dbname]
 
 // Close logs on clean exit
 .z.exit:{
+  // Set .proc.initialised to true, allows error messages to exit process on startup (stops infinite "Bad Exit!").
+  .proc.initialised:1b;
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
   // exit before logs are touched if process is an sctp NOT in create mode

@@ -1,0 +1,8 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.rdb.subtables:(),1,,"Clear subscription tables"
+before,0,0,q,.rdb.subscribe[],1,,"Subscribe to all data from stp"
+true,0,0,q,.ds.datastripe=1b,1,,"Check datastriping is set to 1"
+true,0,0,q,0N=first .ds.segmentid,1,,"check value of segid set to null"
+after,0,0,q,".tst.h"".stpps.closesub .z.w""",1,,"Close subscription"
+after,0,0,q,trade:0#trade,1,,"Clear tables"
+after,0,0,q,quote:0#quote,1,,"Clear tables"

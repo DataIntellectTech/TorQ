@@ -1,0 +1,12 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.eod.hdbdir:`:/home/edalzell/cloudTorQ/TorQ/tests/eodprocess/loadandsave/hdb,1,,"set test HDB path"
+before,0,0,q,.eod.taildir:`:/home/edalzell/cloudTorQ/TorQ/tests/eodprocess/loadandsave,1,,"set test tailDB path"
+before,0,0,q,pt:2022.08.19,1,,"set partition for loadandsave function"
+before,0,0,q,procname:`wdb1`wdb2,1,,"set procnames for loadandsave function to locate tailDBs"
+before,0,0,q,tablelist:`quote`trade,1,,"set list of tables to save to HDB"
+run,0,0,q,loadandsave[pt;] each procname,1,,"run loadandsave function for both tailDBs"
+true,0,0,q,(`$string pt) in key .eod.hdbdir,1,,"check date partition was created in HDB"
+true,0,0,q,`quote in key ` sv (.eod.hdbdir;`$string pt),1,,"check quote table is present in HDB partition"
+true,0,0,q,`trade in key ` sv (.eod.hdbdir;`$string pt),1,,"check trade table is present in HDB partition"
+true,0,0,q,not (`$string pt) in key ` sv (.eod.taildir;`wdb1),1,,"check date partition was deleted in tailDB"
+true,0,0,q,not (`$string pt) in key ` sv (.eod.taildir;`wdb2),1,,"check date partition was deleted in tailDB"

@@ -1,0 +1,20 @@
+{
+    "goog": [
+        {
+            "subscriptiondefault": "all" ,
+            "trades": "sym like \"[A-D]*\"" ,
+            "quoteu": "sym like \"[A-D]*\""
+
+        }
+    ],
+
+    "aapl": [
+        {
+            "subscriptiondefault": "ignore" ,
+            "trade": "sym like \"[E-Z]*\"" ,
+            "quote": "sym like \"[E-Z]*\""
+
+        }
+    ]
+
+}

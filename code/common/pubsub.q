@@ -154,42 +154,37 @@ init:{[t]
 
 // Allow a non-kdb+ subscriber to subscribe with strings for complex conditions - return table name and schema to subscriber
 .ps.subtablefiltered:{[tab;filters;columns]
-  .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for filters: ",filters," and columns: ",columns];
+  //creates empty strings to be edited under certain conditions
+  bfilters:"";
+  bcolumns:"";
+  
+  //conditions met to edit strings accordingly
+  if[count filters;bfilters:" filters: "];
+  if[count columns;bcolumns:" columns: "];
+  if[(count filters) & (count columns);bcolumns:" and", bcolumns];
+  
+  .lg.o[`subtablefiltered;"Received a subscription to ",$[count tab;tab;"all tables"]," for",bfilters,filters,bcolumns,columns];
   val:.u.sub[`$tab;1!enlist `tabname`filters`columns!(`$tab;filters;columns)];
   $[10h~type last val;'last val;val]
  };
 
 // Striping data in a TorQ Installation
-// Limitation: only max 16 (hexidecimal digits 0-9 A-F) processes using this logic
-// Can expand beyond 16 processes if required - Modify lookup and modmd5 function to use more digits e.g. "8b" for a single map
-.ds.lookup:{[numseg;maxproc]
-    hexdg:lower .Q.nA til maxproc;
-    seg:til numseg;
-    hexdg!maxproc#til numseg
-    }[;16]
+// use mod to stripe into number of segments
+.ds.map:{[numseg;sym] sym!(sum each string sym)mod numseg};
 
-// Hash function
-.ds.modmd5:{first each string first each md5'[string x]}
-
-.ds.map:{[numseg;sym] sym@/:group .ds.lookup[numseg] .ds.modmd5 sym}
-
+// Initialise subscription request on startup
+.ds.subreq:(`u#`$())!`int$();
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input;skey]
-    // If no updates, return
-    if[0=count sym:distinct input;:()];
-    // Check if .ds.subreq (dict) exists
-    $[`subreq in key`.ds;
-        // If .ds.numseg changes - reset .ds.subreq
-        [
-            if[.ds.numseg<>1+max key .ds.subreq;`.ds.subreq set ()!()];
-            // If .ds.subreq exists - check for new sym and append to .ds.subreq
-            if[any new:not sym in raze value .ds.subreq;
-                `.ds.subreq set .ds.subreq,' .ds.map[.ds.numseg;sym where new];
-            ];
-        ];
-        // Initialize .ds.subreq if does not exists
-        `.ds.subreq set .ds.map[.ds.numseg;sym]
-    ];
-    .ds.subreq skey
-    }
+  // If no updates, return
+  if[0=count input;:`boolean$()];
+  // Check for new sym(s)
+  if[0N in val:.ds.subreq input;
+    // Append to .ds.subreq - unique attr is maintained
+    .ds.subreq,:.ds.map[.ds.numseg;distinct input where null val];
+    // Reassign val
+    val:.ds.subreq input;
+  ];
+  skey=val
+ };
