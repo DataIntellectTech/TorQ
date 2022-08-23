@@ -7,6 +7,7 @@ if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                   
 
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
+eodtypes:@[value;`eodtypes;`eodprocess];                                            /-eodtypes to make a connection to EOD process
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
@@ -46,8 +47,39 @@ getprocs:{[x;y]
         }
 
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
+.servers.register[.servers.procstab;.tailer.eodtypes;1b]
 
 \d .
+
+/- eod - send end of day message to main EOD process
+endofday:{[pt;processdata]
+    .lg.o[`eod;"end of day message received - ",spt:string pt];
+
+    /- trigger final save down from tailer
+    endofdaysave[processdata];
+
+    /- find handle to send message to eod process
+    eodp:exec w from .servers.getservers[`proctype;.tailer.eodtypes;()!();1b;0b];
+
+    /- exit early if no eod process connected
+    if[0=count eodp;.lg.e[`connection;"no connection to the ",(string .tailer.eodtypes)," could be established, failed to send end of day message"];:()];
+
+    /- send procname to eod process so it loads correct TDB
+    procname:.proc.procname;
+    neg[first eodp](`endofday;pt;procname);
+    .lg.o[`eod;"end of day message sent to eod process"];
+    };
+
+endofdaysave:{[processdata]
+  /- function to flush remaining in-memory data to disk when end of day message is received
+  .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
+  currp:first exec distinct end from .ds.access where end<>0N;
+  .wdb.datastripeendofperiod[currp;.z.p;processdata];
+  .lg.o[`savefinish;"finished saving remaining data to disk"];
+  };
+
+/- add endofday to tailer namespace and overwrite .wdb.endofday function
+.tailer.endofday:.wdb.endofday:endofday;
 
 /- initialise datastripe
 .lg.o[`dsinit;"initialising datastripe"];
