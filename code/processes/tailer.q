@@ -1,10 +1,13 @@
 \d .wdb
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
-hdbsettings:(`compression`hdbdir`taildir)!(compression;hdbdir;getenv`KDBTAIL)
+
+hdbsettings[`taildir]:getenv`KDBTAIL
+.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
+
+if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
 
 \d .tailer
-trtype:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-tailreadertypes:trtype
+tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
@@ -43,7 +46,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
+.servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
 
 \d .
 

@@ -104,6 +104,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         (directory;enumdata);
         {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
     ];
+
     /- check if sym file exists in taildir, create symlink to HDB sym file if not
     if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
