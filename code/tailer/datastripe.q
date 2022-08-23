@@ -145,7 +145,7 @@ savealltablesoverperiod:{[]
     ];
     };
 
-.timer.repeat[00:00+.z.d;0W;0D00:00:20;(`.ds.savealltablesoverperiod;`);"Saving tables"]
+.timer.repeat[00:00+.z.d;0W;.wdb.period;(`.ds.savealltablesoverperiod;`);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
