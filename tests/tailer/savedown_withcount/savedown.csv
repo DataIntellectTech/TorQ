@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+before,0,0,q,tr:.servers.gethandlebytype[`tr_seg1;`any],1,,"Open tailreader port"
+before,0,0,q,tl:.servers.gethandlebytype[`tailer_seg1;`any],1,,"Open tailer"
+run,0,0,q,system "sleep 60",1,,"Wait 60 seconds to populate tables"
+run,0,0,q,tl"![;();0b;`symbol$()]`trade",1,,"Clear trade table"
+run,0,0,q,tl".ds.savealltablesoverperiod[]",1,,"Running savedown function on tables"
+true,0,0,q,(tl"count quote")<1000,1,,"Check quote table data is cleared"
+true,0,0,q,(tr"count tables[]")=4,1,,"Tables added and no trade table"
+true,0,0,q,(tr"count quote")>1000,1,,"Check quote is above 1000"
