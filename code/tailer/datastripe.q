@@ -136,15 +136,15 @@ savealltablesoverperiod:{[]
     if[max totals>.wdb.rowthresh;
         .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];
         savetablesoverperiod[dir;;nextp;lasttime]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
-    /- trigger reload of access tables and intradayDBs in all tail reader processes
-    .tailer.dotailreload[`]
-    ];  
+        /- trigger reload of access tables and intradayDBs in all tail reader processes
+        .tailer.dotailreload[`]
+        ];
     if[min totals<.wdb.rowthresh;
         .lg.o[`save;"No tables above threshold, no tables saved"]
-    ];
+        ];
     };
 
-.timer.repeat[00:00+.z.d;0W;0D00:00:20;(`.ds.savealltablesoverperiod;`);"Saving tables"]
+.timer.repeat[00:00+.z.d;0W;0D00:00:20;(`.ds.savealltablesoverperiod;`);"Saving tables"];
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
