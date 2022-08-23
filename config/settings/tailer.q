@@ -1,4 +1,4 @@
-// Bespoke WDB config
+// Bespoke tailer config
 \d .wdb
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
@@ -23,7 +23,7 @@ mode:`save                                                                      
                                                                                             //                     save mode process.  When this is triggered it will sort the
                                                                                             //                     data on disk, apply attributes and the trigger a reload on the
                                                                                             //                     rdb and hdb processes
-writedownmode:`default                                                                      // the wdb process can periodically write data to disc and sort at EOD in two ways:
+writedownmode:`partbyattr                                                                      // the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                                             // 1. default          - the data is partitioned by [ partitontype ]
                                                                                             //                       at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                                             // 2. partbyattr       - the data is partitioned by [ partitiontype ] and the column(s)assigned the parted attributed in sort.csv
@@ -49,8 +49,13 @@ gc:1b                                                                           
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
+\d .ds
+period:0D01
+
 // Server connection details
 \d .servers
 CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
 STARTUP:1b                                                                                  // create connections
 
+\d .proc
+loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}

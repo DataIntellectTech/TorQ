@@ -59,6 +59,32 @@ initdatastripe:{
 
 \d .ds
 
+symlink:{
+    /- function to create HDB sym file and symlink to this sym file at start up
+    /- create HDB sym file
+    sympath:` sv (.wdb.hdbdir;`sym);
+    .lg.o[`hdbsym;"creating HDB sym file"];
+    if[not `sym in key .wdb.hdbdir;sympath set `symbol$()];
+
+    /- create symlink
+    basedir:` sv .ds.td,.proc.procname;
+    .lg.o[`symlink;"creating symlink"];
+    if[not `sym in key basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
+    };
+
+createsymlink:{[tdpath;hdbpath;symfile]
+    /- function to create symlink to HDB sym file in taildir
+    tdsympath:1_string ` sv (tdpath;symfile);
+    hdbsympath:1_string ` sv (hdbpath;symfile);
+
+    /- linux command to create symlink in specified dirs
+    symlink:{system"ln -s ",x," ",y};
+    .[symlink;
+        (hdbsympath;tdsympath);
+        {[e] .lg.e[`createsymlink;"Failed to create symlink : ",e];e}
+    ];
+    };
+
 upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
@@ -68,7 +94,8 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 
     /- get process specific taildir location
-    dir:` sv dir,.proc.procname,`$ string .wdb.currentpartition;
+    basedir:` sv dir,.proc.procname;
+    dir:` sv basedir,`$ string .wdb.currentpartition;
 
     /- get symbol enumeration
     partitionint:`$string (where s=value [`.]keycol)0;
@@ -83,6 +110,9 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
         (directory;enumdata);
         {[e] .lg.e[`upserttopartition;"Failed to save table to disk : ",e];'e}
     ];
+
+    /- check if sym file exists in taildir, create symlink to HDB sym file if not
+    if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
 
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
@@ -112,7 +142,7 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     /- saves each table up to given period to their respective partitions
     savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
     /- trigger reload of access tables and intradayDBs in all tail reader processes
-    .wdb.dotailreload[`]};
+    .tailer.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
 
