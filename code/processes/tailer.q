@@ -55,4 +55,4 @@ getprocs:{[x;y]
 initdatastripe[];
 
 /- create HDB sym file and taildir symlink
-.ds.symlink[]];
+.ds.symlink[];
