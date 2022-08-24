@@ -161,7 +161,7 @@ savealltablesoverperiod:{[dir;lasttime]
     /- saves each table up to given period to their respective partitions
     savetables[dir;]each .wdb.tablelist[];
 	
-	/- delete data from last period
+    /- delete data from last period
     .ds.deletetablebefore[;`time;lasttime]each .wdb.tablelist[];
 	
     /- trigger reload of access tables and intradayDBs in all tail reader processes
