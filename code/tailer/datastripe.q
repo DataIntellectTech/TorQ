@@ -41,9 +41,28 @@ modaccess:{[accesstab]};
 
     };
 
+.wdb.datastripeendofday:{[pt;processdata]
+    //save all tables
+    .ds.savetables[.ds.td;]; each .wdb.tablelist[];
+    //clear tables
+    @[`.wdb;`tabsizes;0#];
+    //move to next partition
+    .wdb.currentpartition:pt+1;
+    //create accesspath
+    accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
+    //make access for next partition
+    t:tables[`.] except .wdb.ignorelist;
+    .ds.access:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t);
+    modaccess[.ds.access];
+    accesspath set .ds.access;
+    };
+
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
+    
+    //update endofday function
+    endofday::.wdb.datastripeendofday;
     
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
