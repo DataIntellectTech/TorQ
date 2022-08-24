@@ -27,7 +27,7 @@ modaccess:{[accesstab]};
     modaccess[.ds.access];
 
     // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;nextp;lasttime];
+    .ds.savealltablesoverperiod[.ds.td;lasttime];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
@@ -85,7 +85,7 @@ createsymlink:{[tdpath;hdbpath;symfile]
     ];
     };
 
-upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
+upserttopartition:{[dir;tablename;keycol;enumdata]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
     /- partitions the data on the keycol and upserts it to the given dir
@@ -115,7 +115,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     if[not `sym in key hsym basedir;createsymlink[basedir;.wdb.hdbdir;`sym]];
     };
 
-savetablesoverperiod:{[dir;tablename;nextp;lasttime]
+savetables:{[dir;tablename]
     /- function to get keycol for table from access table
     keycol:`sym^.wdb.tablekeycols tablename;
 
@@ -124,27 +124,28 @@ savetablesoverperiod:{[dir;tablename;nextp;lasttime]
 
     /- enumerate and then split by keycol
     symdir:` sv dir,.proc.procname;
-    enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
+    enumkeycol: .Q.en[symdir;eval tablename];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
-    upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol; 
-
-    /- delete data from last period
-    .[.ds.deletetablebefore;(tablename;`time;lasttime)];
+    upserttopartition[dir;tablename;keycol;] each splitkeycol where 0<count each splitkeycol; 
     
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;nextp;lasttime]
+savealltablesoverperiod:{[dir;lasttime]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
-    savetablesoverperiod[dir;;nextp;lasttime]each .wdb.tablelist[];
+    savetables[dir;]each .wdb.tablelist[];
+    
+    /- delete data from last period
+    .ds.deletetablebefore[;`time;lasttime]each .wdb.tablelist[];
+
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+//.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
