@@ -130,18 +130,18 @@ savealltablesoverperiod:{[]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     /- totals calculates the row count of tables in .wdb.tablelist[] 
-    totals:{count get x}each .wdb.tablelist[];
-    /- If a totals value is greater than rowthresh which is the rowcount for saving down tables
-    if[max totals>.wdb.rowthresh;
-        .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];
-        savetablesoverperiod[.ds.td;;.z.p;(.z.p-`second$.wdb.period)]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
+    totals:{count value x}each .wdb.tablelist[];
+    /- log and return from function early if no table has crossed threshold
+    if[all totals<.wdb.rowthresh;
+        .lg.o[`save;"No tables above threshold, no tables saved"];
+        :();
+        ];
+    
+    /- log and savedown any tables above threshold
+    .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];
+    savetablesoverperiod[.ds.td;;.z.p;(.z.p-`second$.wdb.period)]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]
-    ];
-    /- if totals are below rowthresh log message indicates no tables saved
-    if[min totals<.wdb.rowthresh;
-        .lg.o[`save;"No tables above threshold, no tables saved"]
-    ];
     };
 
 /- Timer to repeat savealltablesoverperiod with period defined in tailer.q settings
