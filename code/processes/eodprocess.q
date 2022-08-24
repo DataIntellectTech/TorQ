@@ -40,6 +40,10 @@ savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   addpattr[.eod.hdbdir;pt;] each tablelist;
   deletetaildb each .eod.taildirs;
+
+  /-reset savescompleted counter and .eod.taildirs
+  savescompleted::0;
+  .eod.taildirs:();
   };
 
 upserttopartition:{[dir;pt;tabname]
