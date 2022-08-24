@@ -74,8 +74,10 @@ addpattr:{[hdbdir;pt;tabname]
   pcol:.ds.loadtablekeycols[][tabname];
 
   /-add p attr to on-disk table
-  addattr:{[hdbdir;pt;tabname;pcol] @[.Q.par[hdbdir;pt;tabname];pcol;`p#]};
   .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
+  addattr:{[hdbdir;pt;tabname;pcol]
+    @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
+    };
 
   .[addattr;
     (hdbdir;pt;tabname;pcol);
