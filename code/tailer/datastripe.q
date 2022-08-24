@@ -31,9 +31,10 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
     
     // update the access table on disk
-    atab:get ` sv(.ds.td;.proc.procname;`access);
+    accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
+    atab:get accesspath;
     atab,:() xkey .ds.access;
-    (` sv(.ds.td;.proc.procname;`access)) set atab;
+    accesspath set atab;
 
     // update the access table in the gateway
     handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
@@ -43,7 +44,7 @@ modaccess:{[accesstab]};
 
 .wdb.datastripeendofday:{[pt;processdata]
     //save all tables
-    .ds.savetables[.ds.td;]; each .wdb.tablelist[];
+    .ds.savetables[.ds.td;] each .wdb.tablelist[];
     //clear tables
     @[`.wdb;`tabsizes;0#];
     //move to next partition
@@ -61,18 +62,20 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
-    //update endofday function
+	//update endofday function
     endofday::.wdb.datastripeendofday;
-    
+	
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .wdb.ignorelist;
+	accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
 
     // load the access table; fall back to generating table if load fails
-    .ds.access: @[get;(` sv(.ds.td;.proc.procname;`access));([] table:t ; start:0Np ; end:0Np ; stptime:0Np ; keycol:`sym^.wdb.tablekeycols[t])];
+    default:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t);
+    .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
-    (` sv(.ds.td;.proc.procname;`access)) set .ds.access;       
+    accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in t;
     };
 
@@ -157,14 +160,14 @@ savealltablesoverperiod:{[dir;lasttime]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     savetables[dir;]each .wdb.tablelist[];
-    
-    /- delete data from last period
+	
+	/- delete data from last period
     .ds.deletetablebefore[;`time;lasttime]each .wdb.tablelist[];
-
+	
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-//.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
+.timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
