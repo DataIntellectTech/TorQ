@@ -74,7 +74,7 @@ endofdaysave:{[processdata]
   /- function to flush remaining in-memory data to disk when end of day message is received
   .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
   currp:first exec distinct end from .ds.access where end<>0N;
-  .wdb.datastripeendofperiod[currp;.z.p;processdata];
+  .wdb.datastripeendofperiod[currp;.z.p;processdata[],(enlist `p)!enlist .z.p];
   .lg.o[`savefinish;"finished saving remaining data to disk"];
   };
 
