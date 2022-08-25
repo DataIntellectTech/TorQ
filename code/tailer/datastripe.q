@@ -143,7 +143,7 @@ savetables:{[dir;tablename]
 
     /- enumerate and then split by keycol
     symdir:` sv dir,.proc.procname;
-    enumkeycol: .Q.en[symdir;eval tablename];
+    enumkeycol: .Q.en[symdir;value tablename];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
