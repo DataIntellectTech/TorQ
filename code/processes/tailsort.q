@@ -27,7 +27,7 @@ loadandsave:{[pt;procname]
   /-increase savescompleted counter
   savescompleted+::1;
 
-  .lg.o[`eodcomplete;"end of day sort complete for ",string[procname]];
+  .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
 
   /-check if all eod saves have been completed, if so trigger savecomplete
   if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
@@ -47,7 +47,7 @@ mergebypart:{[dir;pt;tabname;dest]
   if[98<>type data;data:(,/)data];
 
   /-upsert data to partition in destination directory
-  dest:` sv .Q.par[dest;.z.d;tabname],`;
+  dest:` sv .Q.par[dest;pt;tabname],`;
   .[upsert;
     (dest;data);
     {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
