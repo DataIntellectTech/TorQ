@@ -1,9 +1,25 @@
+.proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]                                      /-load common wdb parameters & functions
+
+.wdb.getsortparams[];                                                               /-loading sort parameters & current partition
+.wdb.currentpartition:.wdb.getpartition[];
+
+endofday: .wdb.endofday;
+endofperiod:{[currp;nextp;data]
+             .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
+.u.end:{[pt]
+        .wdb.endofday[.wdb.getpartition[];()!()];
+    };                                                                              /-define endofday & endofperiod functions in default namespace
+
+upd:.wdb.replayupd;                                                                 /-starting up tailer process, with appropriate upd definition
+.wdb.startup[];
+upd:.wdb.upd;
+
 \d .wdb
-.proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
+
 hdbsettings[`taildir]:getenv`KDBTAIL
 .ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
 
-if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
+if[not .ds.datastripe;.lg.e[`load;"datastriping not enabled"]]                      /-errors out of tailer if datastriping is not turned on
 
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
