@@ -1,6 +1,5 @@
 \d .wdb
 .proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
-
 hdbsettings[`taildir]:getenv`KDBTAIL
 .ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
 
@@ -53,6 +52,7 @@ getprocs:{[x;y]
 /- initialise datastripe
 .lg.o[`dsinit;"initialising datastripe"];
 initdatastripe[];
+
 
 /- create HDB sym file and taildir symlink
 .ds.symlink[];
