@@ -16,19 +16,18 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
-    t:tables[`.] except .wdb.ignorelist;
     lasttime:nextp-.ds.periodstokeep*(nextp-currp);
 
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    starttimes:.ds.getstarttime each t;
+    starttimes:.ds.getstarttime each .wdb.tablelist[];
     .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .ds.access;
     modaccess[.ds.access];
 
     // call the savedown function
     .ds.savealltablesoverperiod[.ds.td;lasttime];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[t]];
+    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
     
     // update the access table on disk
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
@@ -52,8 +51,7 @@ modaccess:{[accesstab]};
     //create accesspath
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     //make access for next partition
-    t:tables[`.] except .wdb.ignorelist;
-    .ds.access:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t);
+    .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
     modaccess[.ds.access];
     accesspath set .ds.access;
     };
@@ -67,16 +65,15 @@ initdatastripe:{
 	
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
-    t:tables[`.] except .wdb.ignorelist;
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
 
     // load the access table; fall back to generating table if load fails
-    default:([]table:t; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols t);
+    default:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
     .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
     accesspath set .ds.access;      
-    .ds.access:select by table from .ds.access where table in t;
+    .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
     };
 
 \d .ds
