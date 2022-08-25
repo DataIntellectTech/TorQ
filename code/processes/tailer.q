@@ -54,16 +54,12 @@ getprocs:{[x;y]
 /- eod - send end of day message to main tailsort process
 endofday:{[pt;processdata]
     .lg.o[`eod;"end of day message received - ",spt:string pt];
-
     /- trigger final save down from tailer
     endofdaysave[processdata];
-
     /- find handle to send message to tailsort process
     ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
-
     /- exit early if no eod process connected
     if[0=count ts;.lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
-
     /- send procname to eod process so it loads correct TDB
     procname:.proc.procname;
     neg[first ts](`endofday;pt;procname);

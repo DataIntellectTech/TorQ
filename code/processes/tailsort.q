@@ -20,15 +20,11 @@ loadandsave:{[pt;procname]
   /-function to merge tables from subpartitions in tailDB and save to HDB
   taildir:` sv (.ts.taildir;procname;`$string pt);
   .ts.taildirs,:taildir;
-
   /-merge tables from tailDBs and save to HDB
   mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
-
   /-increase savescompleted counter
   savescompleted+::1;
-
   .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
-
   /-check if all eod saves have been completed, if so trigger savecomplete
   if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
   };
@@ -38,14 +34,11 @@ mergebypart:{[dir;pt;tabname;dest]
   /-get list of partitions to be merged
   parts:key dir;
   partdirs:{` sv (x;y;z)}[dir;;tabname] each parts;
-
   /-load data from each partition
   .lg.o[`merge;"reading partition(s) ", (", " sv string[partdirs])];
   data:get each partdirs;
-
   /-if multiple partitions have been read in data will be a list of tabs, if this is the case - join into single tab
   if[98<>type data;data:(,/)data];
-
   /-upsert data to partition in destination directory
   dest:` sv .Q.par[dest;pt;tabname],`;
   .[upsert;
@@ -58,7 +51,6 @@ savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   addpattr[.ts.hdbdir;pt;] each tablelist;
   deletetaildb each .ts.taildirs;
-
   /-reset savescompleted counter and .ts.taildirs
   savescompleted::0;
   .ts.taildirs:();
@@ -67,13 +59,11 @@ savecomplete:{[pt;tablelist]
 addpattr:{[hdbdir;pt;tabname]
   /-load column to add p attribute on
   pcol:.ds.loadtablekeycols[][tabname];
-
   /-add p attr to on-disk table
   .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
   addattr:{[hdbdir;pt;tabname;pcol]
     @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
     };
-
   .[addattr;
     (hdbdir;pt;tabname;pcol);
     {[e] .lg.e[`attr;"Failed to add attr : ",e];e}
