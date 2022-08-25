@@ -132,20 +132,20 @@ savealltablesoverperiod:{[]
     /- totals calculates the row count of tables in .wdb.tablelist[] 
     totals:{count value x}each .wdb.tablelist[];
     /- log and return from function early if no table has crossed threshold
-    if[all totals<.wdb.rowthresh;
+    if[all totals<.wdb.numrows;
         .lg.o[`save;"No tables above threshold, no tables saved"];
         :();
         ];
     
     /- log and savedown any tables above threshold
-    .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.rowthresh)," table(s)"];
-    savetablesoverperiod[.ds.td;;.z.p;(.z.p-`second$.wdb.period)]each (.wdb.tablelist[] where totals>.wdb.rowthresh);
+    .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
+    savetablesoverperiod[.ds.td;;.z.p;(.z.p-`second$.wdb.settimer)]each (.wdb.tablelist[] where totals>.wdb.numrows);
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]
     };
 
 /- Timer to repeat savealltablesoverperiod with period defined in tailer.q settings
-.timer.repeat[00:00+.z.d;0W;.wdb.period;(`.ds.savealltablesoverperiod;`);"Saving tables"]
+.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltablesoverperiod;`);"Saving tables"]
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
