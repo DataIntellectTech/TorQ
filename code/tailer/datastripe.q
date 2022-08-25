@@ -60,7 +60,7 @@ initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
     
-	//update endofday function
+    //update endofday function
     endofday::.wdb.datastripeendofday;
 	
     // load in variables
