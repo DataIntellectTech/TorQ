@@ -89,16 +89,22 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
     /- partitions the data on the keycol and upserts it to the given dir
+    
     /- get unique sym from table
     s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
+    
+    /- get process specific taildir location
     basedir:` sv dir,.proc.procname;
     dir:` sv basedir,`$ string .wdb.currentpartition;
+    
     /- get symbol enumeration
     partitionint:`$string (where s=value [`.]keycol)0;
+
     /- create directory location for selected partition
     directory:` sv .Q.par[dir;partitionint;tablename],`;
     .lg.o[`save;"Saving ",string[s]," data from ",string[tablename]," table to partition ",string[partitionint],". Table contains ",string[count enumdata]," rows."];
     .lg.o[`save;"Saving data down to ",string[directory]];
+    
     /- upsert select data matched on partition to specific directory
     .[upsert;
         (directory;enumdata);
@@ -112,16 +118,21 @@ upserttopartition:{[dir;tablename;keycol;enumdata;nextp]
 savetablesoverperiod:{[dir;tablename;nextp;lasttime]
     /- function to get keycol for table from access table
     keycol:`sym^.wdb.tablekeycols tablename;
+    
     /- get distinct values to partition table on
     partitionlist: ?[tablename;();();(distinct;keycol)];
+    
     /- enumerate and then split by keycol
     symdir:` sv dir,.proc.procname;
     enumkeycol: .Q.en[symdir;?[tablename;enlist (<;`time;nextp);0b;()]];
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
+    
     /-upsert table to partition
     upserttopartition[dir;tablename;keycol;;nextp] each splitkeycol where 0<count each splitkeycol;
+
     /- delete data from last period
     ![;();0b;`symbol$()]each tablename; 
+
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
@@ -146,7 +157,6 @@ savealltablesoverperiod:{[]
 
 /- Timer to repeat savealltablesoverperiod with period defined in tailer.q settings
 .timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltablesoverperiod;`);"Saving tables"]
-
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
