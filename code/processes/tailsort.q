@@ -1,4 +1,4 @@
-\d .eod
+\d .ts
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
@@ -18,11 +18,11 @@ endofday:{[pt;procname]
 
 loadandsave:{[pt;procname]
   /-function to merge tables from subpartitions in tailDB and save to HDB
-  taildir:` sv (.eod.taildir;procname;`$string pt);
-  .eod.taildirs,:taildir;
+  taildir:` sv (.ts.taildir;procname;`$string pt);
+  .ts.taildirs,:taildir;
 
   /-merge tables from tailDBs and save to HDB
-  mergebypart[taildir;pt;;.eod.hdbdir] each .eod.savelist;
+  mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
 
   /-increase savescompleted counter
   savescompleted+::1;
@@ -30,14 +30,14 @@ loadandsave:{[pt;procname]
   .lg.o[`eodcomplete;"end of day sort complete for ",string[procname]];
 
   /-check if all eod saves have been completed, if so trigger savecomplete
-  if[savescompleted = count .eod.taildbs;savecomplete[pt;.eod.savelist]];
+  if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
   };
 
 mergebypart:{[dir;pt;tabname;dest]
   /-function to merge table partitions from tailDB and save to HDB
   /-get list of partitions to be merged
-  ints:key dir;
-  partdirs:{` sv (x;y;z)}[dir;;tabname] each ints;
+  parts:key dir;
+  partdirs:{` sv (x;y;z)}[dir;;tabname] each parts;
 
   /-load data from each partition
   .lg.o[`merge;"reading partition(s) ", (", " sv string[partdirs])];
@@ -56,12 +56,12 @@ mergebypart:{[dir;pt;tabname;dest]
 
 savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
-  addpattr[.eod.hdbdir;pt;] each tablelist;
-  deletetaildb each .eod.taildirs;
+  addpattr[.ts.hdbdir;pt;] each tablelist;
+  deletetaildb each .ts.taildirs;
 
-  /-reset savescompleted counter and .eod.taildirs
+  /-reset savescompleted counter and .ts.taildirs
   savescompleted::0;
-  .eod.taildirs:();
+  .ts.taildirs:();
   };
 
 addpattr:{[hdbdir;pt;tabname]

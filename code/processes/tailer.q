@@ -7,7 +7,7 @@ if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                   
 
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-eodtypes:@[value;`eodtypes;`eodprocess];                                            /-eodtypes to make a connection to EOD process
+tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-eodtypes to make a connection to EOD process
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
@@ -47,27 +47,27 @@ getprocs:{[x;y]
         }
 
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
-.servers.register[.servers.procstab;.tailer.eodtypes;1b]
+.servers.register[.servers.procstab;.tailer.tailsorttypes;1b]
 
 \d .
 
-/- eod - send end of day message to main EOD process
+/- eod - send end of day message to main tailsort process
 endofday:{[pt;processdata]
     .lg.o[`eod;"end of day message received - ",spt:string pt];
 
     /- trigger final save down from tailer
     endofdaysave[processdata];
 
-    /- find handle to send message to eod process
-    eodp:exec w from .servers.getservers[`proctype;.tailer.eodtypes;()!();1b;0b];
+    /- find handle to send message to tailsort process
+    ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
 
     /- exit early if no eod process connected
-    if[0=count eodp;.lg.e[`connection;"no connection to the ",(string .tailer.eodtypes)," could be established, failed to send end of day message"];:()];
+    if[0=count ts;.lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
 
     /- send procname to eod process so it loads correct TDB
     procname:.proc.procname;
-    neg[first eodp](`endofday;pt;procname);
-    .lg.o[`eod;"end of day message sent to eod process"];
+    neg[first ts](`endofday;pt;procname);
+    .lg.o[`eod;"end of day message sent to tailsort process"];
     };
 
 endofdaysave:{[processdata]
