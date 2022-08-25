@@ -46,7 +46,7 @@ modaccess:{[accesstab]};
     //save all tables
     .ds.savetables[.ds.td;] each .wdb.tablelist[];
     //clear tables
-    @[`.wdb;`tabsizes;0#];
+    @[`.;;0#] each .wdb.tablelist[];
     //move to next partition
     .wdb.currentpartition:pt+1;
     //create accesspath
