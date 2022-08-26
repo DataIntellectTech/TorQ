@@ -54,8 +54,8 @@ getprocs:{[x;y]
 /- eod - send end of day message to main tailsort process
 endofday:{[pt;processdata]
   .lg.o[`eod;"end of day message received - ",spt:string pt];
-  /- trigger final save down from tailer
-  endofdaysave[processdata];
+  /- call datastripeendofday
+  .wdb.datastripeendofday[pt;processdata];
   /- find handle to send message to tailsort process
   ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
   /- exit early if no eod process connected
@@ -64,14 +64,6 @@ endofday:{[pt;processdata]
   procname:.proc.procname;
   neg[first ts](`endofday;pt;procname);
   .lg.o[`eod;"end of day message sent to tailsort process"];
-  };
-
-endofdaysave:{[processdata]
-  /- function to flush remaining in-memory data to disk when end of day message is received
-  .lg.o[`save;"saving the ",(", " sv string tl:.wdb.tablelist[],())," table(s) to disk"];
-  currp:first exec distinct end from .ds.access where end<>0N;
-  .wdb.datastripeendofperiod[currp;.z.p;processdata[],(enlist `p)!enlist .z.p];
-  .lg.o[`savefinish;"finished saving remaining data to disk"];
   };
 
 /- add endofday to tailer namespace and overwrite .wdb.endofday function
