@@ -7,7 +7,7 @@ if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                   
 
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-eodtypes to make a connection to EOD process
+tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
 
 /- evaluate contents of d dictionary asynchronously
 /- flush tailreader handles after timeout
@@ -58,9 +58,9 @@ endofday:{[pt;processdata]
   .wdb.datastripeendofday[pt;processdata];
   /- find handle to send message to tailsort process
   ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
-  /- exit early if no eod process connected
+  /- exit early if no tailsort process connected
   if[0=count ts;.lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
-  /- send procname to eod process so it loads correct TDB
+  /- send procname to tailsort process so it loads correct tailDB
   procname:.proc.procname;
   neg[first ts](`endofday;pt;procname);
   .lg.o[`eod;"end of day message sent to tailsort process"];
