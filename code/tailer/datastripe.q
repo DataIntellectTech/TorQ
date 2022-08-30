@@ -167,8 +167,6 @@ savealltablesoverperiod:{[dir;lasttime]
     /- log and savedown any tables above threshold
     .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
     savetables[dir;]each (.wdb.tablelist[] where totals>.wdb.numrows);
-    /- delete data from last period
-    .ds.deletetablebefore[;`time;lasttime]each .wdb.tablelist[];
 
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
