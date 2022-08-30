@@ -1,16 +1,6 @@
 .proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]                                      /-load common wdb parameters & functions
 
-.wdb.getsortparams[];                                                               /-loading sort parameters & current partition
-.wdb.currentpartition:.wdb.getpartition[];
-
-endofday: .wdb.endofday;
-endofperiod:{[currp;nextp;data]
-             .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-.u.end:{[pt]
-        .wdb.endofday[.wdb.getpartition[];()!()];
-    };                                                                              /-define endofday & endofperiod functions in default namespace
-
-upd:.wdb.replayupd;                                                                 /-starting up tailer process, with appropriate upd definition
+upd:.wdb.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .wdb.startup[];
 upd:.wdb.upd;
 

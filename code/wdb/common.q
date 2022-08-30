@@ -509,3 +509,20 @@ getsortparams:{[]
                 .lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
         ];
         };
+
+\d .
+
+/- get the sort attributes for each table
+.wdb.getsortparams[];
+
+/- Initialise current partiton
+.wdb.currentpartition:.wdb.getpartition[];
+
+/-  adds endofday and endofperiod functions to top level namespace
+endofday: .wdb.endofday;
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
+
+/- setting the upd and .u.end functions as the .wdb versions
+.u.end:{[pt]
+        .wdb.endofday[.wdb.getpartition[];()!()];
+    }

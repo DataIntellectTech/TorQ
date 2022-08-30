@@ -4,31 +4,12 @@
 /-the row check is set on a timer - the interval may be specified by the user
 /-at eod the on-disk data may be sorted and attributes applied as specified in the sort.csv file
 
-\d .wdb
-
 /- load parameters & functions from common script.
 .proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]
-
-\d .
-
-/- get the sort attributes for each table
-.wdb.getsortparams[];
-
-/- Initialise current partiton
-.wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
-/-  adds endofday and endofperiod functions to top level namespace
-endofday: .wdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-
-/- setting the upd and .u.end functions as the .wdb versions
-.u.end:{[pt]
-	.wdb.endofday[.wdb.getpartition[];()!()];
-    }
-	
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];
 upd:.wdb.replayupd;
