@@ -112,7 +112,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // define segmentlist from tickerplant definition
   if[.ds.datastripe;
 	.ds.segmentlist:@[proc`w;({@[value;`.ds.segmentlist;0b]};`);`];
-	];
+  ];
 
   // depending on the type of tickerplant being subscribed to, change the functions for requesting
   // the tables and subscriptions
