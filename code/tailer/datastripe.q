@@ -26,7 +26,7 @@ modaccess:{[accesstab]};
     modaccess[.ds.access];
 
     // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;lasttime];
+    .ds.savealltables[.ds.td];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
     
     // update the access table on disk
@@ -43,14 +43,12 @@ modaccess:{[accesstab]};
 
 .wdb.datastripeendofday:{[pt;processdata]
     //save all tables
-    .ds.savetables[.ds.td;] each .wdb.tablelist[];
-    //clear tables
-    @[`.;;0#] each .wdb.tablelist[];
+    .ds.savealltables[.ds.td];
     //move to next partition
     .wdb.currentpartition:pt+1;
     //create accesspath
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
-    //make access for next partition
+    //define access for next partition
     .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
     modaccess[.ds.access];
     accesspath set .ds.access;
@@ -153,13 +151,13 @@ savetables:{[dir;tablename]
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;lasttime]
+savealltables:{[dir]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     savetables[dir;]each .wdb.tablelist[];
 	
-    /- delete data from last period
-    .ds.deletetablebefore[;`time;lasttime]each .wdb.tablelist[];
+    /- delete data that has been saved
+    @[`.;;0#] each .wdb.tablelist[];
 	
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
