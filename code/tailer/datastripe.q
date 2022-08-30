@@ -26,9 +26,9 @@ modaccess:{[accesstab]};
     modaccess[.ds.access];
 
     // call the savedown function
-    .ds.savealltablesoverperiod[.ds.td;lasttime];
+    .ds.savealltables[.ds.td];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
-
+    
     // update the access table on disk
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     atab:get accesspath;
@@ -43,14 +43,12 @@ modaccess:{[accesstab]};
 
 .wdb.datastripeendofday:{[pt;processdata]
     //save all tables
-    .ds.savetables[.ds.td;] each .wdb.tablelist[];
-    //clear tables
-    @[`.;;0#] each .wdb.tablelist[];
+    .ds.savealltables[.ds.td];
     //move to next partition
     .wdb.currentpartition:pt+1;
     //create accesspath
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
-    //make access for next partition
+    //define access for next partition
     .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
     modaccess[.ds.access];
     accesspath set .ds.access;
@@ -59,10 +57,10 @@ modaccess:{[accesstab]};
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
-
+    
     //update endofday function
     endofday::.wdb.datastripeendofday;
-
+	
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
@@ -72,7 +70,7 @@ initdatastripe:{
     .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
-    accesspath set .ds.access;
+    accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
     };
 
@@ -147,8 +145,8 @@ savetables:{[dir;tablename]
     splitkeycol: {[enumkeycol;keycol;s] ?[enumkeycol;enlist (=;keycol;enlist s);0b;()]}[enumkeycol;keycol;] each partitionlist;
 
     /-upsert table to partition
-    upserttopartition[dir;tablename;keycol;] each splitkeycol where 0<count each splitkeycol;
-
+    upserttopartition[dir;tablename;keycol;] each splitkeycol where 0<count each splitkeycol; 
+    
     /- run a garbage collection (if enabled)
     .gc.run[];
     };
