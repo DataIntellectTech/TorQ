@@ -35,10 +35,6 @@ modaccess:{[accesstab]};
     atab,:() xkey .ds.access;
     (` sv(.ds.td;.proc.procname;`access)) set atab;
 
-    // update the access table in the gateway
-    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    .ds.updategw each handles;
-
     };
 
 initdatastripe:{
@@ -145,13 +141,3 @@ savealltablesoverperiod:{[dir;nextp;lasttime]
     .tailer.dotailreload[`]};
 
 .timer.repeat[00:00+.z.d;0W;0D00:10:00;(`.ds.savealltablesoverperiod;.ds.td;.z.p);"Saving tables"]
-
-getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
-
-// function to update the access table in the gateway. Takes the gateway handle as argument
-updategw:{[h]
-
-    newtab:getaccess[];
-    neg[h](`.ds.updateaccess;newtab);
-
-    };

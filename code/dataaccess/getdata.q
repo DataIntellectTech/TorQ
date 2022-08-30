@@ -54,15 +54,16 @@ getdata:{[inputparams]
   // rename the columns  
   result:queryparams[`renamecolumn] xcol table;
   // apply sublist and/or post-processing function(s) if getdata is called from process
-  singleproc:not`procs in key inputparams;
-  if[singleproc&`sublist in key inputparams;result:select [inputparams`sublist] from result];
-  if[singleproc&`postprocessing in key inputparams;result:.eqp.processpostback[result;inputparams`postprocessing]];
+  if[10b~`sublist`procs in key inputparams;result:select [inputparams`sublist] from result];
+  // apply post-processing function
+  if[10b~in[`postprocessing`procs;key inputparams];
+      result:.eqp.processpostback[result;inputparams`postprocessing];];
   .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
-  if[singleproc;:result];
+  if[not`procs in key inputparams;:result];
   // add procname and proctype columns to table result for traceability
   if[`trace in key inputparams;
     if[inputparams`trace;
-      result:flip flip[result],`procname`proctype!(.proc.procname;.proc.proctype)]];
+      result:update procname:.proc.procname,proctype:.proc.proctype from result]];
   // return result in a raw format of ([] procname; proctype; query; result) for tracing/debugging
   if[`debug in key inputparams;
     if[inputparams`debug;

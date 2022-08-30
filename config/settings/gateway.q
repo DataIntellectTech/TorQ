@@ -17,11 +17,11 @@ loadprocesscode:1b              // whether to load the process specific code def
 
 // Server connection details
 \d .servers
-CONNECTIONS:`rdb`hdb`wdb	// list of connections to make at start up
-RETRY:0D00:01                   // period on which to retry dead connections.  If 0, no reconnection attempts
+CONNECTIONS:`rdb`hdb`tr_seg1`tr_seg2	// list of connections to make at start up
+RETRY:0D00:01                               // period on which to retry dead connections.  If 0, no reconnection attempts
 
 \d .aqrest
 loadexecute:0b          // Whether to reset .aqrest.execute
 
 \d .ds
-subscribers:`rdb`wdb    // list of subscribers to retrieve access tables from. Can be list of proctypes or procnames
+subscribers:`rdb`tr_seg1`tr_seg2    // list of subscribers to retrieve access tables from. Can be list of proctypes or procnames
