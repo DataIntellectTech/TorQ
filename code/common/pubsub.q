@@ -174,9 +174,15 @@ init:{[t]
 
 // Initialise subscription request on startup
 .ds.subreq:(`u#`$())!`int$();
+
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
-.ds.stripe:{[input;skey]
+.ds.stripe:{[input]
+  // Define number of segments and match each segid to a section
+  .ds.numseg:`int$count .ds.segmentlist;
+  .ds.segsect:.ds.segmentlist!til count .ds.segmentlist;
+  // Define segment based on sym split
+  skey:first .ds.segsect `$.proc.params[`segid];
   // If no updates, return
   if[0=count input;:`boolean$()];
   // Check for new sym(s)
