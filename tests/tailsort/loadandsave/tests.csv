@@ -1,6 +1,4 @@
 action,ms,bytes,lang,code,repeat,minver,comment
-before,0,0,q,.ts.hdbdir:`:/home/edalzell/cloudTorQ/TorQ/tests/tailsort/loadandsave/hdb,1,,"set test HDB path"
-before,0,0,q,.ts.taildir:`:/home/edalzell/cloudTorQ/TorQ/tests/tailsort/loadandsave,1,,"set test tailDB path"
 before,0,0,q,pt:2022.08.19,1,,"set partition for loadandsave function"
 run,0,0,q,loadandsave[pt;] each `tailer1`tailer2,1,,"run loadandsave function for both tailDBs"
 true,0,0,q,(`$string pt) in key .ts.hdbdir,1,,"check date partition was created in HDB"

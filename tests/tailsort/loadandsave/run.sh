@@ -4,6 +4,8 @@ source ${KDBTESTS}/flagparse.sh
 
 # Path to test directory
 testpath=${KDBTESTS}/tailsort/loadandsave
+KDBTAIL=${testpath}/taildir
+KDBHDB=${testpath}/hdb
 
 # Start procs
 ${TORQHOME}/../deploy/torq.sh start all -procfile ${testpath}/process.csv
