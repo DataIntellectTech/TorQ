@@ -63,7 +63,7 @@ addpattr:{[hdbdir;pt;tabname]
   .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
   addattr:{[hdbdir;pt;tabname;pcol]
     @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
-    };
+  };
   .[addattr;
     (hdbdir;pt;tabname;pcol);
     {[e] .lg.e[`attr;"Failed to add attr : ",e];e}
