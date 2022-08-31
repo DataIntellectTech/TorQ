@@ -61,8 +61,7 @@ endofday:{[pt;processdata]
   /- exit early if no tailsort process connected
   if[0=count ts;.lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
   /- send procname to tailsort process so it loads correct tailDB
-  procname:.proc.procname;
-  neg[first ts](`endofday;pt;procname);
+  neg[first ts](`endofday;pt;.proc.procname);
   .lg.o[`eod;"end of day message sent to tailsort process"];
   };
 
