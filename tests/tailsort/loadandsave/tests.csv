@@ -7,5 +7,5 @@ run,0,0,q,loadandsave[pt;] each procname,1,,"run loadandsave function for both t
 true,0,0,q,(`$string pt) in key .ts.hdbdir,1,,"check date partition was created in HDB"
 true,0,0,q,`quote in key ` sv (.ts.hdbdir;`$string pt),1,,"check quote table is present in HDB partition"
 true,0,0,q,`trade in key ` sv (.ts.hdbdir;`$string pt),1,,"check trade table is present in HDB partition"
-true,0,0,q,not (`$string pt) in key ` sv (.ts.taildir;`wdb1),1,,"check date partition was deleted in tailDB"
-true,0,0,q,not (`$string pt) in key ` sv (.ts.taildir;`wdb2),1,,"check date partition was deleted in tailDB"
+true,0,0,q,not (`$string pt) in key ` sv (.ts.taildir;`tailer1),1,,"check date partition was deleted in tailDB"
+true,0,0,q,not (`$string pt) in key ` sv (.ts.taildir;`tailer2),1,,"check date partition was deleted in tailDB"
