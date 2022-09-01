@@ -1,14 +1,12 @@
 \d .tr
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
-getpartition:{@[value;`getpartition;                       /-function to determine the partition value
-  {(`date^partitiontype)$(.z.D,.z.d)gmttime]}
-  };
+getpartition:@[value;`getpartition;                                        /-function to determine the partition value
+  getpartition:{(`date^partitiontype)$(.z.D,.z.d)gmttime}];
 currentpartition:@[value;`currentpartition;getpartition[]]
 segmentid: "J"$.proc.params[`segid]
-taildir:hsym `$getenv`KDBTAIL                                              /-load in taildir env variables
-basedir:(raze/)1_string[.tr.taildir],"/tailer",string .tr.segmentid,"/"    /-define associated tailer base directory
-taildir:`$ basedir,string currentpartition                                  /-define tailDB direction
+basedir:raze (getenv`KDBTAIL),"/tailer",(string .tr.segmentid),"/"         /-define associated tailer base directory
+taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
 
 \d .
 endofday:{[pt]
