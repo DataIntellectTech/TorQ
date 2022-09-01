@@ -166,6 +166,9 @@ savealltables:{[dir]
     .lg.o[`save;"Saving ",(", " sv string tabstosave:.wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
     savetables[dir;]each tabstosave;
 
+    /- delete data that has been saved
+    @[`.;;0#] each tabstosave;
+
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 

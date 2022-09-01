@@ -5,6 +5,7 @@ before,0,0,q,tl".wdb.numrows:100",1,,"Set row count as the standard row count is
 run,0,0,q,tl".ds.savealltables[.ds.td]",1,,"Running savedown function sould save tables but, there should be no data to savedown so the table count should stay the same"
 run,0,0,q,.os.sleep 10,1,,"Wait 10 seconds to populate tables with rows of data for trade and quote"
 run,0,0,q,tl"delete from `trade";tl".ds.savealltablesoverperiod[.ds.td]",1,,"We delete from trade to ensure that only quote is above the threshold as we want to test filtration"
+true,0,0,q,t1"(count quote)<.wdb.numrows",1,,"Check if saved data has been cleared from tailer memory"
 true,0,0,q,(tr"count quote")>100,1,,"Check quote is above 100,this is to check quote has been saved and reload to the tailreader successfully"
 run,0,0,q,.os.sleep 20,1,,"Wait for 20 secs,this is to populate the trade and quote table again"
 run,0,0,q,tl".ds.savealltables[.ds.td]",1,,"Running savedown function on tables,should save quote"
