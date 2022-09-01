@@ -1,9 +1,10 @@
-\d .wdb
-.proc.loadf [getenv[`KDBCODE],"/processes/wdb.q"]
-hdbsettings[`taildir]:getenv`KDBTAIL
-.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
+.proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]                                      /-load common wdb parameters & functions
 
-if[not .ds.datastripe;.lg.e[`load;"datastiping not enabled"]]                       /-errors out of tailer if datastriping is not turned on
+upd:.wdb.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
+.wdb.startup[];
+upd:.wdb.upd;
+
+if[not .ds.datastripe;.lg.e[`load;"datastriping not enabled"]]                      /-errors out of tailer if datastriping is not turned on
 
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
@@ -27,6 +28,10 @@ dotailreload:{[pt]
   };
 
 \d .wdb
+
+hdbsettings[`taildir]:getenv`KDBTAIL
+.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
+
 reloadproc:{[h;d;ptype;reloadlist]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
         $[eodwaittime>0;
