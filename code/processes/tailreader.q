@@ -13,7 +13,7 @@ wdbdir:`$ basedir,string currentpartition                                  /-def
 
 \d .
 endofday:{[pt]
-  /- end of day function that will be triggered by EOD Sorter once IDB is copied to HDB
+  /- end of day function that will be triggered by EOD Sorter once TailDB is copied to HDB
   /-  updates partition and loads in next days partition
   .lg.o[`eod;"End of day message received - ",spt:string pt];
   .tr.currentpartition:pt+1;
