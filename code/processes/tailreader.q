@@ -27,6 +27,7 @@ reload:{
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
   .ds.access:@[.Q.l;accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
+  /- select last set of entries from accesstable
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
   load hsym `$.tr.basedir,"sym"
