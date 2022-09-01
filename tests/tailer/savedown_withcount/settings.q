@@ -1,6 +1,5 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`segmentedtickerplant`sort`gateway`rdb`hdb`tailer_seg1`tr_seg1
-.servers.USERPASS:`admin:admin;
+.servers.CONNECTIONS:`segmentedtickerplant`sort`gateway`rdb`hdb`tailer_seg1`tr_seg1;
 // Paths to process CSV and temp HDB directory
 processcsv:getenv[`KDBTESTS],"/tailer/savedown/process.csv";
 temphdbdir:hsym `$getenv[`KDBTESTS],"/tailer/savedown/tmphdb/";

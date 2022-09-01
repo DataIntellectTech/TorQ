@@ -1,6 +1,6 @@
 \d .ds
 
-segmentid: "J"$.proc.params[`segid]             // segmentid variable defined by applying key to dictionary of input values
+segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
 
 td:hsym `$getenv`KDBTAIL
 
@@ -106,7 +106,7 @@ upserttopartition:{[dir;tablename;keycol;enumdata]
     /- function takes a (dir)ectory handle, tablename as a symbol
     /- column to key table on, an enumerated table and a timestamp.
     /- partitions the data on the keycol and upserts it to the given dir
-
+    
     /- get unique sym from table
     s:first raze value'[?[enumdata;();1b;enlist[keycol]!enlist keycol]];
 
@@ -151,7 +151,7 @@ savetables:{[dir;tablename]
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir;lasttime]
+savealltablesoverperiod:{[dir]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     /- totals calculates the row count of tables in .wdb.tablelist[]
@@ -160,17 +160,17 @@ savealltablesoverperiod:{[dir;lasttime]
     if[all totals<.wdb.numrows;
         .lg.o[`save;"No tables above threshold, no tables saved"];
         :();
-        ];
+    ];
 
     /- log and savedown any tables above threshold
-    .lg.o[`save;"Saving ",(", " sv string .wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
-    savetables[dir;]each (.wdb.tablelist[] where totals>.wdb.numrows);
+    .lg.o[`save;"Saving ",(", " sv string tabstosave:.wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
+    savetables[dir;]each tabstosave;
 
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
 /- Timer to repeat savealltablesoverperiod with period defined in tailer.q settings
-.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltablesoverperiod;.ds.td;(.z.p-`second$.wdb.settimer));"Saving tables"];
+.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltablesoverperiod;.ds.td);"Saving tables"];
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
