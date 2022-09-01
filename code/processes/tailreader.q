@@ -7,7 +7,6 @@ getpartition:{@[value;`getpartition;                       /-function to determi
 currentpartition:@[value;`currentpartition;getpartition[]]
 segmentid: "J"$.proc.params[`segid]
 taildir:hsym `$getenv`KDBTAIL                                              /-load in taildir env variables
-currentpartition:getpartition;                                             /-obtain  partition value
 basedir:(raze/)1_string[.tr.taildir],"/tailer",string .tr.segmentid,"/"    /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition                                  /-define tailDB direction
 
