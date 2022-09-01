@@ -4,11 +4,6 @@ upd:.wdb.replayupd;                                                             
 .wdb.startup[];
 upd:.wdb.upd;
 
-\d .wdb
-
-hdbsettings[`taildir]:getenv`KDBTAIL
-.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
-
 if[not .ds.datastripe;.lg.e[`load;"datastriping not enabled"]]                      /-errors out of tailer if datastriping is not turned on
 
 \d .tailer
@@ -33,6 +28,10 @@ dotailreload:{[pt]
   };
 
 \d .wdb
+
+hdbsettings[`taildir]:getenv`KDBTAIL
+.ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
+
 reloadproc:{[h;d;ptype;reloadlist]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];
         $[eodwaittime>0;
