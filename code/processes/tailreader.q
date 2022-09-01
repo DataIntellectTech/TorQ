@@ -9,7 +9,7 @@ segmentid: "J"$.proc.params[`segid]
 taildir:hsym `$getenv`KDBTAIL                                              /-load in taildir env variables
 currentpartition:getpartition;                                             /-obtain  partition value
 basedir:(raze/)1_string[.tr.taildir],"/tailer",string .tr.segmentid,"/"    /-define associated tailer base directory
-wdbdir:`$ basedir,string currentpartition                                  /-define tailDB direction
+taildir:`$ basedir,string currentpartition                                  /-define tailDB direction
 
 \d .
 endofday:{[pt]
@@ -23,10 +23,10 @@ endofday:{[pt]
 reload:{
   /- function to define the access table and tailDB dir and then reload both tables
   /- reload is triggered by tailer after savedown occurs
-  .tr.wdbdir:`$ .tr.basedir,string .tr.currentpartition;
-  accesstabdir:`$ (string .tr.wdbdir),"/access";
+  .tr.taildir:`$ .tr.basedir,string .tr.currentpartition;
+  accesstabdir:`$ (string .tr.taildir),"/access";
   .lg.o[`load;"Loading intradayDB"];
-  @[.Q.l ;.tr.wdbdir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
+  @[.Q.l ;.tr.taildir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
   .ds.access:@[.Q.l;accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
@@ -36,5 +36,5 @@ reload:{
   }
 
 /- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
-$[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No tailDB present for this date"]];
+$[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
