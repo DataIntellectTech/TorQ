@@ -1,10 +1,10 @@
 \d .tr
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
-determinepartition:{@[value;`.tr.currentpartition;                         /-function to determine the partition value
-  (`date^partitiontype)$(.z.D,.z.d)gmttime]
+getpartition:{@[value;`getpartition;                       /-function to determine the partition value
+  {(`date^partitiontype)$(.z.D,.z.d)gmttime]}
   };
-getpartition:@[value;`getpartition;determinepartition[]];                  /-check if partition value exists and if not generate one
+currentpartition:@[value;`currentpartition;getpartition[]]
 segmentid: "J"$.proc.params[`segid]
 taildir:hsym `$getenv`KDBTAIL                                              /-load in taildir env variables
 currentpartition:getpartition;                                             /-obtain  partition value
