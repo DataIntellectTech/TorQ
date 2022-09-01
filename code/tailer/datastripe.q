@@ -151,7 +151,7 @@ savetables:{[dir;tablename]
     .gc.run[];
     };
 
-savealltablesoverperiod:{[dir]
+savealltables:{[dir]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     /- totals calculates the row count of tables in .wdb.tablelist[]
@@ -169,8 +169,8 @@ savealltablesoverperiod:{[dir]
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-/- Timer to repeat savealltablesoverperiod with period defined in tailer.q settings
-.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltablesoverperiod;.ds.td);"Saving tables"];
+/- Timer to repeat savealltables with period defined in tailer.q settings
+.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltables;.ds.td);"Saving tables"];
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
