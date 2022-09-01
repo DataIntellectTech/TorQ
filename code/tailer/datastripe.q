@@ -154,7 +154,17 @@ savetables:{[dir;tablename]
 savealltables:{[dir]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
-    /- totals calculates the row count of tables in .wdb.tablelist[]
+    savetables[dir;]each .wdb.tablelist[];
+
+    /- delete data that has been saved
+    @[`.;;0#] each .wdb.tablelist[];
+
+    /- trigger reload of access tables and intradayDBs in all tail reader processes
+    .tailer.dotailreload[`]};
+
+savedownfilter:{[]
+    /- checks each table in memory against a size threshold
+    /- saves any tables above that threshold
     totals:{count value x}each .wdb.tablelist[];
     /- log and return from function early if no table has crossed threshold
     if[all totals<.wdb.numrows;
@@ -170,10 +180,11 @@ savealltables:{[dir]
     @[`.;;0#] each tabstosave;
 
     /- trigger reload of access tables and intradayDBs in all tail reader processes
-    .tailer.dotailreload[`]};
+    .tailer.dotailreload[`]
+    };
 
 /- Timer to repeat savealltables with period defined in tailer.q settings
-.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savealltables;.ds.td);"Saving tables"];
+.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savedownfilter;.ds.td);"Saving tables"];
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
