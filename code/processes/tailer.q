@@ -18,13 +18,13 @@ upd:.wdb.upd;
 
 .tailer.replayupd:{[f;t;d]
 	/- execute the supplied function        
-        f . (t;d);
+  f . (t;d);
 	/- if the data count is greater than the threshold, then flush data to disk
 	if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
-		.lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-		/- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-		.ds.applyfilters[enlist t;.sub.filterdict];
-		.ds.savealltables[.ds.td] each .wdb.tablelist[]
+	 .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+	 /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
+	 .ds.applyfilters[enlist t;.sub.filterdict];
+	 .ds.savealltables[.ds.td] each .wdb.tablelist[]
 	];	
 	}[upd];
 
@@ -47,7 +47,7 @@ upd:.wdb.upd;
   .lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
   @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
-	};
+ };
 
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
@@ -59,14 +59,10 @@ if[not .ds.datastripe;.lg.e[`load;"datastriping not enabled"]]                  
 \d .tailer
 tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 
-/- evaluate contents of d dictionary asynchronously
-/- flush tailreader handles after timeout
-
 \d .wdb
 
 hdbsettings[`taildir]:getenv`KDBTAIL
 .ds.lasttimestamp:.z.p-.ds.periodstokeep*.ds.period
-show .tailer.tailreadertypes;
 
 reloadproc:{[h;d;ptype;reloadlist]
         .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b] each reloadlist];

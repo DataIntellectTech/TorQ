@@ -75,7 +75,7 @@ initdatastripe:{
     accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
-		.tailer.dotailreload[`];
+    .tailer.dotailreload[`];
     };
 
 \d .ds

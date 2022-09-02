@@ -36,7 +36,7 @@ applyfilters:{[filtertab;td]
 filtertable:{[filtertab;td]
   filterparse:@[parse;"exec from x where ", td[filtertab]];
   eval(?;filtertab;filterparse[2];0b;())
-	}
+  }
 
 filterreplayed:{[lf;td;logmetatab]
   // lf is a log file handle and td is a dictionary with table names as keys and where clauses to filter by as values

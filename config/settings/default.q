@@ -186,4 +186,4 @@ SAVEFILE:`:KUTR.csv;    // test results savefile
 datastripe:0b
 numseg:0i;		// default value for process.csv to overwrite and pubsub.q check
 periodstokeep:4;
-replaystarttime:00:00:00;
+replaystarttime:00:00:00;		// default start time to begin replaying tplogs from
