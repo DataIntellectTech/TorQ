@@ -26,9 +26,9 @@ checksegid:{if[datastripe;if[not (`segid in key .proc.params);.lg.e[`init;"Datas
 // function to filter replayed tables with where clause from striping.json
 applyfilters:{[filtertab;td]
   if[count filtertab;
-   .lg.o[`subscribe;"filtering table(s) ", (", " sv string filtertab), " started at: ",string .z.P];
-   set'[filtertab; filtertable[;td] each filtertab];
-   .lg.o[`subscribe;"finished filtering table(s) ", (", " sv string filtertab), " at: ",string .z.P];
+    .lg.o[`subscribe;"filtering table(s) ", (", " sv string filtertab), " started at: ",string .z.P];
+    set'[filtertab; filtertable[;td] each filtertab];
+    .lg.o[`subscribe;"finished filtering table(s) ", (", " sv string filtertab), " at: ",string .z.P];
     ];
   }
 
