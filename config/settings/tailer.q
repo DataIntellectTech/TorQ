@@ -48,7 +48,8 @@ compression:()                                                                  
 gc:1b                                                                                       // garbage collect at appropriate points (after each table save and after sorting data)
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
-maxrows:10000																																								// number of rows of data before savedown occurs during tplog replay
+
+maxrows:10000										//number of rows of data before savedown occurs during tplog replay
 
 \d .ds
 period:0D01

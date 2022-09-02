@@ -46,4 +46,4 @@ filterreplayed:{[lf;td;logmetatab]
     filtertab:(key td) inter raze exec tbls from logmetatab where logname=@[lf;1];
   // filters tables replayed by the logs if required
     if[count filtertab;applyfilters[filtertab;td]];
-    };
+  };

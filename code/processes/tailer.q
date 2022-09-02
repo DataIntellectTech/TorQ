@@ -26,7 +26,7 @@ upd:.wdb.upd;
 	 .ds.applyfilters[enlist t;.sub.filterdict];
 	 .ds.savealltables[.ds.td] each .wdb.tablelist[]
 	];	
-	}[upd];
+  }[upd];
 
 .tailer.dotailreload:{[pt]
   /-send reload request to tailreaders
@@ -55,9 +55,6 @@ upd:.tailer.replayupd;                                                          
 upd:.wdb.upd;
 
 if[not .ds.datastripe;.lg.e[`load;"datastriping not enabled"]]                      /-errors out of tailer if datastriping is not turned on
-
-\d .tailer
-tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
 
 \d .wdb
 
