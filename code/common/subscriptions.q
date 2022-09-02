@@ -111,7 +111,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   .lg.o[`subscribe;"datastriping is turned ",$[.ds.datastripe;"on";"off"]];
   // define segmentlist from tickerplant definition
   if[.ds.datastripe;
-	.ds.segmentlist:@[proc`w;({@[value;`.ds.segmentlist;0b]};`);`];
+    .ds.segmentlist:@[proc`w;({@[value;`.ds.segmentlist;0b]};`);`];
   ];
 
   // depending on the type of tickerplant being subscribed to, change the functions for requesting
