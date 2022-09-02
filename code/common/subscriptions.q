@@ -69,7 +69,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   if[not (tabs;realsubs[`instrs])~(`;`);
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
-// if datastriping is on replays only logs from current periods and applys filtering
+  // if datastriping is on replays only logs from current periods and applys filtering
   if[.ds.datastripe;
   //get tplog metadata table from stp  
   logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
