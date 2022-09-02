@@ -70,16 +70,16 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
     .lg.o[`subscribe;"using the .sub.replayupd function as not replaying all tables or instruments"];
     @[`.;`upd;:;.sub.replayupd[origupd;subtabs;realsubs[`instrs]]]];
 // if datastriping is on replays only logs from current periods and applys filtering
-    if[.ds.datastripe;
+  if[.ds.datastripe;
   //get tplog metadata table from stp  
-    logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+  logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
   //gets the name of log files from the current periods to keep in order to replay them
-    currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
+  currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
   //alters log file list to only include log files from the current periods
-    logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
+  logfilelist:logfilelist logfilelist[;1]?currentlogfiles;
   //run replay and filtering of logs
-   {[logfile;filters;logmetatab] .[.ds.filterreplayed;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
-   ];
+  {[logfile;filters;logmetatab] .[.ds.filterreplayed;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
+  ];
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
