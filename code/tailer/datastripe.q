@@ -55,10 +55,7 @@ modaccess:{[accesstab]};
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
-    
-    //update endofday function
-    endofday::.wdb.datastripeendofday;
-	
+
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
