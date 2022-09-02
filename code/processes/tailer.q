@@ -17,15 +17,15 @@ upd:.wdb.upd;
   };
 
 .tailer.replayupd:{[f;t;d]
-	/- execute the supplied function        
+  /- execute the supplied function        
   f . (t;d);
-	/- if the data count is greater than the threshold, then flush data to disk
-	if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
-	 .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-	 /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-	 .ds.applyfilters[enlist t;.sub.filterdict];
-	 .ds.savealltables[.ds.td] each .wdb.tablelist[]
-	];	
+  /- if the data count is greater than the threshold, then flush data to disk
+  if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
+    .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+    /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
+    .ds.applyfilters[enlist t;.sub.filterdict];
+    .ds.savealltables[.ds.td] each .wdb.tablelist[]
+  ];	
   }[upd];
 
 .tailer.dotailreload:{[pt]
