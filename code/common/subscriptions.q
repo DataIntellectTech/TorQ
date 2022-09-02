@@ -135,9 +135,9 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   if[count details;
     if[setschema;createtables[details[`schemalist]]];
     if[replaylog;
-       .sub.filterdict:$[.ds.datastripe;
-         vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
-       realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];.sub.filterdict]];
+      .sub.filterdict:$[.ds.datastripe;
+        vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
+      realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];.sub.filterdict]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
