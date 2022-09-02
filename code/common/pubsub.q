@@ -178,7 +178,7 @@ init:{[t]
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
 .ds.stripe:{[input]
-  // Define number of segments and match each segid to a section
+  // Define number of segments and match to each segid
   .ds.numseg:`int$count .ds.segmentlist;
   .ds.segsect:.ds.segmentlist!til count .ds.segmentlist;
   // Define segment based on sym split
