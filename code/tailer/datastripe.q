@@ -47,7 +47,7 @@ modaccess:{[accesstab]};
     //create accesspath
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     //define access for next partition
-    .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
+    .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]; segment:first .ds.segmentid);
     modaccess[.ds.access];
     accesspath set .ds.access;
     };
@@ -61,7 +61,7 @@ initdatastripe:{
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
 
     // load the access table; fall back to generating table if load fails
-    default:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
+    default:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]; segment:first .ds.segmentid);
     .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
