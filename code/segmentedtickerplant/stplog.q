@@ -207,6 +207,8 @@ endofperiod:{[currentpd;nextpd;data]
 // stp runs function to send out end of period messages and roll logs
 // eop log roll is stopped if eod is also going to be triggered (roll is not stopped in SCTP)
 stpeoperiod:{[data;rolllogs]
+  .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
+  .stpps.pubclear[.stplg.t];
   .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
   .stpps.endp[currperiod;nextperiod;data];                 // sends endofperiod message to subscribers
   currperiod::nextperiod;                                  // increments current period
@@ -234,6 +236,8 @@ endofday:{[date;data]
 
 // STP runs function to send out eod messages and roll logs
 stpeod:{[date;data]
+  .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
+  .stpps.pubclear[.stplg.t];
   .lg.o[`stpeod;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];                                         // sends endofday message to subscribers
   dayrollover[data];                 
