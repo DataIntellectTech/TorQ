@@ -212,23 +212,14 @@ periodrollover:{[data]
   rolllog[multilog;dldir;rolltabs;data`p];
   }
 
-// endofday function defined in SCTP
-// passes on eod messages to subscribers and rolls logs
+// common eod for STP and SCTP to send out eod messages and roll logs
 endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
   .stpps.pubclear[.stplg.t];
+  .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];  // sends endofday message to subscribers
   dayrollover[data];
   }
-
-// STP runs function to send out eod messages and roll logs
-stpeod:{[date;data]
-  .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
-  .lg.o[`stpeod;"executing end of day for ",.Q.s1 .eodtime.d];
-  .stpps.end[date;data];                                         // sends endofday message to subscribers
-  dayrollover[data];                 
- }
 
 // common eod log rolling logic for STP and SCTP
 dayrollover:{[data]
@@ -252,7 +243,7 @@ checkends:{
   // check for endofperiod
   if[nextperiod < x1:x+.eodtime.dailyadj; stpeoperiod[.stplg`currperiod;.stplg`nextperiod;.stplg.endofdaydata[],(enlist `p)!enlist x1;not .eodtime.nextroll < x]];
   // check for endofday
-  if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; stpeod[.eodtime.d;.stplg.endofdaydata[],(enlist `p)!enlist x]];
+  if[.eodtime.nextroll < x;if[.eodtime.d<("d"$x)-1;system"t 0";'"more than one day?"]; endofday[.eodtime.d;.stplg.endofdaydata[],(enlist `p)!enlist x]];
  };
 
 init:{[dbname]
