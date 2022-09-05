@@ -22,9 +22,12 @@ jsonchecks:{[]
      //Enable datastriping if all checks pass
      .ds.datastripe:min (0=count errors; 0=count wrongtables);
      $[.ds.datastripe;
-      .lg.o[`jsonchecks;"config checks complete and datastriping is on"];
-      .lg.e[`jsonchecks;"Datastriping is not enabled due to failed config checks"]
-     ];
+       [.lg.o[`jsonchecks;"config checks complete and datastriping is on"];
+       // define segmentids from the striping config for use in pubsub.q 
+       .ds.segmentlist:key .stpps.stripeconfig
+       ];
+       .lg.e[`jsonchecks;"Datastriping is not enabled due to failed config checks"]
+      ];
      };
 
 // Initialise config check
