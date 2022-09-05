@@ -2,6 +2,7 @@
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
+rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
@@ -55,6 +56,7 @@ savecomplete:{[pt;tablelist]
   /-reset savescompleted counter and .ts.taildirs
   savescompleted::0;
   .ts.taildirs:();
+  resetrdbwindow[];
   };
 
 loadandsave:{[pt;procname]
@@ -75,3 +77,12 @@ endofday:{[pt;procname]
   .lg.o[`endofday;"end of day message received from ",string[procname]," - ",string[pt]];
   loadandsave[pt;procname];
   };
+
+/- notify rdb when tail sort process complete
+resetrdbwindow:{
+  .lg.o[`rdbwindow;"resetting rdb moving time window"];
+  rdbprocs:.servers.getservers[`proctype;.ts.rdbtypes;()!();1b;0b];
+  {neg[x]".rdb.tailsortcomplete:1b";neg[x][]}each exec w from rdbprocs;
+  };
+
+.servers.startup[];
