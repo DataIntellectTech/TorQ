@@ -150,7 +150,6 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
-    .lg.o[`subscribe;"datastriping variable is", .Q.s1 .ds.datastripe];
 		if[replaylog;
 			@[{.ds.replaystarttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep};`;{.lg.o[`subscribe;".ds.replaystarttime not defined: ",x]}]];
 		if[subfiltered;
