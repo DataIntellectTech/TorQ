@@ -17,7 +17,7 @@ upd:.wdb.upd;
   };
 
 .tailer.replayupd:{[f;t;d]
-  /- execute the supplied function        
+  /- execute the supplied function
   f . (t;d);
   /- if the data count is greater than the threshold, then flush data to disk
   if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
