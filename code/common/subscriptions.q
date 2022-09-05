@@ -53,7 +53,7 @@ createtables:{
   (@[`.;;:;].)each x where not 0=count each x;
  }
 
-replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
+replay0:{[proc;tabs;realsubs;schemalist;logfilelist;filters]
   // realsubs is a dict of `subtabs`errtabs`instrs
   // schemalist is a list of (tablename;schema)
   // logfilelist is a list of (log count; logfile) 
@@ -72,7 +72,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
   // if datastriping is on replays only logs from current periods and applys filtering
   if[.ds.datastripe;
     //get tplog metadata table from stp  
-    logmetatab:.servers.gethandlebytype[`segmentedtickerplant;`last]`.stpm.metatable;
+    logmetatab:@[proc`w;({@[value;`.stpm.metatable;`]};`);`];
     //gets the name of log files from the current periods to keep in order to replay them
     currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
     //alters log file list to only include log files from the current periods
@@ -88,7 +88,7 @@ replay0:{[tabs;realsubs;schemalist;logfilelist;filters]
  }
 
 // used in place of replay0 in previous versions of torq, kept defined to allow for backwards compatibility
-replay:replay0[;;;;()!()]
+replay:replay0[;;;;;()!()]
 
 subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // if proc dictionary is empty then exit - no connection
@@ -137,7 +137,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     if[replaylog;
       .sub.filterdict:$[.ds.datastripe;
         vals!details[`filters][vals:where {not all null x} each details[`filters]];()!()];
-      realsubs:replay0[tabs;realsubs;details[`schemalist];details[`logfilelist];.sub.filterdict]];
+      realsubs:replay0[proc;tabs;realsubs;details[`schemalist];details[`logfilelist];.sub.filterdict]];
     .lg.o[`subscribe;"subscription successful"];
     updatesubscriptions[proc;;realsubs[`instrs]]each realsubs[`subtabs]];
 
