@@ -29,9 +29,9 @@
     .rdb.tailsortcomplete:0b;
     // add date+1 to rdbpartition global
     .rdb.rdbpartition,:: date+1;
-    .lg.o[`rdbpartition;"rdbpartition contains - ","," sv string .rdb.rdbpartition];
+    .lg.o[`rdbpartition;"rdbpartition contains - ", "," sv string .rdb.rdbpartition];
     t:tables[`.] except .rdb.ignorelist;
-    .lg.o[`clear;"Wiping following tables - ","," sv string t];
+    .lg.o[`clear;"Wiping following tables - ", "," sv string t];
     @[`.;t;0#];
     .rdb.rmdtfromgetpar[date];
     };

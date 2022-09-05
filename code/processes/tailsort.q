@@ -43,6 +43,13 @@ addpattr:{[hdbdir;pt;tabname]
   ];
   };
 
+/- notify rdb when tail sort process complete
+resetrdbwindow:{
+  .lg.o[`rdbwindow;"resetting rdb moving time window"];
+  rdbprocs:.servers.getservers[`proctype;.ts.rdbtypes;()!();1b;0b];
+  {neg[x]".rdb.tailsortcomplete:1b";neg[x][]}each exec w from rdbprocs;
+  };
+
 deletetaildb:{[tdbpath]
   /-function to delete tailDB
   .lg.o[`clearTDB;"removing TDB data for partition ",string[tdbpath]];
@@ -76,13 +83,6 @@ endofday:{[pt;procname]
   /- function to trigger data load & save to HDB once endofday message is received from tailer(s)
   .lg.o[`endofday;"end of day message received from ",string[procname]," - ",string[pt]];
   loadandsave[pt;procname];
-  };
-
-/- notify rdb when tail sort process complete
-resetrdbwindow:{
-  .lg.o[`rdbwindow;"resetting rdb moving time window"];
-  rdbprocs:.servers.getservers[`proctype;.ts.rdbtypes;()!();1b;0b];
-  {neg[x]".rdb.tailsortcomplete:1b";neg[x][]}each exec w from rdbprocs;
   };
 
 .servers.startup[];

@@ -4,7 +4,7 @@
 /-the row check is set on a timer - the interval may be specified by the user
 /-at eod the on-disk data may be sorted and attributes applied as specified in the sort.csv file
 
-/- load parameters & functions from common script.	
+/- load parameters & functions from common script.
 .proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]
 
 /- make sure to request connections for all the correct types
