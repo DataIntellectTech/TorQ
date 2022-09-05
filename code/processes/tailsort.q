@@ -38,7 +38,7 @@ addpattr:{[hdbdir;pt;tabname]
   };
   .[addattr;
     (hdbdir;pt;tabname;pcol);
-    {[e] .lg.e[`attr;"Failed to add attr : ",e];e}
+    {[e] .lg.e[`attr;"Failed to add attr : ",e]}
   ];
   };
 
