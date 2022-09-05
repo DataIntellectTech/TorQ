@@ -25,7 +25,7 @@ upd:.wdb.upd;
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
     .ds.applyfilters[enlist t;.sub.filterdict];
     .ds.savealltables[.ds.td] each .wdb.tablelist[]
-  ];	
+  ];
   }[upd];
 
 .tailer.dotailreload:{[pt]
