@@ -157,7 +157,7 @@ savealltables:{[dir]
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-savedownfilter:{[]
+savedownfilter:{[dir]
     /- checks each table in memory against a size threshold
     /- saves any tables above that threshold
     totals:{count value x}each .wdb.tablelist[];
