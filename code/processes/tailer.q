@@ -4,7 +4,8 @@ upd:.wdb.upd;
 
 
 .tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
+.tailer.tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes,.tailer.tailsorttypes) except `
 .servers.startup[];
 
 /- evaluate contents of d dictionary asynchronously
@@ -31,7 +32,7 @@ upd:.wdb.upd;
 .tailer.dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
-  .wdb.getprocs[;pt].tailer.tailreadertypes;
+  .wdb.getprocs[;pt]each .tailer.tailreadertypes;
   if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
@@ -79,8 +80,28 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
+.servers.register[.servers.procstab;.tailer.tailsorttypes;1b]
 
 \d .
+
+/- eod - send end of day message to main tailsort process
+endofday:{[pt;processdata]
+  .lg.o[`eod;"end of day message received - ",spt:string pt];
+  /- call datastripeendofday
+  .wdb.datastripeendofday[pt;processdata];
+  /- find handle to send message to tailsort process
+  ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
+  /- if no tailsort process connected, do eod sort from tailer & exit early
+  if[0=count ts;
+    .lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
+  /- send procname to tailsort process so it loads correct tailDB
+  neg[first ts](`endofday;pt;.proc.procname);
+  .lg.o[`eod;"end of day message sent to tailsort process"];
+  };
+
+/- add endofday to tailer namespace and overwrite .wdb.endofday function
+.tailer.endofday:.wdb.endofday:endofday;
+
 /- initialise datastripe
 .lg.o[`dsinit;"initialising datastripe"];
 initdatastripe[];

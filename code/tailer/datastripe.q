@@ -1,7 +1,5 @@
 \d .ds
 
-segmentid: "J"$.proc.params[`segid]		// segmentid variable defined by applying key to dictionary of input values
-
 td:hsym `$getenv`KDBTAIL
 
 \d .
@@ -51,7 +49,7 @@ modaccess:{[accesstab]};
     //create accesspath
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
     //define access for next partition
-    .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
+    .ds.access:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]; segment:first .ds.segmentid);
     modaccess[.ds.access];
     accesspath set .ds.access;
     };
@@ -59,16 +57,13 @@ modaccess:{[accesstab]};
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
-    
-    //update endofday function
-    endofday::.wdb.datastripeendofday;
-	
+
     // load in variables
     .wdb.tablekeycols:.ds.loadtablekeycols[];
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
 
     // load the access table; fall back to generating table if load fails
-    default:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]);
+    default:([]table:.wdb.tablelist[]; start:0Np; end:0Np; stptime:0Np; keycol:`sym^.wdb.tablekeycols .wdb.tablelist[]; segment:first .ds.segmentid);
     .ds.access: @[get;accesspath;default];
     modaccess[.ds.access];
     .ds.checksegid[];
@@ -160,13 +155,36 @@ savealltables:{[dir]
     /- function takes the tailer hdb directory handle and a timestamp
     /- saves each table up to given period to their respective partitions
     savetables[dir;]each .wdb.tablelist[];
-	
+
     /- delete data that has been saved
     @[`.;;0#] each .wdb.tablelist[];
-	
+
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
+savedownfilter:{[]
+    /- checks each table in memory against a size threshold
+    /- saves any tables above that threshold
+    totals:{count value x}each .wdb.tablelist[];
+    /- log and return from function early if no table has crossed threshold
+    if[all totals<.wdb.numrows;
+        .lg.o[`save;"No tables above threshold, no tables saved"];
+        :();
+    ];
+
+    /- log and savedown any tables above threshold
+    .lg.o[`save;"Saving ",(", " sv string tabstosave:.wdb.tablelist[] where totals>.wdb.numrows)," table(s)"];
+    savetables[dir;]each tabstosave;
+
+    /- delete data that has been saved
+    @[`.;;0#] each tabstosave;
+
+    /- trigger reload of access tables and intradayDBs in all tail reader processes
+    .tailer.dotailreload[`]
+    };
+
+/- Timer to repeat savealltables with period defined in tailer.q settings
+.timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savedownfilter;.ds.td);"Saving tables"];
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument

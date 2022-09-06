@@ -4,8 +4,7 @@ gmttime:@[value;`gmttime;1b];                                              /-def
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
   getpartition:{(`date^partitiontype)$(.z.D,.z.d)gmttime}];
 currentpartition:@[value;`currentpartition;getpartition[]]
-segmentid: "J"$.proc.params[`segid]
-basedir:raze (getenv`KDBTAIL),"/tailer",(string .tr.segmentid),"/"         /-define associated tailer base directory
+basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
 
 \d .
