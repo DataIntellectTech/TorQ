@@ -3,7 +3,7 @@
 \d .stplg
   
 multilog:`tabperiod;            // [tabperiod|none|periodic|tabular|custom]
-multilogperiod:0D00:00:30;            // Length of period for STP periodic logging modes
+multilogperiod:0D01;            // Length of period for STP periodic logging modes
 errmode:1b;                     // Enable error mode for STP
 batchmode:`defaultbatch;        // [memorybatch|defaultbatch|immediate]
 replayperiod:`day               // [period|day|prior|tailer]
