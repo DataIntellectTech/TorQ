@@ -72,7 +72,7 @@ replay0:{[proc;tabs;realsubs;schemalist;logfilelist;filters]
   // if datastriping is on replays only logs from current periods and applys filtering
   if[.ds.datastripe;
     //get tplog metadata table from stp  
-    logmetatab:@[proc`w;`.stpm.metatable;{.lg.e[`subscribe;"could not obtain tplog metatable from tickerplant: ", x]}];
+    logmetatab:@[proc`w;`.stpm.metatable;{.lg.e[`subscribe;"could not return tplog metatable from tickerplant: ", x]}];
     //gets the name of log files from the current periods to keep in order to replay them
     currentlogfiles:exec logname from logmetatab where start>.ds.replaystarttime;
     //alters log file list to only include log files from the current periods
