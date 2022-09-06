@@ -133,12 +133,6 @@ reload:{[date]
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
-/-drop date from rdbpartition
-rmdtfromgetpar:{[date] 
-	rdbpartition:: rdbpartition except date;
-	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
-	}
-	
 dropfirstnrows:{[t]
 	/-drop the first n rows from a table
 	n: 0^ eodtabcount[t];

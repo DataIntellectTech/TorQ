@@ -11,3 +11,9 @@ moveandclear:{[fromNS;toNS;tab]
  if[tab in key fromNS;
   set[` sv (toNS;tab);0#fromNS tab];
   eval(!;enlist fromNS;();0b;enlist enlist tab)]}
+
+/-drop date from rdbpartition
+rmdtfromgetpar:{[date]
+        rdbpartition:: rdbpartition except date;
+        .lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
+        }
