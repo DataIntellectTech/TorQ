@@ -20,6 +20,19 @@ updateaccess:{[newtab]
 
     };
 
+addrdbs:{
+     proc:(exec from .servers.SERVERS where proctype=`segmentedtickerplant);
+	 rdbs:(proc`w)(`getconnectiontypes;`RDBtypes);
+	 .servers.register[.servers.procstab;;0b] each rdbs;
+	 .servers.CONNECTIONS,:rdbs;
+	 .gw.addserversfromconnectiontable[.servers.CONNECTIONS]
+     }
+
+initdatastripe:{
+     getaccess[];
+	 addrdbs[]
+     }
 \d .
 
-.proc.addinitlist[(`.ds.getaccess;`)];
+.proc.addinitlist[(`.ds.initdatastripe;`)];
+
