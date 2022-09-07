@@ -8,6 +8,8 @@ td:hsym `$getenv`KDBTAIL
 // leave blank by default
 modaccess:{[accesstab]};
 
+.wdb.tablekeycols:.ds.loadtablekeycols[];
+
 .wdb.datastripeendofperiod:{[currp;nextp;data]
     // 'data' argument constructed in 'segmentedtickerplant/stplog.q' using .stplg.endofperioddata[], and (enlist `p)!enlist .z.p+.eodtime.dailyadj
 
@@ -67,6 +69,9 @@ initdatastripe:{
     .ds.checksegid[];
     accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
+    // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
+    .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
+    .tailer.dotailreload[`];
     };
 
 \d .ds
