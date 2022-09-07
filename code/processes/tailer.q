@@ -25,7 +25,8 @@ upd:.wdb.upd;
     .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
     .ds.applyfilters[enlist t;.sub.filterdict];
-    .ds.savealltables[.ds.td] each .wdb.tablelist[]
+    .ds.savetables[.ds.td;t];
+    @[`.;;0#] t    
   ];
   }[upd];
 
