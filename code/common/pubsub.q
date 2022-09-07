@@ -177,12 +177,11 @@ init:{[t]
 
 // Striping function which stores the mappings for any symbols that it has already computed and 
 // for subsequent requests for that symbol, it looks them up
-.ds.stripe:{[input]
+.ds.stripe:{[input;skey]
   // Define number of segments and match to each segid
   .ds.numseg:`int$count .ds.segmentlist;
   .ds.segsect:.ds.segmentlist!til count .ds.segmentlist;
   // Define segment based on sym split
-  skey:first .ds.segsect `$.proc.params[`segid];
   // If no updates, return
   if[0=count input;:`boolean$()];
   // Check for new sym(s)
