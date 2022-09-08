@@ -85,6 +85,28 @@ getprocs:{[x;y]
 
 \d .
 
+endofdaysort:{[pt]
+  /- function to be called if no tailsort process can be connected, to sort intraday data from tailer at eod
+  .lg.o[`eodsort;"attempting to complete eod sort from tailer"];
+
+  /- get tailsort code
+  .proc.loadf [getenv[`KDBCODE],"/processes/tailsort.q"];
+
+  /*need some mechanism to check last tailer has saved before starting sort?
+
+  /- merge tables from sym partitions & save to HDB
+  dir:` sv .ds.td,.proc.procname,`$string pt;
+  mergebypart[dir;pt;;.wdb.hdbdir] each .ts.savelist;
+
+  /- add p attr to on-disk HDB tables
+  addpattr[.wdb.hdbdir;pt;] each .ts.savelist;
+
+  /- delete intraday data from tailDB
+  deletetaildb[dir];
+
+  .lg.o[`eodsort;"end of day sort complete for ",string[.proc.procname]];
+  };
+
 /- eod - send end of day message to main tailsort process
 endofday:{[pt;processdata]
   .lg.o[`eod;"end of day message received - ",spt:string pt];
@@ -94,7 +116,10 @@ endofday:{[pt;processdata]
   ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
   /- if no tailsort process connected, do eod sort from tailer & exit early
   if[0=count ts;
-    .lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
+    .lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];
+    endofdaysort[pt];
+    :()
+  ];
   /- send procname to tailsort process so it loads correct tailDB
   neg[first ts](`endofday;pt;.proc.procname);
   .lg.o[`eod;"end of day message sent to tailsort process"];
