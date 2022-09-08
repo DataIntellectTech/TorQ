@@ -48,7 +48,9 @@ initdatastripe:{
     t:tables[`.] except .rdb.ignorelist;
     .ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]; segment:first .ds.segmentid);
     modaccess[.ds.access];
-    .ds.checksegid[];    
+    .ds.checksegid[];   
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw each handles; 
     };
 
 

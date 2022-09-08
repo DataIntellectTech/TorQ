@@ -29,9 +29,13 @@ reload:{
   /- select last set of entries from accesstable
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
+  mostrecent:`location`table xkey update location:.proc.procname, proctype:.proc.proctype from .ds.access;
+  (neg .servers.getservers[`proctype;`gateway;()!();1b;1b][`w]) @\:(`.ds.updateaccess;mostrecent);
   load hsym `$.tr.basedir,"sym"
   }
 
+/-startup
+.servers.startup[];
 /- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
 $[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
