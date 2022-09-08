@@ -174,6 +174,14 @@ replayupd:{[f;tabs;syms;t;x]
   f[t;x]
  }
 
+
+// function to filter subscribed tables by segment id after log replay
+replayfilter:{[tw]
+  // tw is a list with values (tablename; whereclause) 
+  filters:@[parse;"select from t where ", tw[1]] 2;
+  filteredtab:@[eval;(?;tw[0];filters;0b;())]
+  };
+
 checksubscriptions:{update active:0b from `.sub.SUBSCRIPTIONS where not w in key .z.W;}
 
 retrysubscription:{[row]
