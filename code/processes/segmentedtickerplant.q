@@ -83,5 +83,6 @@ init:{
   .stplg.init[string .proc.procname];
  };
 
-// Have the init function called from torq.q
+// Have the init function and config check called from torq.q
 .proc.addinitlist(`init;`);
+$[.ds.torqv5mode;.proc.addinitlist[(`configcheck;`)];.lg.o[`init;"Vanilla torq will run, datastriping is turned off"]];
