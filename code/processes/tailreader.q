@@ -7,6 +7,9 @@ currentpartition:@[value;`currentpartition;getpartition[]]
 basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
 
+/- log message if tailreader is started without datastriping activated
+if[not .ds.datastripe;.lg.o[`load;"Datastriping is disabled: please verify whether ",(string .proc.procname)," process should be running."]];
+
 \d .
 endofday:{[pt]
   /- end of day function that will be triggered by EOD Sorter once TailDB is copied to HDB
