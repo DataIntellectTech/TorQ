@@ -36,6 +36,14 @@
     .rdb.rmdtfromgetpar[date];
     };
 
+.rdb.getaccessdata:{[dir]
+    t:tables[`.] except .rdb.ignorelist;
+    .ds.access:update start:.ds.getstarttime each t from .ds.access;
+    .ds.checksegid[];
+    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
+    .ds.updategw each handles;
+    };
+
 // user definable function to modify the access table
 modaccess:{[accesstab]};
 
@@ -50,7 +58,10 @@ initdatastripe:{
     modaccess[.ds.access];
     .ds.checksegid[];   
     handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    .ds.updategw each handles; 
+    .ds.updategw each handles;
+    //If rdb1 is started it has no data as the feed is started after the rdb1 resulting in no access data
+    //Use a timer and wait for ten seconds for feed/gateway to start to allow rdb1 to save access tables 
+    if[.proc.procname~`rdb1;.timer.one[(.proc.cp[]+0D00:00:10);(`.rdb.getaccessdata;`);"Update rdb access table";0b]]; 
     };
 
 
