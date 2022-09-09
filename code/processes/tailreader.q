@@ -8,7 +8,7 @@ basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-def
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
 
 /- log message if tailreader is started without datastriping activated
-if[not .ds.datastripe;.lg.o[`load;"Datastriping is disabled: please verify whether ",(string .proc.procname)," process should be running."]];
+if[not .ds.datastripe;.lg.e[`load;"Datastriping is disabled: terminating ",(string .proc.procname)," process."]];
 
 \d .
 endofday:{[pt]
