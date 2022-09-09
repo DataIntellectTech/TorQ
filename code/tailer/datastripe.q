@@ -68,6 +68,8 @@ initdatastripe:{
     // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
     .tailer.dotailreload[`];
+    h:.servers.gethandlebytype[`rdb;`any];
+    neg[h](`.rdb.getaccessdata;`);
     };
 
 \d .ds
