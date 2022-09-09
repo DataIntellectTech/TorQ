@@ -183,7 +183,7 @@ savedownfilter:{[dir]
     .tailer.dotailreload[`]
     };
 
-/- Timer to repeat savealltables with period defined in tailer.q settings
+/- Timer to call savedownfilter with period defined in tailer.q settings
 .timer.repeat[00:00+.z.d;0W;.wdb.settimer;(`.ds.savedownfilter;.ds.td);"Saving tables"];
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
