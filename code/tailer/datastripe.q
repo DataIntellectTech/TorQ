@@ -21,8 +21,8 @@ modaccess:{[accesstab]};
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-    starttimes:.ds.getstarttime each .wdb.tablelist[];
-    .ds.access:update start:starttimes^start, end:?[(nextp>starttimes)&(starttimes<>0Np);nextp;0Np], stptime:data[][`p] from .ds.access;
+     t:tables[`.] except .wdb.ignorelist; 
+     .ds.access:update start:.ds.getstarttime each t,stptime:data[][`time] from .ds.access;
     modaccess[.ds.access];
 
     // call the savedown function
@@ -34,10 +34,6 @@ modaccess:{[accesstab]};
     atab:get accesspath;
     atab,:() xkey .ds.access;
     accesspath set atab;
-
-    // update the access table in the gateway
-    //handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    //.ds.updategw each handles;
 
     };
 
@@ -162,7 +158,7 @@ savealltables:{[dir]
     /- trigger reload of access tables and intradayDBs in all tail reader processes
     .tailer.dotailreload[`]};
 
-savedownfilter:{[]
+savedownfilter:{[dir]
     /- checks each table in memory against a size threshold
     /- saves any tables above that threshold
     totals:{count value x}each .wdb.tablelist[];
