@@ -21,9 +21,9 @@ modaccess:{[accesstab]};
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
-     t:tables[`.] except .wdb.ignorelist; 
+     t:tables[`.] except .wdb.ignorelist;
      .ds.access:update start:.ds.getstarttime each t,stptime:data[][`time] from .ds.access;
-    modaccess[.ds.access];
+      modaccess[.ds.access];
 
     // call the savedown function
     .ds.savealltables[.ds.td];
@@ -68,8 +68,6 @@ initdatastripe:{
     // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
     .tailer.dotailreload[`];
-    h:.servers.gethandlebytype[`rdb;`any];
-    neg[h](`.rdb.getaccessdata;`);
     };
 
 \d .ds
