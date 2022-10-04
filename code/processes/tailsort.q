@@ -3,6 +3,14 @@
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
+.tsw.tailsortworkertypes:@[value;`tailsortworkertypes;`tailsortworker];    /-list of tailsort types to look for upon a sort being called with worker process
+
+/ - define .z.pd in order to connect to any worker processes
+.z.pd:{$[.z.K<3.3;
+        `u#`int$();
+	`u#exec w from .servers.getservers[`proctype;.tsw.tailsortworkertypes;()!();1b;0b]]
+        }
+
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
@@ -58,7 +66,11 @@ deletetaildb:{[tdbpath]
 
 savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
-  addpattr[.ts.hdbdir;pt;] each tablelist;
+  /-split between workers if workers exist
+  $[(0 < count .z.pd[]) and ((system "s")<0);
+    addpattr[.ts.hdbdir;pt;] peach tablelist;
+    addpattr[.ts.hdbdir;pt;] each tablelist;
+   ];
   deletetaildb each .ts.taildirs;
   /-reset savescompleted counter and .ts.taildirs
   savescompleted::0;
@@ -71,7 +83,11 @@ loadandsave:{[pt;procname]
   taildir:` sv (.ts.taildir;procname;`$string pt);
   .ts.taildirs,:taildir;
   /-merge tables from tailDBs and save to HDB
-  mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
+  /-split between workers if workers exist
+  $[(0 < count .z.pd[]) and ((system "s")<0);
+    mergebypart[taildir;pt;;.ts.hdbdir] peach .ts.savelist;
+    mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
+   ];
   /-increase savescompleted counter
   savescompleted+::1;
   .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
