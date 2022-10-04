@@ -3,7 +3,7 @@
 source $KDBTESTS/flagparse.sh
 
 # Path to test directory
-testpath=${KDBTESTS}/wdbcheck/datastripeon
+testpath=${KDBTESTS}/wdbcheck/datastripeoff
 
 ${TORQHOME}/../devTorQCloud/torq.sh start all -procfile ${testpath}/process.csv
 
