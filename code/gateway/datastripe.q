@@ -11,7 +11,7 @@ addsegprocs:{
 	stripeprocs:{[stripeconfig;segments]
 	    stripeconfig[segments][1]
 		};
-	relevantprocs:`$raze exec RDBtypes,tailers,tailreaders from stripeprocs[stripeconfig;] each key stripeconfig;
+	relevantprocs:`$raze exec rdbtypes,tailers,tailreaders from stripeprocs[stripeconfig;] each key stripeconfig;
 	// adds all relevant processes of all segments to server table
 	.servers.register[.servers.procstab;;0b] each relevantprocs;
 	.servers.CONNECTIONS,:relevantprocs;
