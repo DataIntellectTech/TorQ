@@ -32,6 +32,16 @@ reload:{
   load hsym `$.tr.basedir,"sym"
   }
 
+.ds.getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+.ds.updategw:{[h]
+
+    newtab:getaccess[];
+    neg[h](`.ds.updateaccess;newtab);
+
+    };
+	
 /- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
 $[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
