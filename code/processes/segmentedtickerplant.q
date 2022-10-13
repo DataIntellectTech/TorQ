@@ -85,4 +85,4 @@ init:{
 
 // Have the init function and config check called from torq.q
 .proc.addinitlist(`init;`);
-$[.ds.torqv5mode;.proc.addinitlist[(`configcheck;`)];.lg.o[`init;"Vanilla torq will run, datastriping is turned off"]];
+$[.ds.torqv5mode & .proc.proctype=`segmentedtickerplant;.proc.addinitlist[(`configcheck;`)];.lg.o[`init;"Vanilla torq will run, datastriping is turned off"]];
