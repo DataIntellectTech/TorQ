@@ -3,8 +3,9 @@
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
-.tsw.tailsortworkertypes:@[value;`tailsortworkertypes;`tailsortworker];    /-list of tailsort types to look for upon a sort being called with worker process
-
+.tsw.tailsortworkertypes:`$"tailsortworker_",last "_" vs string .proc.proctype;    /-list of tailsort types to look for upon a sort being called with worker process
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tsw.tailsortworkertypes) except `
+.servers.startup[];
 / - define .z.pd in order to connect to any worker processes
 .z.pd:{$[.z.K<3.3;
         `u#`int$();
@@ -101,4 +102,4 @@ endofday:{[pt;procname]
   loadandsave[pt;procname];
   };
 
-.servers.startup[];
+/.servers.startup[];
