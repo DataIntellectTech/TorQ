@@ -3,8 +3,8 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-.tailer.tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
+.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;                           /-extract wdb proc segname and append to "tr_"
+.tailer.tailsorttypes:`$"tailsort_",last "_" vs string .proc.proctype;                       /-tailsorttypes to make a connection to tailsort process
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes,.tailer.tailsorttypes) except `
 .servers.startup[];
 
