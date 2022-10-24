@@ -26,6 +26,7 @@ metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
 //-   - load config for checking input parameters
 //-   - write meta info for tables in current process to .dataaccess.metainfo
 init:{[tablepropertiespath]
+  settablepropertiespath[];
   if[@[value;`.aqrest.loadexecute;0b];.aqrest.execute:{[req;props] @[value;req;{(neg .z.w)(.gw.formatresponse[0b;0b;"error: ",x])}]}];
   .lg.o[`.dataaccess.init;"running .dataaccess.init"];
   .proc.loaddir getenv[`KDBCODE],"/dataaccess";
