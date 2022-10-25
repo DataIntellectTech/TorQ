@@ -17,25 +17,25 @@ taildirs:();                                                               /-emp
                                                                            / when HDB save is complete to delete tailDB partitions
 \d .
 
-savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
+/savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
 
-mergebypart:{[dir;pt;tabname;dest]
-  /-function to merge table partitions from tailDB and save to HDB
-  /-get list of partitions to be merged
-  parts:(key dir) except `access;
-  partdirs:{` sv (x;y;z)}[dir;;tabname] each parts;
-  /-load data from each partition
-  .lg.o[`merge;"reading partition(s) ", (", " sv string[partdirs])];
-  data:get each partdirs;
-  /-if multiple partitions have been read in data will be a list of tabs, if this is the case - join into single tab
-  if[98<>type data;data:raze data];
-  /-upsert data to partition in destination directory
-  dest:` sv .Q.par[dest;pt;tabname],`;
-  .[upsert;
-    (dest;data);
-    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
-  ];
-  };
+/mergebypart:{[dir;pt;tabname;dest]
+/  /-function to merge table partitions from tailDB and save to HDB
+/  /-get list of partitions to be merged
+/  parts:(key dir) except `access;
+/  partdirs:{` sv (x;y;z)}[dir;;tabname] each parts;
+/  /-load data from each partition
+/  .lg.o[`merge;"reading partition(s) ", (", " sv string[partdirs])];
+/  data:get each partdirs;
+/  /-if multiple partitions have been read in data will be a list of tabs, if this is the case - join into single tab
+/  if[98<>type data;data:raze data];
+/  /-upsert data to partition in destination directory
+/  dest:` sv .Q.par[dest;pt;tabname],`;
+/  .[upsert;
+/    (dest;data);
+/    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
+/  ];
+/  };
 
 addpattr:{[hdbdir;pt;tabname]
   /-load column to add p attribute on
@@ -67,38 +67,44 @@ deletetaildb:{[tdbpath]
 savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   /-split between workers if workers exist
-  $[(0 < count .z.pd[]) and ((system "s")<0);
-    addpattr[.ts.hdbdir;pt;] peach tablelist;
-    addpattr[.ts.hdbdir;pt;] each tablelist;
-   ];
-  deletetaildb each .ts.taildirs;
+  /$[(0 < count .z.pd[]) and ((system "s")<0);
+  /  addpattr[.ts.hdbdir;pt;] peach tablelist;
+  addpattr[.ts.hdbdir;pt;] each tablelist;
+ /  ];
+  /deletetaildb each .ts.taildirs;
   /-reset savescompleted counter and .ts.taildirs
-  savescompleted::0;
+  tailmsg::0;
   .ts.taildirs:();
   resetrdbwindow[];
   };
 
-loadandsave:{[pt;procname]
-  /-function to merge tables from subpartitions in tailDB and save to HDB
-  taildir:` sv (.ts.taildir;procname;`$string pt);
-  .ts.taildirs,:taildir;
-  /-merge tables from tailDBs and save to HDB
-  /-split between workers if workers exist
-  $[(0 < count .z.pd[]) and ((system "s")<0);
-    mergebypart[taildir;pt;;.ts.hdbdir] peach .ts.savelist;
-    mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
-   ];
-  /-increase savescompleted counter
-  savescompleted+::1;
-  .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
-  /-check if all eod saves have been completed, if so trigger savecomplete
-  if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
-  };
+taildirpath:{[pt;taildir]
+  /- function to delete taildb partition
+  deletetaildb[taildir];
+ };
+/loadandsave:{[pt;procname]
+/  /-function to merge tables from subpartitions in tailDB and save to HDB
+/  taildir:` sv (.ts.taildir;procname;`$string pt);
+/  .ts.taildirs,:taildir;
+/  /-merge tables from tailDBs and save to HDB
+/  /-split between workers if workers exist
+/  $[(0 < count .z.pd[]) and ((system "s")<0);
+/    mergebypart[taildir;pt;;.ts.hdbdir] peach .ts.savelist;
+/    mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
+/   ];
+/  /-increase savescompleted counter
+/  savescompleted+::1;
+/  .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
+/  /-check if all eod saves have been completed, if so trigger savecomplete
+/  if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
+/  };
 
+tailmsg:0;
 endofday:{[pt;procname]
+  tailmsg+::1;
   /- function to trigger data load & save to HDB once endofday message is received from tailer(s)
   .lg.o[`endofday;"end of day message received from ",string[procname]," - ",string[pt]];
-  loadandsave[pt;procname];
+  if[tailmsg = count .ts.taildbs; savecomplete[pt;.ts.savelist]];
   };
 
 .servers.startup[];
