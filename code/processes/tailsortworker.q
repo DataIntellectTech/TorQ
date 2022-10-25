@@ -18,7 +18,7 @@ taildirs:();                                                               /-emp
                                                                            / when HDB save is complete to delete tailDB partitions
 \d .
 
-savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
+/savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
 
 mergebypart:{[dir;pt;tabname;dest]
   /-function to merge table partitions from tailDB and save to HDB
@@ -37,7 +37,9 @@ mergebypart:{[dir;pt;tabname;dest]
     {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
   ];
   };
-
+  
+.servers.startup[];
+/
 addpattr:{[hdbdir;pt;tabname]
   /-load column to add p attribute on
   pcol:.ds.loadtablekeycols[][tabname];
