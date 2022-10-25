@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+before,0,0,q,tl1:.servers.gethandlebytype[`tailer_seg1;`any];tl2:.servers.gethandlebytype[`tailer_seg2;`any],1,,"Connect to tailer handles,so tailers can be tested through tl handles"
+before,0,0,q,nomatchingsyms:{$[not(any(tl1"asc distinct quote[`sym]")~(tl2"asc distinct quote[`sym]"));1b;0b]},1,,"create not matching function"
+before,0,0,q,tl1"expectedsegs:2",1,,"set the expected number of segments"
+true,0,0,q,tl1"(.ds.numseg)=expectedsegs",1,,"checking that the number of segments matches how many have been set"
+before,0,0,q,tl1".wdb.numrows:100"; tl2".wdb.numrows:100",1,,"Set row count as the standard row count is 10000 would be to large for a test"
+run,0,0,q,.os.sleep 30,1,,"Wait 30 seconds to populate tables with rows of data for trade and quote"
+true,0,0,q,({(x"asc distinct quote[`sym]")~(x"asc distinct trade[`sym]")} each (tl1;tl2))~11b,1,, "check each tailers quote table syms match its trade table syms"
+true,0,0,q,nomatchingsyms[]~1b,1,, "run function to check syms of quote table in each tailer are not matching another tailer"

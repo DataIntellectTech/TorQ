@@ -1,0 +1,11 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+50,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,
+localhost,{KDBBASEPORT}+51,segmentedtickerplant,stp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/database.q -tplogdir ${KDBTPLOG} -.ds.datastripe 1b,
+localhost,{KDBBASEPORT}+52,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,,
+localhost,{KDBBASEPORT}+53,rdb,rdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-segid 1,q
+localhost,{KDBBASEPORT}+54,rdb,rdb2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-segid 2,q
+localhost,{KDBBASEPORT}+55,tr_seg1,tr1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/tailreader.q,1,-segid 1 -parentproctype tailreader,
+localhost,{KDBBASEPORT}+56,tr_seg2,tr2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/tailreader.q,1,-segid 2 -parentproctype tailreader,
+localhost,{KDBBASEPORT}+57,tailer_seg1,tailer1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/tailer.q,1,-segid 1 -parentproctype tailer,
+localhost,{KDBBASEPORT}+58,tailer_seg2,tailer2,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/tailer.q,1,-segid 2 -parentproctype tailer,
+localhost,{KDBBASEPORT}+59,feed,feed1,,1,0,,,${KDBAPPCODE}/tick/feed.q,1,,

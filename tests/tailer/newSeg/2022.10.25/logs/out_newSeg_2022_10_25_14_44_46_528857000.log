@@ -1,0 +1,29 @@
+2022.10.25D14:44:46.582748000|homer.aquaq.co.uk|tailer|test1|INF|logging|creating alias using command ln -sf out_newSeg_2022_10_25_14_44_46_528857000.log /home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/2022.10.25//logs//out_newSeg.log
+################################################################################
+#                                                                              #
+#                                 TorQ v4.2.0                                  #
+#                               AquaQ Analytics                                #
+#                    kdb+ consultancy, training and support                    #
+#                                                                              #
+#      For questions, comments, requests or bug reports please contact us      #
+#                           w :     www.aquaq.co.uk                            #
+#                           e : support@aquaq.co.uk                            #
+#                                                                              #
+#                         Running on kdb+ 4 2020.06.18                         #
+#                                                                              #
+#                      TorQ Finance Starter Pack v 1.10.0                      #
+#                                                                              #
+################################################################################
+2022.10.25D14:44:46.615649000|homer.aquaq.co.uk|tailer|test1|INF|k4unit|start
+2022.10.25D14:44:46.615675000|homer.aquaq.co.uk|tailer|test1|INF|k4unit|:/home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/tests.csv 4 test(s)
+2022.10.25D14:45:16.665654000|homer.aquaq.co.uk|tailer|test1|INF|k4unit|end
+"k4unit Test Results"
+action ms bytes lang code                                                                               repeat file                                                          msx   bytesx ok okms okbytes valid timestamp               csvline
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+true   0  0     q    tl1"(.ds.numseg)=expectedsegs"                                                     1      :/home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/tests.csv 0     0      1  1    1       1     2022.10.25T15:44:46.616 7      
+run    0  0     q    .os.sleep 30                                                                       1      :/home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/tests.csv 30042 528    1  1    1       1     2022.10.25T15:45:16.659 11     
+true   0  0     q    ({(x"asc distinct quote[`sym]")~(x"asc distinct trade[`sym]")} each (tl1;tl2))~11b 1      :/home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/tests.csv 0     0      1  1    1       1     2022.10.25T15:45:16.664 13     
+true   0  0     q    nomatchingsyms[]=1b                                                                1      :/home/bmcdonald/TorQCloud/TorQ/tests/tailer/newSeg/tests.csv 0     0      1  1    1       1     2022.10.25T15:45:16.665 14     
+"k4unit Test Errors"
+action ms bytes lang code repeat file msx bytesx okms okbytes valid timestamp csvline
+-------------------------------------------------------------------------------------
