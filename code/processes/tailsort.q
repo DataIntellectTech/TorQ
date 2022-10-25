@@ -18,7 +18,7 @@ taildirs:();                                                               /-emp
                                                                            / when HDB save is complete to delete tailDB partitions
 \d .
 
-savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
+/savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
 
 mergebypart:{[dir;pt;tabname;dest]
   /-function to merge table partitions from tailDB and save to HDB
@@ -38,19 +38,19 @@ mergebypart:{[dir;pt;tabname;dest]
   ];
   };
 
-addpattr:{[hdbdir;pt;tabname]
-  /-load column to add p attribute on
-  pcol:.ds.loadtablekeycols[][tabname];
-  /-add p attr to on-disk table
-  .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
-  addattr:{[hdbdir;pt;tabname;pcol]
-    @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
-  };
-  .[addattr;
-    (hdbdir;pt;tabname;pcol);
-    {[e] .lg.e[`attr;"Failed to add attr : ",e]}
-  ];
-  };
+/addpattr:{[hdbdir;pt;tabname]
+/  /-load column to add p attribute on
+/  pcol:.ds.loadtablekeycols[][tabname];
+/  /-add p attr to on-disk table
+/  .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
+/  addattr:{[hdbdir;pt;tabname;pcol]
+/    @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
+/  };
+/  .[addattr;
+/    (hdbdir;pt;tabname;pcol);
+/    {[e] .lg.e[`attr;"Failed to add attr : ",e]}
+/  ];
+/  };
 
 /- notify rdb when tail sort process complete
 resetrdbwindow:{
@@ -65,24 +65,24 @@ deletetaildb:{[tdbpath]
   @[.os.deldir; tdbpath; {[e] .lg.e[`load;"failed to delete TDB : ",e]}];
   };
 
-savecomplete:{[pt;tablelist]
+/savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   /-split between workers if workers exist
-  $[(0 < count .z.pd[]) and ((system "s")<0);
-    addpattr[.ts.hdbdir;pt;] peach tablelist;
-    addpattr[.ts.hdbdir;pt;] each tablelist;
-   ];
-  deletetaildb each .ts.taildirs;
-  /-reset savescompleted counter and .ts.taildirs
-  savescompleted::0;
-  .ts.taildirs:();
-  resetrdbwindow[];
-  };
+/  $[(0 < count .z.pd[]) and ((system "s")<0);
+/    addpattr[.ts.hdbdir;pt;] peach tablelist;
+/    addpattr[.ts.hdbdir;pt;] each tablelist;
+/   ];
+/  deletetaildb each .ts.taildirs;
+/  /-reset savescompleted counter and .ts.taildirs
+/  savescompleted::0;
+/  .ts.taildirs:();
+/  resetrdbwindow[];
+/  };
 
 loadandsave:{[pt;procname]
   /-function to merge tables from subpartitions in tailDB and save to HDB
   taildir:` sv (.ts.taildir;procname;`$string pt);
-  .ts.taildirs,:taildir;
+  /.ts.taildirs,:taildir;
   /-merge tables from tailDBs and save to HDB
   /-split between workers if workers exist
   $[(0 < count .z.pd[]) and ((system "s")<0);
@@ -90,15 +90,31 @@ loadandsave:{[pt;procname]
     mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
    ];
   /-increase savescompleted counter
-  savescompleted+::1;
+  /savescompleted+::1;
+  /-get centraltailsort handle
+  cts:exec w from .servers.getservers[`proctype;`centraltailsort;()!();1b;0b];
+
+  if[0=count cts;
+    .lg.e[`connection;"no connection to the centraltailsort could be established, failed to send end of day message"];:()];
+  /- notify centraltailsort process to exectute its endofday function
+  neg[first cts](`endofday;pt;.proc.procname);
+    .lg.o[`eod;"end of day message sent to centraltailsort process"];
   .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
   /-check if all eod saves have been completed, if so trigger savecomplete
-  if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
+  /if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
   };
+
+taildirpath:{[pt;procname]
+  tailpath:` sv (.ts.taildir;procname;`$string pt);
+  cts:exec w from .servers.getservers[`proctype;`centraltailsort;()!();1b;0b];
+  neg[first cts](`taildirpath;pt;tailpath);
+  .lg.o[`eod;"end of day tailer directory paths sent to centraltailsort process"];
+ };
 
 endofday:{[pt;procname]
   /- function to trigger data load & save to HDB once endofday message is received from tailer(s)
   .lg.o[`endofday;"end of day message received from ",string[procname]," - ",string[pt]];
+  taildirpath[pt;procname];
   loadandsave[pt;procname];
   };
 
