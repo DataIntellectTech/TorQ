@@ -51,7 +51,7 @@ savecomplete:{[pt;tablelist]
 taildirpath:{[taildir]
   /- function to delete taildb partition
   deletetaildb[taildir];
-  .lg.o[`endofday;"end of day deletion of partition ",string[taildir],"now completed"];
+  .lg.o[`endofday;"end of day deletion of partition ",string[taildir]," now completed"];
  };
 
 endofday:{[pt;procname]
