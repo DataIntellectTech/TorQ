@@ -76,7 +76,7 @@ getdata:{[o]
     o:adjustqueries[o;part];
     options[`procs]:key o;
     // Check if any freeform queries is going to any striped database
-    .lg.o[`.dataaccess.getdata;"Checking for freeform queries to be directed to striped database"]
+    .lg.o[`.dataaccess.getdata;"Checking for freeform queries to be directed to striped database"];
     if[exec count serverid from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each key o;
         if[any key[options]like"*freeform*";
             if[not`instruments in key options;'`$.schema.errors[`freeformstripe;`errormessage]];
@@ -97,7 +97,7 @@ getdata:{[o]
         .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
         // if async
         .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
-    .lg.o[`.dataaccess.getdata;"Querying complete"]
+    .lg.o[`.dataaccess.getdata;"Querying complete"];
     };
 
 

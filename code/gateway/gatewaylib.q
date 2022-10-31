@@ -136,7 +136,7 @@ attributesrouting:{[options;procdict]
     if[0=count types;
         '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
        ];
-    .lg.o[`.gw.attributesrouting;"Found: ",(string raze types)," to query"]
+    .lg.o[`.gw.attributesrouting;"Found: ",(string raze types)," to query"];
     :types;
     };
 
