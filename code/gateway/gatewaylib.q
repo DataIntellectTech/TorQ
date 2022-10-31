@@ -125,6 +125,7 @@ getservers:{[dict]
 
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
+    .lg.o[`.gw.attributesrouting;"Finding relevant processes to query"];
     // Get the tablename and timespan
     timespan:`date$options[`starttime`endtime];
     // See if any of the provided partitions are with the requested ones
@@ -135,6 +136,7 @@ attributesrouting:{[options;procdict]
     if[0=count types;
         '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
        ];
+    .lg.o[`.gw.attributesrouting;"Found: ",(string raze types)," to query"]
     :types;
     };
 

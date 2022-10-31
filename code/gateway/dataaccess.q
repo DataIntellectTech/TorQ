@@ -61,8 +61,10 @@ getdata:{[o]
     // Input checking in the gateway
     reqno:.requests.initlogger[o];
     o:@[.checkinputs.checkinputs;o;.requests.error[reqno]];
+    .lg.o[`.dataaccess.getdata;"Inputs validated using checkinputs"];
     // Get the procs in a (nested) list of serverid(s)
     o[`procs]:.gw.attributesrouting[o;part:.gw.partdict o];
+    .lg.o[`.dataaccess.getdata;"Processes to query: ",(string raze o[`procs])]
     // Get Default process behavior
     default:`timeout`postback`sublist`getquery`optimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
@@ -74,6 +76,7 @@ getdata:{[o]
     o:adjustqueries[o;part];
     options[`procs]:key o;
     // Check if any freeform queries is going to any striped database
+    .lg.o[`.dataaccess.getdata;"Checking for freeform queries to be directed to striped database"]
     if[exec count serverid from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each key o;
         if[any key[options]like"*freeform*";
             if[not`instruments in key options;'`$.schema.errors[`freeformstripe;`errormessage]];
@@ -94,6 +97,7 @@ getdata:{[o]
         .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
         // if async
         .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
+    .lg.o[`.dataaccess.getdata;"Querying complete"]
     };
 
 

@@ -21,6 +21,7 @@ checkinputs:{[dict]
     if[in[`freeformcolumn;key dict];.dataaccess.checkfreeformcolumns dict;dict:freeformrdbdate[dict;`freeformcolumn]];
     if[in[`sqlquery;key dict];'`$.checkinputs.formatstring[.schema.errors[`sqlquery;`errormessage];.proc.proctype]];
     if[in[`firstlastsort;key dict];'`$.checkinputs.formatstring[.schema.errors[`firstlastsort;`errormessage];.proc.proctype]];
+    .lg.o[`.dataaccess.checkinputs;"checkinputs complete"];
     :dict;
   };
 
