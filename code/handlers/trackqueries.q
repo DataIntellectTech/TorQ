@@ -1,3 +1,3 @@
 \d .queries
 
-queries:@[value;`queries;([]start:`timestamp$();end:`timestamp$();duration:`timespan$();user:`symbol$();ipa:`int$();prochost:`symbol$();procname:`symbol$();proctype:`symbol$();query:())] 
+queries:@[value;`queries;([]starttime:`timestamp$();endtime:`timestamp$();runtime:`timespan$();user:`symbol$();ip:`int$();prochost:`symbol$();procname:`symbol$();proctype:`symbol$();query:())] 
