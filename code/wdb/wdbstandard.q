@@ -12,7 +12,7 @@
         / get segmentfilter from segmenting.csv and filtermap.csv
         // assuming they are striped by sym and using a striping function
         segmenting:("SIS";enlist",")0:hsym`$getenv[`KDBCONFIG],"/segmenting.csv";
-        segment:select wcRef,table from segmenting where segmentID in .ds.segmentid;
+        segment:select wcRef,table from segmenting where segmentID in "I"$string .ds.segmentid;
         filtermap:1!("S*";enlist",")0:hsym`$getenv[`KDBCONFIG],"/filtermap.csv";
         instrumentsfilter:1!select tablename:table,instrumentsfilter:{ssr[x;"sym";""]}each filter from segment ij filtermap;
         inftc:instrumentsfilter uj timecolumns;        
