@@ -6,6 +6,9 @@ getpartition:@[value;`getpartition;                                        /-fun
 currentpartition:@[value;`currentpartition;getpartition[]]
 basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
+tailertypes:`$"tailer_",last "_" vs string .proc.proctype                  /-define tailer to make connection to 
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tr.tailertypes) except ` 
+.servers.startup[];
 
 \d .
 endofday:{[pt]
@@ -25,13 +28,9 @@ reload:{
   @[.Q.l ;.tr.taildir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
-  .ds.access:@[.Q.l;accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
-  /- select last set of entries from accesstable
-  .ds.access:select by table from .ds.access;
+  /- make a connection to the tailer to get the in-memory access table
+  tailerhandle: first exec w from .servers.getservers[`proctype;.tr.tailertypes;()!();1b;0b];
+  .ds.access:tailerhandle".ds.access";
   .lg.o[`load;"loaded accesstable"];
   load hsym `$.tr.basedir,"sym"
   }
-
-/- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
-$[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
-/- logs as INF not ERR as it is expected on first time use that there is no data to load in
