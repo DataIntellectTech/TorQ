@@ -10,6 +10,10 @@ taildir:hsym `$getenv`KDBTAIL                                              /-loa
 currentpartition:getpartition;                                             /-obtain  partition value
 basedir:(raze/)1_string[.tr.taildir],"/tailer",string .tr.segmentid,"/"       /-define associated tailer base directory
 wdbdir:`$ basedir,string currentpartition                                  /-define IDB direction
+tailertypes:`$"tailer_",last "_" vs string .proc.proctype                  /-define tailer to make connection to 
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tr.tailertypes) except ` 
+.servers.startup[];
+
 
 \d .ds
 
@@ -42,6 +46,9 @@ reload:{
   @[.Q.l ;.tr.wdbdir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
+   /- make a connection to the tailer to get the in-memory access table
+  tailerhandle: first exec w from .servers.getservers[`proctype;.tr.tailertypes;()!();1b;0b];
+  .ds.access:tailerhandle".ds.access";
   .ds.access:@[get;hsym accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
