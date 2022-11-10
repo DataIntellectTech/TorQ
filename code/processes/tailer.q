@@ -42,12 +42,16 @@ upd:.wdb.upd;
 / - if there is data in the tailDB directory for the partition remove it before replay
 / - is only run during datastriping mode
 .tailer.cleartaildir:{
-  if[() ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
-    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)];
+  /- checks if specific Segment Tailer Directory is empty
+  /- if Segment Tailer Directory is nonempty then delete all data excluding access table
+  /- to prevent duplicate data on disk after log replay
+  if[() ~ key std:` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
+    .lg.o[`deletewdbdata;"no directory found at ",1_string std];
     :();
   ];
-  .lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
-  @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
+  delstrg:1_'string ` sv/: std,/:key[std] except `access;
+  {.lg.o[`deletetaildb;"removing taildb (",x,") prior to log replay"];
+  @[.os.deldir;x;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data. Error was : ",e];'e }]}each delstrg;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
