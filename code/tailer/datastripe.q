@@ -69,6 +69,15 @@ initdatastripe:{
     .ds.checksegid[];
     accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
+
+    // Check carried out to see if access table is up to date relative to most recent EOP
+    stphandle:(.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b])[`w];
+    .lg.o[`handlecheck;"stphandle found"];
+    currentperiod:(first stphandle)".stplg.currperiod";
+    .lg.o[`periodcheck;"current period found"];
+    lastcall:select last end where end<>0N from .ds.access;
+    $[(exec x from lastcall)~(enlist currentperiod);.lg.o[`accessupdate;"current period matches access table"];.lg.o[`accessupdate;"access table is out of date and needs updated"]]
+    
     // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
     .tailer.dotailreload[`];
