@@ -5,11 +5,12 @@ hdbtypes:`hdb                                                                   
 rdbtypes:`rdb                                                                               // list of rdb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
 tickerplanttypes:`segmentedtickerplant                                                      // list of tickerplant types to try and make a connection to
+centraltailsorttypes:`centraltailsort
 subtabs:`                                                                                   // list of tables to subscribe for (` for all)
 subsyms:`                                                                                   // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location to save wdb data
-numrows:100000                                                                              // default number of rows
-numtab:`quote`trade!10000 50000                                                             // specify number of rows per table
+numrows:10000                                                                              // default number of rows
+numtab:`quote`trade!10000 5000                                                             // specify number of rows per table
 mode:`save                                                                                  // the wdb process can operate in three modes	
                                                                                             // 1. saveandsort:     the process will subscribe for data,
                                                                                             //                     periodically write data to disk and at EOD it will flush
