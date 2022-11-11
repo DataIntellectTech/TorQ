@@ -11,7 +11,7 @@ queries:@[value;`queries;([]starttime:`timestamp$();endtime:`timestamp$();runtim
 //upsert successful query
 logquery:{[endp;result;arg;startp] `.queries.queries upsert (startp;endp;`long$.001*endp-startp;.z.u;.z.a;.z.h;.proc.procname;.proc.proctype;arg;1b); result}
 //upsert failed query
-logqueryerror:{[endp;result;arg;startp] `.queries.queries upsert (startp;endp;`long*.001endp-startp;.z.u;.z.a;.z.h;.proc.procname;.proc.proctype;arg;0b); 'result}
+logqueryerror:{[endp;result;arg;startp] `.queries.queries upsert (startp;endp;`long$.001*endp-startp;.z.u;.z.a;.z.h;.proc.procname;.proc.proctype;arg;0b); 'result}
 
 //customising .z.pg/ps
 p1:{.queries.logquery[.proc.cp[];@[x;y;.queries.logqueryerror[.proc.cp[];;y;startp]];y;startp:.proc.cp[]]}
