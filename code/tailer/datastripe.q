@@ -26,6 +26,7 @@ modaccess:{[accesstab]};
     modaccess[.ds.access];
 
     // call the savedown function
+    .ds.duptabs[`.[`quote];`.[`trade]];
     .ds.savealltables[.ds.td];
     .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
     
@@ -75,6 +76,13 @@ initdatastripe:{
     };
 
 \d .ds
+
+duptabs:{[q;t]
+  `quote1 upsert q;
+  `quote2 upsert q;
+  `trade1 upsert t;
+  `trade2 upsert t;
+ };
 
 symlink:{
     /- function to create HDB sym file and symlink to this sym file at start up
