@@ -38,3 +38,6 @@ enabled:1b                                        // switch on subscribercutoff
 \d .servers
 CONNECTIONS,:`segmentedtickerplant
 CONNECTIONSFROMDISCOVERY:1b
+
+\d .queries
+enabled:0b                      		  // disable query tracking

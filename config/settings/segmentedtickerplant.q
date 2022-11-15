@@ -36,4 +36,7 @@ enabled:0b                      // disable the timer
 enabled:0b                      // disable heartbeating
 
 \d .zpsignore
-enabled:0b                      // disable zpsignore - zps should be empty 
+enabled:0b                      // disable zpsignore - zps should be empty
+
+\d .queries
+enabled:0b                      // disable query tracking 
