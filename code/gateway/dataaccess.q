@@ -64,7 +64,6 @@ getdata:{[o]
     .lg.o[`.dataaccess.getdata;"Inputs validated using checkinputs"];
     // Get the procs in a (nested) list of serverid(s)
     o[`procs]:.gw.attributesrouting[o;part:.gw.partdict o];
-    .lg.o[`.dataaccess.getdata;"Processes to query: ",(string raze o[`procs])];
     // Get Default process behavior
     default:`timeout`postback`sublist`getquery`optimisation`postprocessing!(0Wn;();0W;0b;1b;{:x;});
     // Use upserting logic to determine behaviour
