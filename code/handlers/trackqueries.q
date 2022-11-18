@@ -24,7 +24,8 @@ p2:{if[ignoreuser; if[any .z.u~/:ignoreuserlist; :x@y]]; if[ignorequery; if[any 
 if[enabled; .z.pg:(p2).z.pg; .z.ps:(p2).z.ps;];
 
 // functionality to save down tables to disk
-savedown:{[dir;tabname;pt]
+savedown:{[tabname;pt]
+ dir:`$":",getenv `KDBHDB;
  pth:` sv .Q.par[dir;pt;tabname],`;
  numrows: count .queries.queries;
  .lg.o[`save;"saving ",(string numrows)," rows of " (string tabname)," data to partition ", string pt]
@@ -33,15 +34,15 @@ savedown:{[dir;tabname;pt]
  .queries.queries:0#.queries.queries;
  };
 
-rowcheck:{[dir;tabname;pt]
+rowcheck:{[tabname;pt]
  countvalue:count .queries.queries;
- if[countvalue > .queries.threshold; savedown[dir;tabname;pt]];
+ if[countvalue > .queries.threshold; savedown[tabname;pt]];
  };
 
 // timers set up to periodically save down to disk
 if[enabled;
     settimers:{
-     .timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.queries.rowcheck;`:data/hdb;`clientqueries;.z.d);"save client query data to disk"];
-     .timer.repeat[.proc.cp[];0Wp;.queries.timerval;(`.queries.savedown;`:data/hdb;`clientqueries;.z.d);"save client query data to disk"];
+     .timer.repeat[.proc.cp[];0Wp;0D00:00:10;(`.queries.rowcheck;`clientqueries;.z.d);"save client query data to disk"];
+     .timer.repeat[.proc.cp[];0Wp;.queries.timerval;(`.queries.savedown;`clientqueries;.z.d);"save client query data to disk"];
       };
     .queries.settimers[];];
