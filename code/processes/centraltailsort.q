@@ -109,6 +109,12 @@ resetrdbwindow:{
   {neg[x]".rdb.tailsortcomplete:1b"}each exec w from rdbprocs;
   };
 
+deletetaildb:{[tdbpath]
+  /-function to delete tailDB
+  .lg.o[`clearTDB;"removing TDB data for partition ",string[tdbpath]];
+  @[.os.deldir; tdbpath; {[e] .lg.e[`load;"failed to delete TDB : ",e]}];
+  };
+
 savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   addpattr[.ts.hdbdir;pt;] each tablelist;
@@ -120,6 +126,11 @@ savecomplete:{[pt;tablelist]
   delete from `status;
   };
 
+taildirpath:{[taildir]
+  /-function to delete taildb partition
+  deletetaildb[taildir];
+  .lg.o[`endofday;"end of day deletion of partition ",string[taildir]," now completed"];
+ };
 
 endofday:{[pt]
   /-function to trigger data load & save to HDB once endofday message is received from tailer(s)

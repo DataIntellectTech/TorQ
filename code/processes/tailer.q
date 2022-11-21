@@ -85,7 +85,7 @@ getprocs:{[x;y]
 
 \d .
 
-/- eod - send end of day message to centraltailsort process
+/- eod - send end of day message to main tailsort process
 endofday:{[pt;processdata]
   .lg.o[`eod;"end of day message received - ",spt:string pt];
   /- call datastripeendofday
@@ -93,7 +93,7 @@ endofday:{[pt;processdata]
   /- find handle to send message to tailsort process
   cts:exec w from .servers.getservers[`proctype;.wdb.centraltailsorttypes;()!();1b;0b];
   /- if no tailsort process connected, do eod sort from tailer & exit early
-  if[0=count cts;
+  if[0=count ts;
     .lg.e[`connection;"no connection to the ",(string .wdb.centraltailsorttypes)," could be established, failed to send end of day message"];:()];
   /- send procname to tailsort process so it loads correct tailDB
   neg[first cts](`tailermsg;.proc.procname);
