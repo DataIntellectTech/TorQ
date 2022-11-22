@@ -20,22 +20,26 @@ workerlist:();
 
 tailermsg:{[procname]
   /-function that's triggered by tailer(s) at endofday
-  segment:last string procname;
+  .lg.o[`endofday;"endofday message received from ", string[procname]];
+  seg:last string procname;
   workerlist::(distinct workerlist, exec procname from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b]);
-  workers:workerlist where segment={(string x)8} each workerlist;
-  savelist:`$"savelistseg",segment;
+  workers:workerlist where seg={(string x)8} each workerlist;
+  savelist:`$"savelistseg",seg;
   /-upsert both tailsortworkers to status table 
   `status upsert {(x;-1;`)} each workers;
+  .lg.o[`tailsortconns;"segment ",string[seg]," has the following tailsorts available ", .Q.s1[workers]];
   /-upsert the related segment savelist tables
-  `savelisttab upsert ("I"$segment;savelist;.ts.savelist);
+  `savelisttab upsert ("I"$seg;savelist;.ts.savelist);
+  .lg.o[`tablelist;"segment ",string[seg]," has table savelist of ", .Q.s1[.ts.savelist]]
   /-both tailsort workers are available for savedown
   update status:1 from `status where process in workers;
   {distributetable[x]} each workers;
  }
 
-routetable:{
+availabletailsort:{
  /-buffer function to delegate any available tailsorts for more savedown
  processes:exec process where status=1 from status;
+ if[count string[processes]<>0; .lg.o[`availability;.Q.s1[processes], " are available for table savedown"]];
  /-call distribute using any tailsort processes that are available
  {distributetable[x]} each processes;
  }
@@ -48,42 +52,56 @@ distributetable:{[processname]
  ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=processname;
  /-table list that keeps track on any tables currently being saved 
  tablist:exec distinct table from status;
- .lg.o[`distributeTailsort;"now preparing ",string[processname]," with current tables being saved ",raze string[tablist]];
+ .lg.o[`distribute;"now preparing ",string[processname]," with current tables being saved ",.Q.s1[raze tablist]];
  /-extract all the tables needing saving for the corresponding segment
  savelist:first exec tablelist from savelisttab where segment=seg; 
  /-select the first available table
  tabname:first savelist except tablist; 
- .lg.o[`distributeTailsort;"assinging ",string[tabname]," to ",string[processname]," for savedown"]; 
+ .lg.o[`distribute;"assinging ",.Q.s1[tabname]," to ",string[processname]," for savedown"]; 
  update table:tabname from `status where process=processname;
  /-update the savelisttab  
  `savelisttab upsert (seg;segname;savelist except tabname);
- .lg.o[`distrbiuteTailsort;"updating savelist to ",raze string[savelist except tabname]];
+ .lg.o[`distrbiute;"updating segment ",string[seg]," savelist to ",.Q.s1[raze savelist except tabname]];
  tablist,:tabname; 
  /-if there is a table ready to be saved, notify the corresponding tailsort
- if[(count string tabname)<>0; neg[first ts](`endofday;.z.d;tailerproc;tabname);
-  update status:0 from `status where process=processname
+ if[(count string[tabname])<>0; neg[first ts](`endofday;.z.d;tailerproc;.proc.procname;tabname);
+  update status:0 from `status where process=processname;
   ];
  }
 
 notify:{[procname;proctype]
  /-function that tailsort(s) will trigger to notify centraltailsort that a table has been saved
- segment:first string[procname]8;
- workers:workerlist where segment={(string x)8} each workerlist;
+ seg:first string[procname]8;
+ workers:workerlist where seg={(string x)8} each workerlist;
  tab:first exec table from status where process=procname;
  .lg.o[`notify;"table ",string[tab]," from ",string[procname]," now complete "];
  update status:1 from `status where process=procname;
  update table:` from `status where process=procname;
- /-if there are tables yet to be saved, call routetable
- if[0<>any count each exec tablelist from savelisttab;
-  routetable[];
-  .lg.o[`notify;"tables still remaining to save"]
+ 
+ /-log any tables yet to be saved
+ if[0<>(count raze exec tablelist from savelisttab where segment="I"$seg)+
+  (sum count each string exec table from status where process in workers);
+   .lg.o[`notify;"tables from segment ",string[seg]," still remaining to save"];
   ];
  /-call endofday if all tables for a segment is saved
- if[0=any count each exec tablelist from savelisttab;
-  update status:neg 1 from `status where process in workers;
-  .lg.o[`notify;"all tables saved from segment - ",string[segment]];
-  endofday[.z.d]
-  ]; 
+ if[0=(count raze exec tablelist from savelisttab where segment="I"$seg)+
+  (sum count each string exec table from status where process in workers);
+   update status:neg 1 from `status where process in workers;
+   .lg.o[`notify;"all tables saved from segment - ",string[seg]];
+   endofday[.z.d];
+   tailsortreload[workers];
+  ];
+  /-call availabletailsort for any edge cases 
+  availabletailsort[]; 
+ }
+
+tailsortreload:{[tailsortprocname]
+ /-function to execute the tailreader eod reload on the primary tailsort
+ mainworker:first tailsortprocname;
+ seg:first string[mainworker]8;
+ tailerproc:`$"tailer",seg;
+ ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=mainworker;
+ neg[first ts](`endofdayreload;.z.d;.proc.procname;tailerproc);
  }
 
 tailmsg:0;                                                                  /-counter for each segmented tailsort completion
@@ -136,8 +154,6 @@ endofday:{[pt]
   /-function to trigger data load & save to HDB once endofday message is received from tailer(s)
   tailmsg+::1;
   .lg.o[`endofday;"end of day message received "," - ",string[pt]];
-  /-trigger the deletion of current taildb
-  /taildirpath[taildir];
   /-check if all tailers have completed their endofday process
   if[(tailmsg = count .ts.taildbs); savecomplete[pt;.ts.savelist]];
   };
