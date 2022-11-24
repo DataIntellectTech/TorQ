@@ -1,3 +1,4 @@
+.proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]                             /-load common wdb parameters & functions
 \d .ts
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
@@ -61,10 +62,12 @@ distributetable:{[processname]
  update table:tabname from `status where process=processname;
  /-update the savelisttab  
  `savelisttab upsert (seg;segname;savelist except tabname);
- .lg.o[`distrbiute;"updating segment ",string[seg]," savelist to ",.Q.s1[raze savelist except tabname]];
+ .lg.o[`distribute;"updating segment ",string[seg]," savelist to ",.Q.s1[raze savelist except tabname]];
+ /-join the new table to the ones being saved
  tablist,:tabname; 
  /-if there is a table ready to be saved, notify the corresponding tailsort
  if[(count string[tabname])<>0; neg[first ts](`endofday;.z.d;tailerproc;.proc.procname;tabname);
+  /-set the tailsort process to busy
   update status:0 from `status where process=processname;
   ];
  }
@@ -77,18 +80,20 @@ notify:{[procname;proctype]
  .lg.o[`notify;"table ",string[tab]," from ",string[procname]," now complete "];
  update status:1 from `status where process=procname;
  update table:` from `status where process=procname;
- 
  /-log any tables yet to be saved
  if[0<>(count raze exec tablelist from savelisttab where segment="I"$seg)+
   (sum count each string exec table from status where process in workers);
    .lg.o[`notify;"tables from segment ",string[seg]," still remaining to save"];
   ];
- /-call endofday if all tables for a segment is saved
+ /-call endofday if all tables for a segment is saved and no tables are currently being saved
  if[0=(count raze exec tablelist from savelisttab where segment="I"$seg)+
   (sum count each string exec table from status where process in workers);
+   /-turn off all the tailsort processes 
    update status:neg 1 from `status where process in workers;
    .lg.o[`notify;"all tables saved from segment - ",string[seg]];
+   /-call end of day function
    endofday[.z.d];
+   /-call the tailsort reload function
    tailsortreload[workers];
   ];
   /-call availabletailsort for any edge cases 
@@ -100,11 +105,13 @@ tailsortreload:{[tailsortprocname]
  mainworker:first tailsortprocname;
  seg:first string[mainworker]8;
  tailerproc:`$"tailer",seg;
+ /-get the main tailsort handle for the segment
  ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=mainworker;
  neg[first ts](`endofdayreload;.z.d;.proc.procname;tailerproc);
  }
 
-tailmsg:0;                                                                  /-counter for each segmented tailsort completion
+/-counter for each segmented tailsort completion
+tailmsg:0;                                                                  
 
 addpattr:{[hdbdir;pt;tabname]
   /-load column to add p attribute on
@@ -127,12 +134,6 @@ resetrdbwindow:{
   {neg[x]".rdb.tailsortcomplete:1b"}each exec w from rdbprocs;
   };
 
-deletetaildb:{[tdbpath]
-  /-function to delete tailDB
-  .lg.o[`clearTDB;"removing TDB data for partition ",string[tdbpath]];
-  @[.os.deldir; tdbpath; {[e] .lg.e[`load;"failed to delete TDB : ",e]}];
-  };
-
 savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   addpattr[.ts.hdbdir;pt;] each tablelist;
@@ -144,12 +145,6 @@ savecomplete:{[pt;tablelist]
   delete from `status;
   };
 
-taildirpath:{[taildir]
-  /-function to delete taildb partition
-  deletetaildb[taildir];
-  .lg.o[`endofday;"end of day deletion of partition ",string[taildir]," now completed"];
- };
-
 endofday:{[pt]
   /-function to trigger data load & save to HDB once endofday message is received from tailer(s)
   tailmsg+::1;
@@ -157,3 +152,4 @@ endofday:{[pt]
   /-check if all tailers have completed their endofday process
   if[(tailmsg = count .ts.taildbs); savecomplete[pt;.ts.savelist]];
   };
+  
