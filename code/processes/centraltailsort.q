@@ -35,7 +35,7 @@ tailermsg:{[procname]
   /-both tailsort workers are available for savedown
   update status:1 from `status where process in workers;
   {distributetable[x]} each workers;
- }
+ };
 
 availabletailsort:{
  /-buffer function to delegate any available tailsorts for more savedown
@@ -43,7 +43,7 @@ availabletailsort:{
  if[count string[processes]<>0; .lg.o[`availability;.Q.s1[processes], " are available for table savedown"]];
  /-call distribute using any tailsort processes that are available
  {distributetable[x]} each processes;
- }
+ };
 
 distributetable:{[processname]
  /-load balance any tables ready to be merged to HDB via tailsort(s)
@@ -70,7 +70,7 @@ distributetable:{[processname]
   /-set the tailsort process to busy
   update status:0 from `status where process=processname;
   ];
- }
+ };
 
 notify:{[procname;proctype]
  /-function that tailsort(s) will trigger to notify centraltailsort that a table has been saved
@@ -98,7 +98,7 @@ notify:{[procname;proctype]
   ];
   /-call availabletailsort for any edge cases 
   availabletailsort[]; 
- }
+ };
 
 tailsortreload:{[tailsortprocname]
  /-function to execute the tailreader eod reload on the primary tailsort
@@ -108,11 +108,8 @@ tailsortreload:{[tailsortprocname]
  /-get the main tailsort handle for the segment
  ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=mainworker;
  neg[first ts](`endofdayreload;.z.d;.proc.procname;tailerproc);
- }
-
-/-counter for each segmented tailsort completion
-tailmsg:0;                                                                  
-
+ };
+                                                       
 addpattr:{[hdbdir;pt;tabname]
   /-load column to add p attribute on
   pcol:.ds.loadtablekeycols[][tabname];
@@ -147,9 +144,9 @@ savecomplete:{[pt;tablelist]
 
 endofday:{[pt]
   /-function to trigger data load & save to HDB once endofday message is received from tailer(s)
-  tailmsg+::1;
+  tailsortcount:count exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b];
   .lg.o[`endofday;"end of day message received "," - ",string[pt]];
-  /-check if all tailers have completed their endofday process
-  if[(tailmsg = count .ts.taildbs); savecomplete[pt;.ts.savelist]];
+  /-check if all tailers that are online have completed their endofday savedown
+  if[(tailsortcount=count(::)@\:?[status;enlist (=;`status;-1);0b;(enlist`process)!enlist`process]); savecomplete[pt;.ts.savelist]];
   };
   
