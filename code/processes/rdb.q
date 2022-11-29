@@ -26,7 +26,7 @@ upd:@[value;`upd;{insert}];                                 //value of upd
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
-reloadenabled:@[value;`reloadenabled;0b];                   //if true, the RDB will not save when .u.end is called but 
+reloadenabled:@[value;`reloadenabled;1b];                   //if true, the RDB will not save when .u.end is called but 
                                                             //will clear it's data using reload function (called by the WDB)
 parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source the rdb partition value, can be log (from tp log file name), 
                                                             //tab (from the the first value in the time column of the table that is subscribed for) 
