@@ -52,5 +52,7 @@ tpcheckcycles:0W                                                                
 
 \d .servers
 tailsorttypes:`tailsort_seg1`tailsort_seg2
+hdbtypes:`hdb
+rdbtypes:`rdb
 CONNECTIONS:()                  // connections to make at start up
 STARTUP:1b                      // create connections
