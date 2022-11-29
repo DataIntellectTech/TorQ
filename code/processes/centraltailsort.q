@@ -7,8 +7,10 @@ rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rd
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
 savelist:@[value;`savelist;`quote`trade`quote1`trade1`quote2`trade2]; 
-                                                                           
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.servers.tailsorttypes);
+reloadorder:@[value;`reloadorder;`hdb`rdb];
+eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
+
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.servers.tailsorttypes,.servers.hdbtypes,.servers.rdbtypes);
 .servers.startup[];
 
 \d .
@@ -137,10 +139,32 @@ savecomplete:{[pt;tablelist]
   tailmsg::0;
   .ts.taildirs:();
   resetrdbwindow[];
+  getprocs[;pt] each .ts.reloadorder;
   .lg.o[`endofday;"end of day save complete"]
-  delete from `savelisttab;
-  delete from `status;
+  {@[`.;x;0#]}each .wdb.tablelist[];
   };
+
+/-function to send reload message to rdbs/hdbs
+reloadproc:{[h;d;ptype]
+ countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each .ts.reloadorder];
+ $[.ts.eodwaittime>0;
+  {[x;y;ptype].[{neg[y]@x};(x;y);
+  {[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; 
+  (neg .z.w)(`.wdb.handler;1b); (neg .z.w)[]};d);h;ptype];
+  @[h;(`reload;d);{[ptype;e] .lg.e[`reloadproc;"failed to reload the ",string[ptype],".  The error was : ",e]}[ptype]]
+ ];
+ .lg.o[`reload;"the ",string[ptype]," has been successfully reloaded"];
+ }
+
+/-function to discover rdbs/hdbs and attempt to reconnect
+getprocs:{[x;y]
+ a:exec (w!x) from .servers.getservers[`proctype;x;()!();1b;0b];
+ /-exit if no valid handle
+ if[0=count a; .lg.e[`connection;"no connection to the ",(string x)," could be established... failed to reload ",string x];:()];
+ .lg.o[`connection;"connection to the ", (string x)," has been located"];
+ /-send message along each handle a
+ reloadproc[;y;value a] each key a;
+ }
 
 endofday:{[pt]
   /-function to trigger data load & save to HDB once endofday message is received from tailer(s)
