@@ -16,7 +16,7 @@ modaccess:{[accesstab]};
     .lg.o[`reload;"reload command has been called remotely"];
 
     // remove periods of data from tables
-    lasttime:nextp-.ds.periodstokeep*(nextp-currp);
+    /lasttime:nextp-.ds.periodstokeep*(nextp-currp);
 
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
@@ -27,7 +27,7 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltables[.ds.td];
-    .lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
+    /.lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
     
     // update the access table on disk
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
@@ -54,6 +54,15 @@ modaccess:{[accesstab]};
     accesspath set .ds.access;
     };
 
+//Function to be called on startup if access table isn't up to date (i.e tailer down during normal EOP)
+accessreplay:{[currentperiod;lastcall]
+    // defines data to be used for manual EOP call
+    replaydata:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj);
+    .lg.o[`accessreplay;"doing endofperiod replay"];
+    endofperiod[(max lastcall`x);.z.p;replaydata];
+    .lg.o[`accessreplay;"replay was a success"];
+    };
+
 initdatastripe:{
     // update endofperiod function
     endofperiod::.wdb.datastripeendofperiod;
@@ -70,14 +79,15 @@ initdatastripe:{
     accesspath set .ds.access;      
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
 
-    // Check carried out to see if access table is up to date relative to most recent EOP
+    // Variables set up for lastcall check
     stphandle:(.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b])[`w];
-    .lg.o[`handlecheck;"stphandle found"];
     currentperiod:(first stphandle)".stplg.currperiod";
-    .lg.o[`periodcheck;"current period found"];
+    nextperiod:(first stphandle)".stplg.nextperiod";
+
+    // Check carried out to see if access table is up to date relative to most recent EOP, if not then EOP is called manually to get the data up to date
     lastcall:select last end where end<>0N from .ds.access;
-    $[(exec x from lastcall)~(enlist currentperiod);.lg.o[`accessupdate;"current period matches access table"];.lg.o[`accessupdate;"access table is out of date and needs updated"]]
-    
+    $[first(((enlist nextperiod)>=(exec x from lastcall))&((exec x from lastcall)>=(enlist currentperiod)));.lg.o[`accessupdate;"current period matches access table"];accessreplay[currentperiod;lastcall]];
+
     // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];
     .tailer.dotailreload[`];
