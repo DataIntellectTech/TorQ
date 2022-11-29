@@ -1,5 +1,5 @@
 // Get the relevant RDB attributes
-.proc.getattributes:{default:`date`tables`procname!(.rdb.rdbpartition[];tables[];.proc.procname);
+.proc.getattributes:{default:`date`tables`procname!(.rdb.rdbpartition[];tables[] except .rdb.ignorelist;.proc.procname);
     / get all cols that contains date (of type "pdz")
     timecolumns:1!{tcols:exec c from meta value x where t in"pdz";
         (enlist[`tablename]!enlist x),
