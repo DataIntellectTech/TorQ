@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 #source the relevant setenv.sh
 source setenv.sh
@@ -26,13 +26,17 @@ elif [ $# -lt 1 ] ; then
 elif [ $# -eq 1 ] ; then
         if [ "$(echo $CUSTOMPROCNAMES | grep -w $inputprocname)" ] ; then
                 echo -e 'Shutting down process now'
-	else 
-		echo 'Process name does not match, try again'
-	fi
 
-fi 
+                bash torq.sh stop $inputprocname -csv ${KDBAPPCONFIG}/customprocessCopy.csv
+                grep -v "$inputprocname" ${KDBAPPCONFIG}/customprocessCopy.csv >| ${KDBAPPCONFIG}/customprocess.csv
+                #bash ./torq.sh stop $inputprocname
+        else
+                echo 'Process name does not match, try again'
+        fi
+
+fi
 
 #remove process from customprocess.csv
 #echo $CUSTOMPROCNAMES | grep -w $inputprocname | sed -i $inputprocname ${KDBAPPCONFIG}/customprocess.csv
 #sed -i '/$inputprocname/d' ${KDBAPPCONFIG}/customprocess.csv
-grep -v "$inputprocname" ${KDBAPPCONFIG}/customprocessCopy.csv >| ${KDBAPPCONFIG}/customprocess.csv
+#grep -v "$inputprocname" ${KDBAPPCONFIG}/customprocessCopy.csv >| ${KDBAPPCONFIG}/customprocess.csv
