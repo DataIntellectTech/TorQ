@@ -20,7 +20,7 @@ readlog:{[file]
         update zcmd:`$1 _' string zcmd, procname:`$1 _' string procname, proctype:`$1 _' string proctype, u:`$1 _' string u,
                 a:"I"$-1 _' a, w:"I"$-1 _' w from
         // Read in file
-        @[{update "J"$'" " vs' mem from flip (cols `.queries.us)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]};
+        @[{update "J"$'" " vs' mem from flip (cols `us)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]};
 
 queryfeed:{
  h(".u.upd";`usage;value flip select from us);
