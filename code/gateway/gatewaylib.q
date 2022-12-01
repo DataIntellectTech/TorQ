@@ -182,6 +182,7 @@ adjustqueriesoverlap:{[options;part]
 		// convert first and last timestamp to start and end time
 		dates:key[dates]!?[value[dates][;0]<start;start;value[dates][;0]],'?[value[dates][;1]>end;end:options`endtime;value[dates][;1]];
 		];
+    .lg.o[`.gw.adjustqueriesoverlap;"adjustqueriesoverlap complete"];
     :`part`isdate`dates!(part;a;dates);
     }
 
@@ -215,7 +216,7 @@ adjustqueriesstripe:{[options;dict]
 			adjinstruments:
                 // check if instrumentsfilter exists
                 {$[""~x 0;
-                    $[1=count y;y 0;y];
+                    $[1=count y;y;y 0];
                     [inf:get"`",x 0;$[1=count s:y where inf y,();s 0;s]]
                     ]}'[inftc;instruments]
                 from querytable where serverid in modquery`serverid;
@@ -238,7 +239,7 @@ adjustqueriesstripe:{[options;dict]
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
     // filter overlap timings between rdb and wdb (tailer) process
-    segids:exec distinct[segid]except 0N from querytable;
+    segids:exec distinct[segid]except ` from querytable;
     if[count segids;
         querytable:{y;if[exec all`rdb`wdb in servertype from x where segid=y;
             rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`rdb;
@@ -251,6 +252,7 @@ adjustqueriesstripe:{[options;dict]
     // optimize hdb query
     if[(not`timecolumn in key options)&(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
         querytable:update optimhdb:1b from querytable where servertype=`hdb];
+    .lg.o[`.gw.adjustqueriesstripe;"adjustqueriesstripe complete"];
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
     :(exec serverid from querytable)!querytable;
