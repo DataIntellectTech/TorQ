@@ -1,6 +1,6 @@
 // high level api functions for data retrieval
-
-getdata:{[inputparams]
+\d .dataaccess
+getprocdata:{[inputparams]
   // if process is striped procname will be in the key
   if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
@@ -70,8 +70,6 @@ getdata:{[inputparams]
       result:([] procname:.proc.procname;proctype:.proc.proctype;query:enlist .dataaccess.buildquery[inputparams];result:enlist result)]];
   :result;
   };
-
-\d .dataaccess
 
 buildquery:{[inputparams]
   // if process is striped procname will be in the key

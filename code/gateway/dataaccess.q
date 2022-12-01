@@ -87,15 +87,17 @@ getdata:{[o]
         if[all key[options`aggregations]in key aggadjust;
             options[`mapreduce]:not`date in gr]];
     // Execute the queries
+    .lg.o[`.dataacccess.getdata;"Executing queries"];
     if[options`getquery;
+        .lg.o[`.dataaccess.getdata;"getquery in options"];
         $[.gw.call .z.w;
             :.gw.syncexec[(`.dataaccess.buildquery;o);options[`procs]];
             :.gw.asyncexec[(`.dataaccess.buildquery;o);options[`procs]]]];
     :$[.gw.call .z.w;
         //if sync
-        .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
+        .gw.syncexecjt[(`.dataaccess.getprocdata;o);options[`procs];autojoin[options];options[`timeout]];
         // if async
-        .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
+        .gw.asyncexecjpt[(`.dataaccess.getprocdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
     .lg.o[`.dataaccess.getdata;"Querying complete"];
     };
 
