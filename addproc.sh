@@ -12,9 +12,6 @@
 # 	-copy all contents of process.csv into customprocess.csv before running the script
 #	-configure ${TORQPROCESSES} in setenv.sh to point to customprocess.csv 
 
-#source the relevant setenv.sh
-source setenv.sh
-
 #input procname from cmd line
 inputprocname=$1
 
@@ -63,7 +60,7 @@ elif [ $# -eq 1 ] ; then
 #run summary of all processes in customprocess.csv
 		grep $inputprocname ${KDBAPPCONFIG}/process.csv | awk -F',' -vOFS=',' '{ $2 = "{KDBBASEPORT}+" '"$portnum"'; $4 ="'$newprocname'" }1' >> ${KDBAPPCONFIG}/customprocess.csv
     		echo "$inputprocname replicated as $newprocname" 
-		bash torq.sh start $newprocname -csv ${KDBAPPCONFIG}/customprocess.csv
-		bash torq.sh summary -csv ${KDBAPPCONFIG}/customprocess.csv
+		bash ${TORQHOME}/torq.sh start $newprocname -csv ${KDBAPPCONFIG}/customprocess.csv
+		bash ${TORQHOME}/torq.sh summary -csv ${KDBAPPCONFIG}/customprocess.csv
 	fi
 fi

@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+
+/test for scaling up func
+before,0,0,q,instancesbefore:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+run,0,0,q,.orch.scaleup[`hdb1],1,,"scale up hdb1"
+run,0,0,q,instancesafter:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,instancesbefore<instancesafter,1,,"check instances now bigger for hdb1"
+
+/testing scaling down
+run,0,0,q,instancesbefore:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+run,0,0,q,.orch.scaledown[`hdb1],1,,"scale down"
+run,0,0,q,instancesafter:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,instancesbefore>instancesafter,1,,"check instances now smaller for hdb1"

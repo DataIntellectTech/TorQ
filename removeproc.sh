@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#source the relevant setenv.sh
-source setenv.sh
-
 #get all procnames from process.csv
 PROCNAMES="$(sed '1d' ${KDBAPPCONFIG}/process.csv | awk -F',' '{print $4}')"
 
@@ -27,7 +24,7 @@ elif [ $# -eq 1 ] ; then
         if [ "$(echo $CUSTOMPROCNAMES | grep -w $inputprocname)" ] ; then
                 echo -e 'Shutting down process now'
 
-                bash torq.sh stop $inputprocname -csv ${KDBAPPCONFIG}/customprocessCopy.csv
+                bash ${TORQHOME}/torq.sh stop $inputprocname -csv ${KDBAPPCONFIG}/customprocessCopy.csv
                 grep -v "$inputprocname" ${KDBAPPCONFIG}/customprocessCopy.csv >| ${KDBAPPCONFIG}/customprocess.csv
                 #bash ./torq.sh stop $inputprocname
         else
