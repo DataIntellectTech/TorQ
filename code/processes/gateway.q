@@ -535,6 +535,18 @@ addserversfromconnectiontable[.servers.CONNECTIONS]
 // Join active .gw.servers to .servers.SERVERS table
 activeservers:{lj[select from .gw.servers where active;`handle xcol `w xkey .servers.SERVERS]}
 
+/function to tell orchestrator to scale up
+scaleup:{[procname]
+handle:first exec w from .servers.SERVERS where proctype=`orchestrator;
+neg[handle](`.orch.scaleup;procname);
+}
+
+/function to tell orchestrator to scale down
+scaledown:{[procname]
+handle:first exec w from .servers.SERVERS where proctype=`orchestrator;
+neg[handle](`.orch.scaledown;procname);
+}
+
 \d .
 
 // functions called by end-of-day processes
