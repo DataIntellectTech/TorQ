@@ -15,9 +15,6 @@ modaccess:{[accesstab]};
 
     .lg.o[`reload;"reload command has been called remotely"];
 
-    // remove periods of data from tables
-    /lasttime:nextp-.ds.periodstokeep*(nextp-currp);
-
     // update the access table in the wdb
     // on first save down we need to replace the null valued start time in the access table
     // using the first value in the saved data
@@ -27,7 +24,6 @@ modaccess:{[accesstab]};
 
     // call the savedown function
     .ds.savealltables[.ds.td];
-    /.lg.o[`reload;"Kept ",string[.ds.periodstokeep]," period",$[.ds.periodstokeep>1;"s";""]," of data from : ",", " sv string[.wdb.tablelist[]]];
     
     // update the access table on disk
     accesspath: ` sv(.ds.td;.proc.procname;`$ string .wdb.currentpartition;`access);
