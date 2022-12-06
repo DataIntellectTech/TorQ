@@ -396,7 +396,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
   :()];
 
  addquerytimeout[query;servertype;queryattributes;joinfunction;postback;timeout;sync];
- /runnextquery[];
+ runnextquery[];
  };
 
 asyncexecjpt:asyncexecjpts[;;;;;0b]
