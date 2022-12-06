@@ -2,7 +2,7 @@
 
 // based on logusage.q from code.kx
 // http://code.kx.com/wsvn/code/contrib/simon/dotz/
-// Modifications : 
+// Modifications :
 // usage table is stored in memory
 // Data is written to file as ASCII text
 // Added a new LEVEL - LEVEL 0 = nothing; 1=errors only; 2 = + open and queries; 3 = log queries before execution also
@@ -27,6 +27,7 @@ suppressalias:@[value;`suppressalias;0b]		// whether to suppress the log file al
 logtimestamp:@[value;`logtimestamp;{[x] {[].proc.cd[]}}]	// function to generate the log file timestamp suffix
 logroll:@[value;`logroll;1b]				// whether to automatically roll the log file
 LEVEL:@[value;`LEVEL;3]					// Log level
+querytrack:@[value;`querytrack;0b]
 
 id:@[value;`id;0j]
 nextid:{:id+::1}
@@ -38,7 +39,7 @@ logh:@[value;`logh;0]
 write:{
 	if[logtodisk;@[neg logh;format x;()]];
 	if[logtomemory; `.usage.usage upsert x];
-	ext[x]}
+	if[querytrack; .ps.publish[`usage;x]]}
 
 // extension function to extend the logging e.g. publish the log message
 ext:{[x]}
@@ -51,26 +52,26 @@ flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flusht
 
 createlog:{[logdir;logname;timestamp;suppressalias]
 	basename:"usage_",(string logname),"_",(string timestamp),".log";
-	// Close the current log handle if there is one 
+	// Close the current log handle if there is one
 	if[logh; @[hclose;logh;()]];
 	// Open the file
 	.lg.o[`usage;"creating usage log file ",lf:logdir,"/",basename];
 	logh::hopen hsym`$lf;
 	// Create an alias
 	if[not suppressalias;
-		.proc.createalias[logdir;basename;"usage_",(string logname),".log"]]; 
+		.proc.createalias[logdir;basename;"usage_",(string logname),".log"]];
 	}
 
-// read in a log file 
-readlog:{[file] 
-	// Remove leading backtick from symbol columns, convert a and w columns back to integers 
-	update zcmd:`$1 _' string zcmd, procname:`$1 _' string procname, proctype:`$1 _' string proctype, u:`$1 _' string u, 
-		a:"I"$-1 _' a, w:"I"$-1 _' w from  
+// read in a log file
+readlog:{[file]
+	// Remove leading backtick from symbol columns, convert a and w columns back to integers
+	update zcmd:`$1 _' string zcmd, procname:`$1 _' string procname, proctype:`$1 _' string proctype, u:`$1 _' string u,
+		a:"I"$-1 _' a, w:"I"$-1 _' w from
 	// Read in file
 	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
 
 // roll the logs
-// inmemorypersist = the number 
+// inmemorypersist = the number
 rolllog:{[logdir;logname;timestamp;suppressalias;persisttime]
 	if[logtodisk; createlog[logdir;logname;timestamp;suppressalias]];
 	flushusage[persisttime]}
@@ -101,20 +102,17 @@ p3:{if[ignore; if[0h=type z;if[any first[z]~/:ignorelist; :y@z]]]; p2[x;y;z]}
 if[enabled;
 	// Create a log file
 	rolllogauto[];
-
 	// If the timer is enabled, and logrolling is set to true, try to log the roll file on a daily basis
 	if[logroll;
         	$[@[value;`.timer.enabled;0b];
                 	[.lg.o[`init;"adding timer function to roll usage logs on a daily schedule starting at ",string `timestamp$(.proc.cd[]+1)+00:00];
                  	.timer.rep[`timestamp$.proc.cd[]+00:00;0Wp;1D;(`.usage.rolllogauto;`);0h;"roll query logs";1b]];
                 	.lg.e[`init;".usage.logroll is set to true, but timer functionality is not loaded - cannot roll usage logs"]]];
-
 	if[flushtime>0;
 		$[@[value;`.timer.enabled;0b];
                 	[.lg.o[`init;"adding timer function to flush in-memory usage logs with interval: ",string flushinterval];
                  	.timer.repeat[.proc.cp[];0Wp;flushinterval;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
-
 	.z.pw:p0[`pw;.z.pw;;];
 	.z.po:p1[`po;.z.po;];.z.pc:p1[`pc;.z.pc;];
 	.z.wo:p1[`wo;.z.wo;];.z.wc:p1[`wc;.z.wc;];
@@ -122,3 +120,6 @@ if[enabled;
 	.z.pg:p2[`pg;.z.pg;];.z.pi:p2[`pi;.z.pi;];
 	.z.ph:p2[`ph;.z.ph;];.z.pp:p2[`pp;.z.pp;];
 	.z.ps:p3[`ps;.z.ps;];]
+//push .usage.usage table into high level namespace for sub functionality
+\d .
+if[.usage.querytrack; usage:.usage.usage]
