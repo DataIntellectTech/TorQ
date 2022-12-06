@@ -1,0 +1,31 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+
+run,0,0,q,\c 300 300,1,,""
+
+/test initial scaling
+true,0,0,q,.orch.scaleprocsinstances[`hdb1;`instances]=.orch.limits[`hdb1;`lower],1,,"check hdb1 scaled to lower limit upon startup"
+
+/test for scaling up func
+before,0,0,q,instancesbefore:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+run,0,0,q,.orch.scale[`hdb1;`up],1,,"scale up hdb1"
+run,0,0,q,instancesafter:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,instancesbefore<instancesafter,1,,"check instances now bigger for hdb1"
+
+/testing scaling down
+run,0,0,q,instancesbefore:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+run,0,0,q,.orch.scale[`hdb1.3;`down],1,,"scale down"
+run,0,0,q,instancesafter:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,instancesbefore>instancesafter,1,,"check instances now smaller for hdb1"
+
+/testing limits: upper then lower
+run,0,0,q,.orch.scale[`hdb1;`up],1,,"scale up"
+run,0,0,q,before:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current insatnces of hdb1"
+run,0,0,q,.orch.scale[`hdb1;`up],1,,"scaling up once more after limit is hit, to show no. instances doesn't chnage once limit hit"
+run,0,0,q,after:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,before=after,1,,"checking no. instances hasn't changed, so limit prevents further scaling up"
+
+run,0,0,q,.orch.scale[`hdb1.3;`down],1,,"scale down"
+run,0,0,q,before:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current insatnces of hdb1"
+run,0,0,q,.orch.scale[`hdb1.2;`down],1,,"scale down once more to show no.instances stays same, indicating can't scale lower once limit hit"
+run,0,0,q,after:.orch.scaleprocsinstances[`hdb1;`instances],1,,"get current instances of hdb1"
+true,0,0,q,before=after,1,,"checking no. instances hasn't changed, so limit prevents further scaling down"
