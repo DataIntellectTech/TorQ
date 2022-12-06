@@ -1,17 +1,17 @@
 us:@[value;`us;([]querytime:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$();procname:`symbol$;status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())];
 
-upd:{[t;x] if [t in `.usage.usage; `us insert x]};
+upd:{[t;x] if [t in `usage; `us insert x]};
 
 .servers.startup[];
 start_sub:{[subprocs]
   hds:(),exec w from .servers.SERVERS where proctype in subprocs;
   {
    .lg.o[`startsub;"subscribing to ", string first exec procname from .servers.SERVERS where w=x];
-   x(`.u.sub;`.usage.usage;`);
+   x(`.u.sub;`usage;`);
    .lg.o[`completesub;"subscribed"];
-
   }each hds;
  };
+
 start_sub[subprocs];
 
 readlog:{[file]
@@ -23,7 +23,7 @@ readlog:{[file]
         @[{update "J"$'" " vs' mem from flip (cols `us)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]};
 
 queryfeed:{
- h(".u.upd";`usage;value flip select from us);
+ h(".u.upd";`usage;value flip select from `us);
  us::0#us;
  };
 
@@ -36,5 +36,5 @@ flushreload:{
 .servers.startupdepcycles[`qtp;10;0W];
 h:.servers.gethandlebytype[`qtp;`any];
 
-.timer.once[.proc.cp[]+0D00:00:10.000;(`flushreload;`);"Flush reload"]
+if[reloadenabled;.timer.once[.proc.cp[]+0D00:00:10.000;(`flushreload;`);"Flush reload"]];
 .timer.repeat[.proc.cp[];0Wp;0D00:00:00.200;(`queryfeed;`);"Publish Query Feed"];
