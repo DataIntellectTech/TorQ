@@ -5,3 +5,4 @@ HOPENTIMEOUT:30000
 
 \d .
 subprocs:`rdb`hdb
+reloadenabled:1b
