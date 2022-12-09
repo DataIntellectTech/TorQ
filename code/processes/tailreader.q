@@ -52,15 +52,23 @@ reload:{
   .ds.access:@[get;hsym accesstabdir;{.lg.e[`load;"Failed to load tailer accesstable with error: ",x]}];
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
+  /- use tailer connection to retrieve stripe mapping for tables
+  .ds.tblstripemapping::tailerhandle".ds.tblstripemapping";
   mostrecent:`location`table xkey update location:.proc.procname, proctype:.proc.proctype from .ds.access;
   (neg .servers.getservers[`proctype;`gateway;()!();1b;1b][`w]) @\:(`.ds.updateaccess;mostrecent);
   /-update metainfo table for the dataaccessapi
   if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]]
-  load hsym `$.tr.basedir,"sym"
+  load hsym `$.tr.basedir,"sym";
+  /temporary functions to remove int column from trade/quote tables for testing purposes
+  trade::.tr.dropinttrade[];
+  quote::.tr.dropintquote[];
   }
 
 /-startup
 .servers.startup[];
 /- checks to see if the IDB exists and if so loads in the accestable and IDB on tailreader startup
-$[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];
+/$[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
+
+/-reload on startup
+/reload[];

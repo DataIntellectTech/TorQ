@@ -56,3 +56,12 @@ initdatastripe[];
 
 /- create HDB sym file and taildir symlink
 .ds.symlink[];
+
+/- reload the access table and tailDB in the tailreader process
+.tailer.dotailreload[`];
+
+/- define handle to stp and retrieve table stripe mapping
+stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
+.ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
+.ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
+.ds.tblstripemapping:update instruments:each[group .ds.subreq](.ds.tblstripemapping[`stripenum]) from .ds.tblstripemapping;
