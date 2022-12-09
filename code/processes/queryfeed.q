@@ -1,13 +1,18 @@
+// queryfeed proc script - subs to .usage.usage tables and publishes to query tickerplant
+
+// add connections to all procs for query tracking to be enabled
+.servers.CONNECTIONS:.servers.CONNECTIONS,exec distinct proctype from ("  SS         ";enlist csv) 0: hsym `$getenv `TORQPROCESSES where procname in subprocs;
+
 us:@[value;`us;([]querytime:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$();procname:`symbol$;status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())];
 
-upd:{[t;x] if [t in `usage; `us insert x]};
+upd:{[t;x] if [t in `.usage.usage; `us insert x]};
 
 .servers.startup[];
 start_sub:{[subprocs]
-  hds:(),exec w from .servers.SERVERS where proctype in subprocs;
+  hds:(),exec w from .servers.SERVERS where procname in subprocs;
   {
    .lg.o[`startsub;"subscribing to ", string first exec procname from .servers.SERVERS where w=x];
-   x(`.u.sub;`usage;`);
+   x(`.usage.querysub;`.usage.usage;`);
    .lg.o[`completesub;"subscribed"];
   }each hds;
  };
