@@ -1,8 +1,7 @@
 \d .servers
 enabled:1b
-CONNECTIONS:`qtp`rdb`hdb    // Feedhandler connects to the tickerplant
+CONNECTIONS:`qtp;   // Feedhandler connects to the query-tickerplant
 HOPENTIMEOUT:30000
 
 \d .
-subprocs:`rdb`hdb
-reloadenabled:1b
+subprocs:"S"$read0 hsym `$(getenv `KDBCONFIG),"/querytrack.csv";        // List of procs for query-tickerplant to subscribe to
