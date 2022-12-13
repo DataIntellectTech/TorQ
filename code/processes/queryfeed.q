@@ -38,8 +38,8 @@ flushreload:{
   {h(".u.upd";`usage;value flip select from readlog[raze string (getenv `KDBLOG),"/usage_",(raze x),"_",.z.d,".log"])} each string each procnames;
  };
 
-.servers.startupdepcycles[`qtp;10;0W];
-h:.servers.gethandlebytype[`qtp;`any];
+.servers.startupdepcycles[`querytp;10;0W];
+h:.servers.gethandlebytype[`querytp;`any];
 
 if[reloadenabled;.timer.once[.proc.cp[]+0D00:00:10.000;(`flushreload;`);"Flush reload"]];
 .timer.repeat[.proc.cp[];0Wp;0D00:00:00.200;(`queryfeed;`);"Publish Query Feed"];
