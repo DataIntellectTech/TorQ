@@ -69,6 +69,3 @@ reload:{
 /- checks to see if the IDB exists and if so loads in the accestable and IDB on tailreader startup
 /$[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
-
-/-reload on startup
-/reload[];
