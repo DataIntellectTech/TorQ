@@ -214,15 +214,16 @@ adjustqueriesstripe:{[options;dict]
         querytable:update 
             // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
 			adjinstruments:
+                {$[1=count x;enlist x;x]}'[instruments]                 //attempting to fix single sym queries - currently not functional
                 // check if instrumentsfilter exists
-                {$[""~x 0;
-                    $[1=count y;y;y 0];
-                    [inf:get"`",x 0;$[1=count s:y where inf y,();s 0;s]]
-                    ]}'[inftc;instruments]
+/                {$[""~x 0;
+/                    $[1=count y;y;y 0];
+/                    [inf:x 0;$[1=count s:y where inf y,();s 0;s]]
+/                    ]}'[inftc;instruments]
                 from querytable where serverid in modquery`serverid;
 		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
 		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
-		];
+        ];
 
     // filter queries not required
     querytable:$[i;
@@ -238,14 +239,22 @@ adjustqueriesstripe:{[options;dict]
         procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
-    // filter overlap timings between rdb and wdb (tailer) process
+    // routing instruments for striped databases
+    if[i;
+        hdbquery:select from querytable where servertype = `hdb;
+        stripedquery:select from querytable except hdbquery;
+        stripedquery:update instruments:?[max max each instruments in' first each inftc;(first each inftc) inter' instruments;0N] from stripedquery;
+        stripedquery:delete from stripedquery where 0 = count each instruments;
+        querytable:stripedquery uj hdbquery];
+
+    // filter overlap timings between rdb and tailreader process
     segids:exec distinct[segid]except ` from querytable;
     if[count segids;
-        querytable:{y;if[exec all`rdb`wdb in servertype from x where segid=y;
-            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`rdb;
-            wdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype=`wdb;
-            if[rdbtimes[0]<wdbtimes 1;wdbtimes[1]:rdbtimes[0]-1;
-                :update starttime:wdbtimes 0,endtime:wdbtimes 1 from x where(segid=y)&servertype=`wdb]];x}/[querytable;segids];
+        querytable:{y;if[all exec any each procs like/:("*tr*";"rdb*") from x where segid=y;
+            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"rdb*";
+            trtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"tr*";
+            if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
+                :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype like"tr*"]];x}/[querytable;segids];
         querytable:delete from querytable where starttime>endtime];
 
     querytable:`inftc`segid _ querytable;
