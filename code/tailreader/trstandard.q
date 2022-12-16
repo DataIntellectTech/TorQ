@@ -9,7 +9,7 @@
     / update date attribute for .gw.partdict and .gw.attributesrouting
     default[`date]:asc default[`date]union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$raze[value each timecolumns][;0]from timecolumns;
     / retrieve striped instruments for tr tables
-    instrumentsfilter:1!select tablename:tbl,instruments from .ds.tblstripemapping;
+    instrumentsfilter:1!select tablename:tbl,instrumentsfilter from .ds.tblstripemapping;
     inftc:instrumentsfilter uj timecolumns;        
     dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
     default,:dataaccess;
