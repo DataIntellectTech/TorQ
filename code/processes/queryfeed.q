@@ -3,9 +3,9 @@
 // add connections to all procs for query tracking to be enabled
 .servers.CONNECTIONS:.servers.CONNECTIONS,exec distinct proctype from ("  SS         ";enlist csv) 0: hsym `$getenv `TORQPROCESSES where procname in subprocs;
 
-us:@[value;`us;([]querytime:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$();procname:`symbol$;status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())];
+us:@[value;`us;([]querytime:`timestamp$();id:`long$();runtime:`timespan$();zcmd:`symbol$();proctype:`symbol$();procname:`symbol$;status:`char$();ip:`int$();user:`symbol$();handle:`int$();cmd:();mem:();sz:`long$();error:())];
 
-upd:{[t;x] if [t in `.usage.usage; `us insert x]};
+upd:{[t;x] x[2]:`timespan$x[2]; if [t in `.usage.usage; `us insert x]};
 
 .servers.startup[];
 start_sub:{[subprocs]
@@ -35,7 +35,7 @@ queryfeed:{
 flushreload:{
  .lg.o[`flushreload1;"fr1"];
  procnames:exec distinct procname from .servers.SERVERS where proctype in subprocs;
-  {h(".u.upd";`usage;value flip select from readlog[raze string (getenv `KDBLOG),"/usage_",(raze x),"_",.z.d,".log"])} each string each procnames;
+  {h(".u.upd";`usage;value flip update timer:`timespan$1000*timer from readlog[raze string (getenv `KDBLOG),"/usage_",(raze x),"_",.z.d,".log"])} each string each procnames;
  };
 
 .servers.startupdepcycles[`querytp;10;0W];
