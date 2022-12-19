@@ -208,25 +208,9 @@ adjustqueriesstripe:{[options;dict]
             from querytable where serverid in modquery`serverid;
     querytable:update starttime:timeoverlaps[;0],endtime:timeoverlaps[;1] from querytable where serverid in modquery`serverid; 
     querytable:enlist[`timeoverlaps]_querytable;
-    
-	if[i:`instruments in key options;
-		// modify instruments based on stripe
-        querytable:update 
-            // query instruments needs to be an atom if only 1sym is queried, if not it will throw a type error
-			adjinstruments:
-                {$[1=count x;enlist x;x]}'[instruments]                 //attempting to fix single sym queries - currently not functional
-                // check if instrumentsfilter exists
-/                {$[""~x 0;
-/                    $[1=count y;y;y 0];
-/                    [inf:x 0;$[1=count s:y where inf y,();s 0;s]]
-/                    ]}'[inftc;instruments]
-                from querytable where serverid in modquery`serverid;
-		querytable:update adjinstruments:instruments from querytable where not serverid in modquery`serverid;
-		querytable:(enlist[`adjinstruments]!enlist `instruments)xcol enlist[`instruments]_querytable;
-        ];
 
     // filter queries not required
-    querytable:$[i;
+    querytable:$[i:`instruments in key options;
         select from querytable where(0=count each inftc)|(0<count each inftc[;1])&(not null each starttime)&0<count each instruments;
         select from querytable where(0=count each inftc)|(0<count each inftc[;1])&not null each starttime];
     // if no results
@@ -240,12 +224,17 @@ adjustqueriesstripe:{[options;dict]
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
     // routing instruments for striped databases
-    if[i;
+    if[[i;any exec any each procs like/:("tr*";"rdb*") from querytable];
         hdbquery:select from querytable where servertype = `hdb;
         stripedquery:select from querytable except hdbquery;
         stripedquery:update instruments:?[max max each instruments in' first each inftc;(first each inftc) inter' instruments;0N] from stripedquery;
         stripedquery:delete from stripedquery where 0 = count each instruments;
         querytable:stripedquery uj hdbquery];
+
+    // fixing length error for single sym queries
+    if[i;
+        querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable
+    ];
 
     // filter overlap timings between rdb and tailreader process
     segids:exec distinct[segid]except ` from querytable;
