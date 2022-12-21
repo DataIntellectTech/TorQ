@@ -54,3 +54,34 @@ Query Gateway
 -------------
 
 The Query Gateway process subscribes to our specific Query RDB and HDB processes to load balance queries and allow for access to query information involving both historical and real time data. The query gateway process also contains a number of analytics functions to return specific aggregations from the usage table (i.e how many queries were executed for each process on a specific day).
+
+Table Contents
+==============
+
+The Query usage table contains the follow columns:
+
+- time: The time that the query was received or when it finished executing 
+
+- runtime: The time taken for the query to be executed
+
+- zcmd: The .z function that was invoked 
+
+- proctype: The process type of the process being queried 
+
+- procname: The name of the process being queried
+
+- status: Denotes whether the entry is before the query is executed (b), that the query has been successfully executed (c) or if the query execution was in error (e)
+
+- ip: The IP address of the process being queried
+
+- user: The user who is executing the query 
+
+- handle: The handle over which the query is passed
+
+- cmd: The query and its arguments as a string 
+
+- mem: Memory information connected to the query execution
+
+- sz: The byte size of the result from the query being executed
+
+- error: An error string 
