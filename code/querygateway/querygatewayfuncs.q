@@ -7,7 +7,7 @@ testfunc:{.gw.syncexec[({[x;y]select query_suc:count i by procname from usage wh
 
 
 /Number of queries on a given process by hour (or any given bucket)
-//d:(`proc`bucket`sd`ed)!(`rdb1:60:.z.d-3;.z.d)
+//d:(`proc`bucket`sd`ed)!(`rdb1;60:.z.d-3;.z.d)
 ProcSucErr:{[d]
    .gw.syncexec[({[d]
       $[.proc.proctype=`queryhdb;
@@ -37,10 +37,10 @@ QueryByUser:{[d]
       $[.proc.proctype=`queryhdb;
          select queries_suc:count where status=first string `c,queries_err:count where status=first string `e
          by time.date,procname from usage
-         where date within (d[`sd];d[`ed]),u=d[`user];
+         where date within (d[`sd];d[`ed]),user=d[`user];
          select queries_suc:count where status=first string `c,queries_err:count where status=first string `e
          by time.date,procname from usage
-         where u=d[`user]]};d);`queryhdb`queryrdb];
+         where user=d[`user]]};d);`queryhdb`queryrdb];
  };
 //Number of distinct users querying a process
 //d:(`proc`bucket`sd`ed)!(`rdb1;60;.z.d-3;.z.d)
