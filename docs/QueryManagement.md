@@ -85,3 +85,20 @@ The Query usage table contains the follow columns:
 - sz: The byte size of the result from the query being executed
 
 - error: An error string 
+
+Setup 
+=====
+
+The TorQ Query Management logging tool can be added on top of any existing TorQ setup or the full TorQ application including Query logging can be integrated with data sources and feeds.
+
+As mentioned above, there are 5 processes that need to be initialised: Query Tickerplant, Query RDB, Query Feed, Query HDB and a Query Gateway. An example of how these would be added to a process csv file is displayed below:
+
+    localhost,{KDBBASEPORT}+24,querytp,querytp1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQAPPHOME}/querydatabase.q -tplogdir ${KDBTPLOG}
+    localhost,{KDBBASEPORT}+25,queryrdb,queryrdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBCODE}/processes/rdb.q,1,
+    localhost,{KDBBASEPORT}+26,queryfeed,queryfeed1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBCODE}/processes/queryfeed.q,1,
+    localhost,{KDBBASEPORT}+27,queryhdb,queryhdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBQUERYHDB},1,
+    localhost,{KDBBASEPORT}+28,querygateway,querygateway1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/querygateway.q,1,
+
+Each of these processes have their own unique process types and process files (except the Query RDB which uses the rdb.q file). Functionality for these 5 processes can be refined within each process config file. 
+
+The Query Management logging tool is fully customisable so users can select specific processes that they want queries to be monitored for. To activate this functionality for a process, add the process name to the querytrack.csv file which is located in the TorQ/config/ directory. This csv file is loaded into the query feed process and used to activate Query Management Logging for each of the specified processes.
