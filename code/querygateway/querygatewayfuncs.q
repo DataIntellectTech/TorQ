@@ -42,6 +42,17 @@ QueryByUser:{[d]
          by time.date,procname from usage
          where user=d[`user]]};d);`queryhdb`queryrdb];
  };
+
+//QuerByUser function in functional form 
+//Same arguments as above just not in dictionary form
+QueryByUserFF:{[username;sd;ed]
+   .gw.syncexec[({[username;sd;ed]
+      $[.proc.proctype=`queryhdb;
+         ?[`usage;((within;`date;(enlist;`sd;`ed));(=;`user;`username));`date`procname!`time.date`procname;`queries_suc`queries_err!((#:;(&:;(=;`status;(*:;($:;enlist(`c))))));(#:;(&:;(=;`status;(*:;($:;enlist(`e)))))))];
+         ?[`usage;enlist((=;`user;`username));`date`procname!`time.date`procname;`queries_suc`queries_err!((#:;(&:;(=;`status;(*:;($:;enlist(`c))))));(#:;(&:;(=;`status;(*:;($:;enlist(`e)))))))]]};username;sd;ed);`queryhdb`queryrdb];
+ };
+
+
 //Number of distinct users querying a process
 //d:(`proc`bucket`sd`ed)!(`rdb1;60;.z.d-3;.z.d)
 DistinctUsers:{[d]
@@ -56,11 +67,19 @@ DistinctUsers:{[d]
  };
 //Return list of queries that run over a given run time
 //10000;.z.d-3;.z.d
-TimerLimit:{[lim;sd;ed]
+RuntimeLimit:{[lim;sd;ed]
    .gw.syncexec[({[lim;sd;ed]
       $[.proc.proctype=`queryhdb;
          select from usage
          where date within (sd;ed),runtime>lim;
          select from usage
          where runtime>lim]};lim;sd;ed);`queryhdb`queryrdb];
+ };
+
+//RuntimeLimit function in functional form
+RuntimeLimitFF:{[lim;sd;ed]
+   .gw.syncexec[({[lim;sd;ed]
+      $[.proc.proctype=`queryhdb;
+         ?[`usage;((within;`date;(enlist;`sd;`ed));(>;`runtime;`lim));0b;()];
+         ?[`usage;enlist((>;`runtime;`lim));0b;()]]};lim;sd;ed);`queryhdb`queryrdb];
  };
