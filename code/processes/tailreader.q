@@ -59,9 +59,6 @@ reload:{
   /-update metainfo table for the dataaccessapi
   if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]]
   load hsym `$.tr.basedir,"sym";
-  /temporary functions to remove int column from trade/quote tables for testing purposes
-  trade::.tr.dropinttrade[];
-  quote::.tr.dropintquote[];
   }
 
 /-startup
