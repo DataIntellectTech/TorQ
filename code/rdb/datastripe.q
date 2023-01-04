@@ -31,12 +31,12 @@
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string .rdb.rdbpartition];
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[.rdb.reloadenabled;
-			.rdb.eodtabcount:: tables[`.] ! count each value each tables[`.];
-			.lg.o[`endofday;"reload is enabled - storing counts of tables at EOD : ",.Q.s1 .rdb.eodtabcount];
-			/-set eod attributes on gateway for rdb
-			gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();1b;0b];
-			.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
-			.lg.o[`endofday;"Escaping end of day function"];:()
+		.rdb.eodtabcount:: tables[`.] ! count each value each tables[`.];
+		.lg.o[`endofday;"reload is enabled - storing counts of tables at EOD : ",.Q.s1 .rdb.eodtabcount];
+		/-set eod attributes on gateway for rdb
+		gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();1b;0b];
+		.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
+		.lg.o[`endofday;"Escaping end of day function"];:()
     ];
 	t:tables[`.] except .rdb.ignorelist;
 	/-get a list of pairs (tablename;columnname!attributes)

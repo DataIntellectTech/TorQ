@@ -6,7 +6,7 @@ hdbdir:hsym `$getenv`KDBHDB;                                               /-loa
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
-savelist:@[value;`savelist;`quote`trade`quote1`trade1`quote2`trade2]; 
+savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 reloadorder:@[value;`reloadorder;`hdb`rdb];
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 

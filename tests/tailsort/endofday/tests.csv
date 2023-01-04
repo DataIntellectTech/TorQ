@@ -20,7 +20,7 @@ run,0,0,q,tl1"endofperiod[.z.p;.z.p+01:00;data]",1,,"Tailer1 end of day"
 run,0,0,q,tl1"endofday[.z.d;()!()]",1,,"Tailer1 end of day"
 
 run,0,0,q,tl2"data:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj)",1,,"Tailer1 end of day"
-run,0,0,q,tl2"endofperiod[.z.p;.z.p+01:00;data]",1,,"ailer1 end of day"
+run,0,0,q,tl2"endofperiod[.z.p;.z.p+01:00;data]",1,,"tailer1 end of day"
 run,0,0,q,tl2"endofday[.z.d;()!()]",1,,"Tailer2 end of day"
 
 run,0,0,q,.os.sleep 2,1,,"Wait 2 seconds"

@@ -3,9 +3,8 @@
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
-/tailsortworkertypes:`$"tailsortworker_",last "_" vs string .proc.proctype; /-list of tailsort types to look for upon a sort being called with worker process
 .tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;
-savelist:@[value;`savelist;`quote`trade`quote1`trade1`quote2`trade2];                                  /-list of tables to save to HDB
+savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
                                                                            / when HDB save is complete to delete tailDB partitions
@@ -34,6 +33,8 @@ mergebypart:{[dir;pt;tabname;dest]
   };
 
 loadandsave:{[pt;procname;tabname]
+  /-function that calls mergebypart, then establishes a connection
+  /-to the centraltailsort and sends it a responce once savedown is complete
   taildir:` sv (.ts.taildir;procname;`$string pt);
   mergebypart[taildir;pt;tabname;.ts.hdbdir];
   cts:exec w from .servers.getservers[`proctype;`centraltailsort;()!();1b;0b];
