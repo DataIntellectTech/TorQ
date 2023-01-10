@@ -39,8 +39,17 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
-- **4.2.1, Jan 2023**
+- **4.3.0, Jan 2023**
   * Bug fixes
+  * Updated documentation
+  * Added functionality for programmatically starting additonal TorQ processes within q processes in the cloud
+  * Improved distribution of syms when using stripe function
+  * Improved WDB reload functionality
+  * Improved functionality of Data Access API & applied bug fixes
+  * Added configurable WDB merge functionality
+  * Fixes to subscriber functionality via .u.sub when utilising batch mode
+  * Fixes to endofday messaging via .u.end
+  * Fixes to endofday savedown process to prevent data savedown to following day
 - **4.2.0, Dec 2021**
   * Added functionality to Data Access API
   * Added Data Striping
