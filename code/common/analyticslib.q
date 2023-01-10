@@ -96,8 +96,6 @@ intervals:{[args]
 
 /rack function
 rack:{[args]
-    / Call general check args function
-    checkargs[args;`table`keycols`base`fullexpansion`timeseries`round;" sSB"]; 
     / Check Optional arguments and assign defaults where appropriate
     / Set a variable 'timeseries' to an empty list
         timeseries:enlist ();
