@@ -13,8 +13,7 @@
         stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
         .ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
         tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
-        tblstripemapping:update instrumentsfilter:each[group .ds.subreq](tblstripemapping[`stripenum]) from tblstripemapping;
-        instrumentsfilter:1!select tablename:tbl,instrumentsfilter from tblstripemapping;
+        instrumentsfilter:1!select tablename:tbl,instrumentsfilter:stripenum from tblstripemapping;
         inftc:instrumentsfilter uj timecolumns;
         dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
         default,:dataaccess;

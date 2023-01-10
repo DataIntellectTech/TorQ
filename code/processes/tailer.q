@@ -64,4 +64,3 @@ initdatastripe[];
 stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
 .ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
 .ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
-.ds.tblstripemapping:update instrumentsfilter:each[group .ds.subreq](.ds.tblstripemapping[`stripenum]) from .ds.tblstripemapping;
