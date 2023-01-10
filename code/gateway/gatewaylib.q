@@ -163,6 +163,14 @@ partdict:{[input]
     @[procdict;key procdict;{:(min x; max x)}]
     };
 
+missinginstruments:{[instruments]
+    $[1 < count instruments;
+        missing:(instruments)[where not any each {(key .ds.subreq) in x}each instruments];
+        missing:(enlist instruments)[where not any each (key .ds.subreq) in/: enlist instruments]
+    ];
+    :missing;
+    };
+
 adjustqueriesoverlap:{[options;part]
 	// Get the overlapping part(itions) from options`procs found by attributesrouting
 	// e.g. if `procs is not specified in the querydict but starttime and endtime specified is .z.d
@@ -223,13 +231,34 @@ adjustqueriesstripe:{[options;dict]
         procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
+    // check if instruments are contained in stripe mapping
+    if[[i;0 < count missinginstruments[options`instruments]];
+        // if a queried instrument is not in stripe mapping, reload stripe mapping to bring up-to-date mapping
+        .ds.getstripemapping[];
+        // create messaging if instrument is not in mapping
+        if[[missing:missinginstruments[options`instruments]; 0 < count missing];
+            .lg.o[`.gw.adjustqueriesstripe;raze("No intra-day data for the following instruments: ",(string missing))];
+                // exit script for intra-day only queries
+            if[[(count options`instruments) = count missing;not `hdb in exec servertype from querytable];
+                '`$"gateway error - no intra-day data found for one or more queried instrument(s). See logs for missing instrument(s)."]
+        ];
+    ];
+
     // routing instruments for striped databases
     if[[i;any exec any each procs like/:("tr*";"rdb*") from querytable];
         hdbquery:select from querytable where servertype = `hdb;
         stripedquery:select from querytable except hdbquery;
-        stripedquery:update instruments:?[max max each instruments in' first each inftc;(first each inftc) inter' instruments;0N] from stripedquery;
-        stripedquery:delete from stripedquery where 0 = count each instruments;
+        stripedquery:update 
+            instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
+                ((group .ds.subreq)first each inftc) inter' instruments;0N] 
+                        from stripedquery;
         querytable:stripedquery uj hdbquery];
+
+    // remove queries for striped procs with no instuments to query
+    querytable:delete from querytable where 0 = count each instruments;
+    if[[i;max any each null exec instruments from querytable];
+        querytable:delete from querytable where null instruments
+    ];
 
     // fixing length error for single sym queries
     if[i;
