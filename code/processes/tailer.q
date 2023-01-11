@@ -112,7 +112,7 @@ initdatastripe[];
 .ds.symlink[];
 
 /- reload the access table and tailDB in the tailreader process
-.tailer.dotailreload[`];
+.tailer.dotailreload[`];    // may need error trapping - tailer will shutdown if connection to tr fails during startup
 
 /- define handle to stp and retrieve table stripe mapping
 stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
