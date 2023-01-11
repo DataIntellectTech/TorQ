@@ -133,12 +133,6 @@ reload:{[date]
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
-/-drop date from rdbpartition
-rmdtfromgetpar:{[date] 
-	rdbpartition:: rdbpartition except date;
-	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
-	}
-	
 dropfirstnrows:{[t]
 	/-drop the first n rows from a table
 	n: 0^ eodtabcount[t];
@@ -150,6 +144,8 @@ dropfirstnrows:{[t]
 subscribe:{[]
 	if[count s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];;
 		.lg.o[`subscribe;"found available tickerplant, attempting to subscribe"];
+		if[replaylog;
+			@[{.ds.replaystarttime:.z.p - (.servers.gethandlebytype[`segmentedtickerplant;`last]`.stplg.multilogperiod) * .ds.periodstokeep};`;{.lg.o[`subscribe;".ds.replaystarttime not defined: ",x]}]];
 		if[subfiltered;
 			@[loadsubfilters;();{.lg.e[`rdb;"failed to load subscription filters"]}];];
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
