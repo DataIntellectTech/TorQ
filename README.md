@@ -42,7 +42,7 @@ Head to the address it gives you to check if your changes have worked. More info
 - **4.3.0, Jan 2023**
   * Bug fixes
   * Updated documentation
-  * Added functionality for programmatically starting additonal TorQ processes within q processes in the cloud
+  * Added functionality for programmatically starting additional TorQ processes within q processes
   * Improved distribution of syms when using stripe function
   * Improved WDB reload functionality
   * Improved functionality of Data Access API & applied bug fixes
@@ -50,6 +50,7 @@ Head to the address it gives you to check if your changes have worked. More info
   * Fixes to subscriber functionality via .u.sub when utilising batch mode
   * Fixes to endofday messaging via .u.end
   * Fixes to endofday savedown process to prevent data savedown to following day
+  * Fixes to rack function of analyticslib.q
 - **4.2.0, Dec 2021**
   * Added functionality to Data Access API
   * Added Data Striping
