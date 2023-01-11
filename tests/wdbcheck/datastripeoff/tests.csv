@@ -1,0 +1,2 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+true,0,0,q,any@[hopen;`::36005:admin:admin;0],1,,"wdb should start up when datastriping is off"
