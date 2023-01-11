@@ -18,7 +18,7 @@ upd:.wdb.replayupd;
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer if datastriping off
-$[.ds.datastripe;[.lg.o[`data;"datastriping on - wdb will not start up "];exit 0];.wdb.saveenabled;.wdb.starttimer[]];
+$[.ds.datastripe;.lg.e[`data;"datastriping on - wdb will not start up "];.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
