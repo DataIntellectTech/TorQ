@@ -477,7 +477,7 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  @[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]];
+  $[.z.q;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]];system"l ",x];
   // if we got this far, file is loaded
   loadedf,:enlist x;
   .lg.o[`fileload;"successfully loaded ",x]
