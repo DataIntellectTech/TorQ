@@ -9,7 +9,7 @@ ${TORQHOME}/../devTorQCloud/torq.sh start all -procfile ${testpath}/process.csv
 
 # Start test proc
 $QCMD ${TORQHOME}/torq.q \
-  -proctype wdb -procname wdb1 \
+  -proctype discovery -procname discovery1 \
   -procfile ${testpath}/process.csv \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q \

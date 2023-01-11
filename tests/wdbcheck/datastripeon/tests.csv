@@ -1,2 +1,2 @@
 action,ms,bytes,lang,code,repeate,minver,comment
-true,0,0,q,not any@[hopen;`::36005:admin:admin;0],1,,"wdb should not start up when datastriping is on"
+true,0,0,q,not any "q" in'system"pgrep -lf wdbdatastripecheck -u $USER",1,,"wdb should not start up when datastriping is on"
