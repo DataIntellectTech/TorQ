@@ -3,13 +3,16 @@
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
+.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
                                                                            / when HDB save is complete to delete tailDB partitions
-\d .
+/ - define .z.pd in order to connect to any worker processes
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertypes);
+.servers.startup[];
 
-savescompleted:0;                                                          /-variable to count how many tailDBs have been saved to HDB
+\d .
 
 mergebypart:{[dir;pt;tabname;dest]
   /-function to merge table partitions from tailDB and save to HDB
@@ -29,25 +32,18 @@ mergebypart:{[dir;pt;tabname;dest]
   ];
   };
 
-addpattr:{[hdbdir;pt;tabname]
-  /-load column to add p attribute on
-  pcol:.ds.loadtablekeycols[][tabname];
-  /-add p attr to on-disk table
-  .lg.o[`attr;"adding p attribute to the ",string[pcol]," col in ",string[tabname]];
-  addattr:{[hdbdir;pt;tabname;pcol]
-    @[.Q.par[hdbdir;pt;tabname];pcol;`p#]
-  };
-  .[addattr;
-    (hdbdir;pt;tabname;pcol);
-    {[e] .lg.e[`attr;"Failed to add attr : ",e]}
-  ];
-  };
-
-/- notify rdb when tail sort process complete
-resetrdbwindow:{
-  .lg.o[`rdbwindow;"resetting rdb moving time window"];
-  rdbprocs:.servers.getservers[`proctype;.ts.rdbtypes;()!();1b;0b];
-  {neg[x]".rdb.tailsortcomplete:1b"}each exec w from rdbprocs;
+loadandsave:{[pt;procname;tabname]
+  /-function that calls mergebypart, then establishes a connection
+  /-to the centraltailsort and sends it a responce once savedown is complete
+  taildir:` sv (.ts.taildir;procname;`$string pt);
+  mergebypart[taildir;pt;tabname;.ts.hdbdir];
+  cts:exec w from .servers.getservers[`proctype;`centraltailsort;()!();1b;0b];
+  if[0=count cts;
+    .lg.e[`connection;"no connection to the centraltailsort could be established, failed to send end of day message"];:()];
+  /- notify centraltailsort process
+  neg[first cts](`notify;.proc.procname;.proc.proctype);
+    .lg.o[`endofday;"table savedown message sent to centraltailsort process"];
+  .lg.o[`sortcomplete;"table ",string[tabname], " savedown complete"];
   };
 
 deletetaildb:{[tdbpath]
@@ -56,33 +52,21 @@ deletetaildb:{[tdbpath]
   @[.os.deldir; tdbpath; {[e] .lg.e[`load;"failed to delete TDB : ",e]}];
   };
 
-savecomplete:{[pt;tablelist]
-  /-function to add p attr to HDB tables, delete tailDBs
-  addpattr[.ts.hdbdir;pt;] each tablelist;
-  deletetaildb each .ts.taildirs;
-  /-reset savescompleted counter and .ts.taildirs
-  savescompleted::0;
-  .ts.taildirs:();
-  resetrdbwindow[];
-  };
+endofdayreload:{[pt;procname;tailerprocname]
+ .lg.o[`notify;"endofday notify and delete message received from ",string[procname]];
+ taildir:` sv (.ts.taildir;tailerprocname;`$string pt);
+ .lg.o[`connection;"attempting connection to ",string[.tailer.tailreadertypes]];
+ tr:first exec w from .servers.getservers[`proctype;.tailer.tailreadertypes;()!();1b;0b];
+ if[0=count tr;
+    .lg.e[`connection;"no connection to the ",(string .tailer.tailreadertypes)," could be established, failed to send end of day message"];:()];
+ neg[tr](`endofday;pt);
+ .lg.o[`endofday;"endofday message sent to ",string[.tailer.tailreadertypes]];
+ deletetaildb[taildir];
+ .lg.o[`endofday;"end of day deletion of partition ",string[taildir]," now completed"];
+ };
 
-loadandsave:{[pt;procname]
-  /-function to merge tables from subpartitions in tailDB and save to HDB
-  taildir:` sv (.ts.taildir;procname;`$string pt);
-  .ts.taildirs,:taildir;
-  /-merge tables from tailDBs and save to HDB
-  mergebypart[taildir;pt;;.ts.hdbdir] each .ts.savelist;
-  /-increase savescompleted counter
-  savescompleted+::1;
-  .lg.o[`sortcomplete;"end of day sort complete for ",string[procname]];
-  /-check if all eod saves have been completed, if so trigger savecomplete
-  if[savescompleted = count .ts.taildbs;savecomplete[pt;.ts.savelist]];
-  };
-
-endofday:{[pt;procname]
-  /- function to trigger data load & save to HDB once endofday message is received from tailer(s)
+endofday:{[pt;tailerproc;procname;tabname]
+  /- function to trigger data load & save to HDB once centraltailsort message comes through
   .lg.o[`endofday;"end of day message received from ",string[procname]," - ",string[pt]];
-  loadandsave[pt;procname];
+  loadandsave[pt;tailerproc;tabname];
   };
-
-.servers.startup[];

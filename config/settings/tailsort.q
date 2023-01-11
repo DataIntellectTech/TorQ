@@ -1,3 +1,4 @@
 \d .servers
-CONNECTIONS:`rdb    // connections to make at start up
-STARTUP:1b          // create connections
+/centraltailsorttypes:`centraltailsort
+CONNECTIONS:`rdb`centraltailsort // connections to make at start up
+STARTUP:1b                       // create connections

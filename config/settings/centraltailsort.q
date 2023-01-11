@@ -50,13 +50,9 @@ gc:1b                                                                           
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
-\d .ds
-period:0D01
-
-// Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
-STARTUP:1b                                                                                  // create connections
-
-\d .proc
-loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
+tailsorttypes:`tailsort_seg1`tailsort_seg2
+hdbtypes:`hdb
+rdbtypes:`rdb
+CONNECTIONS:()                  // connections to make at start up
+STARTUP:1b                      // create connections

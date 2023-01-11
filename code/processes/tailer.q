@@ -3,9 +3,8 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-.tailer.tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes,.tailer.tailsorttypes) except `
+.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;                           /-extract wdb proc segname and append to "tr_"
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
 .servers.startup[];
 
 /- evaluate contents of d dictionary asynchronously
@@ -81,7 +80,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
-.servers.register[.servers.procstab;.tailer.tailsorttypes;1b]
+.servers.register[.servers.procstab;.wdb.centraltailsorttypes;1b]
 
 \d .
 
@@ -91,12 +90,12 @@ endofday:{[pt;processdata]
   /- call datastripeendofday
   .wdb.datastripeendofday[pt;processdata];
   /- find handle to send message to tailsort process
-  ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
+  cts:exec w from .servers.getservers[`proctype;.wdb.centraltailsorttypes;()!();1b;0b];
   /- if no tailsort process connected, do eod sort from tailer & exit early
-  if[0=count ts;
-    .lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
-  /- send procname to tailsort process so it loads correct tailDB
-  neg[first ts](`endofday;pt;.proc.procname);
+  if[0=count cts;
+    .lg.e[`connection;"no connection to the ",(string .wdb.centraltailsorttypes)," could be established, failed to send end of day message"];:()];
+  /- send procname to centraltailsort process tailermsg function to trigger loadandasave for all tables
+  neg[first cts](`tailermsg;.proc.procname);
   .lg.o[`eod;"end of day message sent to tailsort process"];
   };
 
