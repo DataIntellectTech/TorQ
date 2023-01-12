@@ -5,7 +5,7 @@ readtableproperties:{[tablepropertiepath]
   .lg.o[`readtableproperties;"loading table properties"];
   table:`tablename`proctype xkey readcsv[tablepropertiepath;"ssssstsss"];                                                            //read in table from file
   alltable:?[table;enlist(in;`proctype;enlist`all`);0b;()];                                                                          //find any instance of the use "all" or blank for proctype
-  table:table,raze {[alltable;x]![alltable;();0b;(enlist`proctype)!enlist(enlist x)]}[alltable;] each `hdb`rdb`tr_seg1`tr_seg2;      //insert rdb, hdb, tr_seg1, tr_seg2 entries for any "all" or blank entries 
+  table:table,raze {[alltable;x]![alltable;();0b;(enlist`proctype)!enlist(enlist x)]}[alltable;] each `hdb`rdb_seg1`rdb_seg2`tr_seg1`tr_seg2;      //insert rdb, hdb, tr_seg1, tr_seg2 entries for any "all" or blank entries 
   table:![table;enlist(in;`proctype;enlist`all`);0b;`symbol$()];                                                                     //remove "all" or blank entries from table
   table:?[table;$[.proc.proctype=`gateway;();enlist(=;`proctype;`.proc.proctype)];0b;()];
   table:update  .eodtime.datatimezone ^ datatimezone, .eodtime.rolltimeoffset ^ rolltimeoffset,.eodtime.rolltimezone^rolltimezone from table;

@@ -39,7 +39,6 @@ endofday:{[pt]
 reload:{
   /- function to define the access table and tailDB dir and then reload both tables
   /- reload is triggered by tailer after savedown occurs
-<<<<<<< HEAD
   .tr.basedir:(raze/)1_string[.tr.taildir],"/tailer",string .tr.segmentid,"/";
   .tr.wdbdir:`$ .tr.basedir,string .tr.currentpartition;
   accesstabdir:`$ .tr.basedir,"access";
@@ -67,24 +66,3 @@ reload:{
 /- checks to see if the IDB exists and if so loads in the accestable and IDB on tailreader startup
 /$[not ()~ key hsym .tr.wdbdir;reload[];.lg.o[`load;"No IDB present for this date"]];
 /- logs as INF not ERR as it is expected on first time use that there is no data to load in
-=======
-  .tr.taildir:`$ .tr.basedir,string .tr.currentpartition;
-  accesstabdir:`$ (string .tr.taildir),"/access";
-  .lg.o[`load;"Loading intradayDB"];
-  @[.Q.l ;.tr.taildir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
-  .lg.o[`load;"intradayDB loaded"];
-  .lg.o[`load;"loading accesstable"];
-  /- make a connection to the tailer to get the in-memory access table
-  tailerhandle: first exec w from .servers.getservers[`proctype;.tr.tailertypes;()!();1b;0b];
-  .ds.access:tailerhandle".ds.access";
-  .lg.o[`load;"loaded accesstable"];
-  load hsym `$.tr.basedir,"sym"
-  }
-<<<<<<< HEAD
-
-/- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
-$[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
-/- logs as INF not ERR as it is expected on first time use that there is no data to load in
->>>>>>> demo-torq5develop
-=======
->>>>>>> tr_accesstable

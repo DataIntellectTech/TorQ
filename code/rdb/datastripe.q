@@ -59,7 +59,7 @@ initdatastripe:{
     .rdb.tailsortcomplete:1b;
     .rdb.tablekeycols:.ds.loadtablekeycols[];
     t:tables[`.] except .rdb.ignorelist;
-    .ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]; segment:first .ds.segmentid);
+    .ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
     modaccess[.ds.access];
     .ds.checksegid[];    
     };
