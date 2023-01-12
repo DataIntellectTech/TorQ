@@ -2,7 +2,7 @@
 \d .wdb
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
-rdbtypes:`rdb                                                                               // list of rdb types to look for and call in rdb reload
+rdbtypes:`rdb_seg1`rdb_seg2                                                                 // list of rdb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
 tickerplanttypes:`segmentedtickerplant                                                      // list of tickerplant types to try and make a connection to
 centraltailsorttypes:`centraltailsort
@@ -41,7 +41,7 @@ settimer:0D00:00:10                                                             
 partitiontype:`date                                                                         // set type of partition (defaults to `date, can be `date, `month or `year)
 gmttime:1b                                                                                  // define whether the process is on gmttime or not
 getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}     // function to determine the partition value
-reloadorder:`hdb`rdb                                                                        // order to reload hdbs and rdbs
+reloadorder:`hdb`rdb_seg1`rdb_seg2                                                                        // order to reload hdbs and rdbs
 hdbdir:`:hdb                                                                                // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile"sort.csv"                                            // location of csv file
 permitreload:1b                                                                             // enable reload of hdbs/rdbs
@@ -53,6 +53,6 @@ tpcheckcycles:0W                                                                
 \d .servers
 tailsorttypes:`tailsort_seg1`tailsort_seg2
 hdbtypes:`hdb
-rdbtypes:`rdb
+rdbtypes:`rdb_seg1`rdb_seg2
 CONNECTIONS:()                  // connections to make at start up
 STARTUP:1b                      // create connections
