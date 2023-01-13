@@ -1,11 +1,11 @@
-.proc.loadf [getenv[`KDBCODE],"/wdb/common.q"]                             /-load common wdb parameters & functions
+.proc.loadf[getenv[`KDBCODE],"/wdb/common.q"]                              /-load common wdb parameters & functions
+
 \d .ts
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-rdbs to send reset window message to
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
-taildirs:();                                                               /-empty list to append tailDB paths to - to be used
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 reloadorder:@[value;`reloadorder;`hdb`rdb];
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
@@ -15,9 +15,9 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 
 \d .
 /-status table that keeps track of tailsorts and table being saved
-status:([] process:`symbol$(); status: ;table:());
+status:([] process:`symbol$(); status:(); table:());
 /-savelist table that keeps track of any tables needing saving                                                
-savelisttab:([segment:`int$()] savelist:`symbol$(); tablelist:);
+savelisttab:([segment:`int$()] savelist:`symbol$(); tablelist:());
 /-list containing all tailsort workers from each segment 
 workerlist:();  
 
@@ -28,13 +28,13 @@ tailermsg:{[procname]
   workerlist::(distinct workerlist, exec procname from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b]);
   workers:workerlist where seg={(string x)8} each workerlist;
   savelist:`$"savelistseg",seg;
-  /-upsert both tailsortworkers to status table 
+  /-upsert all tailsortworkers to status table 
   `status upsert {(x;-1;`)} each workers;
-  .lg.o[`tailsortconns;"segment ",string[seg]," has the following tailsorts available ", .Q.s1[workers]];
+  .lg.o[`tailsortconns;"segment ",string[seg]," has the following associated tailsorts ", .Q.s1[workers]];
   /-upsert the related segment savelist tables
   `savelisttab upsert ("I"$seg;savelist;.ts.savelist);
   .lg.o[`tablelist;"segment ",string[seg]," has table savelist of ", .Q.s1[.ts.savelist]]
-  /-both tailsort workers are available for savedown
+  /-tailsort workers for segment[x] have initial status set to 1 (available for savedown)
   update status:1 from `status where process in workers;
   {distributetable[x]} each workers;
  };
@@ -60,15 +60,13 @@ distributetable:{[processname]
  savelist:first exec tablelist from savelisttab where segment=seg; 
  /-select the first available table
  tabname:first savelist except tablist; 
- .lg.o[`distribute;"assinging ",.Q.s1[tabname]," to ",string[processname]," for savedown"]; 
+ .lg.o[`distribute;"assigning ",.Q.s1[tabname]," to ",string[processname]," for savedown"]; 
  update table:tabname from `status where process=processname;
  /-update the savelisttab  
  `savelisttab upsert (seg;segname;savelist except tabname);
  .lg.o[`distribute;"updating segment ",string[seg]," savelist to ",.Q.s1[raze savelist except tabname]];
- /-join the new table to the ones being saved
- tablist,:tabname; 
  /-if there is a table ready to be saved, notify the corresponding tailsort
- if[(count string[tabname])<>0; neg[first ts](`endofday;.z.d;tailerproc;.proc.procname;tabname);
+ if[tabname<>`; neg[first ts](`endofday;.z.d;tailerproc;.proc.procname;tabname);
   /-set the tailsort process to busy
   update status:0 from `status where process=processname;
   ];
@@ -83,15 +81,14 @@ notify:{[procname;proctype]
  update status:1 from `status where process=procname;
  update table:` from `status where process=procname;
  /-log any tables yet to be saved
- if[0<>(count raze exec tablelist from savelisttab where segment="I"$seg)+
+ if[tableremaining:0<>(count raze exec tablelist from savelisttab where segment="I"$seg)+
   (sum count each string exec table from status where process in workers);
    .lg.o[`notify;"tables from segment ",string[seg]," still remaining to save"];
   ];
  /-call endofday if all tables for a segment is saved and no tables are currently being saved
- if[0=(count raze exec tablelist from savelisttab where segment="I"$seg)+
-  (sum count each string exec table from status where process in workers);
+ if[not tableremaining;
    /-turn off all the tailsort processes 
-   update status:neg 1 from `status where process in workers;
+   update status:-1 from `status where process in workers;
    .lg.o[`notify;"all tables saved from segment - ",string[seg]];
    /-call end of day function
    endofday[.z.d];
@@ -137,7 +134,6 @@ savecomplete:{[pt;tablelist]
   /-function to add p attr to HDB tables, delete tailDBs
   addpattr[.ts.hdbdir;pt;] each tablelist;
   tailmsg::0;
-  .ts.taildirs:();
   resetrdbwindow[];
   getprocs[;pt] each .ts.reloadorder;
   .lg.o[`endofday;"end of day save complete"]
@@ -146,7 +142,6 @@ savecomplete:{[pt;tablelist]
 
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
- countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each .ts.reloadorder];
  $[.ts.eodwaittime>0;
   {[x;y;ptype].[{neg[y]@x};(x;y);
   {[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]}[({@[`. `reload;x;()]; 
@@ -171,6 +166,6 @@ endofday:{[pt]
   tailsortcount:count exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b];
   .lg.o[`endofday;"end of day message received "," - ",string[pt]];
   /-check if all tailers that are online have completed their endofday savedown
-  if[(tailsortcount=count(::)@\:?[status;enlist (=;`status;-1);0b;(enlist`process)!enlist`process]); savecomplete[pt;.ts.savelist]];
+  if[tailsortcount=count select process from status where status=-1; savecomplete[pt;.ts.savelist]];
   };
   

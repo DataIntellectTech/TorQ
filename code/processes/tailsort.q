@@ -6,7 +6,6 @@ rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rd
 .tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
-taildirs:();                                                               /-empty list to append tailDB paths to - to be used
                                                                            / when HDB save is complete to delete tailDB partitions
 / - define .z.pd in order to connect to any worker processes
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertypes);
