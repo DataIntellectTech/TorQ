@@ -3,7 +3,7 @@
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
-rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
+rdbtypes:@[value;`rdbtypes;`rdb];                                          /-rdbs to send reset window message to
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
