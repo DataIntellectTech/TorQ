@@ -20,13 +20,16 @@ upd:.wdb.upd;
 .tailer.replayupd:{[f;t;d]
   /- execute the supplied function
   f[t;d];
-  /- if the data count is greater than the threshold, then flush data to disk
-  if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
-    .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+  // check to see if data being replayed starts before most recent EOP
+  if[firstt:((first t `time) < .tailer.lasteop);
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-    .ds.applyfilters[enlist t;.sub.filterdict];
-    .ds.savetables[.ds.td;t];
-    @[`.;;0#] t    
+    /- if the table data count reaches row threshold or if last time in table greater than EOP then flush to disk
+    if[((rpc:count[value t]) > lmt:.wdb.maxrows[t]) or (lastt:(last t `time) >= .tailer.lasteop);
+      .lg.o[`replayupd;"first time not after EOP therefore can flush to disk"];
+      .ds.applyfilters[enlist t;.sub.filterdict];
+      .ds.savetables[.ds.td;t];
+      @[`.;;0#] t;
+    ];    
   ];
   }[upd];
 
@@ -55,6 +58,8 @@ upd:.wdb.upd;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
+.tailer.stphandle: exec w from (.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b]);
+.tailer.lasteop:((first .tailer.stphandle)".stplg.currperiod");
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];
