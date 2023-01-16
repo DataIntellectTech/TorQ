@@ -20,7 +20,7 @@ upd:.wdb.upd;
 .tailer.replayupd:{[f;t;d]
   /- execute the supplied function
   f[t;d];
-  // check to see if data being replayed starts before most recent EOP
+  /- check to see if data being replayed starts before most recent EOP
   if[firstt:((first t `time) < .tailer.lasteop);
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
     /- if the table data count reaches row threshold or if last time in table greater than EOP then flush to disk
@@ -59,7 +59,7 @@ upd:.wdb.upd;
  };
 
 .tailer.stphandle: exec w from (.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b]);
-.tailer.lasteop:((first .tailer.stphandle)".stplg.currperiod");
+.tailer.lasteop:((first .tailer.stphandle)".stplg.currperiod");                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];
