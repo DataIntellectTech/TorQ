@@ -640,7 +640,7 @@ if[@[value;`.servers.STARTUP;0b]; .servers.startup[]]
 // function to execute functions in .proc.initlist
 .proc.try:{[id;a]
   .lg.o[id;"attempting to run: ",.Q.s1 a];
-  success:@[{value x;1b};a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a];0b}[id;a]];
+  success:$[`debug in key .proc.params;{value x;1b}a;@[{value x;1b};a;{[id;a;x].lg.e[id;x," error - failed to run: ",.Q.s1 a];0b}[id;a]]];
   if[not success;:()];
   .proc.initexecuted,:a;
   .lg.o[id;"run successful: ",.Q.s1 a];
