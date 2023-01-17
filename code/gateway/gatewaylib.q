@@ -230,9 +230,9 @@ adjustqueriesstripe:{[options;dict]
         // convert procs into procname if striped
         procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
-
+    
     // check if instruments are contained in stripe mapping
-    if[[i;0 < count missinginstruments[options`instruments]];
+    if[all[i,0 < count missinginstruments[options`instruments]];
         // if a queried instrument is not in stripe mapping, reload stripe mapping to bring up-to-date mapping
         .ds.getstripemapping[];
         // create messaging if instrument is not in mapping
@@ -245,7 +245,7 @@ adjustqueriesstripe:{[options;dict]
     ];
 
     // routing instruments for striped databases
-    if[[i;any exec any each procs like/:("tr*";"rdb*") from querytable];
+    if[all[i,any exec any each procs like/:("tr*";"rdb*") from querytable];
         hdbquery:select from querytable where servertype = `hdb;
         stripedquery:select from querytable except hdbquery;
         stripedquery:update 
@@ -255,9 +255,11 @@ adjustqueriesstripe:{[options;dict]
         querytable:stripedquery uj hdbquery];
 
     // remove queries for striped procs with no instuments to query
-    querytable:delete from querytable where 0 = count each instruments;
-    if[[i;max any each null exec instruments from querytable];
-        querytable:delete from querytable where null instruments
+    if[i;
+        querytable:delete from querytable where 0 = count each instruments;
+        if[[i;max any each null exec instruments from querytable];
+            querytable:delete from querytable where null instruments
+        ];
     ];
 
     // fixing length error for single sym queries
