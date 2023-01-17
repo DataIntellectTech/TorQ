@@ -53,7 +53,7 @@ reload:{
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
   /- use tailer connection to retrieve stripe mapping for tables
-  .ds.tblstripemapping::tailerhandle".ds.tblstripemapping";
+  .ds.tblstripemapping::@[tailerhandle;".ds.tblstripemapping";{.lg.e[`reload;"Failed to load table stripe map from tailer"]}];
   mostrecent:`location`table xkey update location:.proc.procname, proctype:.proc.proctype from .ds.access;
   (neg .servers.getservers[`proctype;`gateway;()!();1b;1b][`w]) @\:(`.ds.updateaccess;mostrecent);
   /-update metainfo table for the dataaccessapi

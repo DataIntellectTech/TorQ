@@ -61,6 +61,11 @@ initdatastripe[];
 .tailer.dotailreload[`];
 
 /- define handle to stp and retrieve table stripe mapping
-stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
-.ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
-.ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
+stphandle:$[count i:.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
+  first exec w from i;
+    .lg.e[`stphandle;"Failed to get a valid handle to the segmented tickerplant process"]];
+.ds.tblstripe:@[stphandle;"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";
+    {.lg.e[`.ds.tblstripe;"Failed to retrieve stripe map from STP"]}];
+if[`tblstripe in tables[`.ds];
+  .ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
+  ];

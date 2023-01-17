@@ -10,10 +10,15 @@
     default[`date]:asc default[`date]union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$raze[value each timecolumns][;0]from timecolumns;
     if[.ds.datastripe;
         / for striped rdbs, retrieve stripe mapping from stp and deduce instruments in each table to report as attributes to the gateway 
-        stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
-        .ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
-        tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
-        instrumentsfilter:1!select tablename:tbl,instrumentsfilter:stripenum from tblstripemapping;
+        stphandle:$[count i:.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
+            first exec w from i;
+                .lg.e[`.proc.getattributes[];"Failed to get a valid handle to the segmented tickerplant process"]];
+        .ds.tblstripe:@[stphandle;"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";
+            {.lg.e[`.proc.getattributes;"Failed to retrieve stripe map from STP"]}];
+        if[`tblstripe in tables[`.ds];
+            .ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
+            ];
+        instrumentsfilter:1!select tablename:tbl,instrumentsfilter:stripenum from .ds.tblstripemapping;
         inftc:instrumentsfilter uj timecolumns;
         dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
         default,:dataaccess;
