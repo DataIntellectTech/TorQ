@@ -6,8 +6,8 @@ getpartition:@[value;`getpartition;                                        /-fun
 currentpartition:@[value;`currentpartition;getpartition[]]
 basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
-tailertypes:`$"tailer_",last "_" vs string .proc.proctype                  /-define tailer to make connection to 
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tr.tailertypes) except ` 
+tailertype:`$first .proc.params[`tailertype]                               /-define tailer to make connection to 
+.servers.CONNECTIONS:(.servers.CONNECTIONS union .tr.tailertype)except ` 
 .servers.startup[];
 
 \d .
@@ -29,8 +29,8 @@ reload:{
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
   /- make a connection to the tailer to get the in-memory access table
-  tailerhandle: first exec w from .servers.getservers[`proctype;.tr.tailertypes;()!();1b;0b];
-  .ds.access:tailerhandle".ds.access";
+  tailerhandle:$[count i:.servers.getservers[`proctype;.tr.tailertype;()!();1b;0b];first exec w from i;.lg.e[`tailerhandle;"Failed to get a valid handle to respective tailer process"]];
+  .ds.access:@[tailerhandle;".ds.access";{.lg.e[`load;"Failed to load accesstable with error: ",x]}];
   .lg.o[`load;"loaded accesstable"];
   load hsym `$.tr.basedir,"sym"
   }
