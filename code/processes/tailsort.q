@@ -28,7 +28,7 @@ mergebypart:{[dir;pt;tabname;dest]
   dest:` sv .Q.par[dest;pt;tabname],`;
   .[upsert;
     (dest;data);
-    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
+    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e]}
   ];
   };
 
