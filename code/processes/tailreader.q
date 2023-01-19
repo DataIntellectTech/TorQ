@@ -59,6 +59,9 @@ reload:{
   /-update metainfo table for the dataaccessapi
   if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]]
   load hsym `$.tr.basedir,"sym";
+  // update hdb attributes for .gw.servers table in gateways
+	gwhandles:$[count i:.servers.getservers[`proctype;`gateway;()!();1b;0b];exec w from i;.lg.e[`reload;"Unable to retrieve gateway handle(s)"]];
+  .async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gwhandles];
   }
 
 /-startup

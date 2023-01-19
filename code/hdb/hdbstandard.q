@@ -1,7 +1,11 @@
 // reload function
 reload:{
 	.lg.o[`reload;"reloading HDB"];
-	system"l ."}
+	system"l ."
+	// update hdb attributes for .gw.servers table in gateways
+	gwhandles:$[count i:.servers.getservers[`proctype;`gateway;()!();1b;0b];exec w from i;.lg.e[`reload;"Unable to retrieve gateway handle(s)"]];
+  	.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gwhandles];
+	}
 
 // Get the relevant HDB attributes
 .proc.getattributes:{default:`date`tables`procname!(@[value;`date;`date$()];tables[];.proc.procname);
