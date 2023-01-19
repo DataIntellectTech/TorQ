@@ -3,12 +3,13 @@
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
-rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
+rdbtypes:@[value;`rdbtypes;.wdb.rdbtypes];                                 /- rdbs to send reset window message to
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 reloadorder:@[value;`reloadorder;`hdb`rdb];
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
+date:.z.d;
 
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.servers.tailsorttypes,.servers.hdbtypes,.servers.rdbtypes);
 .servers.startup[];
@@ -68,7 +69,7 @@ distributetable:{[processname]
  /-join the new table to the ones being saved
  tablist,:tabname; 
  /-if there is a table ready to be saved, notify the corresponding tailsort
- if[(count string[tabname])<>0; neg[first ts](`endofday;.z.d;tailerproc;.proc.procname;tabname);
+ if[(count string[tabname])<>0; neg[first ts](`endofday;.ts.date;tailerproc;.proc.procname;tabname);
   /-set the tailsort process to busy
   update status:0 from `status where process=processname;
   ];
@@ -94,9 +95,10 @@ notify:{[procname;proctype]
    update status:neg 1 from `status where process in workers;
    .lg.o[`notify;"all tables saved from segment - ",string[seg]];
    /-call end of day function
-   endofday[.z.d];
+   endofday[.ts.date];
    /-call the tailsort reload function
    tailsortreload[workers];
+   .ts.date+:1;
   ];
   /-call availabletailsort for any edge cases 
   availabletailsort[]; 
@@ -109,7 +111,7 @@ tailsortreload:{[tailsortprocname]
  tailerproc:`$"tailer",seg;
  /-get the main tailsort handle for the segment
  ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=mainworker;
- neg[first ts](`endofdayreload;.z.d;.proc.procname;tailerproc);
+ neg[first ts](`endofdayreload;.ts.date;.proc.procname;tailerproc);
  };
                                                        
 addpattr:{[hdbdir;pt;tabname]
