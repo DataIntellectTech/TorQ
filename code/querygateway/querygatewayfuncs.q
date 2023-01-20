@@ -83,3 +83,15 @@ RuntimeLimitFF:{[lim;sd;ed]
          ?[`usage;((within;`date;(enlist;`sd;`ed));(>;`runtime;`lim));0b;()];
          ?[`usage;enlist((>;`runtime;`lim));0b;()]]};lim;sd;ed);`queryhdb`queryrdb];
  };
+
+GetDateRange:{[query]
+    wherephrase:raze raze (parse query) 2;
+    dateindex:1 + wherephrase?`date;
+    // index into wherephrase to retrieve date
+    date:wherephrase dateindex;
+
+    // if date is a range, drop the 'enlist' element
+    if[3=count date; date:1_date];
+
+    :date;
+ };
