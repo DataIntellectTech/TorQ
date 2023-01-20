@@ -94,11 +94,10 @@ notify:{[procname;proctype]
    /-turn off all the tailsort processes 
    update status:neg 1 from `status where process in workers;
    .lg.o[`notify;"all tables saved from segment - ",string[seg]];
-   /-call end of day function
-   endofday[.ts.date];
    /-call the tailsort reload function
    tailsortreload[workers];
-   .ts.date+:1;
+   /-call end of day function
+   endofday[.ts.date];
   ];
   /-call availabletailsort for any edge cases 
   availabletailsort[]; 
@@ -173,6 +172,6 @@ endofday:{[pt]
   tailsortcount:count exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b];
   .lg.o[`endofday;"end of day message received "," - ",string[pt]];
   /-check if all tailers that are online have completed their endofday savedown
-  if[(tailsortcount=count(::)@\:?[status;enlist (=;`status;-1);0b;(enlist`process)!enlist`process]); savecomplete[pt;.ts.savelist]];
+  if[(tailsortcount=count(::)@\:?[status;enlist (=;`status;-1);0b;(enlist`process)!enlist`process]); savecomplete[pt;.ts.savelist];.ts.date+:1;];
   };
   
