@@ -142,8 +142,9 @@ attributesrouting:{[options;procdict]
 
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
-    // Get the servers
-    servers:update striped:{`dataaccess in key x}each attributes from .gw.servers where not servertype=`hdb;
+    // Get the active servers
+    activeservers:select from .gw.servers where active = 1b;
+    servers:update striped:{`dataaccess in key x}each attributes from activeservers where not servertype=`hdb;
     // Filter the servers by servertype input
     if[`procs in key input;servers:delete from servers where not servertype in input`procs];
 	// Servertypes that are all striped
