@@ -5,6 +5,6 @@ loadprocesscode:1b              // whether to load the process specific code def
 
 // Server connection details
 \d .servers
-CONNECTIONS:()			// list of connections to make at start up
+CONNECTIONS:`gateway			// list of connections to make at start up
 STARTUP:1b                      // create connections
 
