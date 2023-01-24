@@ -93,5 +93,5 @@ GetDateRange:{[query]
     // if date is a range, drop the 'enlist' element
     if[3=count date; date:1_date];
 
-    :date;
+    :eval each date;
  };
