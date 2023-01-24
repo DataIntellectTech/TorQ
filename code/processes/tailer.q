@@ -58,8 +58,8 @@ upd:.wdb.upd;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
-.tailer.stphandle: exec w from (.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b]);
-.tailer.lasteop:((first .tailer.stphandle)".stplg.currperiod");                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
+.tailer.stphandle: $[count u:exec w from (.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b]);u;.lg.e[`tailerstp;"Failed to retrieve stp handle"]];
+.tailer.lasteop:@[(first .tailer.stphandle);".stplg.currperiod";{.lg.e[`lasteop;"Failed to call last end of period with error: ",x]}];                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];

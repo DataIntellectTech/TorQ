@@ -76,9 +76,9 @@ initdatastripe:{
     .ds.access:select by table from .ds.access where table in .wdb.tablelist[];
 
     // Variables set up for lastcall check
-    stphandle:(.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b])[`w];
-    currentperiod:(first stphandle)".stplg.currperiod";
-    nextperiod:(first stphandle)".stplg.nextperiod";
+    stphandle:$[count u:(.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b])[`w];u;.lg.e[`stphandle;"Failed to retrieve handle of stp"]];
+    currentperiod:@[(first stphandle);".stplg.currperiod";{.lg.e[`currentP;"Couldn't retrieve current period from stp with error:",x]}];
+    nextperiod:@[(first stphandle);".stplg.nextperiod";{.lg.e[`nextP;"Couldn't retrieve next period from stp with error:",x]}];
 
     // Check carried out to see if access table is up to date relative to most recent EOP, if not then EOP is called manually to get the access table data up to date
     lastcall:select last end where end<>0N from .ds.access;
