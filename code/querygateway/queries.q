@@ -18,4 +18,4 @@ execute:{
 
 \d .
 
-.timer.repeat[.proc.cp[]; 0Wp; 0D00:00:02; (`.query.execute;`); "Execute fake queries"];
+.timer.repeat[.proc.cp[]; 0Wp; 0D00:05:00; (`.query.execute;`); "Execute fake queries"];
