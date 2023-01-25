@@ -120,4 +120,3 @@ QueryUserCountsHistorical:{[date]
     res:handle raze query;
     :res;
     };
-
