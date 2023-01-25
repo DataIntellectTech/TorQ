@@ -95,3 +95,10 @@ GetDateRange:{[query]
 
     :eval each date;
  };
+
+QueryCountsRealtime:{
+    query:"select queries:count u by u from usage where u in `angus`michael`stephen";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:handle query;
+    :res;
+    };
