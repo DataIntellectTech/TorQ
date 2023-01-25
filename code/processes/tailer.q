@@ -3,7 +3,7 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;                           /-extract wdb proc segname and append to "tr_"
+.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];                      /-use .proc.params to get associated tailreader
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
 .servers.startup[];
 

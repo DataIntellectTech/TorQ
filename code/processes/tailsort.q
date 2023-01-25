@@ -3,7 +3,7 @@
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;
+.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];             /-use .proc.params to get associated tailreader
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
                                                                            / when HDB save is complete to delete tailDB partitions
@@ -27,7 +27,7 @@ mergebypart:{[dir;pt;tabname;dest]
   dest:` sv .Q.par[dest;pt;tabname],`;
   .[upsert;
     (dest;data);
-    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e];'e}
+    {[e] .lg.e[`upserttopartition;"failed to save table to disk : ",e]}
   ];
   };
 

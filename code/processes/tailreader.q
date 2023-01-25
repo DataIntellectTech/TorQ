@@ -3,7 +3,7 @@ partitiontype:@[value;`partitiontype;`date];                               /-set
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
   getpartition:{(`date^partitiontype)$(.z.D,.z.d)gmttime}];
-currentpartition:@[value;`currentpartition;getpartition[]]
+currentpartition:@[value;`currentpartition;getpartition[]];
 basedir:raze (getenv`KDBTAIL),"/tailer",(string .ds.segmentid),"/"         /-define associated tailer base directory
 taildir:`$ basedir,string currentpartition;                                /-define tailDB direction
 
@@ -14,7 +14,7 @@ endofday:{[pt]
   .lg.o[`eod;"End of day message received - ",spt:string pt];
   .tr.currentpartition:pt+1;
   reload[];
-  }
+  };
 
 reload:{
   /- function to define the access table and tailDB dir and then reload both tables
@@ -30,7 +30,7 @@ reload:{
   .ds.access:select by table from .ds.access;
   .lg.o[`load;"loaded accesstable"];
   load hsym `$.tr.basedir,"sym"
-  }
+  };
 
 /- checks to see if the tailDB exists and if so loads in the accestable and tailDB on tailreader startup
 $[not ()~ key hsym .tr.taildir;reload[];.lg.o[`load;"No tailDB present for this date"]];
