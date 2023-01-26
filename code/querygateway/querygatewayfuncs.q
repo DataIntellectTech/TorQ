@@ -97,13 +97,20 @@ GetDateRange:{[query]
  };
 
 QueryCountsRealtime:{
+    query:"select count i from usage where u in `angus`michael`stephen";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:handle query;
+    :res;
+    };
+
+QueryUserCountsRealtime:{
     query:"select queries:count u by u from usage where u in `angus`michael`stephen";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
-QueryCountsHistorical:{[date]
+QueryUserCountsHistorical:{[date]
     $[.z.d<=date; query:(); // log error
         1=count date; query:"select queries:count u by u from usage where date=", string date, ", u in `angus`michael`stephen";
         2=count date; query:"select queries:count u by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
