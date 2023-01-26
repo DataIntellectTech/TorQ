@@ -7,7 +7,7 @@ rdbtypes:@[value;`rdbtypes;.wdb.rdbtypes];                                 /- rd
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 taildirs:();                                                               /-empty list to append tailDB paths to - to be used
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
-reloadorder:@[value;`reloadorder;`hdb`rdb];
+reloadorder:@[value;`reloadorder;`hdb`rdb_seg1`rdb_seg2];
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 date:.z.d;
 
