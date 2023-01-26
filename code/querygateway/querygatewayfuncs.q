@@ -121,3 +121,9 @@ QueryUserCountsHistorical:{[date]
     :res;
     };
 
+PeakUsage:{
+    query:"0!select count i by 10 xbar time.minute, u from usage where u in `angus`michael`stephen";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:handle query;
+    :res;
+    };
