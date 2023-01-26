@@ -102,3 +102,15 @@ QueryCountsRealtime:{
     res:handle query;
     :res;
     };
+
+QueryCountsHistorical:{[date]
+    $[.z.d<=date; query:(); // log error
+        1=count date; query:"select queries:count u by u from usage where date=", string date, ", u in `angus`michael`stephen";
+        2=count date; query:"select queries:count u by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        // log error
+        query:()]
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    res:handle raze query;
+    :res;
+    };
+
