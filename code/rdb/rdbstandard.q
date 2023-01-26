@@ -8,16 +8,14 @@
                 tcols!(enlist,/:enlist each($;enlist`timestamp),/:enlist each((?),/:enlist each(=;0W),/:mtcols),'`.z.d,'mtcols:enlist each min,/:tcols),\:0Wp]}each tables[`.] except .rdb.ignorelist;
     / update date attribute for .gw.partdict and .gw.attributesrouting
     default[`date]:asc default[`date]union first[d]+til 1+last deltas d:exec(min;max)@\:distinct`date$raze[value each timecolumns][;0]from timecolumns;
-    if[.ds.datastripe;
-        / for striped rdbs, retrieve stripe mapping from stp and deduce instruments in each table to report as attributes to the gateway 
-        stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
-        .ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
-        tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
-        instrumentsfilter:1!select tablename:tbl,instrumentsfilter:stripenum from tblstripemapping;
-        inftc:instrumentsfilter uj timecolumns;
-        dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
-        default,:dataaccess;
-        ];
+    / for striped rdbs, retrieve stripe mapping from stp and deduce instruments in each table to report as attributes to the gateway 
+    stphandle:first exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
+    .ds.tblstripe:stphandle"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";   /to be changed to avoid blocking handle
+    tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
+    instrumentsfilter:1!select tablename:tbl,instrumentsfilter:stripenum from tblstripemapping;
+    inftc:instrumentsfilter uj timecolumns;
+    dataaccess:enlist[`dataaccess]!enlist`segid`tablename!(.ds.segmentid 0;(exec tablename from inftc)!value inftc);
+    default,:dataaccess;
     default}
 
 \d .rdb
