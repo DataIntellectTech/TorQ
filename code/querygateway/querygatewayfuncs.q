@@ -124,6 +124,24 @@ QueryUserCountsHistorical:{[date]
 PeakUsage:{
     query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in `angus`michael`stephen";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    res:handle query;
+    res::handle query; 
+    
+    time::select distinct time from res;
+    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[`angus`michael`stephen];
+    querycountsn:{x xcol y}'[`angus`michael`stephen; querycounts];
+    querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (each; raze; `time)]}'[querycountsn];
+    peakusage:0!(lj/)(querycountsnk);
+    
+    :update time:.z.d + time from peakusage;
+    };
+
+QueryCountsHistorical:{[date]
+    $[.z.d<=date; query:(); // log error
+        1=count date; query:"select queries:count u by u from usage where date=", string date, ", u in `angus`michael`stephen";
+        2=count date; query:"select queries:count u by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        // log error
+        query:()]
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    res:handle raze query;
     :res;
     };
