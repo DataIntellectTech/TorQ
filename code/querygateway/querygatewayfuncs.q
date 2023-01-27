@@ -104,16 +104,27 @@ QueryCountsRealtime:{
     };
 
 QueryUserCountsRealtime:{
-    query:"select queries:count u by u from usage where u in `angus`michael`stephen";
+    query:"select queries:count i by u from usage where u in `angus`michael`stephen";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
+QueryCountsHistorical:{[date]
+    $[.z.d<=date; query:(); // log error
+        1=count date; query:"select queries:count i from usage where date=", string date, ", u in `angus`michael`stephen";
+        2=count date; query:"select queries:count i from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        // log error
+        query:()]
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    res:handle raze query;
+    :res;
+    };
+
 QueryUserCountsHistorical:{[date]
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count u by u from usage where date=", string date, ", u in `angus`michael`stephen";
-        2=count date; query:"select queries:count u by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        1=count date; query:"select queries:count i by u from usage where date=", string date, ", u in `angus`michael`stephen";
+        2=count date; query:"select queries:count i by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
         // log error
         query:()]
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
@@ -133,15 +144,4 @@ PeakUsage:{
     peakusage:0!(lj/)(querycountsnk);
     
     :update time:.z.d + time from peakusage;
-    };
-
-QueryCountsHistorical:{[date]
-    $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count u by u from usage where date=", string date, ", u in `angus`michael`stephen";
-        2=count date; query:"select queries:count u by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
-        // log error
-        query:()]
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
-    res:handle raze query;
-    :res;
     };
