@@ -232,52 +232,53 @@ adjustqueriesstripe:{[options;dict]
         procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
-     // check if instruments are contained in stripe mapping
-    if[all[i,0 < count missinginstruments[options`instruments]];
-        // if a queried instrument is not in stripe mapping, reload stripe mapping to bring up-to-date mapping
-        .ds.getstripemapping[];
-        // create messaging if instrument is not in mapping
-        if[[missing:missinginstruments[options`instruments]; 0 < count missing];
-            .lg.o[`.gw.adjustqueriesstripe;raze("No intra-day data for the following instruments: ",(string missing))];
-                // exit script for intra-day only queries
-            if[[(count options`instruments) = count missing;not `hdb in exec servertype from querytable];
-                '`$"gateway error - no intra-day data found for one or more queried instrument(s). See logs for missing instrument(s)."]
-        ];
-    ];
-
-    // routing instruments for striped databases
-    if[all[i,any exec any each procs like/:("tr*";"rdb*") from querytable];
-        hdbquery:select from querytable where servertype = `hdb;
-        stripedquery:select from querytable except hdbquery;
-        stripedquery:update 
-            instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
-                ((group .ds.subreq)first each inftc) inter' instruments;0N] 
-                        from stripedquery;
-        querytable:stripedquery uj hdbquery];
-
-    // remove queries for striped procs with no instuments to query
-    if[i;
-        querytable:delete from querytable where 0 = count each instruments;
-        if[[i;max any each null exec instruments from querytable];
-            querytable:delete from querytable where null instruments
-        ];
-    ];
-
-    // fixing length error for single sym queries
-    if[i;
-        querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable
-    ];
-
-    // filter overlap timings between rdb and tailreader process
+    // check if instruments are contained in stripe mapping
     segids:exec distinct[segid]except ` from querytable;
+    if[all[i,count segids];
+        if[0 < count missinginstruments[options`instruments];
+            // if a queried instrument is not in stripe mapping, reload stripe mapping to bring up-to-date mapping
+            .ds.getstripemapping[];
+            // create messaging if instrument is not in mapping
+            if[[missing:missinginstruments[options`instruments]; 0 < count missing];
+                .lg.o[`.gw.adjustqueriesstripe;raze("No intra-day data for the following instruments: ",(string missing))];
+                    // exit script for intra-day only queries
+                if[[(count options`instruments) = count missing;not `hdb in exec servertype from querytable];
+                    '`$"gateway error - no intra-day data found for one or more queried instrument(s). See logs for missing instrument(s)."]
+            ];
+        ];
+
+        // routing instruments for striped databases
+        if[all[i,any exec any each procs like/:("tr*";"rdb*") from querytable];
+            hdbquery:select from querytable where servertype = `hdb;
+            stripedquery:select from querytable except hdbquery;
+            stripedquery:update 
+                instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
+                    ((group .ds.subreq)first each inftc) inter' instruments;0N] 
+                            from stripedquery;
+            querytable:stripedquery uj hdbquery];
+
+        // remove queries for striped procs with no instuments to query
+        if[i;
+            querytable:delete from querytable where 0 = count each instruments;
+            if[[i;max any each null exec instruments from querytable];
+                querytable:delete from querytable where null instruments
+            ];
+        ];
+
+        // fixing length error for single sym queries
+        if[i;
+            querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable
+        ];
+    ];
+    // filter overlap timings between rdb and tailreader process
     if[count segids;
         querytable:{y;if[all exec any each procs like/:("*tr*";"rdb*") from x where segid=y;
             rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"rdb*";
             trtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"tr*";
             if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
                 :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype like"tr*"]];x}/[querytable;segids];
-        querytable:delete from querytable where starttime>endtime];
-
+        querytable:delete from querytable where starttime>endtime;
+    ];
     querytable:`inftc`segid _ querytable;
     // optimize hdb query
     if[(not`timecolumn in key options)&(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;

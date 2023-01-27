@@ -536,9 +536,6 @@ addserversfromconnectiontable[.servers.CONNECTIONS]
 // Join active .gw.servers to .servers.SERVERS table
 activeservers:{lj[select from .gw.servers where active;`handle xcol `w xkey .servers.SERVERS]}
 
-// Retrieve stripe mapping from RDB
-.ds.getstripemapping[];
-
 \d .
 
 // functions called by end-of-day processes
