@@ -140,7 +140,7 @@ PeakUsage:{
     time::select distinct time from res;
     querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[`angus`michael`stephen];
     querycountsn:{x xcol y}'[`angus`michael`stephen; querycounts];
-    querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (each; raze; `time)]}'[querycountsn];
+    querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}'[querycountsn];
     peakusage:0!(lj/)(querycountsnk);
     
     :update time:.z.d + time from peakusage;
