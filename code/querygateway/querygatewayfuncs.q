@@ -145,3 +145,22 @@ PeakUsage:{
     
     :update time:.z.d + time from peakusage;
     };
+
+// if there are multiple queries this just grabs the "first" of them
+// assuming this is acceptable given the likelihood of two offensively long queries
+// having exactly the same runtime
+LongestRunning:{
+    query:"select runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=max runtime";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:handle query;
+
+    cmd:raze value flip select cmd from res;
+    r:.z.d + raze value flip select runtime from res;
+    u:raze raze value flip select u from res;
+
+    f:`$2_first ";" vs raze cmd;
+    q:first next "\"" vs raze cmd;
+    p:`$-1_last "`" vs raze cmd;
+
+    :([] runtime:r; user:u; func:enlist f; query:enlist q; proc:enlist p);
+    };
