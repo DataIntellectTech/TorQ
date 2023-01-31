@@ -54,7 +54,7 @@ period:0D01
 
 // Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
+CONNECTIONS:`hdb`tickerplant`gateway`sort                                                   // list of connections to make at start up
 STARTUP:1b                                                                                  // create connections
 
 \d .proc
