@@ -3,9 +3,10 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
+.tailer.tailreadertype:`$first .proc.params[`tailreadertype];                               /   -tailreadertype to make a connection to 
 .tailer.tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes,.tailer.tailsorttypes) except `
+.tailer.rdbtype:`$first .proc.params[`rdbtype];                                             /-rdbtype to make a connection to
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertype,.tailer.tailsorttypes,.tailer.rdbtype) except `
 .servers.startup[];
 
 /- evaluate contents of d dictionary asynchronously
@@ -33,7 +34,7 @@ upd:.wdb.upd;
 .tailer.dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
-  .wdb.getprocs[;pt]each .tailer.tailreadertypes;
+  .wdb.getprocs[;pt]each .tailer.tailreadertype;
   if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
@@ -80,7 +81,7 @@ getprocs:{[x;y]
         /-send message along each handle a
         reloadproc[;y;value a;x] each key a;
         }
-.servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
+.servers.register[.servers.procstab;.tailer.tailreadertype;1b]
 .servers.register[.servers.procstab;.tailer.tailsorttypes;1b]
 
 \d .
