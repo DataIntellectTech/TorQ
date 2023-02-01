@@ -80,6 +80,10 @@ replay0:{[proc;tabs;realsubs;schemalist;logfilelist;filters]
     //run replay and filtering of logs
     {[logfile;filters;logmetatab] .[.ds.filterreplayed;(logfile;filters;logmetatab);{.lg.e[`subscribe;"could not replay the log file: ", x]}]}[;filters;logmetatab] each logfilelist; 
   ];
+  // does what the function above does but when vanilla TorQ is enabled (datastriping turned off)
+  if[not .ds.datastripe;
+    {[lf] .lg.o[`vanillasubscribe;"replaying log file ",.Q.s1 lf]; -11!lf} each logfilelist;
+    ]
   // reset the upd function back to original upd
   @[`.;`upd;:;origupd];
   .lg.o[`subscribe;"finished log file replay"];
