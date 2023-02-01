@@ -192,5 +192,5 @@ LongestRunningHeatMap:{
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
-    :cmdparsed:ParseCmdImproved res;
+    :ParseCmdImproved res;
     };
