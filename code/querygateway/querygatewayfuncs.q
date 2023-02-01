@@ -94,7 +94,32 @@ GetDateRange:{[query]
     if[3=count date; date:1_date];
 
     :eval each date;
- };
+    };
+
+// return the function, query and process from the cmd col of usage tak
+ParseCmd:{[res]
+    cmd:raze value flip select cmd from res;
+
+    f:`$2_first ";" vs raze cmd;
+    q:first next "\"" vs raze cmd;
+    p:`$-1_last "`" vs raze cmd;
+
+    :(`func`query`proc)!enlist each (f; q; p);
+    };
+
+ParseCmdImproved:{[res]
+    cmd:raze value flip select cmd from res;
+    remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
+    reslist:select cmd from update cmd:";" vs ' cmd from res;
+
+    // grab function, query and process and parse out any
+    // brackets or slashes in strings
+    f:`$1_'first each first value flip reslist;
+    q:1_'-1_'first each next each first value flip reslist;
+    p:`$-1_'first each next each next each first value flip reslist;
+
+    :remainder,' ([] f; q; p);
+    };
 
 QueryCountsRealtime:{
     query:"select count i from usage where u in `angus`michael`stephen";
@@ -154,13 +179,18 @@ LongestRunning:{
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
-    cmd:raze value flip select cmd from res;
     r:.z.d + raze value flip select runtime from res;
     u:raze raze value flip select u from res;
 
-    f:`$2_first ";" vs raze cmd;
-    q:first next "\"" vs raze cmd;
-    p:`$-1_last "`" vs raze cmd;
+    cmdparsed:ParseCmd res;
 
-    :([] runtime:r; user:u; func:enlist f; query:enlist q; proc:enlist p);
+    :([] runtime:r; user:u; func:cmdparsed `func; query:cmdparsed `query; proc:cmdparsed `proc);
+    };
+
+LongestRunningHeatMap:{
+    query:"update minute:.z.d + minute from 0!select max runtime, first cmd by 10 xbar time.minute from usage where u in `angus`michael`stephen";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:handle query;
+
+    :cmdparsed:ParseCmdImproved res;
     };
