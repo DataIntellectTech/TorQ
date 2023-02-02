@@ -94,8 +94,8 @@ endofday:{[pt;processdata]
   /- if no tailsort process connected, do eod sort from tailer & exit early
   if[0=count cts;
     .lg.e[`connection;"no connection to the ",(string .wdb.centraltailsorttypes)," could be established, failed to send end of day message"];:()];
-  /- send procname to centraltailsort process tailermsg function to trigger loadandasave for all tables
-  neg[first cts](`tailermsg;.proc.procname);
+  /- send procname and segid to centraltailsort process tailermsg function to trigger loadandasave for all tables
+  neg[first cts](`tailermsg;.proc.procname;.ds.segmentid 0);
   .lg.o[`eod;"end of day message sent to tailsort process"];
   };
 
