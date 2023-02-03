@@ -96,18 +96,7 @@ GetDateRange:{[query]
     :eval each date;
     };
 
-// return the function, query and process from the cmd col of usage tak
 ParseCmd:{[res]
-    cmd:raze value flip select cmd from res;
-
-    f:`$2_first ";" vs raze cmd;
-    q:first next "\"" vs raze cmd;
-    p:`$-1_last "`" vs raze cmd;
-
-    :(`func`query`proc)!enlist each (f; q; p);
-    };
-
-ParseCmdImproved:{[res]
     cmd:raze value flip select cmd from res;
     remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
     reslist:select cmd from update cmd:";" vs ' cmd from res;
@@ -182,9 +171,7 @@ LongestRunning:{
     r:.z.d + raze value flip select runtime from res;
     u:raze raze value flip select u from res;
 
-    cmdparsed:ParseCmd res;
-
-    :([] runtime:r; user:u; func:cmdparsed `func; query:cmdparsed `query; proc:cmdparsed `proc);
+    :ParseCmd res;
     };
 
 LongestRunningHeatMap:{
@@ -192,5 +179,5 @@ LongestRunningHeatMap:{
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
-    :ParseCmdImproved res;
+    :ParseCmd res;
     };
