@@ -340,7 +340,7 @@ q)raze[tbls]~tbl:hgw1(`.dataaccess.getdata;querydict)
 1b
 ```
 
-### Illustration of Gateway Routing queries for (TorQ Cloud) RDB, Tailer and HDB processes
+### Illustration of Gateway Routing queries for (TorQ Cloud) RDB, Tailreader (Tailer) and HDB processes
 
 The RDB and Tailer processes are set up with data segmented using the striping function (by sym) that lives in pubsub.q
 ```q
@@ -368,54 +368,54 @@ trade 20     `.ds.stripe `sym 3
 The gateway tracks the attributes of the sym and time filters of each segment for query routing purposes
 ```q
 q)hgw1"select servertype!attributes from .gw.servers"
-   | attributes                                                              ..
----| ------------------------------------------------------------------------..
-rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-rdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-hdb| `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
-hdb| `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
-wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
-wdb| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+        | attributes                                                              ..
+--------| ------------------------------------------------------------------------..
+rdb_seg1| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb_seg2| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb_seg3| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+rdb_seg4| `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+hdb     | `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
+hdb     | `date`tables`procname`dataaccess!(`s#2022.03.23 2022.03.24 2022.03.25 20..
+tr_seg1 | `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+tr_seg2 | `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+tr_seg3 | `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
+tr_seg4 | `date`tables`procname`dataaccess!(`s#,2022.04.06;`heartbeat`logmsg`quote..
 
 q)hgw1"select daattr:attributes[;`dataaccess]from .gw.servers"
 daattr                                                                                                                                                                                                 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;0]";".ds.stripe[;0]";"";"");(`time`exchtime!(2022.04.06D03:00:21.109232215 0W;2022.04.06D03:00:00.83..
-`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;1]";".ds.stripe[;1]";"";"");(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:55:54.99..
-`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;2]";".ds.stripe[;2]";"";"");(`time`exchtime!(2022.04.06D03:00:04.819006555 0W;2022.04.06D02:59:27.33..
-`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;3]";".ds.stripe[;3]";"";"");(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:52:50.60..
+`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((0 0 0N 0N);(`time`exchtime!(2022.04.06D03:00:21.109232215 0W;2022.04.06D03:00:00.83..
+`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((1 1 0N 0N);(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:55:54.99..
+`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((2 2 0N 0N);(`time`exchtime!(2022.04.06D03:00:04.819006555 0W;2022.04.06D02:59:27.33..
+`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((3 3 0N 0N);(`time`exchtime!(2022.04.06D02:55:50.603630000 0W;2022.04.06D02:52:50.60..
 `segid`tablename!(0N;`heartbeat`logmsg`quote`trade!+`instrumentsfilter`timecolumns!(("";"";"";"");((,`time)!,-0W 2022.04.05D23:59:59.999999999;(,`time)!,-0W 2022.04.05D23:59:59.999999999;`date`time..
 `segid`tablename!(0N;`heartbeat`logmsg`quote`trade!+`instrumentsfilter`timecolumns!(("";"";"";"");((,`time)!,-0W 2022.04.05D23:59:59.999999999;(,`time)!,-0W 2022.04.05D23:59:59.999999999;`date`time..
-`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;0]";".ds.stripe[;0]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
-`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;1]";".ds.stripe[;1]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
-`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;2]";".ds.stripe[;2]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
-`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((".ds.stripe[;3]";".ds.stripe[;3]";"";"");(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(1;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((0 0 0N 0N);(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(2;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((1 1 0N 0N);(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(3;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((2 2 0N 0N);(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
+`segid`tablename!(4;`trade`quote`heartbeat`logmsg!+`instrumentsfilter`timecolumns!((3 3 0N 0N);(`time`exchtime!(2022.04.06D00:00:00.000000000 0W;2022.04.06D00:00:00.00..
 ```
 
-Querying RDB and Tailer processes with overlapping time periods
+Querying RDB and Tailreader processes with overlapping time periods
 
 ```q
-q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb`wdb);querydict
+q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb_seg1`rdb_seg2`tr_seg1`tr_seg2);querydict
 tablename  | `trade
 starttime  | 2022.03.30
 endtime    | 2022.03.31
 columns    | `time`exchtime`sym`price
 instruments| `ABKMO`PIFC`PILOD`EJO`DKGCM`FOMFB`MEF`GDIDD`BCDC`HKNC
 getquery   | 1b
-procs      | `rdb`wdb
+procs      | `rdb_seg1`rdb_seg2`tr_seg1`tr_seg2
 
 q)hgw1(`.dataaccess.getdata;querydict)
-`rdb
+`rdb_seg1
 (?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.03.31D03:00:20.399392796 2022.03.31D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
-`rdb
+`rdb_seg2
 (?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.03.31D03:00:28.226148779 2022.03.31D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
-`wdb
+`tr_seg1
 (?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.03.31D00:00:00.000000000 2022.03.31D03:00:20.399392795));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
-`wdb
+`tr_seg2
 (?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.03.31D00:00:00.000000000 2022.03.31D03:00:28.226148778));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
 
 q)querydict[`getquery]:0b;r1:`time`sym xasc hgw1(`.dataaccess.getdata;querydict);r1
@@ -434,11 +434,11 @@ q)r2:`time`sym xasc select time,exchtime,sym,price from(trade2,trade)where sym i
 Querying the first time period after EOD, both RDB and Tailer processes will contain exactly the same data, hence the gateway will only route/prioritise the queries to the RDB (in-memory data).
 
 ```q
-q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb`wdb)
+q)querydict:`tablename`starttime`endtime`columns`instruments`getquery`procs!(`trade;.z.d-1;.z.d;`time`exchtime`sym`price;symtoquery;1b;`rdb_seg1`rdb_seg2`tr_seg1`tr_seg2)
 q)hgw1(`.dataaccess.getdata;querydict)
-`rdb
+`rdb_seg1
 (?;`trade;((in;`sym;,`PILOD`MEF`GDIDD`BCDC`HKNC);(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
-`rdb
+`rdb_seg2
 (?;`trade;((in;`sym;,`ABKMO`PIFC`EJO`DKGCM`FOMFB);(within;`time;2022.04.06D00:00:00.000000000 2022.04.06D23:59:59.999999999));0b;`time`exchtime`sym`price!`time`exchtime`sym`price)
 ```
 
