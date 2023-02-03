@@ -188,7 +188,7 @@ LongestRunning:{
     };
 
 LongestRunningHeatMap:{
-    query:"update minute:.z.d + minute from 0!select max runtime, first cmd by 10 xbar time.minute from usage where u in `angus`michael`stephen";
+    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
