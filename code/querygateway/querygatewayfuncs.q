@@ -165,9 +165,6 @@ LongestRunning:{
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
-    r:.z.d + raze value flip select runtime from res;
-    u:raze raze value flip select u from res;
-
     :ParseCmd res;
     };
 
