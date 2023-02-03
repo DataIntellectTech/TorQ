@@ -160,9 +160,6 @@ PeakUsage:{
     :update time:.z.d + time from peakusage;
     };
 
-// if there are multiple queries this just grabs the "first" of them
-// assuming this is acceptable given the likelihood of two offensively long queries
-// having exactly the same runtime
 LongestRunning:{
     query:"select runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=max runtime";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
