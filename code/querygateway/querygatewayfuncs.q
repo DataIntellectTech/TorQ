@@ -161,7 +161,7 @@ PeakUsage:{
     };
 
 LongestRunning:{
-    query:"select runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=max runtime";
+    query:"select time, runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=max runtime";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
