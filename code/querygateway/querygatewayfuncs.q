@@ -107,7 +107,7 @@ ParseCmd:{[res]
     q:1_'-1_'first each next each first value flip reslist;
     p:`$-1_'first each next each next each first value flip reslist;
 
-    :remainder,' ([] f; q; p);
+    :remainder,' ([] func:f; query:q; proc:p);
     };
 
 QueryCountsRealtime:{
