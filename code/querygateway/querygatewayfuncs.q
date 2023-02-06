@@ -188,7 +188,7 @@ LongestRunning:{
 
 LongestRunningHeatMap:{
     clients:GetClients[];
-    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (Q.s1 clients), ", runtime=(max; runtime) fby 10 xbar time.minute";
+    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (.Q.s1 clients), ", runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
