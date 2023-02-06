@@ -71,7 +71,7 @@ getdata:{[o]
     k:key o;
     if[`ordering in k;options[`ordering]: go each options`ordering];
     // Instruments wildcard (`)
-    if[(`~o`instruments)&`instruments in key o;o _: `instruments];
+    if[(`~o`instruments)&`instruments in k;o _: `instruments];
     o:adjustqueries[o;part];
     options[`procs]:key o;
     // Check if any freeform queries is going to any striped database
@@ -154,16 +154,16 @@ returntab:{[joinfn;input;tab]
 // Adjust queries based on relevant data and stripe
 adjustqueries:{[options;part]
     // Get the overlapping part(itions) from options`procs found by attributesrouting
-	dict:.gw.adjustqueriesoverlap[options;part];
-	// adjust map reducable aggregations to get correct components
-	if[(1<count dict`dates)&`aggregations in key options;
-		if[all key[o:options`aggregations]in key aggadjust;
-			aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
-			options:@[options;`aggregations;:;aggs]]];
+    dict:.gw.adjustqueriesoverlap[options;part];
+    // adjust map reducable aggregations to get correct components
+    if[(1<count dict`dates)&`aggregations in key options;
+        if[all key[o:options`aggregations]in key aggadjust;
+            aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
+            options:@[options;`aggregations;:;aggs]]];
     // Modify queries based on striped processes
     // Return query as a dict of table
-	:.gw.adjustqueriesstripe[options;dict];
-	};
+    :.gw.adjustqueriesstripe[options;dict];
+    };
 
 // function to grab the correct aggregations needed for aggregating over multiple processes
 mapreduce:{[aggs;gr]
