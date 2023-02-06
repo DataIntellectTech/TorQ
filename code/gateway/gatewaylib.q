@@ -165,10 +165,7 @@ partdict:{[input]
     };
 
 missinginstruments:{[instruments]
-    $[1 < count instruments;
-        missing:(instruments)[where not any each {(key .ds.subreq) in x}each instruments];
-        missing:(enlist instruments)[where not any each (key .ds.subreq) in/: enlist instruments]
-    ];
+    missing:((),instruments)[where not any each {(key .ds.subreq) in x}each (),instruments];
     :missing;
     };
 
