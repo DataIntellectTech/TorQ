@@ -97,9 +97,11 @@ GetDateRange:{[query]
     };
 
 GetUsers:{
-    users:first value flip select distinct u from .clients.clients where not u in .usage.ignoreusers;
-    if[1=count users; :first users];
-    :users;
+    query:"first value flip select distinct u from .clients.clients where not u in .usage.ignoreusers";
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`gateway;
+    res:handle query;
+    if[1=count res; :first res];
+    :res;
     };
 
 ParseCmd:{[res]
