@@ -96,10 +96,10 @@ GetDateRange:{[query]
     :eval each date;
     };
 
-GetClients:{
-    clients:first value flip select distinct u from .clients.clients where not u in .usage.ignoreclients;
-    if[1=count clients; :first clients];
-    :clients;
+GetUsers:{
+    users:first value flip select distinct u from .clients.clients where not u in .usage.ignoreusers;
+    if[1=count users; :first users];
+    :users;
     };
 
 ParseCmd:{[res]
@@ -117,27 +117,27 @@ ParseCmd:{[res]
     };
 
 QueryCountsRealtime:{
-    clients:GetClients[];
-    query:"select count i from usage where u in ", (.Q.s1 clients);
+    users:GetUsers[];
+    query:"select count i from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
 QueryUserCountsRealtime:{
-    clients:GetClients[];
-    query:"select queries:count i by u from usage where u in ", (.Q.s1 clients);
+    users:GetUsers[];
+    query:"select queries:count i by u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
 QueryCountsHistorical:{[date]
-    clients:GetClients[];
+    users:GetUsers[];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 clients);
-        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 clients);
+        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users);
+        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 users);
         // log error
         query:()]
 
@@ -148,11 +148,11 @@ QueryCountsHistorical:{[date]
     };
 
 QueryUserCountsHistorical:{[date]
-    clients:GetClients;
+    users:GetUsers[];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 clients);
-        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 clients);
+        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users);
+        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 users);
         // log error
         query:()]
 
@@ -163,14 +163,14 @@ QueryUserCountsHistorical:{[date]
     };
 
 PeakUsage:{
-    clients:GetClients[];
-    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 clients);
+    users:GetUsers[];
+    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res::handle query; 
     
     time::select distinct time from res;
-    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[clients];
-    querycountsn:{x xcol y}'[clients; querycounts];
+    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[users];
+    querycountsn:{x xcol y}'[users; querycounts];
     querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}'[querycountsn];
     peakusage:0!(lj/)(querycountsnk);
     
@@ -178,8 +178,8 @@ PeakUsage:{
     };
 
 LongestRunning:{
-    clients:GetClients[];
-    query:"select time, runtime, u, cmd from usage where u in ", (.Q.s1 clients), ", runtime=max runtime";
+    users:GetUsers[];
+    query:"select time, runtime, u, cmd from usage where u in ", (.Q.s1 users), ", runtime=max runtime";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
@@ -187,8 +187,8 @@ LongestRunning:{
     };
 
 LongestRunningHeatMap:{
-    clients:GetClients[];
-    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (.Q.s1 clients), ", runtime=(max; runtime) fby 10 xbar time.minute";
+    users:GetUsers[];
+    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (.Q.s1 users), ", runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
