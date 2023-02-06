@@ -97,7 +97,9 @@ GetDateRange:{[query]
     };
 
 GetClients:{
-    :value flip select distinct u from .clients.clients where not u in .usage.ignoreclients;
+    clients:first value flip select distinct u from .clients.clients where not u in .usage.ignoreclients;
+    if[1=count clients; :first clients];
+    :clients;
     };
 
 ParseCmd:{[res]
@@ -115,49 +117,60 @@ ParseCmd:{[res]
     };
 
 QueryCountsRealtime:{
-    query:"select count i from usage where u in `angus`michael`stephen";
+    clients:GetClients[];
+    query:"select count i from usage where u in ", (.Q.s1 clients);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
 QueryUserCountsRealtime:{
-    query:"select queries:count i by u from usage where u in `angus`michael`stephen";
+    clients:GetClients[];
+    query:"select queries:count i by u from usage where u in ", (.Q.s1 clients);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
     :res;
     };
 
 QueryCountsHistorical:{[date]
+    clients:GetClients[];
+
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i from usage where date=", string date, ", u in `angus`michael`stephen";
-        2=count date; query:"select queries:count i from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 clients);
+        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 clients);
         // log error
         query:()]
+
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:handle raze query;
+
     :res;
     };
 
 QueryUserCountsHistorical:{[date]
+    clients:GetClients;
+
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i by u from usage where date=", string date, ", u in `angus`michael`stephen";
-        2=count date; query:"select queries:count i by u from usage where date within (", string first date, ";", string last date, "), u in `angus`michael`stephen";
+        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 clients);
+        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 clients);
         // log error
         query:()]
+
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:handle raze query;
+
     :res;
     };
 
 PeakUsage:{
-    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in `angus`michael`stephen";
+    clients:GetClients[];
+    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 clients);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res::handle query; 
     
     time::select distinct time from res;
-    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[`angus`michael`stephen];
-    querycountsn:{x xcol y}'[`angus`michael`stephen; querycounts];
+    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[clients];
+    querycountsn:{x xcol y}'[clients; querycounts];
     querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}'[querycountsn];
     peakusage:0!(lj/)(querycountsnk);
     
@@ -165,7 +178,8 @@ PeakUsage:{
     };
 
 LongestRunning:{
-    query:"select time, runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=max runtime";
+    clients:GetClients[];
+    query:"select time, runtime, u, cmd from usage where u in ", (.Q.s1 clients), ", runtime=max runtime";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
@@ -173,7 +187,8 @@ LongestRunning:{
     };
 
 LongestRunningHeatMap:{
-    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in `angus`michael`stephen, runtime=(max; runtime) fby 10 xbar time.minute";
+    clients:GetClients[];
+    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (Q.s1 clients), ", runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:handle query;
 
