@@ -66,15 +66,15 @@ A more complete explanation into the configuration can be seen in the Table Prop
 
 # Usage
 
-When using the API to send queries direct to a process, the overarching function is `getdata`. `getdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `getdata` to be called either directly within a process or via `.dataccess.getdata` (discussed in the Gateway section).
+When using the API to send queries direct to a process, the overarching function is `.dataaccess.getprocdata`. `.dataaccess.getprocdata` is a dynamic, lightweight function which takes in a uniform dictionary (see table below) and the above configuration to build a process bespoke query. Input consistency permits the user to disregard the pragmatics described in `tableproperties.csv` allowing `.dataaccess.getprocdata` to be called either directly within a process or via `.dataaccess.getdata` (discussed in the Gateway section).
 
-The `getdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`. 
+The `.dataaccess.getprocdata` function is split into three sub functions:` .dataaccess.checkinputs`, `.eqp.extractqueryparams` and `queryorder.orderquery`. 
 
 - `.dataaccess.checkinputs` checks if the input dictionary is valid (See custom API errors) 
 - `.eqp.extractqueryparams` converts the arguments into q-SQL 
 - `.queryorder.orderquery` is the API's query optimiser (See Debugging and Optimisation)
 
-`getdata's` input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists getdata's accepted arguments: 
+`.dataaccess.getprocdata's` input takes the format of a dictionary who's keys represent attributes of a query and values that represent how these attributes are to look. Each of these parameter's in the input dictionary can map a very simplistic dictionary into queries that can become quite complex. The following table lists .dataaccess.getprocdata's accepted arguments: 
 
 **Valid Inputs**
 
@@ -113,7 +113,7 @@ If an invalid key pair is desired the user should convert all inputs to the q-SQ
 **Example function call**
 
 ```
-q)getdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`bid`bsize)
+q).dataaccess.getprocdata`tablename`starttime`endtime`instruments`columns!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`bid`bsize)
 sym  bid   bsize
 ----------------
 GOOG 71.57 1
@@ -132,7 +132,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`instruments`columns!(`quot
 Alternatively, the ``` `getquery``` key can also be used to produce an identical result:
 
 ```
-q)getdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize;1b)
+q).dataaccess.getprocdata `tablename`starttime`endtime`instruments`columns`getquery!(`quote;2021.01.20D0;2021.01.23D0;`GOOG;`sym`time`bid`bsize;1b)
 ? `quote ((=;`sym;,`GOOG);(within;`time;2021.01.20D00:00:00.000000000 2021.01.23D00:00:00.000000000)) 0b `sym`time`bid`bsize!`sym`time`bid`bsize
 
 ```
@@ -228,20 +228,20 @@ The documentation for the gateway outside the API can be found [here](https://gi
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
  
 - Leverage the checkinputs library from within the gateway and catch errors before they hit the process
-- Uses `.gw.servers` to dynamically determine the appropriate processes to execute `getdata` in 
+- Uses `.gw.servers` to dynamically determine the appropriate processes to execute `.dataaccess.getprocdata` in 
 - Determines the query type to send to the process(es)
 - Provide further optional arguments to better determine the behaviour of the function see table below:
 
 **Gateway Accepted Keys**
 
-|Input Key|Example        |Default behaviour              |Description                                                |
-|---------|---------------|-------------------------------|-----------------------------------------------------------|
-|postback |`{0N!x}`       |()                             |Post back function for retuning async queries only         |
-|join     |`raze`         |`.dataaccess.multiprocjoin`    |Join function to merge the tables                          |
-|timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                              |
-|procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `getdata` in \*              |
-|trace    |`1b`           |0b                             |Return result with additional procname and proctype columns|
-|debug    |`1b`           |0b                             |Return a table of ([] procname; proctype; query; result)   |
+|Input Key|Example        |Default behaviour              |Description                                                   |
+|---------|---------------|-------------------------------|--------------------------------------------------------------|
+|postback |`{0N!x}`       |()                             |Post back function for retuning async queries only            |
+|join     |`raze`         |`.dataaccess.multiprocjoin`    |Join function to merge the tables                             |
+|timeout  |`00:00:03`     |0Wn                            |Maximum time for query to run                                 |
+|procs    |``` `rdb`hdb```|`.dataaccess.attributesrouting`|Choose which processes to run `.dataaccess.getprocdata` in \* |
+|trace    |`1b`           |0b                             |Return result with additional procname and proctype columns   |
+|debug    |`1b`           |0b                             |Return a table of ([] procname; proctype; query; result)      |
 
 \* By default, `.dataaccess.forceservers` is set to `0b`. In this case, only a subset of `.dataaccess.attributesrouting` can be used. However, if `.dataaccess.forceservers` is set to `1b` any server in `.gw.servers` can be used.
 
@@ -707,8 +707,8 @@ A key focus of the API is to improve accessibility whilst maintaining a strong p
 
 A test was performed to determine the performance of: 
 
-- The `getdata` function with optimisation on
-- The `getdata` function with optimisation off
+- The `.dataaccess.getprocdata` function with optimisation on
+- The `.dataaccess.getprocdata` function with optimisation off
 - Raw kdb+ query
 
 ### Methodology
@@ -751,7 +751,7 @@ The results show the average execution time in ms for each query
 
 
 ## Testing Library
-Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
+Each subfunction of `.dataaccess.getprocdata` has thorough tests found in `${KDBTESTS}/dataaccess/`. To run the tests:
 
 1. Set environment variables
 2. Ensure your TorQ stack is not running
@@ -759,7 +759,7 @@ Each subfunction of `getdata` has thorough tests found in `${KDBTESTS}/dataacces
 4. Run `. run.sh -d`
 
 ## Logging
-Upon calling either `.dataaccess.getdata` or `getdata` the corresponding user, startime, endtime, handle, success and any error messages are upserted to the `.dataaccess.stats` table for example when a good and bad query are sent to the gateway:
+Upon calling either `.dataaccess.getdata` or `.dataaccess.getprocdata` the corresponding user, startime, endtime, handle, success and any error messages are upserted to the `.dataaccess.stats` table for example when a good and bad query are sent to the gateway:
 
 ```
 // Good gateway query
@@ -854,7 +854,7 @@ For every key in the dictionary the following examples provide a query, output a
 If the time column isn't specified it defaults to the value of ``` `primaryattributecolumn ```
 
 ```
-getdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
+.dataaccess.getprocdata`tablename`starttime`endtime!(`quote;2021.01.20D0;2021.01.23D0)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -873,7 +873,7 @@ date       time                          sym  bid   ask   bsize asize mode ex sr
 Use the ``` `instruments ``` parameter to filter for ``` sym=`AAPL ```
 
 ```
-getdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
+.dataaccess.getprocdata`tablename`starttime`endtime`instruments!(`quote;2021.01.20D0;2021.01.23D0;`AAPL)
 date       time                          sym  bid   ask   bsize asize mode ex src
 ----------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 84.01 84.87 77    33    A    N  BARX
@@ -892,7 +892,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`instruments!(`quote;2021.0
 Use the ``` `columns ``` parameter to extract the following columns - ``` `sym`time`bid ```
 
 ```
-getdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
+.dataaccess.getprocdata`tablename`starttime`endtime`columns!(`quote;2021.01.20D0;2021.01.23D0;`sym`time`bid)
 sym  time                          bid
 ----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.01
@@ -912,7 +912,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`columns!(`quote;2021.01.20
 Run a free form select using the ``` `freeformcolumn ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
+.dataaccess.getprocdata`tablename`starttime`endtime`freeformcolumn!(`quote;2021.01.20D0;2021.01.23D0;"sym,time,mid:0.5*bid+ask")
 sym  time                          mid
 -----------------------------------------
 AAPL 2021.01.21D13:36:45.714478000 84.44
@@ -932,7 +932,7 @@ This can be used in conjunction with the `columns` parameter, however the `colum
 Use ``` `grouping ``` parameter to group average ``` `mid```, by ``` `sym ```
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";`sym)
+.dataaccess.getprocdata`tablename`starttime`endtime`freeformcolumn`grouping!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";`sym)
 sym | avgmid
 ----| --------
 AAPL| 70.63876
@@ -950,7 +950,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`grouping!(`
 Group average ``` `mid```, by ``` instru:sym ``` using the ``` `freeformby ``` parameter
 
 ```
-getdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
+.dataaccess.getprocdata`tablename`starttime`endtime`freeformcolumn`freeformby!(`quote;2021.01.20D0;2021.01.23D0;"avgmid:avg 0.5*bid+ask";"instr:sym")
 instr| avgmid
 -----| --------
 AAPL | 70.63876
@@ -969,7 +969,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformcolumn`freeformby!
 Group max ask by  6 hour buckets using the ``` `timebar ``` parameter
 
 ```
-getdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
+.dataaccess.getprocdata(`tablename`starttime`endtime`aggregations`instruments`timebar)!(`quote;2021.01.21D1;2021.01.28D23;(enlist(`max))!enlist(enlist(`ask));`AAPL;(6;`hour;`time))
 time                         | maxAsk
 -----------------------------| ------
 2021.01.21D12:00:00.000000000| 98.99
@@ -991,7 +991,7 @@ Max of both ``` `bidprice ``` and ``` `askprice ```
 
 
 ```
-getdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
+.dataaccess.getprocdata`tablename`starttime`endtime`aggregations!(`quote;2021.01.20D0;2021.01.23D0;((enlist `max)!enlist `ask`bid))
 maxAsk maxBid
 -------------
 109.5  108.6
@@ -1007,7 +1007,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`aggregations!(`quote;2021.
 Use the ``` `filters ``` parameter to execute a functional select style where clause
 
 ```
-getdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
+.dataaccess.getprocdata`tablename`starttime`endtime`filters!(`quote;2021.01.20D0;2021.01.23D0;(enlist(`src))!enlist enlist(in;`GETGO`DB))
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -1027,7 +1027,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`filters!(`quote;2021.01.20
 Use the ``` `freefromwhere ``` parameter to execute the same filter as above
 
 ```
-getdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
+.dataaccess.getprocdata`tablename`starttime`endtime`freeformwhere!(`quote;2021.01.20D0;2021.01.23D0;"src in `DB`GETGO")
 date       time                          sym  bid   ask   bsize asize mode ex src
 ---------------------------------------------------------------------------------
 2021.01.21 2021.01.21D13:36:45.714478000 AAPL 83.1  84.52 58    84    Y    N  DB
@@ -1047,7 +1047,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`freeformwhere!(`quote;2021
 Use the ``` `ordering ``` parameter to sort results by column ascending or descending
 
 ```
-getdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
+.dataaccess.getprocdata`tablename`starttime`endtime`ordering!(`quote;2000.01.01D00:00:00.000000000;2000.01.06D10:00:00.000000000;enlist(`asc`asksize))
 sym    time                          sourcetime                    bidprice bidsize askprice asksize
 ----------------------------------------------------------------------------------------------------
 AAPL   2000.01.01D02:24:00.000000000 2000.01.01D02:24:00.000000000 90.9     932.4   111.1    1139.6
@@ -1066,7 +1066,7 @@ q).dataaccess.buildquery `tablename`starttime`endtime`ordering!(`quote;2000.01.0
 Use the ``` `renamecolumn ``` parameter to rename the columns 
 
 ```
-getdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
+.dataaccess.getprocdata (`tablename`starttime`endtime`freeformby`freeformcolumn`instruments`renamecolumn)!(`trade;2021.01.18D0;2021.01.20D0;"sym,date";"max price";`IBM`AAPL`INTC;`sym`price`date!`newsym`newprice`newdate)
 newdate    newsym| newprice
 -----------------| --------
 2021.01.18 IBM   | 69.64
@@ -1082,7 +1082,7 @@ newdate    newsym| newprice
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-q)getdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q).dataaccess.getprocdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
 
@@ -1108,7 +1108,7 @@ avgprice
 Use the ``` `sublist``` key to return the first n rows of a table, for example we get the first 2 rows of the table.
 
 ```
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
+q).dataaccess.getprocdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
@@ -1118,7 +1118,7 @@ GOOG| 101.09 99.96  45.57  44.47
 q).dataaccess.buildquery `tablename`starttime`endtime`freeformby`aggregations`ordering`head!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2)
 ? `quote ,(within;`time;2021.02.17D10:00:00.000000000 2021.03.03D18:00:00.000000000) (,`sym)!,`sym `maxAsk`maxBid`minAsk`minBid!((max;`ask);(max;`bid);(min;`ask);(min;`bid))
 
-q)getdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)"
+q).dataaccess.getprocdata `tablename`starttime`endtime`freeformby`aggregations`ordering`sublist!(`quote;00:00+2021.02.17D10;.z.d+18:00;\"sym\";(`max`min)!((`ask`bid);(`ask`bid));enlist(`desc;`maxAsk);2 3)"
 sym | maxAsk maxBid minAsk minBid
 ----| ---------------------------
 INTC| 68.51  67.56  44.59  43.63
