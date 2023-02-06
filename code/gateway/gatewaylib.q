@@ -261,7 +261,7 @@ adjustqueriesstripe:{[options;dict]
         if[i;
             querytable:delete from querytable where 0 = count each instruments;
             if[[i;max any each null exec instruments from querytable];
-                querytable:delete from querytable where null instruments
+                querytable:delete from querytable where all each null instruments
             ];
         ];
 
