@@ -96,6 +96,10 @@ GetDateRange:{[query]
     :eval each date;
     };
 
+GetClients:{
+    :value flip select distinct u from .clients.clients where not u in .usage.ignoreclients;
+    };
+
 ParseCmd:{[res]
     cmd:raze value flip select cmd from res;
     remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
