@@ -55,7 +55,7 @@ accessreplay:{[currpd;lastaccess]
     // defines data to be used for manual EOP call
     replaydata:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj);
     .lg.o[`accessreplay;"doing manual endofperiod replay..."];
-    endofperiod[(first(exec x from lastaccess));.z.p;replaydata];
+    endofperiod[first exec x from lastaccess;.z.p;replaydata];
     .lg.o[`accessreplay;"replay was a success"];
     };
 
@@ -77,12 +77,12 @@ initdatastripe:{
 
     // Variables set up for lastcall check
     stphandle:$[count u:(.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b])[`w];u;.lg.e[`stphandle;"Failed to retrieve handle of stp"]];
-    currentperiod:@[(first stphandle);".stplg.currperiod";{.lg.e[`currentP;"Couldn't retrieve current period from stp with error:",x]}];
-    nextperiod:@[(first stphandle);".stplg.nextperiod";{.lg.e[`nextP;"Couldn't retrieve next period from stp with error:",x]}];
+    currentperiod:@[first stphandle;".stplg.currperiod";{.lg.e[`currentP;"Couldn't retrieve current period from stp with error:",x]}];
+    nextperiod:@[first stphandle;".stplg.nextperiod";{.lg.e[`nextP;"Couldn't retrieve next period from stp with error:",x]}];
 
     // Check carried out to see if access table is up to date relative to most recent EOP, if not then EOP is called manually to get the access table data up to date
     lastcall:select last end where end<>0N from .ds.access;
-    $[first(((enlist nextperiod)>=(exec x from lastcall))&((exec x from lastcall)>=(enlist currentperiod)));.lg.o[`accessreplay;"Most recent time on access table is up to date"];accessreplay[currentperiod;lastcall]];
+    $[first ((enlist nextperiod)>=exec x from lastcall)&(exec x from lastcall)>=enlist currentperiod;.lg.o[`accessreplay;"Most recent time on access table is up to date"];accessreplay[currentperiod;lastcall]];
 
     // Fills tailDB if any tables are missing as a result of tables containing different keycol filters and therefore saving down to only some keycol partitions
     .Q.chk[` sv .ds.td,.proc.procname,`$ string .wdb.currentpartition];

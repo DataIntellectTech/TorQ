@@ -21,10 +21,10 @@ upd:.wdb.upd;
   /- execute the supplied function
   f[t;d];
   /- check to see if data being replayed starts before most recent EOP
-  if[firstt:((first t `time) < .tailer.lasteop);
+  if[(first t `time) < .tailer.lasteop;
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
     /- if the table data count reaches row threshold or if last time in table greater than EOP then flush to disk
-    if[((rpc:count[value t]) > lmt:.wdb.maxrows[t]) or (lastt:(last t `time) >= .tailer.lasteop);
+    if[(count[value t] > .wdb.maxrows[t]) or (last t `time) >= .tailer.lasteop;
       .lg.o[`replayupd;"first time not after EOP therefore can flush to disk"];
       .ds.applyfilters[enlist t;.sub.filterdict];
       .ds.savetables[.ds.td;t];
@@ -58,8 +58,8 @@ upd:.wdb.upd;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
-.tailer.stphandle: $[count u:exec w from (.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b]);u;.lg.e[`tailerstp;"Failed to retrieve stp handle"]];
-.tailer.lasteop:@[(first .tailer.stphandle);".stplg.currperiod";{.lg.e[`lasteop;"Failed to call last end of period with error: ",x]}];                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
+.tailer.stphandle:$[count u:exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b];u;.lg.e[`tailerstp;"Failed to retrieve stp handle"]];
+.tailer.lasteop:@[first .tailer.stphandle;".stplg.currperiod";{.lg.e[`lasteop;"Failed to call last end of period with error: ",x]}];                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];
