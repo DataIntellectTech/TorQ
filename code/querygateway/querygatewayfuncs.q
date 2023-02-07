@@ -122,7 +122,7 @@ QueryCountsRealtime:{
     users:GetUsers[];
     query:"select count i from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    (neg handle)(`.gw.asyncexec; query; `queryrdb); res:handle[];
+    res:raze last .async.deferred[handle; query];
     :res;
     };
 
@@ -130,7 +130,7 @@ QueryUserCountsRealtime:{
     users:GetUsers[];
     query:"select queries:count i by u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    (neg handle)(`.gw.asyncexec; query; `queryrdb); res:handle[];
+    res:raze last .async.deferred[handle; query];
     :res;
     };
 
@@ -144,7 +144,7 @@ QueryCountsHistorical:{[date]
         query:()]
 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
-    (neg handle)(`.gw.asyncexec; raze query; `queryhdb); res:handle[];
+    res:raze last .async.deferred[handle; raze query];
 
     :res;
     };
@@ -159,7 +159,7 @@ QueryUserCountsHistorical:{[date]
         query:()]
 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
-    (neg handle)(`.gw.asyncexec; raze query; `queryhdb); res:handle[];
+    res:raze last .async.deferred[handle; raze query];
 
     :res;
     };
@@ -168,7 +168,7 @@ PeakUsage:{
     users:GetUsers[];
     query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    (neg handle)(`.gw.asyncexec; query; `queryrdb); res:handle[];
+    res:raze last .async.deferred[handle; query];
     
     time::select distinct time from res;
     querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[users];
@@ -183,8 +183,7 @@ LongestRunning:{
     users:GetUsers[];
     query:"select time, runtime, u, cmd from usage where u in ", (.Q.s1 users), ", runtime=max runtime";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    (neg handle)(`.gw.asyncexec; query; `queryrdb); res:handle[];
-
+    res:raze last .async.deferred[handle; query];
     :ParseCmd res;
     };
 
@@ -192,7 +191,7 @@ LongestRunningHeatMap:{
     users:GetUsers[];
     query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (.Q.s1 users), ", runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    (neg handle)(`.gw.asyncexec; query; `queryrdb); res:handle[];
+    res:raze last .async.deferred[handle; query];
 
     :ParseCmd res;
     };
