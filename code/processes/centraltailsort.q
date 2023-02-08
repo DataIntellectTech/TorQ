@@ -11,7 +11,7 @@ schematables:first each first select schemalist from [first exec w from .servers
 savelist:.ts.schematables except .wdb.ignorelist;                          /-list of tables to save to HDB
 reloadorder:@[value;`reloadorder;`hdb`rdb];
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
-date:.z.d;								   /-date variable to ensure correct eod
+date:.proc.cd[];							   /-date variable to ensure correct eod
 
 \d .
 /-status table that keeps track of tailsorts and table being saved
@@ -54,12 +54,8 @@ distributetable:{[processname]
  /-extract all the tables needing saving for the corresponding segment
  savelist:first exec tablelist from savelisttab where segment=seg; 
  /-select the first available table
- tabname:first savelist except tablist; 
- /.lg.o[`distribute;"assigning ",.Q.s1[tabname]," to ",string[processname]," for savedown"]; 
- /update table:tabname from `status where process=processname;
- /-update the savelisttab, remove assigned table from list 
- /`savelisttab upsert (seg;segname;savelist except tabname);
- /.lg.o[`distribute;"updating segment ",string[seg]," savelist to ",.Q.s1[raze savelist except tabname]];
+ tabname:first savelist except tablist;
+ if[tabname=`;:()]; 
  /-if there is a table ready to be saved, notify the corresponding tailsort
  ts:exec w from .servers.getservers[`proctype;.servers.tailsorttypes;()!();1b;0b] where procname=processname;
  if[0=count ts; .lg.e[`connection;"no connection to ",(string processname)," could be established... failed to distributetable"];:()];

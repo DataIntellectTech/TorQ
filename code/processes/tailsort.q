@@ -5,7 +5,6 @@ hdbdir:hsym `$getenv`KDBHDB;                                               /-loa
 .tailer.tailreadertypes:`$first .proc.params[`tailreadertype];             /-use .proc.params to get associated tailreader
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
-                                                                           / when HDB save is complete to delete tailDB partitions
 
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertypes);
 .servers.startup[];
