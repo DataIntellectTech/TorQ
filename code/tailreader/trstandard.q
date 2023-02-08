@@ -1,7 +1,7 @@
 // Get the relevant tailreader attributes
 .proc.getattributes:{default:`date`tables`procname!(.z.d;tables[] except .wdb.ignorelist;.proc.procname);
     / get all cols that contains date (of type "pdz")
-    timecolumns:1!{tcols:exec c from meta value x where t in"pdz";
+    timecolumns:1!{tcols:exec c from meta x where t in"pdz";
         (enlist[`tablename]!enlist x),
             /functional select to get the min value (defaults to `timestamp$.z.d for starttimestamp)
             enlist[`timecolumns]!enlist?[x;();0b;                  //For 3rd arg: () produces dictionary with value of type list, first value of type 12h (desired) but does NOT work for tailreader. 0b runs without error but no dict created and type list on first value when flipped

@@ -164,7 +164,14 @@ subscribe:{[]
         if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]];
         /-apply subscription filters to replayed data
         if[subfiltered&replaylog;
-			applyfilters[;subscribesyms]each subtables];];}
+			applyfilters[;subscribesyms]each subtables];];
+		/-retrieving table stripe mapping
+		stphandle:first exec w from s;
+		.ds.tblstripe:@[stphandle;"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";
+			{.lg.e[`.proc.getattributes;"Failed to retrieve stripe map from STP"]}];
+		if[`tblstripe in tables[`.ds];
+			.ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe];
+	}
 
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file

@@ -59,13 +59,3 @@ initdatastripe[];
 
 /- reload the access table and tailDB in the tailreader process
 .tailer.dotailreload[`];
-
-/- define handle to stp and retrieve table stripe mapping
-stphandle:$[count i:.servers.getservers[`proctype;`segmentedtickerplant;()!();1b;0b];
-  first exec w from i;
-    .lg.e[`stphandle;"Failed to get a valid handle to the segmented tickerplant process"]];
-.ds.tblstripe:@[stphandle;"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";
-    {.lg.e[`.ds.tblstripe;"Failed to retrieve stripe map from STP"]}];
-if[`tblstripe in tables[`.ds];
-  .ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe;
-  ];
