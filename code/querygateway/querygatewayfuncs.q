@@ -201,3 +201,11 @@ LongestRunningHeatMap:{
 
     :ParseCmd res;
     };
+
+QueryErrorPercentage:{
+    users:GetUsers[];
+    query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where u in ", (.Q.s1 users);
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:raze last .async.deferred[handle; query];
+    :res;
+    };
