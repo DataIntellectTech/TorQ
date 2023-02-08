@@ -96,12 +96,6 @@ GetDateRange:{[query]
     :eval each date;
     };
 
-GetHistoricalDates:{
-    query:"value flip select distinct date from usage";
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
-    :last .async.deferred[handle; query];
-    };
-
 GetUsers:{
     query:"first value flip select distinct u from .clients.clients where not u in .usage.ignoreusers";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`gateway;
