@@ -198,11 +198,11 @@ adjustqueriesstripe:{[options;dict]
 	query:{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
     modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns],segid:attributes[;`dataaccess;`segid]from
-        (select from .gw.servers where({`dataaccess in key x}each attributes)&serverid in first each options`procs)
+        (select from .gw.servers where(`dataaccess in/:key each attributes)&serverid in first each options`procs)
             where{(y in key x[`dataaccess;`tablename])&`dataaccess in key x}[;options`tablename]each attributes;
     timecolumn:$[`timecolumn in key options;options`timecolumn;`time];
     // get time segment based on timecolumn specified
-    modquery:update inftc:.[inftc;(::;1);:;.[inftc;(::;1;timecolumn)]]from modquery;
+    modquery:update inftc:.[inftc;(::;1);:;inftc[;1;timecolumn]]from modquery;
     // union join based on serverid
     querytable:0!(`serverid xkey update serverid:(first each key query)from value query)uj`serverid xkey modquery;
     // convert times to timestamps
@@ -210,62 +210,54 @@ adjustqueriesstripe:{[options;dict]
     // modify starttime and endtime based on stripe
     querytable:update 
         // if no overlap return empty list
-        timeoverlaps:{[st;et;tc] $[(et<tc 0)|st>tc 1;`timestamp$();($[st<tc 0;tc 0;st];$[et>tc 1;tc 1;et])]}'[starttime;endtime;inftc[;1]]
+        timeoverlaps:{[st;et;tc] $[(et<tc 0)|st>tc 1;`timestamp$();(st|tc 0;et&tc 1)]}'[starttime;endtime;inftc[;1]]
             from querytable where serverid in modquery`serverid;
     querytable:update starttime:timeoverlaps[;0],endtime:timeoverlaps[;1] from querytable where serverid in modquery`serverid; 
     querytable:enlist[`timeoverlaps]_querytable;
 
     // filter queries not required
-    querytable:$[i:`instruments in key options;
-        select from querytable where(0=count each inftc)|(0<count each inftc[;1])&(not null each starttime)&0<count each instruments;
-        select from querytable where(0=count each inftc)|(0<count each inftc[;1])&not null each starttime];
+    querytable:select from querytable where(0=count each inftc)|(0<count each inftc[;1])&not null each starttime;
+    if[instrqueried:`instruments in key options;querytable:select from querytable where 0<count each instruments];
     // if no results
     if[0=count querytable;'`$"gateway error - no info found for that table name and time range."];
     // convert serverid atoms into their respective serverid lists
     querytable:update serverid:{x where{any x in y}[;y]each x}[options`procs;serverid],
         // get servertype
-        servertype:`${string .gw.servers'[x]`servertype}serverid,
+        servertype:`$string .gw.servers'[serverid]`servertype,
         // convert procs into procname if striped
         procs:.gw.servers[;`attributes;`procname]@/:serverid from querytable;
     querytable:update procs:servertype from querytable where not(last each serverid)in modquery`serverid;
 
     // check if instruments are contained in stripe mapping
     segids:exec distinct[segid]except ` from querytable;
-    if[all[i,count segids];
-        if[0 < count missinginstruments[options`instruments];
+    if[instrqueried&count segids;
+        .lg.o[`.gw.adjustqueriesstripe;"Routing by instruments"];
+        if[count missinginstruments[options`instruments];
             // if a queried instrument is not in stripe mapping, reload stripe mapping to bring up-to-date mapping
             .ds.getstripemapping[];
             // create messaging if instrument is not in mapping
-            if[[missing:missinginstruments[options`instruments]; 0 < count missing];
+            if[count missing:missinginstruments[options`instruments];
                 .lg.o[`.gw.adjustqueriesstripe;raze("No intra-day data for the following instruments: ",(string missing))];
                     // exit script for intra-day only queries
-                if[[(count options`instruments) = count missing;not `hdb in exec servertype from querytable];
+                if[((count options`instruments) = count missing) & not `hdb in exec servertype from querytable;
                     '`$"gateway error - no intra-day data found for one or more queried instrument(s). See logs for missing instrument(s)."]
             ];
         ];
 
         // routing instruments for striped databases
-        if[all[i,any exec any each procs like/:("tr*";"rdb*") from querytable];
-            hdbquery:select from querytable where servertype = `hdb;
-            stripedquery:select from querytable except hdbquery;
-            stripedquery:update 
-                instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
-                    ((group .ds.subreq)first each inftc) inter' instruments;0N] 
-                            from stripedquery;
-            querytable:stripedquery uj hdbquery];
+        hdbquery:select from querytable where servertype = `hdb;
+        stripedquery:select from querytable except hdbquery;
+        stripedquery:update 
+            instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
+                ((group .ds.subreq)first each inftc) inter' instruments;0N] 
+                        from stripedquery;
+        querytable:stripedquery uj hdbquery;
 
-        // remove queries for striped procs with no instuments to query
-        if[i;
-            querytable:delete from querytable where 0 = count each instruments;
-            if[[i;max any each null exec instruments from querytable];
-                querytable:delete from querytable where all each null instruments
-            ];
-        ];
+        // remove queries for striped procs with no instruments to query
+        querytable:delete from querytable where (0 = count each instruments);
 
         // fixing length error for single sym queries
-        if[i;
-            querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable
-        ];
+        querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable;
     ];
     // filter overlap timings between rdb and tailreader process
     if[count segids;
