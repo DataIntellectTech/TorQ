@@ -196,9 +196,30 @@ LongestRunningHeatMap:{
     :ParseCmd res;
     };
 
+//Return percentage of queries that were successful by user
 QueryErrorPercentage:{
     users:GetUsers[];
     query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where u in ", (.Q.s1 users);
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:raze last .async.deferred[handle; query];
+    :res;
+    };
+
+//Return queries which take longer than given runtime input, t
+//t in milliseconds 10^-3
+LongQuery:{[t]
+    users:GetUsers[];
+    timens:t*1000000; //Convert to nano seconds
+    query:"select from usage where runtime>", (.Q.s1 timens), ", u in ", (.Q.s1 users);
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    res:raze last .async.deferred[handle; query];
+    :res;
+    };
+
+//Number of distinct users
+NumberOfUsers:{
+    users:GetUsers[];
+    query:"select count distinct u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
     :res;
