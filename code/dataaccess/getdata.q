@@ -5,8 +5,8 @@ getprocdata:{[inputparams]
   if[a:.proc.procname in key inputparams;inputparams:inputparams .proc.procname];
   if[not[a]&.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   // optimize hdb query from the gateway
-  if[`optimhdb in key inputparams;
-    if[inputparams`optimhdb;
+  if[`optimisehdb in key inputparams;
+    if[inputparams`optimisehdb;
       inputparams[`starttime]:`date$inputparams[`starttime];
       inputparams[`endtime]:`date$inputparams[`endtime]]];
   requestnumber:.requests.initlogger[inputparams];
@@ -25,7 +25,7 @@ getprocdata:{[inputparams]
     if[count partrange=1;partrange:2#partrange];
     queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
-  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
+  if[`optimisehdb in key inputparams;if[inputparams`optimisehdb;queryparams _: `timefilter]];
   // log success of eqp
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," extractqueryparams passed"];  
   // re-order the passed parameters to build an efficient query
@@ -83,7 +83,7 @@ buildquery:{[inputparams]
     if[count partrange=1;partrange:2#partrange];
     queryparams:.[queryparams;(`partitionfilter;0;2);:;partrange]];
   // optimize hdb query
-  if[`optimhdb in key inputparams;if[inputparams`optimhdb;queryparams _: `timefilter]];
+  if[`optimisehdb in key inputparams;if[inputparams`optimisehdb;queryparams _: `timefilter]];
   if[`procs in key inputparams;:(.proc.proctype,.queryorder.orderquery queryparams)]; 
   :.queryorder.orderquery queryparams;
   }; 

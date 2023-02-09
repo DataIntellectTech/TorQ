@@ -70,8 +70,9 @@ getdata:{[o]
     options:default,o;
     k:key o;
     if[`ordering in k;options[`ordering]: go each options`ordering];
+    if[`instruments in k;o[`instruments]:(),o`instruments;
     // Instruments wildcard (`)
-    if[(`~o`instruments)&`instruments in k;o _: `instruments];
+        if[(`~o`instruments);o _: `instruments]];
     o:adjustqueries[o;part];
     options[`procs]:key o;
     // Check if any freeform queries is going to any striped database

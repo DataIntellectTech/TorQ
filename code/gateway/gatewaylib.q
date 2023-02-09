@@ -120,7 +120,7 @@ getservers:{[dict]
     // Adjust queries based on relevant data and stripe
     d:adjustqueriesoverlap[dict;part];
     servers:adjustqueriesstripe[dict;d];
-	:key[servers]!(`serverid`attributes`checksperformed`optimhdb)_value servers;
+	:key[servers]!(`serverid`attributes`checksperformed`optimisehdb)_value servers;
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -245,13 +245,10 @@ adjustqueriesstripe:{[options;dict]
         ];
 
         // routing instruments for striped databases
-        hdbquery:select from querytable where servertype = `hdb;
-        stripedquery:select from querytable except hdbquery;
-        stripedquery:update 
+        querytable:update 
             instruments:?[max max each ((group .ds.subreq)first each inftc) in' instruments;
                 ((group .ds.subreq)first each inftc) inter' instruments;0N] 
-                        from stripedquery;
-        querytable:stripedquery uj hdbquery;
+                        from querytable where servertype<>`hdb;
 
         // remove queries for striped procs with no instruments to query
         querytable:delete from querytable where (0 = count each instruments);
@@ -271,7 +268,7 @@ adjustqueriesstripe:{[options;dict]
     querytable:`inftc`segid _ querytable;
     // optimize hdb query
     if[(not`timecolumn in key options)&(14h~type options`starttime`endtime)&exec`hdb in servertype from querytable;
-        querytable:update optimhdb:1b from querytable where servertype=`hdb];
+        querytable:update optimisehdb:1b from querytable where servertype=`hdb];
     .lg.o[`.gw.adjustqueriesstripe;"adjustqueriesstripe complete"];
     // Input dictionary must have keys of type 11h
     // return query as a dict of table
