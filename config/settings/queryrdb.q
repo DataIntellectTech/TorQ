@@ -2,7 +2,7 @@
 \d .rdb
 ignorelist:`heartbeat`logmsg`.usage.usage                //list of tables to ignore when saving to disk
 hdbtypes:`queryhdb                               //list of hdb types to look for and call in hdb reload
-hdbnames:()                                 //list of hdb names to search for and call in hdb reload
+hdbnames:`queryhdb1                                 //list of hdb names to search for and call in hdb reload
 tickerplanttypes:`querytp                       //list of tickerplant types to try and make a connection to
 gatewaytypes:`querygateway                       //list of gateway types to try and make a connection to
 checktpperiod:0D00:00:05                    //how often to check for tickerplant connection
