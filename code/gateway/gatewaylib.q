@@ -4,65 +4,65 @@
 \d .gw
 
 getserverids:{[att]
-  if[99h<>type att;
-   // its a list of servertypes e.g. `rdb`hdb
-   // check if user attributes are a symbol list
-   if[not 11h=abs type att;
-     '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
-   ];
-   servertype:distinct att,();
-   //list of active servers
-   activeservers:exec distinct servertype from .gw.servers where active;
-   //list of all servers
-   allservers:exec distinct servertype from .gw.servers;
-   activeserversmsg:". Available servers include: ",", " sv string activeservers;
-   //check if a null argument is passed
-   if[any null att;'"A null server cannot be passed as an argument",activeserversmsg];
-   //if any requested servers are missing then:
-   //if requested server does not exist, return error with list of available servers
-   //if requested server exists but is currently inactive, return error with list of available servers
-   if[count servertype except activeservers;
-    '"the following ",$[max not servertype in allservers;
-     "are not valid servers: ",", " sv string servertype except allservers;
-     "requested servers are currently inactive: ",", " sv string servertype except activeservers
-    ],activeserversmsg;
-   ];
-   :(exec serverid by servertype from .gw.servers where active)[servertype];
-  ];
+    if[99h<>type att;
+        // its a list of servertypes e.g. `rdb`hdb
+        // check if user attributes are a symbol list
+        if[not 11h=abs type att;
+            '" Servertype should be given as either a dictionary(type 99h) or a symbol list (11h)"
+        ];
+        servertype:distinct att,();
+        //list of active servers
+        activeservers:exec distinct servertype from .gw.servers where active;
+        //list of all servers
+        allservers:exec distinct servertype from .gw.servers;
+        activeserversmsg:". Available servers include: ",", " sv string activeservers;
+        //check if a null argument is passed
+        if[any null att;'"A null server cannot be passed as an argument",activeserversmsg];
+        //if any requested servers are missing then:
+        //if requested server does not exist, return error with list of available servers
+        //if requested server exists but is currently inactive, return error with list of available servers
+        if[count servertype except activeservers;
+            '"the following ",$[max not servertype in allservers;
+            "are not valid servers: ",", " sv string servertype except allservers;
+            "requested servers are currently inactive: ",", " sv string servertype except activeservers
+            ],activeserversmsg;
+        ];
+        :(exec serverid by servertype from .gw.servers where active)[servertype];
+    ];
 
-  serverids:$[`servertype in key att;
+    serverids:$[`servertype in key att;
     raze getserveridstype[delete servertype from att] each (),att`servertype;
     getserveridstype[att;`all]];
 
-  if[all 0=count each serverids;'"no servers match requested attributes"];
-  :serverids;
- }
+    if[all 0=count each serverids;'"no servers match requested attributes"];
+    :serverids;
+    }
 
 getserveridstype:{[att;typ]
-  // default values
-  besteffort:1b;
-  attype:`cross;
+    // default values
+    besteffort:1b;
+    attype:`cross;
 
-  servers:$[typ=`all;
-    exec serverid!attributes from .gw.servers where active;
-    exec serverid!attributes from .gw.servers where active,servertype=typ];
+    servers:$[typ=`all;
+        exec serverid!attributes from .gw.servers where active;
+        exec serverid!attributes from .gw.servers where active,servertype=typ];
 
-  if[`besteffort in key att;
-    if[-1h=type att`besteffort;besteffort:att`besteffort];
-    att:delete besteffort from att;
-  ];
-  if[`attributetype in key att;
-    if[-11h=type att`attributetype;attype:att`attributetype];
-    att:delete attributetype from att;
-  ];
+    if[`besteffort in key att;
+        if[-1h=type att`besteffort;besteffort:att`besteffort];
+        att:delete besteffort from att;
+    ];
+    if[`attributetype in key att;
+        if[-11h=type att`attributetype;attype:att`attributetype];
+        att:delete attributetype from att;
+    ];
 
-  res:$[attype=`independent;getserversindependent[att;servers;besteffort];
-  getserverscross[att;servers;besteffort]];
+    res:$[attype=`independent;getserversindependent[att;servers;besteffort];
+    getserverscross[att;servers;besteffort]];
 
-  serverids:first value flip $[99h=type res; key res; res];
-  if[all 0=count each serverids;'"no servers match ",string[typ]," requested attributes"];
-  :serverids;
- }
+    serverids:first value flip $[99h=type res; key res; res];
+    if[all 0=count each serverids;'"no servers match ",string[typ]," requested attributes"];
+    :serverids;
+    }
 
 /- build a cross product from a nested dictionary
 buildcross:{(cross/){flip (enlist y)#x}[x] each key x}
@@ -73,25 +73,25 @@ buildcross:{(cross/){flip (enlist y)#x}[x] each key x}
 /- e.g. each symbol has to be availble within each specified date
 getserverscross:{[req;att;besteffort]
 
- if[0=count req; :([]serverid:enlist key att)];
+    if[0=count req; :([]serverid:enlist key att)];
 
- s:getserversinitial[req;att];
+    s:getserversinitial[req;att];
 
- /- build the cross product of requirements
- reqcross:buildcross[req];
+    /- build the cross product of requirements
+    reqcross:buildcross[req];
 
- /- calculate the cross product of data contributed by each source
- /- and drop it from the list of stuff that is required
- util:flip `remaining`found!flip ({[x;y;z] (y[0] except found; y[0] inter found:$[0=count y[0];y[0];buildcross x@'where each z])}[req]\)[(reqcross;());value s];
+    /- calculate the cross product of data contributed by each source
+    /- and drop it from the list of stuff that is required
+    util:flip `remaining`found!flip ({[x;y;z] (y[0] except found; y[0] inter found:$[0=count y[0];y[0];buildcross x@'where each z])}[req]\)[(reqcross;());value s];
 
- /- check if everything is done
- if[(count last util`remaining) and not besteffort;
-   '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
- /- remove any rows which don't add value
- s:1!(0!s) w:where not 0=count each util`found;
- /- return the parameters which should be queried for
- (key s)!distinct each' flip each util[w]`found
- }
+    /- check if everything is done
+    if[(count last util`remaining) and not besteffort;
+    '"getserverscross: cannot satisfy query as the cross product of all attributes can't be matched"];
+    /- remove any rows which don't add value
+    s:1!(0!s) w:where not 0=count each util`found;
+    /- return the parameters which should be queried for
+    (key s)!distinct each' flip each util[w]`found
+    }
 
 // Input a table of ([]tablename;starttime;endtime;instruments;procs)
 // Or dict of `tablename`starttime`endtime`instruments`procs!(tablename;starttime;endtime;instruments;procs)
@@ -120,7 +120,7 @@ getservers:{[dict]
     // Adjust queries based on relevant data and stripe
     d:adjustqueriesoverlap[dict;part];
     servers:adjustqueriesstripe[dict;d];
-	:key[servers]!(`serverid`attributes`checksperformed`optimisehdb)_value servers;
+    :key[servers]!(`serverid`attributes`checksperformed`optimisehdb)_value servers;
     };
 
 // Dynamic routing finds all processes with relevant data 
@@ -135,7 +135,7 @@ attributesrouting:{[options;procdict]
     // If the dates are out of scope of processes then error
     if[0=count types;
         '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
-       ];
+        ];
     .lg.o[`.gw.attributesrouting;"Finished finding relevant processes"];
     :types;
     };
@@ -170,24 +170,24 @@ missinginstruments:{[instruments]
     };
 
 adjustqueriesoverlap:{[options;part]
-	// Get the overlapping part(itions) from options`procs found by attributesrouting
-	// e.g. if `procs is not specified in the querydict but starttime and endtime specified is .z.d
-	//      attributesrouting will set options`procs to only rdb servers but part may still contain hdb servers
-	overlap:max{x~/:key y}[;part]each options`procs;
-	part:key[part][where overlap]!value[part]where overlap;
-	// get the date casting where relevant
-	st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
-	et:$[a;options`endtime;`date$options`endtime];
-	// get the dates that are required by each process
-	dates:key[part]!{y(min;max)@\:x}[;l]each where each flip{within[y;]each value x}[part]'[l:st+til 1+et-st];
-	// if start/end time not a date, then adjust dates parameter for the
-	// correct types
-	if[not a;
-		// converts dates dictionary to timestamps/datetimes
-		dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
-		// convert first and last timestamp to start and end time
-		dates:key[dates]!?[value[dates][;0]<start;start;value[dates][;0]],'?[value[dates][;1]>end;end:options`endtime;value[dates][;1]];
-		];
+    // Get the overlapping part(itions) from options`procs found by attributesrouting
+    // e.g. if `procs is not specified in the querydict but starttime and endtime specified is .z.d
+    //      attributesrouting will set options`procs to only rdb servers but part may still contain hdb servers
+    overlap:max{x~/:key y}[;part]each options`procs;
+    part:key[part][where overlap]!value[part]where overlap;
+    // get the date casting where relevant
+    st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
+    et:$[a;options`endtime;`date$options`endtime];
+    // get the dates that are required by each process
+    dates:key[part]!{y(min;max)@\:x}[;l]each where each flip{within[y;]each value x}[part]'[l:st+til 1+et-st];
+    // if start/end time not a date, then adjust dates parameter for the
+    // correct types
+    if[not a;
+        // converts dates dictionary to timestamps/datetimes
+        dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
+        // convert first and last timestamp to start and end time
+        dates:key[dates]!?[value[dates][;0]<start;start;value[dates][;0]],'?[value[dates][;1]>end;end:options`endtime;value[dates][;1]];
+        ];
     .lg.o[`.gw.adjustqueriesoverlap;"adjustqueriesoverlap complete"];
     :`part`isdate`dates!(part;a;dates);
     }
@@ -258,12 +258,20 @@ adjustqueriesstripe:{[options;dict]
     ];
     // filter overlap timings between rdb and tailreader process
     if[count segids;
-        querytable:{y;if[all exec any each procs like/:("*tr*";"rdb*") from x where segid=y;
-            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"rdb*";
-            trtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"tr*";
-            if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
-                :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype like"tr*"]];x}/[querytable;segids];
-        querytable:delete from querytable where starttime>endtime;
+        querytable:{y;if[all exec any each procs like/:("*tr*";"rdb*") from x where segid=y;                                        /**
+            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"rdb*";                                            /**
+            trtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"tr*";                                              /**
+            if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;                                                                      /**
+                :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype like"tr*"]];x}/[querytable;segids];  /**
+        querytable:delete from querytable where starttime>endtime;                                                                  /**
+        
+        //**NEW CODE TO BE IMPLEMENTED AFTER MERGING WITH RDB PROCTYPE CHANGES (ABOVE SECTION WILL BE REPLACED)
+        /querytable:{[x;y]if[all exec any each servertype in(.ds.rdbtypes,.ds.tailreadertypes)from x where segid=y;
+            /rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.rdbtypes;
+            /trtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.tailreadertypes;
+            /if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
+            /    :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype in .ds.tailreadertypes]];x}/[querytable;segids];
+        /querytable:delete from querytable where starttime>endtime;
     ];
     querytable:`inftc`segid _ querytable;
     // optimize hdb query
