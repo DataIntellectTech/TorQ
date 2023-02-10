@@ -3,7 +3,7 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;                           /-extract wdb proc segname and append to "tr_"
+.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];                      /-use .proc.params to get associated tailreader
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
 .servers.startup[];
 
@@ -94,8 +94,8 @@ endofday:{[pt;processdata]
   /- if no tailsort process connected, do eod sort from tailer & exit early
   if[0=count cts;
     .lg.e[`connection;"no connection to the ",(string .wdb.centraltailsorttypes)," could be established, failed to send end of day message"];:()];
-  /- send procname to centraltailsort process tailermsg function to trigger loadandasave for all tables
-  neg[first cts](`tailermsg;.proc.procname);
+  /- send procname and segid to centraltailsort process tailermsg function to trigger loadandasave for all tables
+  neg[first cts](`tailermsg;.proc.procname;.ds.segmentid 0);
   .lg.o[`eod;"end of day message sent to tailsort process"];
   };
 

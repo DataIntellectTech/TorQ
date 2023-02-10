@@ -1,6 +1,6 @@
 // Bespoke tailer config
 \d .wdb
-ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
+ignorelist:`heartbeat`logmsg`packets`quote_iex`trade_iex                                    // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
 rdbtypes:`rdb_seg1`rdb_seg2                                                                 // list of rdb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
@@ -9,8 +9,8 @@ centraltailsorttypes:`centraltailsort
 subtabs:`                                                                                   // list of tables to subscribe for (` for all)
 subsyms:`                                                                                   // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location to save wdb data
-numrows:10000                                                                              // default number of rows
-numtab:`quote`trade!10000 5000                                                             // specify number of rows per table
+numrows:10000                                                                               // default number of rows
+numtab:`quote`trade!10000 5000                                                              // specify number of rows per table
 mode:`save                                                                                  // the wdb process can operate in three modes	
                                                                                             // 1. saveandsort:     the process will subscribe for data,
                                                                                             //                     periodically write data to disk and at EOD it will flush

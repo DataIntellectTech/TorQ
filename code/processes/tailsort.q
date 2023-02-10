@@ -2,13 +2,10 @@
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
-rdbtypes:@[value;`rdbtypes;`rdb];                                          /- rdbs to send reset window message to
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype;
+.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];             /-use .proc.params to get associated tailreader
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
-taildirs:();                                                               /-empty list to append tailDB paths to - to be used
-                                                                           / when HDB save is complete to delete tailDB partitions
-/ - define .z.pd in order to connect to any worker processes
+
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertypes);
 .servers.startup[];
 
@@ -41,7 +38,7 @@ loadandsave:{[pt;procname;tabname]
   if[0=count cts;
     .lg.e[`connection;"no connection to the centraltailsort could be established, failed to send end of day message"];:()];
   /- notify centraltailsort process
-  neg[first cts](`notify;.proc.procname;.proc.proctype);
+  neg[first cts](`notify;.proc.procname;.proc.proctype;.ds.segmentid 0);
     .lg.o[`endofday;"table savedown message sent to centraltailsort process"];
   .lg.o[`sortcomplete;"table ",string[tabname], " savedown complete"];
   };

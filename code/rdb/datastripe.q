@@ -56,16 +56,16 @@
 modaccess:{[accesstab]};
 
 initdatastripe:{
-    // update endofperiod function
-    endofperiod::.rdb.datastripeendofperiod;
-    endofday::.rdb.datastripeendofday;
-    .rdb.tailsortcomplete:1b;
-    .rdb.tablekeycols:.ds.loadtablekeycols[];
-    t:tables[`.] except .rdb.ignorelist;
-    .ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]);
-    modaccess[.ds.access];
-    .ds.checksegid[];    
-    };
+	// update endofperiod function
+	endofperiod::.rdb.datastripeendofperiod;
+	endofday::.rdb.datastripeendofday;
+	.rdb.tailsortcomplete:1b;
+	.rdb.tablekeycols:.ds.loadtablekeycols[];
+	t:tables[`.] except .rdb.ignorelist;
+	.ds.access:([table:t] start:.ds.getstarttime each t; end:0Np ; stptime:0Np ; keycol:`sym^.rdb.tablekeycols[t]; segment:first .ds.segmentid);
+	modaccess[.ds.access];
+	.ds.checksegid[];    
+	};
 
 
 \d .ds
@@ -74,9 +74,5 @@ getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
 updategw:{[h]
-
-    newtab:getaccess[];
-    neg[h](`.ds.updateaccess;newtab);
-
-    };
-    
+	neg[h](`.ds.updateaccess;getaccess[]);
+	};
