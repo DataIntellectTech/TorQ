@@ -169,13 +169,19 @@ PeakUsage:{
     query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
-    
-    time::select distinct time from res;
-    querycounts:{?[`res; enlist (=; `u; enlist x); 0b; (enlist `queries)!(enlist `queries)]}'[users];
+
+    time:select distinct time from res;
+
+    getquerycounts:{[res; users] ?[res; enlist (=; `u; enlist users); 0b; (enlist `queries)!(enlist `queries)]}[res; ];
+    querycounts:getquerycounts'[users];
+
     querycountsn:{x xcol y}'[users; querycounts];
-    querycountsnk:{`time xkey ![x;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}'[querycountsn];
+
+    getquerycountsnk:{[time; querycountsn] `time xkey ![querycountsn;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}[time; ];
+    querycountsnk:getquerycountsnk'[querycountsn];
+
     peakusage:0!(lj/)(querycountsnk);
-    
+
     :update time:.z.d + time from peakusage;
     };
 
