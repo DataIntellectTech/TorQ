@@ -25,7 +25,7 @@ tailermsg:{[procname;seg]
   workers:exec procname from .servers.SERVERS where procname in .ds.tailsorttypes,(attributes`segid)=seg;
   savelist:`$ "" sv string `savelistseg,seg;
   /-upsert all of the segments associated tailsorts to status table 
-  `status upsert {(x;0;`)} each workers;
+  `status upsert (;0;`) each workers;
   .lg.o[`tailsortconns;"segment ",string[seg]," has the following associated tailsorts ", .Q.s1[workers]];
   /-upsert the related segment savelist tables
   `savelisttab upsert ("I"$string[seg];savelist;.ts.savelist);
