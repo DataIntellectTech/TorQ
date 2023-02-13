@@ -52,7 +52,7 @@ extractkeys:{[queryparams;k]
 //- Put the partition filter top of the query
 orderpartedtable:{[queryparams;whereclause]
    // Errors out if there is no partition filter
-   if[queryparams[`partitionfilter]~();'"Include a partition filter"];
+   if[(queryparams[`partitionfilter]~())&.proc.proctype=`hdb;'"Include a partition filter"];
    // Returns the query with the partion filter at the top
    :(queryparams[`partitionfilter],whereclause);
    };
