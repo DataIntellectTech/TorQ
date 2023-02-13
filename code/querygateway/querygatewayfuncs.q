@@ -211,6 +211,19 @@ QueryErrorPercentage:{
     :res;
     };
 
+QueryErrorPercentageHistorical:{[date]
+    users:GetUsers[];
+    $[.z.d<=date; query:(); // log error
+        1=count date; query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users);
+        2=count date; query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u in ", (.Q.s1 users);
+        // log error
+        query:()]
+    query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where u in ", (.Q.s1 users);
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    res:raze last .async.deferred[handle; query];
+    :res;
+    };
+
 //Return queries which take longer than given runtime input, t
 //t in milliseconds 10^-3
 LongQuery:{[t]
