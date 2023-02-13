@@ -20,6 +20,14 @@ updateaccess:{[newtab]
 
     };
 
+// create a function to retrieve stripe mapping
+getstripemapping:{[]
+    .lg.o[`.ds.getstripemapping;"reloading stripe mapping"];
+    rdbhandle:$[count i:.servers.getservers[`proctype;`rdb;()!();1b;0b];first exec w from i;.lg.e[`getstripemapping;"Unable to retrieve RDB handle"]];
+    .ds.subreq::@[rdbhandle;".ds.subreq";{.lg.e[`getstripemapping;"Unable to retrieve stripe mapping from RDB"]}];
+    .lg.o[`.ds.getstripemapping;"stripe map reload complete"];
+    };
+
 \d .
 
 .proc.addinitlist[(`.ds.getaccess;`)];
