@@ -19,9 +19,12 @@
     modaccess[.ds.access];
 
     // update the access table in the gateway
-    handles:(.servers.getservers[`proctype;`gateway;()!();1b;1b])[`w];
-    .ds.updategw each handles;
+    gwhandles:$[count i:.servers.getservers[`proctype;`gateway;()!();1b;0b];exec w from i;
+        .lg.e[`reload;"Unable to retrieve gateway handle(s)"]];
+    .ds.updategw each gwhandles;
 
+    /-update rdb attributes for .gw.servers table in gateways
+  	.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gwhandles];
     };
 
 .rdb.datastripeendofday:{[date;processdata]

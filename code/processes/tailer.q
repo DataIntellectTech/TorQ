@@ -32,7 +32,7 @@ upd:.wdb.upd;
 .tailer.dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
-  .wdb.getprocs[;pt]each .tailer.tailreadertypes;
+  .wdb.getprocs[;pt]each .tailer.tailreadertype;
   if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
@@ -79,6 +79,7 @@ getprocs:{[x;y]
         /-send message along each handle a
         reloadproc[;y;value a;x] each key a;
         }
+
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
 .servers.register[.servers.procstab;.wdb.centraltailsorttypes;1b]
 
@@ -109,3 +110,6 @@ initdatastripe[];
 
 /- create HDB sym file and taildir symlink
 .ds.symlink[];
+
+/- reload the access table and tailDB in the tailreader process
+.tailer.dotailreload[`];
