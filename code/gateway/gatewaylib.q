@@ -195,7 +195,7 @@ adjustqueriesoverlap:{[options;part]
 // Modify queries based on striped processes
 adjustqueriesstripe:{[options;dict]
     // create a dictionary of procs and different queries
-	query:{x[`starttime]:y 0;x[`endtime]:y 1;x}[options]'[dict`dates];
+    query:{x[`starttime]:y 0;x[`endtime]:y 1;x}[options]'[dict`dates];
     // modify query based on `instrumentsfilter`timecolumns
     modquery:select serverid,inftc:attributes[;`dataaccess;`tablename;options`tablename;`instrumentsfilter`timecolumns],segid:attributes[;`dataaccess;`segid]from
         (select from .gw.servers where(`dataaccess in/:key each attributes)&serverid in first each options`procs)
