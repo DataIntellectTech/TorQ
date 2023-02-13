@@ -189,3 +189,5 @@ periodstokeep:4;
 replaystarttime:00:00:00;            // default start time to begin replaying tplogs from
 rdbtypes:`rdb_seg1`rdb_seg2;         // default rdb proctypes for striped setup
 tailreadertypes:`tr_seg1`tr_seg2;    // default tailreader proctypes for striped setup
+tailsorttypes:`tailsort1_1`tailsort1_2`tailsort2_1`tailsort2_2    // default tailsort proctypes for striped setup
+

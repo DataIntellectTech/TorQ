@@ -25,7 +25,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
-mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
+mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process        
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload

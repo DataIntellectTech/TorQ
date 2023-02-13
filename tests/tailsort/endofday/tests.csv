@@ -1,0 +1,47 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+
+before,0,0,q,\c 45 280,1,,
+
+before,0,0,q,pt:.z.d,1,,"Partition saved"
+
+before,0,0,q,tl1:.servers.gethandlebytype[`tailer_seg1;`any],1,,"Connect to tailer1 handle,so tailer can be tested through tl1 handle"
+before,0,0,q,tl2:.servers.gethandlebytype[`tailer_seg2;`any],1,,"Connect to tailer2 handle,so tailer can be tested through tl2 handle"
+
+before,0,0,q,hdb1:hopen `::31703:admin:admin,1,,"Connect to hdb1 handle, so hdb1 can be tested"
+before,0,0,q,hdb2:hopen `::31704:admin:admin,1,,"Connect to hdb2 handle, so hdb2 can be tested"
+#before,0,0,q,hdb1:.servers.gethandlebytype[`hdb;`hdb1],1,,""
+#before,0,0,q,hdb2:.servers.gethandlebytype[`hdb;`hdb2],1,,""
+
+run,0,0,q,.os.sleep 15,1,,"Wait 15 seconds to populate tables with rows of data for trade and quote"
+run,0,0,q,symslist:asc (tl1"select distinct sym from quote")uj(tl2"select distinct sym from quote"),1,,"Seting the tailer1 & 2 syms to a list variable"
+
+run,0,0,q,tl1"data:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj)",1,,"Tailer1 end of day"
+run,0,0,q,tl1"endofperiod[.z.p;.z.p+01:00;data]",1,,"Tailer1 end of day"
+run,0,0,q,tl1"endofday[.z.d;()!()]",1,,"Tailer1 end of day"
+
+run,0,0,q,tl2"data:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj)",1,,"Tailer1 end of day"
+run,0,0,q,tl2"endofperiod[.z.p;.z.p+01:00;data]",1,,"tailer1 end of day"
+run,0,0,q,tl2"endofday[.z.d;()!()]",1,,"Tailer2 end of day"
+
+run,0,0,q,.os.sleep 2,1,,"Wait 2 seconds"
+
+run,0,0,q,.os.sleep 1,1,,"Wait 1 seconds"
+
+true,0,0,q,not (`$string pt) in key tailer1path,1,,"Checking old tailer partition has been deleted"
+true,0,0,q,not (`$string pt) in key tailer2path,1,,"Checking old tailer partition has been deleted"
+
+run,0,0,q,list:hdb1"asc select distinct sym from quote",1,,Loading in hdb data"
+true,0,0,q,(all symslist in list) & (all list in symslist),1,,"Checking the syms on the saved quote match the syms from tailer1 and tailer2"
+
+run,0,0,q,list:hdb2"asc select distinct sym from quote",1,,Loading in hdb data"
+true,0,0,q,(all symslist in list) & (all list in symslist),1,,"Checking the syms on the saved quote match the syms from tailer1 and tailer2"
+
+run,0,0,q,at1:hdb1"attr select sym from quote",1,,"Saving quote attribute"
+run,0,0,q,at2:hdb1"attr select sym from trade",1,,"Saving trade attribute"
+true,0,0,q,at1 = `p,1,,"Checking for parted attribute"
+true,0,0,q,at2 = `p,1,,"Checking for parted attribute"
+
+run,0,0,q,at1:hdb1"attr select sym from quote",1,,"Saving quote attribute"
+run,0,0,q,at2:hdb1"attr select sym from trade",1,,"Saving trade attribute"
+true,0,0,q,at1 = `p,1,,"Checking for parted attribute"
+true,0,0,q,at2 = `p,1,,"Checking for parted attribute"

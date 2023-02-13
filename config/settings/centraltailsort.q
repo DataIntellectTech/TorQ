@@ -1,6 +1,6 @@
 // Bespoke tailer config
 \d .wdb
-ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
+ignorelist:`heartbeat`logmsg`packets`quote_iex`trade_iex                                    // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
 rdbtypes:`rdb                                                                               // list of rdb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
@@ -9,8 +9,8 @@ centraltailsorttypes:`centraltailsort
 subtabs:`                                                                                   // list of tables to subscribe for (` for all)
 subsyms:`                                                                                   // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location to save wdb data
-numrows:10000                                                                              // default number of rows
-numtab:`quote`trade!10000 5000                                                             // specify number of rows per table
+numrows:10000                                                                               // default number of rows
+numtab:`quote`trade!10000 5000                                                              // specify number of rows per table
 mode:`save                                                                                  // the wdb process can operate in three modes	
                                                                                             // 1. saveandsort:     the process will subscribe for data,
                                                                                             //                     periodically write data to disk and at EOD it will flush
@@ -50,13 +50,9 @@ gc:1b                                                                           
 eodwaittime:0D00:00:10.000                                                                  // time to wait for async calls to complete at eod
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
-\d .ds
-period:0D01
-
-// Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`gateway`sort                                                   // list of connections to make at start up
-STARTUP:1b                                                                                  // create connections
-
-\d .proc
-loadprocesscode:1b  // whether to load the process specific code defined at ${KDBCODE}/{process type}
+tailsorttypes:`tailsort_seg1`tailsort_seg2
+hdbtypes:`hdb
+rdbtypes:`rdb
+CONNECTIONS:()                  // connections to make at start up
+STARTUP:1b                      // create connections
