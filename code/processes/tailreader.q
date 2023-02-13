@@ -11,7 +11,6 @@ tailertype:`$first .proc.params[`tailertype]                               /-def
 .servers.startup[];
 
 
-
 \d .ds
 
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
@@ -21,7 +20,7 @@ updategw:{[h]neg[h](`.ds.updateaccess;getaccess[])};
 
 \d .
 endofday:{[pt]
-  /- end of day function that will be triggered by EOD Sorter once IDB is copied to HDB
+  /- end of day function that will be triggered by EOD Sorter once TailDB is copied to HDB
   /-  updates partition and loads in next days partition
   .lg.o[`eod;"End of day message received - ",spt:string pt];
   .tr.currentpartition:pt+1;
@@ -29,7 +28,7 @@ endofday:{[pt]
   }
 
 reload:{
-  /- function to define the access table and IDB dir and then reload both tables
+  /- function to define the access table and tailDB dir and then reload both tables
   /- reload is triggered by tailer after savedown occurs
   .tr.taildir:`$ .tr.basedir,string .tr.currentpartition;
   accesstabdir:`$ (string .tr.taildir),"/access";

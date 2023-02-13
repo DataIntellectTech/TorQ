@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,,,q,checktable:enlist[`wcA]!enlist["sym in `AAPL"],,,"creating the table we expect configload to create"
+before,,,q,configload[],,,"running config load"
+true,,,q,checktable~.stpps.segmentfiltermap,,,"checking the expected table matches the table created by configload"

@@ -1,0 +1,4 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+run,0,0,q,sym:enlist `GOOB,1,,"make sym variable with new symbol"
+run,0,0,q,.ds.stripe[sym],1,,"Run stripe function with new symbol to show only one variable is now needed"
+true,0,0,q,1i ~ .ds.subreq `GOOB,1,,"Checks that new symbol is added to subscription request variable"
