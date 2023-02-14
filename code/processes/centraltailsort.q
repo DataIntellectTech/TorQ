@@ -21,7 +21,7 @@ savelisttab:([segment:`int$()] savelist:`symbol$(); tablelist:());
 tailermsg:{[procname;seg]
   /-function that's triggered by tailer(s) at endofday
   .lg.o[`endofday;"endofday message received from ", string[procname]];
-  workers:exec procname from .servers.SERVERS where procname in .ds.tailsorttypes,(attributes`segid)=seg;
+  workers:exec procname from .servers.SERVERS where procname in .ds.tailsortnames,(attributes`segid)=seg;
   savelist:`$ "" sv string `savelistseg,seg;
   /-upsert all of the segments associated tailsorts to status table 
   `status upsert (;0;`) each workers;
@@ -71,7 +71,7 @@ distributetable:{[processname]
 
 notify:{[procname;proctype;seg]
  /-function that tailsort(s) will trigger to notify centraltailsort that a table has been saved
- workers:exec procname from .servers.SERVERS where procname in .ds.tailsorttypes,(attributes`segid)=seg;
+ workers:exec procname from .servers.SERVERS where procname in .ds.tailsortnames,(attributes`segid)=seg;
  tab:first exec table from status where process=procname;
  .lg.o[`notify;"table ",string[tab]," from ",string[procname]," now complete "];
  update status:1 from `status where process=procname;
@@ -122,7 +122,7 @@ addpattr:{[hdbdir;pt;tabname]
 resetrdbwindow:{
   /-function to notify rdb when tailsort process complete
   .lg.o[`rdbwindow;"resetting rdb moving time window"];
-  rdbprocs:.servers.getservers[`proctype;.servers.rdbtypes;()!();1b;0b];
+  rdbprocs:.servers.getservers[`proctype;.ds.rdbtypes;()!();1b;0b];
   rdbhandles:exec w from rdbprocs;
   if[0=count rdbhandles; .lg.e[`connection;"no connection to the rdbs could be established... failed to resetrdbwindow"];:()];
   {neg[x]".rdb.tailsortcomplete:1b"}each rdbhandles;
