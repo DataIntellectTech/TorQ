@@ -19,13 +19,16 @@ upd:.wdb.upd;
 .tailer.replayupd:{[f;t;d]
   /- execute the supplied function
   f[t;d];
-  /- if the data count is greater than the threshold, then flush data to disk
-  if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
-    .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+  /- check to see if data being replayed starts before most recent EOP
+  if[(first t `time) < .tailer.lasteop;
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-    .ds.applyfilters[enlist t;.sub.filterdict];
-    .ds.savetables[.ds.td;t];
-    @[`.;;0#] t    
+    /- if the table data count reaches row threshold or if last time in table greater than EOP then flush to disk
+    if[(count[value t] > .wdb.maxrows[t]) or (last t `time) >= .tailer.lasteop;
+      .lg.o[`replayupd;"first time not after EOP therefore can flush to disk"];
+      .ds.applyfilters[enlist t;.sub.filterdict];
+      .ds.savetables[.ds.td;t];
+      @[`.;;0#] t;
+    ];    
   ];
   }[upd];
 
@@ -41,15 +44,21 @@ upd:.wdb.upd;
 / - if there is data in the tailDB directory for the partition remove it before replay
 / - is only run during datastriping mode
 .tailer.cleartaildir:{
-  if[() ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
-    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)];
+  /- checks if specific Segment Tailer Directory is empty
+  /- if Segment Tailer Directory is nonempty then delete all data excluding access table
+  /- to prevent duplicate data on disk after log replay
+  if[() ~ key std:` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
+    .lg.o[`deletewdbdata;"no directory found at ",1_string std];
     :();
   ];
-  .lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
-  @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
+  delstrg:1_'string ` sv/: std,/:key[std] except `access;
+  {.lg.o[`deletetaildb;"removing taildb (",x,") prior to log replay"];
+  @[.os.deldir;x;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data. Error was : ",e];'e }]}each delstrg;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
+.tailer.stphandle:$[count u:exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b];u;.lg.e[`tailerstp;"Failed to retrieve stp handle"]];
+.tailer.lasteop:@[first .tailer.stphandle;".stplg.currperiod";{.lg.e[`lasteop;"Failed to call last end of period with error: ",x]}];                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];
