@@ -427,7 +427,14 @@ subscribe:{[]
                 /- return the tables subscribed to and the tickerplant log date
                 subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
                 /- check the tp logdate against the current date and correct if necessary
-                fixpartition[subto];];}
+                fixpartition[subto];];
+                /-retrieving table stripe mapping
+                stphandle:first exec w from s;
+                .ds.tblstripe:@[stphandle;"select tbl,filts from .stpps.subrequestfiltered where handle = .z.w";
+                        {.lg.e[`.proc.getattributes;"Failed to retrieve stripe map from STP"]}];
+                if[`tblstripe in tables[`.ds];
+                        .ds.tblstripemapping:update stripenum:{last .ds.tblstripe[`filts][x;0;0]}each til count .ds.tblstripe from .ds.tblstripe];
+        }
 
 /- function to rectify data written to wrong partition
 fixpartition:{[subto]
