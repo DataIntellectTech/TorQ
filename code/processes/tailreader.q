@@ -10,6 +10,14 @@ tailertype:`$first .proc.params[`tailertype]                               /-def
 .servers.CONNECTIONS:(.servers.CONNECTIONS union .tr.tailertype)except ` 
 .servers.startup[];
 
+
+\d .ds
+
+getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
+
+// function to update the access table in the gateway. Takes the gateway handle as argument
+updategw:{[h]neg[h](`.ds.updateaccess;getaccess[])};
+
 \d .
 endofday:{[pt]
   /- end of day function that will be triggered by EOD Sorter once TailDB is copied to HDB
@@ -28,9 +36,17 @@ reload:{
   @[.Q.l ;.tr.taildir;{.lg.e[`load;"Failed to load intradayDB with error: ",x]}];
   .lg.o[`load;"intradayDB loaded"];
   .lg.o[`load;"loading accesstable"];
-  /- make a connection to the tailer to get the in-memory access table
-  tailerhandle:$[count i:.servers.getservers[`proctype;.tr.tailertype;()!();1b;0b];first exec w from i;.lg.e[`tailerhandle;"Failed to get a valid handle to respective tailer process"]];
+   /- make a connection to the tailer to get the in-memory access table
+  tailerhandle:$[count i:.servers.getservers[`proctype;.tr.tailertype;()!();1b;0b];first exec w from i;
+    .lg.e[`tailerhandle;"Failed to get a valid handle to respective tailer process"]];
   .ds.access:@[tailerhandle;".ds.access";{.lg.e[`load;"Failed to load accesstable with error: ",x]}];
   .lg.o[`load;"loaded accesstable"];
-  load hsym `$.tr.basedir,"sym"
+  load hsym `$.tr.basedir,"sym";
+  /- use tailer connection to retrieve stripe mapping for tables
+  .ds.tblstripemapping::@[tailerhandle;".ds.tblstripemapping";{.lg.e[`reload;"Failed to load table stripe map from tailer"]}];
+  /-update metainfo table for the dataaccessapi
+  if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]]
+  // update tailreader attributes for .gw.servers table in gateways
+  gwhandles:$[count i:.servers.getservers[`proctype;`gateway;()!();1b;0b];exec w from i;.lg.e[`reload;"Unable to retrieve gateway handle(s)"]];
+  .async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gwhandles];
   }

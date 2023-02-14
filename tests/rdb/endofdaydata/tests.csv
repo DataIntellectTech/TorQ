@@ -1,0 +1,38 @@
+action,ms,bytes,lang,code,repeate,minver,comment
+
+before,0,0,q,\c 45 280,1,,
+
+before,0,0,q,pt:.z.d,1,,"Partition saved"
+
+#before,0,0,q,rdb1:.servers.gethandlebytype[`rdb;`rdb1],1,,"Connect to rdb1 handle,so tailer can be tested through rdb1 handle"
+#before,0,0,q,rdb2:.servers.gethandlebytype[`rdb;`rdb2],1,,"Connect to rdb2 handle,so tailer can be tested through rdb2 handle"
+before,0,0,q,rdb1:hopen `::31702:admin:admin,1,,"Connect to rdb1 handle,so tailer can be tested through rdb1 handle"
+before,0,0,q,rdb2:hopen `::31724:admin:admin,1,,"Connect to rdb2 handle,so tailer can be tested through rdb2 handle"
+
+before,0,0,q,tl1:.servers.gethandlebytype[`tailer_seg1;`any],1,,"Connect to tailer1 handle,so tailer can be tested through tl1 handle"
+before,0,0,q,tl2:.servers.gethandlebytype[`tailer_seg2;`any],1,,"Connect to tailer2 handle,so tailer can be tested through tl2 handle"
+
+run,0,0,q,.os.sleep 15,1,,"Wait 15 seconds to populate tables with rows of data for trade and quote"
+
+run,0,0,q,tl1"data:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj)",1,,"Tailer1 end of day"
+run,0,0,q,tl1"endofperiod[.z.p;.z.p+01:00;data]",1,,"Tailer1 end of day"
+run,0,0,q,tl1"endofday[.z.d;()!()]",1,,"Tailer1 end of day"
+
+run,0,0,q,tl2"data:`proctype`procname`tables`time`p!(.proc.proctype;.proc.procname;.stpps.t;.z.P;.z.p+.eodtime.dailyadj)",1,,"Tailer1 end of day"
+run,0,0,q,tl2"endofperiod[.z.p;.z.p+01:00;data]",1,,"tailer1 end of day"
+run,0,0,q,tl2"endofday[.z.d;()!()]",1,,"Tailer2 end of day"
+
+run,0,0,q,rdb1quotecount:rdb1"count quote",1,,"save rdb1 quote count"
+run,0,0,q,rdb1tradecount:rdb1"count trade",1,,"save rdb1 trade count"
+run,0,0,q,rdb2quotecount:rdb2"count quote",1,,"save rdb2 quote count"
+run,0,0,q,rdb2tradecount:rdb2"count trade",1,,"save rdb2 trade count"
+
+run,0,0,q,rdb1"endofday[.z.d;()!()]",1,,"rdb1 end of day"
+run,0,0,q,rdb2"endofday[.z.d;()!()]",1,,"rdb2 end of day"
+
+run,0,0,q,.os.sleep 2,1,,"Wait 2 seconds"
+
+true,0,0,q,(rdb1quotecount) > (rdb1"count quote"),1,,"Comparing old rdb1 quote count to current count"
+true,0,0,q,(rdb1tradecount) > (rdb1"count trade"),1,,"Comparing old rdb1 trade count to current count"
+true,0,0,q,(rdb2quotecount) > (rdb2"count quote"),1,,"Comparing old rdb2 quote count to current count"
+true,0,0,q,(rdb2tradecount) > (rdb2"count trade"),1,,"Comparing old rdb2 trade count to current count"

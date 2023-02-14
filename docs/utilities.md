@@ -158,7 +158,7 @@ server must process the request when it is received to generate the
 result and return it to the waiting client. Asynchronous calls do not
 expect a response so allow for greater flexibility. The effect of
 synchronous calls can be replicated with asynchronous calls in one of
-two ways (further details in section gateway):
+two ways (further details in section gateway):
 
 -   deferred synchronous: the client sends an async request, then blocks
     on the handle waiting for the result. This allows the server more
@@ -771,16 +771,16 @@ An advantage of using data hash striping is such that a specific symbol will alw
 
 **$KDBCONFIG/process.csv**
 
-The process file should contain the RDB instances by specifying a different **`port`** and **`procname`** column. Set the **`load`** column to **`${KDBCODE}/processes/rdb.q`**.
+The process file should contain the RDB instances by specifying a different `port` and `procname` column. Set the `load` column to `${KDBCODE}/processes/rdb.q`.
 
 > **NOTE**
 >
-> - The **`procname`** convention should always start with **`rdb1`**
+> - The `procname` convention should always start with `rdb1`
 > - Increment by 1 for each RDB instance
-> - In the following format: **`rdb{i}`**
-> - There is no need to create separate **`rdb{i}.q`** files
+> - In the following format: `rdb{i}`
+> - There is no need to create separate `rdb{i}.q` files
 
-**`$KDBCONFIG/process.csv`** should look something like this:
+`$KDBCONFIG/process.csv` should look something like this:
 
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -821,11 +821,11 @@ Add in **`-.rdb.subfiltered 1`** (to enable striping) in the **`extras`** column
 
 > **NOTE**
 >
-> - It is **`-.rdb.subfiltered 1`** and not **`-.rdb.subfiltered 1b`**
+> - It is `-.rdb.subfiltered 1` and not `-.rdb.subfiltered 1b`
 > - The RDB instances **must** be grouped according to those being striped first
 >   - i.e. **`rdb1`**, **`rdb2`** are striped and **`rdb3`**, **`rdb4`** are unfiltered
 
-**`$KDBCONFIG/process.csv`** should look something like this:
+`$KDBCONFIG/process.csv` should look something like this:
 
 ```sh
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -877,6 +877,48 @@ quote     21     (`.ds.stripe;`sym;1)
 quote_iex 21     ()                                      
 trade     21     (`.ds.stripe;`sym;0)        
 trade_iex 21     ()                                      
+```
+
+<a name="gw"></a>
+
+gatewaylib.q
+--------
+
+This file defines some additional functionality in the `.gw` namespace loaded in by the gateway. The Dataaccess API uses some of the functions defined within this file to route queries based on segmented data availability.
+
+### Gateway Routing based on segmented data availability
+
+With the implementation of data striping, intraday data can be segmented into multiple processes. As such, the gateway needs to have an awareness of where the segemented data is located to route queries exactly. It may need to send queries to multiple processes, and join the result before returning the result, depending on the symbols or time periods being requested. The gateway routing can be used with the existing Dataaccess API to retrieve data. However, freeform queries using the Dataaccess API will not be allowed when the queries are routed to a striped process. 
+
+An easy to use hook `` `.gw.getservers`` is provided for other TorQ APIs to route queries appropriately when not using the Dataaccess API or freeform queries. The function returns a dictionary of serverid(s) that should be queried to cover all the data being requested. The input can be a table of `([] tablename;starttime;endtime;instruments;procs)` or a dictionary of `` `tablename`starttime`endtime`instruments`procs!(tablename;starttime;endtime;instruments;procs) ``. The required parameters of the input are `tablename`, `starttime` and `endtime`. If the input is a table of multiple rows, the output will be a list of dictionary corresponding to each row of the table.
+
+The gateway receives a report of the process attributes (for e.g. date and tables) for every connected server. The attributes report is extended to include which stripe of symbols and/or time period that it contains. Using this stripe, the gateway can route queries accurately to specific servers.
+
+Users can use the `` `.gw.getservers`` hook to route queries appropriately when not using the Dataaccess API or freeform queries as illustrated below:
+```q
+q)show querydict:`tablename`starttime`endtime`instruments!(`quote;.z.d;.z.d;`AMD`IBM`DELL`GOOG;`time`sym`bid`ask`bsize`asize)
+tablename  | `quote
+starttime  | 2022.02.04
+endtime    | 2022.02.04
+instruments| `AMD`IBM`DELL`GOOG
+q)hgw1(`.gw.getservers;querydict)
+ | tablename starttime  endtime    procs instruments servertype
+-| ------------------------------------------------------------
+1| quote     2022.02.04 2022.02.04 rdb1  `IBM`DELL   rdb       
+3| quote     2022.02.04 2022.02.04 rdb3  `AMD        rdb       
+4| quote     2022.02.04 2022.02.04 rdb4  `GOOG       rdb       
+```
+
+Each row of the result dictionary only has to be queried once. For e.g. from the result below: the key of the last row is `5 6i`, which means only either serverid `5i` or `6i` has to be queried depending on whichever is available, as the HDBs are unstriped.
+```q
+q)querydict[`starttime]:.z.d-1
+q)hgw1(`.gw.getservers;querydict)
+    | tablename starttime  endtime    procs instruments        servertype
+--  | -------------------------------------------------------------------
+1i  | quote     2022.02.04 2022.02.04 rdb1  `IBM`DELL          rdb       
+3i  | quote     2022.02.04 2022.02.04 rdb3  `AMD               rdb       
+4i  | quote     2022.02.04 2022.02.04 rdb4  `GOOG              rdb       
+5 6i| quote     2022.02.03 2022.02.03 hdb   `AMD`IBM`DELL`GOOG hdb       
 ```
 
 <a name="kafka"></a>
@@ -1607,4 +1649,3 @@ between options in the drop down menus. This has significant repercussions if
 one of your columns includes full stops, eg. email adresses. As a result we have 
 left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.
-

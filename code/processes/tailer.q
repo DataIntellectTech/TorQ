@@ -3,9 +3,8 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$"tr_",last "_" vs string .proc.proctype                           /-extract wdb proc segname and append to "tr_"
-.tailer.tailsorttypes:@[value;`tailsorttypes;`tailsort];                                    /-tailsorttypes to make a connection to tailsort process
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes,.tailer.tailsorttypes) except `
+.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];                      /-use .proc.params to get associated tailreader
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
 .servers.startup[];
 
 /- evaluate contents of d dictionary asynchronously
@@ -20,20 +19,23 @@ upd:.wdb.upd;
 .tailer.replayupd:{[f;t;d]
   /- execute the supplied function
   f[t;d];
-  /- if the data count is greater than the threshold, then flush data to disk
-  if[(rpc:count[value t]) > lmt:.wdb.maxrows[t];
-    .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+  /- check to see if data being replayed starts before most recent EOP
+  if[(first t `time) < .tailer.lasteop;
     /- if datastriping is on then filter before savedown to the tailDB, if not save down to wdbhdb
-    .ds.applyfilters[enlist t;.sub.filterdict];
-    .ds.savetables[.ds.td;t];
-    @[`.;;0#] t    
+    /- if the table data count reaches row threshold or if last time in table greater than EOP then flush to disk
+    if[(count[value t] > .wdb.maxrows[t]) or (last t `time) >= .tailer.lasteop;
+      .lg.o[`replayupd;"first time not after EOP therefore can flush to disk"];
+      .ds.applyfilters[enlist t;.sub.filterdict];
+      .ds.savetables[.ds.td;t];
+      @[`.;;0#] t;
+    ];    
   ];
   }[upd];
 
 .tailer.dotailreload:{[pt]
   /-send reload request to tailreaders
   .tailer.tailreloadcomplete:0b;
-  .wdb.getprocs[;pt]each .tailer.tailreadertypes;
+  .wdb.getprocs[;pt]each .tailer.tailreadertype;
   if[.wdb.eodwaittime>0;
     .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".tailer.flushtailreload[]");"release all tailreaders as timer has expired";0b];
   ];
@@ -42,15 +44,21 @@ upd:.wdb.upd;
 / - if there is data in the tailDB directory for the partition remove it before replay
 / - is only run during datastriping mode
 .tailer.cleartaildir:{
-  if[() ~ key ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
-    .lg.o[`deletewdbdata;"no directory found at ",1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)];
+  /- checks if specific Segment Tailer Directory is empty
+  /- if Segment Tailer Directory is nonempty then delete all data excluding access table
+  /- to prevent duplicate data on disk after log replay
+  if[() ~ key std:` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition);
+    .lg.o[`deletewdbdata;"no directory found at ",1_string std];
     :();
   ];
-  .lg.o[`deletetaildb;"removing taildb (",(delstrg:1_string ` sv(.ds.td;.proc.procname;`$string .wdb.currentpartition)),") prior to log replay"];
-  @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data.  Error was : ",e];'e }];
+  delstrg:1_'string ` sv/: std,/:key[std] except `access;
+  {.lg.o[`deletetaildb;"removing taildb (",x,") prior to log replay"];
+  @[.os.deldir;x;{[e] .lg.e[`deletewdbdata;"Failed to delete existing taildir data. Error was : ",e];'e }]}each delstrg;
   .lg.o[`deletewdbdata;"finished removing taildb data prior to log replay"];
  };
 
+.tailer.stphandle:$[count u:exec w from .servers.getservers[`proctype;`segmentedtickerplant;()!();1b;1b];u;.lg.e[`tailerstp;"Failed to retrieve stp handle"]];
+.tailer.lasteop:@[first .tailer.stphandle;".stplg.currperiod";{.lg.e[`lasteop;"Failed to call last end of period with error: ",x]}];                        /- variable defined in .tailer namespace so for latest EOP the STP only needs to be called once
 upd:.tailer.replayupd;                                                                 /-start up tailer process, with appropriate upd definition
 .tailer.cleartaildir[];
 .wdb.startup[];
@@ -80,8 +88,9 @@ getprocs:{[x;y]
         /-send message along each handle a
         reloadproc[;y;value a;x] each key a;
         }
+
 .servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
-.servers.register[.servers.procstab;.tailer.tailsorttypes;1b]
+.servers.register[.servers.procstab;.wdb.centraltailsorttypes;1b]
 
 \d .
 
@@ -91,12 +100,12 @@ endofday:{[pt;processdata]
   /- call datastripeendofday
   .wdb.datastripeendofday[pt;processdata];
   /- find handle to send message to tailsort process
-  ts:exec w from .servers.getservers[`proctype;.tailer.tailsorttypes;()!();1b;0b];
+  cts:exec w from .servers.getservers[`proctype;.wdb.centraltailsorttypes;()!();1b;0b];
   /- if no tailsort process connected, do eod sort from tailer & exit early
-  if[0=count ts;
-    .lg.e[`connection;"no connection to the ",(string .tailer.tailsorttypes)," could be established, failed to send end of day message"];:()];
-  /- send procname to tailsort process so it loads correct tailDB
-  neg[first ts](`endofday;pt;.proc.procname);
+  if[0=count cts;
+    .lg.e[`connection;"no connection to the ",(string .wdb.centraltailsorttypes)," could be established, failed to send end of day message"];:()];
+  /- send procname and segid to centraltailsort process tailermsg function to trigger loadandasave for all tables
+  neg[first cts](`tailermsg;.proc.procname;.ds.segmentid 0);
   .lg.o[`eod;"end of day message sent to tailsort process"];
   };
 
