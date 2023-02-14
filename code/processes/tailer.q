@@ -120,5 +120,5 @@ initdatastripe[];
 /- create HDB sym file and taildir symlink
 .ds.symlink[];
 
-/- reload the access table and tailDB in the tailreader process
+/- reload the access table and tailDB in the tailreader process 
 .tailer.dotailreload[`];
