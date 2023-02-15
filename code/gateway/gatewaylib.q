@@ -251,7 +251,7 @@ adjustqueriesstripe:{[options;dict]
                         from querytable where servertype<>`hdb;
 
         // remove queries for striped procs with no instruments to query
-        querytable:delete from querytable where (0 = count each instruments);
+        querytable:delete from querytable where (0 = count each instruments)|all each null instruments;
 
         // fixing length error for single sym queries
         querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable;
