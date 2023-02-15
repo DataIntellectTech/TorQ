@@ -3,8 +3,8 @@
 upd:.wdb.upd;
 
 
-.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];                      /-use .proc.params to get associated tailreader
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertypes) except `
+.tailer.tailreadertype:`$first .proc.params[`tailreadertype];                      /-use .proc.params to get associated tailreader
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.centraltailsorttypes,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.tailer.tailreadertype) except `
 .servers.startup[];
 
 /- evaluate contents of d dictionary asynchronously
@@ -89,7 +89,7 @@ getprocs:{[x;y]
         reloadproc[;y;value a;x] each key a;
         }
 
-.servers.register[.servers.procstab;.tailer.tailreadertypes;1b]
+.servers.register[.servers.procstab;.tailer.tailreadertype;1b]
 .servers.register[.servers.procstab;.wdb.centraltailsorttypes;1b]
 
 \d .

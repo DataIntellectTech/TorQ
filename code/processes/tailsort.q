@@ -2,11 +2,12 @@
 
 taildir:hsym `$getenv`KDBTAIL;                                             /-load in taildir env variables
 hdbdir:hsym `$getenv`KDBHDB;                                               /-load in hdb env variables
-.tailer.tailreadertypes:`$first .proc.params[`tailreadertype];             /-use .proc.params to get associated tailreader
+.tailer.tailreadertype:`$first .proc.params[`tailreadertype];              /-use .proc.params to get associated tailreader
+.tailer.rdbtype:`$first .proc.params[`rdbtype];                            /-use .proc.params to get associated rdb
 savelist:@[value;`savelist;`quote`trade];                                  /-list of tables to save to HDB
 taildbs:key taildir;                                                       /-list of tailDBs that need saved to HDB
 
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertypes);
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.tailer.tailreadertype,.tailer.rdbtype);
 .servers.startup[];
 
 \d .
@@ -52,12 +53,12 @@ deletetaildb:{[tdbpath]
 endofdayreload:{[pt;procname;tailerprocname]
  .lg.o[`notify;"endofday notify and delete message received from ",string[procname]];
  taildir:` sv (.ts.taildir;tailerprocname;`$string pt);
- .lg.o[`connection;"attempting connection to ",string[.tailer.tailreadertypes]];
- tr:first exec w from .servers.getservers[`proctype;.tailer.tailreadertypes;()!();1b;0b];
+ .lg.o[`connection;"attempting connection to ",string[.tailer.tailreadertype]];
+ tr:first exec w from .servers.getservers[`proctype;.tailer.tailreadertype;()!();1b;0b];
  if[0=count tr;
-    .lg.e[`connection;"no connection to the ",(string .tailer.tailreadertypes)," could be established, failed to send end of day message"];:()];
+    .lg.e[`connection;"no connection to the ",(string .tailer.tailreadertype)," could be established, failed to send end of day message"];:()];
  neg[tr](`endofday;pt);
- .lg.o[`endofday;"endofday message sent to ",string[.tailer.tailreadertypes]];
+ .lg.o[`endofday;"endofday message sent to ",string[.tailer.tailreadertype]];
  deletetaildb[taildir];
  .lg.o[`endofday;"end of day deletion of partition ",string[taildir]," now completed"];
  };

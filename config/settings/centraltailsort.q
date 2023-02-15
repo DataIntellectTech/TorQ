@@ -51,8 +51,6 @@ eodwaittime:0D00:00:10.000                                                      
 tpcheckcycles:0W                                                                            // number of attempts to connect to tp before process is killed
 
 \d .servers
-tailsorttypes:`tailsort_seg1`tailsort_seg2
 hdbtypes:`hdb
-rdbtypes:`rdb
 CONNECTIONS:()                  // connections to make at start up
 STARTUP:1b                      // create connections

@@ -251,27 +251,19 @@ adjustqueriesstripe:{[options;dict]
                         from querytable where servertype<>`hdb;
 
         // remove queries for striped procs with no instruments to query
-        querytable:delete from querytable where (0 = count each instruments);
+        querytable:delete from querytable where (0 = count each instruments)|all each null instruments;
 
         // fixing length error for single sym queries
         querytable:update instruments:{$[1=count x;first x;x]}'[instruments] from querytable;
     ];
     // filter overlap timings between rdb and tailreader process
     if[count segids;
-        querytable:{y;if[all exec any each procs like/:("*tr*";"rdb*") from x where segid=y;                                        /**
-            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"rdb*";                                            /**
-            trtimes:exec(starttime,endtime)from x where(segid=y)&servertype like"tr*";                                              /**
-            if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;                                                                      /**
-                :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype like"tr*"]];x}/[querytable;segids];  /**
-        querytable:delete from querytable where starttime>endtime;                                                                  /**
-        
-        //**NEW CODE TO BE IMPLEMENTED AFTER MERGING WITH RDB PROCTYPE CHANGES (ABOVE SECTION WILL BE REPLACED)
-        /querytable:{[x;y]if[all exec any each servertype in(.ds.rdbtypes,.ds.tailreadertypes)from x where segid=y;
-            /rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.rdbtypes;
-            /trtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.tailreadertypes;
-            /if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
-            /    :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype in .ds.tailreadertypes]];x}/[querytable;segids];
-        /querytable:delete from querytable where starttime>endtime;
+        querytable:{[x;y]if[all exec any each servertype in(.ds.rdbtypes,.ds.tailreadertypes)from x where segid=y;
+            rdbtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.rdbtypes;
+            trtimes:exec(starttime,endtime)from x where(segid=y)&servertype in .ds.tailreadertypes;
+            if[rdbtimes[0]<trtimes 1;trtimes[1]:rdbtimes[0]-1;
+                :update starttime:trtimes 0,endtime:trtimes 1 from x where(segid=y)&servertype in .ds.tailreadertypes]];x}/[querytable;segids];
+        querytable:delete from querytable where starttime>endtime;
     ];
     querytable:`inftc`segid _ querytable;
     // optimize hdb query

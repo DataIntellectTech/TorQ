@@ -199,9 +199,4 @@ savedownfilter:{[dir]
 getaccess:{[] `location`table xkey update location:.proc.procname,proctype:.proc.proctype from .ds.access};
 
 // function to update the access table in the gateway. Takes the gateway handle as argument
-updategw:{[h]
-
-    newtab:getaccess[];
-    neg[h](`.ds.updateaccess;newtab);
-
-    };
+updategw:{[h]neg[h](`.ds.updateaccess;getaccess[])};
