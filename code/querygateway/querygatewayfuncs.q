@@ -96,10 +96,37 @@ GetDateRange:{[query]
     :eval each date;
     };
 
+//functions to set up variables
+//RealtimeProcs:{};
+
+//HistoricalProcs{};
+
+//HistoricalDates:{};
+
+
+
 GetUsers:{
     query:"first value flip select distinct u from .clients.clients where not u in .usage.ignoreusers";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`gateway;
     res:handle query;
+    if[1=count res; :first res];
+    :res;
+    };
+
+GetUsersRDB:{
+    handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryrdb),":querygateway:pass";
+    usageusers:handle"first flip select distinct u from usage";
+    ignoreusers:`,`acreehay,`admin,exec distinct proctype from .servers.procstab;
+    res:usageusers except ignoreusers;
+    if[1=count res; :first res];
+    :res;
+    };
+
+GetUsersHDB:{[dt]
+    handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryhdb),":querygateway:pass";
+    usageusers:handle"first flip select distinct u from usage where date=",string dt;
+    ignoreusers:`,`acreehay,`admin,exec distinct proctype from .servers.procstab;
+    res:usageusers except ignoreusers;
     if[1=count res; :first res];
     :res;
     };
@@ -119,7 +146,7 @@ ParseCmd:{[res]
     };
 
 QueryCountsRealtime:{[process]
-    users:GetUsers[];
+    users:GetUsersRDB[];
     query:"select count i from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
@@ -127,7 +154,7 @@ QueryCountsRealtime:{[process]
     };
 
 QueryUserCountsRealtime:{[process]
-    users:GetUsers[];
+    users:GetUsersRDB[];
     query:"select queries:count i by u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
@@ -204,7 +231,7 @@ LongestRunningHeatMap:{[process]
 
 //Return percentage of queries that were successful by user
 QueryErrorPercentage:{[process]
-    users:GetUsers[];
+    users:GetUsersRDB[];
     query:"select completed:100*(count i where status=\"c\")%(count i where status=\"c\")+count i where status=\"e\" by u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
