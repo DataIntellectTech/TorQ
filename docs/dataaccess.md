@@ -1082,7 +1082,7 @@ newdate    newsym| newprice
 Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
 
 ```
-q).dataaccess.getprocdata`tablename`starttime`endtime`aggregations`postback!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
+q).dataaccess.getprocdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})
 maxAsk| 91.74
 maxBid| 90.65
 
