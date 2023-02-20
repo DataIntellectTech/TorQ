@@ -77,8 +77,8 @@ gc:@[value;`gc;1b];                                                        /-gar
 eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-length of time to wait for async callbacks to complete at eod
 
 / - settings for the common save code (see code/common/save.q)
-.save.savedownmanipulation:@[value;`savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
-.save.postreplay:@[value;`postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
+.save.savedownmanipulation:@[value;`.save.savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
+.save.postreplay:@[value;`.save.postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
 
 / - end of default parameters
 
