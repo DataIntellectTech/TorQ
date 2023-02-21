@@ -20,7 +20,7 @@ reload:{
 				enlist each(?),/:(enlist each(=;-0W),/:mtcols),'(enlist(+;-1;($;ets;`.z.d))),/:enlist each($;ets:enlist`timestamp),/:mtcols:enlist each max,/:tcols];
 		dict[dcols]:`date$dict dcols;
 		enlist[`timecolumns]!enlist dict
-		}each t:tables[`.];
+		}each t:tables[`.] except .hdb.ignorelist;
 	/ update date attribute for .gw.partdict and .gw.attributesrouting
 	default[`date]:asc default[`date]union first[d]+til 1+(-) . d:exec(max;min)@\:distinct`date$raze[value each timecolumns][;1]from timecolumns;
 	default[`dataaccess]:`segid`tablename!(.ds.segmentid 0;t!select instrumentsfilter:{""}'[i],timecolumns from timecolumns);
