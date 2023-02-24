@@ -116,7 +116,7 @@ GetUsers:{
 GetUsersRDB:{
     handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryrdb),":querygateway:pass";
     usageusers:handle"first flip select distinct u from usage";
-    ignoreusers:`,`sboyd,`admin,exec distinct proctype from .servers.procstab;
+    ignoreusers:`,(`$system"echo $USER"),`admin,exec distinct proctype from .servers.procstab;
     res:usageusers except ignoreusers;
     if[1=count res; :first res];
     :res;
@@ -125,7 +125,7 @@ GetUsersRDB:{
 GetUsersHDB:{[dt]
     handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryhdb),":querygateway:pass";
     usageusers:handle"first flip select distinct u from usage where date=",string dt;
-    ignoreusers:`,`sboyd,`admin,exec distinct proctype from .servers.procstab;
+    ignoreusers:`,(`$system"echo $USER"),`admin,exec distinct proctype from .servers.procstab;
     res:usageusers except ignoreusers;
     if[1=count res; :first res];
     :res;
@@ -196,6 +196,7 @@ PeakUsage:{[process]
     query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
+//    delete from `res where time=`minute$.z.t;
 
     time:select distinct time from res;
 
