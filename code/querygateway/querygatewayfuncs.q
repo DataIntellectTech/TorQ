@@ -196,20 +196,14 @@ PeakUsage:{[process]
     query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
-//    delete from `res where time=`minute$.z.t;
 
-    time:select distinct time from res;
-
-    getquerycounts:{[res; users] ?[res; enlist (=; `u; enlist users); 0b; (enlist `queries)!(enlist `queries)]}[res; ];
+    // select separate table of times and queries for each user
+    getquerycounts:{[res; users] ?[res; enlist(=; `u; `users); 0b; (`time`queries)!(`time`queries)]}[res; ];
     querycounts:getquerycounts'[users];
+    // rename 'queries' col with name of user for each table
+    querycountsn:{:(`time; y) xcol x;}'[querycounts; users];
 
-    querycountsn:{x xcol y}'[users; querycounts];
-    querycountsn:querycountsn where not 0=count each querycountsn;
-
-    getquerycountsnk:{[time; querycountsn] `time xkey ![querycountsn;();0b;(enlist `time)!enlist (raze; (each; raze; `time))]}[time; ];
-    querycountsnk:getquerycountsnk'[querycountsn];
-
-    peakusage:0!(lj/)(querycountsnk);
+    peakusage:0!(pj/)1!'querycountsn;
 
     :update time:.z.d + time from peakusage;
     };
