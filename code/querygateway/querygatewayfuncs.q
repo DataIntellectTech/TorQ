@@ -179,7 +179,7 @@ QueryUserCountsHistorical:{[date;process]
     users:GetUsersHDB[date];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), "u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
+        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
         2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), "procname in ", (.Q.s1 process);
         // log error
         query:()]
