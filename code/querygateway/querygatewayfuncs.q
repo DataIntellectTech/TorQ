@@ -134,15 +134,14 @@ GetUsersHDB:{[dt]
 ParseCmd:{[res]
     cmd:raze value flip select cmd from res;
     remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
-    reslist:select cmd from update cmd:";" vs ' cmd from res;
+    cmdsplit:select cmd from update cmd:";" vs ' cmd from res;
 
-    // grab function, query and process and parse out any
-    // brackets or slashes in strings
-    f:`$1_'first each first value flip reslist;
-    q:1_'-1_'first each next each first value flip reslist;
-    p:`$-1_'first each next each next each first value flip reslist;
+    // split cmd into three columns
+    cmdcolsplit:select func, query, proc from @[cmdsplit; `func`query`proc; :; flip cmdsplit`cmd];
+    // parse out unwanted chars
+    cmdcolsplitparsed:update func:`$2_'func, query:1_'-1_'query, proc:`$1_'-1_'proc from cmdcolsplit;
 
-    :remainder,' ([] func:f; query:q; proc:p);
+    :remainder,'cmdcolsplitparsed;
     };
 
 QueryCountsRealtime:{[process]
