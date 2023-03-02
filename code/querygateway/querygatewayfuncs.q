@@ -146,7 +146,7 @@ ParseCmd:{[res]
 
 QueryCountsRealtime:{[process]
     users:GetUsersRDB[];
-    query:"select count i from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+    query:"select count i from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
     :res;
@@ -154,7 +154,7 @@ QueryCountsRealtime:{[process]
 
 QueryUserCountsRealtime:{[process]
     users:GetUsersRDB[];
-    query:"select queries:count i by u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+    query:"select queries:count i by u from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
     :res;
@@ -164,8 +164,8 @@ QueryCountsHistorical:{[date;process]
     users:GetUsersHDB[date];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
-        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "),", ", status=", (.Q.s1 "c"), "procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
         // log error
         query:()]
 
@@ -179,8 +179,8 @@ QueryUserCountsHistorical:{[date;process]
     users:GetUsersHDB[date];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
-        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), "u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
+        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), "procname in ", (.Q.s1 process);
         // log error
         query:()]
 
@@ -192,7 +192,7 @@ QueryUserCountsHistorical:{[date;process]
 
 PeakUsage:{[process]
     users:GetUsersRDB[];
-    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
 
@@ -217,7 +217,7 @@ PeakUsage:{[process]
 
 LongestRunningHeatMap:{[process]
     users:GetUsersRDB[];
-    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users), ", runtime=(max; runtime) fby 10 xbar time.minute";
+    query:"select time:.z.d + 10 xbar time.minute, runtime, u, cmd from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process), " runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
 
@@ -243,7 +243,7 @@ QueryErrorPercentage:{[process]
 
 LongestRunning:{[process]
     users:GetUsersRDB[];
-    query:"select max runtime by u from usage where procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+    query:"select max runtime by u from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
     :res;
@@ -252,8 +252,8 @@ LongestRunning:{[process]
 LongestRunningHistorical:{[date;process]
     users:GetUsersHDB[date];
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select max runtime by u from usage where date=", (.Q.s1 date), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
-        2=count date; query:"select max runtime by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+        1=count date; query:"select max runtime by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
+        2=count date; query:"select max runtime by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), " , procname in ", (.Q.s1 process);
         // log error
         query:()]
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
@@ -295,7 +295,7 @@ NumberOfUsers:{
 
 PeakUsageHistorical:{[date;process]
     users:GetUsersHDB[date];
-    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where date=", (.Q.s1 date), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+    query:"`time xcol 0!select queries:count i by 10 xbar time.minute, u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:raze last .async.deferred[handle; query];
 
@@ -325,7 +325,7 @@ PeakUsageHistorical:{[date;process]
 
 LongestRunningHeatMapHistorical:{[date;process]
     users:GetUsersHDB[date];
-    query:"select time:date + 10 xbar time.minute, runtime, u, cmd from usage where date=", (.Q.s1 date), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users), ", runtime=(max; runtime) fby 10 xbar time.minute";
+    query:"select time:date + 10 xbar time.minute, runtime, u, cmd from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process), ", runtime=(max; runtime) fby 10 xbar time.minute";
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:raze last .async.deferred[handle; query];
 
