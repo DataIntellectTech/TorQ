@@ -131,27 +131,26 @@ GetUsersHDB:{[dt]
     :res;
     };
 
-ParseCmd:{[res]
-    cmd:raze value flip select cmd from res;
-    remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
-    cmdsplit:select cmd from update cmd:";" vs ' cmd from res;
+ParseCmd:{[res; procpicker]
+    $[procpicker;
 
-    // split cmd into three columns
-    cmdcolsplit:select func, query, proc from @[cmdsplit; `func`query`proc; :; flip cmdsplit`cmd];
-    // parse out unwanted chars
-    cmdcolsplitparsed:update func:`$2_'func, query:1_'-1_'query, proc:`$1_'-1_'proc from cmdcolsplit;
+        [cmdsplit:select cmd:-2#'";" vs/: cmd from res;
+            remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
 
-    :remainder,'cmdcolsplitparsed;
-    };
+            cmdcolsplit:select user, query from @[cmdsplit; `user`query; :; flip cmdsplit`cmd];
+            cmdcolsplitparsed:update user:`$1_'user, query:1_'-3_'query from cmdcolsplit;
 
-ParseCmdProcs:{[res]
-    cmdsplit:select cmd:-2#'";" vs/: cmd from res;
-    remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
+            :remainder,'cmdcolsplitparsed;];
 
-    cmdcolsplit:select user, query from @[cmdsplit; `user`query; :; flip cmdsplit`cmd];
-    cmdcolsplitparsed:update user:`$1_'user, query:1_'-3_'query from cmdcolsplit;
+        [cmdsplit:select cmd from update cmd:";" vs ' cmd from res;
+            remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
 
-    :remainder,'cmdcolsplitparsed;
+            // split cmd into three columns
+            cmdcolsplit:select func, query, proc from @[cmdsplit; `func`query`proc; :; flip cmdsplit`cmd];
+            // parse out unwanted chars
+            cmdcolsplitparsed:update func:`$2_'func, query:1_'-1_'query, proc:`$1_'-1_'proc from cmdcolsplit;
+
+            :remainder,'cmdcolsplitparsed;] ];
     };
 
 ProcPickerRDB:{[process]
@@ -172,13 +171,13 @@ ProcPickerHDB:{[process]
 
 QueryCountsRealtime:{[process] 
     users:GetUsersRDB[]; 
-    procphrase:ProcPickerRDB[process]; 
+    procphrase:ProcPickerRDB[`$process]; 
     
     query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb; 
     res:raze last .async.deferred[handle; query]; 
     
-    :select count i from ParseCmdProcs[res] where user in .usage.allowedusers; 
+    :select count i from ParseCmd[res; 1b] where user in .usage.allowedusers; 
     };
 
 QueryUserCountsRealtime:{[process]
@@ -250,7 +249,7 @@ LongestRunningHeatMap:{[process]
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
 
-    :ParseCmd res;
+    :ParseCmd[res; 0b];
     };
 
 //Return percentage of queries that were successful by user
@@ -358,6 +357,6 @@ LongestRunningHeatMapHistorical:{[date;process]
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:raze last .async.deferred[handle; query];
 
-    :ParseCmd res;
+    :ParseCmd[res; 0b];
     };
 
