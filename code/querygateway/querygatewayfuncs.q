@@ -122,9 +122,9 @@ GetUsersRDB:{
     :res;
     };
 
-GetUsersHDB:{[dt]
+GetUsersHDB:{[date]
     handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryhdb),":querygateway:pass";
-    usageusers:handle"first flip select distinct u from usage where date=",string dt;
+    usageusers:handle"first flip select distinct u from usage where date=",string date;
     ignoreusers:`,(`$system"echo $USER"),`admin,exec distinct proctype from .servers.procstab;
     res:usageusers except ignoreusers;
     if[1=count res; :first res];
@@ -137,8 +137,8 @@ ParseCmd:{[res; procpicker]
         [cmdsplit:select cmd:-2#'";" vs/: cmd from res;
             remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
 
-            cmdcolsplit:select user, query from @[cmdsplit; `user`query; :; flip cmdsplit`cmd];
-            cmdcolsplitparsed:update user:`$1_'user, query:1_'-3_'query from cmdcolsplit;
+            cmdcolsplit:select originaluser, query from @[cmdsplit; `originaluser`query; :; flip cmdsplit`cmd];
+            cmdcolsplitparsed:update originaluser:`$1_'originaluser, query:1_'-3_'query from cmdcolsplit;
 
             :remainder,'cmdcolsplitparsed;];
 
@@ -177,45 +177,50 @@ QueryCountsRealtime:{[process]
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb; 
     res:raze last .async.deferred[handle; query]; 
     
-    :select count i from ParseCmd[res; 1b] where user in .usage.allowedusers; 
+    :select count i from ParseCmd[res; 1b] where originaluser in users; 
     };
 
 QueryUserCountsRealtime:{[process]
     users:GetUsersRDB[];
-    query:"select queries:count i by u from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
+    procphrase:ProcPickerRDB[`$process];
+
+    query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
     res:raze last .async.deferred[handle; query];
-    :res;
+
+    :select queries:count i by originaluser from ParseCmd[res; 1b] where originaluser in users;
     };
 
-QueryCountsHistorical:{[date;process]
+QueryCountsHistorical:{[date; process]
     users:GetUsersHDB[date];
+    procphrase:ProcPickerHDB[`$process]
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
-        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "),", ", status=", (.Q.s1 "c"), "procname in ", (.Q.s1 process), ", u in ", (.Q.s1 users);
+        1=count date; query:"select from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", ", procphrase;
+        2=count date; query:"select queries:count i from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), "),", ", status=", (.Q.s1 "c"), ", ", procphrase;
         // log error
         query:()]
 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:raze last .async.deferred[handle; raze query];
 
-    :res;
+    :select queries:count i from ParseCmd[res; 1b] where originaluser in users;
     };
 
-QueryUserCountsHistorical:{[date;process]
+QueryUserCountsHistorical:{[date; process]
     users:GetUsersHDB[date];
+    procphrase:ProcPickerHDB[`$process];
 
     $[.z.d<=date; query:(); // log error
-        1=count date; query:"select queries:count i by u from usage where date=", (.Q.s1 date), ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
-        2=count date; query:"select queries:count i by u from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), "procname in ", (.Q.s1 process);
+        1=count date; query:"select from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", ", procphrase;
+        2=count date; query:"select from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", status=", (.Q.s1 "c"), procphrase;
         // log error
         query:()]
 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
     res:raze last .async.deferred[handle; raze query];
 
-    :res;
+    :select queries:count i by originaluser from ParseCmd[res; 1b] where originaluser in users;
     };
 
 PeakUsage:{[process]
