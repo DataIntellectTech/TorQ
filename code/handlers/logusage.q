@@ -21,6 +21,7 @@ logtodisk:@[value;`logtodisk;1b]			// whether to log to disk or not
 logtomemory:@[value;`logtomemory;1b]			// write query logs to memory
 ignore:@[value;`ignore;1b]				// check the ignore list for functions to ignore
 ignorelist:@[value;`ignorelist;(`upd;"upd")]		// the list of functions to ignore
+allowedusers:@[value;`allowedusers;()]
 ignoreusers:@[value;`ignoreusers;()]                    // clients to ignore for query logging
 flushinterval:@[value;`flushinterval;0D00:30:00]        // default value for how often to flush the in-memory logs
 flushtime:@[value;`flushtime;0D03]			// default value for how long to persist the in-memory logs

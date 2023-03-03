@@ -144,12 +144,41 @@ ParseCmd:{[res]
     :remainder,'cmdcolsplitparsed;
     };
 
-QueryCountsRealtime:{[process]
-    users:GetUsersRDB[];
-    query:"select count i from usage where u in ", (.Q.s1 users), ", status=", (.Q.s1 "c"), ", procname in ", (.Q.s1 process);
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
-    res:raze last .async.deferred[handle; query];
-    :res;
+ParseCmdProcs:{[res]
+    cmdsplit:select cmd:-2#'";" vs/: cmd from res;
+    remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
+
+    cmdcolsplit:select user, query from @[cmdsplit; `user`query; :; flip cmdsplit`cmd];
+    cmdcolsplitparsed:update user:`$1_'user, query:1_'-3_'query from cmdcolsplit;
+
+    :remainder,'cmdcolsplitparsed;
+    };
+
+ProcPickerRDB:{[process]
+    $[process=`any;
+        phrase:"proctype=`rdb";
+        phrase:"procname=", .Q.s1 process];
+
+    :phrase;
+    };
+
+ProcPickerHDB:{[process]
+    $[process=`any;
+        phrase:"proctype=`hdb";
+        phrase:"procname", .Q.s1 process];
+
+    :phrase;
+    };
+
+QueryCountsRealtime:{[process] 
+    users:GetUsersRDB[]; 
+    procphrase:ProcPickerRDB[process]; 
+    
+    query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
+    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb; 
+    res:raze last .async.deferred[handle; query]; 
+    
+    :select count i from ParseCmdProcs[res] where user in .usage.allowedusers; 
     };
 
 QueryUserCountsRealtime:{[process]
