@@ -193,7 +193,7 @@ QueryUserCountsRealtime:{[process]
 
 QueryCountsHistorical:{[date; process]
     users:GetUsersHDB[date];
-    procphrase:ProcPickerHDB[`$process]
+    procphrase:ProcPickerHDB[`$process];
 
     $[.z.d<=date; query:(); // log error
         1=count date; query:"select from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", ", procphrase;
@@ -213,7 +213,7 @@ QueryUserCountsHistorical:{[date; process]
 
     $[.z.d<=date; query:(); // log error
         1=count date; query:"select from usage where date=", (.Q.s1 date), ", status=", (.Q.s1 "c"), ", ", procphrase;
-        2=count date; query:"select from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", status=", (.Q.s1 "c"), procphrase;
+        2=count date; query:"select from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", status=", (.Q.s1 "c"), ", ", procphrase;
         // log error
         query:()]
 
