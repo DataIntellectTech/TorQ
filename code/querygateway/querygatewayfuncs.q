@@ -130,8 +130,8 @@ GetHandle:{[proc]
 // currently setup to deal with ubiquitous error sting in cmd
 // will need updated when the foregoing is fixed
 ParseCmd:{[res]
-    cmdsplit:@[{select cmd:-2#'";" vs/: cmd from x}; res; {.lg.e[`ParseCmd; "cmd col missing from paramater res, returning input and exiting function"]; :res;}]; 
-    remainder:@[{select from (cols[res] except `cmd)#x}; res; ()];
+    cmdsplit:@[{select cmd:-2#'";" vs/: cmd from x}; res; {.lg.e[`ParseCmd; "cmd col missing from parameter res, returning input and exiting function"]; :res;}]; 
+    remainder:@[(cols[res] except `cmd)#; res; ()];
 
     cmdcolsplit:select originaluser, query from @[cmdsplit; `originaluser`query; :; flip cmdsplit`cmd];
     cmdcolsplitparsed:update originaluser:`$1_'originaluser, query:1_'-3_'query from cmdcolsplit;
