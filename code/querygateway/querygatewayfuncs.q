@@ -114,21 +114,23 @@ GetUsers:{
     };
 
 GetUsersRDB:{
-    handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryrdb),":querygateway:pass";
-    usageusers:handle"first flip select distinct u from usage";
-    ignoreusers:`,(`$system"echo $USER"),`admin,exec distinct proctype from .servers.procstab;
-    res:usageusers except ignoreusers;
-    if[1=count res; :first res];
-    :res;
+    query:"select cmd from usage where u=`gateway";
+    handle:GetHandle `queryrdb;
+    res:raze last .async.deferred[handle; query];
+    resparsed:ParseCmd res;
+
+    users:first value flip select distinct originaluser from resparsed;
+    :realusers:users except .usage.ignoreusers;
     };
 
 GetUsersHDB:{[date]
-    handle:hopen hsym `$raze"::",string (first -1?exec port from .servers.procstab where proctype=`queryhdb),":querygateway:pass";
-    usageusers:handle"first flip select distinct u from usage where date=",string date;
-    ignoreusers:`,(`$system"echo $USER"),`admin,exec distinct proctype from .servers.procstab;
-    res:usageusers except ignoreusers;
-    if[1=count res; :first res];
-    :res;
+    query:"select cmd from usage where date=", (.Q.s1 date), ", u=`gateway";
+    handle:GetHandle `queryrdb;
+    res:raze last .async.deferred[handle; query];
+    resparsed:ParseCmd res;
+
+    users:first value flip select distinct originaluser from resparsed;
+    :realusers:users except .usage.ignoreusers;
     };
 
 GetHandle:{[proc]
