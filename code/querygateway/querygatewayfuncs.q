@@ -125,7 +125,7 @@ GetUsersRDB:{
 
 GetUsersHDB:{[date]
     query:"select cmd from usage where date=", (.Q.s1 date), ", u=`gateway";
-    handle:GetHandle `queryrdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; query];
     resparsed:ParseCmd res;
 
