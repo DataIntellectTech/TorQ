@@ -134,7 +134,9 @@ GetUsersHDB:{[date]
 // currently setup to deal with ubiquitous error sting in cmd
 // will need updated when the foregoing is fixed
 ParseCmd:{[res]
-    cmdsplit:select cmd:-2#'";" vs/: cmd from res; remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
+    cmdsplit:select cmd:-2#'";" vs/: cmd from res; 
+    /remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
+    remainder:select from (cols[res] except `cmd)#res;
 
     cmdcolsplit:select originaluser, query from @[cmdsplit; `originaluser`query; :; flip cmdsplit`cmd];
     cmdcolsplitparsed:update originaluser:`$1_'originaluser, query:1_'-3_'query from cmdcolsplit;
@@ -223,7 +225,7 @@ PeakUsage:{[process]
     resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in users;
 
     // select separate tables of times and queries for each user
-    getquerycounts:{[resparsed; users] ?[resparsed; enlist(=; `origingaluser; `users); 0b; (`time`queries)!(`time`queries)]}[res; ];
+    getquerycounts:{[resparsed; users] ?[resparsed; enlist(in; `originaluser; `users); 0b; (`time`queries)!(`time`queries)]}[resparsed; ];
     querycounts:getquerycounts'[users];
     // rename 'queries' col with name of user for each table
     querycountsn:{:(`time; y) xcol x;}'[querycounts; users];
@@ -343,7 +345,7 @@ NumberOfUsers:{
     };
 
 PeakUsageHistorical:{[date; process]
-    users:GetUsersHDB[];
+    users:GetUsersHDB[date];
     procphrase:ProcPickerHDB[`$process];
 
     query:"select time, cmd from usage where date=", (.Q.s1 date), ", u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
@@ -353,7 +355,7 @@ PeakUsageHistorical:{[date; process]
     resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in users;
 
     // select separate tables of times and queries for each user
-    getquerycounts:{[resparsed; users] ?[resparsed; enlist(=; `origingaluser; `users); 0b; (`time`queries)!(`time`queries)]}[res; ];
+    getquerycounts:{[resparsed; users] ?[resparsed; enlist(in; `originaluser; `users); 0b; (`time`queries)!(`time`queries)]}[resparsed; ];
     querycounts:getquerycounts'[users];
     // rename 'queries' col with name of user for each table
     querycountsn:{:(`time; y) xcol x;}'[querycounts; users];
@@ -373,7 +375,7 @@ PeakUsageHistorical:{[date; process]
 
 LongestRunningHeatMapHistorical:{[date; process]
     users:GetUsersHDB[date];
-    procphrase:ProcPickerHdb[`$process];
+    procphrase:ProcPickerHDB[`$process];
 
     query:"select time, runtime, proctype, procname, cmd from usage where date=", (.Q.s1 date), ", u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
     handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb; 
@@ -382,4 +384,3 @@ LongestRunningHeatMapHistorical:{[date; process]
     
     :select time:.z.d + 10 xbar time.minute, runtime, proctype, procname, originaluser, query from resparsed where originaluser in users, runtime=(max; runtime) fby 10 xbar time.minute;
     };
-
