@@ -131,11 +131,14 @@ GetUsersHDB:{[date]
     :res;
     };
 
+GetHandle:{[proc]
+    :first -1?exec handle from .gw.availableserverstable[1b] where servertype=proc; 
+    };
+
 // currently setup to deal with ubiquitous error sting in cmd
 // will need updated when the foregoing is fixed
 ParseCmd:{[res]
     cmdsplit:select cmd:-2#'";" vs/: cmd from res; 
-    /remainder:update runtime:.proc.cd[] + runtime from (cols[res] except `cmd)#res;
     remainder:select from (cols[res] except `cmd)#res;
 
     cmdcolsplit:select originaluser, query from @[cmdsplit; `originaluser`query; :; flip cmdsplit`cmd];
@@ -165,7 +168,7 @@ QueryCountsRealtime:{[process]
     procphrase:ProcPickerRDB[`$process]; 
     
     query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb; 
+    handle:GetHandle `queryrdb; 
     res:raze last .async.deferred[handle; query]; 
     
     :select count i from ParseCmd[res] where originaluser in users; 
@@ -176,7 +179,7 @@ QueryUserCountsRealtime:{[process]
     procphrase:ProcPickerRDB[`$process];
 
     query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
 
     :select queries:count i by originaluser from ParseCmd[res] where originaluser in users;
@@ -192,7 +195,7 @@ QueryCountsHistorical:{[date; process]
         // log error
         query:()]
 
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; raze query];
 
     :select queries:count i from ParseCmd[res] where originaluser in users;
@@ -208,7 +211,7 @@ QueryUserCountsHistorical:{[date; process]
         // log error
         query:()]
 
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; raze query];
 
     :select queries:count i by originaluser from ParseCmd[res] where originaluser in users;
@@ -219,7 +222,7 @@ PeakUsage:{[process]
     procphrase:ProcPickerRDB[`$process];
 
     query:"select time, cmd from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
 
     resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in users;
@@ -248,7 +251,7 @@ LongestRunningHeatMap:{[process]
     procphrase:ProcPickerRDB[`$process]; 
     
     query:"select time, runtime, proctype, procname, cmd from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb; 
+    handle:GetHandle `queryrdb; 
     res:raze last .async.deferred[handle; query]; 
     resparsed:ParseCmd[res]; 
     
@@ -270,7 +273,7 @@ QueryErrorPercentage:{[process]
 
     // where status is "c" or "e"
     query:"select status, cmd from usage where u=`gateway, status in ", (string `ce), ", ", procphrase;
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
 
     resparsed:ParseCmd[res];
@@ -283,7 +286,7 @@ LongestRunning:{[process]
     procphrase:ProcPickerRDB[`$process];
 
     query:"select runtime, cmd from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryrdb;
+    handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
     resparsed:ParseCmd[res];
 
@@ -299,7 +302,7 @@ LongestRunningHistorical:{[date; process]
         2=count date; query:"select runtime, cmd from usage where date within (", (.Q.s1 first date), "; ", (.Q.s1 last date), ")", ", u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
         // log error
         query:()]
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; query];
     resparsed:ParseCmd[res];
 
@@ -317,7 +320,7 @@ QueryErrorPercentageHistorical:{[date; process]
         2=count date; query:"select status, cmd from usage where date in (", (.Q.s1 first date), "; ", (.Q.s1 last date), "), u=`gateway, status in ", (string `ce), ", ", procphrase;
         // log error
         query:()]
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; query];
     resparsed:ParseCmd:[res];
 
@@ -349,7 +352,7 @@ PeakUsageHistorical:{[date; process]
     procphrase:ProcPickerHDB[`$process];
 
     query:"select time, cmd from usage where date=", (.Q.s1 date), ", u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb;
+    handle:GetHandle `queryhdb;
     res:raze last .async.deferred[handle; query];
 
     resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in users;
@@ -378,7 +381,7 @@ LongestRunningHeatMapHistorical:{[date; process]
     procphrase:ProcPickerHDB[`$process];
 
     query:"select time, runtime, proctype, procname, cmd from usage where date=", (.Q.s1 date), ", u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
-    handle:first -1?exec handle from .gw.availableserverstable[1b] where servertype=`queryhdb; 
+    handle:GetHandle `queryhdb; 
     res:raze last .async.deferred[handle; query]; 
     resparsed:ParseCmd[res]; 
     
