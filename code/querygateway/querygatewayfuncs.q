@@ -157,24 +157,34 @@ ProcPickerHDB:{[process]
     :phrase;
     };
 
-QueryCountsRealtime:{[process] 
-    users:GetUsersRDB[]; 
+UserParseRDB:{[user]
+    $[user=`all;
+        phrase:GetUsersRDB[];
+        phrase:enlist user];
+
+    :phrase;
+    };
+
+QueryCountsRealtime:{[process; user] 
     procphrase:ProcPickerRDB[`$process]; 
     
     query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase; 
     handle:GetHandle `queryrdb; 
     res:raze last .async.deferred[handle; query]; 
-    
-    :select count i from ParseCmd[res] where originaluser in users; 
+
+    userparsed:UserParseRDB `$user;
+
+    :select count i from ParseCmd[res] where originaluser in userparsed; 
     };
 
 QueryUserCountsRealtime:{[process]
-    users:GetUsersRDB[];
     procphrase:ProcPickerRDB[`$process];
 
     query:"select from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
     handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
+
+    users:GetUsersRDB[];
 
     :select queries:count i by originaluser from ParseCmd[res] where originaluser in users;
     };
@@ -211,21 +221,22 @@ QueryUserCountsHistorical:{[date; process]
     :select queries:count i by originaluser from ParseCmd[res] where originaluser in users;
     };
 
-PeakUsage:{[process]
-    users:GetUsersRDB[];
+PeakUsage:{[process; user]
     procphrase:ProcPickerRDB[`$process];
 
     query:"select time, cmd from usage where u=`gateway, status=", (.Q.s1 "c"), ", ", procphrase;
     handle:GetHandle `queryrdb;
     res:raze last .async.deferred[handle; query];
 
-    resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in users;
+    userparsed:UserParseRDB `$user;
+
+    resparsed:`time xcol 0!select queries:count i by 10 xbar time.minute, originaluser from ParseCmd[res] where originaluser in userparsed;
 
     // select separate tables of times and queries for each user
-    getquerycounts:{[resparsed; users] ?[resparsed; enlist(in; `originaluser; `users); 0b; (`time`queries)!(`time`queries)]}[resparsed; ];
-    querycounts:getquerycounts'[users];
+    getquerycounts:{[resparsed; userparsed] ?[resparsed; enlist(in; `originaluser; `userparsed); 0b; (`time`queries)!(`time`queries)]}[resparsed; ];
+    querycounts:getquerycounts'[userparsed];
     // rename 'queries' col with name of user for each table
-    querycountsn:{:(`time; y) xcol x;}'[querycounts; users];
+    querycountsn:{:(`time; y) xcol x;}'[querycounts; userparsed];
 
     peakusage:0!(pj/)1!'querycountsn;
 
