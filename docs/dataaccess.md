@@ -16,7 +16,7 @@ A more conceptual discussion of the API can be seen in this [blog post](https://
 
 Configuration
 -------------
-The API can be initialised in a TorQ proccess by either:
+The API can be initialised in a TorQ process by either:
 
 1) Pass `"-dataaccess /path/to/tableproperties.csv"` on the startup line (see Example table properties file below for format)
 2) Run ``".dataaccess.init[`:path/to/tableproperties.csv]"`` to initialise the code in a running process.
@@ -152,7 +152,7 @@ The aggregations key is a dictionary led method of perfoming mathematical operat
 
 ``` `agg1`agg2`...`aggn!((`col11`col12...`col1a);(`col21`col22...`col2b);...;(`coln1`coln2...`colnm)```
 
-Certain aggregations are cross proccess enabled, that is they can be calculated across multiple proccess (See example in the Gateway section). The key accepts the following table of inputs:
+Certain aggregations are cross process enabled, that is they can be calculated across multiple process (See example in the Gateway section). The key accepts the following table of inputs:
 
 **Table of Avaliable Aggregations**
 
@@ -300,7 +300,7 @@ a partitioned grouping are as follows: `avg`, `cor`, `count`, `cov`, `dev`,
 A key goal of the API is to prevent unwanted behaviour and return helpful error messages- this is done by  `.dataaccess.checkinputs`. which under the covers runs two different checking libraries:
 
 - `.checkinputs` A set of universal basic input checks as defined in `checkinputs.csv` (example `.csv` below). These checks are performed from within the gateway if applicable.
-- `.dataaccess`  A set of process bespoke checks, performed from within the queried proccess.
+- `.dataaccess`  A set of process bespoke checks, performed from within the queried process.
 
 
 **Description of Fields in checkinputs.csv**
@@ -863,7 +863,7 @@ q).dataaccess.buildquery (`tablename`starttime`endtime`freeformby`freeformcolumn
 
 ### Postprocessing
 
-Use the ``` `postproccessing``` key to under go post proccessing on a table for example flipping the table into a dictionary
+Use the ``` `postprocessing``` key to under go post processing on a table for example flipping the table into a dictionary
 
 ```
 q)getdata`tablename`starttime`endtime`aggregations`postprocessing!(`quote;2021.02.12D0;2021.02.12D12;((enlist `max)!enlist `ask`bid);{flip x})

@@ -14,7 +14,7 @@ validtablepropertiespath:{[].dataaccess.tablepropertiespath~key .dataaccess.tabl
 // get path to config file for checking data api input parameters
 checkinputspath:first .proc.getconfigfile"dataaccess/checkinputs.csv";
 
-// instantiate table for holding table metas of current proccess
+// instantiate table for holding table metas of current process
 metainfo:([tablename:`$()]partfield:`$();metas:();proctype:`$());
 
 //- init function takes:

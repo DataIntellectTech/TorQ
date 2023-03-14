@@ -168,7 +168,7 @@ time         sym  ask bid asize bsize a id
 ```
 
 ## pivot
-A pivot table is a design tool used to reorganize and summarize selected columns and rows of data to gain a better understanding of the data being provided. An indepth explanation of how to pivot a table is available [here](http://code.kx.com/q/cookbook/pivoting-tables/).
+A pivot table is a design tool used to reorganize and summarize selected columns and rows of data to gain a better understanding of the data being provided. An in-depth explanation of how to pivot a table is available [here](http://code.kx.com/q/cookbook/pivoting-tables/).
 
 This is a modified version of code available on [code.kx](http://code.kx.com/q/cookbook/pivoting-tables/#a-very-general-pivot-function-and-an-example)
 
