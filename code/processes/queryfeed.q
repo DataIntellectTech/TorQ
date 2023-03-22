@@ -28,7 +28,11 @@ readlog:{[file]
         @[{update "J"$'" " vs' mem from flip (cols `us)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]};
 
 queryfeed:{
- h(".u.upd";`usage;value flip select from `us);
+ // normalise cmd data for gateway users
+ usnorm:update cmd:-2#'";" vs' cmd from us where user=`gateway;
+ usnorm:update cmd:first each cmd from usnorm where (first each cmd)~'(last each cmd);
+
+ h(".u.upd";`usage;value flip select from usnorm);
  us::0#us;
  };
 
