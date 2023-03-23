@@ -114,6 +114,9 @@ endofday:{[date;processdata]
 	};
 	
 reload:{[date]
+	.[`.rdb.reloadcalls;();+;1];
+	.lg.o[`reload;string[.rdb.reloadcalls]," out of ",string[.rdb.expectedreloadcalls]," calls received"];
+	if[.rdb.reloadcalls<.rdb.expectedreloadcalls;:(::)];
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
@@ -131,6 +134,7 @@ reload:{[date]
 	/-restore original timeout back to rdb
 	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
+	.[`.rdb.reloadcalls;();:;0];
 	};
 	
 /-drop date from rdbpartition
