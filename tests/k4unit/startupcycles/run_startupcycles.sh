@@ -2,7 +2,6 @@
 
 ${TORQHOME}/torq.sh start discovery1
 ${TORQHOME}/torq.sh start stp1
-${TORQHOME}/torq.sh start feed1
 
 #own
 ${QCMD} ${TORQHOME}/torq.q \
