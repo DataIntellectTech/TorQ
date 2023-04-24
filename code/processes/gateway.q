@@ -550,6 +550,8 @@ reloadstart:{
  };
 
 reloadend:{
+ .gw.expectedreloadcalls:sum `wdb={x(`.proc.proctype)} each .z.H;
+
  .[`.gw.reloadcalls;();+;1];
  .lg.o[`reload;string[.gw.reloadcalls]," out of ",string[.gw.expectedreloadcalls]," calls received"];
  if[.gw.reloadcalls<.gw.expectedreloadcalls;:(::)];

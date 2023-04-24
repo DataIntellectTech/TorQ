@@ -8,8 +8,6 @@ synccallsallowed:0b		// whether synchronous calls are allowed
 querykeeptime:0D00:30		// the time to keep queries in the
 errorprefix:"error: "		// the prefix for clients to look for in error strings
 clearinactivetime:0D01:00	// the time to keep inactive handle data
-expectedreloadcalls:1       // the number of reloadend calls that need to be received before acting -
-                            // same as the number of the WDB processes
 
 \d .kxdash
 enabled:0b  // Functionality for parsing and handling kx dashboard queries - disabled by default
