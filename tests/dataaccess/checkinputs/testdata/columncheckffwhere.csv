@@ -1,0 +1,5 @@
+parameter,parametervalue
+tablename,`xdaily
+starttime,2000.01.01D
+endtime,2000.01.06D10:00
+freeformwhere,"""invalid in `AUDUSD`EURUSD""

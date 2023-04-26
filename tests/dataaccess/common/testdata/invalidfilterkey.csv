@@ -1,0 +1,6 @@
+parameter,parametervalue
+tablename,`xdaily
+starttime,2000.01.010D
+endtime,.z.p
+timecolumn,`time
+filters,(0 1 2!(enlist(like;"AAPL");((<;85);(>;83.5));enlist(not;within;5 43)))

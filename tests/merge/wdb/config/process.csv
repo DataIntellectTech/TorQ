@@ -1,0 +1,10 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+101,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,
+localhost,{KDBBASEPORT}+100,segmentedtickerplant,stptestpartby,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${KDBTESTS}/merge/wdb//xdaily.q,
+localhost,{KDBBASEPORT}+103,hdb,hdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBTESTS}/merge/wdb/testhdb,1,,
+localhost,{KDBBASEPORT}+104,wdb,wdbcol,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q  ${KDBTESTS}/merge/wdb/mockdata.q,1,,
+localhost,{KDBBASEPORT}+105,wdb,wdbhybrid,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q ${KDBTESTS}/merge/wdb/mockdata.q,1,,
+localhost,{KDBBASEPORT}+106,wdb,wdbpart,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q ${KDBTESTS}/merge/wdb/mockdata.q,1,,
+localhost,{KDBBASEPORT}+109,sort,sort1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q,1,-s -2,
+localhost,{KDBBASEPORT}+110,sortworker,sortworker1,,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q,1,,
+localhost,{KDBBASEPORT}+111,sortworker,sortworker2,,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q,1,,

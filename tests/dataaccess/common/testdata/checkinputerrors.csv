@@ -1,0 +1,41 @@
+test,error
+nondictinput,Input must be a dictionary
+nonsymbolkey,Input dictionary must have keys of type 11h
+requiredparamsmissing,"Required parameters missing:,`tablename"
+invalidparamnames,"Invalid parameter present:`invalidname1`invalidname2. For a list of valid parameters, use the command .checkinputs.getvalidparams[]"
+invalidcomb1,"Parameter:,`aggregations cannot be used in conjunction with parameter(s):`columns`freeformcolumn"
+invalidcomb2,"Parameter:,`aggregations cannot be used in conjunction with parameter(s):,`freeformcolumn"
+tablenametypeerror,`tablename input type incorrect - valid type(s):-11h - input type:10h
+starttimetype,`starttime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
+endtimetype,`endtime input type incorrect - valid type(s):-12 -14 -15h - input type:-17h
+timecolumntype,`timecolumn input type incorrect - valid type(s):-11h - input type:10h
+checktimeorder,Starttime parameter must be <= endtime parameter
+instrumenttype,`instruments input type incorrect - valid type(s):-11 11h - input type:0h
+columntypes,`columns input type incorrect - valid type(s):-11 11h - input type:0h
+groupingtype,`grouping input type incorrect - valid type(s):-11 11h - input type:0h
+aggregationdict,`aggregations input type incorrect - valid type(s):99h - input type:-11h
+aggregationkey,Aggregations parameter key must be of type 11h - example: `max`min`wavg!(`price;`size;`price`size)
+aggregationvalues,Aggregations parameter values must be of type symbol - example: `max`min`wavg!(`price;`size;`price`size)
+timebarargstype,Timebar parameter must be a list of length 3
+timebarcount,Timebar parameter must be a list of length 3
+timebararg0,First argument of timebar must be either -6h or -7h
+timebararg1,Second argument of timebar must be of type -11h
+timebararg2,Third argument of timebar must be have type -11h
+filterformat,`filters input type incorrect - valid type(s):99h - input type:10h
+freeformwheretype,`freeformwhere input type incorrect - valid type(s):10h - input type:0h
+freeformbytype,`freeformby input type incorrect - valid type(s):10h - input type:-11h
+freeformcolumntype,`freeformcolumn input type incorrect - valid type(s):10h - input type:-11h
+multiparams,",`starttime parameter(s) used more than once"
+invalidfilterkey,Filters parameter key must be of type 11h - example:`sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(not;within;10 20))
+invalidfilterop,"Filters parameter values must be paired in the form (filter function;value(s)) or a list of three of the form (not;filter function;value(s)) - example: `sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(not;within;10 20))"
+invalidfilterop1,"Allowed operators are: =, <, >, <=, >=, in, within, like. The last three may be preceeded with 'not' e.g. (not within;80 100)"
+filternot,"The 'not' keyword may only preceed the operators within, in and like."
+filterwithin,"(not)within statements within the filter parameter must contain exatly two values associated with it - example: `sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(within;10 20))"
+filterequality,"The use of equalities in the filter parameter warrants only one value - example: `sym`bid`ask!(enlist(=;`AAPL);((<;85);(>;60));enlist(within;10 20))"
+orderingpairing,"Ordering parameter must contain pairs of symbols as its input - example: ((`asc`sym);(`desc`price))"
+orderingordering,"The first item in each of the ordering parameter's pairs must be either `asc or `desc - example: ((`asc`sym);(`desc`price))"
+orderingordering1,"Ordering parameter's values must be paired in the form (direction;column) - example: ((`asc`sym);(`desc`price))"
+vagueordering,"Ordering parameter vague. Ordering by a column that aggregated more than once, as such the aggregation must be specified. The aggregation convention is camel-case, so to order by the aggregation max price, the following would be used: enlist(`asc`maxPrice)"
+noordering,"Ordering parameter contains column that is not defined by aggregations, grouping or timebar parameter"
+badordering,"Trying to order by column(s): `size that is not defined in the columns argument"
+postbackfail,"Postback argument must be a function that takes in one argument only - the argument can be named anything through function signature but must represent the returned results of all other inputs"

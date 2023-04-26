@@ -1,0 +1,8 @@
+parameter,parametervalue
+tablename , `xdaily
+starttime , 2000.01.05D00:00:00.000000000
+endtime , 2000.01.07D00:00:00.000000000
+filters , `bidprice`askprice!(enlist(>;20);enlist(>;25))
+freeformby ,"sv["","";(""sym"";""asksize"")]"
+freeformcolumn, "mprice:max askprice"
+instruments , `AUSUSD`EURUSD`GBPUSD

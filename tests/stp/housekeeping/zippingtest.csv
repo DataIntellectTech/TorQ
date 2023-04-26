@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.servers.startup[],1,,"Set up TorQ connection management"
+before,0,0,q,hkhandle:gethandle[`housekeeping1],1,,"Get housekeeping handle"
+before,0,0,q,system copystr,1,,"Create copy of log directory"
+run,0,0,q,hkhandle(`tardir;copylogs),1,,"Zip the copy directory"
+true,0,0,q,0h~type key hsym `$copylogs,1,,"Check the copy directory no longer exists"
+true,0,0,q,all (key hsym `$testlogs) in `$last each "/" vs' 1_system tarstr,1,,"Make sure all original files are in tar file"
+after,0,0,q,.os.del copytar,1,,"Remove tar file"
+after,0,0,q,.os.deldir extrtar,1,,"Remove extracted folder"

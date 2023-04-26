@@ -1,0 +1,5 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,,1,,Start of dqe unit tests
+beforeany,0,0,q,.dqe.testing:1b,1,,"Set testing variable to true"
+beforeany,0,0,q,".proc.loadf[getenv[`KDBCODE],""/processes/dqc.q""]",1,,"Load dqc.q script"
+beforeany,0,0,q,".proc.loadf[getenv[`KDBCODE],""/dqcommon/connection.q""]",1,,"Load connection.q script"

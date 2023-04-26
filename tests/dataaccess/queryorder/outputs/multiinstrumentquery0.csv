@@ -1,0 +1,6 @@
+parameter,parametervalue
+0,`xdaily 
+1,((=;`sym;1#`GOOG);(within;`time;2021.01.03D13:12:28.325011000 2021.01.08D13:12:28.325010000);(=;`stop;0);(>;`price;25))
+2,(enlist `sym)!enlist(`sym)
+3,(enlist `mprice )!enlist(max;`price)
+

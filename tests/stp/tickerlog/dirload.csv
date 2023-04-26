@@ -1,0 +1,13 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,trephandle(olddir;oldelogdir),1,,"Reset to old TP and load log directory"
+before,0,0,q,system loadhdb,1,,"Load in test HDB"
+true,0,0,q,800 3930 8 9~count each (trade;quote;cols trade;cols quote),1,,"Get table row and column counts"
+run,0,0,q,.os.deldir testhdb,1,,"Delete test HDB"
+run,0,0,q,"delete trade,quote from `.",1,,"Scrub local tables"
+true,0,0,q,all not `trade`quote in tables[],1,,"Make sure trade and quote table are gone"
+fail,0,0,q,trephandle(olddir;fakelogs),1,,"Try to load non-existent directory"
+fail,0,0,q,trephandle(olddir;emptydir),1,,"Try to load empty directory"
+fail,0,0,q,trephandle(oldfile;fakelogs),1,,"Try to load non-existent file"
+fail,0,0,q,trephandle(segfile;oldelogs),1,,"Try to load file while in segmented mode"
+fail,0,0,q,trephandle(resplay;oldelogdir),1,,"Try to load non-segmented directory in segmented mode"
+fail,0,0,q,trephandle(dirandfile;oldelogdir),1,,"Try to load with both a log file and directory specified"

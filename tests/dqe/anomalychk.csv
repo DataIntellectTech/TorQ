@@ -1,0 +1,8 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,q,Start of tests for infinitychk function,1,,"comment"
+before,0,0,q,"t:([] bid: (10 ? 0w) , 90 ? 10; ask: 100 ? 10)",1,,"create table for test"
+true,0,0,q,first .dqc.infinitychk[t;`bid`ask;15 15],1,,"Check for true result"
+true,0,0,q,not first .dqc.infinitychk[t;`bid`ask;5 5],1,,"Check for false result"
+true,0,0,q,not first .dqc.infinitychk[t;`bid`ask;5 15],1,,"Check for false result"
+true,0,0,q,not first .dqc.infinitychk[t;`bid`ask;15 5],1,,"Check for false result"
+after,0,0,q,delete t from `.,1,,"delete test table"

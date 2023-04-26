@@ -1,0 +1,7 @@
+tabname,att,column,sort
+default,p,sym,1
+default,,time,1
+xdailyt,p,sym,1
+xdailyt,,time,1
+xdailyq,p,sym,1
+xdailyq,,time,1

@@ -1,0 +1,6 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q,q
+localhost,{KDBBASEPORT}+102,rdb,rdball,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.replaylog 0b,q
+localhost,{KDBBASEPORT}+103,rdb,rdbsymfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.replaylog 0b -.rdb.subscribesyms GOOG,q
+localhost,{KDBBASEPORT}+104,rdb,rdbcomplexfilt,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.replaylog 0b -.rdb.subfiltered 1 -.rdb.schema 0b -.rdb.subcsv ${KDBTESTS}/stp/subscription/rdbsub.csv,q

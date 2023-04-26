@@ -1,0 +1,3 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+1,discovery,discovery1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+2,rdb,dailyrdb1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${TORQHOME}/tests/dataaccess/common/settings.q ${TORQHOME}/tests/dataaccess/common/mockdata.q,1,-dataaccess ${KDBTESTS}/dataaccess/common/config/tableproperties.csv,q

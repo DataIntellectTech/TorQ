@@ -1,0 +1,2 @@
+proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,rolltimeoffset,rolltimezone,datatimezone,partitionfield
+,xdaily,time,sym,sym,,,,

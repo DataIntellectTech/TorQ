@@ -1,0 +1,10 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,(hs:value handles) @\: (eodchange;::),1,,"Set custom STP TZ"
+before,0,0,q,hs @\: (`.stplg.init;testlogdb),1,,"Reset STP with new TZ"
+before,0,0,q,currd1:hs @\: ".eodtime.d",1,,"Get date"
+run,0,0,q,system "sleep 2",1,,"Wait for 2 seconds"
+run,0,0,q,hs @\: ".z.ts[]",1,,"Trigger EOD"
+true,0,0,q,(1+currd1)~hs @\: ".eodtime.d",1,,"See if date has rolled"
+true,0,0,q,all not null currd1, hs @\: ".eodtime.d",1,,"Check no dates are null"
+run,0,0,q,logdir:1_string handles[`imm](`.stplg.dldir),1,,"Get log directory"
+after,0,0,q,.os.deldir logdir,1,,"Delete test STP logs"

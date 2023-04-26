@@ -1,0 +1,6 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,0,,this will be ignored,1,,""
+before,0,0,q,aa:22,1,,"This sets a variable before the tests begin"
+true,0,0,q,2=sum 1 1,1,,"A basic arithmetic check"
+fail,0,0,q,2=`aa,1,,"This ought to fail"
+after,0,0,q,bb:33,1,,"This code executes after the tests have run"

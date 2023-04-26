@@ -1,0 +1,8 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+true,0,0,q,isalive["rdb1"],1,,"Make sure RDB is up"
+run,0,0,q,kill9proc["rdb1"],1,,"Kill RDB"
+true,0,0,q,not isalive["rdb1"],1,,"Make sure it is down"
+run,0,0,q,system mv1,1,,"Move sub file to TorQ home"
+run,0,0,q,startproc["rdb1"],1,,"Try to start RDB again"
+true,0,0,q,not isalive["rdb1"],1,,"Make sure it is still down"
+after,0,0,q,system mv2,1,,"Move sub file back to appconfig"

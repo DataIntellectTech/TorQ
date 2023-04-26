@@ -1,0 +1,17 @@
+parameter,parametervalue
+tablename,`quote
+partitionfilter,enlist(within;`date;2020.12.17 2020.12.22)
+attributecolumn,`sym
+timefilter,enlist(within;`time;2020.12.17D10:11:32.897689000 2020.12.22D10:11:32.897688000)
+instrumentfilter,enlist (in;`sym;enlist`IBM)
+columns,()
+grouping,()
+aggregations,()
+filters,((=;`stop;0);(>;`price;25))
+freeformwhere,()
+freeformby,()
+freeformcolumn,()
+optimisation,1b
+proctype,`hdb
+tableproperties,`primarytimecolumn`attributecolumn`instrumentcolumn`timezone`getrollover`getpartitionrange`partfield!`time`sym`sym``.dataaccess.defaultrollover`.dataaccess.defaultpartitionrange`date
+renamecolumn,()!()

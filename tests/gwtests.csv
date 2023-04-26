@@ -1,0 +1,14 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.gw.servers:([serverid:`u#(3;4;5i)]handle:(6;7;8i); servertype:(`rdb;`hdb;`hdb); inuse:(0b;0b;0b);active:(0b;1b;1b);querycount:(0i;0i;0i);lastquery:(0Np;0Np;0Np);usage:(0D;0D;0D);attributes:(`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex);`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex);`date`tables!(2015.01.07 2015.01.08 2019.09.26 2019.09.27;`heartbeat`logmsg`quote`quote_iex`trade`trade_iex));disconnecttime:(0Np;0Np;0Np))
+true,0,0,q,0h=type .gw.getserverids[`hdb],1,,
+fail,0,0,q,.gw.getserverids[`nonsense],1,,
+fail,0,0,q,.gw.getserverids[`rdb],1,,
+fail,0,0,q,.gw.getserverids[`hdb`nonsense],1,,
+fail,0,0,q,.gw.getserverids[`hdb`rdb],1,,
+fail,0,0,q,.gw.getserverids[`],1,,
+fail,0,0,q,.gw.getserverids[`hdb`],1,,
+true,0,0,q,0h=type .gw.getserverids[enlist[`servertype]!enlist enlist `hdb],1,,
+fail,0,0,q,.gw.getserverids[enlist[`servertype]!enlist enlist "hdb"],1,,
+fail,0,0,q,.gw.getserverids[`date`servertypes`table!(4;`rdb`hdb;"trade")],1,,
+fail,0,0,q,.gw.getserverids["hdb"],1,,
+fail,0,0,q,.gw.getserverids[3],1,,

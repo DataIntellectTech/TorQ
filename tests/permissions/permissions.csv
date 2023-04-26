@@ -1,0 +1,55 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,,,,,,,test access to variables within lambdas
+run,,,q,a:1;b:2;c:3,,,set up some variables to use in tests
+fail,,,q,.pm.expr[`tom;({1+a};`)],,,no permissions configured yet so this should fail
+run,,,q,.pm.adduser[`tom;`local;`md5;md5"pass"],,,add tom user
+run,,,q,.pm.addgroup[`group1;"group for tests"],,,add group for tests
+run,,,q,.pm.addtogroup[`tom;`group1],,,add tom to test group
+run,,,q,.pm.grantaccess[`a;`group1;`read],,,grant access to variable a
+true,,,q,2=.pm.expr[`tom;({1+a};`)],,,tom should now have read access to a
+run,,,q,.pm.grantaccess[`b;`public;`read],,,grant public access to variable b
+true,,,q,3=.pm.expr[`tom;({a+b};`)],,,tom should be able to access a and b
+fail,,,q,3=.pm.expr[`harry;({a+b};`)],,,harry should not be able to access a
+true,,,q,3=.pm.expr[`harry;({1+b};`)],,,harry should be able to access b (public)
+fail,,,q,.pm.expr[`tom;({a+b+c};`)],,,no one has access to c
+fail,,,q,.pm.expr[`harry;({a+b+c};`)],,,no one has access to c
+
+comment,,,,,,,test lambda expressions with nested structures
+run,,,q,e:({x};({x[`i]+x[`j]+value y};`i`j!1 2;"345")),,,create nested lambda structure with dict/string etc.
+true,,,q,348=value .pm.expr[`bob;e],,,contains no references to defined variables so can be run by anyone
+
+comment,,,,,,,test lambda expression with dict arg
+true,,,q,3=.pm.expr[`bob;({x[`i]+x[`j]};`i`j!1 2)],,,lambda expression with dict arg
+
+comment,,,,,,,test groups/users with same name
+fail,,,q,.pm.addtogroup[`tom;`tom],,,can't have group & username matching
+fail,,,q,.pm.addtogroup[`tom;`group2],,,can't add to a group that doesn't exist
+fail,,,q,.pm.addgroup[`tom;"already a user"],,,can't add group matching user
+fail,,,q,.pm.adduser[`group1;`local;`md5;md5"fail"],,,can't add user matching group
+fail,,,q,.pm.assignrole[`tom;`role1],,,can't assign role that doesn't exist
+run,,,q,.pm.addrole[`role1;"test role"],,,create test role
+run,,,q,.pm.assignrole[`tom;`role1],,,can assign role that does exist
+
+comment,,,,,,,test calls where first item is a primitive
+run,,,q,.pm.grantfunction[.pm.ALL;`role1;{1b}],,,grant all function permission in order to use count
+run,,,q,y:1 2 3,,,variable to be counted
+true,,,q,3=.pm.expr[`tom;"count y"],,,should be able to count variable
+true,,,q,3=.pm.expr[`tom;"count 1 2 3"],,,should be able to count non-variable
+
+comment,,,,,,,test indexing into allowed/disallowed variables
+run,,,q,d:`a`b`c!(1 2 3;4 5 6;7 8 9);l:`a`b`c,,,set up a dictionary and list for tests
+run,,,q,.pm.grantaccess[;`group1;`read]'[`d`l],,,grant group1 access to test variables
+true,,,q,1 2 3~.pm.expr[`tom;"d`a"],,,test dictionary lookup
+true,,,q,`a=.pm.expr[`tom;"l 0"],,,test list index
+fail,,,q,.pm.expr[`harry;"d`a"],,,harry doesn't have access to d
+fail,,,q,.pm.expr[`harry;"l 0"],,,harry doesn't have access to l
+run,,,q,f:{1+x},,,define function for testing named function call
+true,,,q,2=.pm.expr[`tom;"f 1"],,,tom should have access to f
+true,,,q,2=.pm.expr[`tom;(`f;1)],,,tom should have access to f
+fail,,,q,2=.pm.expr[`harry;"f 1"],,,harry should not have access to f
+fail,,,q,2=.pm.expr[`harry;(`f;1)],,,harry should not have access to f
+
+comment,,,,,,,test expressions where first item is lambda from .q
+true,,,q,(`a`b`c!1 4 7)~.pm.expr[`tom;"first each d"],,,test expression with each
+fail,,,q,.pm.expr[`harry;"first each d"],,,harry doesn't have access to d
+
