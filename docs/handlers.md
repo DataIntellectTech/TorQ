@@ -149,7 +149,7 @@ user, or function) defined in \[procname\]\_.csv will override those in
 \[proctype\]\_.csv which will in turn override \[procname\]\_.csv.
 
 When a client makes a query which is refused by the permissioning layer,
-an error will be raised and logged in .usuage.usage if it is enabled.
+an error will be raised and logged in .usage.usage if it is enabled.
 
 <a name="track"></a>
 
@@ -174,7 +174,7 @@ trackservers.q
 
 trackservers.q is used to register and maintain handles to external
 servers. It is a heavily modified version of trackservers.q from
-code.kx. It is explained more in section connectionmanagement.
+code.kx. It is explained more in the Connection Management section.
 
 <a name="zps"></a>
 
@@ -195,7 +195,7 @@ writeaccess.q is used to restrict client write access to data within a
 process. The script uses the reval function, released in KDB+ 3.3, to
 prevent client queries from modifying any data in place. At present only
 queries in the form of strings are passed through the reval function.
-Additonally the script disables any form of HTTP access. If using
+Additionally the script disables any form of HTTP access. If using
 versions of KDB+ prior to 3.3, this feature must be disabled. An attempt
 to use this feature on previous KDB+ versions will result in an error
 and the relevant process exiting.

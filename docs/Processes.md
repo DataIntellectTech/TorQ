@@ -150,7 +150,7 @@ query itself, the username, host of the client etc.
 
 An asynchronous query can be timed out using a timeout defined by the
 client. The gateway will periodically check if any client queries have
-not completed in the alotted time, and return a timeout error to the
+not completed in the allotted time, and return a timeout error to the
 client. If the query is already running on any backend servers then they
 cannot be timed out other than by using the standard -T flag.
 
