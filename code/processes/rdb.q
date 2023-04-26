@@ -114,7 +114,7 @@ endofday:{[date;processdata]
 	};
 	
 reload:{[date]
-        .rdb.expectedreloadcalls:sum `wdb={x(`.proc.proctype)} each .z.H;
+        .rdb.expectedreloadcalls:count select from .clients.clients where u in `wdb, not null w;
 
 	.[`.rdb.reloadcalls;();+;1];
 	.lg.o[`reload;string[.rdb.reloadcalls]," out of ",string[.rdb.expectedreloadcalls]," calls received"];

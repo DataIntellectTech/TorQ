@@ -1,7 +1,6 @@
 // reload function
 reload:{
-	connectedProcs:{x(`.proc.proctype)} each .z.H;
-	.hdb.expectedreloadcalls:sum (`wdb=connectedProcs) +`rdb=connectedProcs;
+	.hdb.expectedreloadcalls:count select from .clients.clients where u in `wdb`rdb, not null w;
 
 	.[`.hdb.reloadcalls;();+;1];
 	.lg.o[`reload;string[.hdb.reloadcalls]," out of ",string[.hdb.expectedreloadcalls]," calls received"];
