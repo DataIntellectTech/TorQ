@@ -240,8 +240,8 @@ banner:{
  -1 format"kdb+ consultancy, training and support";
  -1 blank;
  -1 format"For questions, comments, requests or bug reports please contact us";
- -1 format"w :     www.dataintellect";
- -1 format"e : support@dataintellect";
+ -1 format"w :     www.dataintellect.com";
+ -1 format"e : support@dataintellect.com";
  -1 blank; 
  -1 format"Running on ","kdb+ ",(string .z.K)," ",string .z.k;
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file

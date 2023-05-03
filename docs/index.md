@@ -7,7 +7,7 @@ The TorQ framework created by [Data Intellect](http://www.dataintellect.com) for
 
 The easiest way to get a production capture started is to download and install one of the [Starter Packs](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack). We also have a [Google Group for questions/discussions](https://groups.google.com/forum/#!forum/kdbtorq).
 
-For recent updates to TorQ please check out our [thoughts](http://www.dataintellect/thoughts/).
+For recent updates to TorQ please check out our [thoughts](http://www.dataintellect.com/thoughts/).
 
 We've highlighted some key TorQ features on our blog posts page.
 
