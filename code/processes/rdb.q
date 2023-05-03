@@ -114,11 +114,10 @@ endofday:{[date;processdata]
 	};
 	
 reload:{[date]
-        .rdb.expectedreloadcalls:count select from .clients.clients where u in `wdb, not null w;
-
-	.[`.rdb.reloadcalls;();+;1];
-	.lg.o[`reload;string[.rdb.reloadcalls]," out of ",string[.rdb.expectedreloadcalls]," calls received"];
-	if[.rdb.reloadcalls<.rdb.expectedreloadcalls;:(::)];
+	if[.z.w in key .rdb.reloadcalls;
+	        .rdb.reloadcalls[.z.w]:1b;
+		.lg.o[`reload;"reload call received from handle ", string[.z.w], " reload calls pending from handles", raze ssr[", %x"; "%x";] each string key .rdb.reloadcalls];
+		if[not all value .rdb.reloadcalls;:(::)]];
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
@@ -136,8 +135,19 @@ reload:{[date]
 	/-restore original timeout back to rdb
 	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
-	.[`.rdb.reloadcalls;();:;0];
+	{.rdb.reloadcalls[x]:0} each key .rdb.reloadcalls;
 	};
+
+// dictionary of handles to reload
+reloadcalls:()!();
+
+// function to add handle to reloadcalls dictionary
+po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
+.z.po:{[f;x] @[f;x;()];.rdb.po x} @[value;`.z.po;{{}}];
+
+// function to remove handle from reloadcalls dictionary
+pc:{[h] reloadcalls _: h; if[all value .rdb.reloadcalls;reload[]]};
+.z.pc:{[f;x] @[f;x;()];.rdb.pc x} @[value;`.z.pc;{{}}];
 	
 /-drop date from rdbpartition
 rmdtfromgetpar:{[date] 
