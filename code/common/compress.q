@@ -1,7 +1,7 @@
 /
 Louise Belshaw
-louise.belshaw@aquaq.co.uk
-AquaQ Analytics (info@aquaq.co.uk)
+louise.belshaw@dataintellect.com
+Data Intellect (info@dataintellect.com)
 
 USAGE OF COMPRESSION:
 

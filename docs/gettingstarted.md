@@ -139,7 +139,7 @@ can be extended by setting .proc.envvars before loading torq.q.
 Process Identification
 ----------------------
 
-At the crux of AquaQ TorQ is how processes identify themselves. This is
+At the crux of Data Intellect TorQ is how processes identify themselves. This is
 defined by two required variables - .proc.proctype and .proc.procname
 which are the type and name of the process respectively. An optional
 variable parentproctype allows an inital codebase and configuration to

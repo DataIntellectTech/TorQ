@@ -9,7 +9,7 @@
   that the front end might receive from the kdb+ server.
   @module KDBCONNECT
   @main KDBCONNECT
-  @author Glen Smith at AquaQ Analytics
+  @author Glen Smith at Data Intellect
 */
 var dev;
 var KDBCONNECT;

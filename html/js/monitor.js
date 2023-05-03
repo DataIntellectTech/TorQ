@@ -2,7 +2,7 @@
   Monitor front end of the TorQ framework
   @module MONITOR
   @main MONITOR
-  @author Glen Smith at AquaQ Analytics
+  @author Glen Smith at Data Intellect
 */
 var MONITOR = (function(){
   "use strict";

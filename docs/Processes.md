@@ -3,7 +3,7 @@
 Processes
 =========
 
-A set of processes is included. These processes build upon AquaQ TorQ,
+A set of processes is included. These processes build upon Data Intellect TorQ,
 providing specific functionality. All the process scripts are contained
 in $KDBCODE/processes. All processes should have an entry in
 $KDBCONFIG/process.csv. All processes can have any type and name,

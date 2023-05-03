@@ -581,7 +581,7 @@ Logging can be toggled off from within a process by setting the value of `.dataa
 
 Further Integration
 -------------------
-This section describes the remaining features of the API as well as how the API can be leveraged to work with other AquaQ technologies.
+This section describes the remaining features of the API as well as how the API can be leveraged to work with other Data Intellect technologies.
 
 ### Implementation with TorQ FSP
 
