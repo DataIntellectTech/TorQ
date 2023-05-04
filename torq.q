@@ -237,7 +237,7 @@ banner:{
  -1 blank; 
  -1 format"TorQ v",.proc.getversion[];
  -1 format"Data Intellect";
- -1 format"kdb+ consultancy, training and support";
+ -1 format"We turn big data problems into smart data solutions";
  -1 blank;
  -1 format"For questions, comments, requests or bug reports please contact us";
  -1 format"w :     www.dataintellect.com";

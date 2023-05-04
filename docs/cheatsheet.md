@@ -82,7 +82,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #                                 TorQ v3.8.0                                  #
 #                               Data Intellect                                 #
-#                    kdb+ consultancy, training and support                    #
+#               We turn big data problems into smart data solutions            #
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #
@@ -109,7 +109,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #                                 TorQ v3.8.0                                  #
 #                               Data Intellect                                 #
-#                    kdb+ consultancy, training and support                    #
+#               We turn big data problems into smart data solutions            #
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #

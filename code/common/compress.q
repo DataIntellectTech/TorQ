@@ -1,6 +1,4 @@
 /
-Louise Belshaw
-louise.belshaw@dataintellect.com
 Data Intellect (info@dataintellect.com)
 
 USAGE OF COMPRESSION:
