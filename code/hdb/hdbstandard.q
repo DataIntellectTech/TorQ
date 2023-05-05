@@ -22,5 +22,5 @@ po:{[h] if[.z.u in `wdb`rdb;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.hdb.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary
-pc:{[h] reloadcalls _: h; if[all value .hdb.reloadcalls;reload[]]};
+pc:{[h] reloadcalls _: h; if[all .hdb.reloadcalls;reload[]]};
 .z.pc:{[f;x] @[f;x;()];.hdb.pc x} @[value;`.z.pc;{{}}];

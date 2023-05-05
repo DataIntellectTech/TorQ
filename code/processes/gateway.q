@@ -653,5 +653,5 @@ po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.gwreload.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary
-pc:{[h] reloadcalls _: h; if[all .gwreload.reloadcalls;reload[]]};
+pc:{[h] reloadcalls _: h; if[(all .gwreload.reloadcalls) & count .gwreload.reloadcalls;reload[]]};
 .z.pc:{[f;x] @[f;x;()];.gwreload.pc x} @[value;`.z.pc;{{}}];

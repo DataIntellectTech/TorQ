@@ -146,7 +146,7 @@ po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.rdb.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary
-pc:{[h] reloadcalls _: h; if[all value .rdb.reloadcalls;reload[]]};
+pc:{[h] reloadcalls _: h; if[(all .rdb.reloadcalls) & count .rdb.reloadcalls;reload[]]};
 .z.pc:{[f;x] @[f;x;()];.rdb.pc x} @[value;`.z.pc;{{}}];
 	
 /-drop date from rdbpartition
