@@ -116,8 +116,8 @@ endofday:{[date;processdata]
 reload:{[date]
 	if[.z.w in key .rdb.reloadcalls;
 	        .rdb.reloadcalls[.z.w]:1b;
-		.lg.o[`reload;"reload call received from handle ", string[.z.w], " reload calls pending from handles", raze ssr[", %x"; "%x";] each string key .rdb.reloadcalls];
-		if[not all value .rdb.reloadcalls;:(::)]];
+		.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .rdb.reloadcalls];
+		if[not all .rdb.reloadcalls;:(::)]];
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
@@ -135,7 +135,7 @@ reload:{[date]
 	/-restore original timeout back to rdb
 	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
-	{.rdb.reloadcalls[x]:0} each key .rdb.reloadcalls;
+	@[`.rdb.reloadcalls[x]:0; key .rdb.reloadcalls;:;0b];
 	};
 
 // dictionary of handles to reload

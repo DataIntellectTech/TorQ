@@ -3,10 +3,10 @@ reload:{
 	
 	if[.z.w in key .hdb.reloadcalls;
 		.hdb.reloadcalls[.z.w]:1b;
-		.lg.o[`reload;"reload call received from handle ", string[.z.w], " reload calls pending from handles", raze ssr[", %x"; "%x";] each string key .hdb.reloadcalls];
-		if[not all value .hdb.reloadcalls;:(::)]];
+		.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .hdb.reloadcalls];
+		if[not all .hdb.reloadcalls;:(::)]];
 	.lg.o[`reload;"reloading HDB"];
-	{.hdb.reloadcalls[x]:0} each key .hdb.reloadcalls;
+	@[`.hdb.reloadcalls;key .hdb.reloadcalls;:;0b];
 	system"l .";.[`.hdb.reloadcalls;();:;0];}
 
 // Get the relevant HDB attributes

@@ -552,13 +552,13 @@ reloadstart:{
 reloadend:{
  if[.z.w in key .gw.reloadcalls;
   .gw.reloadcalls[.z.w]:1b;
-  .lg.o[`reload;"reload call received from handle ", string[.z.w], " reload calls pending from handles", raze ssr[", %x"; "%x";] each string key .gw.reloadcalls];
-  if[not all value .gw.reloadcalls;:(::)]];
+  .lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .gw.reloadcalls];
+  if[not all .gw.reloadcalls;:(::)]];
 
  .lg.o[`reload;"reload end called"];
  /- set eod variable to false
  .gw.seteod[0b];
- {.gw.reloadcalls[x]:0} each key .gw.reloadcalls;
+ @[`.gw.reloadcalls; key .gw.reloadcalls;:;0b];
  /- retry connections - get updated attributes from servers and refresh servers tables
  setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS where .dotz.liveh[w];
  /- flush any async queries held during reload phase
@@ -653,5 +653,5 @@ po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.gwreload.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary
-pc:{[h] reloadcalls _: h; if[all value .gwreload.reloadcalls;reload[]]};
+pc:{[h] reloadcalls _: h; if[all .gwreload.reloadcalls;reload[]]};
 .z.pc:{[f;x] @[f;x;()];.gwreload.pc x} @[value;`.z.pc;{{}}];
