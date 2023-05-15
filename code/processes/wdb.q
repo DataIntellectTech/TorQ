@@ -193,7 +193,9 @@ savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
 /- eod - flush remaining data to disk
 endofday:{[pt;processdata]
-	.lg.o[`eod;"end of day message received - ",spt:string pt];	
+	.lg.o[`eod;"end of day message received - ",spt:string pt];
+        /- set what type of merge method to be used
+        mergemethod:.wdb.mergemode;
 	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
 	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
 	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
@@ -202,7 +204,7 @@ endofday:{[pt;processdata]
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	.lg.o[`eod;"end of day is now complete"];
@@ -442,9 +444,7 @@ informgateway:{[message]
 	}
 	
 /- function to call that will cause sort & reload process to sort data and reload rdb and hdbs
-informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings]
-        // set what type of merge method to be used
-	mergemethod:.wdb.mergemode;
+informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         .lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
 	$[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
 		[if[(mergemode~`hybrid)or(mergemode~`part);
