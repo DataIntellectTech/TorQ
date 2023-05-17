@@ -1,4 +1,4 @@
-![TorQ Logo](../master/html/img/AquaQ-TorQ-symbol-small.png)
+![TorQ Logo](../master/html/img/DataIntellect-TorQ-logo.png)
 
 [Read our documentation](https://AquaQAnalytics.github.io/TorQ/)
 
@@ -39,6 +39,8 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **4.4.0, May 2023**
+  * Rebranding: Update AquaQ references to Data Intellect
 - **4.3.0, Jan 2023**
   * Bug fixes
   * Updated documentation

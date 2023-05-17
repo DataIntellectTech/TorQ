@@ -24,7 +24,7 @@ ${TORQHOME}
         |---monittemplate.txt
 ```
 
-It is important to mention that AquaQ will not offer support for **monitalert.cfg** and **monitrc**. Those two files have been added as an example on how **monit** can be configured to monitor your system and to offer an out-of-the-box configuration that you can use to test that **monit** works.  If the monit installation contains an updated version of monitrc, this should be used instead. 
+It is important to mention that Data Intellect will not offer support for **monitalert.cfg** and **monitrc**. Those two files have been added as an example on how **monit** can be configured to monitor your system and to offer an out-of-the-box configuration that you can use to test that **monit** works.  If the monit installation contains an updated version of monitrc, this should be used instead. 
 
 ### Features
 

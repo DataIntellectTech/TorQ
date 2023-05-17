@@ -76,17 +76,17 @@ torquser@homer:/home/torquser/newdeploy$ ./deploy/bin/torq.sh debug rdb1
 09:45:45 | Executing...
 q /home/torquser/newdeploy/deploy/TorQ/latest/torq.q -stackid 43100 -proctype rdb -procname rdb1 -U /home/torquser/newdeploy/deploy/TorQApp/latest/appconfig/passwords/accesslist.txt -localtime 1 -g 1 -T 180 -load /home/torquser/newdeploy/deploy/TorQ/latest/code/processes/rdb.q  -procfile /home/torquser/newdeploy/deploy/TorQApp/latest/appconfig/process.csv  -debug
 KDB+ 4.0 2020.06.18 Copyright (C) 1993-2020 Kx Systems
-l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 AquaQ #59946
+l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect #59946
 (::;::)
 ################################################################################
 #                                                                              #
 #                                 TorQ v3.8.0                                  #
-#                               AquaQ Analytics                                #
-#                    kdb+ consultancy, training and support                    #
+#                               Data Intellect                                 #
+#               We turn big data problems into smart data solutions            #
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
-#                           w :     www.aquaq.co.uk                            #
-#                           e : support@aquaq.co.uk                            #
+#                           w :     www.dataintellect.com                      #
+#                           e : support@dataintellect.com                      #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #
@@ -108,12 +108,12 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 AquaQ #59946
 ################################################################################
 #                                                                              #
 #                                 TorQ v3.8.0                                  #
-#                               AquaQ Analytics                                #
-#                    kdb+ consultancy, training and support                    #
+#                               Data Intellect                                 #
+#               We turn big data problems into smart data solutions            #
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
-#                           w :     www.aquaq.co.uk                            #
-#                           e : support@aquaq.co.uk                            #
+#                           w :     www.dataintellect.com                      #
+#                           e : support@dataintellect.com                      #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #

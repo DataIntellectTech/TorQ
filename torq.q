@@ -236,12 +236,12 @@ banner:{
  -1 full;
  -1 blank; 
  -1 format"TorQ v",.proc.getversion[];
- -1 format"AquaQ Analytics";
- -1 format"kdb+ consultancy, training and support";
+ -1 format"Data Intellect";
+ -1 format"We turn big data problems into smart data solutions";
  -1 blank;
  -1 format"For questions, comments, requests or bug reports please contact us";
- -1 format"w :     www.aquaq.co.uk";
- -1 format"e : support@aquaq.co.uk";
+ -1 format"w :     www.dataintellect.com";
+ -1 format"e : support@dataintellect.com";
  -1 blank; 
  -1 format"Running on ","kdb+ ",(string .z.K)," ",string .z.k;
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file

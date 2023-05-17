@@ -21,10 +21,10 @@ utilising telemetry or sensor data.
 
 <a name="TorQ?"></a>
 
-What is AquaQ TorQ?
+What is Data Intellect TorQ?
 -------------------
 
-AquaQ TorQ is a framework which forms the basis of a production kdb+
+Data Intellect TorQ is a framework which forms the basis of a production kdb+
 system by implementing some core functionality and utilities on top of
 kdb+, allowing developers to concentrate on the application business
 logic. We have incorporated as many best practices as possible, with
@@ -36,8 +36,8 @@ avoid re-inventing the wheel and instead have used contributed code from
 code.kx.com (either directly or modified). All code sections taken from
 code.kx.com are referenced in this document.
 
-AquaQ TorQ can be extended or modified as required. We have chosen some
-default behaviour, but it can all be overridden. The features of AquaQ
+Data Intellect TorQ can be extended or modified as required. We have chosen some
+default behaviour, but it can all be overridden. The features of Data Intellect
 TorQ are:
 
 -   Process Management: Each process is given a type and name, and can
@@ -98,7 +98,7 @@ TorQ are:
     and HTML5.
 
 -   Documentation and Development Tools: Functionality to document the
-    system is built into AquaQ TorQ, and can be accessed directly from
+    system is built into Data Intellect TorQ, and can be accessed directly from
     every q session. Developers can extend the documentation as they add
     new functions. Functionality for searching for functions and
     variables by name and definition is provided, and for ordering
@@ -148,7 +148,7 @@ TorQ are:
     11. Data Access API: A streamlined method to retrieve data 
         across a variety of vanilla and exotic processes.
   
-AquaQ TorQ will wrap easily around kdb+tick and therefore around any
+Data Intellect TorQ will wrap easily around kdb+tick and therefore around any
 tickerplant, RDB, HDB or real time processing application. We currently
 have several customised processes of our own:
 
@@ -292,7 +292,7 @@ Other common production features include:
 Do I Really Have to Read This Whole Document?
 -----------------------------------------------
 
-Hopefully not. The core of AquaQ TorQ is a script called torq.q and we
+Hopefully not. The core of Data Intellect TorQ is a script called torq.q and we
 have tried to make it as descriptive as possible, so perhaps that will
 suffice. The first place to look will be in the config files, the main
 one being \$KDBCONFIG/settings/default.q. This should contain a lot of
@@ -396,7 +396,7 @@ information on what can be modified. There is also a cheatsheet contained within
 Operating System and kdb+ Version
 ----------------------------------
 
-AquaQ TorQ has been built and tested on the linux and OSX operating
+Data Intellect TorQ has been built and tested on the linux and OSX operating
 systems though as far as we are aware there is nothing that would make
 this incompatible with Solaris or Windows. It has also been tested with
 kdb+ 3.1 and 2.8. Please report any incompatibilities with other kdb+
