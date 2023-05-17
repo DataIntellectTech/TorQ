@@ -1,5 +1,4 @@
 site_name: TorQ
-site_favicon: graphics/favicon.ico
 nav:
     - Home: index.md
     - About: Overview.md
@@ -16,16 +15,34 @@ nav:
     - Visualisation: visualisation.md
     - Testing: unittesting.md
     - TorQ Blog Posts: blog.md
-copyright: Copyright &copy 2020 Data Intellect Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
 
-theme: material
+
+theme: 
+  favicon: graphics/favicon.ico
+  name: material
+  logo: graphics/DataIntellect-header-logo.jpg
+  features:
+    - search.suggest
+    - search.highlight
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: black
+      accent: grey
+      toggle:
+        icon: material/weather-night 
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: black
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
 repo_name: GitHub
 repo_url: https://github.com/AquaQAnalytics/TorQ
+
 extra:
-   logo: graphics/DataIntellect-TorQ-logo.png 
-   palette:
-      primary: indigo
-      accent: green
    social:
       - icon: fontawesome/brands/github-alt
         link: https://github.com/AquaQAnalytics
@@ -36,3 +53,8 @@ extra:
    analytics:
       provider: google
       property: UA-51911331-4
+plugins:
+  - search
+
+copyright: Copyright &copy 2020 Data Intellect Limited.  Kx &reg and kdb+ are registered trademarks of Kx Systems Inc.
+
