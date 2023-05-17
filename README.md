@@ -1,4 +1,4 @@
-![TorQ Logo](../master/html/img/Data-Intellect-TorQ-symbol-small.png)
+![TorQ Logo](../master/html/img/DataIntellect-TorQ-logo.png)
 
 [Read our documentation](https://AquaQAnalytics.github.io/TorQ/)
 

@@ -22,7 +22,7 @@ theme: 'material'
 repo_name: 'GitHub'
 repo_url: 'https://github.com/AquaQAnalytics/TorQ'
 extra:
-   logo: 'graphics/TorQ-logo.png' 
+   logo: 'graphics/DataIntellect-TorQ-logo.png' 
    palette:
       primary: 'indigo'
       accent: 'green'
