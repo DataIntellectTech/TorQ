@@ -10,7 +10,7 @@
 \d .usage
 
 // table to store usage info
-usage:@[value;`usage;([]time:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$(); procname:`symbol$(); status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())] 
+usage:@[value;`usage;([]time:`timestamp$();id:`long$();timer:`long$();zcmd:`symbol$();proctype:`symbol$(); procname:`symbol$(); status:`char$();a:`int$();u:`symbol$();w:`int$();cmd:();mem:();sz:`long$();error:())]
 
 // Check if the process has been initialised correctly
 if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
@@ -77,7 +77,7 @@ readlog:{[file]
 	update zcmd:`$1 _' string zcmd, procname:`$1 _' string procname, proctype:`$1 _' string proctype, u:`$1 _' string u, 
 		a:"I"$-1 _' a, w:"I"$-1 _' w from  
 	// Read in file
-	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]} 
+	@[{update "J"$'" " vs' mem from flip (cols .usage.usage)!("PJJSSSC*S***JS";"|")0:x};hsym`$file;{'"failed to read log file : ",x}]}
 
 // roll the logs
 // inmemorypersist = the number 
