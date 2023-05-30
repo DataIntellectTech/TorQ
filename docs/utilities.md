@@ -906,7 +906,7 @@ on a different server
 By default, the Kafka bindings will be loaded into all TorQ processes running on
 l64 systems (the only platform currently supported). An example of usage is
 shown here (this assumes a local running instance of kafka - instructions for
-this are available on the [kafkaq](https://github.com/AquaQAnalytics/kafkaq) github 
+this are available on the [kafkaq](https://github.com/DataIntellectTech/kafkaq) github 
 repo):
 
 ```
@@ -1332,7 +1332,7 @@ If the default value of "0W" is used for the port, a random port will be chosen
 on which to launch the process. In this case the process will neeed to register
 itself with discovery in order for other processes to be able to connect to it.
 This is a standard behaviour for TorQ processes on startup (for more information
-see [Connection Management](http://aquaqanalytics.github.io/TorQ/conn/#connections)).
+see [Connection Management](http://dataintellecttech.github.io/TorQ/conn/#connections)).
 
 <a name="api"></a>
 
@@ -1545,7 +1545,7 @@ read our followup blogpost on the subject: [Grafana kdb+ Adaptor Update](https:/
 Here you can see examples of graphs, tables, heatmaps and single statistics. 
 The best explanation of the inputs allowed in the query section can be seen pictorially here:
 
-![GrafanaQueries](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/graphics/grafana_chart.png?raw=true)
+![GrafanaQueries](https://github.com/DataIntellectTech/TorQ/blob/master/docs/graphics/grafana_chart.png?raw=true)
 
 Upon opening the query box, in the metrics tab, the user will be provided with 
 a populated drop down of all possible options. Server functions are not included
