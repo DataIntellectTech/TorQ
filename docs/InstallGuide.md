@@ -6,11 +6,11 @@ Install Guide
 
 In your Linux terminal run the following lines copying them in one by one:
 
-    wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/master/installtorqapp.sh
+    wget https://raw.githubusercontent.com/DataIntellectTech/TorQ/master/installtorqapp.sh
 
-    wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz
+    wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/3.7.0.tar.gz
 
-    wget --content-disposition https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz
+    wget --content-disposition https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz
 
 Then to launch the script.
 
@@ -53,7 +53,7 @@ Check if the stack is up
 <tbody>
   <tr>
     <td class="tg-btxf">torq</td>
-    <td class="tg-btxf">Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. Example usage in the script:<br><br><span style="font-weight:bold;font-style:italic"> --torq /home/user/TorQ/TorQ-3.7.0</span><br><br>Where TorQ-3.7.0 is unzipped directory from the latest release .tar.gz file. Or <br><br><span style="font-weight:bold;font-style:italic">--torq /home/user/TorQ/TorQ-3.7.0.tar.gz </span><br><br>Which is the .tar.gz file from GitHub using: <br><br><span style="font-weight:bold;font-style:italic">wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz</span></td>
+    <td class="tg-btxf">Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. Example usage in the script:<br><br><span style="font-weight:bold;font-style:italic"> --torq /home/user/TorQ/TorQ-3.7.0</span><br><br>Where TorQ-3.7.0 is unzipped directory from the latest release .tar.gz file. Or <br><br><span style="font-weight:bold;font-style:italic">--torq /home/user/TorQ/TorQ-3.7.0.tar.gz </span><br><br>Which is the .tar.gz file from GitHub using: <br><br><span style="font-weight:bold;font-style:italic">wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/3.7.0.tar.gz</span></td>
   </tr>
   <tr>
     <td class="tg-0pky">releasedir</td>

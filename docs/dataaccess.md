@@ -223,7 +223,7 @@ For negative conditionals, the not and ~: operators can be included as the first
 
 ### Gateway
 
-The documentation for the gateway outside the API can be found [here](https://github.com/AquaQAnalytics/TorQ/blob/master/docs/Processes.md)
+The documentation for the gateway outside the API can be found [here](https://github.com/DataIntellectTech/TorQ/blob/master/docs/Processes.md)
 
 Accepting a uniform dictionary allows queries to be sent to the gateway using `.dataaccess.getdata`. Using `.dataaccess.getdata` allows the user to
 
@@ -585,7 +585,7 @@ This section describes the remaining features of the API as well as how the API 
 
 ### Implementation with TorQ FSP
 
-The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag ` -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
+The API is compatible with the most recent [TorQ Finance-Starter-Package](https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack), the fastest way to import the API is opening `{APPCONFIG}/processes.csv` and adding the following flag ` -dataaccess ${KDBCONFIG}/dataaccess/tableproperties.csv` to the `rdb`, `hdb` and `gateway` extras column. For example:
 
 ```
 host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
@@ -599,7 +599,7 @@ localhost,{KDBBASEPORT}+7,gateway,gateway1,${TORQAPPHOME}/appconfig/passwords/ac
 
 The API is compatible with q-REST. To do this:
 
-1. Download [q-REST](https://github.com/AquaQAnalytics/q-REST)
+1. Download [q-REST](https://github.com/DataIntellectTech/q-REST)
 2. Open `application.properties` and point `kdb.host/port` to the gateway
 3. Use the execute function argument to send `.json`s of the form:
 ```

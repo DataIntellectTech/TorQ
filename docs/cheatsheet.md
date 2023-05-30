@@ -129,7 +129,7 @@ Deployments should be very simple on Linux [using the installation script](http:
 
 ```bash
 # pull in latest TorQ FSP install script 
-wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/master/installlatest.sh
+wget https://raw.githubusercontent.com/DataIntellectTech/TorQ-Finance-Starter-Pack/master/installlatest.sh
 # execute it
 bash installlatest.sh 
 # It will finish with a message like below:

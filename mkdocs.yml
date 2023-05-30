@@ -40,12 +40,12 @@ theme:
         name: Switch to light mode
 
 repo_name: GitHub
-repo_url: https://github.com/AquaQAnalytics/TorQ
+repo_url: https://github.com/DataIntellectTech/TorQ
 
 extra:
    social:
       - icon: fontawesome/brands/github-alt
-        link: https://github.com/AquaQAnalytics
+        link: https://github.com/DataIntellectTech
       - icon: fontawesome/brands/twitter
         link: https://twitter.com/data_intellect
       - icon: fontawesome/brands/linkedin
