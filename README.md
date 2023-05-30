@@ -81,7 +81,7 @@ Head to the address it gives you to check if your changes have worked. More info
   * Added Data Quality System ([Blog post](https://dataintellect.com/torq-data-quality-system/) and [documentation](http://dataintellecttech.github.io/TorQ/Processes/#torq-data-quality-system-architecture))
   * Fix k4unit testing so that it works with kdb+ 4.0.
 - **3.6.0, Apr 2020**:
-  * Added DataDog integration for monitoring: ([Blog_post] (https://dataintellect.com/monitoring-a-torq-system-with-datadog/)
+  * Added DataDog integration for monitoring: ([Blog post] (https://dataintellect.com/monitoring-a-torq-system-with-datadog/)
   * Improved k4unit integration
   * Tested with kdb+ 4.0
   * Fix for reval calls via gateaway
