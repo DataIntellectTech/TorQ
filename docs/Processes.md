@@ -784,7 +784,7 @@ A key tickerplant function is to timestamp the incoming data before it gets publ
 
 This allows for more complex configurations, such as an Foreign Exchange data capture system which timestamps data in UTC but rolls at 5 PM EST. 
 
-The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
+The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://dataintellecttech.github.io/TorQ/utilities/#eodtimeq).
 
 ### Per Table Customisation
 

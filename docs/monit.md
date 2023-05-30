@@ -170,7 +170,7 @@ By default, this is not enabled, but should you wish to enable this and view pro
 
 * Automate checks using monitor process
 
-TorQ's [monitor](http://aquaqanalytics.github.io/TorQ/Processes/#monitor) process lets us define a series of user-specific checks to be run at specified intervals on specified processes. 
+TorQ's [monitor](http://dataintellecttech.github.io/TorQ/Processes/#monitor) process lets us define a series of user-specific checks to be run at specified intervals on specified processes. 
 We have provided an example check (**.dg.isok**) and (**.dg.sendresultmetric**). 
 
 The .dg.isok function is a simple check to see if a process is available and can be queried. The monitor process will execute this function within the processes it has been configured to monitor, and a value of 1b is returned if the process is available. Within the monitor process, the .dg.sendresultmetric result handler then sends this result to datadog as a metric, which can be displayed on the UI dashboard. 

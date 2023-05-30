@@ -1332,7 +1332,7 @@ If the default value of "0W" is used for the port, a random port will be chosen
 on which to launch the process. In this case the process will neeed to register
 itself with discovery in order for other processes to be able to connect to it.
 This is a standard behaviour for TorQ processes on startup (for more information
-see [Connection Management](http://aquaqanalytics.github.io/TorQ/conn/#connections)).
+see [Connection Management](http://dataintellecttech.github.io/TorQ/conn/#connections)).
 
 <a name="api"></a>
 
