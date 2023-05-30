@@ -122,7 +122,7 @@ writedownadvanced:{
 .dqe.currentpartition:.dqe.getpartition[];  /- initialize current partition
 
 
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb`dqcdb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,`tickerplant`rdb`hdb`dqedb`dqcdb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
 
 /- setting up .u.end for dqe
 .u.end:{[pt]
