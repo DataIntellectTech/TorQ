@@ -1,7 +1,7 @@
 // Segmented TP config
 
 \d .stplg
-  
+
 multilog:`tabperiod;            // [tabperiod|none|periodic|tabular|custom]
 multilogperiod:0D01;            // Length of period for STP periodic logging modes
 errmode:1b;                     // Enable error mode for STP
@@ -39,4 +39,5 @@ enabled:0b                      // disable heartbeating
 enabled:0b                      // disable zpsignore - zps should be empty
 
 \d .queries
-enabled:0b                      // disable query tracking 
+enabled:0b
+

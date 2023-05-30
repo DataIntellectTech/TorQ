@@ -20,6 +20,8 @@ logtodisk:1b                    // whether to log to disk or not
 logtomemory:1b                  // write query logs to memory
 ignore:1b			// check the ignore list for functions to ignore
 ignorelist:(`upd;"upd")		// the list of functions to ignore in async calls
+allowedusers:`angus`michael`stephen
+ignoreusers:raze (`discovery`dqc`dqe`gateway`mburns`monitor`queryfeed`querygateway`queryrdb`rdb`reporter`segmentedtickerplant`sort`wdb;.z.u;`)            // clients to ignore for query logging
 flushinterval:0D00:30:00        // default value for how often to flush the in-memory logs
 flushtime:1D00                  // default value for how long to persist the in-memory logs. Set to 0D for no flushing
 suppressalias:0b                // whether to suppress the log file alias creation
@@ -40,6 +42,12 @@ MAXIDLE:`long$0D		// handles which haven't been used in this length of time will
 \d .sub
 AUTORECONNECT:0b			// whether to reconnect to processes previously subscribed to
 checksubscriptionperiod:0D00:00:10	// how frequently to check subscriptions are still connected - 0D means don't check
+
+//queries config
+\d .queries
+enabled:1b
+ignore:1b
+ignorelist:(`upd;"upd")
 
 // Permissions configuration
 \d .pm

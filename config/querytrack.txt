@@ -1,0 +1,6 @@
+rdb1
+hdb1
+rdb2
+hdb2
+gateway1
+

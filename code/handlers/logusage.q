@@ -21,12 +21,18 @@ logtodisk:@[value;`logtodisk;1b]			// whether to log to disk or not
 logtomemory:@[value;`logtomemory;1b]			// write query logs to memory
 ignore:@[value;`ignore;1b]				// check the ignore list for functions to ignore
 ignorelist:@[value;`ignorelist;(`upd;"upd")]		// the list of functions to ignore
+allowedusers:@[value;`allowedusers;()]
+ignoreusers:@[value;`ignoreusers;()]                    // clients to ignore for query logging
 flushinterval:@[value;`flushinterval;0D00:30:00]        // default value for how often to flush the in-memory logs
 flushtime:@[value;`flushtime;0D03]			// default value for how long to persist the in-memory logs
 suppressalias:@[value;`suppressalias;0b]		// whether to suppress the log file alias creation
 logtimestamp:@[value;`logtimestamp;{[x] {[].proc.cd[]}}]	// function to generate the log file timestamp suffix
 logroll:@[value;`logroll;1b]				// whether to automatically roll the log file
 LEVEL:@[value;`LEVEL;3]					// Log level
+querytrack:@[value;`querytrack;0b]			// whether query tracking is enabled by default
+
+// enable query tracking for proc if procname included in csv config file 
+querytrack:$[.proc.procname in "S"$read0 hsym `$(getenv `KDBCONFIG),"/querytrack.txt";1b;0b]
 
 id:@[value;`id;0j]
 nextid:{:id+::1}
@@ -38,7 +44,11 @@ logh:@[value;`logh;0]
 write:{
 	if[logtodisk;@[neg logh;format x;()]];
 	if[logtomemory; `.usage.usage upsert x];
+	if[querytrack; .ps.publish[`.usage.usage;x]];
 	ext[x]}
+
+// custom sub function to add usage table to subscribable tables if query tracking enabled
+querysub:{if[querytrack; .stpps.t:`.usage.usage,.stpps.t]; .u.sub[x;y]}
 
 // extension function to extend the logging e.g. publish the log message
 ext:{[x]}

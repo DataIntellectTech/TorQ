@@ -1,0 +1,3 @@
+tabname,att,column,sort
+default,p,procname,1
+default,,time,1
