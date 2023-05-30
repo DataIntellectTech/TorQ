@@ -32,7 +32,7 @@ LEVEL:@[value;`LEVEL;3]					// Log level
 querytrack:@[value;`querytrack;0b]			// whether query tracking is enabled by default
 
 // enable query tracking for proc if procname included in csv config file 
-querytrack:$[.proc.procname in "S"$read0 hsym `$(getenv `KDBCONFIG),"/querytrack.csv";1b;0b]
+querytrack:$[.proc.procname in "S"$read0 hsym `$(getenv `KDBCONFIG),"/querytrack.txt";1b;0b]
 
 id:@[value;`id;0j]
 nextid:{:id+::1}
