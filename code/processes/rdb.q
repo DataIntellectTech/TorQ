@@ -135,7 +135,7 @@ reload:{[date]
 	/-restore original timeout back to rdb
 	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
-	@[`.rdb.reloadcalls[x]:0; key .rdb.reloadcalls;:;0b];
+	@[`.rdb.reloadcalls; key .rdb.reloadcalls;:;0b];
 	};
 
 // dictionary of handles to reload
