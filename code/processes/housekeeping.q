@@ -1,6 +1,4 @@
 //Housekeeping
-//Tobias Harper. tobias.harper@aquaq.co.uk
-//AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
 /-variables
 inputcsv:@[value;`.hk.inputcsv;.proc.getconfigfile["housekeeping.csv"]]

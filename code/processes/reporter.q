@@ -1,5 +1,4 @@
 /- Reporter Process for TorQ
-/- Glen Smith. glen.smith@aquaq.co.uk
 
 / - defining default process parameters
 inputcsv:@[value;`.rp.inputcsv;.proc.getconfigfile["reporter.csv"]];		/ - location of the reporter process configuration file
