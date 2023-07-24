@@ -616,7 +616,7 @@ if[`loaddir in key .proc.params;
 	.proc.loaddir each .proc.params`loaddir]
 
 // Load message handlers after all the other library code
-if[.proc.loadhandlers; .proc.loaddir each ({x where not ~[""; ] each x} getenv each `KDBCODE`KDBSERVCODE`KDBAPPCODE),\: "/handlers"];
+if[.proc.loadhandlers; .proc.loaddir each except[getenv each `KDBCODE`KDBSERVCODE`KDBAPPCODE;enlist""],\: "/handlers"];
 
 // If the timer is loaded, and logrolling is set to true, try to log the roll file on a daily basis
 if[.proc.logroll and not any `debug`noredirect in key .proc.params;
