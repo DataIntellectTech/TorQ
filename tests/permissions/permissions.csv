@@ -53,7 +53,8 @@ comment,,,,,,,test expressions where first item is lambda from .q
 true,,,q,(`a`b`c!1 4 7)~.pm.expr[`tom;"first each d"],,,test expression with each
 fail,,,q,.pm.expr[`harry;"first each d"],,,harry doesn't have access to d
 
-comment,,,,,,,test lambdas and string-wrapped lambdas are treated the same
+comment,,,,,,,test lambdas and string-wrapped lambdas and projections are treated the same
 true,,,q,.pm.requ[`tom; ({x+a};1)]~.pm.requ[`tom; ("{x+a}";1)],,,passing lambda as string returns same as regular lambda
+true,,,q,.pm.requ[`tom; ({x+y}[1];2)]~.pm.requ[`tom; ("{x+y}[1]";2)],,,passing projection as string returns same as regular projection
 fail,,,q,.pm.requ[`harry; ({x+a};1)]~2,,,harry cannot run regular lambda which accesses var a
 fail,,,q,.pm.requ[`harry; ("{x+a}";1)]~2,,,harry cannot run string lambda which accesses var a
