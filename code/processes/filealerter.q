@@ -1,6 +1,4 @@
 //File-alerter
-//Andrew Steele. andrew.steele@aquaq.co.uk
-//AQUAQ Analytics Info@aquaq.co.uk +4402890511232
 
 inputcsv:@[value;`.fa.inputcsv;.proc.getconfigfile["filealerter.csv"]]		// The name of the input csv to drive what gets done
 polltime:@[value;`.fa.polltime;0D00:00:10]							// The period to poll the file system
