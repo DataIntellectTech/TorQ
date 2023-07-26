@@ -543,20 +543,17 @@ loadspeccode:{[ext;dir]
    ];
 	};
 
+// Load each section of code from each directory if it exists
 reloadcommoncode:{
-	// Load common code from each directory if it exists
 	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadparentprocesscode:{
-	// Load parentproctype code from each directory if it exists
 	loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadprocesscode:{
-	// Load proctype code from each directory if it exists
 	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 reloadnamecode:{
-	// Load procname code from each directory if it exists
 	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
 	};
 
@@ -565,6 +562,22 @@ sys:{[cmd]
 	.lg.o[`system;"executing system command: ",cmd];
 	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];'error};
 	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
+	/-@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;{.lg.e[`system;"failed to execute ",cmd,": ",x];'x}]
+	};
+
+// load config files 
+/
+loadsettings:{[x]{.proc.loadconfig[getenv[x],"/settings/";]} each `default,.proc.parentproctype,.proc.proctype,.proc.procname};
+\
+func:{[env;procenv]
+	/- wihtout this the logging line within the [] breaks?
+	envstring:string env;
+	$[""~getenv[env];
+	.lg.o[`fileload;"environment variable ",envstring," not set, not loading app specific config"];
+	[procenv::getenv[env],"/settings";
+	.lg.o[`fileload;"environment variable ",envstring," set, loading app specific config"];
+	.proc.loadconfig[procenv;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
+	];
 	};
 
 \d . 
@@ -574,20 +587,10 @@ sys:{[cmd]
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
 	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
-  // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
-  $[""~getenv`KDBSERVCONFIG;
-    .lg.o[`fileload;"environment variable KDBSERVCONFIG not set, not loading app specific config"];
-    [.proc.servconfig:getenv[`KDBSERVCONFIG],"/settings/";
-    .lg.o[`fileload;"environment variable KDBSERVCONFIG set, loading app specific config from ",.proc.servconfig];
-    .proc.loadconfig[.proc.servconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
-  ];
+    // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
+	.proc.func[`KDBSERVCONFIG;`.proc.servconfig]
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
-  $[""~getenv`KDBAPPCONFIG;	
-	  .lg.o[`fileload;"environment variable KDBAPPCONFIG not set, not loading app specific config"];
-	  [.proc.appconfig:getenv[`KDBAPPCONFIG],"/settings/";
-	  .lg.o[`fileload;"environment variable KDBAPPCONFIG set, loading app specific config from ",.proc.appconfig];
-	  .proc.loadconfig[.proc.appconfig;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
-  ];
+	.proc.func[`KDBAPPCONFIG;`.proc.appconfig]
 	// Override config from the command line
 	.proc.override[]]
 
@@ -596,12 +599,10 @@ if[not `noconfig in key .proc.params;
 .proc.loadprocesscode:@[value;`.proc.loadprocesscode;1b];
 .proc.loadnamecode:@[value;`.proc.loadnamecode;0b];
 .proc.loadhandlers:@[value;`.proc.loadhandlers;1b];
-.proc.logroll:@[value;`.proc.logroll;1]
-.lg.o[`init;".proc.loadcommoncode flag set to ",string .proc.loadcommoncode];
-.lg.o[`init;".proc.loadprocesscode flag set to ",string .proc.loadprocesscode];
-.lg.o[`init;".proc.loadnamecode flag set to ",string .proc.loadnamecode];
-.lg.o[`init;".proc.loadhandlers flag set to ",string .proc.loadhandlers];
-.lg.o[`init;".proc.logroll flag set to ",string .proc.logroll];
+.proc.logroll:@[value;`.proc.logroll;1b]
+// Log these flags
+.proc.logflag:{[x].lg.o[`init; string[x]," flag set to ",string value x]}
+.proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll
 
 .proc.reloadallcode:{
 	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
