@@ -565,18 +565,14 @@ sys:{[cmd]
 	/-@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;{.lg.e[`system;"failed to execute ",cmd,": ",x];'x}]
 	};
 
-// load config files 
-/
-loadsettings:{[x]{.proc.loadconfig[getenv[x],"/settings/";]} each `default,.proc.parentproctype,.proc.proctype,.proc.procname};
-\
-func:{[env;procenv]
-	/- wihtout this the logging line within the [] breaks?
-	envstring:string env;
-	$[""~getenv[env];
-	.lg.o[`fileload;"environment variable ",envstring," not set, not loading app specific config"];
-	[procenv::getenv[env],"/settings";
-	.lg.o[`fileload;"environment variable ",envstring," set, loading app specific config"];
-	.proc.loadconfig[procenv;] each `default,.proc.parentproctype,.proc.proctype,.proc.procname]
+// Load additional config files, check if the specific configuration environment variable exists and load the settings if it does
+loadaddcnfg:{[envvar;cnfgpath]
+	evstring:string envvar;
+	$[""~getenv[envvar];
+	.lg.o[`fileload;"environment variable ",evstring," not set, not loading app specific config"];
+	(set[cnfgpath;getenv[envvar],"/settings/"];
+	.lg.o[`fileload;"environment variable ",evstring," set, loading app specific config"];
+	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname)
 	];
 	};
 
@@ -588,9 +584,9 @@ if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
 	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
     // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
-	.proc.func[`KDBSERVCONFIG;`.proc.servconfig]
+	.proc.loadaddcnfg[`KDBSERVCONFIG;`.proc.servconfig]
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
-	.proc.func[`KDBAPPCONFIG;`.proc.appconfig]
+	.proc.loadaddcnfg[`KDBAPPCONFIG;`.proc.appconfig]
 	// Override config from the command line
 	.proc.override[]]
 
