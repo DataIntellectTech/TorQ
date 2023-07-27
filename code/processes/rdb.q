@@ -115,9 +115,13 @@ endofday:{[date;processdata]
 	
 reload:{[date]
 	if[.z.w in key .rdb.reloadcalls;
-	        .rdb.reloadcalls[.z.w]:1b;
-		.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .rdb.reloadcalls];
-		if[not all .rdb.reloadcalls;:(::)]];
+		.rdb.reloadcalls[.z.w]:1b;
+		$[not all .rdb.reloadcalls; 
+			{.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .rdb.reloadcalls]; :(::)}[];
+			.lg.o[`reload;"reload call received from handle ", string[.z.w], "; no more reload calls pending"];
+		]
+	]
+
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
@@ -142,7 +146,7 @@ reload:{[date]
 reloadcalls:()!();
 
 // function to add handle to reloadcalls dictionary
-po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
+po:{[h] if[.proc.proctype in .rdb.connectedProcs;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.rdb.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary

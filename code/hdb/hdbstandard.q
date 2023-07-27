@@ -1,10 +1,12 @@
 // reload function
 reload:{
-	
 	if[.z.w in key .hdb.reloadcalls;
 		.hdb.reloadcalls[.z.w]:1b;
-		.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .hdb.reloadcalls];
-		if[not all .hdb.reloadcalls;:(::)]];
+		$[not all .hdb.reloadcalls; 
+			{.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .hdb.reloadcalls]; :(::)}[];
+			.lg.o[`reload;"reload call received from handle ", string[.z.w], "; no more reload calls pending"];
+		]
+	]
 	.lg.o[`reload;"reloading HDB"];
 	@[`.hdb.reloadcalls;key .hdb.reloadcalls;:;0b];
 	system"l ."}
@@ -18,7 +20,7 @@ reload:{
 reloadcalls:()!();
 
 // function to add handle to reloadcalls dictionary
-po:{[h] if[.z.u in `wdb`rdb;reloadcalls[h]:0b]};
+po:{[h] if[.proc.proctype in .hdb.connectedProcs;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.hdb.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary

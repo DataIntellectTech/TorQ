@@ -552,8 +552,11 @@ reloadstart:{
 reloadend:{
  if[.z.w in key .gw.reloadcalls;
   .gw.reloadcalls[.z.w]:1b;
-  .lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .gw.reloadcalls];
-  if[not all .gw.reloadcalls;:(::)]];
+  $[not all .gw.reloadcalls; 
+   {.lg.o[`reload;"reload call received from handle ", string[.z.w], "; reload calls pending from handles ", ", "sv string where not .gw.reloadcalls]; :(::)}[];
+   .lg.o[`reload;"reload call received from handle ", string[.z.w], "; no more reload calls pending"];
+  ]
+ ]
 
  .lg.o[`reload;"reload end called"];
  /- set eod variable to false
@@ -562,7 +565,8 @@ reloadend:{
  /- retry connections - get updated attributes from servers and refresh servers tables
  setattributes .' flip value flip select procname,proctype,@[;(`.proc.getattributes;`);()!()] each w from .servers.SERVERS where .dotz.liveh[w];
  /- flush any async queries held during reload phase
- .gw.runnextquery[];}
+ .gw.runnextquery[];
+ }
 
 setattributes:{ [prcnme;prctyp;att]
  /- get relevant atrributes
@@ -643,13 +647,15 @@ neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
 
+\
+
 \d .gwreload
 
 // dictionary of handles to reload
 reloadcalls:()!();
 
 // function to add handle to reloadcalls dictionary
-po:{[h] if[.z.u in `wdb;reloadcalls[h]:0b]};
+po:{[h] if[.proc.proctype in .gw.connectedProcs;reloadcalls[h]:0b]};
 .z.po:{[f;x] @[f;x;()];.gwreload.po x} @[value;`.z.po;{{}}];
 
 // function to remove handle from reloadcalls dictionary
