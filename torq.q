@@ -544,18 +544,7 @@ loadspeccode:{[ext;dir]
 	};
 
 // Load each section of code from each directory if it exists
-reloadcommoncode:{
-	loadspeccode["/common"]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-	};
-reloadparentprocesscode:{
-	loadspeccode["/",string parentproctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-	};
-reloadprocesscode:{
-	loadspeccode["/",string proctype]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-	};
-reloadnamecode:{
-	loadspeccode["/",string procname]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE];
-	};
+.proc.reloadcode:{[ext]loadspeccode["/",string ext]'[`KDBCODE`KDBSERVCODE`KDBAPPCODE]};
 
 // execute system commands
 sys:{[cmd]
@@ -600,10 +589,10 @@ if[not `noconfig in key .proc.params;
 .proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll
 
 .proc.reloadallcode:{
-	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
-	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadparentprocesscode[]];
-	if[.proc.loadprocesscode;.proc.reloadprocesscode[]];
-	if[.proc.loadnamecode;.proc.reloadnamecode[]];
+	if[.proc.loadcommoncode; .proc.reloadcode[`common]];
+	if[.proc.loadprocesscode & not null first `symbol$.proc.parentproctype;.proc.reloadcode[.proc.parentproctype]];
+	if[.proc.loadprocesscode;.proc.reloadcode[.proc.proctype]];
+	if[.proc.loadnamecode;.proc.reloadcode[.proc.procname]];
 	};
 .proc.reloadallcode[];
 
