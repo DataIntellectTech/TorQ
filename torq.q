@@ -562,7 +562,6 @@ sys:{[cmd]
 	.lg.o[`system;"executing system command: ",cmd];
 	catcherror:{[cmd;error] .lg.e[`system;"failed to execute ",cmd,": ",error];'error};
 	@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;catcherror[cmd;]]
-	/-@[{result:system x;.lg.o[`system;"successfully executed"];result};cmd;{.lg.e[`system;"failed to execute ",cmd,": ",x];'x}]
 	};
 
 // Load additional config files, check if the specific configuration environment variable exists and load the settings if it does
