@@ -554,14 +554,14 @@ sys:{[cmd]
 	};
 
 // Load additional config files, check if the specific configuration environment variable exists and load the settings if it does
-loadaddcnfg:{[envvar;cnfgpath]
+loadaddconfig:{[envvar;cnfgpath]
 	evstring:string envvar;
-	$[""~getenv[envvar];
-	.lg.o[`fileload;"environment variable ",evstring," not set, not loading app specific config"];
-	(set[cnfgpath;getenv[envvar],"/settings/"];
-	.lg.o[`fileload;"environment variable ",evstring," set, loading app specific config"];
-	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname)
-	];
+	if[""~getenv[envvar];
+	.lg.o[`fileload;"environment variable ",evstring," not set, not loading this config"];
+	:()];
+	set[cnfgpath;getenv[envvar],"/settings/"];
+	.lg.o[`fileload;"environment variable ",evstring," set, loading this config"];
+	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname
 	};
 
 \d . 
@@ -570,11 +570,11 @@ loadaddcnfg:{[envvar;cnfgpath]
 // Each module loads configuration in the order: default configuration, then process type specific, then process specific
 if[not `noconfig in key .proc.params;
 	// load TorQ Default configuration module
-	.proc.loadconfig[getenv[`KDBCONFIG],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname;
+	.proc.loadaddconfig[`KDBCONFIG;`.proc.config];
     // check if KDBSERVCONFIG is set and load Service Layer specific configuration module
-	.proc.loadaddcnfg[`KDBSERVCONFIG;`.proc.servconfig]
+	.proc.loadaddconfig[`KDBSERVCONFIG;`.proc.servconfig];
 	// check if KDBAPPCONFIG is set and load Appliation specific configuration module 
-	.proc.loadaddcnfg[`KDBAPPCONFIG;`.proc.appconfig]
+	.proc.loadaddconfig[`KDBAPPCONFIG;`.proc.appconfig];
 	// Override config from the command line
 	.proc.override[]]
 
@@ -583,10 +583,10 @@ if[not `noconfig in key .proc.params;
 .proc.loadprocesscode:@[value;`.proc.loadprocesscode;1b];
 .proc.loadnamecode:@[value;`.proc.loadnamecode;0b];
 .proc.loadhandlers:@[value;`.proc.loadhandlers;1b];
-.proc.logroll:@[value;`.proc.logroll;1b]
+.proc.logroll:@[value;`.proc.logroll;1b];
 // Log these flags
-.proc.logflag:{[x].lg.o[`init; string[x]," flag set to ",string value x]}
-.proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll
+.proc.logflag:{[x].lg.o[`init; string[x]," flag set to ",string value x]};
+.proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll;
 
 .proc.reloadallcode:{
 	if[.proc.loadcommoncode; .proc.reloadcode[`common]];
