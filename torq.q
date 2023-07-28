@@ -598,7 +598,7 @@ if[not `noconfig in key .proc.params;
 .proc.logroll:@[value;`.proc.logroll;1b]
 // Log these flags
 .proc.logflag:{[x].lg.o[`init; string[x]," flag set to ",string value x]}
-.proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll
+.proc.logflag each `.proc.loadcommoncode`.proc.loadprocesscode`.proc.loadnamecode`.proc.loadhandlers`.proc.logroll;
 
 .proc.reloadallcode:{
 	if[.proc.loadcommoncode; .proc.reloadcommoncode[]];
