@@ -557,8 +557,9 @@ sys:{[cmd]
 loadaddconfig:{[envvar;cnfgpath]
 	evstring:string envvar;
 	if[""~getenv[envvar];
-	.lg.o[`fileload;"environment variable ",evstring," not set, not loading this config"];
-	:()];
+		.lg.o[`fileload;"environment variable ",evstring," not set, not loading this config"];
+		:();
+	];
 	set[cnfgpath;getenv[envvar],"/settings/"];
 	.lg.o[`fileload;"environment variable ",evstring," set, loading this config"];
 	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname
