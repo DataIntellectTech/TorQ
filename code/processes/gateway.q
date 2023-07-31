@@ -597,6 +597,18 @@ if[@[value;`.timer.enabled;0b];
   f@connectiontab
  }@[value;`.servers.connectcustom;{{[x]}}]
 
+\d .gwreload
+
+// dictionary of handles to reload
+reloadcalls:()!();
+
+// function to add handle to reloadcalls dictionary
+po:{[h] if[.proc.proctype in .gw.connectedProcs;reloadcalls[h]:0b]};
+.z.po:{[f;x] @[f;x;()];.gwreload.po x} @[value;`.z.po;{{}}];
+
+// function to remove handle from reloadcalls dictionary
+pc:{[h] reloadcalls _: h; if[(all .gwreload.reloadcalls) & count .gwreload.reloadcalls;reload[]]};
+.z.pc:{[f;x] @[f;x;()];.gwreload.pc x} @[value;`.z.pc;{{}}];
 
 /
 
@@ -646,18 +658,3 @@ neg[h](`.gw.asyncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb));h
 neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`hdb;raze;();0D00:00:03);h[]
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
-
-\
-
-\d .gwreload
-
-// dictionary of handles to reload
-reloadcalls:()!();
-
-// function to add handle to reloadcalls dictionary
-po:{[h] if[.proc.proctype in .gw.connectedProcs;reloadcalls[h]:0b]};
-.z.po:{[f;x] @[f;x;()];.gwreload.po x} @[value;`.z.po;{{}}];
-
-// function to remove handle from reloadcalls dictionary
-pc:{[h] reloadcalls _: h; if[(all .gwreload.reloadcalls) & count .gwreload.reloadcalls;reload[]]};
-.z.pc:{[f;x] @[f;x;()];.gwreload.pc x} @[value;`.z.pc;{{}}];
