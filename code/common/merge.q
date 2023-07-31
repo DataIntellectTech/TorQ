@@ -44,7 +44,7 @@ getpartchunks:{[partdirs;mergelimit]
   /-return list of partitions to be called in batch
   l:(where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]),(select count i from .merge.partsizes)[`x];
   /-where there are more than set partlimit, split the list
-  s:-1_ asc raze {$[(x[y]-x[y-1])<=.merge.partlimit;x[y];x[y], x[y-1] + (v where 0=(v:1+ til x[y] - x[y-1]) mod .merge.partlimit)]}/:[l;til count l];
+  s:-1_distinct asc raze {$[(x[y]-x[y-1])<=.merge.partlimit;x[y];x[y], first each .merge.partlimit cut x[y-1]+til x[y] - x[y-1]]}/:[l;til count l];
   /-return list of partitions
   s cut exec ptdir from t
   };
