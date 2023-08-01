@@ -133,10 +133,10 @@ errortolerance:3f		// and to an error state when it hasn't heartbeated in errort
 
 \d .ldap
 
-enabled:0b                                  // whether ldap authentication is enabled
-debug:0i				    // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+enabled:1b                                  // whether ldap authentication is enabled
+debug:2i				    // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
 server:"localhost";                         // name of ldap server
-port:0i;                                    // port for ldap server
+port:10389i;                                    // port for ldap server
 version:3;                                  // ldap version number
 blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
 checklimit:3;                               // number of attempts before user is temporarily blocked
