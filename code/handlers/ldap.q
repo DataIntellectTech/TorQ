@@ -15,7 +15,7 @@ blocktime:  @[value;`blocktime; 0D00:30:00];                       / time before
 checklimit: @[value;`checklimit;3];                                / number of attempts before user is temporarily blocked
 checktime:  @[value;`checktime;0D00:05];                           / period for user to reauthenticate without rechecking LDAP server
 buildDNsuf: @[value;`buildDNsuf;""];                               / suffix used for building bind DN
-buildDN:    @[value;`buildDN;{{"uid=",string[x],",",buildDNsuf}}]; / function to build bind DN
+buildDN:    @[value;`buildDN;{{"uid=",string[x]}}]; / function to build bind DN
 
 out:{if[debug;:.lg.o[`ldap] x]};
 err:{if[debug;:.lg.e[`ldap] x]};
@@ -23,7 +23,8 @@ err:{if[debug;:.lg.e[`ldap] x]};
 initialise:{[lib]                                                     / initialise ldap library
   .ldap.init:lib 2:(`kdbldap_init;2);
   .ldap.setOption:lib 2:(`kdbldap_set_option;3);
-  .ldap.bind_s:lib 2:(`kdbldap_bind_s;4)
+  .ldap.bind_s:lib 2:(`kdbldap_bind_s;4);
+  .ldap.err2string:lib 2:(`kdbldap_err2string;1);
  };
 
 .ldap.initialise hsym .ldap.lib
@@ -53,10 +54,11 @@ bind:{[sess;customDict]
   bindSession
   }
 
+/authenticate:{[dict].ldap.bind[.ldap.sessionID;(enlist dict[`bind_dn])!enlist dict[`pass]]}
 
 login:{[user;pass]                                              / validate login attempt
   incache:.ldap.cache user;                                     / get user from inputs
-  dict::`version`server`port`bind_dn`pass!(.ldap.version;.ldap.server;.ldap.port;.ldap.buildDN user;pass);
+  dict:`version`server`port`bind_dn`pass!(.ldap.version;.ldap.server;.ldap.port;.ldap.buildDN user;pass);
   
   if[incache`blocked;
     if[null blocktime;                                          / if null blocktime then user is blocked
@@ -67,7 +69,7 @@ login:{[user;pass]                                              / validate login
       update attempts:0, blocked:0b from `.ldap.cache where user=user];
   ];
 
-  authenticate:{.ldap.bind[.ldap.sessionID;(enlist `$dict[`bind_dn])!enlist `$dict[`pass]]}
+  /authenticate:{[dict].ldap.bind[.ldap.sessionID;(enlist `$dict[`bind_dn])!enlist `$dict[`pass]]}
 
   authorised:$[all (                                            / check if previously used details match
     incache[`success];                                          / previous attempt was a success
@@ -75,12 +77,14 @@ login:{[user;pass]                                              / validate login
     incache[`pass]~np:md5 pass                                  / same password was used
   );
     1b;
-    @[{authenticate[]};dict;0b]                  / attempt authentication
+    authenticate:{[dict].ldap.bind[.ldap.sessionID;(`dn;`cred)!(dict[`bind_dn];`$dict[`pass])]} [dict]                 / attempt authentication
   ];
  
-  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised;authorised;0b);  / upsert details of current attempt
+  
 
-  $[authorised;                                                 / display authentication status message
+  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised[`ReturnCode] ;$[authorised[`ReturnCode]~0i;1b;0b];0b);  / upsert details of current attempt
+
+  $[authorised[`ReturnCode]~0i;                                                 / display authentication status message
     .ldap.out"successfully authenticated user ",;
     .ldap.err"failed to authenticate user ",] dict`bind_dn;
  
@@ -88,7 +92,8 @@ login:{[user;pass]                                              / validate login
     .[`.ldap.cache;(user;`blocked);:;1b];
     .ldap.out"limit reached, user ",dict[`bind_dn]," has been locked out"];
 
-  :authorised;
+  :$[authorised[`ReturnCode]~0i;1b;0b];
+  show authenticate;
  };
 
 
