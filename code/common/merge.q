@@ -1,5 +1,6 @@
 \d .merge
 mergebybytelimit:@[value;`.merge.mergebybytelimit;0b];                        /- merge limit configuration - default is 0b row count limit 1b is byte size limit
+partlimit:@[value;`.merge.partlimit;1000]                                     /- limit the number of partitions in a chunk
 
 partsizes:([ptdir:`symbol$()] rowcount:`long$(); bytes:`long$());             /- partsizes table used to keep track of table row count and bytesize estimate when data is written to disk
 
@@ -40,8 +41,12 @@ getpartchunks:{[partdirs;mergelimit]
   t:select from .merge.partsizes where ptdir in partdirs;
   /-get list of limits (rowcount or bytesize) to be used to get chunks of partitions to get merged in batch
   r:$[.merge.mergebybytelimit;exec bytes from t;exec rowcount from t];
-  /-return list of partitions to be called in batch by merge by part function
-  (where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]) cut exec ptdir from t
+  /-return list of partitions to be called in batch
+  l:(where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]),(select count i from .merge.partsizes)[`x];
+  /-where there are more than set partlimit, split the list
+  s:-1_distinct asc raze {$[(x[y]-x[y-1])<=.merge.partlimit;x[y];x[y], first each .merge.partlimit cut x[y-1]+til x[y] - x[y-1]]}/:[l;til count l];
+  /-return list of partitions
+  s cut exec ptdir from t
   };
 
 /-merge entire partition from temporary storage to permanent storage
