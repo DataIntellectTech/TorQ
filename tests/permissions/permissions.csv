@@ -53,7 +53,6 @@ comment,,,,,,,test expressions where first item is lambda from .q
 true,,,q,(`a`b`c!1 4 7)~.pm.expr[`tom;"first each d"],,,test expression with each
 fail,,,q,.pm.expr[`harry;"first each d"],,,harry doesn't have access to d
 
-comment,,,,,,,test projection functionality works with both value and eval
-true,,,q,.pm.expr[`tom;({[x;y]y~`ABCD};`x;`ABCD)],,,passed to value and variable used literally
-true,,,q,.pm.expr[`tom;({[x;y]y~`ABCD}[`x];`ABCD)],,,passed to eval and looks up variable
-
+comment,,,,,,,test passing both a symbol argument to a lambda function and a projection
+true,,,q,.pm.expr[`tom;({[x;y]y~`ABCD};`x;`ABCD)],,,passing a symbol argument to a lambda function
+true,,,q,.pm.expr[`tom;({[x;y]y~`ABCD}[`x];`ABCD)],,,passing a symbol argument to a projection
