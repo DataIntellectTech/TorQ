@@ -189,8 +189,8 @@ mainexpr:{[u;e;b;pr]
 expr:mainexpr[;;runmode;permissivemode]
 allowed:mainexpr[;;0b;0b]
 
-parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]}
-destringf:{$[(x:`$x)in key`.q;.q x;x~`insert;insert;x]}
+parsequery:{[q]q:$[10=type q;q;10h=abs type f:first q;destringf[f],1_ q;q]};
+destringf:{$[(s:`$x)in key`.q;.q s;s~`insert;insert;any (100h; 104h)=type first f: @[parse; x; 0];f;s]};
 cando:{[u;q]q:parsequery[q]; $[enabled;allowed[u;q];1b]};
 requ:{[u;q]q:parsequery[q]; $[enabled; expr[u;q]; valp q]};
 req:{$[.z.w = 0 ; value x; requ[.z.u;x]]}   / entry point - replace .z.pg/.zps

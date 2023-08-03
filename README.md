@@ -1,10 +1,10 @@
-![TorQ Logo](../master/html/img/AquaQ-TorQ-symbol-small.png)
+![TorQ Logo](../master/html/img/DataIntellect-TorQ-logo.png)
 
-[Read our documentation](https://AquaQAnalytics.github.io/TorQ/)
+[Read our documentation](https://DataIntellectTech.github.io/TorQ/)
 
 The framework forms the basis of a production kdb+ system by implementing some core functionality and utilities on top of kdb+, allowing developers to concentrate on the application business logic. It incorporates as many best practices as possible, with particular focus on performance, process management, diagnostic information, maintainability and extensibility. Wherever possible, we have tried to avoid re-inventing the wheel and instead have used contributed code from code.kx.com (either directly or modified). This framework will be suitable for those looking to create a new kdb+ system from scratch or those looking to add additional functionality to their existing kdb+ systems.
 
-[Have a skim through our brochure](../master/aquaq-torq-brochure.pdf?raw=true) for a bit more information.  The easiest way to get a production capture started is to download and install one of the [Starter Packs](https://github.com/AquaQAnalytics), or [read through our Github-Pages site](https://AquaQAnalytics.github.io/TorQ/).  We also have a [Google Group for questions/discussions](https://groups.google.com/forum/#!forum/kdbtorq).
+[Have a skim through our brochure](../master/aquaq-torq-brochure.pdf?raw=true) for a bit more information.  The easiest way to get a production capture started is to download and install one of the [Starter Packs](https://github.com/DataIntellectTech), or [read through our Github-Pages site](https://DataIntellectTech.github.io/TorQ/).  We also have a [Google Group for questions/discussions](https://groups.google.com/forum/#!forum/kdbtorq).
 
 ## Quick Start
 
@@ -39,6 +39,8 @@ Then:
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
 ## Release Notes
+- **4.4.0, May 2023**
+  * Rebranding: Update AquaQ references to Data Intellect
 - **4.3.0, Jan 2023**
   * Bug fixes
   * Updated documentation
@@ -60,7 +62,7 @@ Head to the address it gives you to check if your changes have worked. More info
   * Data Access API bug fixes
   * Improved attribute routing surrounding overlapping processes
 - **4.1.0, Apr 2021**
-  * Data Access API Update [Blog post](https://www.aquaq.co.uk/torq-2/data-access-api/) and [Documentation](docs/dataaccess.md)
+  * Data Access API Update [Blog post](https://dataintellect.com/data-access-api/) and [Documentation](docs/dataaccess.md)
 - **4.0.1, Mar 2021**
   * Bug fixes
   * Documentation improvements
@@ -76,10 +78,10 @@ Head to the address it gives you to check if your changes have worked. More info
   * DQS,DQC and DQE upgrades
   * PCAP functionality additions
 - **3.7.0, May 2020**
-  * Added Data Quality System ([blog post](https://www.aquaq.co.uk/torq-2/torq-data-quality-system/) and [documentation](http://aquaqanalytics.github.io/TorQ/Processes/#torq-data-quality-system-architecture))
+  * Added Data Quality System ([Blog post](https://dataintellect.com/torq-data-quality-system/) and [documentation](http://dataintellecttech.github.io/TorQ/Processes/#torq-data-quality-system-architecture))
   * Fix k4unit testing so that it works with kdb+ 4.0.
 - **3.6.0, Apr 2020**:
-  * Added DataDog integration for monitoring: https://www.aquaq.co.uk/q/monitoring-a-torq-system-with-datadog/
+  * Added DataDog integration for monitoring: ([Blog post] (https://dataintellect.com/monitoring-a-torq-system-with-datadog/)
   * Improved k4unit integration
   * Tested with kdb+ 4.0
   * Fix for reval calls via gateaway
@@ -115,11 +117,11 @@ Head to the address it gives you to check if your changes have worked. More info
   * Changed the start script, to start or stop processes separately, in a batch or all at once. All the process configuration is now at one place in $KDBCONFIG/process.csv.
   * Bug fix for erroneous brackets that were causing permissions config to be loaded in incorrect order
 - **3.2.0, February 2018**:
-  * Added initial version of [analytics library](http://aquaqanalytics.github.io/TorQ/analyticslib/), a set of functions to aid data manipulation
-  * Added optional [dependency checker](http://aquaqanalytics.github.io/TorQ/gettingstarted/#application-dependency) for applications to check if they have minimal TorQ and kdb+ dependencies
-  * Added [kdb compression to filealerter](https://github.com/AquaQAnalytics/TorQ/commit/1b048d5e52fa26d537d6c88064b533f376ef08c6).  Use case is for compression of tickerplant log files, so log files can be replayed directly rather than having separate uncompress step
-  * Added [-onelog command line](http://aquaqanalytics.github.io/TorQ/gettingstarted/#logging) option to write stdout/stderr to same log file
-  * Added [file pattern option](http://aquaqanalytics.github.io/TorQ/utilities/#dataloaderq) to data loading utility
+  * Added initial version of [analytics library](http://dataintellecttech.github.io/TorQ/analyticslib/), a set of functions to aid data manipulation
+  * Added optional [dependency checker](http://dataintellecttech.github.io/TorQ/gettingstarted/#application-dependency) for applications to check if they have minimal TorQ and kdb+ dependencies
+  * Added [kdb compression to filealerter](https://github.com/DataIntellectTech/TorQ/commit/1b048d5e52fa26d537d6c88064b533f376ef08c6).  Use case is for compression of tickerplant log files, so log files can be replayed directly rather than having separate uncompress step
+  * Added [-onelog command line](http://dataintellecttech.github.io/TorQ/gettingstarted/#logging) option to write stdout/stderr to same log file
+  * Added [file pattern option](http://dataintellecttech.github.io/TorQ/utilities/#dataloaderq) to data loading utility
   * Bug Fixes
 - **3.1.0, May 2017**:
   * added kafka which is a real time messaging system with persistent storage in message logs
@@ -129,7 +131,7 @@ Head to the address it gives you to check if your changes have worked. More info
 - **3.0.0, January 2017**:
   * Added a permissioning system, allowing granular control of access to users & groups
   * Added LDAP support, allowing a user to authenticate against an LDAP server
-  * Improved documentation now available at http://aquaqanalytics.github.io/TorQ/
+  * Improved documentation now available at http://dataintellecttech.github.io/TorQ/
 - **2.7.0, November 2016**:
   * Tickerplant incorporated.  Tickerplant has faster recovery for real time subscribers, and better timezone handling
   * Filealerter uses a splayed table to store the table of already processed data.  If it finds a table in current format (flat) it will change it to a splay

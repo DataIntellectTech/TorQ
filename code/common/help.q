@@ -346,4 +346,3 @@ TXT,:(enlist`verbs)!enlist(
  "dependency::expression (when not in function definition)"
  )
 DIR,:(enlist`verbs)!enlist`$"verbs/functions"
-.q.help:.help.display

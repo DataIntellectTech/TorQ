@@ -8,20 +8,20 @@
 \d .email
 
 // configuration for default mail server
-enabled:@[value;`enabled;.z.o in `w32`l32`l64`m32`m64]		// whether emails are enabled
-url:@[value;`url;`]						// url of email server e.g. `$"smtp://mail.example.com:80"
-user:@[value;`user;`]						// user account to use to send emails e.g. torq@aquaq.co.uk	
-password:@[value;`password;`]					// password for user account
-from:@[value;`from;`$"torq@localhost"]				// address for return emails e.g. torq@aquaq.co.uk
-usessl:@[value;`usessl;0b]					// connect using SSL/TLS
-debug:@[value;`debug;0i]					// debug level for email library: 0i = none, 1i=normal, 2i=verbose
-img:@[value;`img;`$getenv[`KDBHTML],"/img/AquaQ-TorQ-symbol-small.png"]	// default image for bottom of email
+enabled:  @[value;`enabled;.z.o in `w32`l32`l64`m32`m64]                      // whether emails are enabled
+url:      @[value;`url;`]                                                     // url of email server e.g. `$"smtp://mail.example.com:80"
+user:     @[value;`user;`]                                                    // user account to use to send emails e.g. torq@aquaq.co.uk
+password: @[value;`password;`]                                                // password for user account
+from:     @[value;`from;`$"torq@localhost"]                                   // address for return emails e.g. torq@aquaq.co.uk
+usessl:   @[value;`usessl;0b]                                                 // connect using SSL/TLS
+debug:    @[value;`debug;0i]                                                  // debug level for email library: 0i = none, 1i=normal, 2i=verbose
+img:      @[value;`img;`$getenv[`KDBHTML],"/img/DataIntellect-TorQ-logo.png"] // default image for bottom of email
 
 lib:`$getenv[`KDBLIB],"/",string[.z.o],"/torQemail";
 connected:@[value;`connected;0b]
 
 if[enabled and .z.o~`w64;
-  .lg.w[`email;"Email is not supported for Windows 64bit. Disabling email fucntionality"];
+  .lg.w[`email;"Email is not supported for Windows 64bit. Disabling email functionality"];
   enabled:0b
   ];
 
@@ -31,12 +31,12 @@ if[.email.enabled;
   libexists:not ()~key libfile;
   if[not .email.libexists; .lg.e[`email;"no such file ",1_string libfile]]; 
   if[.email.libexists;
-  	connect:@[{x 2:(`emailConnect;1)};lib;{.lg.w[`init;"failed to create .email.connect ",x]}];
-  	disconnect:@[{x 2:(`emailDisconnect;1)};lib;{.lg.w[`init;"failed to create .email.disconnect ",x]}];
-  	send:@[{x 2:(`emailSend;1)};lib;{.lg.w[`init;"failed to create .email.send ",x]}];
-  	create:@[{x 2:(`emailCreate;1)};lib;{.lg.w[`init;"failed to create .email.create ",x]}];
-  	g:@[{x 2:(`emailGet;1)};lib;{.lg.w[`init;"failed to create .email.get ",x]}];
-  	getSocket:@[{x 2:(`getSocket;1)};lib;{.lg.w[`init;"failed to create .email.getSocket ",x]}];
+    connect:    @[{x 2:(`emailConnect   ;1)};lib;{.lg.w[`init;"failed to create .email.connect "   ,x]}];
+    disconnect: @[{x 2:(`emailDisconnect;1)};lib;{.lg.w[`init;"failed to create .email.disconnect ",x]}];
+    send:       @[{x 2:(`emailSend      ;1)};lib;{.lg.w[`init;"failed to create .email.send "      ,x]}];
+    create:     @[{x 2:(`emailCreate    ;1)};lib;{.lg.w[`init;"failed to create .email.create "    ,x]}];
+    g:          @[{x 2:(`emailGet       ;1)};lib;{.lg.w[`init;"failed to create .email.get "       ,x]}];
+    getSocket:  @[{x 2:(`getSocket      ;1)};lib;{.lg.w[`init;"failed to create .email.getSocket " ,x]}];
   ];
  ];
 

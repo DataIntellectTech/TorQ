@@ -3,7 +3,7 @@
 Processes
 =========
 
-A set of processes is included. These processes build upon AquaQ TorQ,
+A set of processes is included. These processes build upon Data Intellect TorQ,
 providing specific functionality. All the process scripts are contained
 in $KDBCODE/processes. All processes should have an entry in
 $KDBCONFIG/process.csv. All processes can have any type and name,
@@ -150,7 +150,7 @@ query itself, the username, host of the client etc.
 
 An asynchronous query can be timed out using a timeout defined by the
 client. The gateway will periodically check if any client queries have
-not completed in the alotted time, and return a timeout error to the
+not completed in the allotted time, and return a timeout error to the
 client. If the query is already running on any backend servers then they
 cannot be timed out other than by using the standard -T flag.
 
@@ -784,7 +784,7 @@ A key tickerplant function is to timestamp the incoming data before it gets publ
 
 This allows for more complex configurations, such as an Foreign Exchange data capture system which timestamps data in UTC but rolls at 5 PM EST. 
 
-The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://aquaqanalytics.github.io/TorQ/utilities/#eodtimeq).
+The key variable used is `.eodtime.dailyadj` but more information on setting up a TorQ process in a different time zone can be found [here](https://dataintellecttech.github.io/TorQ/utilities/#eodtimeq).
 
 ### Per Table Customisation
 

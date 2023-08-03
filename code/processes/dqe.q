@@ -4,6 +4,7 @@
 dqedbdir:@[value;`dqedbdir;`:dqedb];                                                // location of dqedb database
 utctime:@[value;`utctime;1b];                                                       // define whether the process is on UTC time or not
 partitiontype:@[value;`partitiontype;`date];                                        // set type of partition (defaults to `date)
+hdbtypes:@[value;`hdbtypes;enlist`hdb];                                             // hdb types for use in saving
 getpartition:@[value;`getpartition;                                                 // determines the partition value
   {{@[value;`.dqe.currentpartition;
     (`date^partitiontype)$(.z.D,.z.d)utctime]}}];
@@ -85,7 +86,7 @@ configtimer:{[]
 
 writedownengine:{
   if[0=count .dqe.tosavedown`.dqe.resultstab;:()];
-  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each .dqe.hdbtypes,`dqedb`dqcdb;  // Get a list of all databases.
   restemp1:select from .dqe.resultstab where procs in dbprocs;
   restemp2:select from .dqe.resultstab where not procs in dbprocs;
   restemp3:.dqe.resultstab;
@@ -102,7 +103,7 @@ writedownengine:{
 
 writedownadvanced:{
   if[0=count .dqe.tosavedown`.dqe.advancedres;:()];
-  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each .dqe.hdbtypes,`dqedb`dqcdb;  // Get a list of all databases.
   advtemp1:select from .dqe.advancedres where procs in dbprocs;
   advtemp2:select from .dqe.advancedres where not procs in dbprocs;
   advtemp3:.dqe.advancedres;
@@ -122,12 +123,12 @@ writedownadvanced:{
 .dqe.currentpartition:.dqe.getpartition[];  /- initialize current partition
 
 
-.servers.CONNECTIONS:`tickerplant`rdb`hdb`dqedb`dqcdb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,`tickerplant`rdb`hdb`dqedb`dqcdb /- open connections to required procs, need dqedb as some checks rely on info from both dqe and dqedb
 
 /- setting up .u.end for dqe
 .u.end:{[pt]
   .lg.o[`dqe;".u.end initiated"];
-  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each`hdb`dqedb`dqcdb;  // Get a list of all databases.
+  dbprocs:exec distinct procname from raze .servers.getservers[`proctype;;()!();0b;1b]each .dqe.hdbtypes,`dqedb`dqcdb;  // Get a list of all databases.
   restemp1:select from .dqe.resultstab where procs in dbprocs;
   restemp2:select from .dqe.resultstab where not procs in dbprocs;
   advtemp1:select from .dqe.advancedres where procs in dbprocs;

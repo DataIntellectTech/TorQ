@@ -1,5 +1,6 @@
 // Bespoke WDB config
 .merge.mergebybytelimit:0b                                                                  // merge limit configuration - default is 0b row count limit 1b is byte size limit
+.merge.partlimit:1000                                                                       // limit the number of partitions in a chunk
 \d .wdb
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload

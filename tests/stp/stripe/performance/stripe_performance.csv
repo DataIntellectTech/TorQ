@@ -37,4 +37,4 @@ run,1300,0,q,.u.upd[`trade]'[tupdNew],1,,"Performance test for striping function
 run,1500,0,q,.u.upd[`quote]'[qupdNew],1,,"Performance test for striping function with 1 to 10 NEW symbols each update"
 after,0,0,q,value[rdbHandles] @\: "quote:0#quote";value[rdbHandles] @\: "trade:0#trade",1,,"Clear RDBs tables"
 after,0,0,q,"system ""rm -rf "",1_string .stplg.dldir",1,,"Delete logs folder"
-after,0,0,q,"startorstopproc[""stop"";""all"";getenv[`testpath],""/process.csv""]",1,,"Stop all proccess"
+after,0,0,q,"startorstopproc[""stop"";""all"";getenv[`testpath],""/process.csv""]",1,,"Stop all process"
