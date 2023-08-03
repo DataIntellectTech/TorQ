@@ -5,15 +5,17 @@
 \d .ldap
 
 enabled:    @[value;`enabled;.z.o~`l64]                            / whether authentication is enabled
-lib:        `$getenv[`KDBLIB],"/",string[.z.o],"/kdbldap";        / ldap library location
+lib:        `$getenv[`KDBLIB],"/",string[.z.o],"/kdbldap";         / ldap library location
 debug:      @[value;`debug;0i]                                     / debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
 server:     @[value;`server;"localhost"];                          / name of ldap server
 port:       @[value;`port;0i];                                     / port for ldap server
 blocktime:  @[value;`blocktime; 0D00:30:00];                       / time before blocked user can attempt authentication
 checklimit: @[value;`checklimit;3];                                / number of attempts before user is temporarily blocked
 checktime:  @[value;`checktime;0D00:05];                           / period for user to reauthenticate without rechecking LDAP server
-buildDNsuf: @[value;`buildDNsuf;",ou=people,dc=planetexpress,dc=com"];                               / suffix used for building bind DN
-buildDN:    @[value;`buildDN;{{"cn=",string[x],",",buildDNsuf}}]; / function to build bind DN
+buildDNsuf: @[value;`buildDNsuf;""];                               / suffix used for building bind DN
+buildDN:    @[value;`buildDN;{{"uid",string[x],",",buildDNsuf}}];  / function to build bind DN
+schema:     @[value;`schema;"ldap"];                               / schema for ldap
+version:    @[value;`version;3];                                    / ldap version number 
 
 out:{if[debug;:.lg.o[`ldap] x]};
 err:{if[debug;:.lg.e[`ldap] x]};
@@ -30,7 +32,7 @@ initialise:{[lib]                                                     / initiali
   .ldap.interactive_bind_s:lib 2:(`kdbldap_interactive_bind_s;5);
   .ldap.search_s:lib 2:(`kdbldap_search_s;8);
   .ldap.unbind_s:lib 2:(`kdbldap_unbind_s;1);
-  r:.ldap.init[0i;enlist `$.ldap.schema,"://",.ldap.server,":",string .ldap.port];
+  r:.ldap.init[.ldap.sessionID;enlist `$.ldap.schema,"://",.ldap.server,":",string .ldap.port];
   if[0<>r;.ldap.err "Error initialising LDAP: ",.ldap.err2string[r]];
   s:.ldap.setOption[.ldap.sessionID;`LDAP_OPT_PROTOCOL_VERSION;.ldap.version];
   if[0<>s;.ldap.err "Error setting LDAP option: ",.ldap.err2string[s]];
@@ -79,23 +81,20 @@ login:{[user;pass]                                              / validate login
     incache[`pass]~np:md5 pass                                  / same password was used
   );
     enlist[`ReturnCode]!enlist 0i;
-    .[.ldap.bind;(.ldap.sessionID;dict);0b]                 / attempt authentication
+    .[.ldap.bind;(.ldap.sessionID;dict);enlist[`ReturnCode]!enlist -2i]                 / attempt authentication
   ];
  
-  
-
-  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised[`ReturnCode] ;authorised[`ReturnCode]~0i;0b);  / upsert details of current attempt
+  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; $[0=authorised[`ReturnCode];0;1+0^incache`attempts] ;authorised[`ReturnCode]~0i;0b);  / upsert details of current attempt
 
   $[authorised[`ReturnCode]~0i;                                                 / display authentication status message
     .ldap.out"successfully authenticated user ",;
-    .ldap.err"failed to authenticate user ",.ldap.err2string authorised[`ReturnCode]] dict[`bind_dn];
+    .ldap.err"failed to authenticate user ",.ldap.err2string[authorised[`ReturnCode]],] dict[`dn];
  
   if[.ldap.checklimit<=.ldap.cache[user]`attempts;              / if attempt limit reached then block user
     .[`.ldap.cache;(user;`blocked);:;1b];
-    .ldap.out"limit reached, user ",dict[`bind_dn]," has been locked out"];
+    .ldap.out"limit reached, user ",dict[`dn]," has been locked out"];
 
   :authorised[`ReturnCode]~0i;
-  :.ldap.err2string authorised[`ReturnCode];
  };
 
 
