@@ -133,16 +133,17 @@ errortolerance:3f		// and to an error state when it hasn't heartbeated in errort
 
 \d .ldap
 
-enabled:1b                                  // whether ldap authentication is enabled
-debug:2i				    // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
+enabled:0b                                  // whether ldap authentication is enabled
+debug:0i				    // debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
 server:"localhost";                         // name of ldap server
-port:10389i;                                    // port for ldap server
+port:0i;                                    // port for ldap server
 version:3;                                  // ldap version number
 blocktime:0D00:30:00;                       // time before blocked user can attempt authentication
 checklimit:3;                               // number of attempts before user is temporarily blocked
 checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
-buildDNsuf:"";                              // suffix used for building bind DN
-buildDN:{"uid=",string[x],",",buildDNsuf};  // function to build bind DN
+buildDNsuf:",ou=people,dc=planetexpress,dc=com";                              // suffix used for building bind DN
+buildDN:{"cn=",string[x],",",buildDNsuf};  // function to build bind DN
+schema:"ldap"
 
 // broadcast publishing
 \d .u

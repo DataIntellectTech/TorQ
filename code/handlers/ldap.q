@@ -2,8 +2,6 @@
 // User attempts are cached
 // This is used to allow .z.pw to be integrated with ldap
 
-
-
 \d .ldap
 
 enabled:    @[value;`enabled;.z.o~`l64]                            / whether authentication is enabled
@@ -14,8 +12,8 @@ port:       @[value;`port;0i];                                     / port for ld
 blocktime:  @[value;`blocktime; 0D00:30:00];                       / time before blocked user can attempt authentication
 checklimit: @[value;`checklimit;3];                                / number of attempts before user is temporarily blocked
 checktime:  @[value;`checktime;0D00:05];                           / period for user to reauthenticate without rechecking LDAP server
-buildDNsuf: @[value;`buildDNsuf;""];                               / suffix used for building bind DN
-buildDN:    @[value;`buildDN;{{"uid=",string[x]}}]; / function to build bind DN
+buildDNsuf: @[value;`buildDNsuf;",ou=people,dc=planetexpress,dc=com"];                               / suffix used for building bind DN
+buildDN:    @[value;`buildDN;{{"cn=",string[x],",",buildDNsuf}}]; / function to build bind DN
 
 out:{if[debug;:.lg.o[`ldap] x]};
 err:{if[debug;:.lg.e[`ldap] x]};
@@ -25,13 +23,21 @@ initialise:{[lib]                                                     / initiali
   .ldap.setOption:lib 2:(`kdbldap_set_option;3);
   .ldap.bind_s:lib 2:(`kdbldap_bind_s;4);
   .ldap.err2string:lib 2:(`kdbldap_err2string;1);
+  .ldap.startTLS:lib 2:(`kdbldap_start_tls;1);
+  .ldap.setGlobalOption:lib 2:(`kdbldap_set_global_option;2);
+  .ldap.getOption:lib 2:(`kdbldap_get_option;2);
+  .ldap.getGlobalOption:lib 2:(`kdbldap_get_global_option;1);
+  .ldap.interactive_bind_s:lib 2:(`kdbldap_interactive_bind_s;5);
+  .ldap.search_s:lib 2:(`kdbldap_search_s;8);
+  .ldap.unbind_s:lib 2:(`kdbldap_unbind_s;1);
+  r:.ldap.init[0i;enlist `$.ldap.schema,"://",.ldap.server,":",string .ldap.port];
+  if[0<>r;.ldap.err "Error initialising LDAP: ",.ldap.err2string[r]];
+  s:.ldap.setOption[.ldap.sessionID;`LDAP_OPT_PROTOCOL_VERSION;.ldap.version];
+  if[0<>s;.ldap.err "Error setting LDAP option: ",.ldap.err2string[s]];
  };
 
+sessionID:0i
 .ldap.initialise hsym .ldap.lib
-sessionID:.ldap.init[0i;enlist `$"ldap://","127.0.0.1",":10389"]
-.ldap.setOption[.ldap.sessionID;`LDAP_OPT_PROTOCOL_VERSION;3]
-/sessionID:.ldap.init[0i;enlist `$"ldap://",("." sv string "i"$0x0 vs .z.a),":10389"]
-
 
 cache:([user:`$()]; pass:(); server:`$(); port:`int$(); time:`timestamp$(); attempts:`long$(); success:`boolean$(); blocked:`boolean$());  / create table to store login attempts
 
@@ -54,11 +60,9 @@ bind:{[sess;customDict]
   bindSession
   }
 
-/authenticate:{[dict].ldap.bind[.ldap.sessionID;(enlist dict[`bind_dn])!enlist dict[`pass]]}
-
 login:{[user;pass]                                              / validate login attempt
   incache:.ldap.cache user;                                     / get user from inputs
-  dict:`version`server`port`bind_dn`pass!(.ldap.version;.ldap.server;.ldap.port;.ldap.buildDN user;pass);
+  dict:`dn`cred!(.ldap.buildDN user;pass);
   
   if[incache`blocked;
     if[null blocktime;                                          / if null blocktime then user is blocked
@@ -69,31 +73,29 @@ login:{[user;pass]                                              / validate login
       update attempts:0, blocked:0b from `.ldap.cache where user=user];
   ];
 
-  /authenticate:{[dict].ldap.bind[.ldap.sessionID;(enlist `$dict[`bind_dn])!enlist `$dict[`pass]]}
-
   authorised:$[all (                                            / check if previously used details match
     incache[`success];                                          / previous attempt was a success
     incache[`time]>.z.p-.ldap.checktime;                        / previous attemp occured within checktime period
     incache[`pass]~np:md5 pass                                  / same password was used
   );
-    1b;
-    authenticate:{[dict].ldap.bind[.ldap.sessionID;(`dn;`cred)!(dict[`bind_dn];`$dict[`pass])]} [dict]                 / attempt authentication
+    enlist[`ReturnCode]!enlist 0i;
+    .[.ldap.bind;(.ldap.sessionID;dict);0b]                 / attempt authentication
   ];
  
   
 
-  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised[`ReturnCode] ;$[authorised[`ReturnCode]~0i;1b;0b];0b);  / upsert details of current attempt
+  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; (1+0^incache`attempts;0) authorised[`ReturnCode] ;authorised[`ReturnCode]~0i;0b);  / upsert details of current attempt
 
   $[authorised[`ReturnCode]~0i;                                                 / display authentication status message
     .ldap.out"successfully authenticated user ",;
-    .ldap.err"failed to authenticate user ",] dict`bind_dn;
+    .ldap.err"failed to authenticate user ",.ldap.err2string authorised[`ReturnCode]] dict[`bind_dn];
  
   if[.ldap.checklimit<=.ldap.cache[user]`attempts;              / if attempt limit reached then block user
     .[`.ldap.cache;(user;`blocked);:;1b];
     .ldap.out"limit reached, user ",dict[`bind_dn]," has been locked out"];
 
-  :$[authorised[`ReturnCode]~0i;1b;0b];
-  show authenticate;
+  :authorised[`ReturnCode]~0i;
+  :.ldap.err2string authorised[`ReturnCode];
  };
 
 
@@ -104,3 +106,4 @@ if[enabled;
   initialise hsym .ldap.lib;                                          / initialise ldap library
   .z.pw:{all(.ldap.login;x).\:(y;z)}@[value;`.z.pw;{{[x;y]1b}}];  / redefine .z.pw
  ];
+
