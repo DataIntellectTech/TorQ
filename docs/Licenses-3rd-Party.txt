@@ -207,7 +207,7 @@
                   The OpenLDAP Public License
                   Version 2.8, 17 August 2003
                Applies to:
-                -ldap.q
+                -kdbldap.so, Copyright Kx Systems
 
 
 ----------------------------------------------------------------------------
