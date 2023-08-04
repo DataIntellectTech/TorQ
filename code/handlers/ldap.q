@@ -13,7 +13,7 @@ blocktime:  @[value;`blocktime; 0D00:30:00];                       / time before
 checklimit: @[value;`checklimit;3];                                / number of attempts before user is temporarily blocked
 checktime:  @[value;`checktime;0D00:05];                           / period for user to reauthenticate without rechecking LDAP server
 buildDNsuf: @[value;`buildDNsuf;""];                               / suffix used for building bind DN
-buildDN:    @[value;`buildDN;{{"uid=",string[x],",",buildDNsuf}}];  / function to build bind DN
+buildDN:    @[value;`buildDN;{{"uid=",string[x],",",buildDNsuf}}]; / function to build bind DN
 schema:     @[value;`schema;"ldap"];                               / schema for ldap
 version:    @[value;`version;3];                                   / ldap version number 
 
