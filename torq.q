@@ -48,6 +48,7 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-procfile x]:\t\t\tthe full path of the process.csv file to use to getthe details on the current process
  [-load x [y..z]]:\t\t\tthe file or database directory to load
  [-loaddir x [y..z]]:\t\t\tload all .q,.k files in specified directory
+ [-envfile x]:\t\t\tthe full path to a q file which defines environment variables
  [-trap]:\t\t\tany errors encountered during initialisation when loading external files will be caught and logged, processing will continue
  [-stop]:\t\t\tstop loading the file if an error is encountered
  [-noredirect]:\t\t\tdo not redirect std out/std err to a file (useful for debugging)
@@ -319,6 +320,11 @@ stop:`stop in key params
 if[trap and stop; .lg.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
+// these can be loaded from a kdb file
+if[`envfile in key params;
+	.lg.o[`init; "loading environment variables from ",envfile:first params`envfile];
+	@[system; "l ",envfile; {[f;e] .lg.e[`init; "failed to load environment variable file ",f," - ",e]}]
+ 	];
 settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
 
 // Check the environment is set up correctly

@@ -495,6 +495,8 @@ pc:{
  removeclienthandle[x];
  removeserverhandle[x];}
 
+// initialise the .gw.call variable incase message handlers are not allowed.
+.gw.call:enlist[0i]!enlist 0b;
 pgs:{.gw.call,:enlist[x]!enlist y};
 
 // override message handlers
