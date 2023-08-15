@@ -23,6 +23,8 @@ onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod write
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
 gc:@[value;`gc;1b];                                         //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
 upd:@[value;`upd;{insert}];                                 //value of upd
+finspace:@[value;`finspace;0b];                             //whether the apllication is finspace or on prem - set to false by default
+database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
@@ -100,6 +102,10 @@ endofday:{[date;processdata]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
+        /-creates new changeset if this is a finspace application
+        if[finspace;
+                    .aws.create_changeset[database;([]input_path:enlist getenv[`KDBSCRATCH];database_path:enlist "/";change_type:enlist "PUT")];
+        ];
 	/-reset timeout to original timeout
 	restoretimeout[];
 	/-reapply the attributes
