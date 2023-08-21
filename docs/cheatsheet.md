@@ -86,7 +86,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #
-#                           e : support@dataintellect.com                      #
+#                           e : torqsupport@dataintellect.com                  #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #
@@ -113,7 +113,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #
-#                           e : support@dataintellect.com                      #
+#                           e : torqsupport@dataintellect.com                  #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #
