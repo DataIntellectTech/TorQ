@@ -26,17 +26,46 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
     txtc:txt[neg 60-last system"c"];txtC:txt[neg 60-last system"C"];
     pzlist:` sv'`.z,'`pw`po`pc`pg`ps`pi`ph`pp`ws`exit;
     .dotz.undef:pzlist where not @[{not(::)~value x};;0b] each pzlist;
-    .dotz.pw.ORIG:.z.pw:@[.:;`.z.pw;{{[x;y]1b}}];
-    .dotz.po.ORIG:.z.po:@[.:;`.z.po;{;}];
-    .dotz.pc.ORIG:.z.pc:@[.:;`.z.pc;{;}];
-    .dotz.wo.ORIG:.z.wo:@[.:;`.z.wo;{;}];
-    .dotz.wc.ORIG:.z.wc:@[.:;`.z.wc;{;}];
-    .dotz.exit.ORIG:.z.exit:@[.:;`.z.exit;{;}];
-    .dotz.pg.ORIG:.z.pg:@[.:;`.z.pg;{.:}];
-    .dotz.ps.ORIG:.z.ps:@[.:;`.z.ps;{.:}];
-    .dotz.pi.ORIG:.z.pi:@[.:;`.z.pi;{{.Q.s value x}}];
+    .dotz.pw.ORIG:.dotz.set[`.z.pw;@[.:;`.z.pw;{{[x;y]1b}}]];
+    .dotz.po.ORIG:.dotz.set[`.z.po;@[.:;`.z.po;{;}]];
+    .dotz.pc.ORIG:.dotz.set[`.z.pc;@[.:;`.z.pc;{;}]];
+    .dotz.wo.ORIG:.dotz.set[`.z.wo;@[.:;`.z.wo;{;}]];
+    .dotz.wc.ORIG:.dotz.set[`.z.wc;@[.:;`.z.wc;{;}]];
+    .dotz.exit.ORIG:.dotz.set[`.z.exit;@[.:;`.z.exit;{;}]];
+    .dotz.pg.ORIG:.dotz.set[`.z.pg;@[.:;`.z.pg;{.:}]];
+    .dotz.ps.ORIG:.dotz.set[`.z.ps;@[.:;`.z.ps;{.:}]];
+    .dotz.pi.ORIG:.dotz.set[`.z.pi;@[.:;`.z.pi;{{.Q.s value x}}]];
     .dotz.ph.ORIG:.z.ph; / .z.ph is defined in q.k
-    .dotz.pp.ORIG:.z.pp:@[.:;`.z.pp;{;}]; / (poststring;postbody)
-    .dotz.ws.ORIG:.z.ws:@[.:;`.z.ws;{{neg[.z.w]x;}}]; / default is echo
-    revert:{.z.pw:.dotz.pw.ORIG;.z.po:.dotz.po.ORIG;.z.pc:.dotz.pc.ORIG;.z.pg:.dotz.pg.ORIG;.z.ps:.dotz.ps.ORIG;.z.pi:.dotz.pi.ORIG;.z.ph:.dotz.ph.ORIG;.z.pp:.dotz.pp.ORIG;.z.ws:.dotz.ws.ORIG;.dotz.SAVED.ORIG:0b;.z.exit:.dotz.exit.ORIG;}
+    .dotz.pp.ORIG:.dotz.set[`.z.pp;@[.:;`.z.pp;{;}]]; / (poststring;postbody)
+    .dotz.ws.ORIG:.dotz.set[`.z.ws;@[.:;`.z.ws;{{neg[.z.w]x;}}]]; / default is echo
+    
+    revert:{
+        .dotz.set[`.z.pw;.dotz.pw.ORIG];
+        .dotz.set[`.z.po;.dotz.po.ORIG];
+        .dotz.set[`.z.pc;.dotz.pc.ORIG];
+        .dotz.set[`.z.pg;.dotz.pg.ORIG];
+        .dotz.set[`.z.ps;.dotz.ps.ORIG];
+        .dotz.set[`.z.pi;.dotz.pi.ORIG];
+        .dotz.set[`.z.ph;.dotz.ph.ORIG];
+        .dotz.set[`.z.pp;.dotz.pp.ORIG];
+        .dotz.set[`.z.ws;.dotz.ws.ORIG];
+        .dotz.SAVED.ORIG:0b;
+        .dotz.set[`.z.exit;.dotz.exit.ORIG];}
     ]
+
+// FinSpace blocks the setting on .z commands, using set and unset to preserve existing TorQ usage and new FinTorQ
+// e.g. to set .z.zd call:
+//     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
+set:{[zCommand;setTo]
+    zCommand:`$last"."vs string zCommand;
+    namespace:$[finspace;`.aws_z;`.z];
+    .[` sv namespace,zCommand;();:;setTo];}
+
+// e.g. if you want to unset .z.zd call:
+//     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
+unset:{[zCommand]
+    zCommand:`$last"."vs string zCommand;
+    namespace:$[finspace;`.aws_z;`.z];
+    $[`ORIG in key ns:` sv `.dotz,zCommand;
+        .dotz.set[zCommand;ns[`ORIG]];
+        ![namespace;();0b;enlist zCommand]];}

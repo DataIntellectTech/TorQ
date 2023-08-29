@@ -121,7 +121,7 @@ init:{[t]
 \d .
 
 // Call closesub function after initial .z.pc call on disconnect
-.z.pc:{[f;x] @[f;x;()];.stpps.closesub x} @[value;`.z.pc;{{}}];
+.dotz.set[`.z.pc;{[f;x] @[f;x;()];.stpps.closesub x} @[value;`.z.pc;{{}}]];
 
 // Function called on subscription
 // Subscriber will call with null y parameter in sub all mode

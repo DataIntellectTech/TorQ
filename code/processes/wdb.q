@@ -83,10 +83,9 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 / - end of default parameters
 
 / - define .z.pd in order to connect to any worker processes
-.z.pd:{$[.z.K<3.3;
-        `u#`int$();
-	`u#exec w from .servers.getservers[`proctype;sortworkertypes;()!();1b;0b]]
-        }
+.dotz.set[`.z.pd;{$[.z.K<3.3;
+    `u#`int$();
+	`u#exec w from .servers.getservers[`proctype;sortworkertypes;()!();1b;0b]]}]
 
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
@@ -260,7 +259,7 @@ doreload:{[pt]
 // set .z.zd to control how data gets compressed
 setcompression:{[compression] if[3=count compression;
 				 .lg.o[`compression;$[compression~16 0 0;"resetting";"setting"]," compression level to (",(";" sv string compression),")"];
-				 .z.zd:compression
+				 .dotz.set[`.z.zd;compression]
 				]}
 resetcompression:{setcompression 16 0 0 }
 
