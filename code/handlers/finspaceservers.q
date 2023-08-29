@@ -8,7 +8,7 @@
     };
 
 .servers.getfinspaceclusters:{[]
-    expclusters:.servers.readclustersfile[];
+    expclusters:@[.servers.readclustersfile; `; {.lg.e[`getfinspaceclusters; "Failed to get read clusters.csv when using -  ",x]}];
     availclusters:@[.aws.list_kx_clusters; `; {.lg.e[`getfinspaceclusters; "Failed to get finspace clusters using the finspace API - ",x]}];
     :expclusters ij `cluster_name`cluster_type xkey select `$cluster_name, `$cluster_type, `$status from availclusters where status like "RUNNING";
     };
@@ -21,5 +21,5 @@
 
     if[null cluster; .lg.w[`finspaceconn; "no available finspace cluster found for ",id]; :`];
     conn:@[.aws.get_kx_connection_string; cluster; {[id;e] .lg.e[`finspaceconn; "failed to get connection string for ",id," via aws api - ",e]; :`}[id;]];
-    :`$conn
+    :`$conn;
     };

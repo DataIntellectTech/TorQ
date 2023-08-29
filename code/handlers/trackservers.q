@@ -30,7 +30,6 @@ SOCKETTYPE:@[value;`SOCKETTYPE;enlist[`]!enlist `]                              
 PASSWORDS:@[value;`PASSWORDS;enlist[`]!enlist `]                                                // dict of host:port!user:pass e.g. `:host:1234!`user:pass
 
 
-
 // If required, change this method to something more secure!
 // Otherwise just load the usernames and passwords from the passwords directory
 // using the usual hierarchic approach
@@ -177,6 +176,7 @@ retryrows:{[rows]
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
     a:{$[not null x;@[x;({.proc.getattributes[]};::);()!()];()!()]};
+
     // opencon, amends global tables, cannot be used inside of a select statement
     handles:.servers.opencon each exec .servers.getconnectionstring'[proctype;procname;hpup] from .servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
@@ -189,7 +189,7 @@ retryrows:{[rows]
 // in this case we need to generate the connection string using the AWS api
 getconnectionstring:{[proctype;procname;hpup]
     if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype; 
-        :hpup ^ .servers.getfinspaceconn[proctype; procname]
+        :hpup ^ .servers.getfinspaceconn[proctype; procname];
         ];
     :hpup;
     };
@@ -299,8 +299,8 @@ formathp:{[HOST;PORT;IPCTYPE]
     ];
     if[ipctype = `finspace;
         // there is no point in generating the AWS connection string at this point as it will expire after a period of time
-        hpup:.servers.FINSPACECONNECTIONMARKER
-        ];
+        hpup:.servers.FINSPACECONNECTIONMARKER;
+    ];
 
     :hpup;
     }
