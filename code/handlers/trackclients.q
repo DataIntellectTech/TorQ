@@ -42,9 +42,9 @@ wo:{[result;W]
     result}
 
 if[enabled;
-	.dotz.set[`.z.po;{.clients.po[x y;y]}.z.po];
+    .dotz.set[`.z.po;{.clients.po[x y;y]}.z.po];
     .dotz.set[`.z.wo;{.clients.wo[x y;y]}.z.wo];
-	.dotz.set[`.z.wc;{.clients.pc[x y;y]}.z.wc];
+    .dotz.set[`.z.wc;{.clients.pc[x y;y]}.z.wc];
 
 	if[not opencloseonly;
 		.dotz.set[`.z.pg;{.clients.hit[@[x;y;.clients.hite]]}.z.pg];
