@@ -26,7 +26,6 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
     txtc:txt[neg 60-last system"c"];txtC:txt[neg 60-last system"C"];
     pzlist:` sv'`.z,'`pw`po`pc`pg`ps`pi`ph`pp`ws`exit;
     .dotz.undef:pzlist where not @[{not(::)~value x};;0b] each pzlist;
-
     .dotz.set[`.z.pw;.dotz.pw.ORIG:@[.:;`.z.pw;{{[x;y]1b}}]];
     .dotz.set[`.z.po;.dotz.po.ORIG:@[.:;`.z.po;{;}]];
     .dotz.set[`.z.pc;.dotz.pc.ORIG:@[.:;`.z.pc;{;}]];
@@ -39,9 +38,8 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
     .dotz.set[`.z.pp;.dotz.pp.ORIG:@[.:;`.z.pp;{;}]]; / (poststring;postbody)
     .dotz.set[`.z.exit;.dotz.exit.ORIG:@[.:;`.z.exit;{;}]];
     .dotz.ph.ORIG:.z.ph; / .z.ph is defined in q.k
-
     revert:{
-        .dotz.unset each `.z.pw`.z.po`.z.pc`.z.pg`.z.ps`.z.pi`.z.ph`.z.pp`.z.ws`.z.exit //TODO ZAN
+        .dotz.unset each `.z.pw`.z.po`.z.pc`.z.pg`.z.ps`.z.pi`.z.ph`.z.pp`.z.ws`.z.exit;
         .dotz.SAVED.ORIG:0b;}
     ]
 

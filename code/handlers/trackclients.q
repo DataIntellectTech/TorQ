@@ -45,11 +45,11 @@ if[enabled;
     .dotz.set[`.z.po;{.clients.po[x y;y]}.z.po];
     .dotz.set[`.z.wo;{.clients.wo[x y;y]}.z.wo];
     .dotz.set[`.z.wc;{.clients.pc[x y;y]}.z.wc];
-
-	if[not opencloseonly;
-		.dotz.set[`.z.pg;{.clients.hit[@[x;y;.clients.hite]]}.z.pg];
-		.dotz.set[`.z.ps;{.clients.hit[@[x;y;.clients.hite]]}.z.ps];
-		.dotz.set[`.z.ws;{.clients.hit[@[x;y;.clients.hite]]}.z.ws];]];
+    
+    if[not opencloseonly;
+        .dotz.set[`.z.pg;{.clients.hit[@[x;y;.clients.hite]]}.z.pg];
+        .dotz.set[`.z.ps;{.clients.hit[@[x;y;.clients.hite]]}.z.ps];
+        .dotz.set[`.z.ws;{.clients.hit[@[x;y;.clients.hite]]}.z.ws];]];
 
 / if no other timer then go fishing for zombie clients every .clients.MAXIDLE
 / if[not system"t";
