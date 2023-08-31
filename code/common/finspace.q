@@ -3,14 +3,14 @@
 
 enabled:@[value;`enabled;0b];                               //whether the application is finspace or on prem - set to false by default
 database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
-hdbclusters:@[value;`hdbclusters;enlist `cluster];             //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
+hdbclusters:@[value;`hdbclusters;enlist `cluster];          //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
 
 / Runs a .aws api until a certain status has been received
 checkStatus:{[apiCall;status;frequency;timeout]
   res:value apiCall;
   st:.z.t;
   l:0;
-  while [(timeout>ti:.z.t-st) & not any (res`status) like/: status; 
+  while[(timeout>ti:.z.t-st) & not any (res`status) like/: status; 
      if[frequency<=ti-l;
             l:ti;
             res:value apiCall; 
