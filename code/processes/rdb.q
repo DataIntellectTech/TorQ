@@ -102,7 +102,7 @@ endofday:{[date;processdata]
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
-                    .aws.create_changeset[.finspace.database;([]input_path:enlist getenv[`KDBSCRATCH];database_path:enlist "/";change_type:enlist "PUT")];
+                    changeset:.finspace.createChangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
@@ -114,7 +114,10 @@ endofday:{[date;processdata]
 	.save.postreplay[hdbdir;date];
 	/-notify all hdbs
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
-	notifyhdb[;date] each hdbs;
+	if[.finspace.enabled;
+                     .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+                     notifyhdb[;date] each hdbs;
+        ];
 	};
 	
 reload:{[date]
