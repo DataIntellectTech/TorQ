@@ -87,6 +87,11 @@ endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
+        / Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createChangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+        ];
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];

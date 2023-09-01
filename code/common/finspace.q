@@ -23,8 +23,6 @@ checkStatus:{[apiCall;status;frequency;timeout]
 
 // Creates a Finspace changeset during the RDB end of day process
 createChangeset:{[db]
-      .lg.o[`createChangeset;"downloading sym file to scratch directory for ",db];
-      .aws.get_latest_sym_file[db;getenv[`KDBSCRATCH]];
       .lg.o[`createChangeset;"creating changeset for database: ", db];
       details:.aws.create_changeset[db;([]input_path:enlist getenv[`KDBSCRATCH];database_path:enlist "/";change_type:enlist "PUT")];
       .lg.o[`createChangeset;("creating changset ",(details`id)," with initial status of ",(details`status))];
