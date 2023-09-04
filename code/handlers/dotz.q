@@ -42,20 +42,3 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
         .dotz.unset each `.z.pw`.z.po`.z.pc`.z.pg`.z.ps`.z.pi`.z.ph`.z.pp`.z.ws`.z.exit;
         .dotz.SAVED.ORIG:0b;}
     ]
-
-// FinSpace blocks the setting on .z commands, using set and unset to preserve existing TorQ usage and new FinTorQ
-// e.g. to set .z.zd call:
-//     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
-set:{[zcommand;setto]
-    zcommand:`$last"."vs string zcommand;
-    namespace:$[finspace;`.aws_z;`.z];
-    .[set;(` sv namespace,zcommand;setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
-
-// e.g. if you want to unset .z.zd call:
-//     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
-unset:{[zcommand]
-    zcommand:`$last"."vs string zcommand;
-    namespace:$[finspace;`.aws_z;`.z];
-    $[`ORIG in key ns:` sv `.dotz,zcommand;
-        .dotz.set[zcommand;ns[`ORIG]];
-        ![namespace;();0b;enlist zcommand]];}
