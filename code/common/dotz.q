@@ -7,7 +7,7 @@
 // FinSpace blocks the setting on .z commands, using set and unset to preserve existing TorQ usage and new FinTorQ
 // e.g. to set .z.zd call:
 //     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
-set:{[zcommand;setto]
+.dotz.set:{[zcommand;setto] // using namespace explicitly due to set already being a key term
     zcommand:`$last"."vs string zcommand;
     namespace:$[finspace;`.aws_z;`.z];
     .[set;(` sv namespace,zcommand;setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
