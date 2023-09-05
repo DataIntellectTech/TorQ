@@ -176,13 +176,23 @@ retryrows:{[rows]
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
     a:{$[not null x;@[x;({.proc.getattributes[]};::);()!()];()!()]};
- 
+
     // opencon, amends global tables, cannot be used inside of a select statement
-    handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
+    handles:.servers.opencon each exec .servers.getconnectionstring'[proctype;procname;hpup] from .servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
     update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from`.servers.SERVERS where i in rows;
     if[count connectedrows:select from`.servers.SERVERS where i in rows,.dotz.liveh0 w;
     connectcustom[connectedrows]]}
+
+// get the connection string to connect to a given process
+// in most cases this is just the hpup, unless we are connecting to a finspace process
+// in this case we need to generate the connection string using the AWS api
+getconnectionstring:{[proctype;procname;hpup]
+    if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype; 
+        :hpup ^ .servers.getfinspaceconn[proctype; procname];
+        ];
+    :hpup;
+    };
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
 // Input is the line(s) from .servers.SERVERS corresponding to the newly (re)connected service
@@ -221,7 +231,7 @@ registerfromdiscovery:{[procs;connect]
     addprocs[res;procs;connect];}
 
 addprocs:{[connectiontab;procs;connect]
-    connectiontab:formatprocs[delete split from update host:`$last each -1 _' split, port:"I"$last each split from update split:{":" vs string x}each hpup from connectiontab];
+    connectiontab:formatprocs[delete split from update host:hpup^`$last each -1 _' split, port:"I"$last each split from update split:{":" vs string x}each hpup from connectiontab];
     // filter out any we already have - same name,type and hpup
     res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
     // we've dropped some items - maybe there are updated attributes
@@ -286,6 +296,10 @@ formathp:{[HOST;PORT;IPCTYPE]
     ];
     if[ipctype = `unix;
         hpup:lower `$":unix://",port;
+    ];
+    if[ipctype = `finspace;
+        // there is no point in generating the AWS connection string at this point as it will expire after a period of time
+        hpup:.servers.FINSPACECONNECTIONMARKER;
     ];
 
     :hpup;

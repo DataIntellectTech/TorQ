@@ -37,8 +37,9 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBCONFIG:\t\t\twhere the process configuration lives
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
- KDBLIB:\t\t\tcontains supporting library files"]
- 
+ KDBLIB:\t\t\tcontains supporting library files
+ KDBFINSPACE:\t\t\tif running in finspace"] 
+
 envoptusage:@[value;`envoptusage;"Optional environment variables:
  KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
 
@@ -48,6 +49,7 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-procfile x]:\t\t\tthe full path of the process.csv file to use to getthe details on the current process
  [-load x [y..z]]:\t\t\tthe file or database directory to load
  [-loaddir x [y..z]]:\t\t\tload all .q,.k files in specified directory
+ [-envfile x]:\t\t\tthe full path to a q file which defines environment variables
  [-trap]:\t\t\tany errors encountered during initialisation when loading external files will be caught and logged, processing will continue
  [-stop]:\t\t\tstop loading the file if an error is encountered
  [-noredirect]:\t\t\tdo not redirect std out/std err to a file (useful for debugging)
@@ -93,7 +95,7 @@ getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB`KDBFINSPACE,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
 {if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
@@ -185,7 +187,11 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
+
+format:$["true"~getenv[`KDBFINSPACE];
+		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
+		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
+        ];
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
@@ -241,7 +247,7 @@ banner:{
  -1 blank;
  -1 format"For questions, comments, requests or bug reports please contact us";
  -1 format"w :     www.dataintellect.com";
- -1 format"e : torqsupport@dataintellect.com";
+ -1 format"e : support@dataintellect.com";
  -1 blank; 
  -1 format"Running on ","kdb+ ",(string .z.K)," ",string .z.k;
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file
@@ -319,6 +325,11 @@ stop:`stop in key params
 if[trap and stop; .lg.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
+// these can be loaded from a kdb file
+if[`envfile in key params;
+	.lg.o[`init; "loading environment variables from ",envfile:first params`envfile];
+	@[system; "l ",envfile; {[f;e] .lg.e[`init; "failed to load environment variable file ",f," - ",e]}]
+ 	];
 settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
 
 // Check the environment is set up correctly

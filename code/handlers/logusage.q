@@ -16,6 +16,7 @@ usage:@[value;`usage;([]time:`timestamp$();id:`long$();timer:`long$();zcmd:`symb
 if[not @[value;`.proc.loaded;0b]; '"environment is not initialised correctly to load this script"]
 
 // Flags and variables
+finspace:@[value;`finspace;0b]
 enabled:@[value;`enabled;1b]                            // whether logging is enabled
 logtodisk:@[value;`logtodisk;1b]			// whether to log to disk or not
 logtomemory:@[value;`logtomemory;1b]			// write query logs to memory
@@ -35,8 +36,9 @@ nextid:{:id+::1}
 logh:@[value;`logh;0]
 
 // write a query log message
-write:{
-	if[logtodisk;@[neg logh;format x;()]];
+write:{ 
+	$[finspace;logtostdout:neg 1;logtostdout:neg logh];
+        if[logtodisk;@[logtostdout;format x;()]];
 	if[logtomemory; `.usage.usage upsert x];
 	ext[x]}
 
@@ -45,6 +47,13 @@ ext:{[x]}
 
 // format the string to be written to the file
 format:{"|" sv -3!'x}
+
+// $["true"~getenv[`KDBFINSPACE]; (if using env var)
+
+format:$[finspace;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck`loglevel)!x,`USAGE};
+                           {"|" sv -3!'x}
+        ];
+
 
 // flush out some of the in-memory stats
 flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}

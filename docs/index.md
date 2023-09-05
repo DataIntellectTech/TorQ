@@ -6,7 +6,7 @@ For recent updates to TorQ please check out our [thoughts](http://www.dataintell
 
 We've highlighted some key TorQ features on our blog posts page.
 
-For email support contact <torqsupport@dataintellect.com>
+For email support contact <support@dataintellect.com>
 
 <center><img src="graphics/TorQ-Structure.png" width="600"></center>
 

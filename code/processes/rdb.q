@@ -100,6 +100,10 @@ endofday:{[date;processdata]
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
 	writedown[hdbdir;date];
+        /-creates new changeset if this is a finspace application
+        if[.finspace.enabled;
+                    changeset:.finspace.createChangeset[.finspace.database];
+        ];
 	/-reset timeout to original timeout
 	restoretimeout[];
 	/-reapply the attributes
@@ -110,7 +114,10 @@ endofday:{[date;processdata]
 	.save.postreplay[hdbdir;date];
 	/-notify all hdbs
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
-	notifyhdb[;date] each hdbs;
+	if[.finspace.enabled;
+                     .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+                     notifyhdb[;date] each hdbs;
+        ];
 	};
 	
 reload:{[date]
