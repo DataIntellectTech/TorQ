@@ -89,7 +89,7 @@ endofday:{[date;processdata]
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
         / Need to download sym file to scratch directory if this is Finspace application
         if[.finspace.enabled;
-                        .lg.o[`createChangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
                         .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
         ];
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
@@ -107,7 +107,7 @@ endofday:{[date;processdata]
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
-                    changeset:.finspace.createChangeset[.finspace.database];
+                    changeset:.finspace.createchangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
