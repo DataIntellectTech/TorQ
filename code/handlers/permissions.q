@@ -73,7 +73,7 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
 
 / permissions check functions
 / making a dictionary of the parameters and the argument values
-pdict:pdict:{[f;a]
+pdict:{[f;a]
   d:enlist[`]!enlist[::];
   d:d,$[not ca:count a; ();
         f~`select; ();
