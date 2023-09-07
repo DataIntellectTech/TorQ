@@ -39,7 +39,6 @@ initialise:{[lib]                                                     / initiali
  };
 
 sessionID:0i
-.ldap.initialise hsym .ldap.lib
 
 cache:([user:`$()]; pass:(); server:`$(); port:`int$(); time:`timestamp$(); attempts:`long$(); success:`boolean$(); blocked:`boolean$());  / create table to store login attempts
 
