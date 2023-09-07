@@ -143,6 +143,7 @@ checklimit:3;                               // number of attempts before user is
 checktime:0D00:05;                          // period for user to reauthenticate without rechecking LDAP server
 buildDNsuf:"";                              // suffix used for building bind DN
 buildDN:{"uid=",string[x],",",buildDNsuf};  // function to build bind DN
+schema:"ldap"                               // ldap schema
 
 // broadcast publishing
 \d .u
