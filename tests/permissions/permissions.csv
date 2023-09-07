@@ -67,4 +67,4 @@ comment,,,,,,,test defined projection
 run,,,q,fn:{x+y}[1],,,creating a projection 
 true,,,q,".pm.pdict[`fn;1]~(enlist[`]!enlist[::]),(`x`y)!1 1",,,check output is as expected
 true,,,q,.pm.expr[`tom;(`fn;1)]~2,,,tom can run projection
-false,,,q,.pm.expr[`harry;(`fn;1)]~2,,,harry cannot run projection
+fail,,,q,.pm.expr[`harry;(`fn;1)]~2,,,harry cannot run projection
