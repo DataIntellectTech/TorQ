@@ -83,7 +83,7 @@ login:{[user;pass]                                              / validate login
     .[.ldap.bind;(.ldap.sessionID;dict);enlist[`ReturnCode]!enlist -2i]                 / attempt authentication
   ];
  
-  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; 1+0^incache`attempts ;authorised[`ReturnCode]~0i;0b);  / upsert details of current attempt
+  `.ldap.cache upsert (user;np;`$.ldap.server;.ldap.port;.z.p; $[0=authorised[`ReturnCode];0;1+0^incache`attempts] ;authorised[`ReturnCode]~0i;0b);  / upsert details of current attempt
 
   $[authorised[`ReturnCode]~0i;                                                 / display authentication status message
     .ldap.out"successfully authenticated user ",;
