@@ -72,11 +72,18 @@ cloneuser:{[u;unew;p] adduser[unew;ul[0] ;ul[1]; value (string (ul:raze exec aut
  assignrole[unew;` sv value(1!userrole)[u]]}
 
 / permissions check functions
-
+/ making a dictionary of the parameters and the argument values
 pdict:{[f;a]
   d:enlist[`]!enlist[::];
-  /checking for parameters,projection
-  d:d,$[not ca:count a;();f~`select;();(1=count a) and (99h=type first a);first a;101h<>type fp:get[get[f]][1]; fp!a; ((),(`$string til ca))!a];
+  d:d,$[not ca:count a; ();
+        f~`select; ();
+        (1=count a) and (99h=type first a); first a;
+        /if projection first obtain a list of function and fixed parameters (fnfp) 
+        104h=type value f; [fnfp:value value f; (value[fnfp 0][1])!fnfp[1],a];
+        /get paramaters and make a dictionary with the arguments
+        101h<>type fp:value[value[f]][1]; fp!a;
+        ((),(`$string til ca))!a
+       ];
   d}
 
 fchk:{[u;f;a]
