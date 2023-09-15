@@ -15,7 +15,6 @@ outmap:`ERR`INF`WARN!2 1 1	// where each log level is output (0=none; 1=std out;
 
 // Configuration used by the usage functions - logging of client interaction
 \d .usage
-// finspace:1b			// whether finspace is enabled
 enabled:1b			// whether the usage logging is enabled
 logtodisk:1b                    // whether to log to disk or not
 logtomemory:1b                  // write query logs to memory
