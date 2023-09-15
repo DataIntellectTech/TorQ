@@ -45,7 +45,6 @@ write:{
 ext:{[x]}
 
 // format the string to be written to the file, in json if in finspace
-
 format:$[.finspace.enabled;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x};
                            {"|" sv -3!'x}
         ];
