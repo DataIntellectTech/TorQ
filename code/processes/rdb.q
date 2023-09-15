@@ -87,6 +87,11 @@ endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
+        / Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+        ];
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];
@@ -102,7 +107,8 @@ endofday:{[date;processdata]
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
-                    changeset:.finspace.createChangeset[.finspace.database];
+
+                    changeset:.finspace.createchangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
@@ -114,7 +120,7 @@ endofday:{[date;processdata]
 	.save.postreplay[hdbdir;date];
 	/-notify all hdbs
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
-	if[.finspace.enabled;
+	$[.finspace.enabled;
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
                      notifyhdb[;date] each hdbs;
         ];
