@@ -49,7 +49,6 @@ format:$[.finspace.enabled;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user
                            {"|" sv -3!'x}
         ];
 
-
 // flush out some of the in-memory stats
 flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}
 
