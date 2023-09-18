@@ -187,8 +187,10 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Logging functions live in here
 
 // Format a log message
-
-format:$["true"~getenv[`KDBFINSPACE];
+// Setting .finspace.enabled here so that the .dotz lib can pick it up
+// standard TorQ - gets reset to false in code/common/finspace.q
+// FinTorQ - gets reset to true in finTorq-App/appconfig/settings/default.q
+format:$[.finspace.enabled:"true"~getenv[`KDBFINSPACE];
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
