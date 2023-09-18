@@ -36,15 +36,18 @@ logh:@[value;`logh;0]
 
 // write a query log message
 write:{
-	if[logtodisk;@[neg logh;format x;()]];
-	if[logtomemory; `.usage.usage upsert x];
-	ext[x]}
+    if[.finspace.enabled;@[neg 1;format x;()]];
+    if[logtodisk;@[neg logh;format x;()]];
+    if[logtomemory; `.usage.usage upsert x];
+    ext[x]} 
 
 // extension function to extend the logging e.g. publish the log message
 ext:{[x]}
 
-// format the string to be written to the file
-format:{"|" sv -3!'x}
+// format the string to be written to the file, in json if in finspace
+format:$[.finspace.enabled;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x};
+                           {"|" sv -3!'x}
+        ];
 
 // flush out some of the in-memory stats
 flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}
