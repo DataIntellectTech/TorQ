@@ -29,5 +29,5 @@ starttests:{[]
 
 // Check every 5s
 repeat[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:05;(starttests;`);"Check for rdbs connections & start tests once all connected"]
-.z.ts:run
+.dotz.set[`.z.ts;run]
 \t 1000

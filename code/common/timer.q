@@ -78,9 +78,9 @@ runandreschedule:{
 
 //Set .z.ts
 if[.timer.enabled;
- $[@[{value x;1b};`.z.ts;0b];
-   .z.ts:{[x;y] .timer.run now:.proc.cp[]; x@y}[.z.ts];
-   .z.ts:{if[.proc.cp[]>.timer.nextruntime;.timer.run[.proc.cp[]]]}];
+ .dotz.set[`.z.ts;$[@[{value x;1b};`.z.ts;0b];
+   {[x;y] .timer.run now:.proc.cp[]; x@y}[.z.ts];
+   {if[.proc.cp[]>.timer.nextruntime;.timer.run[.proc.cp[]]]}]];
 
  // Set the timer to 200ms if not set already
  if[not system"t"; system"t 200"]];
@@ -96,5 +96,5 @@ rep[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:15;(f1;3);0h;"test timer";1b]
 rep[.proc.cp[];.proc.cp[]+0D00:01;0D00:00:15;(f1;4);1h;"test timer";1b]
 
 once[.proc.cp[]+0D00:00:10;(`.timer.f;2);"test once"]
-.z.ts:run
+.dotz.set[`.z.ts;run]
 \t 500

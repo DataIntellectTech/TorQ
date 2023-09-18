@@ -165,7 +165,7 @@ autoreconnect:{[rows]
 
 pc:{[result;W] update active:0b from `.sub.SUBSCRIPTIONS where w=W;result}
 // set .z.pc handler to update the subscriptions table
-.z.pc:{.sub.pc[x y;y]}@[value;`.z.pc;{[x]}];
+.dotz.set[`.z.pc;{.sub.pc[x y;y]}@[value;`.z.pc;{[x]}]];
 
 // if timer is set, trigger reconnections
 $[.timer.enabled and checksubscriptionperiod > 0;

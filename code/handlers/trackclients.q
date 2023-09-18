@@ -34,7 +34,7 @@ po:{[result;W]
 addw:{po[x;x]} / manually add a client
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.clients.clients where w=W;cleanup[];result}
 
-.z.pc:{.clients.pc[x y;y]}.z.pc;
+.dotz.set[`.z.pc;{.clients.pc[x y;y]}.z.pc];
 
 wo:{[result;W]
     cleanup[];
@@ -42,16 +42,16 @@ wo:{[result;W]
     result}
 
 if[enabled;
-	.z.po:{.clients.po[x y;y]}.z.po;
-        .z.wo:{.clients.wo[x y;y]}.z.wo;
-	.z.wc:{.clients.pc[x y;y]}.z.wc;
-
-	if[not opencloseonly;
-		.z.pg:{.clients.hit[@[x;y;.clients.hite]]}.z.pg;
-		.z.ps:{.clients.hit[@[x;y;.clients.hite]]}.z.ps;
-		.z.ws:{.clients.hit[@[x;y;.clients.hite]]}.z.ws;]];
+    .dotz.set[`.z.po;{.clients.po[x y;y]}.z.po];
+    .dotz.set[`.z.wo;{.clients.wo[x y;y]}.z.wo];
+    .dotz.set[`.z.wc;{.clients.pc[x y;y]}.z.wc];
+    
+    if[not opencloseonly;
+        .dotz.set[`.z.pg;{.clients.hit[@[x;y;.clients.hite]]}.z.pg];
+        .dotz.set[`.z.ps;{.clients.hit[@[x;y;.clients.hite]]}.z.ps];
+        .dotz.set[`.z.ws;{.clients.hit[@[x;y;.clients.hite]]}.z.ws];]];
 
 / if no other timer then go fishing for zombie clients every .clients.MAXIDLE
 / if[not system"t";
-/    .z.ts:{.clients.cleanup[]};
+/    .dotz.set[`.z.ts;{.clients.cleanup[]}];
 /    system"t ",string floor 1e-6*.clients.MAXIDLE]

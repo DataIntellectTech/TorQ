@@ -381,7 +381,7 @@ startupdependent:startupdepcyclestypename[;.servers.reqproctypesnotconn;;0W];
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 
-.z.pc:{.servers.pc[x y;y]}.z.pc;
+.dotz.set[`.z.pc;{.servers.pc[x y;y]}.z.pc];
 
 if[enabled;
     if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];

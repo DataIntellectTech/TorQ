@@ -44,7 +44,7 @@ ts:{if[.eodtime.nextroll < x;if[d<("d"$x)-1;system"t 0";'"more than one day?"];e
 
 
 if[system"t";
- .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.p};
+ .dotz.set[`.z.ts;{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;icounts::jcounts;ts .z.p}];
 
  upd:{[t;x]
  if[not -12=type first first x;
@@ -66,7 +66,7 @@ if[system"t";
  ];
 
 if[not system"t";system"t 1000";
- .z.ts:{ts .z.p};
+ .dotz.set[`.z.ts;{ts .z.p}];
  upd:{[t;x]ts .z.p;
  a:.z.p+.eodtime.dailyadj; 
  if[not -12=type first first x;

@@ -37,4 +37,4 @@ getservices:{[proctypes;subscribe]
 (neg exec w from .servers.SERVERS where .dotz.liveh w,not hpup in exec hpup from .servers.nontorqprocesstab)@\:(`.servers.autodiscovery;`);
 
 // modify .z.pc - drop items out of the subscription dictionary
-.z.pc:{subs::(enlist y) _ subs; x@y}@[value;`.z.pc;{;}]
+.dotz.set[`.z.pc;{subs::(enlist y) _ subs; x@y}@[value;`.z.pc;{;}]]

@@ -280,7 +280,7 @@ init:{[dbname]
 \d .
 
 // Close logs on clean exit
-.z.exit:{
+.dotz.set[`.z.exit;{
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
   // exit before logs are touched if process is an sctp NOT in create mode
@@ -288,4 +288,4 @@ init:{[dbname]
   .lg.o[`stpexit;"Closing off log files"];
   .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
   .stplg.closelog each .stpps.t;
- }
+ }]
