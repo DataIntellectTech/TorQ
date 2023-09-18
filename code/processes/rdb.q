@@ -23,8 +23,6 @@ onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod write
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
 gc:@[value;`gc;1b];                                         //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
 upd:@[value;`upd;{insert}];                                 //value of upd
-finspace:@[value;`finspace;0b];                             //whether the apllication is finspace or on prem - set to false by default
-database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
@@ -89,6 +87,11 @@ endofday:{[date;processdata]
 	/-add date+1 to the rdbpartition global
 	rdbpartition,:: date +1;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
+        / Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+        ];
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];
@@ -103,8 +106,8 @@ endofday:{[date;processdata]
 	/-save and wipe the tables
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
-        if[finspace;
-                    .aws.create_changeset[database;([]input_path:enlist getenv[`KDBSCRATCH];database_path:enlist "/";change_type:enlist "PUT")];
+        if[.finspace.enabled;
+                    changeset:.finspace.createchangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
@@ -116,7 +119,10 @@ endofday:{[date;processdata]
 	.save.postreplay[hdbdir;date];
 	/-notify all hdbs
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
-	notifyhdb[;date] each hdbs;
+	$[.finspace.enabled;
+                     .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+                     notifyhdb[;date] each hdbs;
+        ];
 	};
 	
 reload:{[date]
