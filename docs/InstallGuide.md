@@ -33,7 +33,6 @@ Then to launch the script, substitute in the respective file names for the <...>
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters available in the table below.
 
-
 The folder structure after installation will look like this:
 
 (TorQ-3.7.0 used as an example throughout, your TorQ version number should match the latest release)
