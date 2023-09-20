@@ -7,14 +7,12 @@
 enabled:    @[value;`enabled;.z.o~`l64]                            / whether authentication is enabled
 lib:        `$getenv[`KDBLIB],"/",string[.z.o],"/kdbldap";         / ldap library location
 debug:      @[value;`debug;0i]                                     / debug level for ldap library: 0i = none, 1i=normal, 2i=verbose
-server:     @[value;`server;"localhost"];                          / name of ldap server
-port:       @[value;`port;0i];                                     / port for ldap server
+servers:    @[value;`servers; enlist `$"ldap://localhost:0"];      / symbol-list of <schema>://<host>:<port> 
 blocktime:  @[value;`blocktime; 0D00:30:00];                       / time before blocked user can attempt authentication
 checklimit: @[value;`checklimit;3];                                / number of attempts before user is temporarily blocked
 checktime:  @[value;`checktime;0D00:05];                           / period for user to reauthenticate without rechecking LDAP server
 buildDNsuf: @[value;`buildDNsuf;""];                               / suffix used for building bind DN
 buildDN:    @[value;`buildDN;{{"uid=",string[x],",",buildDNsuf}}]; / function to build bind DN
-schema:     @[value;`schema;"ldap"];                               / schema for ldap
 version:    @[value;`version;3];                                   / ldap version number 
 
 out:{if[debug;:.lg.o[`ldap] x]};
@@ -32,7 +30,7 @@ initialise:{[lib]                                                     / initiali
   .ldap.interactive_bind_s:lib 2:(`kdbldap_interactive_bind_s;5);
   .ldap.search_s:lib 2:(`kdbldap_search_s;8);
   .ldap.unbind_s:lib 2:(`kdbldap_unbind_s;1);
-  r:.ldap.init[.ldap.sessionID;enlist `$.ldap.schema,"://",.ldap.server,":",string .ldap.port];
+  r:.ldap.init[.ldap.sessionID; .ldap.servers];
   if[0<>r;.ldap.err "Error initialising LDAP: ",.ldap.err2string[r]];
   s:.ldap.setOption[.ldap.sessionID;`LDAP_OPT_PROTOCOL_VERSION;.ldap.version];
   if[0<>s;.ldap.err "Error setting LDAP option: ",.ldap.err2string[s]];

@@ -453,8 +453,7 @@ Default parameters in the ldap namespace are set in {TORQHOME}/config/settings/d
 | :----------------: | :-----------------: |
 |      enabled       |  Whether ldap authentication is enabled  |
 |       debug        |  Whether logging message are written to console  |
-|       server       |  Host for ldap server.   |
-|        port        |  Port number for ldap server.  |
+|       servers      |  `<schema>://<host>:<port>` address(es) of server(s) to connect to   |
 |      version       |  Ldap version number.    |
 |     blocktime      |  Time that must elapse before a blocked user can attempt to authenticate. If set to 0Np then the user is permanently blocked until an admin unblocks them. |
 |     checklimit     |  Login attempts before user is blocked.  |
@@ -462,7 +461,7 @@ Default parameters in the ldap namespace are set in {TORQHOME}/config/settings/d
 |     buildDNsuf     |  Suffix for building distinguished name. |
 |      buildDN       |  Function to build distiniguished name.  |
 
-To get started the following will need altered from their default values: enabled, port, server, buildDNsuf.
+To get started the following will need altered from their default values: enabled, servers, buildDNsuf.
 
 The value buildDNsuf is required to build a users bind_dn from the supplied username and is called by the function buildDN. An example definition is:
 
