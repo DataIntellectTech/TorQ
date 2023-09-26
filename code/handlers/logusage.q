@@ -34,7 +34,7 @@ nextid:{:id+::1}
 // A handle to the log file
 logh:@[value;`logh;0]
 
-// write a query log message
+// write a query log message, direct to stdout if running in finspace
 write:{
     if[.finspace.enabled;@[neg 1;format x;()]];
     if[logtodisk;@[neg logh;format x;()]];
@@ -44,8 +44,8 @@ write:{
 // extension function to extend the logging e.g. publish the log message
 ext:{[x]}
 
-// format the string to be written to the file, in json if in finspace
-format:$[.finspace.enabled;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x};
+// format the string to be written to the file
+format:$[`jsonlogs in key .proc.params;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x,`USAGE};
                            {"|" sv -3!'x}
         ];
 

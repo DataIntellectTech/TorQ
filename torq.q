@@ -37,8 +37,7 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBCONFIG:\t\t\twhere the process configuration lives
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
- KDBLIB:\t\t\tcontains supporting library files
- KDBFINSPACE:\t\t\tif running in finspace"] 
+ KDBLIB:\t\t\tcontains supporting library files"] 
 
 envoptusage:@[value;`envoptusage;"Optional environment variables:
  KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
@@ -59,7 +58,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
- [-test]:\t\t\tset to run unit tests"]
+ [-test]:\t\t\tset to run unit tests
+ [-jsonlogs]:\t\t\toutput logs in json format"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -95,7 +95,7 @@ getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB`KDBFINSPACE,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
 {if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
@@ -178,6 +178,9 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
+// Read the process parameters
+params:.Q.opt .z.x
+
 \d .lg
 
 // Set the logging table at the top level
@@ -188,7 +191,7 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 
 // Format a log message
 
-format:$["true"~getenv[`KDBFINSPACE];
+format:$[`jsonlogs in key .proc.params;
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
@@ -302,8 +305,6 @@ removeenvvar:{
 // Process initialisation
 \d .proc
 
-// Read the process parameters
-params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
