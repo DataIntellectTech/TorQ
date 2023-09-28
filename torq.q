@@ -420,9 +420,9 @@ readprocfile:{[file]
 		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
 	// for finspace do nothing as port assignment is handled by AWS and not used for connections on our side
 	if[not[.finspace.enabled]&not[output[`port] = system"p"]& 0i = system"p";
-			@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
-			.lg.o[`readprocfile;"port set to ",string[output[`port]]]
-			];	
+		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
+		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
+		];	
 	output
 	}	
 

@@ -8,7 +8,7 @@
 // e.g. to set .z.zd call:
 //     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
 .dotz.set:{[zcommand;setto] // using namespace explicitly due to set already being a key term
-    .[set;(` sv .dotz.getcommand[zcommand];setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
+    .[set;(.dotz.getcommand[zcommand];setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
 
 // e.g. if you want to unset .z.zd call:
 //     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
