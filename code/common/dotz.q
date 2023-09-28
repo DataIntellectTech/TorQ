@@ -18,6 +18,6 @@ unset:{[zcommand]
         .dotz.set[zcommand;ns[`ORIG]];
         ![.dotz.getnamespace[];();0b;enlist zcommand]];}
 
-getnamespace:{$[.finspace.enabled;`.aws_z;`.z]}
+getnamespace:{$[.finspace.enabled;`.awscust.z;`.z]}
 
 getcommand:{[zcommand]` sv .dotz.getnamespace[],`$last"."vs string zcommand}
