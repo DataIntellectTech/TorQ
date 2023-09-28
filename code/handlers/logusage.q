@@ -124,9 +124,9 @@ if[enabled;
 	.dotz.set[`.z.wo;p1[`wo;.z.wo;]];
 	.dotz.set[`.z.wc;p1[`wc;.z.wc;]];
 	.dotz.set[`.z.ws;p2[`ws;.z.ws;]];
-	.dotz.set[`.z.exit;p2[`exit;$[.finspace.enabled;.aws_z.exit;.z.exit];]];
+	.dotz.set[`.z.exit;p2[`exit;.dotz.getcommand[`.z.exit];]];
 	.dotz.set[`.z.pg;p2[`pg;.z.pg;]];
-	.dotz.set[`.z.pi;p2[`pi;$[.finspace.enabled;.aws_z.pi;.z.pi];]];
+	.dotz.set[`.z.pi;p2[`pi;.dotz.getcommand[`.z.pi];]];
 	.dotz.set[`.z.ph;p2[`ph;.z.ph;]];
 	.dotz.set[`.z.pp;p2[`pp;.z.pp;]];
 	.dotz.set[`.z.ps;p3[`ps;.z.ps;]];]

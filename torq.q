@@ -422,7 +422,7 @@ readprocfile:{[file]
 	if[not[.finspace.enabled]&not[output[`port] = system"p"]& 0i = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
-		];	
+		];
 	output
 	}	
 
