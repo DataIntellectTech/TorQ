@@ -59,7 +59,7 @@ setup:{[batch]
   .stplg.updmsg:.stplg.upd[batch];
   .stplg.ts:.stplg.zts[batch];
   .u.upd:.stpps.upd[chainmode];
-  .z.ts:.stpps.zts[chainmode];
+  .dotz.set[`.z.ts;.stpps.zts[chainmode]];
   
   // Error mode - error trap UPD to write failed updates to separate TP log
   if[.stplg.errmode;

@@ -13,13 +13,13 @@ endofday:{end d;d+:1;if[l;hclose l;l::0(`.u.ld;d)]};
 ts:{if[d<x;if[d<x-1;system"t 0";'"more than one day?"];endofday[]]};
 
 if[system"t";
- .z.ts:{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;ts .z.D};
+ .dotz.set[`.z.ts;{pub'[t;value each t];@[`.;t;@[;`sym;`g#]0#];i::j;ts .z.D}];
  upd:{[t;x]
  if[not -16=type first first x;if[d<"d"$a:.z.P;.z.ts[]];a:"p"$a;x:$[0>type first x;a,x;(enlist(count first x)#a),x]];
  t insert x;if[l;l enlist (`upd;t;x);j+:1];}];
 
 if[not system"t";system"t 1000";
- .z.ts:{ts .z.D};
+ .dotz.set[`.z.ts;{ts .z.D}];
  upd:{[t;x]ts"d"$a:.z.P;
  if[not -16=type first first x;a:"p"$a;x:$[0>type first x;a,x;(enlist(count first x)#a),x]];
  f:key flip value t;pub[t;$[0>type first x;enlist f!x;flip f!x]];if[l;l enlist (`upd;t;x);i+:1];}];

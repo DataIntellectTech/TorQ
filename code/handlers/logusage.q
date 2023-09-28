@@ -46,7 +46,7 @@ ext:{[x]}
 
 // format the string to be written to the file
 format:$[`jsonlogs in key .proc.params;{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x,`USAGE};
-                           {"|" sv -3!'x}
+                                       {"|" sv -3!'x}
         ];
 
 // flush out some of the in-memory stats
@@ -118,10 +118,15 @@ if[enabled;
                  	.timer.repeat[.proc.cp[];0Wp;flushinterval;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
 
-	.z.pw:p0[`pw;.z.pw;;];
-	.z.po:p1[`po;.z.po;];.z.pc:p1[`pc;.z.pc;];
-	.z.wo:p1[`wo;.z.wo;];.z.wc:p1[`wc;.z.wc;];
-	.z.ws:p2[`ws;.z.ws;];.z.exit:p2[`exit;.z.exit;];
-	.z.pg:p2[`pg;.z.pg;];.z.pi:p2[`pi;.z.pi;];
-	.z.ph:p2[`ph;.z.ph;];.z.pp:p2[`pp;.z.pp;];
-	.z.ps:p3[`ps;.z.ps;];]
+	.dotz.set[`.z.pw;p0[`pw;.z.pw;;]];
+	.dotz.set[`.z.po;p1[`po;.z.po;]];
+	.dotz.set[`.z.pc;p1[`pc;.z.pc;]];
+	.dotz.set[`.z.wo;p1[`wo;.z.wo;]];
+	.dotz.set[`.z.wc;p1[`wc;.z.wc;]];
+	.dotz.set[`.z.ws;p2[`ws;.z.ws;]];
+	.dotz.set[`.z.exit;p2[`exit;$[.finspace.enabled;.aws_z.exit;.z.exit];]];
+	.dotz.set[`.z.pg;p2[`pg;.z.pg;]];
+	.dotz.set[`.z.pi;p2[`pi;$[.finspace.enabled;.aws_z.pi;.z.pi];]];
+	.dotz.set[`.z.ph;p2[`ph;.z.ph;]];
+	.dotz.set[`.z.pp;p2[`pp;.z.pp;]];
+	.dotz.set[`.z.ps;p3[`ps;.z.ps;]];]

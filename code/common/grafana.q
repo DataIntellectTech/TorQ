@@ -17,12 +17,12 @@ types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
 epoch:946684800000;
 
 // wrapper if user has custom .z.pp
-.z.pp:{[f;x]$[(`$"X-Grafana-Org-Id")in key last x;zpp;f]x}[@[value;`.z.pp;{{[x]}}]];
+.dotz.set[`.z.pp;{[f;x]$[(`$"X-Grafana-Org-Id")in key last x;zpp;f]x}[@[value;`.z.pp;{{[x]}}]]];
 
 // return alive response for GET requests
-.z.ph:{[f;x]
+.dotz.set[`.z.ph;{[f;x]
   $[(`$"X-Grafana-Org-Id")in key last x;"HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n";f x]
- }[@[value;`.z.ph;{{[x]}}]];
+ }[@[value;`.z.ph;{{[x]}}]]];
 
 
 // retrieve and convert Grafana HTTP POST request then process as either timeseries or table

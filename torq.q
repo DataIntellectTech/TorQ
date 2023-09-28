@@ -37,7 +37,8 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBCONFIG:\t\t\twhere the process configuration lives
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
- KDBLIB:\t\t\tcontains supporting library files"] 
+ KDBLIB:\t\t\tcontains supporting library files
+ KDBFINSPACE:\t\t\tif running in finspace"] 
 
 envoptusage:@[value;`envoptusage;"Optional environment variables:
  KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
@@ -95,7 +96,7 @@ getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB`KDBFINSPACE,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
 {if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
@@ -190,8 +191,10 @@ params:.Q.opt .z.x
 // Logging functions live in here
 
 // Format a log message
-
-format:$[`jsonlogs in key .proc.params;
+// Setting .finspace.enabled here so that the .dotz lib can pick it up
+// standard TorQ - gets reset to false in code/common/finspace.q
+// FinTorQ - gets reset to true in finTorq-App/appconfig/settings/default.q
+format:$[(`jsonlogs in key .proc.params) or ("true"~getenv[`KDBFINSPACE]);   
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
@@ -628,7 +631,7 @@ if[`load in key .proc.params; .proc.reloadf each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
-	.z.pi:{.Q.s value x};]
+	.dotz.set[`.z.pi;{.Q.s value x}];]
 
 // initialise pubsub
 if[@[value;`.ps.loaded;0b]; .ps.initialise[]]

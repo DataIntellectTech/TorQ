@@ -26,7 +26,7 @@ del:{w[x]_:w[x;;0]?y};
 
 //Version checking code. .z.pc is only used in versions prior to 3.3
 close:{{.html.del[;y] each .html.t; x@y}@[value;x;{{[x]}}]}
-if[.z.K >= 3.3;.z.wc:close[`.z.wc]; .z.pc:close[`.z.pc]]
+if[.z.K >= 3.3;.dotz.set[`.z.wc;close[`.z.wc]];.dotz.set[`.z.pc;close[`.z.pc]]]
 
 // Create a new version of sel - for the time being, all pages get all data
 / sel:{$[`~y;x;select from x where sym in y]}
@@ -110,4 +110,4 @@ readpagereplaceHP:{replace[readpage[x];`MYKDBSERVER`MYKDBPORT!("\"",(string ipa 
 // then it should host it's own ui
 
 // WEBSOCKET DEFINITION
-.z.ws:{neg[.z.w] -8!.j.j[.html.evaluate[.j.k -9!x]];}
+.dotz.set[`.z.ws;{neg[.z.w] -8!.j.j[.html.evaluate[.j.k -9!x]];}]
