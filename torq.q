@@ -418,10 +418,11 @@ readprocfile:{[file]
 	// exit if no port passed via command line or specified in config
 	if[null[output`port]&0i=system"p";
 		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
-	if[not[output[`port] = system"p"]& 0i = system"p";
-		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
-		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
-		];
+	// for finspace do nothing as port assignment is handled by AWS and not used for connections on our side
+	if[not[.finspace.enabled]&not[output[`port] = system"p"]& 0i = system"p";
+			@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
+			.lg.o[`readprocfile;"port set to ",string[output[`port]]]
+			];	
 	output
 	}	
 
@@ -490,6 +491,8 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
+  if[.finspace.enabled & x like "/opt/kx/app/db/*";
+  	:.lg.o[`fileload;"Load blocked in Finspace. Skipping file ",x]];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
   loadedf,:enlist x;
