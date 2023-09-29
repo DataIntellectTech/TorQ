@@ -179,6 +179,9 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
+//Check if running in finspace and if so set necessary flag
+.finspace.enabled:"true"~getenv[`KDBFINSPACE]
+
 // Read the process parameters
 params:.Q.opt .z.x
 
