@@ -179,9 +179,6 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
-//Check if running in finspace and if so set necessary flag
-.finspace.enabled:"true"~getenv[`KDBFINSPACE]
-
 // Read the process parameters
 params:.Q.opt .z.x
 
@@ -197,7 +194,7 @@ params:.Q.opt .z.x
 // Setting .finspace.enabled here so that the .dotz lib can pick it up
 // standard TorQ - gets reset to false in code/common/finspace.q
 // FinTorQ - gets reset to true in finTorq-App/appconfig/settings/default.q
-format:$[(`jsonlogs in key .proc.params) or ("true"~getenv[`KDBFINSPACE]);   
+format:$[(`jsonlogs in key .proc.params) | .finspace.enabled:"true"~getenv[`KDBFINSPACE];   
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];

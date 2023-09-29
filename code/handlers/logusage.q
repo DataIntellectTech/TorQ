@@ -45,7 +45,7 @@ write:{
 ext:{[x]}
 
 // format the string to be written to the file
-format:$[(`jsonlogs in key .proc.params) or ("true"~getenv[`KDBFINSPACE]);
+format:$[(`jsonlogs in key .proc.params) | .finspace.enabled;
 		{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x,`USAGE};
                 {"|" sv -3!'x}
         ];
