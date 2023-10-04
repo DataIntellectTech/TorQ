@@ -110,7 +110,7 @@ getheartbeats:{[proctype]
 
 // set the heartbeat table to the top level namespace, to allow it to be initialised in the pub/sub routine
 heartbeat:.hb.heartbeat;
-if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`enabled;1b];
+if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`.hb.enabled;1b];
  // add the checkheartbeat function to the timer
  $[@[value;`.timer.enabled;0b] and `publish in key `.ps;
   [.lg.o[`init;"adding heartbeat functions to the timer"];
