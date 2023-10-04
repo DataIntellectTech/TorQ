@@ -178,6 +178,8 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
+blocklist:","vs getenv`BLOCKLIST
+
 \d .lg
 
 // Set the logging table at the top level
@@ -491,8 +493,8 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  if[.finspace.enabled & x like "/opt/kx/app/db/*";
-  	:.lg.o[`fileload;"Load blocked in Finspace. Skipping file ",x]];
+  if[max like[x;]each .proc.blocklist;
+  	:.lg.o[`fileload;"File/directory in blocked list. Skipping file ",x]];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
   loadedf,:enlist x;
