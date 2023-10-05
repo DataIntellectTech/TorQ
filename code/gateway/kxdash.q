@@ -55,7 +55,7 @@ init:{
  // Reset format response
  .gw.formatresponse:formatresponse;
  // incorporate dashps into the .z.ps definition
- .dotz.set[`.z.ps;{x@y;.kxdash.dashps y}@[value;`.z.ps;{{value x}}]];
+ .dotz.set[`.z.ps;{x@y;.kxdash.dashps y}@[value;.dotz.getcommand[`.z.ps];{{value x}}]];
  };
  
 if[enabled;init[]];

@@ -121,7 +121,7 @@ if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`.hb.enabled;1b];
 if[.hb.subenabled;
   upd:{[f;t;x] if[t=`heartbeat; .hb.storeheartbeat[x]]; f . (t;x)}@[value;`upd;{{[t;x]}}];
 
-  .dotz.set[`.z.pc;{if[y;.hb.subscribedhandles::.hb.subscribedhandles except y]; x@y}@[value;`.z.pc;{{[x]}}]];
+  .dotz.set[`.z.pc;{if[y;.hb.subscribedhandles::.hb.subscribedhandles except y]; x@y}@[value;.dotz.getcommand[`.z.pc];{{[x]}}]];
 
   .timer.rep[.z.p;0wp;0D00:01:00;(`.hb.hbsubscriptions;`);0h;"subscribe to heartbeats";0b];
 

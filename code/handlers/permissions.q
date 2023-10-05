@@ -241,8 +241,8 @@ droppublic:{[w]
   }
 
 init:{
-  .dotz.set[`.z.ps;{@[x;(`.pm.req;y)]}.z.ps];
-  .dotz.set[`.z.pg;{@[x;(`.pm.req;y)]}.z.pg];
+  .dotz.set[`.z.ps;{@[x;(`.pm.req;y)]}value .dotz.getcommand[`.z.ps]];
+  .dotz.set[`.z.pg;{@[x;(`.pm.req;y)]}value .dotz.getcommand[`.z.pg]];
   // skip permissions for empty lines in q console/qcon
   .dotz.set[`.z.pi;{$[x in (1#"\n";"");.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}];
   .dotz.set[`.z.pp;{'"pm: HTTP POST requests not permitted"}];
@@ -250,7 +250,7 @@ init:{
   $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.dotz.set[`.z.ph;{'"pm: HTTP GET requests not permitted"}]];
   .dotz.set[`.z.ws;{'"pm: websocket access not permitted"}];
   .dotz.set[`.z.pw;login];
-  .dotz.set[`.z.pc;{droppublic[y];@[x;y]}.z.pc];
+  .dotz.set[`.z.pc;{droppublic[y];@[x;y]}value .dotz.getcommand[`.z.pc]];
   }
 
 if[enabled;init[]]
