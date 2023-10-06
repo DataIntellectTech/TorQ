@@ -493,7 +493,7 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  if[max like[x;]each .proc.blocklist;
+  if[any like[x;]each .proc.blocklist;
   	:.lg.o[`fileload;"File/directory in blocked list. Skipping file ",x]];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
