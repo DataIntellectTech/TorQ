@@ -178,7 +178,7 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
-blocklist:","vs getenv`BLOCKLIST
+blocklist:","vs getenv`KDBBLOCKLIST
 
 \d .lg
 
