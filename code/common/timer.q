@@ -78,8 +78,8 @@ runandreschedule:{
 
 //Set .z.ts
 if[.timer.enabled;
- .dotz.set[`.z.ts;$[@[{value x;1b};`.z.ts;0b];
-   {[x;y] .timer.run now:.proc.cp[]; x@y}[.z.ts];
+ .dotz.set[`.z.ts;$[@[{value x;1b};.dotz.getcommand[`.z.ts];0b];
+   {[x;y] .timer.run now:.proc.cp[]; x@y}[value .dotz.getcommand[`.z.ts]];
    {if[.proc.cp[]>.timer.nextruntime;.timer.run[.proc.cp[]]]}]];
 
  // Set the timer to 200ms if not set already

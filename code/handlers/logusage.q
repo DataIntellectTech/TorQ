@@ -119,15 +119,15 @@ if[enabled;
                  	.timer.repeat[.proc.cp[];0Wp;flushinterval;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
 
-	.dotz.set[`.z.pw;p0[`pw;.z.pw;;]];
-	.dotz.set[`.z.po;p1[`po;.z.po;]];
-	.dotz.set[`.z.pc;p1[`pc;.z.pc;]];
-	.dotz.set[`.z.wo;p1[`wo;.z.wo;]];
-	.dotz.set[`.z.wc;p1[`wc;.z.wc;]];
-	.dotz.set[`.z.ws;p2[`ws;.z.ws;]];
-	.dotz.set[`.z.exit;p2[`exit;$[.finspace.enabled;.aws_z.exit;.z.exit];]];
-	.dotz.set[`.z.pg;p2[`pg;.z.pg;]];
-	.dotz.set[`.z.pi;p2[`pi;$[.finspace.enabled;.aws_z.pi;.z.pi];]];
-	.dotz.set[`.z.ph;p2[`ph;.z.ph;]];
-	.dotz.set[`.z.pp;p2[`pp;.z.pp;]];
-	.dotz.set[`.z.ps;p3[`ps;.z.ps;]];]
+	.dotz.set[`.z.pw;p0[`pw;value .dotz.getcommand[`.z.pw];;]];
+	.dotz.set[`.z.po;p1[`po;value .dotz.getcommand[`.z.po];]];
+	.dotz.set[`.z.pc;p1[`pc;value .dotz.getcommand[`.z.pc];]];
+	.dotz.set[`.z.wo;p1[`wo;value .dotz.getcommand[`.z.wo];]];
+	.dotz.set[`.z.wc;p1[`wc;value .dotz.getcommand[`.z.wc];]];
+	.dotz.set[`.z.ws;p2[`ws;value .dotz.getcommand[`.z.ws];]];
+	.dotz.set[`.z.exit;p2[`exit;value .dotz.getcommand[`.z.exit];]];
+	.dotz.set[`.z.pg;p2[`pg;value .dotz.getcommand[`.z.pg];]];
+	.dotz.set[`.z.pi;p2[`pi;value .dotz.getcommand[`.z.pi];]];
+	.dotz.set[`.z.ph;p2[`ph;value .dotz.getcommand[`.z.ph];]];
+	.dotz.set[`.z.pp;p2[`pp;value .dotz.getcommand[`.z.pp];]];
+	.dotz.set[`.z.ps;p3[`ps;value .dotz.getcommand[`.z.ps];]];]

@@ -19,11 +19,11 @@ if[.readonly.enabled;
 		" does not support blocking write access,a minimum of KDB+ version 3.3 is required"]
 		];		
 	// Modify the sync message handler	
-	.dotz.set[`.z.pg;{[x;y] $[10h=type y;reval(x;y); x y]}.z.pg];
+	.dotz.set[`.z.pg;{[x;y] $[10h=type y;reval(x;y); x y]}value .dotz.getcommand[`.z.pg]];
 	// Modify the async message handler	
-	.dotz.set[`.z.ps;{[x;y] $[10h=type y;reval(x;y); x y]}.z.ps];	
+	.dotz.set[`.z.ps;{[x;y] $[10h=type y;reval(x;y); x y]}value .dotz.getcommand[`.z.ps]];	
 	// Modify the websocket message handler	
-	.dotz.set[`.z.ws;{[x;y] $[10h=type y;reval(x;y); x y]}.z.ws];	
+	.dotz.set[`.z.ws;{[x;y] $[10h=type y;reval(x;y); x y]}value .dotz.getcommand[`.z.ws]];	
 	
 	// Modify the http get message handler	
 	.dotz.set[`.z.ph;{[x] .h.hn["403 Forbidden";`txt;"Forbidden"]}];	

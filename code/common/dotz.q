@@ -8,15 +8,16 @@
 // e.g. to set .z.zd call:
 //     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
 .dotz.set:{[zcommand;setto] // using namespace explicitly due to set already being a key term
-    zcommand:`$last"."vs string zcommand;
-    namespace:$[.finspace.enabled;`.aws_z;`.z];
-    .[set;(` sv namespace,zcommand;setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
+    .[set;(.dotz.getcommand[zcommand];setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
 
 // e.g. if you want to unset .z.zd call:
 //     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
 unset:{[zcommand]
     zcommand:`$last"."vs string zcommand;
-    namespace:$[.finspace.enabled;`.aws_z;`.z];
     $[`ORIG in key ns:` sv `.dotz,zcommand;
         .dotz.set[zcommand;ns[`ORIG]];
-        ![namespace;();0b;enlist zcommand]];}
+        ![.dotz.getnamespace[];();0b;enlist zcommand]];}
+
+getnamespace:{$[.finspace.enabled;`.awscust.z;`.z]}
+
+getcommand:{[zcommand]` sv .dotz.getnamespace[],`$last"."vs string zcommand}

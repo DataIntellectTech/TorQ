@@ -8,4 +8,4 @@ enabled:@[value;`enabled;1b]					// whether its enabled
 ignorelist:@[value;`ignorelist;(`upd;"upd";`.u.upd;".u.upd")]	// list of functions to ignore
 
 if[enabled;
- .dotz.set[`.z.ps;{$[any first[y]~/:ignorelist;value y;x @ y]}[@[value;`.z.ps;{value}]]]]
+ .dotz.set[`.z.ps;{$[any first[y]~/:ignorelist;value y;x @ y]}[@[value;.dotz.getcommand[`.z.ps];{value}]]]]
