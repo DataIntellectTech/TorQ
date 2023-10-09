@@ -59,7 +59,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
- [-test]:\t\t\tset to run unit tests"]
+ [-test]:\t\t\tset to run unit tests
+ [-jsonlogs]:\t\t\toutput logs in json format"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -180,6 +181,12 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 
 blocklist:","vs getenv`KDBBLOCKLIST
 
+// Set necessary flag if running in finspace
+ .finspace.enabled:"true"~getenv[`KDBFINSPACE]
+
+// Read the process parameters
+params:.Q.opt .z.x
+
 \d .lg
 
 // Set the logging table at the top level
@@ -189,10 +196,7 @@ blocklist:","vs getenv`KDBBLOCKLIST
 // Logging functions live in here
 
 // Format a log message
-// Setting .finspace.enabled here so that the .dotz lib can pick it up
-// standard TorQ - gets reset to false in code/common/finspace.q
-// FinTorQ - gets reset to true in finTorq-App/appconfig/settings/default.q
-format:$[.finspace.enabled:"true"~getenv[`KDBFINSPACE];
+format:$[`jsonlogs in key .proc.params;   
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
@@ -306,8 +310,6 @@ removeenvvar:{
 // Process initialisation
 \d .proc
 
-// Read the process parameters
-params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
