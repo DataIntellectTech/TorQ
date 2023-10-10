@@ -141,7 +141,7 @@ notpconnected:{[]
 /- redefine .z.pc to detect loss of tickerplant connection
 .dotz.set[`.z.pc;{[x;y]if[.ctp.tph=y;
   .lg.e[`.z.pc;"lost connection to tickerplant : ",string .ctp.tickerplantname];exit 0];
-  x@y}[@[value;`.z.pc;{{;}}]]]
+  x@y}[@[value;.dotz.getcommand[`.z.pc];{{;}}]]]
 
 /- define upd based on user settings
 upd:$[createlogfile;

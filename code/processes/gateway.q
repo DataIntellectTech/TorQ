@@ -500,12 +500,12 @@ pc:{
 pgs:{.gw.call,:enlist[x]!enlist y};
 
 // override message handlers
-.dotz.set[`.z.pc;{x@y;.gw.pc[y]}@[value;`.z.pc;{{[x]}}]];
-.dotz.set[`.z.po;{x@y;.gw.po[y]}@[value;`.z.po;{{[x]}}]];
-.dotz.set[`.z.pg;{.gw.pgs[.z.w;1b];x@y}@[value;`.z.pg;{{[x]}}]];
-.dotz.set[`.z.ps;{.gw.pgs[.z.w;0b];x@y}@[value;`.z.ps;{{[x]}}]];
+.dotz.set[`.z.pc;{x@y;.gw.pc[y]}@[value;.dotz.getcommand[`.z.pc];{{[x]}}]];
+.dotz.set[`.z.po;{x@y;.gw.po[y]}@[value;.dotz.getcommand[`.z.po];{{[x]}}]];
+.dotz.set[`.z.pg;{.gw.pgs[.z.w;1b];x@y}@[value;.dotz.getcommand[`.z.pg];{{[x]}}]];
+.dotz.set[`.z.ps;{.gw.pgs[.z.w;0b];x@y}@[value;.dotz.getcommand[`.z.ps];{{[x]}}]];
 // only wrap .z.ws if it is already defined
-if[@[{value x;1b};`.z.ws;{0b}];.dotz.set[`.z.ws;{.gw.pgs[.z.w;0b];x@y}.z.ws]];
+if[@[{value x;1b};`.z.ws;{0b}];.dotz.set[`.z.ws;{.gw.pgs[.z.w;0b];x@y}value .dotz.getcommand[`.z.ws]]];
 
 // START UP
 // initialise connections

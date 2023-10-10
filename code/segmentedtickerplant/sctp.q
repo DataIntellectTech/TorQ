@@ -46,7 +46,7 @@ init:{
 .dotz.set[`.z.pc;{[f;x] @[f;x;()];
   if[.sctp.chainedtp;
     if[.sctp.tph=x; .lg.e[`.z.pc;"lost connection to tickerplant : ",string .sctp.tickerplantname];exit 1]]
-    }@[value;`.z.pc;{{}}];];
+    }@[value;.dotz.getcommand[`.z.pc];{{}}];];
 
 // Extract data from incoming table as a list
 upd:{[t;x]
