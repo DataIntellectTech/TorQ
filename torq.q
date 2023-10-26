@@ -179,10 +179,8 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
-blocklist:","vs getenv`KDBBLOCKLIST
-
 // Set necessary flag if running in finspace
- .finspace.enabled:"true"~getenv[`KDBFINSPACE]
+.finspace.enabled:"true"~getenv[`KDBFINSPACE]
 
 // Read the process parameters
 params:.Q.opt .z.x
@@ -196,9 +194,9 @@ params:.Q.opt .z.x
 // Logging functions live in here
 
 // Format a log message
-format:$[`jsonlogs in key .proc.params;   
-		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
-		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
+format:$[`jsonlogs in key .proc.params;
+        {[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
+        {[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
 
 publish:{[loglevel;proctype;proc;id;message]
@@ -495,8 +493,6 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  if[any like[x;]each .proc.blocklist;
-  	:.lg.o[`fileload;"File/directory in blocked list. Skipping file ",x]];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
   loadedf,:enlist x;

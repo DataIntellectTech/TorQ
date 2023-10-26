@@ -45,10 +45,10 @@ write:{
 ext:{[x]}
 
 // format the string to be written to the file
-format:$[`jsonlogs in key .proc.params;
+format:$[`jsonlogs in key .proc.params; 
 		{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck)!x,`USAGE};
-                {"|" sv -3!'x}
-        ];
+        	{"|" sv -3!'x}
+         ];
 
 // flush out some of the in-memory stats
 flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}
