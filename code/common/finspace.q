@@ -39,7 +39,7 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkStatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      // TODO - Once the status of the changeset is "COMPLETED" we need to run the aws HDB reload API (once it is available)
+      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"]]];.aws.sdep["NO_RESTART"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
 
