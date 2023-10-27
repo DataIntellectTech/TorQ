@@ -59,8 +59,7 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
- [-test]:\t\t\tset to run unit tests
- [-jsonlogs]:\t\t\toutput logs in json format"]
+ [-test]:\t\t\tset to run unit tests"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -179,13 +178,7 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
-blocklist:","vs getenv`KDBBLOCKLIST
-
-// Set necessary flag if running in finspace
- .finspace.enabled:"true"~getenv[`KDBFINSPACE]
-
-// Read the process parameters
-params:.Q.opt .z.x
+blocklist:","vs getenv`BLOCKLIST
 
 \d .lg
 
@@ -196,7 +189,7 @@ params:.Q.opt .z.x
 // Logging functions live in here
 
 // Format a log message
-format:$[`jsonlogs in key .proc.params;   
+format:$[.finspace.enabled:"true"~getenv[`KDBFINSPACE];   
 		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
 		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
         ];
@@ -310,6 +303,8 @@ removeenvvar:{
 // Process initialisation
 \d .proc
 
+// Read the process parameters
+params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
@@ -495,7 +490,7 @@ loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   // error trapped loading of file
-  if[any like[x;]each .proc.blocklist;
+  if[max like[x;]each .proc.blocklist;
   	:.lg.o[`fileload;"File/directory in blocked list. Skipping file ",x]];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
