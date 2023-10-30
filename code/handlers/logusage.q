@@ -36,9 +36,9 @@ logh:@[value;`logh;0]
 
 // write a query log message, direct to stdout if running in finspace
 write:{
-	$[.finspace.enabled;
-		@[neg 1;format x;()];
-		if[logtodisk;@[neg logh;format x;()]]];
+    $[.finspace.enabled;
+	@[neg 1;format x;()];
+	if[logtodisk;@[neg logh;format x;()]]];
     if[logtomemory; `.usage.usage upsert x];
     ext[x]} 
 
