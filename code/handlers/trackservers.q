@@ -142,7 +142,7 @@ addhw:{[hpuP;W]
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
-    if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype]];
+    if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype;info`proctype;info`procname]];
     // If this handle already has an entry, delete the old entry
     delete from `.servers.SERVERS where w=W;
     addnthawc[name;info`proctype;hpuP;info`attributes;W;0b]}
@@ -187,11 +187,16 @@ retryrows:{[rows]
 // get the connection string to connect to a given process
 // in most cases this is just the hpup, unless we are connecting to a finspace process
 // in this case we need to generate the connection string using the AWS api
-getconnectionstring:{[proctype;procname;hpup]
-    if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype; 
-        :hpup ^ .servers.getfinspaceconn[proctype; procname];
+getconnectionstring:{[proctype;procname;hpuporig]
+    // only sockettype `finspace on and for the discovery process
+    if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype;
+        // Filling so not null, duplicate entries get overwritten/deleted // TODO make more unique using hostname (for nodes)?
+        hp:(`$":"sv string[`tempstring,proctype,procname]) ^ .servers.getfinspaceconn[proctype; procname];
+        // We need to update the AWS connection string so it doesn't forever retry a stale one
+        if[not null hpuporig;update hpup:hp from `.servers.SERVERS where hpup=hpuporig];
+        :hp;
         ];
-    :hpup;
+    :hpuporig;
     };
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
@@ -268,7 +273,7 @@ domainsocketsenabled:{[]
 
 // format hpup from procs table, take into account ipc type
 // IPCTYPE [-11h] (`tcp;`tcps;`unix);
-formathp:{[HOST;PORT;IPCTYPE]
+formathp:{[HOST;PORT;IPCTYPE;PROCTYPE;PROCNAME]
     ipctype:IPCTYPE;
     isunixsocket:ipctype = `unix;
     notsamebox:not any HOST in `localhost,.z.h;
@@ -299,7 +304,7 @@ formathp:{[HOST;PORT;IPCTYPE]
     ];
     if[ipctype = `finspace;
         // there is no point in generating the AWS connection string at this point as it will expire after a period of time
-        hpup:.servers.FINSPACECONNECTIONMARKER;
+        hpup:.servers.getconnectionstring[PROCTYPE;PROCNAME;`];
     ];
 
     :hpup;
@@ -308,7 +313,7 @@ formathp:{[HOST;PORT;IPCTYPE]
 // do full formatting of proc table
 formatprocs:{[PROCS]
     procs:update ipctype:`tcp^.servers.SOCKETTYPE[proctype] from PROCS;
-    procs:update hpup:.servers.formathp'[host;port;ipctype] from procs;
+    procs:update hpup:.servers.formathp'[host;port;ipctype;proctype;procname] from procs;
     :procs;
     }
 

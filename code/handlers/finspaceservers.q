@@ -1,6 +1,5 @@
 .servers.FINSPACEDISC:@[value; `.servers.FINSPACEDISC; 0b];
 .servers.FINSPACECLUSTERSFILE:@[value; `.servers.FINSPACECLUSTERSFILE; hsym `];
-.servers.FINSPACECONNECTIONMARKER:@[value; `.servers.FINSPACECONNECTIONMARKER;`finspace_connection_string];
 
 .servers.readclustersfile:{[]
     if[null .servers.FINSPACECLUSTERSFILE; {.lg.e[`readclustersfile; "no finspace clusters file defined"]}];
@@ -12,8 +11,6 @@
     availclusters:@[.aws.list_kx_clusters; `; {.lg.e[`getfinspaceclusters; "Failed to get finspace clusters using the finspace API - ",x]}];
     :expclusters ij `cluster_name`cluster_type xkey select `$cluster_name, `$cluster_type, `$status from availclusters where status like "RUNNING";
     };
-
-
 
 .servers.getfinspaceconn:{[ptype; pname]
     id:.j.j[(ptype;pname)];
