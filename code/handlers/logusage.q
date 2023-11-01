@@ -38,7 +38,7 @@ logh:@[value;`logh;0]
 write:{
     $[.finspace.enabled;
 	@[neg 1;format x;()];
-        if[logtodisk;@[neg logh;format x;()]]];
+	if[logtodisk;@[neg logh;format x;()]]];
     if[logtomemory; `.usage.usage upsert x];
     ext[x]} 
 
