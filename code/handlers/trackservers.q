@@ -187,16 +187,10 @@ retryrows:{[rows]
 // get the connection string to connect to a given process
 // in most cases this is just the hpup, unless we are connecting to a finspace process
 // in this case we need to generate the connection string using the AWS api
-getconnectionstring:{[proctype;procname;hpuporig]
-    // only sockettype `finspace on and for the discovery process
+getconnectionstring:{[proctype;procname;hpup]
     if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype;
-        // Filling so not null, duplicate entries get overwritten/deleted // TODO make more unique using hostname (for nodes)?
-        hp:(`$":"sv string[`tempstring,proctype,procname]) ^ .servers.getfinspaceconn[proctype; procname];
-        // We need to update the AWS connection string so it doesn't forever retry a stale one
-        if[not null hpuporig;update hpup:hp from `.servers.SERVERS where hpup=hpuporig];
-        :hp;
-        ];
-    :hpuporig;
+        :.servers.getfinspaceconn[proctype; procname]];
+    :hpup;
     };
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
@@ -303,8 +297,9 @@ formathp:{[HOST;PORT;IPCTYPE;PROCTYPE;PROCNAME]
         hpup:lower `$":unix://",port;
     ];
     if[ipctype = `finspace;
-        // there is no point in generating the AWS connection string at this point as it will expire after a period of time
-        hpup:.servers.getconnectionstring[PROCTYPE;PROCNAME;`];
+        // we don't want the discovery generating connection strings as they expire. Each cluster will generate their own
+        // assuming a unique combination of proctype and procname per cluster
+        hpup:`$":"sv string PROCTYPE,PROCNAME;
     ];
 
     :hpup;
