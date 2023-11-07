@@ -1,4 +1,3 @@
-dotz.q
 utils.q
 u.q
 u.k
