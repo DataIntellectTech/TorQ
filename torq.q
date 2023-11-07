@@ -580,6 +580,27 @@ loadaddconfig:{[envvar;cnfgpath]
 	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname
 	};
 
+// some dotz functions are defined here due to library code load order
+\d .dotz
+
+// FinSpace blocks the setting on .z commands, using set and unset to preserve existing TorQ usage and new FinTorQ
+// e.g. to set .z.zd call:
+//     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
+.dotz.set:{[zcommand;setto] // using namespace explicitly due to set already being a key term
+    .[set;(.dotz.getcommand[zcommand];setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
+
+// e.g. if you want to unset .z.zd call:
+//     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
+unset:{[zcommand]
+    zcommand:`$last"."vs string zcommand;
+    $[`ORIG in key ns:` sv `.dotz,zcommand;
+        .dotz.set[zcommand;ns[`ORIG]];
+        ![.dotz.getnamespace[];();0b;enlist zcommand]];}
+
+getnamespace:{$[.finspace.enabled;`.awscust.z;`.z]}
+
+getcommand:{[zcommand]` sv .dotz.getnamespace[],`$last"."vs string zcommand}
+
 \d . 
 // Load configuration
 // TorQ loads configuration modules in the order: TorQ Default, Service Specific and then Application Specific
