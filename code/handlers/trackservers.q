@@ -200,6 +200,7 @@ connectcustom:@[value;`.servers.connectcustom;{[connectedrows]}]
 // close handles and remove rows from the table
 removerows:{[rows]
     @[hclose;;()] each .servers.SERVERS[rows][`w] except 0 0Ni;
+    @[.z.pc;;()] each .servers.SERVERS[rows][`w] except 0 0Ni; // needed for finspace cleanup
     delete from `.servers.SERVERS where i in rows}
 
 // Create some connections and optionally connect to them
