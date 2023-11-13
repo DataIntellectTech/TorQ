@@ -253,7 +253,7 @@ banner:{
  -1 blank;
  -1 format"For questions, comments, requests or bug reports please contact us";
  -1 format"w :     www.dataintellect.com";
- -1 format"e : support@dataintellect.com";
+ -1 format"e : torqsupport@dataintellect.com";
  -1 blank; 
  -1 format"Running on ","kdb+ ",(string .z.K)," ",string .z.k;
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file

@@ -38,6 +38,8 @@ Then:
 
 Head to the address it gives you to check if your changes have worked. More information about using mkdocs can be found [here](http://www.mkdocs.org/)
 
+## Licences
+Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
 - **4.4.0, May 2023**
   * Rebranding: Update AquaQ references to Data Intellect

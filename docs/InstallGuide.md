@@ -4,22 +4,38 @@ Install Guide
 ## Usage instruction for a fresh TorQ Install
 
 
-In your Linux terminal run the following lines copying them in one by one:
+In your Linux terminal run the following line:
 
     wget https://raw.githubusercontent.com/DataIntellectTech/TorQ/master/installtorqapp.sh
 
-    wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/3.7.0.tar.gz
 
-    wget --content-disposition https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz
+For the two lines of code below, replace the <...> sections with the name of the latest TorQ/TorQ Finance Starter Pack versions, respectfully. These can be found here:
 
-Then to launch the script.
+https://github.com/DataIntellectTech/TorQ/releases/latest
 
-    bash installtorqapp.sh --torq TorQ-3.7.0.tar.gz --releasedir deploy --data datatemp --installfile TorQ-Finance-Starter-Pack-1.9.0.tar.gz --env 
+https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/releases/latest
+
+    wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/<TorQ latest version>.tar.gz
+
+    wget --content-disposition https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/archive/<TorQ Finance Starter Pack latest version>.tar.gz
+
+
+Following the substitution, your specified .tar.gz file names should match the .tar.gz file names found through each respectful link above.
+
+Once you have substituted in the names of the latest release files, run each line of code in your Linux terminal, one by one.
+
+
+Then to launch the script, substitute in the respective file names for the <...> sections, as above, and run:
+
+    bash installtorqapp.sh --torq <TorQ latest version>.tar.gz --releasedir deploy --data datatemp --installfile <TorQ Finance Starter Pack latest version>.tar.gz --env
+
 
 Where data parameter and env parameter are optional parameters.
 Full usage of the parameters available in the table below.
 
 The folder structure after installation will look like this:
+
+(TorQ-3.7.0 used as an example throughout, your TorQ version number should match the latest release)
 
 ![Install_structure](graphics/Installscript_folder_structure.png)
 
