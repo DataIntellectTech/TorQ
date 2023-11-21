@@ -16,7 +16,6 @@ run,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,
 run,0,0,q,startproc each ("wdball";"wdbsymfilt";"wdbtabfilt"),1,,"Start all WDBs"
 run,0,0,q,.proc.sys "sleep 8",1,,"Sleep for 8 seconds"
 run,0,0,q,wdbHandles:`all`sym`tab!gethandle each `wdball`wdbsymfilt`wdbtabfilt,1,,"Open handles to WDBs"
-run,0,0,q,show wdbHandles,1,,"Show wdbHandles"
 true,0,0,q,(20 10)~t1:wdbHandles[`all`sym] @\: "count trade",1,,"Check trade update published"
 true,0,0,q,(20 0 20)~q1:(value wdbHandles) @\: "count quote",1,,"Check quote update published"
 true,0,0,q,all raze `GOOG=wdbHandles[`sym]"exec distinct sym from trade",1,,"Check filtered trade updates published"
