@@ -255,6 +255,38 @@ This throws us out to the q prompt at this point in the tests with the following
 
 We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
+### What Needs Tested?
+There are many tests that need to be ran when testing TorQ. Within TorQ there is a directory named 'tests' where all the required tests are situated. The directories that contain the tests can be seen here;
+
+```shell
+.
+├── bglaunchprocess
+├── dataaccess
+├── dqe
+├── k4unit
+├── merge
+├── pcap
+├── performance
+├── permissions
+├── rdb
+└── stp
+```
+
+
+
+### RDB
+The RDB is does not contain the run.sh file like the majority of the other directories. In order to run this test, change directory into the tests directory, and run the aforementioned basic command used for running the test, changing the  proctype to rdb and the procname to test1 as seen below:
+```shell
+q ${TORQHOME}/torq.q -proctype rdb -procname test1 -test rdb -debug
+```
+
+### STP
+The STP contains 23 subdirectories, all of which containing their own test. All of which are tested by the standard;
+```shell
+bash run.sh -dw
+```
+However when running this in the Stripe directory, you will not recieve the KUT and KUTR csv's. Instead, this test will create a new directory named 'results', situated in the STP directory. In results, there will be a subdirectory named stripe, then within that, the present day's date and finally in that directory, your test result csv's will be present.
+
 ### Notes on Best Practice
 
 Here are some recommendations on making test development more straightforward:
