@@ -271,7 +271,7 @@ There are many areas that need tested in TorQ. There is a directory within TorQ 
 ├── rdb
 └── stp
 ```
-Each of these directories contain their own tests that need to be ran, apart from k4unit. In the 'bglaunchproces' for example, there is the following files;
+Each of these directories contain their own tests that need to be ran, apart from k4unit. In the 'bglaunchprocess' for example, there are the following files;
 
 ```shell
 kod.q.acct  process.csv  run.sh  settings.q  test.csv
@@ -283,7 +283,7 @@ bash run.sh -d
 ```
 This will present us with 2 tables, a KUT which is a table with all the tests that have been ran, and a KUTR table which is the results of these tests.
 
-The purpose of testing is to ensure that any changes you have made to TorQ has not broken anything and that TorQ still functions properly. Therefore these tests must be ran both on your development branch and on the master branch and compared in order to ensure nothing has been broken. The resulting tables can sometimes be extensive and difficult to compare from the console. I find the best way to compare the results is to apply a SQL statement to the KUTR table.
+The purpose of testing is to ensure that any changes you have made to TorQ has not broken anything and that TorQ still functions properly. Therefore, these tests must be ran both on your development branch and on the master branch and compared in order to ensure nothing has been broken. The resulting tables can sometimes be extensive and difficult to compare from the console. I find the best way to compare the results is to apply a SQL statement to the KUTR table.
 
 ```shell
 errors:select from KUTR where not ok
