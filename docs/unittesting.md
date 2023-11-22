@@ -256,7 +256,7 @@ This throws us out to the q prompt at this point in the tests with the following
 We can get the code which failed and run it here to see what it returns. From doing some quick debugging we can see that one of the items being added to `t1` is wrong, it should be ten rather than 1. Once this is fixed we can run the WDB tests again and we see that there are now no errors and all the tests pass! We can then run all of our tests again as at the start and no new test failures come up and the latest error logs are empty.
 
 ### What Needs Tested?
-There are many tests that need to be ran when testing TorQ. Within TorQ there is a directory named 'tests' where all the required tests are situated. The directories that contain the tests can be seen here;
+There are many areas that need tested in TorQ. There is a directory within TorQ named 'tests' where all the required tests are situated. The directories that contain the tests can be seen here;
 
 ```shell
 .
@@ -271,19 +271,47 @@ There are many tests that need to be ran when testing TorQ. Within TorQ there is
 ├── rdb
 └── stp
 ```
+Each of these directories contain their own tests that need to be ran, apart from k4unit. In the 'bglaunchproces' for example, there is the following files;
 
+```shell
+kod.q.acct  process.csv  run.sh  settings.q  test.csv
+```
+Now in this directory, we can run the tests by the following command;
 
+```shell
+bash run.sh -d
+```
+This will present us with 2 tables, a KUT which is a table with all the tests that have been ran, and a KUTR table which is the results of these tests.
 
-### RDB
-The RDB is does not contain the run.sh file like the majority of the other directories. In order to run this test, change directory into the tests directory, and run the aforementioned basic command used for running the test, changing the  proctype to rdb and the procname to test1 as seen below:
+The purpose of testing is to ensure that any changes you have made to TorQ has not broken anything and that TorQ still functions properly. Therefore these tests must be ran both on your development branch and on the master branch and compared in order to ensure nothing has been broken. The resulting tables can sometimes be extensive and difficult to compare from the console. I find the best way to compare the results is to apply a SQL statement to the KUTR table.
+
+```shell
+errors:select from KUTR where not ok
+```
+This statement will return a table of all the failed tests. If the errors table is then saved as a csv file on both branches by;
+
+```shell
+save `:errors.csv
+```
+
+These two csv's can easily be compared by a simple text comparison website. If there is no difference between these two tables, then nothing has been broken and that particular test can be deemed as a pass.
+
+All tests are ran in this manner apart from a few which are noted below.
+
+**RDB**
+
+The RDB does not contain the run.sh file like the majority of the other directories. In order to run this test, change directory into the tests directory, and run the aforementioned basic command used for running a test, changing the proctype to rdb and the procname to test1 as seen below:
+
 ```shell
 q ${TORQHOME}/torq.q -proctype rdb -procname test1 -test rdb -debug
 ```
 
-### STP
+**STP**
+
 The STP contains 23 subdirectories, all of which containing their own test. All of which are tested by the standard;
+
 ```shell
-bash run.sh -dw
+bash run.sh -d
 ```
 However when running this in the Stripe directory, you will not recieve the KUT and KUTR csv's. Instead, this test will create a new directory named 'results', situated in the STP directory. In results, there will be a subdirectory named stripe, then within that, the present day's date and finally in that directory, your test result csv's will be present.
 
