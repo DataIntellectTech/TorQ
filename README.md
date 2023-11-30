@@ -41,6 +41,10 @@ Head to the address it gives you to check if your changes have worked. More info
 ## Licences
 Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
+- **5.0.0, Dec 2023**
+  * Updating TorQ to support AWS Finspace when using the new [TorQ-Finspace-Starter-Pack](https://dataintellecttech.github.io/TorQ-Finspace-Starter-Pack/)
+  * Fixes to heartbeat disabling logic
+  * log output can now be json file format: add '-jsonlogs true' flag on startup
 - **4.4.0, May 2023**
   * Rebranding: Update AquaQ references to Data Intellect
 - **4.3.0, Jan 2023**
