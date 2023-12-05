@@ -142,7 +142,7 @@ addhw:{[hpuP;W]
     if[0Ni~info`port;'"remote call failed on handle ",string W];
     if[null name:info`procname;name:`$last("/"vs string info`f)except enlist""];
     if[0=count name;name:`default];
-    if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype]];
+    if[null hpuP;hpuP:.servers.formathp[info`h;info`port;`tcp^.servers.SOCKETTYPE info`proctype;info`proctype;info`procname]];
     // If this handle already has an entry, delete the old entry
     delete from `.servers.SERVERS where w=W;
     addnthawc[name;info`proctype;hpuP;info`attributes;W;0b]}
@@ -176,13 +176,22 @@ retryrows:{[rows]
     //which checks if .proc.getattributes is defined on the nontorqprocess and executes it 
     //only if it is defined
     a:{$[not null x;@[x;({.proc.getattributes[]};::);()!()];()!()]};
- 
+
     // opencon, amends global tables, cannot be used inside of a select statement
-    handles:.servers.opencon each exec hpup from`.servers.SERVERS where i in rows;
+    handles:.servers.opencon each exec .servers.getconnectionstring'[proctype;procname;hpup] from .servers.SERVERS where i in rows;
     update lastp:.proc.cp[],w:handles from`.servers.SERVERS where i in rows;
     update attributes:a each w,startp:?[null w;0Np;.proc.cp[]] from`.servers.SERVERS where i in rows;
     if[count connectedrows:select from`.servers.SERVERS where i in rows,.dotz.liveh0 w;
     connectcustom[connectedrows]]}
+
+// get the connection string to connect to a given process
+// in most cases this is just the hpup, unless we are connecting to a finspace process
+// in this case we need to generate the connection string using the AWS api
+getconnectionstring:{[proctype;procname;hpup]
+    if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype;
+        :.servers.getfinspaceconn[proctype; procname]];
+    :hpup;
+    };
 
 // user definable function to be executed when a service is reconnected. Also performed on first connection of that service.
 // Input is the line(s) from .servers.SERVERS corresponding to the newly (re)connected service
@@ -191,6 +200,7 @@ connectcustom:@[value;`.servers.connectcustom;{[connectedrows]}]
 // close handles and remove rows from the table
 removerows:{[rows]
     @[hclose;;()] each .servers.SERVERS[rows][`w] except 0 0Ni;
+    @[.z.pc;;()] each .servers.SERVERS[rows][`w] except 0 0Ni; // needed for finspace cleanup
     delete from `.servers.SERVERS where i in rows}
 
 // Create some connections and optionally connect to them
@@ -221,7 +231,7 @@ registerfromdiscovery:{[procs;connect]
     addprocs[res;procs;connect];}
 
 addprocs:{[connectiontab;procs;connect]
-    connectiontab:formatprocs[delete split from update host:`$last each -1 _' split, port:"I"$last each split from update split:{":" vs string x}each hpup from connectiontab];
+    connectiontab:formatprocs[delete split from update host:hpup^`$last each -1 _' split, port:"I"$last each split from update split:{":" vs string x}each hpup from connectiontab];
     // filter out any we already have - same name,type and hpup
     res:select from connectiontab where not ([]procname;proctype;hpup) in select procname,proctype,hpup from .servers.SERVERS;
     // we've dropped some items - maybe there are updated attributes
@@ -258,7 +268,7 @@ domainsocketsenabled:{[]
 
 // format hpup from procs table, take into account ipc type
 // IPCTYPE [-11h] (`tcp;`tcps;`unix);
-formathp:{[HOST;PORT;IPCTYPE]
+formathp:{[HOST;PORT;IPCTYPE;PROCTYPE;PROCNAME]
     ipctype:IPCTYPE;
     isunixsocket:ipctype = `unix;
     notsamebox:not any HOST in `localhost,.z.h;
@@ -287,6 +297,11 @@ formathp:{[HOST;PORT;IPCTYPE]
     if[ipctype = `unix;
         hpup:lower `$":unix://",port;
     ];
+    if[ipctype = `finspace;
+        // we don't want the discovery generating connection strings as they expire. Each cluster will generate their own
+        // assuming a unique combination of proctype and procname per cluster
+        hpup:`$":"sv string PROCTYPE,PROCNAME;
+    ];
 
     :hpup;
     }
@@ -294,7 +309,7 @@ formathp:{[HOST;PORT;IPCTYPE]
 // do full formatting of proc table
 formatprocs:{[PROCS]
     procs:update ipctype:`tcp^.servers.SOCKETTYPE[proctype] from PROCS;
-    procs:update hpup:.servers.formathp'[host;port;ipctype] from procs;
+    procs:update hpup:.servers.formathp'[host;port;ipctype;proctype;procname] from procs;
     :procs;
     }
 
@@ -367,7 +382,7 @@ startupdependent:startupdepcyclestypename[;.servers.reqproctypesnotconn;;0W];
 
 pc:{[result;W] update w:0Ni,endp:.proc.cp[] from`.servers.SERVERS where w=W;cleanup[];result}
 
-.z.pc:{.servers.pc[x y;y]}.z.pc;
+.dotz.set[`.z.pc;{.servers.pc[x y;y]}value .dotz.getcommand[`.z.pc]];
 
 if[enabled;
     if[DISCOVERYRETRY > 0; .timer.repeat[.proc.cp[];0Wp;DISCOVERYRETRY;(`.servers.retrydiscovery;`);"Attempt reconnections to the discovery service"]];

@@ -110,7 +110,7 @@ getheartbeats:{[proctype]
 
 // set the heartbeat table to the top level namespace, to allow it to be initialised in the pub/sub routine
 heartbeat:.hb.heartbeat;
-if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`enabled;1b];
+if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`.hb.enabled;1b];
  // add the checkheartbeat function to the timer
  $[@[value;`.timer.enabled;0b] and `publish in key `.ps;
   [.lg.o[`init;"adding heartbeat functions to the timer"];
@@ -121,7 +121,7 @@ if[(not @[value;`.proc.lowpowermode;0b]) & @[value;`enabled;1b];
 if[.hb.subenabled;
   upd:{[f;t;x] if[t=`heartbeat; .hb.storeheartbeat[x]]; f . (t;x)}@[value;`upd;{{[t;x]}}];
 
-  .z.pc:{if[y;.hb.subscribedhandles::.hb.subscribedhandles except y]; x@y}@[value;`.z.pc;{{[x]}}];
+  .dotz.set[`.z.pc;{if[y;.hb.subscribedhandles::.hb.subscribedhandles except y]; x@y}@[value;.dotz.getcommand[`.z.pc];{{[x]}}]];
 
   .timer.rep[.z.p;0wp;0D00:01:00;(`.hb.hbsubscriptions;`);0h;"subscribe to heartbeats";0b];
 

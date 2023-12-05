@@ -127,17 +127,16 @@ vws:{defaultuser .z.u} / not clear what/how to restrict yet
 if[.access.enabled;
 	// Read in the permissions
 	.access.readpermissions each string reverse .proc.getconfig["permissions";1];
-	.z.pw:{$[.access.vpw[y;z];x[y;z];0b]}.z.pw;
+	.dotz.set[`.z.pw;{$[.access.vpw[y;z];x[y;z];0b]}value .dotz.getcommand[`.z.pw]];
 	/ .z.po - untouched, .z.pw does the checking
 	/ .z.pc - untouched, close is always allowed
-	/ .z.pg:{$[.access.vpg[y];x y;.access.invalidpt y]}.z.pg;
 	if[not .access.openonly;
-		.z.pg:{$[.access.vpg[y];.access.validsize[;`pg.size;y]x y;.access.invalidpt y]}.z.pg;
-		.z.ps:{$[.access.vps[y];x y;.access.invalidpt y]}.z.ps;
-		.z.ws:{$[.access.vws[y];x y;.access.invalidpt y]}.z.ws;
-		.z.pi:{$[.access.vpi[y];x y;.access.invalidpt y]}.z.pi;
-		.z.ph:{$[.access.vph[y];x y;.h.hn["403 Forbidden";`txt;"Forbidden"]]}.z.ph;
-		.z.pp:{$[.access.vpp[y];x y;.h.hn["403 Forbidden";`txt;"Forbidden"]]}.z.pp]];
+		.dotz.set[`.z.pg;{$[.access.vpg[y];.access.validsize[;`pg.size;y]x y;.access.invalidpt y]}value .dotz.getcommand[`.z.pg]];
+		.dotz.set[`.z.ps;{$[.access.vps[y];x y;.access.invalidpt y]}value .dotz.getcommand[`.z.ps]];
+		.dotz.set[`.z.ws;{$[.access.vws[y];x y;.access.invalidpt y]}value .dotz.getcommand[`.z.ws]];
+		.dotz.set[`.z.pi;{$[.access.vpi[y];x y;.access.invalidpt y]}value .dotz.getcommand[`.z.pi]];
+		.dotz.set[`.z.ph;{$[.access.vph[y];x y;.h.hn["403 Forbidden";`txt;"Forbidden"]]}value .dotz.getcommand[`.z.ph]];
+		.dotz.set[`.z.pp;{$[.access.vpp[y];x y;.h.hn["403 Forbidden";`txt;"Forbidden"]]}value .dotz.getcommand[`.z.pp]]]];
 \
 note that you can put global restrictions on the amount of memory used, and
 the maximum time a single interaction can take by setting command line parameters:

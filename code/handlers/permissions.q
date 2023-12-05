@@ -248,16 +248,16 @@ droppublic:{[w]
   }
 
 init:{
-  .z.ps:{@[x;(`.pm.req;y)]}.z.ps;
-  .z.pg:{@[x;(`.pm.req;y)]}.z.pg;
+  .dotz.set[`.z.ps;{@[x;(`.pm.req;y)]}value .dotz.getcommand[`.z.ps]];
+  .dotz.set[`.z.pg;{@[x;(`.pm.req;y)]}value .dotz.getcommand[`.z.pg]];
   // skip permissions for empty lines in q console/qcon
-  .z.pi:{$[x in (1#"\n";"");.Q.s value x;.Q.s $[.z.w=0;value;req]@x]};
-  .z.pp:{'"pm: HTTP POST requests not permitted"};
+  .dotz.set[`.z.pi;{$[x in (1#"\n";"");.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}];
+  .dotz.set[`.z.pp;{'"pm: HTTP POST requests not permitted"}];
   // from V3.5 2019.11.23, .h.val is used in .z.ph to evaluate request; below that disallow .z.ph
-  $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.z.ph:{'"pm: HTTP GET requests not permitted"}];
-  .z.ws:{'"pm: websocket access not permitted"};
-  .z.pw:login;
-  .z.pc:{droppublic[y];@[x;y]}.z.pc;
+  $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.dotz.set[`.z.ph;{'"pm: HTTP GET requests not permitted"}]];
+  .dotz.set[`.z.ws;{'"pm: websocket access not permitted"}];
+  .dotz.set[`.z.pw;login];
+  .dotz.set[`.z.pc;{droppublic[y];@[x;y]}value .dotz.getcommand[`.z.pc]];
   }
 
 if[enabled;init[]]

@@ -85,12 +85,12 @@ finish:{[loadparams]
  
  if[count loadparams`compression;
 	.lg.o[`dataloader;"setting compression parameters to "," " sv string loadparams`compression];
-	.z.zd:loadparams`compression];
+	.dotz.set[`.z.zd;loadparams`compression]];
  // re-sort and set attributes on each partition
  {.sort.sorttab(x;where partitions[;0]=x)} each distinct value partitions[;0];
   
  // unset .z.zd
- @[system;"x .z.zd";()];
+ @[.dotz.unset;`.z.zd;()];
  
  // garbage collection
  if[loadparams`gc; .gc.run[]];

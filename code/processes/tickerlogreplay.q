@@ -211,7 +211,7 @@ replaylog:{[logfile]
  // set compression level
  if[3=count compression;
    .lg.o[`compression;"setting compression level to (",(";" sv string compression),")"];
-   .z.zd:compression;
+   .dotz.set[`.z.zd;compression];
    .lg.o[`compression;".z.zd has been set to (",(";" sv string .z.zd),")"]];
 
  $[basicmode; 

@@ -4,9 +4,6 @@
 // Discovery service only gives out information on registered services - it doesn't really need to have connected to them
 // The reason for having a connection is just to get the attributes.
 
-// Make sure all connections are created as standard sockets
-.servers.SOCKETTYPE:enlist[`]!enlist `
-
 // initialise connections
 .servers.startup[]
 
@@ -40,4 +37,4 @@ getservices:{[proctypes;subscribe]
 (neg exec w from .servers.SERVERS where .dotz.liveh w,not hpup in exec hpup from .servers.nontorqprocesstab)@\:(`.servers.autodiscovery;`);
 
 // modify .z.pc - drop items out of the subscription dictionary
-.z.pc:{subs::(enlist y) _ subs; x@y}@[value;`.z.pc;{;}]
+.dotz.set[`.z.pc;{subs::(enlist y) _ subs; x@y}@[value;.dotz.getcommand[`.z.pc];{;}]]

@@ -33,7 +33,7 @@ subscribe:{[handle]
  }
  
 // if a handle is closed, remove it from the list
-.z.pc:{if[y;subscribedhandles::subscribedhandles except y]; x@y}@[value;`.z.pc;{{[x]}}]
+.dotz.set[`.z.pc;{if[y;subscribedhandles::subscribedhandles except y]; x@y}@[value;.dotz.getcommand[`.z.pc];{{[x]}}]]
 
 // Make the connections and subscribe
 .servers.startup[]
@@ -76,7 +76,7 @@ initcheck:{
 
 // specify .z.exit to save config
 // capture any prior definition
-.z.exit:{[x;y] saveconfig[.monitor.configstored;checkconfig];x@y}[@[value;`.z.exit;{{[x]}}]]
+.dotz.set[`.z.exit;{[x;y] saveconfig[.monitor.configstored;checkconfig];x@y}[@[value;.dotz.getcommand[`.z.exit];{{[x]}}]]]
 
 //initialise monitor checks
 initcheck[]

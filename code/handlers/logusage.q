@@ -34,17 +34,22 @@ nextid:{:id+::1}
 // A handle to the log file
 logh:@[value;`logh;0]
 
-// write a query log message
+// write a query log message, direct to stdout if running in finspace
 write:{
-	if[logtodisk;@[neg logh;format x;()]];
-	if[logtomemory; `.usage.usage upsert x];
-	ext[x]}
+    $[.finspace.enabled;
+	@[neg 1;format x;()];
+	if[logtodisk;@[neg logh;format x;()]]];
+    if[logtomemory; `.usage.usage upsert x];
+    ext[x]} 
 
 // extension function to extend the logging e.g. publish the log message
 ext:{[x]}
 
 // format the string to be written to the file
-format:{"|" sv -3!'x}
+format:$[`jsonlogs in key .proc.params;
+		{.j.j (`p`id`time`zcmd`proctype`procname`type`ip`user`handle`txtc`meminfo`length`errorcheck`level)!x,`USAGE};
+                {"|" sv -3!'x}
+        ];
 
 // flush out some of the in-memory stats
 flushusage:{[flushtime] delete from `.usage.usage where time<.proc.cp[] - flushtime;}
@@ -115,10 +120,15 @@ if[enabled;
                  	.timer.repeat[.proc.cp[];0Wp;flushinterval;(`.usage.flushusage;flushtime);"flush in memory usage logs"]];
                 	.lg.e[`init;".usage.flushtime is greater than 0, but timer functionality is not loaded - cannot flush in memory tables"]]];
 
-	.z.pw:p0[`pw;.z.pw;;];
-	.z.po:p1[`po;.z.po;];.z.pc:p1[`pc;.z.pc;];
-	.z.wo:p1[`wo;.z.wo;];.z.wc:p1[`wc;.z.wc;];
-	.z.ws:p2[`ws;.z.ws;];.z.exit:p2[`exit;.z.exit;];
-	.z.pg:p2[`pg;.z.pg;];.z.pi:p2[`pi;.z.pi;];
-	.z.ph:p2[`ph;.z.ph;];.z.pp:p2[`pp;.z.pp;];
-	.z.ps:p3[`ps;.z.ps;];]
+	.dotz.set[`.z.pw;p0[`pw;value .dotz.getcommand[`.z.pw];;]];
+	.dotz.set[`.z.po;p1[`po;value .dotz.getcommand[`.z.po];]];
+	.dotz.set[`.z.pc;p1[`pc;value .dotz.getcommand[`.z.pc];]];
+	.dotz.set[`.z.wo;p1[`wo;value .dotz.getcommand[`.z.wo];]];
+	.dotz.set[`.z.wc;p1[`wc;value .dotz.getcommand[`.z.wc];]];
+	.dotz.set[`.z.ws;p2[`ws;value .dotz.getcommand[`.z.ws];]];
+	.dotz.set[`.z.exit;p2[`exit;value .dotz.getcommand[`.z.exit];]];
+	.dotz.set[`.z.pg;p2[`pg;value .dotz.getcommand[`.z.pg];]];
+	.dotz.set[`.z.pi;p2[`pi;value .dotz.getcommand[`.z.pi];]];
+	.dotz.set[`.z.ph;p2[`ph;value .dotz.getcommand[`.z.ph];]];
+	.dotz.set[`.z.pp;p2[`pp;value .dotz.getcommand[`.z.pp];]];
+	.dotz.set[`.z.ps;p3[`ps;value .dotz.getcommand[`.z.ps];]];]

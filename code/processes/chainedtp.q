@@ -139,11 +139,9 @@ notpconnected:{[]
   0 = count select from .sub.SUBSCRIPTIONS where procname in .ctp.tickerplantname, active}
 
 /- redefine .z.pc to detect loss of tickerplant connection
-.z.pc:{[x;y]  
-  if[.ctp.tph=y;
-    .lg.e[`.z.pc;"lost connection to tickerplant : ",string .ctp.tickerplantname];exit 0];
-  x@y
-  }[@[value;`.z.pc;{{;}}]] 
+.dotz.set[`.z.pc;{[x;y]if[.ctp.tph=y;
+  .lg.e[`.z.pc;"lost connection to tickerplant : ",string .ctp.tickerplantname];exit 0];
+  x@y}[@[value;.dotz.getcommand[`.z.pc];{{;}}]]]
 
 /- define upd based on user settings
 upd:$[createlogfile;

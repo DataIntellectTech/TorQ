@@ -26,17 +26,19 @@ if[not@[value;`SAVED.ORIG;0b]; / onetime save only
     txtc:txt[neg 60-last system"c"];txtC:txt[neg 60-last system"C"];
     pzlist:` sv'`.z,'`pw`po`pc`pg`ps`pi`ph`pp`ws`exit;
     .dotz.undef:pzlist where not @[{not(::)~value x};;0b] each pzlist;
-    .dotz.pw.ORIG:.z.pw:@[.:;`.z.pw;{{[x;y]1b}}];
-    .dotz.po.ORIG:.z.po:@[.:;`.z.po;{;}];
-    .dotz.pc.ORIG:.z.pc:@[.:;`.z.pc;{;}];
-    .dotz.wo.ORIG:.z.wo:@[.:;`.z.wo;{;}];
-    .dotz.wc.ORIG:.z.wc:@[.:;`.z.wc;{;}];
-    .dotz.exit.ORIG:.z.exit:@[.:;`.z.exit;{;}];
-    .dotz.pg.ORIG:.z.pg:@[.:;`.z.pg;{.:}];
-    .dotz.ps.ORIG:.z.ps:@[.:;`.z.ps;{.:}];
-    .dotz.pi.ORIG:.z.pi:@[.:;`.z.pi;{{.Q.s value x}}];
-    .dotz.ph.ORIG:.z.ph; / .z.ph is defined in q.k
-    .dotz.pp.ORIG:.z.pp:@[.:;`.z.pp;{;}]; / (poststring;postbody)
-    .dotz.ws.ORIG:.z.ws:@[.:;`.z.ws;{{neg[.z.w]x;}}]; / default is echo
-    revert:{.z.pw:.dotz.pw.ORIG;.z.po:.dotz.po.ORIG;.z.pc:.dotz.pc.ORIG;.z.pg:.dotz.pg.ORIG;.z.ps:.dotz.ps.ORIG;.z.pi:.dotz.pi.ORIG;.z.ph:.dotz.ph.ORIG;.z.pp:.dotz.pp.ORIG;.z.ws:.dotz.ws.ORIG;.dotz.SAVED.ORIG:0b;.z.exit:.dotz.exit.ORIG;}
+    .dotz.set[`.z.pw;.dotz.pw.ORIG:@[.:;.dotz.getcommand[`.z.pw];{{[x;y]1b}}]];
+    .dotz.set[`.z.po;.dotz.po.ORIG:@[.:;.dotz.getcommand[`.z.po];{;}]];
+    .dotz.set[`.z.pc;.dotz.pc.ORIG:@[.:;.dotz.getcommand[`.z.pc];{;}]];
+    .dotz.set[`.z.wo;.dotz.wo.ORIG:@[.:;.dotz.getcommand[`.z.wo];{;}]];
+    .dotz.set[`.z.wc;.dotz.wc.ORIG:@[.:;.dotz.getcommand[`.z.wc];{;}]];
+    .dotz.set[`.z.ws;.dotz.ws.ORIG:@[.:;.dotz.getcommand[`.z.ws];{{neg[.z.w]x;}}]]; / default is echo
+    .dotz.set[`.z.pg;.dotz.pg.ORIG:@[.:;.dotz.getcommand[`.z.pg];{.:}]];
+    .dotz.set[`.z.ps;.dotz.ps.ORIG:@[.:;.dotz.getcommand[`.z.ps];{.:}]];
+    .dotz.set[`.z.pi;.dotz.pi.ORIG:@[.:;.dotz.getcommand[`.z.pi];{{.Q.s value x}}]];
+    .dotz.set[`.z.pp;.dotz.pp.ORIG:@[.:;.dotz.getcommand[`.z.pp];{;}]]; / (poststring;postbody)
+    .dotz.set[`.z.exit;.dotz.exit.ORIG:@[.:;.dotz.getcommand[`.z.exit];{;}]];
+    .dotz.set[`.z.ph;.dotz.ph.ORIG:.z.ph]; / .z.ph is defined in q.k
+    revert:{
+        .dotz.unset each `.z.pw`.z.po`.z.pc`.z.pg`.z.ps`.z.pi`.z.ph`.z.pp`.z.ws`.z.exit;
+        .dotz.SAVED.ORIG:0b;}
     ]

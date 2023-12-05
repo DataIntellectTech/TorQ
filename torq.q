@@ -37,8 +37,9 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBCONFIG:\t\t\twhere the process configuration lives
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
- KDBLIB:\t\t\tcontains supporting library files"]
- 
+ KDBLIB:\t\t\tcontains supporting library files
+ KDBFINSPACE:\t\t\tif running in finspace"] 
+
 envoptusage:@[value;`envoptusage;"Optional environment variables:
  KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
 
@@ -48,6 +49,7 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-procfile x]:\t\t\tthe full path of the process.csv file to use to getthe details on the current process
  [-load x [y..z]]:\t\t\tthe file or database directory to load
  [-loaddir x [y..z]]:\t\t\tload all .q,.k files in specified directory
+ [-envfile x]:\t\t\tthe full path to a q file which defines environment variables
  [-trap]:\t\t\tany errors encountered during initialisation when loading external files will be caught and logged, processing will continue
  [-stop]:\t\t\tstop loading the file if an error is encountered
  [-noredirect]:\t\t\tdo not redirect std out/std err to a file (useful for debugging)
@@ -57,7 +59,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-debug]:\t\t\tequivalent to [-nopi -noredirect]
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
- [-test]:\t\t\tset to run unit tests"]
+ [-test]:\t\t\tset to run unit tests
+ [-jsonlogs]:\t\t\toutput logs in json format"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -93,7 +96,7 @@ getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB`KDBFINSPACE,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
 {if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
@@ -176,6 +179,12 @@ application:""
 getversion:{$[0 = count v:@[{raze string exec version from (("SS ";enlist ",")0: x) where app=`TorQ};hsym`$getenv[`KDBCONFIG],"/dependency.csv";version];version;v]}
 getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.txt";application];application;a]}
 
+// Set necessary flag if running in finspace
+ .finspace.enabled:"true"~getenv[`KDBFINSPACE]
+
+// Read the process parameters
+params:.Q.opt .z.x
+
 \d .lg
 
 // Set the logging table at the top level
@@ -185,7 +194,10 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Logging functions live in here
 
 // Format a log message
-format:{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
+format:$[`jsonlogs in key .proc.params;   
+		{[loglevel;proctype;proc;id;message] .j.j (`time`host`proctype`proc`loglevel`id`message)!(.proc.cp[];.z.h;proctype;proc;loglevel;id;message)};
+		{[loglevel;proctype;proc;id;message] "|"sv string[(.proc.cp[];.z.h;proctype;proc;loglevel;id)],enlist(),message}
+        ];
 
 publish:{[loglevel;proctype;proc;id;message]
  if[0<0^pubmap[loglevel];
@@ -296,8 +308,6 @@ removeenvvar:{
 // Process initialisation
 \d .proc
 
-// Read the process parameters
-params:.Q.opt .z.x
 // check for a usage flag
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
@@ -319,6 +329,11 @@ stop:`stop in key params
 if[trap and stop; .lg.o[`init;"trap mode and stop mode are both set to true.  Stop mode will take precedence"]];
 
 // Set up the environment if not set
+// these can be loaded from a kdb file
+if[`envfile in key params;
+	.lg.o[`init; "loading environment variables from ",envfile:first params`envfile];
+	@[system; "l ",envfile; {[f;e] .lg.e[`init; "failed to load environment variable file ",f," - ",e]}]
+ 	];
 settorqenv'[`KDBCODE`KDBCONFIG`KDBLOG`KDBLIB`KDBHTML;("code";"config";"logs";"lib";"html")];
 
 // Check the environment is set up correctly
@@ -405,7 +420,8 @@ readprocfile:{[file]
 	// exit if no port passed via command line or specified in config
 	if[null[output`port]&0i=system"p";
 		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
-	if[not[output[`port] = system"p"]& 0i = system"p";
+	// .finspace.enabled flag here is a temporarily bug fix for Finspace DEV clusters - port is set later so is empty when we reach this point. AWS investigating
+	if[not[.finspace.enabled]&not[output[`port] = system"p"]& 0i = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
 		];
@@ -476,7 +492,6 @@ loadedf:enlist enlist""
 loadf0:{[reload;x]
   if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
-  // error trapped loading of file
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
   loadedf,:enlist x;
@@ -565,6 +580,27 @@ loadaddconfig:{[envvar;cnfgpath]
 	.proc.loadconfig[getenv[envvar],"/settings/";] each `default,.proc.parentproctype,.proc.proctype,.proc.procname
 	};
 
+// some dotz functions are defined here due to library code load order
+\d .dotz
+
+// FinSpace blocks the setting on .z commands, using set and unset to preserve existing TorQ usage and new FinTorQ
+// e.g. to set .z.zd call:
+//     .dotz.set[`zd;18 6 1]  OR  .dotz.set[`.z.zd;18 6 1]
+.dotz.set:{[zcommand;setto] // using namespace explicitly due to set already being a key term
+    .[set;(.dotz.getcommand[zcommand];setto);{.lg.e[`.dotz.set;"Failed to set ",string[x]," : ",y]}[zcommand]];}
+
+// e.g. if you want to unset .z.zd call:
+//     .dotz.unset[`zd]  OR  .dotz.unset[`.z.zd]
+unset:{[zcommand]
+    zcommand:`$last"."vs string zcommand;
+    $[`ORIG in key ns:` sv `.dotz,zcommand;
+        .dotz.set[zcommand;ns[`ORIG]];
+        ![.dotz.getnamespace[];();0b;enlist zcommand]];}
+
+getnamespace:{$[.finspace.enabled;`.awscust.z;`.z]}
+
+getcommand:{[zcommand]` sv .dotz.getnamespace[],`$last"."vs string zcommand}
+
 \d . 
 // Load configuration
 // TorQ loads configuration modules in the order: TorQ Default, Service Specific and then Application Specific
@@ -616,7 +652,7 @@ if[`load in key .proc.params; .proc.reloadf each .proc.params`load]
 
 if[any`debug`nopi in key .proc.params;
 	.lg.o[`init;"Resetting .z.pi to kdb+ default value"];
-	.z.pi:{.Q.s value x};]
+	.dotz.set[`.z.pi;{.Q.s value x}];]
 
 // initialise pubsub
 if[@[value;`.ps.loaded;0b]; .ps.initialise[]]

@@ -7,3 +7,5 @@ trackclients.q
 logusage.q
 apidetails.q
 zpsignore.q
+finspaceservers.q
+trackservers.q
