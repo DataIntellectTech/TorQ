@@ -173,7 +173,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -217,7 +217,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -679,14 +679,14 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/cheatsheet.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/DataIntellectTech/TorQ/edit/master/docs/cheatsheet.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
 <h1 id="cheat-sheet">Cheat Sheet</h1>
-<p>The purpose of this cheatsheet is to provide a very condensed guide to the bits you need to know about TorQ to either debug a running process, or to extend a TorQ stack. It does not replace the main body of documentation, and ordering is presumed order-of-relevance. The below uses the default configuration of TorQ and TorQ Finance Starter Pack, though a lot of it is configurable. It's probably a good idea to read the <a href="http://aquaqanalytics.github.io/TorQ/Overview/">About</a> section at least. </p>
+<p>The purpose of this cheatsheet is to provide a very condensed guide to the bits you need to know about TorQ to either debug a running process, or to extend a TorQ stack. It does not replace the main body of documentation, and ordering is presumed order-of-relevance. The below uses the default configuration of TorQ and TorQ Finance Starter Pack, though a lot of it is configurable. It's probably a good idea to read the <a href="http://dataintellecttech.github.io/TorQ/Overview/">About</a> section at least. </p>
 <h2 id="debugging-running-processes">Debugging Running Processes</h2>
 <p>Each TorQ process has several internal tables which are useful. Connect to these using standard tools (qcon, an IDE etc.). Default user:pass of admin:admin will usually work. </p>
 <h3 id="usageusage">.usage.usage</h3>
@@ -697,9 +697,9 @@
 select from .usage.usage where time within ... 
 </code></pre>
 <p>Note that this table is not especially helpful for gateway queries which are executed in an async call back manner. The gateway part of the request will (should) usually have a very short run time so the back end services should be interrogated to see what the slow parts are. </p>
-<p><a href="http://aquaqanalytics.github.io/TorQ/handlers/#logusageq">More info on usage logs.</a></p>
+<p><a href="http://dataintellecttech.github.io/TorQ/handlers/#logusageq">More info on usage logs.</a></p>
 <h3 id="timertimer">.timer.timer</h3>
-<p>.timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. <a href="http://aquaqanalytics.github.io/TorQ/utilities/#timerq">More info.</a></p>
+<p>.timer.timer shows information about the timer calls which are scheduled / have been run. Pay attention to the "active" field- if a timer call fails it will be removed from the timer (active=0b). To avoid this if required, wrap the function being executed by the timer in an error trap in the standard way. Use .timer.timer in combination with .usage.usage to work out if there are slow running/too frequent timers which are causing problems. <a href="http://dataintellecttech.github.io/TorQ/utilities/#timerq">More info.</a></p>
 <h3 id="log-files">Log Files</h3>
 <p>Log files are stored in the log directory specified by the environment variable KDBLOG. Each process creates 3 log files: </p>
 <ul>
@@ -715,11 +715,11 @@ sort -nk1 out_log err_log
 sort -nk1 out_log err_log | grep -B n ERR 
 </code></pre>
 <h3 id="clientsclients">.clients.clients</h3>
-<p>This shows inbound connections (connections created into this process). It may have interesting information about connection open/close. If it has a lot of rows it means some clients are connecting and disconnecting frequently. <a href="http://aquaqanalytics.github.io/TorQ/handlers/#trackclientsq">More info.</a></p>
+<p>This shows inbound connections (connections created into this process). It may have interesting information about connection open/close. If it has a lot of rows it means some clients are connecting and disconnecting frequently. <a href="http://dataintellecttech.github.io/TorQ/handlers/#trackclientsq">More info.</a></p>
 <h3 id="serversservers">.servers.SERVERS</h3>
 <p>This shows outbound connections (connections created by this process to other processes). It's useful for tracking connections which have died. </p>
 <h2 id="starting-stopping-and-debugging-processes">Starting, Stopping and Debugging Processes</h2>
-<p>95% of TorQ installations in production run on Linux, and the below applies to Linux only. Use the torq.sh script to start/stop/debug processes. <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#using-torqsh">Become familiar with torq.sh, it has some very handy utilities.</a></p>
+<p>95% of TorQ installations in production run on Linux, and the below applies to Linux only. Use the torq.sh script to start/stop/debug processes. <a href="http://dataintellecttech.github.io/TorQ/gettingstarted/#using-torqsh">Become familiar with torq.sh, it has some very handy utilities.</a></p>
 <pre><code>newdeploy$ ./deploy/bin/torq.sh 
 Arguments:
   start all|&lt;processname(s)&gt;               to start all|process(es)
@@ -753,7 +753,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #
-#                           e : support@dataintellect.com                      #
+#                           e : torqsupport@dataintellect.com                  #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #
@@ -780,7 +780,7 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 #                                                                              #
 #      For questions, comments, requests or bug reports please contact us      #
 #                           w :     www.dataintellect.com                      #
-#                           e : support@dataintellect.com                      #
+#                           e : torqsupport@dataintellect.com                  #
 #                                                                              #
 #                         Running on kdb+ 4 2020.06.18                         #
 #                                                                              #
@@ -790,9 +790,9 @@ l64/ 24()core 128387MB torquser homer 127.0.1.1 EXPIRE 2021.06.30 Data Intellect
 q)
 </code></pre>
 <h2 id="deploying">Deploying</h2>
-<p>Deployments should be very simple on Linux <a href="http://aquaqanalytics.github.io/TorQ/InstallGuide/">using the installation script</a>. </p>
+<p>Deployments should be very simple on Linux <a href="http://dataintellecttech.github.io/TorQ/InstallGuide/">using the installation script</a>. </p>
 <pre><code class="language-bash"># pull in latest TorQ FSP install script 
-wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/master/installlatest.sh
+wget https://raw.githubusercontent.com/DataIntellectTech/TorQ-Finance-Starter-Pack/master/installlatest.sh
 # execute it
 bash installlatest.sh 
 # It will finish with a message like below:
@@ -818,17 +818,17 @@ TIME      |  PROCESS        |  STATUS  |  PID    |  PORT
 </code></pre>
 <h2 id="modifying-existing-installations">Modifying Existing Installations</h2>
 <p>We always try to esnure new versions of TorQ are backwardly compatible. Try to avoid modifying TorQ itself and instead make application specific modifications. The installation script deploys TorQ in a structure which keeps TorQ and the application separate, and this should be adhered to whenever possible. </p>
-<p>To modify the config for a process, do it either in the <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#configuration-loading">config directory</a> or as a command line start up parameter as- almost all config variables that are defined in a config file and exists in a non-root namespace can be overridden from the command line. </p>
+<p>To modify the config for a process, do it either in the <a href="http://dataintellecttech.github.io/TorQ/gettingstarted/#configuration-loading">config directory</a> or as a command line start up parameter as- almost all config variables that are defined in a config file and exists in a non-root namespace can be overridden from the command line. </p>
 <p>To make a process load additional files, you can:</p>
 <ul>
 <li>append the additional files to the -load parameter on the start line</li>
 <li>append a set of directories of files using -loaddir on the start line</li>
-<li>place the files in one of the directories that is <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#code-loading">loaded by default on start up</a></li>
+<li>place the files in one of the directories that is <a href="http://dataintellecttech.github.io/TorQ/gettingstarted/#code-loading">loaded by default on start up</a></li>
 </ul>
 <p>Start line modifications can be made in process.csv and will be picked up by torq.sh. Of these approaches, the latter is probably preferable. </p>
 <h2 id="adding-custom-processes">Adding Custom Processes</h2>
-<p>When adding custom processes to TorQ it is important to <a href="http://aquaqanalytics.github.io/TorQ/gettingstarted/#process-identification">understand the significance of proctype</a>. In a nutshell, only processes which do exactly the same thing should have the same proctype. If two processes do roughly the same thing then -parentproctype can be used to share common functionality. Also there isn't any formal association between proctype and code name file name e.g. a process that loads code/processes/rdb.q can have any proctype we like. </p>
-<p>How TorQ <a href="http://aquaqanalytics.github.io/TorQ/conn/">manages connections</a> is important. Avoid using hopen, use TorQ connection management.</p>
+<p>When adding custom processes to TorQ it is important to <a href="http://dataintellecttech.github.io/TorQ/gettingstarted/#process-identification">understand the significance of proctype</a>. In a nutshell, only processes which do exactly the same thing should have the same proctype. If two processes do roughly the same thing then -parentproctype can be used to share common functionality. Also there isn't any formal association between proctype and code name file name e.g. a process that loads code/processes/rdb.q can have any proctype we like. </p>
+<p>How TorQ <a href="http://dataintellecttech.github.io/TorQ/conn/">manages connections</a> is important. Avoid using hopen, use TorQ connection management.</p>
 <p>TorQ uses the fail fast principle (if you are going to fail, may as well do it as quickly as possible). This helps avoid processes starting up in inconsistent or unexpected states. If running a process with the -debug option, add the -stop or -trap options to stop at, or trap and continue through, start up errors. </p>
 <p>Code is loaded in a specific order, which can be overridden. To determine the order, inspect the bottom of the torq.q script (the last 100 lines or so). Everything after the switch into the root namespace is relevant. </p>
 
@@ -899,7 +899,7 @@ TIME      |  PROCESS        |  STATUS  |  PID    |  PORT
       
       
     
-    <a href="https://github.com/AquaQAnalytics" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+    <a href="https://github.com/DataIntellectTech" target="_blank" rel="noopener" title="github.com" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
     </a>
   

@@ -173,7 +173,7 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -217,7 +217,7 @@
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/AquaQAnalytics/TorQ" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
@@ -569,7 +569,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/AquaQAnalytics/TorQ/edit/master/docs/InstallGuide.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/DataIntellectTech/TorQ/edit/master/docs/InstallGuide.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
@@ -577,19 +577,25 @@
 
 <h1 id="install-guide">Install Guide</h1>
 <h2 id="usage-instruction-for-a-fresh-torq-install">Usage instruction for a fresh TorQ Install</h2>
-<p>In your Linux terminal run the following lines copying them in one by one:</p>
-<pre><code>wget https://raw.githubusercontent.com/AquaQAnalytics/TorQ/master/installtorqapp.sh
-
-wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz
-
-wget --content-disposition https://github.com/AquaQAnalytics/TorQ-Finance-Starter-Pack/archive/v1.9.0.tar.gz
+<p>In your Linux terminal run the following line:</p>
+<pre><code>wget https://raw.githubusercontent.com/DataIntellectTech/TorQ/master/installtorqapp.sh
 </code></pre>
-<p>Then to launch the script.</p>
-<pre><code>bash installtorqapp.sh --torq TorQ-3.7.0.tar.gz --releasedir deploy --data datatemp --installfile TorQ-Finance-Starter-Pack-1.9.0.tar.gz --env
+<p>For the two lines of code below, replace the &lt;...&gt; sections with the name of the latest TorQ/TorQ Finance Starter Pack versions, respectfully. These can be found here:</p>
+<p>https://github.com/DataIntellectTech/TorQ/releases/latest</p>
+<p>https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/releases/latest</p>
+<pre><code>wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/&lt;TorQ latest version&gt;.tar.gz
+
+wget --content-disposition https://github.com/DataIntellectTech/TorQ-Finance-Starter-Pack/archive/&lt;TorQ Finance Starter Pack latest version&gt;.tar.gz
+</code></pre>
+<p>Following the substitution, your specified .tar.gz file names should match the .tar.gz file names found through each respectful link above.</p>
+<p>Once you have substituted in the names of the latest release files, run each line of code in your Linux terminal, one by one.</p>
+<p>Then to launch the script, substitute in the respective file names for the &lt;...&gt; sections, as above, and run:</p>
+<pre><code>bash installtorqapp.sh --torq &lt;TorQ latest version&gt;.tar.gz --releasedir deploy --data datatemp --installfile &lt;TorQ Finance Starter Pack latest version&gt;.tar.gz --env
 </code></pre>
 <p>Where data parameter and env parameter are optional parameters.
 Full usage of the parameters available in the table below.</p>
 <p>The folder structure after installation will look like this:</p>
+<p>(TorQ-3.7.0 used as an example throughout, your TorQ version number should match the latest release)</p>
 <p><img alt="Install_structure" src="../graphics/Installscript_folder_structure.png" /></p>
 <p>Then to run the TorQ stack:</p>
 <pre><code>./deploy/bin/torq.sh start all
@@ -617,7 +623,7 @@ Full usage of the parameters available in the table below.</p>
 <tbody>
   <tr>
     <td class="tg-btxf">torq</td>
-    <td class="tg-btxf">Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. Example usage in the script:<br><br><span style="font-weight:bold;font-style:italic"> --torq /home/user/TorQ/TorQ-3.7.0</span><br><br>Where TorQ-3.7.0 is unzipped directory from the latest release .tar.gz file. Or <br><br><span style="font-weight:bold;font-style:italic">--torq /home/user/TorQ/TorQ-3.7.0.tar.gz </span><br><br>Which is the .tar.gz file from GitHub using: <br><br><span style="font-weight:bold;font-style:italic">wget --content-disposition https://github.com/AquaQAnalytics/TorQ/archive/3.7.0.tar.gz</span></td>
+    <td class="tg-btxf">Is a mandatory parameter that is the full path or relative path to the TorQ installation. It can either be a TorQ Directory where the version is already unzipped, that can be used when multiple TorQ Applications are used on the server for example and all point to a single TorQ main code. This will create a softlink to the relevant TorQ code. Or it can be a .tar.gz file of the TorQ installation for a fresh install. Example usage in the script:<br><br><span style="font-weight:bold;font-style:italic"> --torq /home/user/TorQ/TorQ-3.7.0</span><br><br>Where TorQ-3.7.0 is unzipped directory from the latest release .tar.gz file. Or <br><br><span style="font-weight:bold;font-style:italic">--torq /home/user/TorQ/TorQ-3.7.0.tar.gz </span><br><br>Which is the .tar.gz file from GitHub using: <br><br><span style="font-weight:bold;font-style:italic">wget --content-disposition https://github.com/DataIntellectTech/TorQ/archive/3.7.0.tar.gz</span></td>
   </tr>
   <tr>
     <td class="tg-0pky">releasedir</td>
@@ -722,7 +728,7 @@ Full usage of the parameters available in the table below.</p>
       
       
     
-    <a href="https://github.com/AquaQAnalytics" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+    <a href="https://github.com/DataIntellectTech" target="_blank" rel="noopener" title="github.com" class="md-social__link">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
     </a>
   
