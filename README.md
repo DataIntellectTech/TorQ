@@ -41,8 +41,10 @@ Head to the address it gives you to check if your changes have worked. More info
 ## Licences
 Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
+- **5.0.1, Dec 2023**
+  * Renaming TorQ Amazon Finspace project references to TorQ-Amazon-FinSpace-Starter-Pack
 - **5.0.0, Dec 2023**
-  * Updated TorQ to support AWS Finspace when using the new [TorQ-Finspace-Starter-Pack](https://dataintellecttech.github.io/TorQ-Finspace-Starter-Pack/)
+  * Updated TorQ to support AWS Finspace when using the new [TorQ-Finspace-Starter-Pack](https://dataintellecttech.github.io/TorQ-Amazon-FinSpace-Starter-Pack/)
   * Updated support email references
   * Updated intall guide
   * log output can now be json file format: add '-jsonlogs true' flag on startup
