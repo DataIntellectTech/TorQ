@@ -27,10 +27,9 @@ gd:gl[default]
 \
 \d .
 / To recreate tzinfo from tzinfo.csv
-t:("SPJJ";enlist ",")0:`:tzinfo.csv;
-update gmtOffset:`timespan$1000000000*gmtOffset,dstOffset:`timespan$1000000000*dstOffset from `t;
-update adjustment:gmtOffset+dstOffset from `t;
-update localDateTime:gmtDateTime+adjustment from `t;
-`gmtDateTime xasc `t;
-update `g#timezoneID from `t;
+t:("SPJ";enlist ",")0:`:tzinfo.csv;
+t: delete offset from update adjustment:`timespan$1000000000*offset from t;
+t: update localDateTime:gmtDateTime+adjustment from t;
+t: `gmtDateTime xasc t;
+t: update `g#timezoneID from t;
 `:tzinfo set t; / save file for easy distribution
