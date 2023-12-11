@@ -37,8 +37,7 @@ envusage:@[value;`envusage;"Required environment variables:
  KDBCONFIG:\t\t\twhere the process configuration lives
  KDBLOG:\t\t\twhere log files are written to
  KDBHTML:\t\t\tcontains html files
- KDBLIB:\t\t\tcontains supporting library files
- KDBFINSPACE:\t\t\tif running in finspace"] 
+ KDBLIB:\t\t\tcontains supporting library files"] 
 
 envoptusage:@[value;`envoptusage;"Optional environment variables:
  KDBAPPCONFIG:\t\t\twhere the app specific configuation can be found"]
@@ -96,7 +95,7 @@ getusage:{@[value;`.proc.usage;generalusage,"\n\n",envusage,"\n\n",envoptusage,"
 // The required environment variables
 // The base script must have KDBCODE, KDBCONFIG, KDBLOG, KDBHTML and KDBLIB set
 envvars:@[value;`envvars;`symbol$()]
-envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB`KDBFINSPACE,envvars
+envvars:distinct `KDBCODE`KDBCONFIG`KDBLOG`KDBHTML`KDBLIB,envvars
 // The script may have optional environment variables
 // KDBAPPCONFIG may be defined for loading app specific config
 {if[not ""~getenv x; envvars::distinct x,envvars]}each `KDBAPPCONFIG`KDBSERVCONFIG
