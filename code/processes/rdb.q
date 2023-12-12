@@ -39,9 +39,9 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
 
-/ - settings for the common save code (see code/common/save.q)
-.save.savedownmanipulation:@[value;`savedownmanipulation;()!()]     //a dict of table!function used to manipulate tables at EOD save
-.save.postreplay:@[value;`postreplay;{{[d;p] }}]                    //post EOD function, invoked after all the tables have been written down
+/ - settings for the common save code (see code/common/dbwriteutils.q)
+.save.savedownmanipulation:@[value;`.save.savedownmanipulation;()!()]     //a dict of table!function used to manipulate tables at EOD save
+.save.postreplay:@[value;`.save.postreplay;{{[d;p] }}]                    //post EOD function, invoked after all the tables have been written down
 
 /- end of default parameters
 
