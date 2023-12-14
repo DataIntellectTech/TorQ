@@ -107,7 +107,7 @@ endofday:{[date;processdata]
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
-		changeset:.finspace.createchangeset[.finspace.database];
+		    changeset:.finspace.createchangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
