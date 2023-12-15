@@ -107,7 +107,7 @@ endofday:{[date;processdata]
 	writedown[hdbdir;date];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
-		    changeset:.finspace.createchangeset[.finspace.database];
+                    changeset:.finspace.createchangeset[.finspace.database];
         ];
 	/-reset timeout to original timeout
 	restoretimeout[];
@@ -121,7 +121,7 @@ endofday:{[date;processdata]
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
 	$[.finspace.enabled;
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
-		     notifyhdb[;date] each hdbs
+	             notifyhdb[;date] each hdbs
         ];
 	};
 	
