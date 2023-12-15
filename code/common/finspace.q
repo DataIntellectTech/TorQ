@@ -41,3 +41,11 @@ notifyhdb:{[cluster;changeset]
       .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"]]];.aws.sdep["NO_RESTART"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
+
+// function to close connection to TP and remove unwanted data in WDB and RDB's 
+eopdatacleanup:{[dict]
+    // close off each subsription by handle to the tickerplant  
+    hclose each distinct exec w from .sub.SUBSCRIPTIONS;
+    // function to parse icounts dict and remove all data after a given index for RDB and WDB's 
+    {[t;ind]delete from t where i >= ind}'[key dict;first each value dict];
+ }
