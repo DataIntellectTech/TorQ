@@ -44,7 +44,8 @@ notifyhdb:{[cluster;changeset]
 
 // function to close connection to TP and remove unwanted data in WDB and RDB's 
 eopdatacleanup:{[dict]
-    hclose each exec w from .servers.SERVERS where proctype = `segmentedtickerplant;
+    // close off each subsription by handle to the tickerplant  
+    hclose each distinct exec w from .sub.SUBSCRIPTIONS;
     // function to parse icounts dict and remove all data after a given index for RDB and WDB's 
-    {[sym;ind]delete from sym where i >= ind}'[key dict;first each value dict]
+    {[t;ind]delete from t where i >= ind}'[key dict;first each value dict];
  }
