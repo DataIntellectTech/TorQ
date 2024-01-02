@@ -121,7 +121,7 @@ endofday:{[date;processdata]
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
 	$[.finspace.enabled;
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
-	             notifyhdb[;date] each hdbs
+                     notifyhdb[;date] each hdbs
         ];
 	};
 	
