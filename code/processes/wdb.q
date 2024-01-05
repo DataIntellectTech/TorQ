@@ -59,7 +59,7 @@ schema:@[value;`schema;1b];                                                /-ret
 numrows:@[value;`numrows;100000];                                          /-default number of rows 
 savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
 numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
-settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
+//settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
 
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
@@ -95,7 +95,7 @@ hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
 sortenabled: any `sort`saveandsort in mode;
-
+switchtest:1b;
 / - log which modes are enabled
 switch: string `off`on;
 .lg.o[`savemode;"save mode is ",switch[saveenabled]];
@@ -121,7 +121,11 @@ tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
 savetables:{[dir;pt;forcesave;tabname]
 	/- check row count
 	/- forcesave will write flush the data to disk irrespective of counts
-	if[forcesave or maxrows[tabname] < arows: count value tabname;
+	//.lg.o[`endofperiodsavetables;"save tableshas ran for eop"];
+	//.lg.o[`testing;"Received endofperiod. dir, pt and forcesave and tabname are ",(string dir),", ", (string pt),", ",(string forcesave),", ",(string tabname),", ",];
+	if[forcesave or switchtest = 1b ;
+	.lg.o[`endofperiodsavetables;"save tables function has ran for eop"];
+	arows:count value tabname;
 	.lg.o[`rowcheck;"the ",(string tabname)," table consists of ", (string arows), " rows"];
 	/- upsert data to partition
 	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
@@ -138,9 +142,12 @@ savetables:{[dir;pt;forcesave;tabname]
 	@[`.;tabname;0#];
 	/- run a garbage collection (if enabled)
 	if[gc;.gc.run[]];
+	.lg.o[`endofperiodsavetables;"save tables has ran for eop"];
 	]};
-	
-	
+
+testjonny:{[var1;var2]jonny::var1 + var2;
+	.lg.o[`save;"Jonny test works"];
+	};	
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
 	.lg.o[`save;"saving ",(string tablename)," data to partition ",
@@ -164,7 +171,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 savetablesbypart:{[dir;pt;forcesave;tablename]
 	/- check row count and save if maxrows exceeded
 	/- forcesave will write flush the data to disk irrespective of counts	
-	if[forcesave or maxrows[tablename] < arows: count value tablename;	
+	if[forcesave ;	
 		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
 		/- get additional partition(s) defined by parted attribute in sort.csv		
 		extrapartitiontype:.merge.getextrapartitiontype[tablename];		
@@ -458,15 +465,15 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;merge
 	};
 
 /-function to set the timer for the save to disk function	
-starttimer:{[]
-	$[@[value;`.timer.enabled;0b];
-		[.lg.o[`init;"adding the wdb save to disk function to the timer"];
+//starttimer:{[]
+	//$[@[value;`.timer.enabled;0b];
+		//[.lg.o[`init;"adding the wdb save to disk function to the timer"];
 		/-add .wdb.savetodisk function to TorQ timer 
-		.timer.repeat[.proc.cp[];0Wp;settimer;(`.wdb.savetodisk;`);"save wdb data to disk"];
-		.lg.o[`init;"the timer has been set to ", string settimer]];
+		//.timer.repeat[.proc.cp[];0Wp;settimer;(`.wdb.savetodisk;`);"save wdb data to disk"];
+		//.lg.o[`init;"the timer has been set to ", string settimer]];
 		/-if timer not enabled, prompt user to enable it
-		.lg.e[`init;"the timer has not been enabled - please enable the timer to run the wdb"]];
-	}
+		//.lg.e[`init;"the timer has not been enabled - please enable the timer to run the wdb"]];
+	//}
 
 /-function to subscribe to tickerplant	
 subscribe:{[]
@@ -572,8 +579,13 @@ getsortparams:{[]
 
 /-  adds endofday and endofperiod functions to top level namespace
 endofday: .wdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-
+endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data];
+	.wdb.testjonny[5;6];
+	.wdb.switchtest::1b;
+	.wdb.savetables[.wdb.savedir;.wdb.currentpartition;1b;] each .wdb.tablelist[];
+	.wdb.endofday[.wdb.getpartition[];()!()]
+	.lg.o[`endofperiod;"whole function has ran for eop"];
+	};
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]
 	.wdb.endofday[.wdb.getpartition[];()!()];
@@ -587,7 +599,7 @@ upd:.wdb.replayupd;
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer
-if[.wdb.saveenabled;.wdb.starttimer[]];
+//if[.wdb.saveenabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
