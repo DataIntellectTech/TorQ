@@ -409,7 +409,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
    @[neg .z.w;.gw.formatresponse[0b;0b;"Incorrect function used: asyncexec"];()];
    :();
    ];
- if[not[.gw.synccallsallowed] and .z.K<3.6;.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
+ if[not[.gw.synccallsallowed];.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;
    if[not .pm.allowed [.z.u;query];
