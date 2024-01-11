@@ -409,7 +409,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
    @[neg .z.w;.gw.formatresponse[0b;0b;"Incorrect function used: asyncexec"];()];
    :();
    ];
- if[not[.gw.synccallsallowed] and .z.K<3.6;.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
+ if[not[.gw.synccallsallowed];.gw.formatresponse[0b;1b;"synchronous calls are not allowed"]];
  // check if the gateway allows the query to be called
  if[.gw.permissioned;
    if[not .pm.allowed [.z.u;query];
@@ -446,11 +446,15 @@ syncexecjpre36:{[query;servertype;joinfunction]
 
 syncexecjt:{[query;servertype;joinfunction;timeout]
  // can only be used on 3.6 + 
- // use async call back function, flag it as sync
+ // defer response
+ e:@[{-30!x;1b};(::);0b];
+ if[not e;
+     .lg.o[`syncexecjt;"failed to defer; query passed to syncexecjpre36"];
+     :syncexecjpre36[query;servertype;joinfunction];
+  ];   
+ // if deferring was succesful use async call back function, flag it as sync
  // doesn't make sense to allow specification of a callback for sync requests
  asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
- // defer response
- @[-30!;(::);()];
  }; 
 
 $[.z.K < 3.6;
