@@ -450,7 +450,8 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
  // doesn't make sense to allow specification of a callback for sync requests
  asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
  // defer response
- @[-30!;(::);()];
+ e:@[{-30!x;1b};(::);0b];
+ if[not e;[.lg.o[`syncexecjt;"failed to defer; query passed to syncexecjpre36"];:syncexecjpre36[query;servertype;joinfunction]]] 
  }; 
 
 $[.z.K < 3.6;
