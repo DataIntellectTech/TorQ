@@ -451,7 +451,10 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
  asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
  // defer response
  e:@[{-30!x;1b};(::);0b];
- if[not e;[.lg.o[`syncexecjt;"failed to defer; query passed to syncexecjpre36"];:syncexecjpre36[query;servertype;joinfunction]]] 
+ if[not e;
+     .lg.o[`syncexecjt;"failed to defer; query passed to syncexecjpre36"];
+     :syncexecjpre36[query;servertype;joinfunction];
+  ];
  }; 
 
 $[.z.K < 3.6;
