@@ -249,6 +249,7 @@ $[.rdb.connectonstart;
 .rdb.newrdbready:{[]
 	if[1<count h:exec w from .servers.SERVERS where proctype=`wdb;
 		times:raze{enlist[@[;".proc.starttimeUTC";()]x]!enlist[x]} each h;
+//don't want to send signal to new wdb to indicate the next period rdb is ready - remove it from table
   		.servers.removerows exec i from `.servers.SERVERS where w=times max key times];
   	h:exec w from .servers.SERVERS where proctype in`rdb`wdb,not w=0i;
   	@[;".finspace.newrdbup[]";()] each neg h;};
