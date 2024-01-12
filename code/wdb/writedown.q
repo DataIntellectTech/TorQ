@@ -8,20 +8,23 @@ hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
 numrows:@[value;`numrows;100000];                                          /-default number of rows
 numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
 gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
-/- extract user defined row counts
-maxrows:{[tabname] numrows^numtab[tabname]};
-partitiontype:@[value;`partitiontype;`date];                                /-set type of partition (defaults to `date)
-/-function to determine the partition value
-getpartition:@[value;`getpartition;
+
+
+maxrows:{[tabname] numrows^numtab[tabname]};                               /- extract user defined row counts
+
+partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
+
+
+getpartition:@[value;`getpartition;                                        /-function to determine the partition value
         {{@[value;`.wdb.currentpartition;
 				(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
 
-/- extract user defined row counts	
-maxrows:{[tabname] numrows^numtab[tabname]}
 
-currentpartition:.wdb.getpartition[];
+maxrows:{[tabname] numrows^numtab[tabname]}                                /- extract user defined row counts
 
-tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$());
+currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
+
+tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$());       /- keyed table to track the size of tables on disk
 
 savetables:{[dir;pt;forcesave;tabname]
         /- check row count
