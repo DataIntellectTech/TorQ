@@ -50,7 +50,7 @@ eopdatacleanup:{[dict]
     // function to parse icounts dict and remove all data after a given index for RDB and WDB's 
     {[t;ind]delete from t where i >= ind}'[key dict;first each value dict];
  }
-//send signal to the old rts that new processes are running and ready to take over at start of new period
+//set rdbready to true after signal received from the old rdb, that new processes are running and ready to take over at start of new period
 newrdbup:{[]
         .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"]
         @[`.finspace;`rdbready;:;1b];
