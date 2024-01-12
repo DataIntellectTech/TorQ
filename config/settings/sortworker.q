@@ -28,3 +28,7 @@ tickerplanttypes:rdbtypes:hdbtypes:gatewaytypes:sorttypes:sortworkertypes:()    
 CONNECTIONS:()                          // sortworker doesn't need to connect to other processes
 STARTUP:1b                                      // create connections
 
+\d .proc
+loadprocesscode:1b                      // Whether to load the process specific code defined at ${KDBCODE}/{process type}
+reloadcode[`wdb]
+
