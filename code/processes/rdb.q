@@ -244,3 +244,15 @@ $[.rdb.connectonstart;
 /-GMT offset rounded to nearest 15 mins and added to roll time
 .timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
+
+/-send a signal to the old rdb and wdb (excluding the most recently started process) that the new rdb is ready for the next period.
+.rdb.newrdbready:{[]
+  if[1<count h:exec w from .servers.SERVERS where proctype=`wdb;
+  times:raze{enlist[@[;".proc.starttimeUTC";()]x]!enlist[x]} each h;
+  .servers.removerows exec i from `.servers.SERVERS where w=times max key times];
+  h:exec w from .servers.SERVERS where proctype in`rdb`wdb,not w=0i;
+  @[;".finspace.newrdbup[]";()] each neg h;
+  };
+
+/-Adding the function on a one off timer as finspace needs a short period to populate the .servers.SERVERS table and establish the connection to old processes.
+if[.finspace.enabled;.timer.once[.z.p+00:01;`.rdb.newrdbready`;"new rdb ready, waiting 1 minute until signalling"]];
