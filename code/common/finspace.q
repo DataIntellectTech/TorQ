@@ -52,6 +52,6 @@ eopdatacleanup:{[dict]
  }
 //set rdbready to true after signal received from the old rdb, that new processes are running and ready to take over at start of new period
 newrdbup:{[]
-        .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"]
-        @[`.finspace;`rdbready;:;1b];
+    .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"];
+    @[`.finspace;`rdbready;:;1b];
         };
