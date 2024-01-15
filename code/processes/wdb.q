@@ -586,7 +586,7 @@ upd:.wdb.replayupd;
 .wdb.clearwdbdata[];
 /- initialise the wdb process
 .wdb.startup[];
-/ - start the timer
+/ - start the timer except if in finspace. In finspace writes will be driven only by EOP to minimise the nummber of changesets created
 if[.wdb.saveenabled & not .finspace.enabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
