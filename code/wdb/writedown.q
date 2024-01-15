@@ -1,5 +1,6 @@
 \d .wdb
 
+/-Required variables for savetables function
 compression:@[value;`compression;()];                                      /-specify the compress level, empty list if no required
 savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
 hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
@@ -18,9 +19,6 @@ partitiontype:@[value;`partitiontype;`date];                               /-set
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
         {{@[value;`.wdb.currentpartition;
 				(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
-
-
-maxrows:{[tabname] numrows^numtab[tabname]}                                /- extract user defined row counts
 
 currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
 
@@ -46,7 +44,7 @@ savetables:{[dir;pt;forcesave;tabname]
         @[`.;tabname;0#];
         /- run a garbage collection (if enabled)
         if[gc;.gc.run[]];
-        ]};
+	]};
 
 \d .
 /-endofperiod function

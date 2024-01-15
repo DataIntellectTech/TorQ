@@ -22,13 +22,11 @@ mode:@[value;`mode;`saveandsort];                                          /-the
                                                                            /-                                              save mode process.  When this is triggered it will sort the
                                                                            /-                                              data on disk, apply attributes and the trigger a reload on the
                                                                            /-                                              rdb and hdb processes
-
 writedownmode:@[value;`writedownmode;`default];                            /-the wdb process can periodically write data to disc and sort at EOD in two ways:
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
-
 mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
@@ -43,8 +41,8 @@ hdbtypes:@[value;`hdbtypes;`hdb];                                          /-lis
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
-/-tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
-tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed
+tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
+tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed 
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort		
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
@@ -78,7 +76,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 	`u#exec w from .servers.getservers[`proctype;sortworkertypes;()!();1b;0b]]}]
 
 /- fix any backslashes on windows
-savedir:.os.pthq savedir;                                                  
+savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
 
 /- define the save and sort flags
@@ -467,7 +465,6 @@ replayupd:{[f;t;d]
 		savetables[savedir;getpartition[];0b;t]]	
 	}[upd];
 
-/-function to initialise the wdb	
 startup:{[] 
 	.lg.o[`init;"searching for servers"];
 	.servers.startup[];
@@ -477,11 +474,12 @@ startup:{[]
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
 		//check if tickerplant is available and if not exit with error 
-		/-.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
-		subscribe[]; 
+			if[not .finspace.enabled;                                                                                                                      /-TODO Remove when tickerplant fixed in finspace
+			.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles];
 		];		
-	}
-	
+		subscribe[]; 
+        ];
+	}	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[] 
