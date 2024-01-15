@@ -587,7 +587,7 @@ upd:.wdb.replayupd;
 /- initialise the wdb process
 .wdb.startup[];
 / - start the timer
-if[.wdb.saveenabled;.wdb.starttimer[]];
+if[.wdb.saveenabled & not .finspace.enabled;.wdb.starttimer[]];
 
 /- use the regular up after log replay
 upd:.wdb.upd
