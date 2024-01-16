@@ -248,7 +248,7 @@ $[.rdb.connectonstart;
 /-send a signal to the old rdb and wdb (excluding the most recently started process) that the new rdb is ready for the next period.
 .rdb.newrdbready:{[]
 	if[1<count h:exec w from .servers.SERVERS where proctype=`wdb;
-		times:raze{enlist[@[;".proc.starttimeUTC";()]x]!enlist[x]} each h;
+		times:(@[;".proc.starttimeUTC";()] each h)!h;
 		/-don't want to send signal to new wdb to indicate the next period rdb is ready - remove it from table
   		.servers.removerows exec i from `.servers.SERVERS where w=times max key times];
   	h:exec w from .servers.SERVERS where proctype in`rdb`wdb,not w=0i;
