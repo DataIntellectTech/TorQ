@@ -9,7 +9,7 @@
 \d .wdb
 
 /- define default parameters
-mode:@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
+mode:`sort; //@[value;`mode;`saveandsort];                                          /-the wdb process can operate in three modes
                                                                            /- 1. saveandsort               -               the process will subscribe for data,
                                                                            /-                                              periodically write data to disk and at EOD it will flush 
                                                                            /-                                              remaining data to disk before sorting it and informing
