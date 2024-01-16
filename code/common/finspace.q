@@ -5,6 +5,7 @@ enabled:@[value;`enabled;0b];                               //whether the applic
 database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
 
 hdbclusters:@[value;`hdbclusters;enlist `cluster];          //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
+rdbready:@[value;`rdbready;0b];                             //whether or not the rdb is running and ready to take over at the next period- set to false by default
 
 / Runs a .aws api until a certain status has been received
 checkstatus:{[apicall;status;frequency;timeout]
@@ -49,3 +50,8 @@ eopdatacleanup:{[dict]
     // function to parse icounts dict and remove all data after a given index for RDB and WDB's 
     {[t;ind]delete from t where i >= ind}'[key dict;first each value dict];
  }
+//set rdbready to true after signal received from the old rdb, that new processes are running and ready to take over at start of new period
+newrdbup:{[]
+      .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"];
+      @[`.finspace;`rdbready;:;1b];
+ };
