@@ -99,9 +99,7 @@ if[enabled;
   libfile:hsym ` sv lib,`so;                                    / file containing ldap library
   if[()~key libfile;                                            / check ldap library file exists
     .lg.e[`ldap;"cannot find library file: ",1_string libfile]]; 
-
   initialise hsym .ldap.lib;                                          / initialise ldap library
   .dotz.set[`.z.pw;{all(.ldap.login;x).\:(y;z)}@[value;.dotz.getcommand[`.z.pw];{{[x;y]1b}}]];  / redefine .z.pw
-
  ];
 

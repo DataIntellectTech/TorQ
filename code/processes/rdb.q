@@ -39,9 +39,9 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number
 / - if the timer is not enabled, then exit with error
 if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb process"]];
 
-/ - settings for the common save code (see code/common/save.q)
-.save.savedownmanipulation:@[value;`savedownmanipulation;()!()]     //a dict of table!function used to manipulate tables at EOD save
-.save.postreplay:@[value;`postreplay;{{[d;p] }}]                    //post EOD function, invoked after all the tables have been written down
+/ - settings for the common save code (see code/common/dbwriteutils.q)
+.save.savedownmanipulation:@[value;`.save.savedownmanipulation;()!()]     //a dict of table!function used to manipulate tables at EOD save
+.save.postreplay:@[value;`.save.postreplay;{{[d;p] }}]                    //post EOD function, invoked after all the tables have been written down
 
 /- end of default parameters
 
@@ -121,7 +121,7 @@ endofday:{[date;processdata]
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
 	$[.finspace.enabled;
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
-                     notifyhdb[;date] each hdbs;
+                     notifyhdb[;date] each hdbs
         ];
 	};
 	
@@ -244,3 +244,15 @@ $[.rdb.connectonstart;
 /-GMT offset rounded to nearest 15 mins and added to roll time
 .timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
   (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
+
+/-send a signal to the old rdb and wdb (excluding the most recently started process) that the new rdb is ready for the next period.
+.rdb.newrdbready:{[]
+	if[1<count h:exec w from .servers.SERVERS where proctype=`wdb;
+		times:(@[;".proc.starttimeUTC";()] each h)!h;
+		/-don't want to send signal to new wdb to indicate the next period rdb is ready - remove it from table
+  		.servers.removerows exec i from `.servers.SERVERS where w=times max key times];
+  	h:exec w from .servers.SERVERS where proctype in`rdb`wdb,not w=0i;
+  	@[;".finspace.newrdbup[]";()] each neg h;};
+
+/-Adding the function on a one off timer as finspace needs a short period to populate the .servers.SERVERS table and establish the connection to old processes.
+if[.finspace.enabled;.timer.once[.z.p+00:01;`.rdb.newrdbready`;"new rdb ready, waiting 1 minute until signalling"]];
