@@ -184,6 +184,14 @@ getapplication:{$[0 = count a:@[{read0 x};hsym last getconfigfile"application.tx
 // Read the process parameters
 params:.Q.opt .z.x
 
+// default start params for when in finspace
+if[.finspace.enabled;
+	params[`noredirect]:enlist"true";	// logs need to go to stdout and stderr to be picked up by CloudWatch in Finspace
+	params[`jsonlogs]:enlist"true"];	// jsonlogs are neater in finspace, so setting to default. Can be turned off by setting to "false" in start commands
+
+// check added for finspace to allow jsonlogs to be turned off - as default is to use jsonlogs
+if["false"~lower first params`jsonlogs;params _:`jsonlogs];
+
 \d .lg
 
 // Set the logging table at the top level
