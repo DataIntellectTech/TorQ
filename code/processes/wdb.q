@@ -56,21 +56,11 @@ upd:@[value;`upd;{insert}];                                                /-val
 ignorelist:@[value;`ignorelist;`heartbeat`logmsg]                          /-list of tables to ignore
 replay:@[value;`replay;1b];                                                /-replay the tickerplant log file
 schema:@[value;`schema;1b];                                                /-retrieve schema from tickerplant
-numrows:@[value;`numrows;100000];                                          /-default number of rows 
-savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
-numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
 settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
 
-partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
-gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
-getpartition:@[value;`getpartition;
-	{{@[value;`.wdb.currentpartition;
-		(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];                      /-function to determine the partition value
 reloadorder:@[value;`reloadorder;`hdb`rdb];                                /-order to reload hdbs and rdbs
-hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
 sortcsv:@[value;`sortcsv;`:config/sort.csv];                               /-location of csv file
 permitreload:@[value;`permitreload;1b];                                    /-enable reload of hdbs/rdbs
-compression:@[value;`compression;()];                                      /-specify the compress level, empty list if no required
 
 gc:@[value;`gc;1b];                                                        /-garbage collect at appropriate points (after each table save and after sorting data)
 
@@ -90,7 +80,6 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 /- fix any backslashes on windows
 savedir:.os.pthq savedir;
 hdbdir:.os.pthq hdbdir;
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir)
 
 /- define the save and sort flags
 saveenabled: any `save`saveandsort in mode;
@@ -104,43 +93,15 @@ switch: string `off`on;
 / - check to ensure that the process can do one of save or sort
 if[not any saveenabled,sortenabled; .lg.e[`init;"process mode not configured correctly.  Mode should be one of the following: save, sort or saveandsort"]];
 
-/- extract user defined row counts	
-maxrows:{[tabname] numrows^numtab[tabname]}
 
 /- extract user defined row counts for merge process
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
-/- keyed table to track the size of tables on disk
-tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$())
 
 /- function to return a list of tables that the wdb process has been configured to deal within
 tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
 	(sortedlist union tables[`.]) except ignorelist}
 
-/- if row count satisfied, save data to disk, then delete from memory
-savetables:{[dir;pt;forcesave;tabname]
-	/- check row count
-	/- forcesave will write flush the data to disk irrespective of counts
-	if[forcesave or maxrows[tabname] < arows: count value tabname;
-	.lg.o[`rowcheck;"the ",(string tabname)," table consists of ", (string arows), " rows"];
-	/- upsert data to partition
-	.lg.o[`save;"saving ",(string tabname)," data to partition ", string pt];
-	.[
-		upsert;
-		(` sv .Q.par[dir;pt;tabname],`;.Q.en[hdbsettings[`hdbdir];r:0!.save.manipulate[tabname;`. tabname]]);
-		{[e] .lg.e[`savetables;"Failed to save table to disk : ",e];'e}
-	];
-	/- make addition to tabsizes
-	.lg.o[`track;"appending table details to tabsizes"];
-	.wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
-	/- empty the table
-	.lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];
-	@[`.;tabname;0#];
-	/- run a garbage collection (if enabled)
-	if[gc;.gc.run[]];
-	]};
-	
-	
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
 	.lg.o[`save;"saving ",(string tablename)," data to partition ",
@@ -506,7 +467,6 @@ replayupd:{[f;t;d]
 		savetables[savedir;getpartition[];0b;t]]	
 	}[upd];
 
-/-function to initialise the wdb	
 startup:{[] 
 	.lg.o[`init;"searching for servers"];
 	.servers.startup[];
@@ -516,11 +476,12 @@ startup:{[]
 	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
 	if[saveenabled;
 		//check if tickerplant is available and if not exit with error 
-		.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles]; 
-		subscribe[]; 
+			if[not .finspace.enabled;                                                                                                                      /-TODO Remove when tickerplant fixed in finspace
+			.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles];
 		];		
-	}
-	
+		subscribe[]; 
+        ];
+	}	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[] 
@@ -564,16 +525,12 @@ getsortparams:{[]
 /- get the sort attributes for each table
 .wdb.getsortparams[];
 
-/- Initialise current partiton
-.wdb.currentpartition:.wdb.getpartition[];
 
 /- make sure to request connections for all the correct types
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
 
-/-  adds endofday and endofperiod functions to top level namespace
+/-  adds endofday  function to top level namespace
 endofday: .wdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-
 /- setting the upd and .u.end functions as the .wdb versions
 .u.end:{[pt]
 	.wdb.endofday[.wdb.getpartition[];()!()];
