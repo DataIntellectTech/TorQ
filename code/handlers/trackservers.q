@@ -189,7 +189,7 @@ retryrows:{[rows]
 // in this case we need to generate the connection string using the AWS api
 getconnectionstring:{[proctype;procname;hpup]
     if[`finspace~ `tcp ^ .servers.SOCKETTYPE proctype;
-        :.servers.getfinspaceconn[proctype; procname]];
+        :.servers.getfinspaceconn[procname]];
     :hpup;
     };
 
