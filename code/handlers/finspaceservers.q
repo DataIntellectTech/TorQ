@@ -7,10 +7,9 @@
 
 .servers.getfinspaceconn:{[pname]
     id:.Q.s1 pname;
-    runningclusters:select `$cluster_name, `$cluster_type, status from .servers.listfinspaceclusters[] where status like "RUNNING";
-    cluster:first exec cluster_name from runningclusters where pname = cluster_name;
+    cluster:first exec `$cluster_name from .servers.listfinspaceclusters[] where status like "RUNNING",(`$cluster_name)=pname;
 
     if[null cluster; .lg.w[`finspaceconn; "no available finspace cluster found for ",id]; :`];
     conn:@[.aws.get_kx_connection_string; cluster; {[id;e] .lg.e[`finspaceconn; "failed to get connection string for ",id," via aws api - ",e]; :`}[id;]];
-    :`$conn;    
+    :`$conn;
     };
