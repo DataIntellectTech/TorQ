@@ -210,14 +210,8 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /- make sure that the process will make a connection to each of the gateways and hdb types
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
-/-set the upd function in the top level namespace
-upd:.rdb.upd
-
 /- adds endofday function to top level namespace
 endofday: .rdb.endofday;
-
-/-set .u.end for the tickerplant to call at end of day
-.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
