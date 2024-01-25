@@ -16,4 +16,3 @@ moveandclear:{[fromNS;toNS;tab]
 
 /-set the upd function in the top level namespace
 upd:.rdb.upd
-
