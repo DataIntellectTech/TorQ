@@ -11,3 +11,10 @@ moveandclear:{[fromNS;toNS;tab]
  if[tab in key fromNS;
   set[` sv (toNS;tab);0#fromNS tab];
   eval(!;enlist fromNS;();0b;enlist enlist tab)]}
+
+upd:@[value;`upd;{insert}];                                 //value of upd
+
+\d .
+
+/-set the upd function in the top level namespace
+upd:.rdb.upd

@@ -467,21 +467,6 @@ replayupd:{[f;t;d]
 		savetables[savedir;getpartition[];0b;t]]	
 	}[upd];
 
-startup:{[] 
-	.lg.o[`init;"searching for servers"];
-	.servers.startup[];
-	if[writedownmode~`partbyattr;
-		.lg.o[`init;"writedown mode set to ",(string .wdb.writedownmode)]
-		];
-	.lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
-	if[saveenabled;
-		//check if tickerplant is available and if not exit with error 
-			if[not .finspace.enabled;                                                                                                                      /-TODO Remove when tickerplant fixed in finspace
-			.servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles];
-		];		
-		subscribe[]; 
-        ];
-	}	
 / - if there is data in the wdb directory for the partition, if there is remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[] 
@@ -545,6 +530,3 @@ upd:.wdb.replayupd;
 .wdb.startup[];
 / - start the timer
 if[.wdb.saveenabled;.wdb.starttimer[]];
-
-/- use the regular up after log replay
-upd:.wdb.upd

@@ -22,7 +22,6 @@ tpconnsleepintv:@[value;`tpconnsleepintv;10];               //number of seconds 
 onlyclearsaved:@[value;`onlyclearsaved;0b];                 //if true, eod writedown will only clear tables which have been successfully saved to disk
 savetables:@[value;`savetables;1b];                         //if true tables will be saved at end of day, if false tables wil not be saved, only wiped
 gc:@[value;`gc;1b];                                         //if true .Q.gc will be called after each writedown - tradeoff: latency vs memory usage
-upd:@[value;`upd;{insert}];                                 //value of upd
 hdbdir:@[value;`hdbdir;`:hdb];                              //the location of the hdb directory
 sortcsv:@[value;`sortcsv;`:config/sort.csv]                 //location of csv file
 
@@ -210,15 +209,8 @@ restoretimeout:{system["T ", string .rdb.timeout]};
 /- make sure that the process will make a connection to each of the gateways and hdb types
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
-/-set the upd function in the top level namespace
-upd:.rdb.upd
-
-/- adds endofday and endofperiod functions to top level namespace
+/- adds endofday function to top level namespace
 endofday: .rdb.endofday;
-endofperiod:{[currp;nextp;data] .lg.o[`endofperiod;"Received endofperiod. currentperiod, nextperiod and data are ",(string currp),", ", (string nextp),", ", .Q.s1 data]};
-
-/-set .u.end for the tickerplant to call at end of day
-.u.end:{[d] .rdb.endofday[d;()!()]}
 
 /-set the reload the function
 reload:.rdb.reload
