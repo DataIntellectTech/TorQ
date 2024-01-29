@@ -8,7 +8,7 @@ startup:{[]
         .lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
         if[saveenabled;
                 //check if tickerplant is available and if not exit with error
-                        if[not .finspace.enabled;                                                                                                                      /-TODO Remove when tickerplant fixed in finspace
+		if[not .finspace.enabled;                                                       /-TODO Remove when tickerplant fixed in finspace
                         .servers.startupdepcycles[.wdb.tickerplanttypes;.wdb.tpconnsleepintv;.wdb.tpcheckcycles];
                 ];
                 subscribe[];

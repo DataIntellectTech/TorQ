@@ -527,6 +527,6 @@ upd:.wdb.replayupd;
 / - clear any wdb data in the current partition
 .wdb.clearwdbdata[];
 /- initialise the wdb process
-.wdb.startup[];
+.wdb.startup[`];
 / - start the timer
 if[.wdb.saveenabled;.wdb.starttimer[]];
