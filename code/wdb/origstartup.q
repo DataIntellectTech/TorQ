@@ -15,4 +15,3 @@ startup:{[]
 		];
 	@[`.;`upd;:;.wdb.upd];
         }
-

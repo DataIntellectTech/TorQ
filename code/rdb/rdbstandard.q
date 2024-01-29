@@ -18,4 +18,3 @@ upd:@[value;`upd;{insert}];                                 //value of upd
 
 /-set the upd function in the top level namespace
 upd:.rdb.upd
-
