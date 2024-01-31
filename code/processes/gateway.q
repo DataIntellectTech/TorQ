@@ -523,10 +523,6 @@ while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
  .servers.startup[];
  .servers.retrydiscovery[]]
 
-// add servers from the standard connections table
-addserversfromconnectiontable:{
- {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
-
 // When new connections come in from the discovery service, try to reconnect
 .servers.addprocscustom:{[connectiontab;procs]
  // retry connections

@@ -55,3 +55,11 @@ newrdbup:{[]
       .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"];
       @[`.finspace;`rdbready;:;1b];
  };
+
+ // clustername must be of type string
+deletecluster:{[clustername]
+  .lg.o[`deletecluster;"Going to delete ",$[""~clustername;"current cluster";"cluster named: ",clustername]];
+  .aws.delete_kx_cluster[clustername]; // calling this on an empty string deletes self
+  // TODO ZAN Error trap
+  // Test this with invalid cluster names and catch to show error messages
+  };
