@@ -454,7 +454,7 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
   ];   
  // if deferring was succesful use async call back function, flag it as sync
  // doesn't make sense to allow specification of a callback for sync requests
- asyncexecjpts[query;servertype;joinfunction;();timeout;1b];
+ .[asyncexecjpts;(query;servertype;joinfunction;();timeout;1b);{-30!(x;1b;y)}[.z.w;]];
  }; 
 
 $[.z.K < 3.6;
