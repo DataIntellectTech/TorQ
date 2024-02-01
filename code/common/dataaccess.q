@@ -2,6 +2,9 @@
 
 \d .dataaccess
 
+//set the default tableproperties path to ` allow initialisation intra-process
+tablepropertiespath:@[value;`.dataaccess.tablepropertiespath;`]
+
 // to set table properties path passed from -dataaccess parameter
 settablepropertiespath:{[]
   if[not`dataaccess in key .proc.params;.lg.e[`.dataaccess.settablepropertiespath;"No table properties passed by -dataaccess parameter"]];
