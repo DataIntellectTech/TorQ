@@ -2,7 +2,7 @@
 
 \d .dataaccess
 
-//set the default properties path to ` allow initialisaiton intra-process
+//set the default tableproperties path to ` allow initialisation intra-process
 tablepropertiespath:@[value;`.dataaccess.tablepropertiespath;`]
 
 // to set table properties path passed from -dataaccess parameter
