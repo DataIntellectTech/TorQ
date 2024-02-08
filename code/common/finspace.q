@@ -58,6 +58,7 @@ newrdbup:{[]
 
  // clustername must be of type string
 deletecluster:{[clustername]
+  if[10h<>fType:type clustername; .lg.o[`deletecluster;"clustername must be of type string: 10h, got ",-3!fType]; :(::)];
   .lg.o[`deletecluster;"Going to delete ",$[""~clustername;"current cluster";"cluster named: ",clustername]];
   .aws.delete_kx_cluster[clustername]; // calling this on an empty string deletes self
   // TODO ZAN Error trap

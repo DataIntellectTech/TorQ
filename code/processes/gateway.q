@@ -193,7 +193,7 @@ deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
 addserverresult:{[queryid;results]
- serverid:$[@[get;`.finspace.enabled;0b];
+ serverid:$[@[value;`.finspace.enabled;0b];
     first exec serverid from .gw.servers where handle=.z.w;
     first exec serverid from .gw.servers where active, handle=.z.w];
  if[queryid in key .gw.results;
