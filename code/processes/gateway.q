@@ -116,6 +116,12 @@ setserverstate:{[serverh;use]
  $[use;
    update inuse:use,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
    update inuse:use,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
+setderegserverids:{[serverh]
+  if[null serverh; :()];
+  if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
+    svrIDs:exec serverid from .gw.servers where handle in serverh;
+    .finspace.checkremainingqueriesforserver'[svrIDs];
+   ]}
 
 // return a list of available servers
 // override this function for different routing algorithms e.g. maybe only send to servers in the same datacentre, country etc.
@@ -181,6 +187,7 @@ finishquery:{[qid;err;serverh]
  deleteresult[qid];
  update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
  setserverstate[serverh;0b];
+ setderegserverids[serverh];
  }
 
 // Get a list of pending and running queries
@@ -283,6 +290,11 @@ removeserverhandle:{[serverh]
 
  // mark the server as inactive
  update handle:0Ni, active:0b, disconnecttime:.proc.cp[] from `.gw.servers where handle=serverh;
+ // finspace check
+ if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
+   .finspace.deregserverids:.finspace.deregserverids _ serverid;
+   .finspace.dereginprog:"b"$count .finspace.deregserverids _ 0N;
+   ];
 
  runnextquery[];
  }
