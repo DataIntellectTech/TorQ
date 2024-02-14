@@ -117,11 +117,12 @@ setserverstate:{[serverh;use]
    update inuse:use,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
    update inuse:use,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
 setderegserverids:{[serverh]
-  if[null serverh; :()];
   if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
-    svrIDs:exec serverid from .gw.servers where handle in serverh;
+    svrIDs:exec serverid from .gw.servers where not null handle, handle in serverh;
     .finspace.checkremainingqueriesforserver'[svrIDs];
    ]}
+
+
 
 // return a list of available servers
 // override this function for different routing algorithms e.g. maybe only send to servers in the same datacentre, country etc.
@@ -187,7 +188,6 @@ finishquery:{[qid;err;serverh]
  deleteresult[qid];
  update error:err,returntime:.proc.cp[] from `.gw.queryqueue where queryid in qid;
  setserverstate[serverh;0b];
- setderegserverids[serverh];
  }
 
 // Get a list of pending and running queries
@@ -209,7 +209,8 @@ addserverresult:{[queryid;results]
   ];
  setserverstate[.z.w;0b];
  runnextquery[];
- checkresults[queryid]}
+ checkresults[queryid];
+ setderegserverids[.z.w]}
 // handle an error coming back from the server
 addservererror:{[queryid;error]
  // propagate the error to the client
@@ -218,6 +219,7 @@ addservererror:{[queryid;error]
  runnextquery[];
  // finish the query
  finishquery[queryid;1b;0Ni];
+ setderegserverids[.z.w];
  }
 // check if all results are in.  If so, send the results to the client
 checkresults:{[queryid]
