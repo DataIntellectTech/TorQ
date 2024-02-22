@@ -295,7 +295,7 @@ removeserverhandle:{[serverh]
  // finspace check
  if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
    .finspace.deregserverids:.finspace.deregserverids _ serverid;
-   .finspace.dereginprog:"b"$count .finspace.deregserverids _ 0N;
+   .finspace.dereginprog:0<count .finspace.deregserverids _ 0N;
    ];
 
  runnextquery[];
