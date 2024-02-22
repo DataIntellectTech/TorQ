@@ -56,7 +56,6 @@ newrdbup:{[]
       @[`.finspace;`rdbready;:;1b];
  };
 
- // clustername must be of type string
 deletecluster:{[clustername]
   if[not any (10h;-11h)=fType:type clustername; .lg.e[`deletecluster;"clustername must be of type string or symbol: 10h -11h, got ",-3!fType]; :(::)];
   if[-11h~fType; clustername:string clustername];
