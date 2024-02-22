@@ -92,3 +92,7 @@ getserverscross:{[req;att;besteffort]
  /- return the parameters which should be queried for
  (key s)!distinct each' flip each util[w]`found
  }
+
+addserversfromconnectiontable:{
+ {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
+
