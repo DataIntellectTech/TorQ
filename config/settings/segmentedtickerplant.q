@@ -8,6 +8,7 @@ errmode:1b;                     // Enable error mode for STP
 batchmode:`defaultbatch;        // [memorybatch|defaultbatch|immediate]
 replayperiod:`day               // [period|day|prior]
 customcsv:hsym first .proc.getconfigfile["stpcustom.csv"];       // Location for custom logging mode csv
+kdbtplog:`$getenv`KDBTPLOG;
 
 \d .proc
 loadcommoncode:0b               // do not load common code

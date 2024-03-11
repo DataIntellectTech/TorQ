@@ -14,7 +14,7 @@ errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
-  if[not count dir:hsym `$getenv[`KDBTPLOG];.lg.e[`stp;"log directory not defined"];exit 1];
+  if[not count dir:hsym .stplg.kdbtplog;.lg.e[`stp;"log directory not defined"];exit 1];
   .os.md dir;
   .os.md .stplg.dldir:` sv dir,`$raze/[string name,"_",date];
  };
