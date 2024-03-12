@@ -39,7 +39,8 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"]]];.aws.sdep["NO_RESTART"]]
+      awsdb:.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
+      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep["NO_RESTART"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
 
@@ -55,3 +56,12 @@ newrdbup:{[]
       .lg.o[`newrdbup;"received signal from next period rdb, setting rdbready to true"];
       @[`.finspace;`rdbready;:;1b];
  };
+
+deletecluster:{[clustername]
+  if[not any (10h;-11h)=fType:type clustername; .lg.e[`deletecluster;"clustername must be of type string or symbol: 10h -11h, got ",-3!fType]; :(::)];
+  if[-11h~fType; clustername:string clustername];
+  .lg.o[`deletecluster;"Going to delete ",$[""~clustername;"current cluster";"cluster named: ",clustername]];
+  .aws.delete_kx_cluster[clustername]; // calling this on an empty string deletes self
+  // TODO ZAN Error trap
+  // Test this with invalid cluster names and catch to show error messages
+  };

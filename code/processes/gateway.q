@@ -116,6 +116,13 @@ setserverstate:{[serverh;use]
  $[use;
    update inuse:use,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
    update inuse:use,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
+setderegserverids:{[serverh]
+  if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
+    svrIDs:exec serverid from .gw.servers where not null handle, handle in serverh;
+    .finspace.checkremainingqueriesforserver'[svrIDs];
+   ]}
+
+
 
 // return a list of available servers
 // override this function for different routing algorithms e.g. maybe only send to servers in the same datacentre, country etc.
@@ -193,14 +200,17 @@ deleteresult:{[queryid] .gw.results : (queryid,()) _ .gw.results}
 
 // add a result coming back from a server
 addserverresult:{[queryid;results]
- serverid:first exec serverid from .gw.servers where active, handle=.z.w;
+ serverid:$[@[value;`.finspace.enabled;0b];
+    first exec serverid from .gw.servers where handle=.z.w;
+    first exec serverid from .gw.servers where active, handle=.z.w];
  if[queryid in key .gw.results;
   .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;1);:;results];
   .[`.gw.results;(queryid;1;.gw.results[queryid;1;;0]?serverid;2);:;1b]
   ];
  setserverstate[.z.w;0b];
  runnextquery[];
- checkresults[queryid]}
+ checkresults[queryid];
+ setderegserverids[.z.w]}
 // handle an error coming back from the server
 addservererror:{[queryid;error]
  // propagate the error to the client
@@ -209,6 +219,7 @@ addservererror:{[queryid;error]
  runnextquery[];
  // finish the query
  finishquery[queryid;1b;0Ni];
+ setderegserverids[.z.w];
  }
 // check if all results are in.  If so, send the results to the client
 checkresults:{[queryid]
@@ -281,6 +292,11 @@ removeserverhandle:{[serverh]
 
  // mark the server as inactive
  update handle:0Ni, active:0b, disconnecttime:.proc.cp[] from `.gw.servers where handle=serverh;
+ // finspace check
+ if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
+   .finspace.deregserverids:.finspace.deregserverids _ serverid;
+   .finspace.dereginprog:0<count .finspace.deregserverids _ 0N;
+   ];
 
  runnextquery[];
  }
@@ -522,10 +538,6 @@ while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
  /-run the servers startup code again (to make connection to discovery)
  .servers.startup[];
  .servers.retrydiscovery[]]
-
-// add servers from the standard connections table
-addserversfromconnectiontable:{
- {.gw.addserverattr'[x`w;x`proctype;x`attributes]}[select w,proctype,attributes from .servers.SERVERS where ((proctype in x) or x~`ALL),not w in ((0;0Ni),exec handle from .gw.servers where active)];}
 
 // When new connections come in from the discovery service, try to reconnect
 .servers.addprocscustom:{[connectiontab;procs]

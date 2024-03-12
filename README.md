@@ -41,12 +41,21 @@ Head to the address it gives you to check if your changes have worked. More info
 ## Licences
 Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
+- **5.0.3, Mar 2024**
+  * Fix defaulting of .save config in rdb
+  * Bug fix for syncexec queries on HTTP/qcon
+  * Bug fix for dataaccess API init
+  * Deferred responce now returns if fails or signals error
+  * Updating finspace.q API parameters to be up to date with AWS documentation
+  * Setting default start params in FinSpace
+  * finspaceservers.q will use the aws.list_kx_clusters direclty instead of matching it against csv
+  * Code restructure/small changes to allign with Finspace changes (unused as of release)
 - **5.0.2, Dec 2023**
   * Removed KDBFINSPACE env variable from required startup variable list
 - **5.0.1, Dec 2023**
   * Renaming TorQ Amazon Finspace project references to TorQ-Amazon-FinSpace-Starter-Pack
 - **5.0.0, Dec 2023**
-  * Updated TorQ to support AWS Finspace when using the new [TorQ-Finspace-Starter-Pack](https://dataintellecttech.github.io/TorQ-Amazon-FinSpace-Starter-Pack/)
+  * Updated TorQ to support AWS Finspace when using the new [TorQ-Amazon-Finspace-Starter-Pack](https://dataintellecttech.github.io/TorQ-Amazon-FinSpace-Starter-Pack/)
   * Updated support email references
   * Updated intall guide
   * log output can now be json file format: add '-jsonlogs true' flag on startup
