@@ -59,8 +59,11 @@ setup:{[batch]
   .stplg.updmsg:.stplg.upd[batch];
   .stplg.ts:.stplg.zts[batch];
   .u.upd:.stpps.upd[chainmode];
-  .dotz.set[`.z.ts;.stpps.zts[chainmode]];
-  
+  .dotz.set[`.z.ts;
+    {[f;x] @[;x;()]each f}
+      (@[value;.dotz.getcommand[`.z.ts];{{}}];
+      .stpps.zts[chainmode])];
+
   // Error mode - error trap UPD to write failed updates to separate TP log
   if[.stplg.errmode;
     .stp.upd:.u.upd;
@@ -85,3 +88,5 @@ init:{
 
 // Have the init function called from torq.q
 .proc.addinitlist(`init;`);
+
+if[.finspace.enabled;.servers.startup[]]; // Needed for heartbeating to keep finspace connections alive
