@@ -33,7 +33,7 @@ subdetails:{[tabs;instruments]
 
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
-  .stpps.init[tables[] except `currlog];
+  .stpps.init[tables[] except `currlog`heartbeat`logmsg`svrstoload];
   .stpps.attrstrip[.stpps.t];
 
   // Table UPD functions attach the current timestamp by default, if STP is chained these do nothing
