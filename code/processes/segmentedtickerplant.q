@@ -28,12 +28,12 @@ tablelist:{.stpps.t}
 
 // subscribers who want to replay need this info 
 subdetails:{[tabs;instruments]
- `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);`$getenv`KDBTPLOG)
+ `schemalist`logfilelist`rowcounts`date`logdir!(.ps.subscribe\:[tabs;instruments];.stplg.replaylog[tabs];tabs#.stplg `rowcount;(.eodtime `d);.stplg.kdbtplog)
  }
 
 // Generate table and schema information and set up default table UPD functions
 generateschemas:{
-  .stpps.init[tables[] except `currlog];
+  .stpps.init[tables[] except `currlog`heartbeat`logmsg`svrstoload];
   .stpps.attrstrip[.stpps.t];
 
   // Table UPD functions attach the current timestamp by default, if STP is chained these do nothing
@@ -59,8 +59,11 @@ setup:{[batch]
   .stplg.updmsg:.stplg.upd[batch];
   .stplg.ts:.stplg.zts[batch];
   .u.upd:.stpps.upd[chainmode];
-  .dotz.set[`.z.ts;.stpps.zts[chainmode]];
-  
+  .dotz.set[`.z.ts;
+    {[f;x] @[;x;()]each f}
+      (@[value;.dotz.getcommand[`.z.ts];{{}}];
+      .stpps.zts[chainmode])];
+
   // Error mode - error trap UPD to write failed updates to separate TP log
   if[.stplg.errmode;
     .stp.upd:.u.upd;
