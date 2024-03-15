@@ -88,5 +88,3 @@ init:{
 
 // Have the init function called from torq.q
 .proc.addinitlist(`init;`);
-
-if[.finspace.enabled;.servers.startup[]]; // Needed for heartbeating to keep finspace connections alive
