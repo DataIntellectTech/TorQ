@@ -9,7 +9,7 @@ queryid:`long$0;														/ - initial query id value
 inputcsv:string inputcsv
 
 /- stores report information
-reports:([] name:`$(); query:(); resulthandler:(); gateway:(); joinfunction:(); proctype:(); procname:(); start:`minute$(); end:`minute$(); period:`minute$(); timeoutinterval:`timespan$(); daysofweek:());
+reports:([] name:`$(); query:(); resulthandler:(); gateway:(); joinfunction:(); proctype:(); procname:(); start:`minute$(); end:`minute$(); period:`minute$(); timeoutinterval:`timespan$(); daysofweek:(); timezone:`$());
 
 /- status of current queries
 querystatus:([queryid:`u#`long$()] name:`symbol$(); time:`timestamp$(); servertype:(); timeout:`timespan$(); submittime:`timestamp$(); returntime:`timestamp$(); status:`boolean$(); stage:`$());
@@ -37,7 +37,7 @@ wrapper:{[name;query;qid]
 csvloader:{[CSV]
 
 	/- rethrows error if file doesn't exist, checks to see if correct columns exist in file
-	t:@[{write[`long$0;"Opening ",x;0b];("s**s*Ssuuun*";enlist "|") 0: hsym `$x};CSV;{.lg.e[`csvloader;e:"failed to open ",x," : ",y];'e}[CSV]];
+	t:@[{write[`long$0;"Opening ",x;0b];("s**s*Ssuuun*s";enlist "|") 0: hsym `$x};CSV;{.lg.e[`csvloader;e:"failed to open ",x," : ",y];'e}[CSV]];
 	
  	/- Replace Nested list string with actual nested list
 	t:update daysofweek:value each daysofweek, query:raze each query, proctype:raze each `$" " vs' string proctype from t;
@@ -45,7 +45,7 @@ csvloader:{[CSV]
   	$[not all (cols reports) in cols t;
 		'"The file (",CSV,") has incorrect layout";
 	  / - check if there are any null values or empty strings in required columns
-	  any (not count each raze value exec query,resulthandler from t),null raze/[value flip delete query,resulthandler,joinfunction,gateway,procname from t];
+	  any (not count each raze value exec query,resulthandler from t),null raze/[value flip delete query,resulthandler,joinfunction,gateway,procname,timezone from t];
 		'"File not loaded, null values were found in the csv file";
 	  / - cannot query against more than one processes when server is not a gateway process
 	  any 1<count each exec proctype from t where null gateway;
@@ -115,10 +115,13 @@ runreport:{[tab]
 		.timer.once[startts;fp;"Reporter - ",string tab`name];
 		`..timerids upsert 1!select id,periodend:nextrun from .timer.timer where fp~/:funcparam;
 	:()];
-	/ - if the current time is within the start and end timestamps, use current time as start time, else use the startts
+        / - if timezone is specified convert the start and end timestamps to the time used by the system 
+	startts:?[not null tab[`timezone];ltime[.tz.ttz[`GMT;tab[`timezone];startts]];startts];
+        endts:?[not null tab[`timezone];ltime[.tz.ttz[`GMT;tab[`timezone];endts]];endts];
+        / - if the current time is within the start and end timestamps, use current time as start time, else use the startts
 	/ - work out the start time for the timer. For example a report could run every day from 10am to 6pm every 5 mins, if the reporter
 	/ - is started at 1:11pm, we need to know that the report should start 1:15pm and then run every 5 mins there after
-	startts: nextperiod[tab`start;tab`end;tab`period;] $[.proc.cp[] within startts,endts;.proc.cp[];startts];
+	startts: nextperiod[startts;endts;tab`period;] $[.proc.cp[] within startts,endts;.proc.cp[];startts];
 	/ - escape if the report havs already been registered on the timer
 	if[count select from .timer.timer where fp~/:funcparam;:()];
 	/ - register the report on the timer
