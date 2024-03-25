@@ -149,8 +149,6 @@ attributesrouting:{[options;procdict]
     :types;
     };
 
-
-
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     tabname:input[`tablename];
@@ -172,7 +170,6 @@ partdict:{[input]
 
 // function to adjust the queries being sent to processes to prevent overlap of
 // time clause and data being queried on more than one process
-
 adjustqueries:{[options;part]
     // if only one process then no need to adjust
     if[2>count p:options`procs;:options];
