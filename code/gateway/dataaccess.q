@@ -216,3 +216,19 @@ adjustqueries:{[options;part]
   // create a dictionary of procs and different queries
     :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[partitions];
     };
+
+// function to grab the correct aggregations needed for aggregating over
+// multiple processes
+mapreduce:{[aggs;gr]
+    // if there is a date grouping any aggregation is allowed
+    if[`date in gr;:aggs];
+    // format aggregations into a paired list
+    aggs:flip(key[aggs]where count each value aggs;raze aggs);
+    // if aggregations are not map-reducable and there is no date grouping,
+    // then error
+    if[not all aggs[;0]in key aggadjust;
+        '`$"to perform non-map reducable aggregations automatically over multiple processes there must be a date grouping"];
+    // aggregations are map reducable (with potential non-date groupings)
+    aggs:distinct raze{$[`~a:.dataaccess.aggadjust x 0;enlist x;a x 1]}'[aggs];
+    :first'[aggs]!last'[aggs];
+    };
