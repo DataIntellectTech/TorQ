@@ -197,7 +197,7 @@ adjustqueries:{[options;part]
     partitions:@[@[partitions;`hdb;:;c];`rdb;:;d];
 
    // if start/end time not a date, then adjust dates parameter for the correct types
-    if[not a;
+    if[not a:-12h~tp:type start:options`starttime;
         // converts partitions dictionary to timestamps/datetimes
         partitions:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[partitions];
         // convert first and last timestamp to start and end time
