@@ -4,18 +4,18 @@
 getdata:{[inputparams]
   if[.proc.proctype in key inputparams;inputparams:inputparams .proc.proctype];
   requestnumber:.requests.initlogger[inputparams];
-  // [input parameters dict] generic function acting as main access point for data retrieval
+// [input parameters dict] generic function acting as main access point for data retrieval
   if[1b~inputparams`getquery;:.dataaccess.buildquery[inputparams]];
   // validate input passed to getdata
   usersdict:inputparams;
   inputparams:@[.dataaccess.checkinputs;inputparams;.requests.error[requestnumber;]];
-  // log success of checkinputs
+  // log success of checkinputs 
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," checkinputs passed"];
   // extract validated parameters from input dictionary
   queryparams:.eqp.extractqueryparams[inputparams;.eqp.queryparams];
   // log success of eqp
-  .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," extractqueryparams passed"];
-  // re-order the passed parameters to build an efficient query
+  .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," extractqueryparams passed"];  
+  // re-order the passed parameters to build an efficient query  
   query:.queryorder.orderquery queryparams;
   // log success of queryorder
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," queryorder passed"];
@@ -39,7 +39,7 @@ getdata:{[inputparams]
   ];
   f:{[input;x;y]y[x] input};
 // order the query after it's fetched
- if[not 0~count (queryparams`ordering);
+  if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];
 // rename the columns
   result:queryparams[`renamecolumn] xcol table;
@@ -50,7 +50,7 @@ getdata:{[inputparams]
   if[(10b~`sublist`procs in key inputparams)or((1b~`sublist in key inputparams)and(1~count inputparams `procs));
         result:(inputparams`sublist) sublist result];
    .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
-        :result
+   :result
   };
 
 
