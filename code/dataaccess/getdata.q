@@ -19,7 +19,7 @@ getdata:{[inputparams]
   query:.queryorder.orderquery queryparams;
   // log success of queryorder
   .lg.o[`getdata;"getdata Request Number: ",(string requestnumber)," queryorder passed"];
-  // execute the queries                                                   
+  // execute the queries                                                    
   table:raze value each query;                                                               
   if[(.proc.proctype=`rdb);
   // change defaulttime.date to date on rdb process query result
@@ -40,13 +40,13 @@ getdata:{[inputparams]
   f:{[input;x;y]y[x] input};
 // order the query after it's fetched
   if[not 0~count (queryparams`ordering);
-    table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];
+    table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];     
 // rename the columns  
   result:queryparams[`renamecolumn] xcol table;
 // apply post-processing function if called in process or query to single process called from gateway
     if[(10b~in[`postprocessing`procs;key inputparams])or((1b~`postprocessing in key inputparams)and(1~count inputparams `procs));
         result:.eqp.processpostback[result;inputparams`postprocessing]];
-// apply sublist function if called in process or query to single process called from gateway
+// apply sublist function if called in process or query to single process called from gateway                                      
   if[(10b~`sublist`procs in key inputparams)or((1b~`sublist in key inputparams)and(1~count inputparams `procs));
         result:(inputparams`sublist) sublist result];
    .requests.updatelogger[requestnumber;`endtime`success!(.proc.cp[];1b)];
