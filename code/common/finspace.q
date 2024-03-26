@@ -39,8 +39,12 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      awsdb:.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
-      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep["NO_RESTART"]]
+      usecache:"/opt/kx/app/scratch"~getenv[`KDBSCRATCH];
+      awsdb:$[usecache;
+          .aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
+          .aws.db[.finspace.database;changeset[`id];();.rdb.hdbdataviewname]
+        ]
+      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep $[usecache;"NO_RESTART";"ROLLING"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
 
