@@ -43,7 +43,7 @@ notifyhdb:{[cluster;changeset]
       awsdb:$[usecache;
           .aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
           .aws.db[.finspace.database;changeset[`id];();.rdb.hdbdataviewname]
-        ]
+        ];
       .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep $[usecache;"NO_RESTART";"ROLLING"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
