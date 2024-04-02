@@ -39,7 +39,8 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      usecache:"/opt/kx/app/scratch"~getenv[`KDBSCRATCH];
+      usecache:1b; // TODO : conditional based on hdb KDBSCRATCH configs
+      //usecache:"/opt/kx/app/scratch"~getenv[`KDBSCRATCH];
       awsdb:$[usecache;
           .aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
           .aws.db[.finspace.database;changeset[`id];();.rdb.hdbdataviewname]
