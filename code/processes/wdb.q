@@ -151,26 +151,37 @@ savetables:$[writedownmode~`partbyattr;savetablesbypart;savetables];
 
 savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
-/- eod - flush remaining data to disk
 endofday:{[pt;processdata]
-	.lg.o[`eod;"end of day message received - ",spt:string pt];
+        .lg.o[`eod;"end of day message received - ",spt:string pt];
         /- set what type of merge method to be used
         mergemethod:.wdb.mergemode;
-	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
-	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
-	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
-	tablist:tablelist[]!{0#value x} each tablelist[];
-	/ - if save mode is enabled then flush all data to disk
-	if[saveenabled;
-		endofdaysave[savedir;pt];
-		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
-	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
-	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
-	.lg.o[`eod;"end of day is now complete"];
-	.wdb.currentpartition:pt+1;
-	};
-	
+        /- create a dictionary of tables and merge limits, byte or row count limit depending on settings
+        .lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
+        mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();
+        tablist:tablelist[]!{0#value x} each tablelist[];
+        / Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+        ];
+        / - if save mode is enabled then flush all data to disk
+        if[saveenabled;
+                endofdaysave[savedir;pt];
+                / - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
+                $[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
+        .lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
+        if[.finspace.enabled;
+                    changeset:.finspace.createchangeset[.finspace.database];
+        ];
+        $[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+        $[.finspace.enabled;
+                .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+                notifyhdb[;pt] each hdbs
+                ];
+        .lg.o[`eod;"end of day is now complete"];
+        .wdb.currentpartition:pt+1;
+        };
+
 endofdaysave:{[dir;pt]
 	/- save remaining table rows to disk
 	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
@@ -251,15 +262,16 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
-  $[count[.z.pd[]]&0>system"s";
-    [.lg.o[`sort;"sorting on worker sort", string .z.p];
-     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
-     {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
-    [.lg.o[`sort;"sorting on main sort"];
-     reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-    {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]];
+  if[not .finspace.enabled;
+          $[count[.z.pd[]]&0>system"s";
+                  [.lg.o[`sort;"sorting on worker sort", string .z.p];
+                  {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+                  {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
+                  [.lg.o[`sort;"sorting on main sort"];
+                  reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
+                  {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tablist,'.Q.par[dir;pt;] each tablist]]];
   .lg.o[`sort;"finished sorting data"];
-     
+
   /-move data into hdb
   .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
@@ -267,7 +279,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
 
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
-  if[permitreload; 
+  if[permitreload;
     doreload[pt];
     ];
   };
@@ -311,44 +323,45 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
   ] 
  };	
 	
-endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
+endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
   /- merge data from partitons
-  $[(0 < count .z.pd[]) and ((system "s")<0);
-    [.lg.o[`merge;"merging on worker"];
-     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
-     /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method 
-     if[(mergemode~`hybrid)or(mergemode~`part);
-       {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
-       ];
-     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] peach flip (key tablist;value tablist);
-     /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
-     .lg.o[`eod;"Delete from partsizes"];
-     delete from `.merge.partsizes;
-     {(neg x)({.lg.o[`eod;"Delete from partsizes"];
-               delete from `.merge.partsizes;
-               /- run a garbage collection if enabled
-               if[gc;.gc.run[]]};`);(neg x)(::)} each .z.pd[];
-    ];	
-    [.lg.o[`merge;"merging on main"];
-     reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
-     .lg.o[`eod;"Delete from partsizes"];
-     delete from `.merge.partsizes;
-    ]
-   ];
-  /- if path exists, delete it
-  if[not () ~ key savedir; 
-    .lg.o[`merge;"deleting temp storage directory"];
-    .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
-    ];
-  /-call the posteod function
-  .save.postreplay[hdbsettings[`hdbdir];pt];
-  $[permitreload; 
-    doreload[pt];
-    if[gc;.gc.run[]];
-    ];
-  };
-	
+  if[not .finspace.enabled;
+          $[(0 < count .z.pd[]) and ((system "s")<0);
+                  [.lg.o[`merge;"merging on worker"];
+                  {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+                  /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method
+                  if[(mergemode~`hybrid)or(mergemode~`part);
+                          {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
+                          ];
+                  merge[dir;pt;;mergelimits;hdbsettings;mergemethod] peach flip (key tablist;value tablist);
+                  /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
+                  .lg.o[`eod;"Delete from partsizes"];
+                  delete from `.merge.partsizes;
+                  {(neg x)({.lg.o[`eod;"Delete from partsizes"];
+                  delete from `.merge.partsizes;
+                  /- run a garbage collection if enabled
+                  if[gc;.gc.run[]]};`);
+                          (neg x)(::)} each .z.pd[];
+                          ];
+                  [.lg.o[`merge;"merging on main"];reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
+                  merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
+                  .lg.o[`eod;"Delete from partsizes"];
+                  delete from `.merge.partsizes;
+                  ]
+          ];
+  ];
+        /- if path exists, delete it
+        if[not () ~ key savedir;
+                  .lg.o[`merge;"deleting temp storage directory"];
+                  .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
+                  ];
+        /-call the posteod function
+        .save.postreplay[hdbsettings[`hdbdir];pt];
+        $[permitreload;
+                doreload[pt];
+                if[gc;.gc.run[]];
+                ];
+  };	
 /- end of day sort [depends on writedown mode]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
 	/- set compression level (.z.zd)
