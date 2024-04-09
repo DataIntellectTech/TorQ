@@ -184,7 +184,7 @@ adjustqueries:{[options;part]
     // if the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // create list of all available partitions
-    possParts:raze value procdict;
+    possparts:raze value procdict;
 
     //group partitions to relevant process
     partitions:group key[part]where each{within[y;]each value x}[part]'[possParts];
