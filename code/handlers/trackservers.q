@@ -162,10 +162,15 @@ retrydiscovery:{
         // register with the newly opened discovery services
         if[DISCOVERYREGISTER and count h:exec w from .servers.SERVERS[d] where .dotz.liveh w;
             .lg.o[`conn;"registering with discovery services"];
-            @[;(`..register;`);()] each neg h];
+            @[;(`..register;`);()] each neg h;
+            ]; 
         if[CONNECTIONSFROMDISCOVERY and count h;
             registerfromdiscovery[$[`discovery in CONNECTIONS;(CONNECTIONS,()) except `discovery;CONNECTIONS];0b]];
-        ]}
+        // only relevant for finspace. This should be handled with .z.pc and .z.po in standard TorQ
+        if[.finspace.enabled and count h;      
+            if[.proc.proctype in REFRESHONSTARTPROCS;
+              [first neg h](`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any)]];
+        ]};
 
 // Called by the discovery service when it restarts
 autodiscovery:{if[DISCOVERYRETRY>0; .servers.retrydiscovery[]]}
