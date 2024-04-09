@@ -167,9 +167,7 @@ retrydiscovery:{
         if[CONNECTIONSFROMDISCOVERY and count h;
             registerfromdiscovery[$[`discovery in CONNECTIONS;(CONNECTIONS,()) except `discovery;CONNECTIONS];0b]];
         // only relevant for finspace. This should be handled with .z.pc and .z.po in standard TorQ
-        if[.finspace.enabled and count h;      
-            if[.proc.proctype in REFRESHONSTARTPROCS;
-              [first neg h](`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any)]];
+        if[.finspace.enabled and count h; reqdiscoveryretryallfinspaceconn[first h]];
         ]};
 
 // Called by the discovery service when it restarts

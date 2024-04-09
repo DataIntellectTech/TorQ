@@ -30,16 +30,30 @@
     if[null tgtidx; :()];
     .lg.o[`refreshconntoprocfromdiscovery;"tgtidx in servers.SERVERS for process ",(string dict[`procname])," is ",-3!tgtidx];
     doretry: $[dict[`procname] like "gateway*"; .servers.refreshconntoprocgatewaychk[h;tgtidx]; 1b]; //gateway special case
-    if[doretry; [neg h](`.servers.retryrows;tgtidx)]; 
+    if[doretry; [neg h](`.servers.retryrows;tgtidx)];
  };
 
-.servers.refreshconntoprocfromdiscovery:{[targetproc;sourceprocs]
+.servers.refreshconntoprocfromdiscovery:{[targetproc;sourceprocs;postsignature]
   if[not (fType:type targetproc) in -11h; .lg.o[`refreshconntoprocfromdiscovery;"targetproc must be a symbol. Got ",-3!fType]; :()];
   if[not (fType:type sourceprocs) in (11h;-11h); .lg.o[`refreshconntoprocfromdiscovery;"sourceprocs must be a symbol or list of symbols. Got ",-3!fType]; :()];
-  //if[not .proc.proctype in .servers.REFRESHONSTARTPROCS; .lg.o[`refreshconntoprocfromdiscovery;"proctype ",(string .proc.proctype)," will not force refresh connections on startup"]; :()];
 
   if[`Any~sourceprocs; sourceprocs:`];
   sources:select procname,w from .servers.getservers[`proctype;sourceprocs;()!();1b;0b] where procname<>targetproc;
    
   .servers.refreshconntoprocfromdiscoveryhelper[targetproc;] each sources;
+
+  .servers.postrefreshfromdiscovery[postsignature];
+ };
+
+.servers.reqdiscoveryretryallfinspaceconn:{[dhandle]
+    if[not .proc.proctype in .servers.REFRESHONSTARTPROCS; :()];
+    call:$[(::)~@[`.servers;`postrefreshfunc];
+      (`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any;({};`));
+      (`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any;.servers.postrefreshfunc)
+     ];
+    [neg dhandle]call
+  };          
+
+ .servers.postrefreshfromdiscovery:{[funcsig]
+    @[value;funcsig;{ .lg.e[`postrefreshfromdiscovery;"failed to execute postrefreshfunc due to error ",-3!x]}];
  };
