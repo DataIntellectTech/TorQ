@@ -199,7 +199,7 @@ adjustqueries:{[options;part]
    // if start/end time not a date, then adjust dates parameter for the correct types
     if[not a:-12h~tp:type start:options`starttime;
         // converts partitions dictionary to timestamps/datetimes
-        partitions:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[partitions];
+        partitions:$[-15h~tp;"z"$;]{(0D+x 0;x[1]+1D-1)}'[partitions];
         // convert first and last timestamp to start and end time
         partitions:@[partitions;f;:;(start;partitions[f:first key partitions;1])];
         partitions:@[partitions;l;:;(partitions[l:last key partitions;0];options`endtime)]];
