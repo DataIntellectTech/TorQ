@@ -262,6 +262,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
+  /- .z.pd funciton in finspace will cause an error. Add in this flag to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   if[not .finspace.enabled;
           $[count[.z.pd[]]&0>system"s";
                   [.lg.o[`sort;"sorting on worker sort", string .z.p];
@@ -325,6 +326,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
   /- merge data from partitons
+  /- .z.pd funciton in finspace will cause an error. Add in this flag to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   if[not .finspace.enabled;
           $[(0 < count .z.pd[]) and ((system "s")<0);
                   [.lg.o[`merge;"merging on worker"];
