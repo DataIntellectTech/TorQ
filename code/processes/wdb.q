@@ -168,6 +168,7 @@ endofday:{[pt;processdata]
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	.lg.o[`eod;"end of day is now complete"];
+  	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]];
 	.wdb.currentpartition:pt+1;
 	};
 	
