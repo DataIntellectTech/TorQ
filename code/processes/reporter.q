@@ -64,9 +64,9 @@ datecheck:{
 
 /- returns next nearest period timestamp, if period is 00:00:00 it will return start time and only runs once.
 nextperiod:{[start;end;period;curr] 
-	`timestamp$ .proc.cd[] + $[0i=`int$period;
+	$[0i=`int$period;
 				start;
-				first d where (d:s + sums 0,(`int$((`time$end)-s:`time$start)%p)#p:`time$period) >= `time$curr]}
+				first d where (d:start + sums 0,(`int$((`time$end)-s:`time$start)%p)#p:`time$period) >= `time$curr]}
 
 /- checks if any queries have timed out
 checktimeout:{
@@ -116,12 +116,12 @@ runreport:{[tab]
 		`..timerids upsert 1!select id,periodend:nextrun from .timer.timer where fp~/:funcparam;
 	:()];
         / - if timezone is specified convert the start and end timestamps to the time used by the system 
-	startts:?[not null tab[`timezone];ltime[.tz.ttz[`GMT;tab[`timezone];startts]];startts];
-        endts:?[not null tab[`timezone];ltime[.tz.ttz[`GMT;tab[`timezone];endts]];endts];
+    startts:?[not null tab[`timezone];.tz.ttz[`GMT;tab[`timezone];gtime[startts]];startts];
+    endts:?[not null tab[`timezone];.tz.ttz[`GMT;tab[`timezone];gtime[endts]];endts];
         / - if the current time is within the start and end timestamps, use current time as start time, else use the startts
 	/ - work out the start time for the timer. For example a report could run every day from 10am to 6pm every 5 mins, if the reporter
 	/ - is started at 1:11pm, we need to know that the report should start 1:15pm and then run every 5 mins there after
-	startts: nextperiod[startts;endts;tab`period;] $[.proc.cp[] within startts,endts;.proc.cp[];startts];
+	/ startts: nextperiod[startts;endts;tab`period;] $[.proc.cp[] within startts,endts;.proc.cp[];startts];
 	/ - escape if the report havs already been registered on the timer
 	if[count select from .timer.timer where fp~/:funcparam;:()];
 	/ - register the report on the timer
