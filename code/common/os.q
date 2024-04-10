@@ -15,8 +15,3 @@ run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
 sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
-
-//override definitions if finspace enabled
-if[.finspace.enabled;
-  sleep:{t:.z.p; while[.z.p<t+`second$x;]};
-]

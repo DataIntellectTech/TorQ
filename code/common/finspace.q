@@ -7,6 +7,19 @@ database:@[value;`database;"database"];                     //name of the finspa
 hdbclusters:@[value;`hdbclusters;enlist `cluster];          //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
 rdbready:@[value;`rdbready;0b];                             //whether or not the rdb is running and ready to take over at the next period- set to false by default
 
+// wrapper around the .aws.get_kx_cluster api
+getcluster:{[cluster]
+   .lg.o[`getcluster;"getting cluster with name ",string[cluster]];
+   resp:@[.aws.get_kx_cluster;string[cluster];{
+     msg:"failed to call .aws.get_kx_cluster api due to error: ",-3!x;
+     .lg.e[`getcluster;msg];
+     `status`msg!("FAILURE";msg)}];
+   if[`finspace_error_code in key resp;
+      .lg.e[`getcluster;"failed to call .aws.get_kx_cluster api: ",resp[`message]];
+      :`status`msg!("FAILURE";resp[`message])];
+   :resp
+ };
+
 / Runs a .aws api until a certain status has been received
 checkstatus:{[apicall;status;frequency;timeout]
   res:value apicall;
@@ -31,6 +44,13 @@ createchangeset:{[db]
       :details;
   };
 
+getclusterdatabasefield:{[cluster;keyname]
+   resp:getcluster[cluster];
+   if[count dbinfo:@[resp;`databases];
+       :raze @[dbinfo;keyname]];
+   ""
+  };
+
 // Notifies the HDB clusters to repoint to the new changeset once it has finished creating
 notifyhdb:{[cluster;changeset]
       
@@ -39,7 +59,7 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      usecache:"/opt/kx/app/scratch"~getenv[`KDBSCRATCH];
+      usecache:$[""~.finspace.getclusterdatabasefield[cluster;`cacheConfigurations];0b;1b];
       awsdb:$[usecache;
           .aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
           .aws.db[.finspace.database;changeset[`id];();.rdb.hdbdataviewname]
