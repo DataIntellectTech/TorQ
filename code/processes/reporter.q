@@ -117,7 +117,7 @@ runreport:{[tab]
 	:()];
         / - if timezone is specified convert the start and end timestamps to the time used by the system 
     startts:?[not null tab[`timezone];.tz.ttz[`GMT;tab[`timezone];$[.proc.localtime;gtime[startts];startts]];startts];
-    endts:?[not null tab[`timezone];.tz.ttz[`GMT;tab[`timezone];?[.proc.localtime;gtime[endts];endts]];endts];
+    endts:?[not null tab[`timezone];.tz.ttz[`GMT;tab[`timezone];$[.proc.localtime;gtime[endts];endts]];endts];
         / - if the current time is within the start and end timestamps, use current time as start time, else use the startts
 	/ - work out the start time for the timer. For example a report could run every day from 10am to 6pm every 5 mins, if the reporter
 	/ - is started at 1:11pm, we need to know that the report should start 1:15pm and then run every 5 mins there after
