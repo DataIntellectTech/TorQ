@@ -3,6 +3,7 @@
 
 enabled:@[value;`enabled;0b];                               //whether the application is finspace or on prem - set to false by default
 database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
+dataview:@[value;`dataview;"finspace-dataview"];
 
 hdbclusters:@[value;`hdbclusters;enlist `cluster];          //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
 rdbready:@[value;`rdbready;0b];                             //whether or not the rdb is running and ready to take over at the next period- set to false by default
@@ -39,8 +40,8 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      awsdb:.aws.db[.finspace.database;changeset[`id];.aws.cache["CACHE_1000";"/"];""];
-      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep["NO_RESTART"]]
+       awsdb:.aws.db[.finspace.database;changeset[`id];();.finspace.dataview];
+       .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep["ROLLING"]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
 
