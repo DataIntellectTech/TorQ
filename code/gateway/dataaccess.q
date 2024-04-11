@@ -210,7 +210,7 @@ adjustqueries:{[options;part]
             aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
             options:@[options;`aggregations;:;aggs]]];
 
-   // create a dictionary of procs and different queries
+    // create a dictionary of procs and different queries
     :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[partitions];
     };
 
