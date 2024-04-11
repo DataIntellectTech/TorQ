@@ -42,7 +42,7 @@ getdata:{[inputparams]
   if[not 0~count (queryparams`ordering);
     table:f[table;;queryparams`ordering]/[1;last til count (queryparams`ordering)]];         
 // rename the columns  
-  result:queryparams[`renamecolumn] xcol table;  
+  result:queryparams[`renamecolumn] xcol table; 
 // apply post-processing function if called in process or query to single process called from gateway
     if[(10b~in[`postprocessing`procs;key inputparams])or((1b~`postprocessing in key inputparams)and(1~count inputparams `procs));
         result:.eqp.processpostback[result;inputparams`postprocessing]];
