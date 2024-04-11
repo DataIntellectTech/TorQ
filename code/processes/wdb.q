@@ -40,6 +40,7 @@ mergenumrows:@[value;`mergenumrows;100000];                                /-def
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
+hdbnames:@[value;`hdbnames;()];                                            /-list of hdb names to search for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
@@ -160,13 +161,29 @@ endofday:{[pt;processdata]
 	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
 	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
+	/ Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+			];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)
+		if[.finspace.enabled;
+                        changeset:.finspace.createchangeset[.finspace.database];
+                        ];
+		];
+	
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+	/-notify all hdbs
+	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
+	$[.finspace.enabled;
+                .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+                notifyhdb[;pt] each hdbs
+                ];
 	.lg.o[`eod;"end of day is now complete"];
   	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]];
 	.wdb.currentpartition:pt+1;
@@ -252,7 +269,9 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
-  $[count[.z.pd[]]&0>system"s";
+  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  tempfix1:$[.finspace.enabled;0b;count[.z.pd[]]];
+  $[tempfix1&0>system"s";
     [.lg.o[`sort;"sorting on worker sort", string .z.p];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
@@ -314,7 +333,9 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
   /- merge data from partitons
-  $[(0 < count .z.pd[]) and ((system "s")<0);
+  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  tempfix2:$[.finspace.enabled;0b;(0 < count .z.pd[])];
+  $[tempfix2 and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method 
@@ -505,6 +526,14 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
+
+hdbmessage:{[d] (`reload;d)}
+
+/-function to reload an hdb
+notifyhdb:{[h;d]
+	/-if you can connect to the hdb - call the reload function 
+	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
+	};
 
 \d .
 
