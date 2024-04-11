@@ -187,8 +187,8 @@ adjustqueries:{[options;part]
     possparts:raze value procdict;
 
     //group partitions to relevant process
-    partitions:group key[part]where each{within[y;]each value x}[part]'[possParts];
-    partitions:possParts{(min x;max x)}'[partitions];
+    partitions:group key[part]where each{within[y;]each value x}[part]'[possparts];
+    partitions:possparts{(min x;max x)}'[partitions];
     partitions:`timestamp$partitions;
 
     // adjust the times to account for period end time when int partitioned
