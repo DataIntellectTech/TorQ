@@ -204,13 +204,13 @@ adjustqueries:{[options;part]
         partitions:@[partitions;f;:;(start;partitions[f:first key partitions;1])];
         partitions:@[partitions;l;:;(partitions[l:last key partitions;0];options`endtime)]];
 
-   // adjust map reducable aggregations to get correct components
+    // adjust map reducable aggregations to get correct components
     if[(1<count partitions)&`aggregations in key options;
         if[all key[o:options`aggregations]in key aggadjust;
             aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
             options:@[options;`aggregations;:;aggs]]];
 
-  // create a dictionary of procs and different queries
+   // create a dictionary of procs and different queries
     :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[partitions];
     };
 
