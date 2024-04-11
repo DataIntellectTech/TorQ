@@ -157,7 +157,7 @@ partdict:{[input]
     // extract the procs which have the table defined
     servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // Create a dictionary of the attributes against servertypes
-    procdict:exec servertype!attributes[;`partition] from servers
+    procdict:exec servertype!attributes[;`partition] from servers;
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
