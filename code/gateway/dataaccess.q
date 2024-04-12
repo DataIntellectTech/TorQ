@@ -194,7 +194,7 @@ adjustqueries:{[options;part]
     // adjust the times to account for period end time when int partitioned
     c:first[partitions`hdb],-1+ first[partitions`rdb];
     d:first[partitions`rdb],options `endtime;
-    partitions:@[partitions;`hdb`rdb;:;(c;d)];
+    partitions:@[@[partitions;`hdb;:;c];`rdb;:;d];
 
    // if start/end time not a date, then adjust dates parameter for the correct types
     if[not a:-12h~tp:type start:options`starttime;
