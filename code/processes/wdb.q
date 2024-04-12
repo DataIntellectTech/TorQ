@@ -171,9 +171,7 @@ endofday:{[pt;processdata]
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)
-		if[.finspace.enabled;
-                        changeset:.finspace.createchangeset[.finspace.database];
-                        ];
+		if[.finspace.enabled;changeset:.finspace.createchangeset[.finspace.database]];
 		];
 	
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
