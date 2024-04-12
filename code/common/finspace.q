@@ -47,14 +47,6 @@ createchangeset:{[db]
       :details;
   };
 
-// retrieve information about the cluster database configurations
-getclusterdatabasefield:{[cluster;keyname]
-   resp:getcluster[cluster];
-   if[count dbinfo:@[resp;`databases];
-       :raze @[dbinfo;keyname]];
-   ""
-  };
-
 // Notifies the HDB clusters to repoint to the new changeset once it has finished creating
 notifyhdb:{[cluster;changeset]
       
