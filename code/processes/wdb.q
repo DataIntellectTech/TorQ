@@ -160,13 +160,27 @@ endofday:{[pt;processdata]
 	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
 	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
+	/- Need to download sym file to scratch directory if this is Finspace application
+    if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+			.aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+        ];
+
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
-	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+	if[.finspace.enabled;
+                    changeset:.finspace.createchangeset[.finspace.database];
+        ];
+        $[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+        hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
+        $[.finspace.enabled;
+                     .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
+		     notifyhdb[;pt] each hdbs
+        ];
 	.lg.o[`eod;"end of day is now complete"];
   	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]];
 	.wdb.currentpartition:pt+1;
