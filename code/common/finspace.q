@@ -44,6 +44,7 @@ createchangeset:{[db]
       :details;
   };
 
+// retrieve information about the cluster database configurations
 getclusterdatabasefield:{[cluster;keyname]
    resp:getcluster[cluster];
    if[count dbinfo:@[resp;`databases];
