@@ -40,7 +40,6 @@ mergenumrows:@[value;`mergenumrows;100000];                                /-def
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
-hdbnames:@[value;`hdbnames;()];                                            /-list of hdb names to search for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
@@ -175,15 +174,11 @@ endofday:{[pt;processdata]
                         changeset:.finspace.createchangeset[.finspace.database];
                         ];
 		];
-	
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	/-notify all hdbs
-	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
-	$[.finspace.enabled;
-                .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
-                notifyhdb[;pt] each hdbs
-                ];
+	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype;hdbtypes];
+	if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
 	.lg.o[`eod;"end of day is now complete"];
 	.wdb.currentpartition:pt+1;
 	};
@@ -525,14 +520,6 @@ getsortparams:{[]
 		.lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
 	];
 	};	
-
-hdbmessage:{[d] (`reload;d)}
-
-/-function to reload an hdb
-notifyhdb:{[h;d]
-	/-if you can connect to the hdb - call the reload function 
-	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
-	};
 
 \d .
 
