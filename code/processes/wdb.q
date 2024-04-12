@@ -174,8 +174,7 @@ endofday:{[pt;processdata]
 		];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
-	/-notify all hdbs
-	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype;hdbtypes];
+	/-notify all finspace hdbs
 	if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
 	.lg.o[`eod;"end of day is now complete"];
 	.wdb.currentpartition:pt+1;
