@@ -160,13 +160,22 @@ endofday:{[pt;processdata]
 	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
 	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
 	tablist:tablelist[]!{0#value x} each tablelist[];
+	/ Need to download sym file to scratch directory if this is Finspace application
+        if[.finspace.enabled;
+                        .lg.o[`createchangeset;"downloading sym file to scratch directory for ",.finspace.database];
+                        .aws.get_latest_sym_file[.finspace.database;getenv[`KDBSCRATCH]];
+			];
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod)];
+		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);
+		if[.finspace.enabled;changeset:.finspace.createchangeset[.finspace.database]];
+		];
 	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
+	/-notify all finspace hdbs
+	if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
 	.lg.o[`eod;"end of day is now complete"];
   	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]];
 	.wdb.currentpartition:pt+1;
@@ -252,7 +261,9 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
-  $[count[.z.pd[]]&0>system"s";
+  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  tempfix1:$[.finspace.enabled;0b;count[.z.pd[]]];
+  $[tempfix1&0>system"s";
     [.lg.o[`sort;"sorting on worker sort", string .z.p];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tablist,'.Q.par[dir;pt;] each tablist];
@@ -314,7 +325,9 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
 	
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
   /- merge data from partitons
-  $[(0 < count .z.pd[]) and ((system "s")<0);
+  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  tempfix2:$[.finspace.enabled;0b;(0 < count .z.pd[])];
+  $[tempfix2 and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
      /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method 
