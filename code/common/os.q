@@ -9,7 +9,7 @@ deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
 hdeldir:{[dirpath]
  diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
  nuke:hdel each desc 1_diR@;
- .lg.o[`deldir;"deleting from  directory"];
+ .lg.o[`deldir;"deleting from  directory: ", raze string dirpath];
  nuke hsym`$dirpath}
 md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
 ren:{system("mv ";"move ")[NT],pth[x]," ",pth y}
