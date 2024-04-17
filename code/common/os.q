@@ -8,7 +8,7 @@ del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
 hdeldir:{[dirpath]
  diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
- nuke:hdel each desc diR@;
+ nuke:hdel each desc 1_diR@;
  nuke hsym`$dirpath;
  .lg.o[`deldir;"deleting from  directory"]}
 md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
