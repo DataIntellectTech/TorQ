@@ -6,11 +6,13 @@ pth:{if[10h<>type x;x:string x]; if[NT;x:@[x;where"/"=x;:;"\\"]];$[":"=first x;1
 ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
-hdeldir:{[dirpath]
+hdeldir:{[dirpath;pdir]
+ dirpath:$[10h=a:type dirpath;dirpath;-11h=a;string dirpath;'`type];
  diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
- nuke:hdel each desc diR@;
- nuke hsym`$dirpath;
- .lg.o[`deldir;"deleting from  directory"]}
+ filelist:diR hsym`$dirpath;
+ if[not pdir;filelist:1_filelist];
+ .lg.o[`deldir;"deleting from  directory : ",dirpath];
+ hdel each desc filelist}
 md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
 ren:{system("mv ";"move ")[NT],pth[x]," ",pth y}
 cpy:{system("cp ";"copy ")[NT],pth[x]," ",pth y}
