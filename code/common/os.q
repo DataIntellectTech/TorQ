@@ -6,9 +6,8 @@ pth:{if[10h<>type x;x:string x]; if[NT;x:@[x;where"/"=x;:;"\\"]];$[":"=first x;1
 ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
-hdeldir:{[dirpath]
+hdeldir:{[dirpath;pdir]
  dirpath:$[10h=a:type dirpath;dirpath;-11h=a;string dirpath;'`type];
- if[()~dirpath;:()];
  diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
  filelist:diR hsym`$dirpath;
  if[not pdir;filelist:1_filelist];
