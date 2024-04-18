@@ -1,6 +1,6 @@
 .servers.FINSPACEDISC:@[value; `.servers.FINSPACEDISC; 0b];
 .servers.FINSPACECLUSTERSFILE:@[value; `.servers.FINSPACECLUSTERSFILE; hsym `];
-.servers.REFRESHONSTARTPROCS:enlist `hdb;
+//.servers.REFRESHONSTARTPROCS:enlist `hdb;
 
 .servers.listfinspaceclusters:{
     :@[.aws.list_kx_clusters; `; {.lg.e[`listfinspaceclusters; "Failed to get finspace clusters using the finspace API - ",x]}];
@@ -47,7 +47,7 @@
  };
 
 .servers.reqdiscoveryretryallfinspaceconn:{[dhandle]
-    if[not .proc.proctype in .servers.REFRESHONSTARTPROCS; :()];
+    //if[not .proc.proctype in .servers.REFRESHONSTARTPROCS; :()];
     call:$[(::)~@[`.servers;`postrefreshfunc];
       (`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any;({};`));
       (`.servers.refreshconntoprocfromdiscovery;.proc.procname;`Any;.servers.postrefreshfunc)
