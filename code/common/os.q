@@ -7,6 +7,8 @@ ext:{`$(x?".")_(x:string x;x)[i:10h=type x]}
 del:{system("rm ";"del ")[NT],pth x}
 deldir:{system("rm -r ";"rd /s /q ")[NT],pth x}
 hdeldir:{[dirpath]
+ dirpath:@[{[x] $[10h~a:type x;x;-11h~a;string x;'`err]};dirpath;{.lg.e[`hdeldir;"Invalid data type for directory path"]}];
+ if[()~dirpath;:()];
  diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
  nuke:hdel each desc 1_diR@;
  .lg.o[`deldir;"deleting from  directory: ",raze string dirpath];
