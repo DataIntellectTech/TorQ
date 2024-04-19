@@ -46,6 +46,14 @@ if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb p
 
 cleartable:{[t].lg.o[`writedown;"clearing table ",string t]; @[`.;t;0#]}
 
+cleartabledelayed:{[p;t;idx] 
+  .lg.o[`cleartabledelayed;"removing from table ",(string t)," less than row ",-3!idx];
+  if[neweodcounts[t;0];
+     delete from t where i < idx;
+     neweodcounts[t]:(0b;0)
+   ];
+ }
+
 savetable:{[d;p;t]
 	/-flag to indicate if save was successful - must be set to true first incase .rdb.savetables is set to false
 	c:1b;
@@ -57,6 +65,7 @@ savetable:{[d;p;t]
 		/-print the result of saving the table
 		$[first c;.lg.o[`savetable;"successfully saved table ",string t];
 			.lg.e[`savetable;"failed to save table ",(string t),", error was: ", c 1]]];
+	if[.finspace.enabled; neweodcounts[t]:(c;cnt); if[gc;.gc.run[]]; :()];
 	/-clear tables based on flags provided earlier
 	$[onlyclearsaved;
 		$[first c;cleartable[t];
@@ -100,6 +109,7 @@ endofday:{[date;processdata]
 			.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
 			.lg.o[`endofday;"Escaping end of day function"];:()];
 	t:tables[`.] except ignorelist;
+	neweodcounts::t!{(1b;count value x)} each t;
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
