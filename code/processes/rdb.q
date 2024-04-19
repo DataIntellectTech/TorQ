@@ -122,7 +122,7 @@ endofday:{[date;processdata]
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
                      notifyhdb[;date] each hdbs
         ];
-  	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]]
+  	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]]
 	};
 	
 reload:{[date]

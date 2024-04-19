@@ -177,7 +177,7 @@ endofday:{[pt;processdata]
 	/-notify all finspace hdbs
 	if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
 	.lg.o[`eod;"end of day is now complete"];
-  	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH]]];
+  	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
 	.wdb.currentpartition:pt+1;
 	};
 	
