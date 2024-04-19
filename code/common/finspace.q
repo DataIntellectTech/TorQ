@@ -4,9 +4,24 @@
 enabled:@[value;`enabled;0b];                               //whether the application is finspace or on prem - set to false by default
 database:@[value;`database;"database"];                     //name of the finspace database applicable to a certain RDB cluster - Not used if on prem
 dataview:@[value;`dataview;"finspace-dataview"];
+cache:@[value;`cache;()];
+hdbreloadmode:@[value;`hdbreloadmode;"ROLLING"];
 
 hdbclusters:@[value;`hdbclusters;enlist `cluster];          //list of clusters to be reloaded during the rdb end of day (and possibly other uses)
 rdbready:@[value;`rdbready;0b];                             //whether or not the rdb is running and ready to take over at the next period- set to false by default
+
+// wrapper around the .aws.get_kx_cluster api
+getcluster:{[cluster]
+   .lg.o[`getcluster;"getting cluster with name ",string[cluster]];
+   resp:@[.aws.get_kx_cluster;string[cluster];{
+     msg:"failed to call .aws.get_kx_cluster api due to error: ",-3!x;
+     .lg.e[`getcluster;msg];
+     `status`msg!("FAILURE";msg)}];
+   if[`finspace_error_code in key resp;
+      .lg.e[`getcluster;"failed to call .aws.get_kx_cluster api: ",resp[`message]];
+      :`status`msg!("FAILURE";resp[`message])];
+   :resp
+ };
 
 / Runs a .aws api until a certain status has been received
 checkstatus:{[apicall;status;frequency;timeout]
@@ -40,8 +55,8 @@ notifyhdb:{[cluster;changeset]
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
       .lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
-      awsdb:.aws.db[.finspace.database;changeset[`id];();.finspace.dataview];
-      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep["ROLLING"]]
+      awsdb:.aws.db[.finspace.database;changeset[`id];.finspace.cache;.finspace.dataview];
+      .aws.update_kx_cluster_databases[string[cluster];.aws.sdbs[awsdb];.aws.sdep[.finspace.hdbreloadmode]]
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
    }
 
