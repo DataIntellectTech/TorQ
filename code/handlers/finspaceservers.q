@@ -38,7 +38,7 @@
   if[not (fType:type sourceprocs) in (11h;-11h); .lg.o[`refreshconntoprocfromdiscovery;"sourceprocs must be a symbol or list of symbols. Got ",-3!fType]; :()];
   .lg.o[`refreshconntoprocfromdiscovery;"downstreaming request to refresh connection to ",string targetproc];
 
-  if[sourceprocs~/:(`;`Any); sourceprocs:`];
+  if[any sourceprocs~/:(`;`Any); sourceprocs:`];
   sources:select procname,w from .servers.getservers[`proctype;sourceprocs;()!();1b;0b] where procname<>targetproc;
    
   .servers.refreshconntoprocfromdiscoveryhelper[targetproc;] each sources;
