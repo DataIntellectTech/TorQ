@@ -24,14 +24,17 @@ getdata:{[inputparams]
   if[(.proc.proctype=`rdb);
   // change defaulttime.date to date on rdb process query result
     if[(`$(string .checkinputs.getdefaulttime inputparams),".date") in (cols table);
-      table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];    
-  // adds date column when all columns are quried from the rdb process for both keyed and unkeyed results
-    if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));   
-        table:update date:.z.d from table;                                                    
-      if[98h=type table;table:`date xcols table]                                              
+      table:?[(cols table)<>`$(string .checkinputs.getdefaulttime[inputparams]),".date";cols table;`date] xcol table];
+  // adds partition column when all columns are quried from the rdb process for both keyed and unkeyed results
+    if[(1 < count inputparams`procs) & (all (cols inputparams`tablename) in (cols table));
+        //get appropriate column name based on partition type
+         colname:$[-7h~type .rdb.getpartition[];`int;`date];
+        //update table to include col of current partition value
+        table:![table;();0b;enlist[colname]!(), .rdb.rdbpartition];
+      if[98h=type table;table:colname xcols table];
       if[99h=type table;keycol:cols key table;
         table:0!table;
-        table:`date xcols table;
+        table:colname xcols table;
         table:keycol xkey table]];
   ];
   f:{[input;x;y]y[x] input};

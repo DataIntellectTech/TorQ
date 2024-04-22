@@ -135,12 +135,14 @@ mapreduceres:{[options;res]
 // Dynamic routing finds all processes with relevant data 
 attributesrouting:{[options;procdict]
     // Get the tablename and timespan
-    timespan:`date$options[`starttime`endtime];
+    timespan:$[7h~tp:type first value procdict;`long$options[`starttime`endtime];`date$options[`starttime`endtime]];
+    //if int partitioned adjust rdb partition range to cover all periods up to days end to facilitate correct grouping of partitions
+    if[`rdb in key procdict and 7h~tp; procdict[`rdb]:(first[procdict `rdb];-1+`long$01D00 + last procdict `rdb)];
     // See if any of the provided partitions are with the requested ones
     procdict:{[x;timespan] (all x within timespan) or any timespan within x}[;timespan] each procdict;
-    // Only return appropriate dates
+    // Only return appropriate partitions
     types:(key procdict) where value procdict;
-    // If the dates are out of scope of processes then error
+    // If the partitions are out of scope of processes then error
     if[0=count types;
         '`$"gateway error - no info found for that table name and time range. Either table does not exist; attributes are incorect in .gw.servers on gateway, or the date range is outside the ones present"
        ];
@@ -155,7 +157,7 @@ partdict:{[input]
     // extract the procs which have the table defined
     servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // Create a dictionary of the attributes against servertypes
-    procdict:(exec servertype from servers)!(exec attributes from servers)@'(key each exec attributes from servers)[;0];
+    procdict:exec servertype!attributes[;`partition] from servers;
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
@@ -171,27 +173,45 @@ partdict:{[input]
 adjustqueries:{[options;part]
     // if only one process then no need to adjust
     if[2>count p:options`procs;:options];
-    // get the date casting where relevant
-    st:$[a:-14h~tp:type start:options`starttime;start;`date$start];
-    et:$[a;options`endtime;`date$options`endtime];
-    // get the dates that are required by each process
-    dates:group key[part]where each{within[y;]each value x}[part]'[l:st+til 1+et-st];
-    dates:l{(min x;max x)}'[dates];
-    // if start/end time not a date, then adjust dates parameter for the
-    // correct types
-    if[not a;
-        // converts dates dictionary to timestamps/datetimes
-        dates:$[-15h~tp;{"z"$x};::]{(0D+x 0;x[1]+1D-1)}'[dates];
+    // get the tablename
+    tabname:options[`tablename];
+    // remove duplicate servertypes from the gw.servers
+    servers:select from .gw.servers where i=(first;i)fby servertype;
+    // extract the procs which have the table defined
+    servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
+    // create a dictionary of the attributes against servertypes
+    procdict:exec servertype!attributes[;`partition] from servers;
+    // if the response is a dictionary index into the tablename
+    procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
+    // create list of all available partitions
+    possparts:raze value procdict;
+
+    //group partitions to relevant process
+    partitions:group key[part]where each{within[y;]each value x}[part]'[possparts];
+    partitions:possparts{(min x;max x)}'[partitions];
+    partitions:`timestamp$partitions;
+
+    // adjust the times to account for period end time when int partitioned
+    c:first[partitions`hdb],-1+ first[partitions`rdb];
+    d:first[partitions`rdb],options `endtime;
+    partitions:@[@[partitions;`hdb;:;c];`rdb;:;d];
+
+    // if start/end time not a date, then adjust dates parameter for the correct types
+    if[not a:-12h~tp:type start:options`starttime;
+        // converts partitions dictionary to timestamps/datetimes
+        partitions:$[-15h~tp;"z"$;]{(0D+x 0;x[1]+1D-1)}'[partitions];
         // convert first and last timestamp to start and end time
-        dates:@[dates;f;:;(start;dates[f:first key dates;1])];
-        dates:@[dates;l;:;(dates[l:last key dates;0];options`endtime)]];
+        partitions:@[partitions;f;:;(start;partitions[f:first key partitions;1])];
+        partitions:@[partitions;l;:;(partitions[l:last key partitions;0];options`endtime)]];
+
     // adjust map reducable aggregations to get correct components
-    if[(1<count dates)&`aggregations in key options;
+    if[(1<count partitions)&`aggregations in key options;
         if[all key[o:options`aggregations]in key aggadjust;
             aggs:mapreduce[o;$[`grouping in key options;options`grouping;`]];
             options:@[options;`aggregations;:;aggs]]];
+
     // create a dictionary of procs and different queries
-    :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[dates];
+    :{@[@[x;`starttime;:;y 0];`endtime;:;y 1]}[options]'[partitions];
     };
 
 // function to grab the correct aggregations needed for aggregating over
