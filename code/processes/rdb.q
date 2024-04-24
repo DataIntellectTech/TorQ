@@ -60,7 +60,7 @@ savetable:{[d;p;t]
 	/-save the tables 
 	if[savetables;
 		@[.sort.sorttab;t;{[t;e] .lg.e[`savetable;"Failed to sort ",string[t]," due to the follwoing error: ",e]}[t]];
-		.lg.o[`savetable;"attempting to save ",(string count value t)," rows of table ",(string t)," to ",string d];
+		.lg.o[`savetable;"attempting to save ",(string cnt:count value t)," rows of table ",(string t)," to ",string d];
 		c:.[{[d;p;t] (` sv .Q.par[d;p;t],`) set .Q.en[d;.save.manipulate[t;value t]]; (1b;`)};(d;p;t);{(0b;x)}];
 		/-print the result of saving the table
 		$[first c;.lg.o[`savetable;"successfully saved table ",string t];
