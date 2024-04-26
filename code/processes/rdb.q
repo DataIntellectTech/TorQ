@@ -46,7 +46,7 @@ if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb p
 
 cleartable:{[t].lg.o[`writedown;"clearing table ",string t]; @[`.;t;0#]}
 
-cleartabledelayed:{[p;t;idx] 
+cleartabledelayed:{[t;idx] 
   .lg.o[`cleartabledelayed;"removing from table ",(string t)," less than row ",-3!idx];
   delete from t where i < idx;
   neweodcounts[t]:0
