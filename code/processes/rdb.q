@@ -46,17 +46,24 @@ if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb p
 
 cleartable:{[t].lg.o[`writedown;"clearing table ",string t]; @[`.;t;0#]}
 
+cleartabledelayed:{[p;t;idx] 
+  .lg.o[`cleartabledelayed;"removing from table ",(string t)," less than row ",-3!idx];
+  delete from t where i < idx;
+  neweodcounts[t]:0
+ }
+
 savetable:{[d;p;t]
 	/-flag to indicate if save was successful - must be set to true first incase .rdb.savetables is set to false
 	c:1b;
 	/-save the tables 
 	if[savetables;
 		@[.sort.sorttab;t;{[t;e] .lg.e[`savetable;"Failed to sort ",string[t]," due to the follwoing error: ",e]}[t]];
-		.lg.o[`savetable;"attempting to save ",(string count value t)," rows of table ",(string t)," to ",string d];
+		.lg.o[`savetable;"attempting to save ",(string cnt:count value t)," rows of table ",(string t)," to ",string d];
 		c:.[{[d;p;t] (` sv .Q.par[d;p;t],`) set .Q.en[d;.save.manipulate[t;value t]]; (1b;`)};(d;p;t);{(0b;x)}];
 		/-print the result of saving the table
 		$[first c;.lg.o[`savetable;"successfully saved table ",string t];
 			.lg.e[`savetable;"failed to save table ",(string t),", error was: ", c 1]]];
+	if[.finspace.enabled; neweodcounts[t]:cnt; if[gc;.gc.run[]]; :()];
 	/-clear tables based on flags provided earlier
 	$[onlyclearsaved;
 		$[first c;cleartable[t];
@@ -94,12 +101,14 @@ endofday:{[date;processdata]
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];
+			neweodcounts:: ignorelist _ eodtabcount;
 			.lg.o[`endofday;"reload is enabled - storing counts of tables at EOD : ",.Q.s1 eodtabcount];
 			/-set eod attributes on gateway for rdb
 			gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
 			.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
 			.lg.o[`endofday;"Escaping end of day function"];:()];
 	t:tables[`.] except ignorelist;
+	neweodcounts::t!{count value x} each t;
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables

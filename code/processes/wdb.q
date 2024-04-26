@@ -168,7 +168,7 @@ endofday:{[pt;processdata]
 	/ - if save mode is enabled then flush all data to disk
 	if[saveenabled;
 		endofdaysave[savedir;pt];
-		eodcounts:k!{(1b;.wdb.tabsizes[x;`rowcount])} each k:exec tablename from tabsizes;
+		//eodcounts:k!{(1b;.wdb.tabsizes[x;`rowcount])} each k:exec tablename from tabsizes;
 		/ - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);
 		if[.finspace.enabled;changeset:.finspace.createchangeset[.finspace.database]];
