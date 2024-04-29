@@ -6,7 +6,7 @@ dashparams:`o`w`r`limit!(0;0i;0i;0W)
 
 // function to be called from the dashboards
 dashexec:{[q;s;j]
- .gw.asyncexecjpt[(dashremote;q;dashparams);(),s;dashjoin[j];();0Wn]
+ .gw.syncexecj[q;(),s;j]
  }
 
 // execute the request
@@ -31,7 +31,6 @@ dashps:{
    [dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0]);
     // execute the query part, which must look something like
     // .kxdash.dashexec["select from t";`rdb`hdb;raze]
-    value x[4;1];
     ];
    //
    value x]
@@ -42,6 +41,9 @@ dashps:{
 // reformat those responses to look the same
 formatresponse:{[status;sync;result]
   if[`kxdash~first result;
+  .test.status:status;
+  .test.sync:sync;
+  .test.result:result;
   res:last result;
   :$[res`status;
     (`.dash.rcv_msg;res`w;res`o;res`r;res`result);
@@ -57,5 +59,5 @@ init:{
  // incorporate dashps into the .z.ps definition
  .dotz.set[`.z.ps;{x@y;.kxdash.dashps y}@[value;.dotz.getcommand[`.z.ps];{{value x}}]];
  };
- 
+
 if[enabled;init[]];
