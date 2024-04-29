@@ -41,9 +41,6 @@ dashps:{
 // reformat those responses to look the same
 formatresponse:{[status;sync;result]
   if[`kxdash~first result;
-  .test.status:status;
-  .test.sync:sync;
-  .test.result:result;
   res:last result;
   :$[res`status;
     (`.dash.rcv_msg;res`w;res`o;res`r;res`result);
