@@ -196,7 +196,7 @@ deleteoldhdb:{[]
         $[.finspace.enabled;deleteoldhdb[];:()]
         };
 
-.proc.addinitlist(`.proc.deleteoldhdb;`);
+addinitlist(`.proc.deleteoldhdb;`);
 
 \d .lg
 
