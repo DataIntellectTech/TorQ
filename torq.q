@@ -192,6 +192,12 @@ if[.finspace.enabled;
 // check added for finspace to allow jsonlogs to be turned off - as default is to use jsonlogs
 if["false"~lower first params`jsonlogs;params _:`jsonlogs];
 
+deleteoldhdb:{[]
+        $[.finspace.enabled;deleteoldhdb[];:()]
+        };
+
+.proc.addinitlist(`.proc.deleteoldhdb;`);
+
 \d .lg
 
 // Set the logging table at the top level
