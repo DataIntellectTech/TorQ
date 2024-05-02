@@ -46,12 +46,6 @@ if[not .timer.enabled;.lg.e[`rdbinit;"the timer must be enabled to run the rdb p
 
 cleartable:{[t].lg.o[`writedown;"clearing table ",string t]; @[`.;t;0#]}
 
-cleartabledelayed:{[t;idx] 
-  .lg.o[`cleartabledelayed;"removing from table ",(string t)," less than row ",-3!idx];
-  delete from t where i < idx;
-  neweodcounts[t]:0
- }
-
 savetable:{[d;p;t]
 	/-flag to indicate if save was successful - must be set to true first incase .rdb.savetables is set to false
 	c:1b;
@@ -63,7 +57,6 @@ savetable:{[d;p;t]
 		/-print the result of saving the table
 		$[first c;.lg.o[`savetable;"successfully saved table ",string t];
 			.lg.e[`savetable;"failed to save table ",(string t),", error was: ", c 1]]];
-	if[.finspace.enabled; neweodcounts[t]:cnt; if[gc;.gc.run[]]; :()];
 	/-clear tables based on flags provided earlier
 	$[onlyclearsaved;
 		$[first c;cleartable[t];
@@ -101,7 +94,6 @@ endofday:{[date;processdata]
 	/-if reloadenabled is true, then set a global with the current table counts and then escape
 	if[reloadenabled;
 			eodtabcount:: tables[`.] ! count each value each tables[`.];
-			neweodcounts:: ignorelist _ eodtabcount;
 			.lg.o[`endofday;"reload is enabled - storing counts of tables at EOD : ",.Q.s1 eodtabcount];
 			/-set eod attributes on gateway for rdb
 			gateh:exec w from .servers.getservers[`proctype;.rdb.gatewaytypes;()!();0b;0b];
