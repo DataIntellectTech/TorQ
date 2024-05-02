@@ -52,7 +52,7 @@ savetable:{[d;p;t]
 	/-save the tables 
 	if[savetables;
 		@[.sort.sorttab;t;{[t;e] .lg.e[`savetable;"Failed to sort ",string[t]," due to the follwoing error: ",e]}[t]];
-		.lg.o[`savetable;"attempting to save ",(string cnt:count value t)," rows of table ",(string t)," to ",string d];
+		.lg.o[`savetable;"attempting to save ",(string count value t)," rows of table ",(string t)," to ",string d];
 		c:.[{[d;p;t] (` sv .Q.par[d;p;t],`) set .Q.en[d;.save.manipulate[t;value t]]; (1b;`)};(d;p;t);{(0b;x)}];
 		/-print the result of saving the table
 		$[first c;.lg.o[`savetable;"successfully saved table ",string t];
@@ -100,7 +100,6 @@ endofday:{[date;processdata]
 			.async.send[0b;;(`setattributes;.proc.procname;.proc.proctype;.proc.getattributes[])] each neg[gateh];
 			.lg.o[`endofday;"Escaping end of day function"];:()];
 	t:tables[`.] except ignorelist;
-	neweodcounts::t!{count value x} each t;
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
