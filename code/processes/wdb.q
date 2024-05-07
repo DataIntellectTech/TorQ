@@ -93,6 +93,8 @@ switch: string `off`on;
 / - check to ensure that the process can do one of save or sort
 if[not any saveenabled,sortenabled; .lg.e[`init;"process mode not configured correctly.  Mode should be one of the following: save, sort or saveandsort"]];
 
+/ - ensure process code is loaded, e.g. in sort process
+.proc.loaddir getenv[`KDBCODE],"/wdb";
 
 /- extract user defined row counts for merge process
 mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
