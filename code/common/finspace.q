@@ -54,7 +54,6 @@ notifyhdb:{[cluster;changeset]
       
       // Ensuring that the changeset has successfully created before doing the HDB reload
       current:.finspace.checkstatus[(`.aws.get_changeset;.finspace.database;changeset[`id]);("COMPLETED";"FAILED");00:01;0wu];
-      //.lg.o[`notifyhdb;("notifying ",string[cluster]," to repoint to changeset ",changeset[`id])];
       .lg.o[`notifyhdb;("changeset ",changeset[`id]," ready, bringing up new hdb cluster")];
       .lg.o[`notifyhdb;"new changeset ready. create new hdb"];
       // TODO - Also need to figure out the ideal logic if a changeset fails to create. Possibly recreate and re-run notifyhd
