@@ -41,6 +41,11 @@ Head to the address it gives you to check if your changes have worked. More info
 ## Licences
 Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
+- **5.1.0, May 2024**
+  * Added support for DataAcess API using int partitions
+  * Adding support for FinSpace STP, WDB and AWS Dataviews
+  * New .os.hdeldir function introduced. Uses hdel instead of rm to delete a directory, or just delete it's contents
+  * Bug Fixes related to kdb version 4.1
 - **5.0.3, Mar 2024**
   * Fix defaulting of .save config in rdb
   * Bug fix for syncexec queries on HTTP/qcon
