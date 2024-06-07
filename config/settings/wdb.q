@@ -30,6 +30,10 @@ writedownmode:`default                                                          
                                                                                             //                       at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                                             // 2. partbyattr       - the data is partitioned by [ partitiontype ] and the column(s)assigned the parted attributed in sort.csv
                                                                                             //                       at EOD the data will be merged from each partiton before being moved to hdb
+                                                                                            // 3. partbyenum       - the data is partitioned by [ partitiontype ] and a symbol column with parted attrobution assigned in sort.csv
+                                                                                            //                       at EOD the data will be merged from each partiton before being moved to hdb
+enumcol:`sym;                                                                               // only used with writedownmode: partbyenum. Default column for partitioning.
+
 mergemode:`part                                                                             // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                                             // 1. part                      -       the entire partition is merged to the hdb 
                                                                                             // 2. col                       -       each column in the temporary partitions are merged individually 

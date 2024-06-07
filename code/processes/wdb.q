@@ -1,4 +1,3 @@
-/-TorQ wdb process - based upon w.q 
 /http://code.kx.com/wsvn/code/contrib/simon/tick/w.q
 /-subscribes to tickerplant and appends data to disk after the in-memory table exceeds a specified number of rows
 /-the row check is set on a timer - the interval may be specified by the user
@@ -28,11 +27,15 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
+                                                                           /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol column with parted attribution assigned in sort.csv
+                                                                           /-                                      at EOD the data will be merged from each partiton before being moved to hdb
+partwritemodes:`partbyattr`partbyenum;
+enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode:
 
-mergemode:@[value;`mergemode;`part]; 				           /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`part]; 				                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually 
-                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit      
+                                                                           /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit
 
 mergenumbytes:@[value;`mergenumbytes;500000000];                             /-default number of bytes for merge process
 
@@ -105,7 +108,7 @@ tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
 	(sortedlist union tables[`.]) except ignorelist}
 
 /- function to upsert to specified directory
-upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]	    		
+upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 	.lg.o[`save;"saving ",(string tablename)," data to partition ",
 		/- create directory location for selected partiton
 		string directory:` sv .Q.par[dir;pt;tablename],
@@ -123,6 +126,26 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
 	/-key in partsizes are directory to partition, need to drop training slash in directory key
 	.merge.partsizes[first ` vs directory]+:(count r;-22!r);
 	};
+
+/- function to upsert to specified directory using enumerated extra partitioning
+upserttopartitionenum:{[dir;tablename;tabdata;pt;expttype;expt]
+	hdbsym:` sv hdbsettings[`hdbdir],`sym;
+	/- enumerate current extra partition agains the hdb sym file
+	i:get[hdbsym]?hdbsym?first expt;
+	.lg.o[`save;"saving ",(string tablename)," data to partition ",
+				/- create directory location for selected partiton
+				string directory:` sv .Q.par[dir;pt;`$string i],tablename,`];
+	/- upsert selected data matched on partition to specific directory
+	.lg.o[`save;"directory: ",string directory];
+	.[
+	 upsert;
+	 (directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
+	 {[e] .lg.e[`savetablesbypartenum;"Failed to save table to disk : ",e];'e}
+	 ];
+	.lg.o[`track;"appending details to partsizes"];
+	/-key in partsizes are directory to partition, need to drop training slash in directory key
+	.merge.partsizes[first ` vs directory]+:(count r;-22!r);
+ };
 	
 savetablesbypart:{[dir;pt;forcesave;tablename]
 	/- check row count and save if maxrows exceeded
@@ -130,7 +153,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 	if[forcesave or maxrows[tablename] < arows: count value tablename;	
 		.lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];		
 		/- get additional partition(s) defined by parted attribute in sort.csv		
-		extrapartitiontype:.merge.getextrapartitiontype[tablename];		
+		extrapartitiontype:.merge.getextrapartitiontype[tablename];
 		/- check each partition type actually is a column in the selected table
 		.merge.checkpartitiontype[tablename;extrapartitiontype];		
 		/- get list of distinct combiniations for partition directories
@@ -147,9 +170,37 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
 		if[gc;.gc.run[]];
 	];
 	};
+
+savetablesbypartenum:{[dir;pt;forcesave;tablename]
+	savetablesbypartenumcol[dir;pt;forcesave;tablename;enumcol];
+ };
+
+savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
+	/- check row count and save if maxrows exceeded
+	/- forcesave will write flush the data to disk irrespective of counts
+	if[forcesave or maxrows[tablename] < arows: count value tablename;
+	   .lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];
+	   /- check if provided symbol column extrapartitiontype indeed has a symbol type in table
+	   .merge.checksymboltype[tablename;extrapartitiontype];
+	   /- get list of distinct combinations for partition directories
+	   extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
+	   /- enumerate data to be upserted
+	   enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
+	   .lg.o[`save;"enumerated ",(string tablename)," table"];
+	   /- upsert data to specific partition directory
+	   upserttopartitionenum[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;
+	   /- copy sym file from hdb to wdb
+	   copysymfile[hdbsettings[`hdbdir];dir];
+	   /- empty the table
+	   .lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
+	   @[`.;tablename;0#];
+	   /- run a garbage collection (if enabled)
+	   if[gc;.gc.run[]];
+	  ];
+ };
 	
 /- modify savetable if parbyattr writedown option selected
-savetables:$[writedownmode~`partbyattr;savetablesbypart;savetables];
+savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenum;savetablesbypartenum;savetables];
 
 savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
 
@@ -160,7 +211,7 @@ endofday:{[pt;processdata]
         mergemethod:.wdb.mergemode;
 	/- create a dictionary of tables and merge limits, byte or row count limit depending on settings
 	.lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
-	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();	
+	mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();
 	tablist:tablelist[]!{0#value x} each tablelist[];
 	/ Need to download sym file to scratch directory if this is Finspace application
         if[.finspace.enabled;
@@ -174,7 +225,7 @@ endofday:{[pt;processdata]
 		$[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);
 		if[.finspace.enabled;changeset:.finspace.createchangeset[.finspace.database]];
 		];
-	.lg.o[`eod;"deleting data from ",$[r:writedownmode~`partbyattr;"partsizes";"tabsizes"]];
+	.lg.o[`eod;"deleting data from ",$[r:writedownmode in partwritemodes;"partsizes";"tabsizes"]];
 	$[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
 	/-notify all finspace hdbs
 	if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
@@ -259,6 +310,11 @@ reloadsymfile:{[symfilepath]
   @[load; symfilepath; {.lg.e[`sort;"failed to reload sym file: ",x]}]
  }
 
+copysymfile:{[src;dest]
+	.lg.o[`save; "copying sym file from: ",string[src]," to: ",string[dest]];
+	.[.os.cpy;(` sv src,`sym;` sv dest,`sym);{.lg.e[`save;"failed to copy sym file: ",x]}]
+ }
+
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
@@ -286,12 +342,14 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
     ];
   };
 
-merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]    
+merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
   setcompression[hdbsettings[`compression]];
   /- get tablename
   tabname:tableinfo[0];
-  /- get list of partition directories for specified table 
-  partdirs:` sv' tabledir,/:k:key tabledir:.Q.par[hsym dir;pt;tabname];
+  /- get list of partition directories for specified table
+  partdirs:$[writedownmode in `partbyenum;
+			 p where 0<count each key each p:` sv' ((-1_` vs p),/:key p:.Q.par[hsym dir;pt;`]),\: tabname;
+			 ` sv' tabledir,/:key tabledir:.Q.par[hsym dir;pt;tabname]];
   /- get directory destination for permanent storage
   dest:.Q.par[hdbsettings[`hdbdir];pt;tabname];
   .lg.o[`merge;"merging ",string[tabname]," to ",string dest];
@@ -301,7 +359,8 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
      (` sv dest,`) set @[.Q.en[hdbsettings[`hdbdir];tableinfo[1]];.merge.getextrapartitiontype[tabname];`p#];
     ];
    /-if there are partitions to merge - merge with correct function
-   [$[mergemethod~`part;
+   [.lg.o[`merge;"mergemethod: ",string mergemethod];
+	$[mergemethod~`part;
       [dest: ` sv dest,`;
        /-get chunks to partitions to merge in batch
        partchunks:.merge.getpartchunks[partdirs;mergelimits[tabname]];
@@ -316,7 +375,10 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
        .merge.mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
-    .os.deldir .os.pth[[string[tabledir]]];
+	$[writedownmode in `partbyenum;
+	  removetablefromenumdir each partdirs;
+	  .os.deldir .os.pth[[string[tabledir]]]
+	 ];
     /- set the attributes
     .lg.o[`merge;"setting attributes"];
     @[dest;;`p#] each .merge.getextrapartitiontype[tabname];
@@ -324,8 +386,15 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod]
    ]
   ] 
  };	
-	
-endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]		
+
+/- enumerated partitions have a directory structure of: db/<partition>/<enumerated extra partition>/<table>
+/- this function deletes <table> folder or the whole <enumerated extra partition> if it only has one element
+removetablefromenumdir:{[partdir]
+	enumdir:` sv -1_` vs partdir;
+	.os.deldir .os.pth string $[1=count key enumdir;enumdir;partdir];
+  };
+
+endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode]
   /- merge data from partitons
   /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   tempfix2:$[.finspace.enabled;0b;(0 < count .z.pd[])];
@@ -336,7 +405,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
      if[(mergemode~`hybrid)or(mergemode~`part);
        {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
        ];
-     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] peach flip (key tablist;value tablist);
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod;writedownmode] peach flip (key tablist;value tablist);
      /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
      .lg.o[`eod;"Delete from partsizes"];
      delete from `.merge.partsizes;
@@ -347,7 +416,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
     ];	
     [.lg.o[`merge;"merging on main"];
      reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
-     merge[dir;pt;;mergelimits;hdbsettings;mergemethod] each flip (key tablist;value tablist);
+     merge[dir;pt;;mergelimits;hdbsettings;mergemethod;writedownmode] each flip (key tablist;value tablist);
      .lg.o[`eod;"Delete from partsizes"];
      delete from `.merge.partsizes;
     ]
@@ -356,6 +425,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
   if[not () ~ key savedir; 
     .lg.o[`merge;"deleting temp storage directory"];
     .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
+	if[writedownmode in `partbyenum;.lg.o[`merge;"deleting sym file from wdb directory"];.os.del[string[` sv savedir,`sym]]];
     ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
@@ -369,9 +439,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
 	/- set compression level (.z.zd)
 	setcompression[hdbsettings[`compression]];
-	$[writedownmode~`partbyattr;
-	endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod];
-	endofdaysortdate[dir;pt;key tablist;hdbsettings]
+	$[writedownmode in partwritemodes;
+		endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
+		endofdaysortdate[dir;pt;key tablist;hdbsettings]
 	];
 	/- reset compression level (.z.zd)  
 	resetcompression[16 0 0]
@@ -445,7 +515,7 @@ starttimer:{[]
 		.lg.e[`init;"the timer has not been enabled - please enable the timer to run the wdb"]];
 	}
 
-/-function to subscribe to tickerplant	
+/-function to subscribe to tickerplant
 subscribe:{[]
 	s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];
 	if[count s;
@@ -503,9 +573,9 @@ getsortparams:{[]
 	/- get the attributes csv file
 	/-even if running with a sort process should read this file to cope with backups
 	.sort.getsortcsv[.wdb.sortcsv];	
-	/- check the sort.csv for parted attributes `p if the writedownmode `partbyattr is selected
+	/- check the sort.csv for parted attributes `p if the writedownmode `partbyattr or `partbyenum is selected
 	/- if each table does not have at least one `p attribute the process will exit
-	if[writedownmode~`partbyattr;
+	if[writedownmode in partwritemodes;
 	
 		/- check that default table is defined
 		if[not count exec distinct tabname from .sort.params where tabname=`default,att=`p,sort=1b;
