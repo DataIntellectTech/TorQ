@@ -30,7 +30,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol column with parted attribution assigned in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 partwritemodes:`partbyattr`partbyenum;
-enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode:
+enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode: partbyenum.
 
 mergemode:@[value;`mergemode;`part]; 				                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb 
@@ -44,6 +44,7 @@ mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-spe
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
+idbtypes:@[value;`idbtypes;`idb];                                          /-list of idb types to look for and call in idb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
@@ -61,7 +62,7 @@ replay:@[value;`replay;1b];                                                /-rep
 schema:@[value;`schema;1b];                                                /-retrieve schema from tickerplant
 settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
 
-reloadorder:@[value;`reloadorder;`hdb`rdb];                                /-order to reload hdbs and rdbs
+reloadorder:@[value;`reloadorder;`hdb`rdb`idb];                            /-order to reload hdbs, rdbs and idbs
 sortcsv:@[value;`sortcsv;`:config/sort.csv];                               /-location of csv file
 permitreload:@[value;`permitreload;1b];                                    /-enable reload of hdbs/rdbs
 
@@ -189,8 +190,6 @@ savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
 	   .lg.o[`save;"enumerated ",(string tablename)," table"];
 	   /- upsert data to specific partition directory
 	   upserttopartitionenum[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;
-	   /- copy sym file from hdb to wdb
-	   copysymfile[hdbsettings[`hdbdir];dir];
 	   /- empty the table
 	   .lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
 	   @[`.;tablename;0#];
@@ -202,7 +201,16 @@ savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
 /- modify savetable if parbyattr writedown option selected
 savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenum;savetablesbypartenum;savetables];
 
-savetodisk:{[] savetables[savedir;getpartition[];0b;] each tablelist[]};
+savetodisk:{[]
+	savetables[savedir;getpartition[];0b;] each tablelist[];
+ 	if[writedownmode in `partbyenum;notifyidbs[]]};
+
+/- send an intraday reload message to idbs:
+notifyidbs:{[]
+	ws:exec w from .servers.getservers[`proctype;`idb;()!();1b;0b];
+	/-send async message along each handle
+	{neg[x](`.idb.intradayreload;.wdb.currentpartition)} each ws;
+ };
 
 /- eod - flush remaining data to disk
 endofday:{[pt;processdata]
@@ -233,7 +241,7 @@ endofday:{[pt;processdata]
   	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
 	.wdb.currentpartition:pt+1;
 	};
-	
+
 endofdaysave:{[dir;pt]
 	/- save remaining table rows to disk
 	.lg.o[`save;"saving the ",(", " sv string tl:tablelist[],())," table(s) to disk"];
@@ -267,7 +275,7 @@ flushend:{
 	if[gc;.gc.run[]];
 	};
 
-/- initialise reloadsummary, keyed tale to track status of local reloads
+/- initialise reloadsummary, keyed table to track status of local reloads
 reloadsummary:([handle:`int$()]process:`symbol$();status:`boolean$();result:`symbol$());
 
 doreload:{[pt]
@@ -310,11 +318,6 @@ reloadsymfile:{[symfilepath]
   @[load; symfilepath; {.lg.e[`sort;"failed to reload sym file: ",x]}]
  }
 
-copysymfile:{[src;dest]
-	.lg.o[`save; "copying sym file from: ",string[src]," to: ",string[dest]];
-	.[.os.cpy;(` sv src,`sym;` sv dest,`sym);{.lg.e[`save;"failed to copy sym file: ",x]}]
- }
-
 endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
@@ -346,7 +349,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
   setcompression[hdbsettings[`compression]];
   /- get tablename
   tabname:tableinfo[0];
-  /- get list of partition directories for specified table
+  /- get list of partition directories for specified table - partbyattr and partbyenum use different folder structure
   partdirs:$[writedownmode in `partbyenum;
 			 p where 0<count each key each p:` sv' ((-1_` vs p),/:key p:.Q.par[hsym dir;pt;`]),\: tabname;
 			 ` sv' tabledir,/:key tabledir:.Q.par[hsym dir;pt;tabname]];
@@ -425,7 +428,6 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode
   if[not () ~ key savedir; 
     .lg.o[`merge;"deleting temp storage directory"];
     .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
-	if[writedownmode in `partbyenum;.lg.o[`merge;"deleting sym file from wdb directory"];.os.del[string[` sv savedir,`sym]]];
     ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
@@ -598,7 +600,7 @@ getsortparams:{[]
 
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes) except `
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.idbtypes) except `
 
 /-  adds endofday  function to top level namespace
 endofday: .wdb.endofday;

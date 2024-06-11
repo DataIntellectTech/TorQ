@@ -22,3 +22,4 @@ run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
 sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
+symlink:{[pathtofile;pathtolink] .lg.o[`symlink;"creating symlink for: ",string[pathtofile]," as:",string pathtolink]; system"ln -s ",.os.pth[pathtofile]," ",.os.pth[pathtolink]}
