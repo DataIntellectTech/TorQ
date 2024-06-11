@@ -2,10 +2,10 @@
 startup:{[]
         .lg.o[`init;"searching for servers"];
         .servers.startup[];
-        if[writedownmode~`partbyattr;
+        if[writedownmode in partwritemodes;
                 .lg.o[`init;"writedown mode set to ",(string .wdb.writedownmode)]
                 ];
-        .lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode~`partbyattr;"[parted column(s)]/";""]];
+        .lg.o[`init;"partition has been set to [savedir]/[", (string partitiontype),"]/[tablename]/", $[writedownmode in partwritemodes;"[parted column(s)]/";""]];
         if[saveenabled;
                 //check if tickerplant is available and if not exit with error
                 if[not .finspace.enabled;                                                       /-TODO Remove when tickerplant fixed in finspace
