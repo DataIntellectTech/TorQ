@@ -312,7 +312,7 @@ publishresult:{[result]
 @[csvloader;inputcsv;{write[`long$0;x;1b];exit 0}];
 
 /- Add to timer and run datecheck
-.timer.repeat[.proc.cp[];0Wp;0D00:00:20;(`datecheck;`);"Reporter - datecheck runs each day at midnight and schedules timers if they are needed on the current day"];
+.timer.repeat[`timestamp$.proc.cd[]+00:00;0Wp;1D00:00:00;(`datecheck;`);"Reporter - datecheck runs each day at midnight and schedules timers if they are needed on the current day"];
 .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`checktimeout;`);"Reporter - cancel queries which have timed out"];
 .timer.repeat[.proc.cp[];0Wp;0D00:02:00;(`flushquerylogs;flushqueryloginterval);"Reporter - flush querylogs table of data that is older than the parameter"];
 
