@@ -1,43 +1,36 @@
 /-default parameters
 \d .idb
 
-reload:{[pt]
-    .lg.o[`reload;"reload command has been called remotely with partition: ", string pt];
-    .lg.o[`reload;"Doing nothing."];
-    .lg.o[`reload;"Finished reloading IDB"];
- };
-
-/- loads the idb and the sym file. Called by the wdb process after every writedown.
-intradayreload:{[pt]
+/- loads the idb and the sym file for current partition
+loaddb:{[pt]
     ptdir: ` sv  .idb.savedir,(`$string[pt]),`;
-    if[0=count key ptdir;:()];
+    if[() ~ key ptdir;.lg.e[`load;"missing intraday db folder: ",string ptdir]];
     system"l ", 1_string ptdir;
     symfilepath: ` sv .idb.savedir,`sym;
-    @[load; symfilepath; {.lg.e[`reload;"failed to reload sym file: ",x]}];
-    .idb.currentpartition:pt;
+    @[load; symfilepath; {.lg.e[`load;"failed to reload sym file: ",x]}];
  };
 
-initpartition:{[pt]
-    .lg.o[`init;"Initializing partition: ", string pt];
-    .lg.o[`init;"Nothing to do"];
+/- reloads the db. Called by wdb process midday.
+intradayreload:{[pt]
+    loaddb[pt];
  };
 
-/- make sure to request connections for all the correct types
-.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,`wdb) except `;
-
-startup:{[]
-    .lg.o[`init;"searching for servers"];
-    .servers.startup[];
-    // make sure the wdb folder exists
-    .os.md .idb.savedir;
-    // create a symlink to the hdb sym file in the wdb folder
+/- sets up the idb pased on input from wdb.
+/- 1. savedir - the location of wdbhdb
+/- 1. pt - current partition of the wdb(and idb). It is the current date normally
+setup:{[savedir;pt]
+    .lg.o[`init;"setup has been called for db dir: ",string[savedir]," and partition: ", string pt];
+    .idb.savedir:savedir;
     symlinkpath:` sv .idb.savedir,`sym;
-    $[0=count key symlinkpath;.os.symlink[` sv .idb.hdbdir,`sym;symlinkpath];.lg.o[`init;"symbolic link already exists: ",string symlinkpath]];
-    .lg.o[`init;"idb startup completed"];
+    hdbsymfile:` sv .idb.hdbdir,`sym;
+    /- we create a link here to the hdb symfile - this only has to be done once, and it's place is NOT the partition folder
+    /- as that gets manipulated by the wdb continously
+    .lg.o[`init;"creating symlink for sym file in hdb: ",string[hdbsymfile]," at: ",string[symlinkpath]];
+    $[0=count key symlinkpath;.os.symlink[hdbsymfile;symlinkpath];.lg.o[`init;"symbolic link already exists: ",string symlinkpath]];
+    /- loading the initial db, the wdb supposed to create the table schemas there already
+    loaddb[pt];
+    .lg.o[`init;"setup finished"];
  };
-
-/- initialise the idb process
-.idb.startup[];
 
 \d .
 /- helper function to support queries against the sym column
