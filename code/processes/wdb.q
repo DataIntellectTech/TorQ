@@ -204,11 +204,12 @@ savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenu
 savetodisk:{[]
     savetables[savedir;getpartition[];0b;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[writedownmode in `partbyenum;filldb[];notifyidbs[]]};
+    if[writedownmode in `partbyenum;filldb[];notifyidbs[0b]]};
 
 /- send an intraday reload message to idbs:
-notifyidbs:{[]
+notifyidbs:{[islogging]
     ws:exec w from .servers.getservers[`proctype;`idb;()!();1b;0b];
+    if[islogging;.lg.o[`reload;"found ",(string count ws)," idb(s) to trigger reload"]];
     /-send async message along each handle
     {neg[x](`.idb.intradayreload;.wdb.currentpartition)} each ws;
  };
@@ -238,12 +239,16 @@ endofday:{[pt;processdata]
     $[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
     /-notify all finspace hdbs
     if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
-    .lg.o[`eod;"end of day is now complete"];
-    if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     .wdb.currentpartition:pt+1;
     /- in case of partbyenum writedown mode we want to initialise the new partition under 0 with all the table schemas
     /- then notify idb processes of the new db
-    if[writedownmode in `partbyenum;initmissingtables[`0];notifyidbs[]];
+    if[writedownmode in `partbyenum;
+       .lg.o[`eod;"initialising wdbhdb for partition: ",string[.wdb.currentpartition],"/0"];
+       initmissingtables[`0];
+       .lg.o[`eod;"notifying idbs for newly created partition"];
+       notifyidbs[1b]];
+    .lg.o[`eod;"end of day is now complete"];
+    if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     };
 
 endofdaysave:{[dir;pt]
