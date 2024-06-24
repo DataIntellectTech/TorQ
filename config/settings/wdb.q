@@ -62,7 +62,6 @@ tpcheckcycles:0W                                                                
 
 // Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort`idb                                           // list of connections to make at start up
 STARTUP:1b                                                                                  // create connections
 
 \d .proc
