@@ -50,7 +50,7 @@ replay:1b                                                                       
 schema:1b                                                                                   // retrieve schema from tickerplant
 settimer:0D00:00:10                                                                         // timer to check if data needs written to disk
 partitiontype:`date                                                                         // set type of partition (defaults to `date, can be `date, `month or `year)
-getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$.proc.cd[]]}     // function to determine the partition value
+getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$.proc.cd[]]}             // function to determine the partition value
 reloadorder:`hdb`rdb                                                                        // order to reload hdbs and rdbs
 hdbdir:`:hdb                                                                                // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile"sort.csv"                                            // location of csv file
@@ -66,5 +66,5 @@ CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort`idb                               
 STARTUP:1b                                                                                  // create connections
 
 \d .proc
-loadprocesscode:1b                              // Whether to load the process specific code defined at ${KDBCODE}/{process type}
+loadprocesscode:1b                                                                          // Whether to load the process specific code defined at ${KDBCODE}/{process type}
 

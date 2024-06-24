@@ -1,8 +1,3 @@
-// reload function
-reload:{[pt]
-    .lg.o[`reload; "reloading IDB for partition: ",string pt];
-    //`sym set get .idb.dbpath};
- };
 
 \d .idb
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
