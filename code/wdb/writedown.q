@@ -8,7 +8,6 @@ hdbdir:@[value;`hdbdir;`:hdb];                                             /-mov
 hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
 numrows:@[value;`numrows;100000];                                          /-default number of rows
 numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
-gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
 
 
 maxrows:{[tabname] numrows^numtab[tabname]};                               /- extract user defined row counts
@@ -18,7 +17,7 @@ partitiontype:@[value;`partitiontype;`date];                               /-set
 
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
         {{@[value;`.wdb.currentpartition;
-                (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+                (`date^partitiontype)$.proc.cd[]]}}];
 
 currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
 

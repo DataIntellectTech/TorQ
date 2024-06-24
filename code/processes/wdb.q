@@ -136,11 +136,12 @@ upserttopartitionenum:{[dir;tablename;tabdata;pt;expttype;expt]
     .lg.o[`save;"saving ",(string tablename)," data to partition ",
                 /- create directory location for selected partiton
                 string directory:` sv .Q.par[dir;pt;`$string i],tablename,`];
+    /- selecting rows of table with the corresponding symbol
+    r:?[tabdata;enlist(in;first expttype;expt);0b;()];
     /- upsert selected data matched on partition to specific directory
-    .lg.o[`save;"directory: ",string directory];
     .[
      upsert;
-     (directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
+     (directory;r);
      {[e] .lg.e[`savetablesbypartenum;"Failed to save table to disk : ",e];'e}
      ];
     .lg.o[`track;"appending details to partsizes"];
@@ -172,10 +173,6 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
     ];
     };
 
-savetablesbypartenum:{[dir;pt;forcesave;tablename]
-    savetablesbypartenumcol[dir;pt;forcesave;tablename;enumcol];
- };
-
 savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
     /- check row count and save if maxrows exceeded
     /- forcesave will write flush the data to disk irrespective of counts
@@ -197,6 +194,8 @@ savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
        if[gc;.gc.run[]];
       ];
  };
+
+savetablesbypartenum:savetablesbypartenumcol[;;;;enumcol];
 
 /- modify savetable if parbyattr writedown option selected
 savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenum;savetablesbypartenum;savetables];
