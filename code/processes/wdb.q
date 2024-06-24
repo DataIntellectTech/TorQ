@@ -1,3 +1,4 @@
+/-TorQ wdb process - based upon w.q
 /http://code.kx.com/wsvn/code/contrib/simon/tick/w.q
 /-subscribes to tickerplant and appends data to disk after the in-memory table exceeds a specified number of rows
 /-the row check is set on a timer - the interval may be specified by the user
