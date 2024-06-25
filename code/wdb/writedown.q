@@ -2,10 +2,10 @@
 
 /-Required variables for savetables function
 compression:@[value;`compression;()];                                      /-specify the compress level, empty list if no required
-savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
-hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
+savedir:hsym @[value;`savedir;`:temphdb];                                       /-location to save wdb data
+hdbdir:hsym @[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
 
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
+hdbsettings:(`compression`hdbdir)!(compression;hsym hdbdir);
 numrows:@[value;`numrows;100000];                                          /-default number of rows
 numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
 

@@ -568,14 +568,14 @@ initmissingtables:{[part]
 
 filldb:{[]
     /- for all enumerated partitions we want to make sure that all tables are present
-    .Q.chk[.Q.par[savedir; .wdb.currentpartition; `]];
+    .Q.chk[.Q.par[hsym savedir; .wdb.currentpartition; `]];
  }
 
 /- initialises table t in db with its schema in part
 inittable:{[part;t]
     if[not -11h ~ type part;part:`$string part];
-    tabledir:` sv .Q.par[savedir;.wdb.currentpartition;part],t,`;
-    if[() ~ key tabledir;tabledir set .Q.en[hdbdir;0#value t]];
+    tabledir:` sv .Q.par[hsym savedir;.wdb.currentpartition;part],t,`;
+    if[() ~ key tabledir;tabledir set .Q.en[hsym hdbdir;0#value t]];
  }
 
 /- will check on each upd to determine where data should be flushed to disk (if max row limit has been exceeded)
