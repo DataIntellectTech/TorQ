@@ -1,0 +1,10 @@
+source $KDBTESTS/flagparse.sh
+testpath=${KDBTESTS}/stp/wdb
+/usr/bin/rlwrap q ${TORQHOME}/torq.q -proctype test -procname test1 -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q -procfile ${testpath}/process.csv -debug
+startproc["discovery1"]
+.servers.startup[]
+startproc["stpnone"]
+startproc["hdb1"]
+startproc["wdbenum"]
+/usr/bin/rlwrap q ${TORQHOME}/torq.q -proctype wdb -procname wdbenum -procfile ${testpath}/process.csv -debug
+/usr/bin/rlwrap q ${TORQHOME}/torq.q -proctype hdb -procname hdb1 -procfile ${testpath}/process.csv -debug

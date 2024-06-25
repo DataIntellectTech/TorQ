@@ -1,15 +1,20 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`wdb`segmentedtickerplant`tickerplant;
+.servers.CONNECTIONS:`wdb`segmentedtickerplant`tickerplant`hdb;
 .servers.USERPASS:`admin:admin;
 
 // Paths to process CSV and test STP log directory
 processcsv:getenv[`KDBTESTS],"/stp/wdb/process.csv";
-temphdbdir:hsym `$getenv[`KDBTESTS],"/stp/wdb/tmphdb/";
+wdbdir:hsym `$getenv[`KDBTESTS],"/stp/wdb/tempwdb/";
+hdbdir:hsym `$getenv[`KDBTESTS],"/stp/wdb/temphdb/";
 testlogdb:"testlog";
 
 // Test updates
 testtrade:((5#`GOOG),5?`4;10?100.0;10?100i;10#0b;10?.Q.A;10?.Q.A;10#`buy);
 testquote:(10?`4;(5?50.0),50+5?50.0;10?100.0;10?100i;10?100i;10?.Q.A;10?.Q.A;10#`3);
+
+// expected WDB folder structure
+folder_patterns:{"*",x,"*"}each 1_/:string ` sv/:  cross[hsym each `$string til count distinct testtrade[0],testquote[0];`trade`quote];
+
 
 // Function projections (using functions from helperfunctions.q)
 startproc:startorstopproc["start";;processcsv];
