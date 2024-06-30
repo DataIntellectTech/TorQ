@@ -988,7 +988,7 @@ process should be configured in the processes.csv file with a proctype
 of sort. The save process will check for processes with a proctype of
 sort when it attempts to trigger the end of day sort of the data.
 
-The wdb process provides two methods for persisting data to disk and
+The wdb process provides three methods for persisting data to disk and
 sorting at the end of the day.
 
 -   default - Data is persisted into a partition defined by the
@@ -1019,13 +1019,52 @@ sorting at the end of the day.
       need for sorting. The number of rows that are joined at once is
       limited by the mergenumrows and mergenumtab parameters.
 
-The optional partbyattr method may provide a significant saving in time
-at the end of day, allowing the hdb to be accessed sooner. For large
+-   partbyenum - Data is persisted to a partition scheme where the partition
+      is derived from parameters in the sort.csv file. In this mode partition
+      only can be done by one column which has parted attribute applied on it
+      and it also has to be of a symbol type. The partitioning on disk will
+      be the enumerated symbol entries of the parted symbol column. The
+      enumeration is done against the HDB sym file.
+      The general partition scheme is of the form
+      \[wdbdir\]/\[partitiontype\]/\[parted enumerated symbol column\]/\[table(s)\]/.
+      A typical partition directory would be similar to(for ex sym: MSFT_N)
+      wdb/database/2015.11.26/456/trade/
+      In the above example, the data is parted by sym, and number 456 is
+      the order of MSFT_N symbol entry in the HDB sym file.
+
+      The advantage of partbyenum over partbyattr could be that the
+      directory structure it uses represents a HDB that is ready to be loaded
+      intraday. At the end of the day the data gets upserted to the HDB the
+      same way it would be when using partbyattr.
+
+The optional partbyattr/partbyenum methods may provide a significant saving in
+time at the end of day, allowing the hdb to be accessed sooner. For large
 data sets with a low cardinality (ie. small number of distinct elements)
 the optional method may provide a significant time saving, upwards of
 50%. The optional method should also reduce the memory usage at the end
 of day event, as joining data is generally less memory intensive than
 sorting.
+
+<a name="idb"></a>
+
+Intraday Database (IDB) 
+--------------------
+
+The Intraday Database or IDB is a simple process that allows access to
+data written down intraday. This assumes that there is an existing WDB
+process creating a DB on disk that can be loaded with a simple load command.
+As of now the only WDB writedown mode that is supported is partbyenum.
+The responsibility of an IDB is therefore:
+
+1.  Serving queries. Since partbyenum writedown mode is done by enumerated
+    symbol columns a helper function maptoint is implemented to support
+    symbol lookup in sym file:
+    select from trade where int=maptoint[`MSFT_N]
+
+2.  Can be triggered for a reload. This is usually done by the WDB process
+    periodically.
+
+![IDB diagram](graphics/idb.png)
 
 <a name="tick"></a>
 
