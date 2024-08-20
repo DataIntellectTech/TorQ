@@ -1,14 +1,9 @@
-// reload function
-reload:{[pt]
-	.lg.o[`reload; "reloading IDB for partition: ",string pt];
-	//`sym set get .idb.dbpath};
- };
 
 \d .idb
-gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
+hdbdir:hsym @[value;`hdbdir;`:hdb];                                        /-set hdb directory. Will be used for reading symbols from sym file
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
-			   {{@[value;`.idb.currentpartition;
-				   (`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+               {{@[value;`.idb.currentpartition;
+                   (`date^partitiontype)$.proc.cd[]]}}];
 
 currentpartition:getpartition[];

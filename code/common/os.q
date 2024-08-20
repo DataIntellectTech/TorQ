@@ -22,4 +22,16 @@ run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
 sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
-symlink:{[pathtofile;pathtolink] .lg.o[`symlink;"creating symlink for: ",string[pathtofile]," as:",string pathtolink]; system"ln -s ",.os.pth[pathtofile]," ",.os.pth[pathtolink]}
+createalias:{[filepath;aliaspath]
+ filepath:pth[filepath]; aliaspath:pth[aliaspath];
+ $[NT;
+  [if[not()~key hsym`$filepath;
+    .lg.o[`logging;"removing existing alias using command ",s:"del ",aliaspath];
+    @[system;s;{.lg.e[`init;"failed to remove alias ",x," : ",y]}[s]]];
+   .lg.o[`logging;"creating alias using command ",s:"mklink ",aliaspath," ",filepath];
+   res:@[system;s;{.lg.o[`init;"failed to create symbolic link ",x," : ",y];`fail}[s]];
+   if[`fail~res;
+    .lg.o[`logging;"creating alias using command ",s:"mklink /h ",a," ",ssr[logdir,"/",filename;"/";"\\"]];
+     @[system;s;{.lg.e[`init;"failed to create hard link ",x," : ",y]}[s]]]];
+  [.lg.o[`logging;"creating alias using command ",s:"ln -sf ",filepath," ",aliaspath];
+    @[system;s;{.lg.e[`init;"failed to create alias ",x," : ",y]}[s]]]]}

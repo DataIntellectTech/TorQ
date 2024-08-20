@@ -9,5 +9,5 @@ STARTUP:1b                                                                      
 loadprocesscode:1b                                                                          // whether to load the process specific code defined at ${KDBCODE}/{process type}
 
 \d .idb
-savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location of the wdb data
-hdbdir:hsym`$getenv[`TORQHOME],"/hdb"                                                       // location of the wdb data
+savedir:hsym`$getenv[`KDBWDB]                                                               // location of the wdb data
+hdbdir:hsym`$getenv[`KDBHDB]                                                                // location of the wdb data
