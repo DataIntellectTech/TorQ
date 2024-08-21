@@ -10,4 +10,4 @@ loadprocesscode:1b                                                              
 
 \d .idb
 savedir:hsym`$getenv[`KDBWDB]                                                               // location of the wdb data
-hdbdir:hsym`$getenv[`KDBHDB]                                                                // location of the wdb data
+hdbdir:hsym`$getenv[`KDBHDB]                                                                // location of the hdb data
