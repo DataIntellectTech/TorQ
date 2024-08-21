@@ -1,5 +1,5 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`wdb`segmentedtickerplant`hdb`idb;
+.servers.CONNECTIONS:`wdb`segmentedtickerplant`hdb`idb`gateway;
 .servers.USERPASS:`admin:admin;
 
 // Paths to process CSV and test STP log directory
