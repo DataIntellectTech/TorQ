@@ -114,7 +114,7 @@ attrstrip:{[t]
 init:{[t]
   if[count b:t where not t in tables[];{.lg.e[`psinit;m:"Table ",string[x]," does not exist"];'m} each b];
   .stpps.t:t except b;
-  .stpps.schemas:.stpps.t!{0#value x} each .stpps.t;
+  .stpps.schemas:.stpps.t!{t: value x; 0#$[.Q.qp t; enlist .Q.V t; t]} each .stpps.t;
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
  };
 
