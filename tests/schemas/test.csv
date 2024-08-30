@@ -12,3 +12,6 @@ true,0,0,q,""+`time`sym`bid`ask`bsize`asize`mode`ex`src!`quote"~.Q.s1 schemas`qu
 true,0,0,q,""+`time`sym`bid`ask`bsize`asize`mode`ex`srctime!`quote_iex"~.Q.s1 schemas`quote_iex,,,"Check the partitioned table schema is as expected"
 true,0,0,q,""+`time`sym`price`size`stop`cond`ex`side!`trade"~.Q.s1 schemas`trade,,,"Check the partitioned table schema is as expected"
 true,0,0,q,""+`time`sym`price`size`stop`cond`ex`srctime!`trade_iex"~.Q.s1 schemas`trade_iex,,,"Check the partitioned table schema is as expected"
+after,0,0,q,hclose hdbHandle,1,,"Close handles"
+after,0,0,q,.os.deldir logdir,1,,"Delete test logs"
+after,0,0,q,.os.deldir hdbdir,1,,"Delete test hdb"
