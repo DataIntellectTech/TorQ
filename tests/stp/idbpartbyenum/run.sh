@@ -4,7 +4,7 @@
 source $KDBTESTS/flagparse.sh
 
 # Path to test directory
-testpath=${KDBTESTS}/stp/idb
+testpath=${KDBTESTS}/stp/idbpartbyenum
 
 # Start procs
 ${TORQHOME}/torq.sh start discovery1 -csv ${testpath}/process.csv

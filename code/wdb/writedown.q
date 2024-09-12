@@ -37,13 +37,13 @@ savetables:{[dir;pt;forcesave;tabname]
         ];
         /- make addition to tabsizes
         .lg.o[`track;"appending table details to tabsizes"];
-    .wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
+        .wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
         /- empty the table
         .lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];
         @[`.;tabname;0#];
         /- run a garbage collection (if enabled)
         if[gc;.gc.run[]];
-    ]};
+          ]};
 
 \d .
 /-endofperiod function

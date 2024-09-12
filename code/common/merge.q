@@ -38,7 +38,8 @@ checksymboltype:{[tablename;extrapartitiontype]
 /- function to get list of distinct combiniations for partition directories
 /- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
 getextrapartitions:{[tablename;extrapartitiontype]
-        value each ?[tablename;();1b;(!) . 2#enlist extrapartitiontype,()]
+        extrapartitiontype,:();
+        value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
         };
 
 /-function to return partition directory chunks that will be called in batch by mergebypart function

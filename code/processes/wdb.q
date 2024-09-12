@@ -30,7 +30,6 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
                                                                            /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol column with parted attribution assigned in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
-partwritemodes:`partbyattr`partbyenum;
 enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode: partbyenum.
 
 mergemode:@[value;`mergemode;`part]; 				                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
@@ -90,6 +89,9 @@ hdbdir:.os.pthq hdbdir;
 saveenabled: any `save`saveandsort in mode;
 sortenabled: any `sort`saveandsort in mode;
 
+/- parted writedown modes have special behaviour during merging or WDB initialisation
+partwritemodes:`partbyattr`partbyenum;
+
 / - log which modes are enabled
 switch: string `off`on;
 .lg.o[`savemode;"save mode is ",switch[saveenabled]];
@@ -106,7 +108,7 @@ mergemaxrows:{[tabname] mergenumrows^mergenumtab[tabname]}
 
 
 /- function to return a list of tables that the wdb process has been configured to deal within
-tablelist:{[] sortedlist:exec tablename from `bytes xdesc .wdb.tabsizes;
+tablelist:{[] sortedlist:exec tablename from `bytes xdesc tabsizes;
     (sortedlist union tables[`.]) except ignorelist}
 
 /- function to upsert to specified directory
@@ -204,21 +206,21 @@ savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenu
 savetodisk:{[]
     savetables[savedir;getpartition[];0b;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[writedownmode in `partbyenum;filldb[];notifyidbs[0b]]};
+    if[writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist();0b]]};
 
 /- send an intraday reload message to idbs:
-notifyidbs:{[islogging]
+notifyidbs:{[func;params;islogging]
     ws:exec w from .servers.getservers[`proctype;`idb;()!();1b;0b];
-    if[islogging;.lg.o[`reload;"found ",(string count ws)," idb(s) to trigger reload"]];
+    if[islogging;.lg.o[`reload;"found ",(string count ws)," idb(s) to trigger function ",string func]];
     /-send async message along each handle
-    {neg[x](`.idb.intradayreload;.wdb.currentpartition)} each ws;
+    {neg[x]enlist[y],z}[;func;params] each ws;
  };
 
 /- eod - flush remaining data to disk
 endofday:{[pt;processdata]
-    .lg.o[`eod;"end of day message received - ",spt:string pt];
+    .lg.o[`eod;"end of day message received - ",string pt];
         /- set what type of merge method to be used
-        mergemethod:.wdb.mergemode;
+        mergemethod:mergemode;
     /- create a dictionary of tables and merge limits, byte or row count limit depending on settings
     .lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
     mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();
@@ -239,14 +241,14 @@ endofday:{[pt;processdata]
     $[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
     /-notify all finspace hdbs
     if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
-    .wdb.currentpartition:pt+1;
-    /- in case of partbyenum writedown mode we want to initialise the new partition under 0 with all the table schemas
+    currentpartition::pt+1;
+    /- in case of default/partbyenum writedown mode we want to initialise the new partition with all the table schemas
     /- then notify idb processes of the new db
-    if[writedownmode in `partbyenum;
-       .lg.o[`eod;"initialising wdbhdb for partition: ",string[.wdb.currentpartition],"/0"];
-       initmissingtables[`0];
+    if[writedownmode in `partbyenum`default;
+       .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
+       initmissingtables[];
        .lg.o[`eod;"notifying idbs for newly created partition"];
-       notifyidbs[1b]];
+       notifyidbs[`.idb.rollover;currentpartition;1b]];
     .lg.o[`eod;"end of day is now complete"];
     if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     };
@@ -260,15 +262,15 @@ endofdaysave:{[dir;pt]
 
 /- add entries to table of callbacks. if timeout has expired or d now contains all expected rows then it releases each waiting process
 handler:{
-    /-insert process reload outcome into .wdb.reloadsummary
-        .wdb.reloadsummary[.z.w]:x;
+    /-insert process reload outcome into reloadsummary
+        reloadsummary[.z.w]:x;
         /-log result of reload in wdb out log
-        .lg.o[`reloadproc;"the ", string[.wdb.reloadsummary[.z.w]`process]," process ", string[.wdb.reloadsummary[.z.w]`result]];
-        if[(.proc.cp[]>.wdb.timeouttime) or (count[.wdb.reloadsummary]=.wdb.countreload);
+        .lg.o[`reloadproc;"the ", string[reloadsummary[.z.w]`process]," process ", string[reloadsummary[.z.w]`result]];
+        if[(.proc.cp[]>timeouttime) or (count[reloadsummary]=countreload);
                 .lg.o[`handler;"releasing processes"];
-                .lg.o[`reload;string[count select from .wdb.reloadsummary where status=1]," out of ", string[count .wdb.reloadsummary]," processes successfully reloaded"];
-                .wdb.flushend[];
-        /-delete contents from .wdb.reloadsummary when reloads completed
+                .lg.o[`reload;string[count select from reloadsummary where status=1]," out of ", string[count reloadsummary]," processes successfully reloaded"];
+                flushend[];
+        /-delete contents from reloadsummary when reloads completed
                 delete from `.wdb.reloadsummary];
         };
 
@@ -279,7 +281,7 @@ flushend:{
      @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
      informgateway(`reloadend;`);
      .lg.o[`sort;"end of day sort is now complete"];
-     .wdb.reloadcomplete:1b];
+     reloadcomplete::1b];
     /- run a garbage collection (if enabled)
     if[gc;.gc.run[]];
     };
@@ -288,12 +290,12 @@ flushend:{
 reloadsummary:([handle:`int$()]process:`symbol$();status:`boolean$();result:`symbol$());
 
 doreload:{[pt]
-    .wdb.reloadcomplete:0b;
+    reloadcomplete::0b;
     /-inform gateway of reload start
     informgateway(`reloadstart;`);
     getprocs[;pt] each reloadorder;
     if[eodwaittime>0;
-        .timer.one[.wdb.timeouttime:.proc.cp[]+.wdb.eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
+        .timer.one[timeouttime::.proc.cp[]+eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
     ];
     };
 
@@ -463,7 +465,7 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
 /-function to send reload message to rdbs/hdbs
 reloadproc:{[h;d;ptype]
         /-count of processes to be reloaded
-        .wdb.countreload:count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
+        countreload::count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
         /-defining lambdas to be in asynchronously calling processes to reload
         /-async call back function executed when eodwaittime>0
         sendfunc:{[x;y;ptype].[{neg[y]@x};(x;y);{[ptype;x].lg.e[`reloadproc;"failed to reload the ",string[ptype]];'x}[ptype]]};
@@ -536,18 +538,16 @@ subscribe:{[]
         /- return the tables subscribed to and the tickerplant log date
         subto:.sub.subscribe[subtabs;subsyms;schema;replay;subproc];
         /- check the tp logdate against the current date and correct if necessary
-        fixpartition[subto];
-        /- add missing tables to partitions in case an intraday process wants to connect. Only applicable for partbyenum writedown mode
-        if[.wdb.writedownmode ~ `partbyenum;initmissingtables[`0]];];
+        fixpartition[subto];];
  }
 
 /- function to rectify data written to wrong partition
 fixpartition:{[subto]
     /- check if the tp logdate matches current date
-    if[not (tplogdate:subto[`tplogdate])~orig:.wdb.currentpartition;
+    if[not (tplogdate:subto[`tplogdate])~orig:currentpartition;
         .lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
         /- set the current partiton date to the log date
-        .wdb.currentpartition:tplogdate;
+        currentpartition::tplogdate;
         /- move the data that has been written to correct partition
         pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
         pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
@@ -559,22 +559,22 @@ fixpartition:{[subto]
         ];
     }
 
-/- for writedown mode partbyenum we make sure that partition 0 has all the tables.
+/- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
-initmissingtables:{[part]
-    inittable[part;] each tablelist[];
+initmissingtables:{[]
+    .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string currentpartition];
+    inittable each tablelist[];
     filldb[];
  }
 
 filldb:{[]
     /- for all enumerated partitions we want to make sure that all tables are present
-    .Q.chk[.Q.par[hsym savedir; .wdb.currentpartition; `]];
+    .Q.chk[.Q.par[hsym savedir; currentpartition; `]];
  }
 
 /- initialises table t in db with its schema in part
-inittable:{[part;t]
-    if[not -11h ~ type part;part:`$string part];
-    tabledir:` sv .Q.par[hsym savedir;.wdb.currentpartition;part],t,`;
+inittable:{[t]
+    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;currentpartition];0;t]; .Q.par[hsym savedir;currentpartition;t]],`;
     if[() ~ key tabledir;tabledir set .Q.en[hsym hdbdir;0#value t]];
  }
 
@@ -602,12 +602,12 @@ clearwdbdata:{[]
 
 / - function to check that the tickerplant is connected and subscription has been setup
 notpconnected:{[]
-    0 = count select from .sub.SUBSCRIPTIONS where proctype in .wdb.tickerplanttypes, active}
+    0 = count select from .sub.SUBSCRIPTIONS where proctype in tickerplanttypes, active}
 
 getsortparams:{[]
     /- get the attributes csv file
     /-even if running with a sort process should read this file to cope with backups
-    .sort.getsortcsv[.wdb.sortcsv];
+    .sort.getsortcsv[sortcsv];
     /- check the sort.csv for parted attributes `p if the writedownmode `partbyattr or `partbyenum is selected
     /- if each table does not have at least one `p attribute the process will exit
     if[writedownmode in partwritemodes;
@@ -625,15 +625,6 @@ getsortparams:{[]
         .lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
     ];
     };
-
-/- notifying the connecting idbs that they can trigger their setup(since wdb has created the folder/db they will load)
-.wdb.setupidbs:{[]
-    .lg.o[`init;"sending message to idbs with db location and current partition"];
-    ws:exec w from .servers.getservers[`proctype;`idb;()!();1b;0b];
-    .lg.o[`init;"found ",string[count ws]," idb(s). Initiating setup on them..."];
-    /-send async message along each handle
-    {neg[x](`.idb.setup;savedir;.wdb.currentpartition)} each ws;
- };
 
 \d .
 
@@ -658,7 +649,5 @@ upd:.wdb.replayupd;
 .wdb.clearwdbdata[];
 /- initialise the wdb process
 .wdb.startup[];
-/- setup db folder and current partition for possible connecting idbs.
-.wdb.setupidbs[];
 / - start the timer
 if[.wdb.saveenabled;.wdb.starttimer[]];

@@ -1053,7 +1053,7 @@ Intraday Database (IDB)
 The Intraday Database or IDB is a simple process that allows access to
 data written down intraday. This assumes that there is an existing WDB
 process creating a DB on disk that can be loaded with a simple load command.
-As of now the only WDB writedown mode that is supported is partbyenum.
+As of now default and partbyenum WDB writedown modes are supported.
 The responsibility of an IDB is therefore:
 
 1.  Serving queries. Since partbyenum writedown mode is done by enumerated

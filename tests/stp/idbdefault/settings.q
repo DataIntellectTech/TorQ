@@ -1,11 +1,11 @@
 // IPC connection parameters
-.servers.CONNECTIONS:`wdb`segmentedtickerplant`hdb`idb`gateway;
+.servers.CONNECTIONS:`segmentedtickerplant`wdb`hdb`idb`gateway`sort;
 .servers.USERPASS:`admin:admin;
 
 // Paths to process CSV and test STP log directory
-processcsv:getenv[`KDBTESTS],"/stp/idb/process.csv";
-wdbdir:hsym `$getenv[`KDBTESTS],"/stp/idb/tempwdb/";
-hdbdir:hsym `$getenv[`KDBTESTS],"/stp/idb/temphdb/";
+processcsv:getenv[`KDBTESTS],"/stp/idbdefault/process.csv";
+wdbdir:hsym `$getenv[`KDBTESTS],"/stp/idbdefault/tempwdb/";
+hdbdir:hsym `$getenv[`KDBTESTS],"/stp/idbdefault/temphdb/";
 testlogdb:"testlog";
 
 // Test updates

@@ -14,6 +14,8 @@ startup:{[]
           .servers.startupdepcycles[.wdb.tickerplanttypes; .wdb.tpconnsleepintv; .wdb.tpcheckcycles];
          ];
        subscribe[];
+       /- add missing tables to partitions in case an IDB process wants to connect. Only applicable for partbyenum writedown mode
+       if[.wdb.writedownmode in `default`partbyenum;initmissingtables[]];
       ];
     @[`.; `upd; :; .wdb.upd];
  }
