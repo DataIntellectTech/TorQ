@@ -63,6 +63,7 @@ tpcheckcycles:0W                                                                
 // Server connection details
 \d .servers
 STARTUP:1b                                                                                  // create connections
+CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
 
 \d .proc
 loadprocesscode:1b                                                                          // Whether to load the process specific code defined at ${KDBCODE}/{process type}

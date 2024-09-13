@@ -32,7 +32,7 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be merged from each partiton before being moved to hdb
 enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode: partbyenum.
 
-mergemode:@[value;`mergemode;`part]; 				                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`part];                                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit
@@ -112,63 +112,47 @@ tablelist:{[] sortedlist:exec tablename from `bytes xdesc tabsizes;
     (sortedlist union tables[`.]) except ignorelist}
 
 /- function to upsert to specified directory
-upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt]
-    .lg.o[`save;"saving ",(string tablename)," data to partition ",
-        /- create directory location for selected partiton
-        string directory:` sv .Q.par[dir;pt;tablename],
-        /- replace random chracters in symbols with _
-        (`$"_"^.Q.an .Q.an?"_" sv string
-        /- convert to symbols and replace any null values with `NONE
-        `NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];
+upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
+    /- enumerate current extra partition against the hdb sym file
+    if[writedownmode~`partbyenum;i:`long$(` sv hdbsettings[`hdbdir],`sym)?first expt;];
+    /- create directory location for selected partiton
+    /- replace random chracters in symbols with _
+    /- convert to symbols and replace any null values with `NONE
+    directory:$[writedownmode~`partbyenum;
+                ` sv .Q.par[dir;pt;`$string i],tablename,`;
+                ` sv .Q.par[dir;pt;tablename],(`$"_"^.Q.an .Q.an?"_" sv string `NONE^ -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} expt,(::)),`];
+    .lg.o[`save;"saving ",(string tablename)," data to partition ",string directory];
+    /- selecting rows of table with matching partition
+    r:?[tabdata;$[writedownmode~`partbyenum;enlist(in;first expttype;expt);{(x;y;(),z)}[in;;]'[expttype;expt]];0b;()];
     /- upsert selected data matched on partition to specific directory
-    .[
-        upsert;
-        (directory;r:?[tabdata;{(x;y;(),z)}[in;;]'[expttype;expt];0b;()]);
-        {[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}
-    ];
+    .[upsert;(directory;r);{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
     .lg.o[`track;"appending details to partsizes"];
     /-key in partsizes are directory to partition, need to drop training slash in directory key
     .merge.partsizes[first ` vs directory]+:(count r;-22!r);
     };
 
-/- function to upsert to specified directory using enumerated extra partitioning
-upserttopartitionenum:{[dir;tablename;tabdata;pt;expttype;expt]
-    hdbsym:` sv hdbsettings[`hdbdir],`sym;
-    /- enumerate current extra partition agains the hdb sym file
-    i:get[hdbsym]?hdbsym?first expt;
-    .lg.o[`save;"saving ",(string tablename)," data to partition ",
-                /- create directory location for selected partiton
-                string directory:` sv .Q.par[dir;pt;`$string i],tablename,`];
-    /- selecting rows of table with the corresponding symbol
-    r:?[tabdata;enlist(in;first expttype;expt);0b;()];
-    /- upsert selected data matched on partition to specific directory
-    .[
-     upsert;
-     (directory;r);
-     {[e] .lg.e[`savetablesbypartenum;"Failed to save table to disk : ",e];'e}
-     ];
-    .lg.o[`track;"appending details to partsizes"];
-    /-key in partsizes are directory to partition, need to drop training slash in directory key
-    .merge.partsizes[first ` vs directory]+:(count r;-22!r);
- };
-
-savetablesbypart:{[dir;pt;forcesave;tablename]
+savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
     /- check row count and save if maxrows exceeded
     /- forcesave will write flush the data to disk irrespective of counts
     if[forcesave or maxrows[tablename] < arows: count value tablename;
         .lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];
         /- get additional partition(s) defined by parted attribute in sort.csv
         extrapartitiontype:.merge.getextrapartitiontype[tablename];
+        if[(writedownmode~`partbyenum) and 1<c:count extrapartitiontype;
+           .lg.e[`partbyenum;"only 1 parted attribute should be defined on table when partbyenum writedown mode is used but we have ",string c]
+          ];
         /- check each partition type actually is a column in the selected table
         .merge.checkpartitiontype[tablename;extrapartitiontype];
+        /- check if provided symbol column extrapartitiontype indeed has a symbol type in table
+        if[writedownmode~`partbyenum;.merge.checksymboltype[tablename;extrapartitiontype]];
         /- get list of distinct combiniations for partition directories
         extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
         /- enumerate data to be upserted
         enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
         .lg.o[`save;"enumerated ",(string tablename)," table"];
         /- upsert data to specific partition directory
-        upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;
-                /- empty the table
+        upserttopartition[dir;tablename;enumdata;pt;extrapartitiontype;;writedownmode] each extrapartitions;
+        /- empty the table
         .lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
         @[`.;tablename;0#];
         /- run a garbage collection (if enabled)
@@ -176,32 +160,8 @@ savetablesbypart:{[dir;pt;forcesave;tablename]
     ];
     };
 
-savetablesbypartenumcol:{[dir;pt;forcesave;tablename;extrapartitiontype]
-    /- check row count and save if maxrows exceeded
-    /- forcesave will write flush the data to disk irrespective of counts
-    if[forcesave or maxrows[tablename] < arows: count value tablename;
-       .lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];
-       /- check if provided symbol column extrapartitiontype indeed has a symbol type in table
-       .merge.checksymboltype[tablename;extrapartitiontype];
-       /- get list of distinct combinations for partition directories
-       extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
-       /- enumerate data to be upserted
-       enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
-       .lg.o[`save;"enumerated ",(string tablename)," table"];
-       /- upsert data to specific partition directory
-       upserttopartitionenum[dir;tablename;enumdata;pt;extrapartitiontype] each extrapartitions;
-       /- empty the table
-       .lg.o[`delete;"deleting ",(string tablename)," data from in-memory table"];
-       @[`.;tablename;0#];
-       /- run a garbage collection (if enabled)
-       if[gc;.gc.run[]];
-      ];
- };
-
-savetablesbypartenum:savetablesbypartenumcol[;;;;enumcol];
-
 /- modify savetable if parbyattr writedown option selected
-savetables:$[writedownmode~`partbyattr;savetablesbypart;writedownmode~`partbyenum;savetablesbypartenum;savetables];
+savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode];savetables];
 
 savetodisk:{[]
     savetables[savedir;getpartition[];0b;] each tablelist[];
@@ -633,7 +593,7 @@ getsortparams:{[]
 
 
 /- make sure to request connections for all the correct types
-.servers.CONNECTIONS:distinct .wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.idbtypes;
+.servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.idbtypes) except `;
 
 /-  adds endofday  function to top level namespace
 endofday: .wdb.endofday;

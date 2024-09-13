@@ -20,7 +20,7 @@ getextrapartitiontype:{[tablename]
         tabparts
         };
 
-/- function to check each partiton type specified in sort.csv is actually present in specified table
+/- function to check each partition type specified in sort.csv is actually present in specified table
 checkpartitiontype:{[tablename;extrapartitiontype]
         $[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
                 .lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
@@ -29,16 +29,15 @@ checkpartitiontype:{[tablename;extrapartitiontype]
 
 /- function to check if the extra partition column has a symbol type
 checksymboltype:{[tablename;extrapartitiontype]
-        $[extrapartitiontype in exec c from meta[tablename] where t="s";
-                .lg.o[`checksymbol;"parted column does have a symbol type in ",(string tablename)," table"];
-                .lg.e[`checksymbol;"parted column ",string[extrapartitiontype]," does not have a symbol type in ",(string tablename)," table"]];
+        $[all extrapartitiontype in exec c from meta[tablename] where t="s";
+                .lg.o[`checksymbol;"all columns do have a symbol type in ",(string tablename)," table"];
+                .lg.e[`checksymbol;"not all columns ",string[extrapartitiontype]," do have a symbol type in ",(string tablename)," table"]];
         };
 
 
 /- function to get list of distinct combiniations for partition directories
 /- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
 getextrapartitions:{[tablename;extrapartitiontype]
-        extrapartitiontype,:();
         value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
         };
 
