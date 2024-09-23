@@ -1,4 +1,6 @@
 // Bespoke IDB config
+\d .idb
+wdbtypes:`wdb;
 
 // Server connection details
 \d .servers

@@ -1,22 +1,24 @@
 /-default parameters
 \d .idb
 
+wdbtypes:@[value;wdbtypes;`wdb];
+
 /-these parameters are only used once their value has been set with values retrieved from the WBD.
 writedownmode:idbdir:savedir:currentpartition:symfilepath:`;
 symsize:partitionsize:0;
 
 /-force loads sym file
 loadsym:{[]
-    symfilehaschanged[];
-    .lg.o[`load;"sym file has changed, reloading"];
-    @[load;symfilepath; {.lg.e[`load;"failed to load sym file: ",string[symfilepath]," error: ",x];'x}];
+    .lg.o[`load;"loading the sym file"];
+    @[load;symfilepath; {.lg.e[`load;"failed to load sym file: ",string[symfilepath]," error: ",x]}];
+    symsize::hcount symfilepath;
  };
 
 /-force loads IDB
 loadidb:{[]
-    partitioncounthaschanged[];
-    .lg.o[`load;"number of partitions on disk has changed, reloading"];
-    @[system; "l ", 1_string idbdir; {.lg.e[`load;"failed to load IDB: ",string[idbdir]," error: ",x];'x}];
+    .lg.o[`load;"loading the db"];
+    @[system; "l ", 1_string idbdir; {.lg.e[`load;"failed to load IDB: ",string[idbdir]," error: ",x]}];
+    partitionsize::count key idbdir;
  };
 
 /- force loads the idb and the sym file
@@ -69,7 +71,7 @@ init:{[]
     .lg.o[`init; "searching for servers"];
     .servers.startup[];
     .lg.o[`init;"getting connection handle to the WDB"];
-    w:first exec w from .servers.getservers[`proctype;`wdb;()!();1b;1b];
+    w:.servers.gethandlebytype[wdbtypes;`any];
     /-exit if no valid handle
     if[0=count w; .lg.e[`connection;"no connection to the WDB could be established... failed to initialise."];:()];
     .lg.o[`init;"found a WDB process"];

@@ -116,7 +116,7 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
     /- enumerate current extra partition against the hdb sym file
     if[writedownmode~`partbyenum;i:`long$(` sv hdbsettings[`hdbdir],`sym)?first expt;];
     /- create directory location for selected partiton
-    /- replace random chracters in symbols with _
+    /- replace non-alphanumeric characters in symbols with _
     /- convert to symbols and replace any null values with `NONE
     directory:$[writedownmode~`partbyenum;
                 ` sv .Q.par[dir;pt;`$string i],tablename,`;
@@ -157,21 +157,23 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
         @[`.;tablename;0#];
         /- run a garbage collection (if enabled)
         if[gc;.gc.run[]];
+        :1b
     ];
+    0b
     };
 
 /- modify savetable if parbyattr writedown option selected
 savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode];savetables];
 
 savetodisk:{[]
-    savetables[savedir;getpartition[];0b;] each tablelist[];
+    changes:savetables[savedir;getpartition[];0b;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist();0b]]};
+    if[any[changes] or writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
 /- send an intraday reload message to idbs:
-notifyidbs:{[func;params;islogging]
+notifyidbs:{[func;params]
     ws:exec w from .servers.getservers[`proctype;`idb;()!();1b;0b];
-    if[islogging;.lg.o[`reload;"found ",(string count ws)," idb(s) to trigger function ",string func]];
+    .lg.o[`reload;"found ",(string count ws)," idb(s) to trigger reload with function ",string func];
     /-send async message along each handle
     {neg[x]enlist[y],z}[;func;params] each ws;
  };
@@ -208,7 +210,7 @@ endofday:{[pt;processdata]
        .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
        initmissingtables[];
        .lg.o[`eod;"notifying idbs for newly created partition"];
-       notifyidbs[`.idb.rollover;currentpartition;1b]];
+       notifyidbs[`.idb.rollover;currentpartition]];
     .lg.o[`eod;"end of day is now complete"];
     if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     };
@@ -320,7 +322,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
   setcompression[hdbsettings[`compression]];
   /- get tablename
   tabname:tableinfo[0];
-  /- get list of partition directories for specified table - partbyattr and partbyenum use different folder structure
+  /- get list of partition directories for specified table - partbyenum uses different folder structure vs partbyattr/default
   partdirs:$[writedownmode in `partbyenum;
              p where 0<count each key each p:` sv' ((-1_` vs p),/:key p:.Q.par[hsym dir;pt;`]),\: tabname;
              ` sv' tabledir,/:key tabledir:.Q.par[hsym dir;pt;tabname]];

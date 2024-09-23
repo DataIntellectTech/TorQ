@@ -43,7 +43,8 @@ savetables:{[dir;pt;forcesave;tabname]
         @[`.;tabname;0#];
         /- run a garbage collection (if enabled)
         if[gc;.gc.run[]];
-          ]};
+        :1b;
+          ]; 0b};
 
 \d .
 /-endofperiod function
