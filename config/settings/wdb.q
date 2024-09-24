@@ -5,6 +5,7 @@
 ignorelist:`heartbeat`logmsg                                                                // list of tables to ignore
 hdbtypes:`hdb                                                                               // list of hdb types to look for and call in hdb reload
 rdbtypes:`rdb                                                                               // list of rdb types to look for and call in rdb reload
+idbtypes:`idb                                                                               // list of idb types to look for and call in rdb reload
 gatewaytypes:`gateway                                                                       // list of gateway types to inform at reload
 tickerplanttypes:`segmentedtickerplant                                                      // list of tickerplant types to try and make a connection to
 subtabs:`                                                                                   // list of tables to subscribe for (` for all)
@@ -30,6 +31,10 @@ writedownmode:`default                                                          
                                                                                             //                       at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                                             // 2. partbyattr       - the data is partitioned by [ partitiontype ] and the column(s)assigned the parted attributed in sort.csv
                                                                                             //                       at EOD the data will be merged from each partiton before being moved to hdb
+                                                                                            // 3. partbyenum       - the data is partitioned by [ partitiontype ] and a symbol column with parted attrobution assigned in sort.csv
+                                                                                            //                       at EOD the data will be merged from each partiton before being moved to hdb
+enumcol:`sym;                                                                               // default column for partitioning. Only used with writedownmode: partbyenum.
+
 mergemode:`part                                                                             // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
                                                                                             // 1. part                      -       the entire partition is merged to the hdb 
                                                                                             // 2. col                       -       each column in the temporary partitions are merged individually 
@@ -45,8 +50,7 @@ replay:1b                                                                       
 schema:1b                                                                                   // retrieve schema from tickerplant
 settimer:0D00:00:10                                                                         // timer to check if data needs written to disk
 partitiontype:`date                                                                         // set type of partition (defaults to `date, can be `date, `month or `year)
-gmttime:1b                                                                                  // define whether the process is on gmttime or not
-getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$(.z.D,.z.d)gmttime]}     // function to determine the partition value
+getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$.proc.cd[]]}             // function to determine the partition value
 reloadorder:`hdb`rdb                                                                        // order to reload hdbs and rdbs
 hdbdir:`:hdb                                                                                // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile"sort.csv"                                            // location of csv file
@@ -58,9 +62,9 @@ tpcheckcycles:0W                                                                
 
 // Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
 STARTUP:1b                                                                                  // create connections
+CONNECTIONS:`hdb`tickerplant`rdb`gateway`sort                                               // list of connections to make at start up
 
 \d .proc
-loadprocesscode:1b                              // Whether to load the process specific code defined at ${KDBCODE}/{process type}
+loadprocesscode:1b                                                                          // Whether to load the process specific code defined at ${KDBCODE}/{process type}
 

@@ -1,0 +1,9 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q,q
+localhost,{KDBBASEPORT}+102,idb,idbenum,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/idb.q,1,,q
+localhost,{KDBBASEPORT}+109,idb,idbenum2,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/idb.q,1,,q
+localhost,{KDBBASEPORT}+103,wdb,wdbenum,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q -.wdb.writedownmode partbyenum -.wdb.mode saveandsort -.wdb.sortcsv ${KDBTESTS}/stp/idbpartbyenum/config/sort.csv -.wdb.savedir ${KDBTESTS}/stp/idbpartbyenum/tempwdb/ -.wdb.hdbdir ${KDBTESTS}/stp/idbpartbyenum/temphdb/ -.wdb.mergemode hybrid -.wdb.mergenumbytes 50000000 -.merge.mergebybytelimit 1 -.wdb.settimer 0D00:00:02,1,,q
+localhost,{KDBBASEPORT}+104,hdb,hdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBTESTS}/stp/idbpartbyenum/temphdb/,1,,q
+localhost,{KDBBASEPORT}+106,gateway,gateway1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/gateway.q,1,,q
+localhost,{KDBBASEPORT}+107,sort,sort1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q ${KDBTESTS}/merge/wdb/config/wdbsettings.q,1,-s -2,

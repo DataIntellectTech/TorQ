@@ -2,13 +2,12 @@
 
 /-Required variables for savetables function
 compression:@[value;`compression;()];                                      /-specify the compress level, empty list if no required
-savedir:@[value;`savedir;`:temphdb];                                       /-location to save wdb data
-hdbdir:@[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
+savedir:hsym @[value;`savedir;`:temphdb];                                       /-location to save wdb data
+hdbdir:hsym @[value;`hdbdir;`:hdb];                                             /-move wdb database to different location
 
-hdbsettings:(`compression`hdbdir)!(compression;hdbdir);
+hdbsettings:(`compression`hdbdir)!(compression;hsym hdbdir);
 numrows:@[value;`numrows;100000];                                          /-default number of rows
 numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-specify number of rows per table
-gmttime:@[value;`gmttime;1b];                                              /-define whether the process is on gmttime or not
 
 
 maxrows:{[tabname] numrows^numtab[tabname]};                               /- extract user defined row counts
@@ -18,7 +17,7 @@ partitiontype:@[value;`partitiontype;`date];                               /-set
 
 getpartition:@[value;`getpartition;                                        /-function to determine the partition value
         {{@[value;`.wdb.currentpartition;
-				(`date^partitiontype)$(.z.D,.z.d)gmttime]}}];
+                (`date^partitiontype)$.proc.cd[]]}}];
 
 currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
 
@@ -38,13 +37,14 @@ savetables:{[dir;pt;forcesave;tabname]
         ];
         /- make addition to tabsizes
         .lg.o[`track;"appending table details to tabsizes"];
-	.wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
+        .wdb.tabsizes+:([tablename:enlist tabname]rowcount:enlist arows;bytes:enlist -22!r);
         /- empty the table
         .lg.o[`delete;"deleting ",(string tabname)," data from in-memory table"];
         @[`.;tabname;0#];
         /- run a garbage collection (if enabled)
         if[gc;.gc.run[]];
-	]};
+        :1b;
+          ]; 0b};
 
 \d .
 /-endofperiod function

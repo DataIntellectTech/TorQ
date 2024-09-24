@@ -20,13 +20,19 @@ getextrapartitiontype:{[tablename]
         tabparts
         };
 
-/- function to check each partiton type specified in sort.csv is actually present in specified table
+/- function to check each partition type specified in sort.csv is actually present in specified table
 checkpartitiontype:{[tablename;extrapartitiontype]
         $[count colsnotintab:extrapartitiontype where not extrapartitiontype in cols get tablename;
                 .lg.e[`checkpart;"parted columns ",(", " sv string colsnotintab)," are defined in sort.csv but not present in ",(string tablename)," table"];
                 .lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
 	};
 
+/- function to check if the extra partition column has a symbol type
+checksymboltype:{[tablename;extrapartitiontype]
+        $[all extrapartitiontype in exec c from meta[tablename] where t="s";
+                .lg.o[`checksymbol;"all columns do have a symbol type in ",(string tablename)," table"];
+                .lg.e[`checksymbol;"not all columns ",string[extrapartitiontype]," do have a symbol type in ",(string tablename)," table"]];
+        };
 
 
 /- function to get list of distinct combiniations for partition directories
@@ -66,7 +72,7 @@ mergebypart:{[tablename;dest;partchunks]
    .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
    /-merge columns to permanent storage
    .[upsert;(dest;chunks);                     
-     {.lg.e[`merge;"failed to merge to ", sting[dest], " from segments ", (", " sv string chunks)];}];
+     {.lg.e[`merge;"failed to merge to ", string[dest], " from segments ", (", " sv string chunks)];}];
    };
 
 /-merge data from partition in temporary storage to permanent storage, column by column rather than by entire partition
