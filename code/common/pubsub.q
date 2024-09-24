@@ -107,7 +107,7 @@ closesub:{[h]
 / Scope value to inside the function so we can iterate over a set of tables without loading
 / them all into memory at once
 / Takes a symbol to a global table
-extractschema: {t: value x; $[.Q.qp t; t; 0#t]};
+extractschema:{t:value x; $[.Q.qp t; t; 0#t]};
 
 // Strip attributes and remove keying from tables and store in separate dictionary (for use on STP and SCTP)
 attrstrip:{[t]
