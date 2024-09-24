@@ -8,8 +8,15 @@
       
       
       
+      
+        <link rel="prev" href="../InstallGuide/">
+      
+      
+        <link rel="next" href="../handlers/">
+      
+      
       <link rel="icon" href="../graphics/favicon.ico">
-      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.2.9">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -17,13 +24,17 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.120efc48.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.9647289d.min.css">
-        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
+      
+
+
     
+    
+      
     
     
       
@@ -35,7 +46,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -44,11 +55,12 @@
   
   
 
+<script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","UA-51911331-4"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","UA-51911331-4",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=UA-51911331-4",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
 
-  <script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-51911331-4","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){var e;this.value&&(e=document.location.pathname,ga("send","pageview",e+"?q="+this.value))}),"undefined"!=typeof location$&&location$.subscribe(function(e){ga("send","pageview",e.pathname)})})</script>
-  <script async src="https://www.google-analytics.com/analytics.js"></script>
-
-
+    
     
     
   </head>
@@ -63,9 +75,6 @@
     
     <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey">
   
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -85,7 +94,9 @@
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="TorQ" class="md-header__button md-logo" aria-label="TorQ" data-md-component="logo">
       
@@ -93,6 +104,7 @@
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
+      
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
@@ -112,31 +124,39 @@
       </div>
     </div>
     
-      <form class="md-header__option" data-md-component="palette">
-        
-          
-          
-          <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
-          
-            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
-            </label>
-          
-        
-          
-          
-          <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
-          
-            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
-            </label>
-          
-        
-      </form>
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
       <label class="md-header__button md-icon" for="__search">
+        
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
@@ -145,12 +165,15 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
+        
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
-        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
         </button>
       </nav>
@@ -159,12 +182,12 @@
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -176,7 +199,7 @@
         <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -206,6 +229,7 @@
                     
 
 
+
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="TorQ" class="md-nav__button md-logo" aria-label="TorQ" data-md-component="logo">
@@ -220,7 +244,7 @@
       <a href="https://github.com/DataIntellectTech/TorQ" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -232,14 +256,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href=".." class="md-nav__link">
-        Home
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
       </a>
     </li>
   
@@ -247,14 +276,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../Overview/" class="md-nav__link">
-        About
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
       </a>
     </li>
   
@@ -262,14 +296,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../cheatsheet/" class="md-nav__link">
-        Cheat Sheat
+        
+  
+  <span class="md-ellipsis">
+    Cheat Sheat
+  </span>
+  
+
       </a>
     </li>
   
@@ -277,14 +316,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../gettingstarted/" class="md-nav__link">
-        Getting Started
+        
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
       </a>
     </li>
   
@@ -292,14 +336,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../InstallGuide/" class="md-nav__link">
-        Installation
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
       </a>
     </li>
   
@@ -307,28 +356,39 @@
     
       
       
-      
-
   
   
     
   
   
+  
     <li class="md-nav__item md-nav__item--active">
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
         
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Utilities
+          
+  
+  <span class="md-ellipsis">
+    Utilities
+  </span>
+  
+
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Utilities
+        
+  
+  <span class="md-ellipsis">
+    Utilities
+  </span>
+  
+
       </a>
       
         
@@ -348,42 +408,54 @@
       
         <li class="md-nav__item">
   <a href="#apiq" class="md-nav__link">
-    api.q
+    <span class="md-ellipsis">
+      api.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#apidetailsq" class="md-nav__link">
-    apidetails.q
+    <span class="md-ellipsis">
+      apidetails.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#timerq" class="md-nav__link">
-    timer.q
+    <span class="md-ellipsis">
+      timer.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#asyncq" class="md-nav__link">
-    async.q
+    <span class="md-ellipsis">
+      async.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#cacheq" class="md-nav__link">
-    cache.q
+    <span class="md-ellipsis">
+      cache.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#emailq" class="md-nav__link">
-    email.q
+    <span class="md-ellipsis">
+      email.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="email.q">
@@ -391,7 +463,9 @@
         
           <li class="md-nav__item">
   <a href="#emails-with-ssl-certificates-from-windows" class="md-nav__link">
-    Emails with SSL certificates from Windows
+    <span class="md-ellipsis">
+      Emails with SSL certificates from Windows
+    </span>
   </a>
   
 </li>
@@ -403,35 +477,45 @@
       
         <li class="md-nav__item">
   <a href="#timezoneq" class="md-nav__link">
-    timezone.q
+    <span class="md-ellipsis">
+      timezone.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#compressq" class="md-nav__link">
-    compress.q
+    <span class="md-ellipsis">
+      compress.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dataloaderq" class="md-nav__link">
-    dataloader.q
+    <span class="md-ellipsis">
+      dataloader.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#subscriptionsq" class="md-nav__link">
-    subscriptions.q
+    <span class="md-ellipsis">
+      subscriptions.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#pubsubq" class="md-nav__link">
-    pubsub.q
+    <span class="md-ellipsis">
+      pubsub.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="pubsub.q">
@@ -439,14 +523,18 @@
         
           <li class="md-nav__item">
   <a href="#data-striping" class="md-nav__link">
-    Data striping
+    <span class="md-ellipsis">
+      Data striping
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#setting-up-data-striping-in-torq" class="md-nav__link">
-    Setting up data striping in TorQ
+    <span class="md-ellipsis">
+      Setting up data striping in TorQ
+    </span>
   </a>
   
 </li>
@@ -458,49 +546,63 @@
       
         <li class="md-nav__item">
   <a href="#kafkaq" class="md-nav__link">
-    kafka.q
+    <span class="md-ellipsis">
+      kafka.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#tplogutilsq" class="md-nav__link">
-    tplogutils.q
+    <span class="md-ellipsis">
+      tplogutils.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#monitoringchecksq" class="md-nav__link">
-    monitoringchecks.q
+    <span class="md-ellipsis">
+      monitoringchecks.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#heartbeatq" class="md-nav__link">
-    heartbeat.q
+    <span class="md-ellipsis">
+      heartbeat.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#rmvrq" class="md-nav__link">
-    rmvr.q
+    <span class="md-ellipsis">
+      rmvr.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#osq" class="md-nav__link">
-    os.q
+    <span class="md-ellipsis">
+      os.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dbwriteutilsq" class="md-nav__link">
-    dbwriteutils.q
+    <span class="md-ellipsis">
+      dbwriteutils.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="dbwriteutils.q">
@@ -508,21 +610,27 @@
         
           <li class="md-nav__item">
   <a href="#sorting-and-attributes" class="md-nav__link">
-    Sorting and Attributes
+    <span class="md-ellipsis">
+      Sorting and Attributes
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#garbage-collection" class="md-nav__link">
-    Garbage Collection
+    <span class="md-ellipsis">
+      Garbage Collection
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#table-manipulation" class="md-nav__link">
-    Table Manipulation
+    <span class="md-ellipsis">
+      Table Manipulation
+    </span>
   </a>
   
 </li>
@@ -534,77 +642,99 @@
       
         <li class="md-nav__item">
   <a href="#helpq" class="md-nav__link">
-    help.q
+    <span class="md-ellipsis">
+      help.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#htmlq" class="md-nav__link">
-    html.q
+    <span class="md-ellipsis">
+      html.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#eodtimeq" class="md-nav__link">
-    eodtime.q
+    <span class="md-ellipsis">
+      eodtime.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#subscribercutoffq" class="md-nav__link">
-    subscribercutoff.q
+    <span class="md-ellipsis">
+      subscribercutoff.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#datareplayq" class="md-nav__link">
-    datareplay.q
+    <span class="md-ellipsis">
+      datareplay.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
-    Examples:
+    <span class="md-ellipsis">
+      Examples:
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#modified-uq" class="md-nav__link">
-    Modified u.q
+    <span class="md-ellipsis">
+      Modified u.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#bglaunchutilsq" class="md-nav__link">
-    bglaunchutils.q
+    <span class="md-ellipsis">
+      bglaunchutils.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#full-api" class="md-nav__link">
-    Full API
+    <span class="md-ellipsis">
+      Full API
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#api-table" class="md-nav__link">
-    API Table
+    <span class="md-ellipsis">
+      API Table
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#grafanaq" class="md-nav__link">
-    grafana.q
+    <span class="md-ellipsis">
+      grafana.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="grafana.q">
@@ -612,28 +742,36 @@
         
           <li class="md-nav__item">
   <a href="#requirements" class="md-nav__link">
-    Requirements
+    <span class="md-ellipsis">
+      Requirements
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#getting-started" class="md-nav__link">
-    Getting Started
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#using-the-adaptor" class="md-nav__link">
-    Using the adaptor
+    <span class="md-ellipsis">
+      Using the adaptor
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#limitations-assumptions" class="md-nav__link">
-    Limitations &amp; Assumptions
+    <span class="md-ellipsis">
+      Limitations &amp; Assumptions
+    </span>
   </a>
   
 </li>
@@ -653,14 +791,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../handlers/" class="md-nav__link">
-        Handlers
+        
+  
+  <span class="md-ellipsis">
+    Handlers
+  </span>
+  
+
       </a>
     </li>
   
@@ -668,14 +811,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../conn/" class="md-nav__link">
-        Connection Management
+        
+  
+  <span class="md-ellipsis">
+    Connection Management
+  </span>
+  
+
       </a>
     </li>
   
@@ -683,14 +831,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../Processes/" class="md-nav__link">
-        Processes
+        
+  
+  <span class="md-ellipsis">
+    Processes
+  </span>
+  
+
       </a>
     </li>
   
@@ -698,14 +851,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../analyticslib/" class="md-nav__link">
-        Analytics Library
+        
+  
+  <span class="md-ellipsis">
+    Analytics Library
+  </span>
+  
+
       </a>
     </li>
   
@@ -713,14 +871,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../dataaccess/" class="md-nav__link">
-        Data Access Library
+        
+  
+  <span class="md-ellipsis">
+    Data Access Library
+  </span>
+  
+
       </a>
     </li>
   
@@ -728,14 +891,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../monit/" class="md-nav__link">
-        Monitoring
+        
+  
+  <span class="md-ellipsis">
+    Monitoring
+  </span>
+  
+
       </a>
     </li>
   
@@ -743,14 +911,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../visualisation/" class="md-nav__link">
-        Visualisation
+        
+  
+  <span class="md-ellipsis">
+    Visualisation
+  </span>
+  
+
       </a>
     </li>
   
@@ -758,14 +931,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../unittesting/" class="md-nav__link">
-        Testing
+        
+  
+  <span class="md-ellipsis">
+    Testing
+  </span>
+  
+
       </a>
     </li>
   
@@ -773,14 +951,19 @@
     
       
       
-      
-
+  
   
   
   
     <li class="md-nav__item">
       <a href="../blog/" class="md-nav__link">
-        TorQ Blog Posts
+        
+  
+  <span class="md-ellipsis">
+    TorQ Blog Posts
+  </span>
+  
+
       </a>
     </li>
   
@@ -814,42 +997,54 @@
       
         <li class="md-nav__item">
   <a href="#apiq" class="md-nav__link">
-    api.q
+    <span class="md-ellipsis">
+      api.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#apidetailsq" class="md-nav__link">
-    apidetails.q
+    <span class="md-ellipsis">
+      apidetails.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#timerq" class="md-nav__link">
-    timer.q
+    <span class="md-ellipsis">
+      timer.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#asyncq" class="md-nav__link">
-    async.q
+    <span class="md-ellipsis">
+      async.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#cacheq" class="md-nav__link">
-    cache.q
+    <span class="md-ellipsis">
+      cache.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#emailq" class="md-nav__link">
-    email.q
+    <span class="md-ellipsis">
+      email.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="email.q">
@@ -857,7 +1052,9 @@
         
           <li class="md-nav__item">
   <a href="#emails-with-ssl-certificates-from-windows" class="md-nav__link">
-    Emails with SSL certificates from Windows
+    <span class="md-ellipsis">
+      Emails with SSL certificates from Windows
+    </span>
   </a>
   
 </li>
@@ -869,35 +1066,45 @@
       
         <li class="md-nav__item">
   <a href="#timezoneq" class="md-nav__link">
-    timezone.q
+    <span class="md-ellipsis">
+      timezone.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#compressq" class="md-nav__link">
-    compress.q
+    <span class="md-ellipsis">
+      compress.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dataloaderq" class="md-nav__link">
-    dataloader.q
+    <span class="md-ellipsis">
+      dataloader.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#subscriptionsq" class="md-nav__link">
-    subscriptions.q
+    <span class="md-ellipsis">
+      subscriptions.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#pubsubq" class="md-nav__link">
-    pubsub.q
+    <span class="md-ellipsis">
+      pubsub.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="pubsub.q">
@@ -905,14 +1112,18 @@
         
           <li class="md-nav__item">
   <a href="#data-striping" class="md-nav__link">
-    Data striping
+    <span class="md-ellipsis">
+      Data striping
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#setting-up-data-striping-in-torq" class="md-nav__link">
-    Setting up data striping in TorQ
+    <span class="md-ellipsis">
+      Setting up data striping in TorQ
+    </span>
   </a>
   
 </li>
@@ -924,49 +1135,63 @@
       
         <li class="md-nav__item">
   <a href="#kafkaq" class="md-nav__link">
-    kafka.q
+    <span class="md-ellipsis">
+      kafka.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#tplogutilsq" class="md-nav__link">
-    tplogutils.q
+    <span class="md-ellipsis">
+      tplogutils.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#monitoringchecksq" class="md-nav__link">
-    monitoringchecks.q
+    <span class="md-ellipsis">
+      monitoringchecks.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#heartbeatq" class="md-nav__link">
-    heartbeat.q
+    <span class="md-ellipsis">
+      heartbeat.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#rmvrq" class="md-nav__link">
-    rmvr.q
+    <span class="md-ellipsis">
+      rmvr.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#osq" class="md-nav__link">
-    os.q
+    <span class="md-ellipsis">
+      os.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#dbwriteutilsq" class="md-nav__link">
-    dbwriteutils.q
+    <span class="md-ellipsis">
+      dbwriteutils.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="dbwriteutils.q">
@@ -974,21 +1199,27 @@
         
           <li class="md-nav__item">
   <a href="#sorting-and-attributes" class="md-nav__link">
-    Sorting and Attributes
+    <span class="md-ellipsis">
+      Sorting and Attributes
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#garbage-collection" class="md-nav__link">
-    Garbage Collection
+    <span class="md-ellipsis">
+      Garbage Collection
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#table-manipulation" class="md-nav__link">
-    Table Manipulation
+    <span class="md-ellipsis">
+      Table Manipulation
+    </span>
   </a>
   
 </li>
@@ -1000,77 +1231,99 @@
       
         <li class="md-nav__item">
   <a href="#helpq" class="md-nav__link">
-    help.q
+    <span class="md-ellipsis">
+      help.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#htmlq" class="md-nav__link">
-    html.q
+    <span class="md-ellipsis">
+      html.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#eodtimeq" class="md-nav__link">
-    eodtime.q
+    <span class="md-ellipsis">
+      eodtime.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#subscribercutoffq" class="md-nav__link">
-    subscribercutoff.q
+    <span class="md-ellipsis">
+      subscribercutoff.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#datareplayq" class="md-nav__link">
-    datareplay.q
+    <span class="md-ellipsis">
+      datareplay.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
-    Examples:
+    <span class="md-ellipsis">
+      Examples:
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#modified-uq" class="md-nav__link">
-    Modified u.q
+    <span class="md-ellipsis">
+      Modified u.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#bglaunchutilsq" class="md-nav__link">
-    bglaunchutils.q
+    <span class="md-ellipsis">
+      bglaunchutils.q
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#full-api" class="md-nav__link">
-    Full API
+    <span class="md-ellipsis">
+      Full API
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#api-table" class="md-nav__link">
-    API Table
+    <span class="md-ellipsis">
+      API Table
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#grafanaq" class="md-nav__link">
-    grafana.q
+    <span class="md-ellipsis">
+      grafana.q
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="grafana.q">
@@ -1078,28 +1331,36 @@
         
           <li class="md-nav__item">
   <a href="#requirements" class="md-nav__link">
-    Requirements
+    <span class="md-ellipsis">
+      Requirements
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#getting-started" class="md-nav__link">
-    Getting Started
+    <span class="md-ellipsis">
+      Getting Started
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#using-the-adaptor" class="md-nav__link">
-    Using the adaptor
+    <span class="md-ellipsis">
+      Using the adaptor
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="#limitations-assumptions" class="md-nav__link">
-    Limitations &amp; Assumptions
+    <span class="md-ellipsis">
+      Limitations &amp; Assumptions
+    </span>
   </a>
   
 </li>
@@ -1117,14 +1378,14 @@
               </div>
             
           
-          <div class="md-content" data-md-component="content">
-            <article class="md-content__inner md-typeset">
-              
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
                 
-  <a href="https://github.com/DataIntellectTech/TorQ/edit/master/docs/utilities.md" title="Edit this page" class="md-content__button md-icon">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
-  </a>
+                  
 
+  
+  
 
 
 <p><a name="ut"></a></p>
@@ -1407,48 +1668,48 @@ parameter and returns 0i for success and -1i for failure.</p>
 <table>
 <thead>
 <tr>
-<th align="center">Parameter</th>
-<th align="center">Req</th>
-<th align="center">Type</th>
-<th align="center">Description</th>
+<th style="text-align: center;">Parameter</th>
+<th style="text-align: center;">Req</th>
+<th style="text-align: center;">Type</th>
+<th style="text-align: center;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">url</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">URL of mail server e.g. smtp://mail.example.com</td>
+<td style="text-align: center;">url</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">URL of mail server e.g. smtp://mail.example.com</td>
 </tr>
 <tr>
-<td align="center">user</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Username of user to login as</td>
+<td style="text-align: center;">user</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Username of user to login as</td>
 </tr>
 <tr>
-<td align="center">password</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Password for user</td>
+<td style="text-align: center;">password</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Password for user</td>
 </tr>
 <tr>
-<td align="center">usessl</td>
-<td align="center">N</td>
-<td align="center">boolean</td>
-<td align="center">Connect using SSL/TLS, defaults to false</td>
+<td style="text-align: center;">usessl</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">boolean</td>
+<td style="text-align: center;">Connect using SSL/TLS, defaults to false</td>
 </tr>
 <tr>
-<td align="center">from</td>
-<td align="center">N</td>
-<td align="center">symbol</td>
-<td align="center">Email from field, defaults to torq@aquaq.co.uk</td>
+<td style="text-align: center;">from</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Email from field, defaults to torq@aquaq.co.uk</td>
 </tr>
 <tr>
-<td align="center">debug</td>
-<td align="center">N</td>
-<td align="center">integer</td>
-<td align="center">Debug level. 0=no output, 1=normal output, 2=verbose output. Default is 1</td>
+<td style="text-align: center;">debug</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">Debug level. 0=no output, 1=normal output, 2=verbose output. Default is 1</td>
 </tr>
 </tbody>
 </table>
@@ -1469,48 +1730,48 @@ integer of the email length on success, or -1 on failure.</p>
 <table>
 <thead>
 <tr>
-<th align="center">Parameter</th>
-<th align="center">Req</th>
-<th align="center">Type</th>
-<th align="center">Description</th>
+<th style="text-align: center;">Parameter</th>
+<th style="text-align: center;">Req</th>
+<th style="text-align: center;">Type</th>
+<th style="text-align: center;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">to</td>
-<td align="center">Y</td>
-<td align="center">symbol (list)</td>
-<td align="center">addresses to send to</td>
+<td style="text-align: center;">to</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol (list)</td>
+<td style="text-align: center;">addresses to send to</td>
 </tr>
 <tr>
-<td align="center">subject</td>
-<td align="center">Y</td>
-<td align="center">char list</td>
-<td align="center">email subject</td>
+<td style="text-align: center;">subject</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">char list</td>
+<td style="text-align: center;">email subject</td>
 </tr>
 <tr>
-<td align="center">body</td>
-<td align="center">Y</td>
-<td align="center">list of char lists</td>
-<td align="center">email body</td>
+<td style="text-align: center;">body</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">list of char lists</td>
+<td style="text-align: center;">email body</td>
 </tr>
 <tr>
-<td align="center">cc</td>
-<td align="center">N</td>
-<td align="center">symbol (list)</td>
-<td align="center">cc list</td>
+<td style="text-align: center;">cc</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol (list)</td>
+<td style="text-align: center;">cc list</td>
 </tr>
 <tr>
-<td align="center">bodyType</td>
-<td align="center">N</td>
-<td align="center">symbol</td>
-<td align="center">type of email body. Can be `text or `html. Default is `text</td>
+<td style="text-align: center;">bodyType</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">type of email body. Can be `text or `html. Default is `text</td>
 </tr>
 <tr>
-<td align="center">debug</td>
-<td align="center">N</td>
-<td align="center">integer</td>
-<td align="center">Debug level. 0=no output, 1=normal output,2=verbose output. Default is 1</td>
+<td style="text-align: center;">debug</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">integer</td>
+<td style="text-align: center;">Debug level. 0=no output, 1=normal output,2=verbose output. Default is 1</td>
 </tr>
 </tbody>
 </table>
@@ -1711,90 +1972,90 @@ dictionary should/can have the following fields:</p>
 <table>
 <thead>
 <tr>
-<th align="center">Parameter</th>
-<th align="center">Req</th>
-<th align="center">Type</th>
-<th align="center">Description</th>
+<th style="text-align: center;">Parameter</th>
+<th style="text-align: center;">Req</th>
+<th style="text-align: center;">Type</th>
+<th style="text-align: center;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">headers</td>
-<td align="center">Y</td>
-<td align="center">symbol list</td>
-<td align="center">Names of the header columns in the file</td>
+<td style="text-align: center;">headers</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol list</td>
+<td style="text-align: center;">Names of the header columns in the file</td>
 </tr>
 <tr>
-<td align="center">types</td>
-<td align="center">Y</td>
-<td align="center">char list</td>
-<td align="center">Data types to read from the file</td>
+<td style="text-align: center;">types</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">char list</td>
+<td style="text-align: center;">Data types to read from the file</td>
 </tr>
 <tr>
-<td align="center">separator</td>
-<td align="center">Y</td>
-<td align="center">char[list]</td>
-<td align="center">Delimiting character. Enlist it if first line of file is header data</td>
+<td style="text-align: center;">separator</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">char[list]</td>
+<td style="text-align: center;">Delimiting character. Enlist it if first line of file is header data</td>
 </tr>
 <tr>
-<td align="center">tablename</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Name of table to write data to</td>
+<td style="text-align: center;">tablename</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Name of table to write data to</td>
 </tr>
 <tr>
-<td align="center">dbdir</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Directory to write data to</td>
+<td style="text-align: center;">dbdir</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Directory to write data to</td>
 </tr>
 <tr>
-<td align="center">symdir</td>
-<td align="center">N</td>
-<td align="center">symbol</td>
-<td align="center">Directory to enumerate against</td>
+<td style="text-align: center;">symdir</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Directory to enumerate against</td>
 </tr>
 <tr>
-<td align="center">partitiontype</td>
-<td align="center">N</td>
-<td align="center">symbol</td>
-<td align="center">Partitioning to use. Must be one of `date`month`year`int. Default is `date</td>
+<td style="text-align: center;">partitiontype</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Partitioning to use. Must be one of `date`month`year`int. Default is `date</td>
 </tr>
 <tr>
-<td align="center">partitioncol</td>
-<td align="center">N</td>
-<td align="center">symbol</td>
-<td align="center">Column to use to extract partition information.Default is `time</td>
+<td style="text-align: center;">partitioncol</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Column to use to extract partition information.Default is `time</td>
 </tr>
 <tr>
-<td align="center">dataprocessfunc</td>
-<td align="center">N</td>
-<td align="center">function</td>
-<td align="center">Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y}</td>
+<td style="text-align: center;">dataprocessfunc</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">function</td>
+<td style="text-align: center;">Diadic function to process data after it has been read in. First argument is load parameters dictionary, second argument is data which has been read in. Default is {[x;y] y}</td>
 </tr>
 <tr>
-<td align="center">chunksize</td>
-<td align="center">N</td>
-<td align="center">int</td>
-<td align="center">Data size in bytes to read in one chunk. Default is 100 MB</td>
+<td style="text-align: center;">chunksize</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">int</td>
+<td style="text-align: center;">Data size in bytes to read in one chunk. Default is 100 MB</td>
 </tr>
 <tr>
-<td align="center">compression</td>
-<td align="center">N</td>
-<td align="center">int list</td>
-<td align="center">Compression parameters to use e.g. 17 2 6. Default is empty list for no compression</td>
+<td style="text-align: center;">compression</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">int list</td>
+<td style="text-align: center;">Compression parameters to use e.g. 17 2 6. Default is empty list for no compression</td>
 </tr>
 <tr>
-<td align="center">gc</td>
-<td align="center">N</td>
-<td align="center">boolean</td>
-<td align="center">Whether to run garbage collection at appropriate points. Default is 0b (false)</td>
+<td style="text-align: center;">gc</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">boolean</td>
+<td style="text-align: center;">Whether to run garbage collection at appropriate points. Default is 0b (false)</td>
 </tr>
 <tr>
-<td align="center">filepattern</td>
-<td align="center">N</td>
-<td align="center">char[list]</td>
-<td align="center">Pattern used to only load certain files e.g. "<em>.csv",("</em>.csv","*.txt")</td>
+<td style="text-align: center;">filepattern</td>
+<td style="text-align: center;">N</td>
+<td style="text-align: center;">char[list]</td>
+<td style="text-align: center;">Pattern used to only load certain files e.g. "<em>.csv",("</em>.csv","*.txt")</td>
 </tr>
 </tbody>
 </table>
@@ -2199,30 +2460,30 @@ configurable time.</p>
 <table>
 <thead>
 <tr>
-<th align="center">Setting</th>
-<th align="center">Req</th>
-<th align="center">Type</th>
-<th align="center">Description</th>
+<th style="text-align: center;">Setting</th>
+<th style="text-align: center;">Req</th>
+<th style="text-align: center;">Type</th>
+<th style="text-align: center;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">.eodtime.rolltimeoffset</td>
-<td align="center">Y</td>
-<td align="center">timespan</td>
-<td align="center">Offset from default midnight roll time</td>
+<td style="text-align: center;">.eodtime.rolltimeoffset</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">timespan</td>
+<td style="text-align: center;">Offset from default midnight roll time</td>
 </tr>
 <tr>
-<td align="center">.eodtime.rolltimezone</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Time zone in which to rollover</td>
+<td style="text-align: center;">.eodtime.rolltimezone</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Time zone in which to rollover</td>
 </tr>
 <tr>
-<td align="center">.eodtime.datatimezone</td>
-<td align="center">Y</td>
-<td align="center">symbol</td>
-<td align="center">Time zone in which to timestamp data in TP</td>
+<td style="text-align: center;">.eodtime.datatimezone</td>
+<td style="text-align: center;">Y</td>
+<td style="text-align: center;">symbol</td>
+<td style="text-align: center;">Time zone in which to timestamp data in TP</td>
 </tr>
 </tbody>
 </table>
@@ -2265,83 +2526,83 @@ fields:</p>
 <table>
 <thead>
 <tr>
-<th align="center">Key</th>
-<th align="center">Example Value</th>
-<th align="center">Description</th>
-<th align="center">Required</th>
-<th align="center">Default</th>
+<th style="text-align: center;">Key</th>
+<th style="text-align: center;">Example Value</th>
+<th style="text-align: center;">Description</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Default</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">tabs</td>
-<td align="center"><code>`trade`quote or `trade</code></td>
-<td align="center">List of tables to include</td>
-<td align="center">Yes</td>
-<td align="center">N/A</td>
+<td style="text-align: center;">tabs</td>
+<td style="text-align: center;"><code>`trade`quote or `trade</code></td>
+<td style="text-align: center;">List of tables to include</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">N/A</td>
 </tr>
 <tr>
-<td align="center">sts</td>
-<td align="center">2014.04.04D07:00:00.000</td>
-<td align="center">Start timestamp for data</td>
-<td align="center">Yes</td>
-<td align="center">N/A</td>
+<td style="text-align: center;">sts</td>
+<td style="text-align: center;">2014.04.04D07:00:00.000</td>
+<td style="text-align: center;">Start timestamp for data</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">N/A</td>
 </tr>
 <tr>
-<td align="center">ets</td>
-<td align="center">2014.04.04D16:30:00.000</td>
-<td align="center">End of timestamp for data</td>
-<td align="center">Yes</td>
-<td align="center">N/A</td>
+<td style="text-align: center;">ets</td>
+<td style="text-align: center;">2014.04.04D16:30:00.000</td>
+<td style="text-align: center;">End of timestamp for data</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">N/A</td>
 </tr>
 <tr>
-<td align="center">syms</td>
-<td align="center"><code>`AAPL`IBM</code></td>
-<td align="center">List of symbols to include</td>
-<td align="center">No</td>
-<td align="center">All syms</td>
+<td style="text-align: center;">syms</td>
+<td style="text-align: center;"><code>`AAPL`IBM</code></td>
+<td style="text-align: center;">List of symbols to include</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">All syms</td>
 </tr>
 <tr>
-<td align="center">where</td>
-<td align="center"><code>,(=;`src;,`L)</code></td>
-<td align="center">Custom where clause in functional form</td>
-<td align="center">No</td>
-<td align="center">none</td>
+<td style="text-align: center;">where</td>
+<td style="text-align: center;"><code>,(=;`src;,`L)</code></td>
+<td style="text-align: center;">Custom where clause in functional form</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">none</td>
 </tr>
 <tr>
-<td align="center">timer</td>
-<td align="center">1b</td>
-<td align="center">Generate timer function flag</td>
-<td align="center">No</td>
-<td align="center">0b</td>
+<td style="text-align: center;">timer</td>
+<td style="text-align: center;">1b</td>
+<td style="text-align: center;">Generate timer function flag</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">0b</td>
 </tr>
 <tr>
-<td align="center">h</td>
-<td align="center">5i</td>
-<td align="center">Handle to hdb process</td>
-<td align="center">No</td>
-<td align="center">0i (self)</td>
+<td style="text-align: center;">h</td>
+<td style="text-align: center;">5i</td>
+<td style="text-align: center;">Handle to hdb process</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">0i (self)</td>
 </tr>
 <tr>
-<td align="center">interval</td>
-<td align="center">0D00:00:01.00</td>
-<td align="center">Time interval used to chunk data, bucketed by timestamp if no time interval set</td>
-<td align="center">No</td>
-<td align="center">None</td>
+<td style="text-align: center;">interval</td>
+<td style="text-align: center;">0D00:00:01.00</td>
+<td style="text-align: center;">Time interval used to chunk data, bucketed by timestamp if no time interval set</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">None</td>
 </tr>
 <tr>
-<td align="center">tc</td>
-<td align="center"><code>`data_time</code></td>
-<td align="center">Name of time column to cut on</td>
-<td align="center">No</td>
-<td align="center"><code>`time</code></td>
+<td style="text-align: center;">tc</td>
+<td style="text-align: center;"><code>`data_time</code></td>
+<td style="text-align: center;">Name of time column to cut on</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><code>`time</code></td>
 </tr>
 <tr>
-<td align="center">timerfunc</td>
-<td align="center">.z.ts</td>
-<td align="center">Timer function to use if `timer parameter is set</td>
-<td align="center">No</td>
-<td align="center">.z.ts</td>
+<td style="text-align: center;">timerfunc</td>
+<td style="text-align: center;">.z.ts</td>
+<td style="text-align: center;">Timer function to use if `timer parameter is set</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">.z.ts</td>
 </tr>
 </tbody>
 </table>
@@ -2462,26 +2723,26 @@ given default values.</p>
 <table>
 <thead>
 <tr>
-<th align="center">Parameter</th>
-<th align="center">Default Value</th>
+<th style="text-align: center;">Parameter</th>
+<th style="text-align: center;">Default Value</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">U</td>
-<td align="center">The password file used for the parent launching process, if none exists ${KDBAPPCONFIG}/passwords/accesslist.txt is used</td>
+<td style="text-align: center;">U</td>
+<td style="text-align: center;">The password file used for the parent launching process, if none exists ${KDBAPPCONFIG}/passwords/accesslist.txt is used</td>
 </tr>
 <tr>
-<td align="center">localtime</td>
-<td align="center">The .proc.localtime value of the parent launching process</td>
+<td style="text-align: center;">localtime</td>
+<td style="text-align: center;">The .proc.localtime value of the parent launching process</td>
 </tr>
 <tr>
-<td align="center">p</td>
-<td align="center">0W - a random port will be chosen</td>
+<td style="text-align: center;">p</td>
+<td style="text-align: center;">0W - a random port will be chosen</td>
 </tr>
 <tr>
-<td align="center">qcmd</td>
-<td align="center">q</td>
+<td style="text-align: center;">qcmd</td>
+<td style="text-align: center;">q</td>
 </tr>
 </tbody>
 </table>
@@ -2511,94 +2772,94 @@ namespaces is below- run .api.u namespace*to list the functions.</p>
 <table>
 <thead>
 <tr>
-<th align="center">Namespace</th>
-<th align="center">Description</th>
+<th style="text-align: center;">Namespace</th>
+<th style="text-align: center;">Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">.proc</td>
-<td align="center">Process API</td>
+<td style="text-align: center;">.proc</td>
+<td style="text-align: center;">Process API</td>
 </tr>
 <tr>
-<td align="center">.lg</td>
-<td align="center">Standard out/error logging API</td>
+<td style="text-align: center;">.lg</td>
+<td style="text-align: center;">Standard out/error logging API</td>
 </tr>
 <tr>
-<td align="center">.err</td>
-<td align="center">Error throwing API</td>
+<td style="text-align: center;">.err</td>
+<td style="text-align: center;">Error throwing API</td>
 </tr>
 <tr>
-<td align="center">.usage</td>
-<td align="center">Usage logging API</td>
+<td style="text-align: center;">.usage</td>
+<td style="text-align: center;">Usage logging API</td>
 </tr>
 <tr>
-<td align="center">.access</td>
-<td align="center">Permissions API</td>
+<td style="text-align: center;">.access</td>
+<td style="text-align: center;">Permissions API</td>
 </tr>
 <tr>
-<td align="center">.clients</td>
-<td align="center">Client tracking API</td>
+<td style="text-align: center;">.clients</td>
+<td style="text-align: center;">Client tracking API</td>
 </tr>
 <tr>
-<td align="center">.servers</td>
-<td align="center">Server tracking API</td>
+<td style="text-align: center;">.servers</td>
+<td style="text-align: center;">Server tracking API</td>
 </tr>
 <tr>
-<td align="center">.async</td>
-<td align="center">Async communication API</td>
+<td style="text-align: center;">.async</td>
+<td style="text-align: center;">Async communication API</td>
 </tr>
 <tr>
-<td align="center">.timer</td>
-<td align="center">Timer API</td>
+<td style="text-align: center;">.timer</td>
+<td style="text-align: center;">Timer API</td>
 </tr>
 <tr>
-<td align="center">.cache</td>
-<td align="center">Caching API</td>
+<td style="text-align: center;">.cache</td>
+<td style="text-align: center;">Caching API</td>
 </tr>
 <tr>
-<td align="center">.tz</td>
-<td align="center">Timezone conversions API</td>
+<td style="text-align: center;">.tz</td>
+<td style="text-align: center;">Timezone conversions API</td>
 </tr>
 <tr>
-<td align="center">.checks</td>
-<td align="center">Monitoring API</td>
+<td style="text-align: center;">.checks</td>
+<td style="text-align: center;">Monitoring API</td>
 </tr>
 <tr>
-<td align="center">.cmp</td>
-<td align="center">Compression API</td>
+<td style="text-align: center;">.cmp</td>
+<td style="text-align: center;">Compression API</td>
 </tr>
 <tr>
-<td align="center">.ps</td>
-<td align="center">Publish and Subscribe API</td>
+<td style="text-align: center;">.ps</td>
+<td style="text-align: center;">Publish and Subscribe API</td>
 </tr>
 <tr>
-<td align="center">.hb</td>
-<td align="center">Heartbeating API</td>
+<td style="text-align: center;">.hb</td>
+<td style="text-align: center;">Heartbeating API</td>
 </tr>
 <tr>
-<td align="center">.loader</td>
-<td align="center">Data Loader API</td>
+<td style="text-align: center;">.loader</td>
+<td style="text-align: center;">Data Loader API</td>
 </tr>
 <tr>
-<td align="center">.sort</td>
-<td align="center">Data sorting and attribute setting API</td>
+<td style="text-align: center;">.sort</td>
+<td style="text-align: center;">Data sorting and attribute setting API</td>
 </tr>
 <tr>
-<td align="center">.sub</td>
-<td align="center">Subscription API</td>
+<td style="text-align: center;">.sub</td>
+<td style="text-align: center;">Subscription API</td>
 </tr>
 <tr>
-<td align="center">.gc</td>
-<td align="center">Garbage Collection API</td>
+<td style="text-align: center;">.gc</td>
+<td style="text-align: center;">Garbage Collection API</td>
 </tr>
 <tr>
-<td align="center">.tplog</td>
-<td align="center">Tickerplant Log Replay API</td>
+<td style="text-align: center;">.tplog</td>
+<td style="text-align: center;">Tickerplant Log Replay API</td>
 </tr>
 <tr>
-<td align="center">.api</td>
-<td align="center">API management API</td>
+<td style="text-align: center;">.api</td>
+<td style="text-align: center;">API management API</td>
 </tr>
 </tbody>
 </table>
@@ -3567,49 +3828,30 @@ one of your columns includes full stops, eg. email adresses. As a result we have
 left this as definable so that the user can alter this to a non-disruptive value 
 for their data eg./.</p>
 
-              
-            </article>
-          </div>
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
       </main>
       
         <footer class="md-footer">
-  
-    <nav class="md-footer__inner md-grid" aria-label="Footer">
-      
-        
-        <a href="../InstallGuide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Installation
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../handlers/" class="md-footer__link md-footer__link--next" aria-label="Next: Handlers" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Handlers
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -3631,29 +3873,35 @@ for their data eg./.</p>
   
     
     
+    
+    
       
       
     
     <a href="https://github.com/DataIntellectTech" target="_blank" rel="noopener" title="github.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
     </a>
   
+    
+    
     
     
       
       
     
     <a href="https://twitter.com/data_intellect" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
     </a>
   
+    
+    
     
     
       
       
     
     <a href="https://www.linkedin.com/company/data-intellect-challenge-accepted" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
     </a>
   
 </div>
@@ -3666,10 +3914,12 @@ for their data eg./.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.6e54b5cd.min.js"></script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
       
     
   </body>
