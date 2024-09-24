@@ -14,7 +14,7 @@ ${TORQHOME}/torq.sh summary -csv ${testpath}/process.csv
 #Start test proc
 /usr/bin/rlwrap q ${TORQHOME}/torq.q \
 	-proctype test -procname test1 \
-	-load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${testpath}/insert_data.q     \
+	-load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q ${testpath}/insertdata.q     \
 	-procfile ${testpath}/process.csv -quiet
 
 ${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv

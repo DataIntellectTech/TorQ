@@ -104,17 +104,22 @@ closesub:{[h]
   delhandlef[;h]each t;
  };
 
+/ Scope value to inside the function so we can iterate over a set of tables without loading
+/ them all into memory at once
+/ Takes a symbol to a global table
+extractschema:{t:value x; $[.Q.qp t; t; 0#t]};
+
 // Strip attributes and remove keying from tables and store in separate dictionary (for use on STP and SCTP)
 attrstrip:{[t]
   {@[x;cols x;`#]} each .stpps.t:t;
-  .stpps.schemasnoattributes:.stpps.t!value each .stpps.t;
+  .stpps.schemasnoattributes:.stpps.t!extractschema each .stpps.t;
  };
 
 // Set up table and schema information
 init:{[t]
   if[count b:t where not t in tables[];{.lg.e[`psinit;m:"Table ",string[x]," does not exist"];'m} each b];
   .stpps.t:t except b;
-  .stpps.schemas:.stpps.t!{t: value x; $[.Q.qp t; t; 0#t]} each .stpps.t;
+  .stpps.schemas:.stpps.t!extractschema each .stpps.t;
   .stpps.tabcols:.stpps.t!cols each .stpps.t;
  };
 
