@@ -168,7 +168,7 @@ savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode]
 savetodisk:{[]
     changes:savetables[savedir;getpartition[];0b;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[any[changes] or writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
+    if[any[changes] and writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
 /- send an intraday reload message to idbs:
 notifyidbs:{[func;params]
@@ -295,7 +295,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   /-sort permitted tables in database
   /- sort the table and garbage collect (if enabled)
   .lg.o[`sort;"starting to sort data"];
-  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  /- .z.pd function in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   tempfix1:$[.finspace.enabled;0b;count[.z.pd[]]];
   $[tempfix1&0>system"s";
     [.lg.o[`sort;"sorting on worker sort", string .z.p];
@@ -401,8 +401,9 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode
    ];
   /- if path exists, delete it
   if[not () ~ key savedir;
-    .lg.o[`merge;"deleting temp storage directory"];
-    .os.deldir .os.pth[string[` sv savedir,`$string[pt]]];
+    .lg.o[`merge;"attempting to delete temp storage directory"];
+    dirtodel:.os.pth[string[` sv savedir,`$string[pt]]];
+    @[.os.deldir;dirtodel;{[x;y].lg.o[`eod;"could not delete directory: ",x," - maybe something(IDB?) gets hold of it."]}[dirtodel;]];
     ];
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
@@ -550,11 +551,13 @@ replayupd:{[f;t;d]
         savetables[savedir;getpartition[];0b;t]]
     }[upd];
 
-/ - if there is data in the wdb directory for the partition, if there is remove it before replay
+/ - if there is data in the wdb directory for the partition remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[]
     $[saveenabled and not () ~ key wdbpart:.Q.par[savedir;getpartition[];`];
         [.lg.o[`deletewdbdata;"removing wdb data (",(delstrg:1_string wdbpart),") prior to log replay"];
+        /- an error here could happen on Windows(works on Linux) with an IDB setup - if the IDB has a hold of the folder then it cannot be deleted
+        /- this can be solved by restarting the IDBs as well
         @[.os.deldir;delstrg;{[e] .lg.e[`deletewdbdata;"Failed to delete existing wdb data.  Error was : ",e];'e }];
         .lg.o[`deletewdbdata;"finished removing wdb data prior to log replay"];
         ];

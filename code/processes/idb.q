@@ -87,6 +87,9 @@ init:{[]
 
 \d .
 
+// Get the relevant IDB attributes
+.proc.getattributes:{`partition`tables!(.idb.currentpartition;tables[])}
+
 .idb.init[];
 
 /- helper function to support queries against the sym column
