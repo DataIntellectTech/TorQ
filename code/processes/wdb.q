@@ -240,7 +240,10 @@ handler:{
 /- notify the gateway that we are done
 flushend:{
     if[not @[value;`.wdb.reloadcomplete;0b];
-     @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
+     $[eodwaittime>0;
+      @[{neg[x]"";neg[x][]};;()] each key reloadsummary;
+      @[{x"";x[]};;()] each key reloadsummary
+     ]
      informgateway(`reloadend;`);
      .lg.o[`sort;"end of day sort is now complete"];
      reloadcomplete::1b];
@@ -256,8 +259,9 @@ doreload:{[pt]
     /-inform gateway of reload start
     informgateway(`reloadstart;`);
     getprocs[;pt] each reloadorder;
-    if[eodwaittime>0;
+    $[eodwaittime>0;
         .timer.one[timeouttime::.proc.cp[]+eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
+        .timer.one[.proc.cp[];(value;".wdb.flushend[]");"flush all hdbs and rdbs"; 0b]
     ];
     };
 
