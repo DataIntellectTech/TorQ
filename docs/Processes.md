@@ -1090,7 +1090,7 @@ As such, the following are some considerations that must be made when creating a
 
 ### Querying an IDB
 
-The IDB can be queried like so:
+The IDB can be queried just like any other HDB. If writedown mode partbyenum is used it has a useful "maptoint" function which can be used.
 ```
 neg[gwHandle](`.gw.asyncexec;"select from trade where int=maptoint[`GOOG]";`idb);gwHandle[]
 ```
