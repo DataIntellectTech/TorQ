@@ -1052,8 +1052,8 @@ Intraday Database (IDB)
 
 The Intraday Database or IDB is a simple process that allows access to
 data written down intraday. This assumes that there is an existing WDB
-process creating a DB on disk that can be loaded with a simple load command.
-As of now default and partbyenum WDB writedown modes are supported.
+(and HDB) process creating a DB on disk that can be loaded with a simple
+load command. As of now default and partbyenum WDB writedown modes are supported.
 The responsibility of an IDB is therefore:
 
 1.  Serving queries. Since partbyenum writedown mode is done by enumerated
@@ -1063,6 +1063,59 @@ The responsibility of an IDB is therefore:
 
 2.  Can be triggered for a reload. This is usually done by the WDB process
     periodically.
+
+### Considerations
+
+The IDB is connected by design and operates in a space between the RDB, WDB and HDB.
+As such, the following are some considerations that must be made when creating an IDB:
+
+1.  The IDB requires both a WDB and HDB to be operational.
+
+2.  On startup, the IDB will automatically attempt to connect itself to a WDB
+    to facilitate its initialisations steps. These are:
+    - Attempt to connect to the WBD to retrieve required information:
+        - WBD location.
+        - HDB location.
+        - Current partition.
+        - Current writedown mode.
+    - Register itself with the WDB process.
+    - Loads the WDB and the HDB's sym file.
+
+3.  The IDB will have data overlapping with the RDB, so gateways and users should
+    be mindful when issuing queries.
+
+4.  The IDB is designed to fail fast so it doesn't affect surrounding components.
+    It will self-terminate as soon as an error is encountered, such as when
+    attempting to load a corrupted DB.
+
+### Querying an IDB
+
+The IDB can be queried just like any other HDB. If writedown mode partbyenum is used it has a useful "maptoint" function which can be used.
+```
+neg[gwHandle](`.gw.asyncexec;"select from trade where int=maptoint[`GOOG]";`idb);gwHandle[]
+```
+
+### Scalability
+
+The IDB exists on disk and the TorQ gateway will automatically load-balance between
+multiple IDB processes linked to the same IDB on disk. This, alongside the implications
+of shifting data from an RDB to disk while maintaining availability makes the IDB a
+component key to TorQ's scalability.
+
+### Database Reload
+
+The IDB can be triggered for an intraday reload, which will automatically detect
+any changes to do the least amount of work possible:
+
+1.  The sym file will only be reloaded if it has changed size on disk.
+
+2.  In partbyenum writedown mode, the IDB will only be reloaded if the number
+    of partitions has changed.
+
+3.  A reload can be forced in cases where the above conditions are not guaranteed
+    to be met.
+
+The WDB process triggers the intraday reload on all IDBs registered to it.
 
 ![IDB diagram](graphics/idb.png)
 
