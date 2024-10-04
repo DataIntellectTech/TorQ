@@ -164,6 +164,10 @@ init:{[t]
   $[10h~type last val;'last val;val]
  };
 
+// converts timestamps to integers which represents hours.
+// 2024.09.24D16:23:13.445394106 -> 2024092416
+.ps.periodtohour:{{"J"$(ssr[;".";""]string x),string `hh$y} . "dv"$x};
+
 // Striping data in a TorQ Installation
 // use mod to stripe into number of segments
 .ds.map:{[numseg;sym] sym!(sum each string sym)mod numseg};

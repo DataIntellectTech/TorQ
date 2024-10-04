@@ -1,0 +1,5 @@
+proctype,tablename,primarytimecolumn,attributecolumn,instrumentcolumn,rolltimeoffset,rolltimezone,datatimezone,partitionfield
+rdb,trade,time,sym,sym,00:00,GMT,GMT,
+hdb,trade,time,sym,sym,00:00,GMT,GMT,int
+rdb,quote,time,sym,sym,00:00,GMT,GMT,
+hdb,quote,time,sym,sym,00:00,GMT,GMT,int

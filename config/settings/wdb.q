@@ -49,8 +49,9 @@ upd:insert                                                                      
 replay:1b                                                                                   // replay the tickerplant log file
 schema:1b                                                                                   // retrieve schema from tickerplant
 settimer:0D00:00:10                                                                         // timer to check if data needs written to disk
-partitiontype:`date                                                                         // set type of partition (defaults to `date, can be `date, `month or `year)
-getpartition:{@[value;`.wdb.currentpartition;(`date^partitiontype)$.proc.cd[]]}             // function to determine the partition value
+partitiontype:`int                                                                          // set type of partition (defaults to `date, can be `date, `month or `year)
+getpartition:{@[value;`.wdb.currentpartition;
+                .ps.periodtohour .proc.cp[]]}                                               // function to determine the partition value
 reloadorder:`hdb`rdb                                                                        // order to reload hdbs and rdbs
 hdbdir:`:hdb                                                                                // move wdb database to different location
 sortcsv:hsym first .proc.getconfigfile"sort.csv"                                            // location of csv file
