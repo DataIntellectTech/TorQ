@@ -179,8 +179,8 @@ notifyidbs:{[func;params]
  };
 
 /- eod - flush remaining data to disk
-endofday:{[pt;processdata]
-    .lg.o[`eod;"end of day message received - ",string pt];
+endofday:{[currp;nextp;data]
+    .lg.o[`eod;"end of day message received - ",string currp];
         /- set what type of merge method to be used
         mergemethod:mergemode;
     /- create a dictionary of tables and merge limits, byte or row count limit depending on settings
@@ -194,16 +194,16 @@ endofday:{[pt;processdata]
             ];
     / - if save mode is enabled then flush all data to disk
     if[saveenabled;
-        endofdaysave[savedir;pt];
+        endofdaysave[savedir;currp];
         / - if sort mode enable call endofdaysort within the process,else inform the sort and reload process to do it
-        $[sortenabled;endofdaysort;informsortandreload] . (savedir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);
+        $[sortenabled;endofdaysort;informsortandreload] . (savedir;currp;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);
         if[.finspace.enabled;changeset:.finspace.createchangeset[.finspace.database]];
         ];
     .lg.o[`eod;"deleting data from ",$[r:writedownmode in partwritemodes;"partsizes";"tabsizes"]];
     $[r;@[`.merge;`partsizes;0#];@[`.wdb;`tabsizes;0#]];
     /-notify all finspace hdbs
     if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
-    currentpartition::pt+1;
+    currentpartition::nextp;
     /- in case of default/partbyenum writedown mode we want to initialise the new partition with all the table schemas
     /- then notify idb processes of the new db
     if[writedownmode in `partbyenum`default;
@@ -507,15 +507,15 @@ subscribe:{[]
 /- function to rectify data written to wrong partition
 fixpartition:{[subto]
     /- check if the tp logdate matches current date
-    if[not (tplogdate:subto[`tplogdate])~orig:currentpartition;
+    if[not (tplogperiod:.ps.periodtohour subto[`currperiod])~orig:currentpartition;
         .lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
-        /- set the current partiton date to the log date
-        currentpartition::tplogdate;
+        /- set the current partition date to the log date
+        currentpartition::tplogperiod;
         /- move the data that has been written to correct partition
         pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
-        pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
+        pth2:.os.pth[-1 _ string .Q.par[savedir;tplogperiod;`]];
         if[not ()~key hsym `$.os.pthq pth1;
-          /- delete any data in the current partiton directory
+          /- delete any data in the current partition directory
               clearwdbdata[];
           .lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
           .[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]]];
@@ -551,7 +551,7 @@ replayupd:{[f;t;d]
         savetables[savedir;getpartition[];0b;t]]
     }[upd];
 
-/ - if there is data in the wdb directory for the partition remove it before replay
+/ - if there is data in the wdb directory for the partition, if there is remove it before replay
 / - is only for wdb processes that are saving data to disk
 clearwdbdata:{[]
     $[saveenabled and not () ~ key wdbpart:.Q.par[savedir;getpartition[];`];
@@ -601,11 +601,12 @@ getsortparams:{[]
 .servers.CONNECTIONS:(distinct .servers.CONNECTIONS,.wdb.hdbtypes,.wdb.rdbtypes,.wdb.gatewaytypes,.wdb.tickerplanttypes,.wdb.sorttypes,.wdb.sortworkertypes,.wdb.idbtypes) except `;
 
 /-  adds endofday  function to top level namespace
-endofday: .wdb.endofday;
+//endofday: .wdb.endofday;
+endofday: {};
+endofperiod: {[currp;nextp;data] .wdb.endofday[.ps.periodtohour currp;.ps.periodtohour nextp;data]};
+
 /- setting the upd and .u.end functions as the .wdb versions
-.u.end:{[pt]
-    .wdb.endofday[.wdb.getpartition[];()!()];
-    }
+.u.end: {};
 
 /- set the replay upd 
 .lg.o[`init;"setting the log replay upd function"];

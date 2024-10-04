@@ -130,7 +130,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
     :d,{(where 101 = type each x)_x}(`i`icounts`d)!(details[`logfilelist][0;0];details[`rowcounts];details[`date])];
   if[tptype~`segmented;
     retdic:`logdir`subtables!(details[`logdir];details[`schemalist][;0]);
-    :retdic,{(where 101 = type each x)_x}`i`icounts`d`tplogdate!details[`logfilelist`rowcounts`date`date];
+    :retdic,{(where 101 = type each x)_x}`i`icounts`d`tplogdate`currperiod!details[`logfilelist`rowcounts`date`date`currperiod];
     ]
  }
 

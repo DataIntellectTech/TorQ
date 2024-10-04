@@ -319,8 +319,8 @@ removeenvvar:{
 if[`usage in key params; -1 .proc.getusage[]; exit 0];
 
 $[`localtime in key .proc.params;
-	[cp:{.z.P};cd:{.z.D};ct:{.z.T}];
-	[cp:{.z.p};cd:{.z.d};ct:{.z.t}]];
+	[cp:{.z.P};cd:{.z.D};ct:{.z.T};cp:{.z.P}];
+	[cp:{.z.p};cd:{.z.d};ct:{.z.t};cp:{.z.p}]];
 
 localtime:`localtime in key .proc.params
 

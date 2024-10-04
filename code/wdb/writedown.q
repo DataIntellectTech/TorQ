@@ -15,9 +15,8 @@ maxrows:{[tabname] numrows^numtab[tabname]};                               /- ex
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 
 
-getpartition:@[value;`getpartition;                                        /-function to determine the partition value
-        {{@[value;`.wdb.currentpartition;
-                (`date^partitiontype)$.proc.cd[]]}}];
+getpartition:{@[value;`.wdb.currentpartition;
+                .ps.periodtohour .proc.cp[]]};                             /- function to determine the partition value
 
 currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
 

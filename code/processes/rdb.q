@@ -32,7 +32,7 @@ parvaluesrc:@[value;`parvaluesrc;`log];                     //where to source th
                                                             //anything else will return a null date which is will be filled by pardefault								
 subfiltered:@[value;`subfiltered;0b];                       //allows subscription filters to be loaded and applied in the rdb
 	
-pardefault:@[value;`pardefault;.z.D];                       //if the src defined in parvaluesrc returns null, use this default date instead 
+pardefault:@[value;`pardefault;.proc.cp[]];                 //if the src defined in parvaluesrc returns null, use this default date instead
 tpcheckcycles:@[value;`tpcheckcycles;0W];                   //specify the number of times the process will check for an available tickerplant
 
 / - if the timer is not enabled, then exit with error
@@ -82,9 +82,9 @@ notifyhdb:{[h;d]
 	@[h;hdbmessage[d];{.lg.e[`notifyhdb;"failed to send reload message to hdb on handle: ",x]}];
 	};
 
-endofday:{[date;processdata]
+endofday:{[currp;nextp;processdata]
 	/-add date+1 to the rdbpartition global
-	rdbpartition,:: date +1;
+	rdbpartition,:: nextp;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
         / Need to download sym file to scratch directory if this is Finspace application
         if[.finspace.enabled;
@@ -103,36 +103,34 @@ endofday:{[date;processdata]
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tables`.;
 	/-save and wipe the tables
-	writedown[hdbdir;date];
+	writedown[hdbdir;currp];
         /-creates new changeset if this is a finspace application
         if[.finspace.enabled;
                     changeset:.finspace.createchangeset[.finspace.database];
         ];
-	/-reset timeout to original timeout
-	restoretimeout[];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
-	rmdtfromgetpar[date];
+	rmdtfromgetpar[currp];
 	/-invoke any user defined post replay function
-	.save.postreplay[hdbdir;date];
+	.save.postreplay[hdbdir;currp];
 	/-notify all hdbs
 	hdbs:distinct raze {exec w from .servers.getservers[x;y;()!();1b;0b]}'[`proctype`procname;(hdbtypes;hdbnames)];
 	$[.finspace.enabled;
                      .finspace.notifyhdb[;changeset] each .finspace.hdbclusters;
-                     notifyhdb[;date] each hdbs
+                     notifyhdb[;currp] each hdbs
         ];
   	if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]]
 	};
 	
-reload:{[date]
+reload:{[pt]
 	.lg.o[`reload;"reload command has been called remotely"];
 	/-get all attributes from all tables before they are wiped
 	/-get a list of pairs (tablename;columnname!attributes)
 	a:{(x;raze exec {(enlist x)!enlist((#);enlist y;x)}'[c;a] from meta x where not null a)}each tabs:subtables except ignorelist;
 	/-drop off the first eodtabcount[tab] for each of the tables
 	dropfirstnrows each tabs;
-	rmdtfromgetpar[date];
+	rmdtfromgetpar[pt];
 	/-reapply the attributes
 	/-functional update is equivalent of {update col:`att#col from tab}each tables
 	(![;();0b;].)each a where 0<count each a[;1];
@@ -140,14 +138,12 @@ reload:{[date]
 	if[gc;.gc.run[]];
 	/-reset eodtabcount back to zero for each table (in case this is called more than once)
 	eodtabcount[tabs]:0;
-	/-restore original timeout back to rdb
-	restoretimeout[];
 	.lg.o[`reload;"Finished reloading RDB"];
 	};
 	
 /-drop date from rdbpartition
-rmdtfromgetpar:{[date] 
-	rdbpartition:: rdbpartition except date;
+rmdtfromgetpar:{[pt]
+	rdbpartition:: rdbpartition except pt;
 	.lg.o[`rdbpartition;"rdbpartition contains - ","," sv string rdbpartition];
 	}
 	
@@ -167,8 +163,8 @@ subscribe:{[]
 		/-set the date that was returned by the subscription code i.e. the date for the tickerplant log file
 		/-and a list of the tables that the process is now subscribing for
 		subinfo:.sub.subscribe[subscribeto;subscribesyms;schema;replaylog;first s];
-		/-setting subtables and tplogdate globals
-		@[`.rdb;;:;]'[`subtables`tplogdate;subinfo`subtables`tplogdate];
+		/-setting subtables and currperiod globals
+		@[`.rdb;;:;]'[`subtables`currperiod;subinfo`subtables`currperiod];
         /-update metainfo table for the dataaccessapi
         if[`dataaccess in key .proc.params;.dataaccess.metainfo:.dataaccess.metainfo upsert .checkinputs.getmetainfo[]];
         /-apply subscription filters to replayed data
@@ -177,12 +173,12 @@ subscribe:{[]
 
 setpartition:{[]
 	part: $[parvaluesrc ~ `log; /-get date from the tickerplant log file
-		[.lg.o[`setpartition;"setting rdbpartition from date in tickerplant log file name :",string tplogdate];tplogdate];
+		[.lg.o[`setpartition;"setting rdbpartition from date+hour in tickerplant log file name :",string currperiod];currperiod];
 	parvaluesrc ~ `tab;	  /-look at the time column in the biggest table and take the first time value and cast to date (time has be to be timestamp/datetime to get a valid date)
 		[largesttab: first subtables idesc count each value each subtables;
-		.lg.o[`setpartition;"setting rdbpartition from largest table (",string[largesttab],")."];.[$;(`date;first largesttab[`time]);0Nd]];
+		.lg.o[`setpartition;"setting rdbpartition from largest table (",string[largesttab],")."];.[$;(`datetime;first largesttab[`time]);0Nd]];
 		0Nd];  /-else just return null
-	rdbpartition:: enlist pardefault ^ part;	
+	rdbpartition:: enlist .ps.periodtohour pardefault ^ part;
 	.lg.o[`setpartition;"rdbpartition contains - ","," sv string rdbpartition];}
 	
 loadsubfilters:{[]
@@ -202,19 +198,19 @@ getpartition:{[] rdbpartition}
 notpconnected:{[]
 	0 = count select from .sub.SUBSCRIPTIONS where proctype in .rdb.tickerplanttypes, active}
 
-/-resets timeout to 0 before EOD writedown
-timeoutreset:{.rdb.timeout:system"T";system"T 0"};
-restoretimeout:{system["T ", string .rdb.timeout]};
 \d .
 
 /- make sure that the process will make a connection to each of the gateways and hdb types
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.rdb.hdbtypes,.rdb.gatewaytypes
 
 /- adds endofday function to top level namespace
-endofday: .rdb.endofday;
+endofday:{}
 
 /-set the reload the function
 reload:.rdb.reload
+
+/-overwrite endofperiod with endofday
+endofperiod:{[currp;nextp;data] .rdb.endofday[.ps.periodtohour currp;.ps.periodtohour nextp;data]};
 
 /-load the sort csv
 .sort.getsortcsv[.rdb.sortcsv]
@@ -227,16 +223,11 @@ $[.rdb.connectonstart;
   .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
   .rdb.subscribe[];
  ];
-  .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
+  .rdb.currperiod:.proc.cp[]; // defines currperiod for setpartition
  ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
 .rdb.setpartition[]
-
-/-change timeout to zero before eod flush
-/-GMT offset rounded to nearest 15 mins and added to roll time
-.timer.repeat[.eodtime.nextroll-00:01+{00:01*15*"j"$(`minute$x)%15}(.proc.cp[]-.z.p);0W;1D;
-  (`.rdb.timeoutreset;`);"Set rdb timeout to 0 for EOD writedown"];
 
 /-send a signal to the old rdb and wdb (excluding the most recently started process) that the new rdb is ready for the next period.
 .rdb.newrdbready:{[]
