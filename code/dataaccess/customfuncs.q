@@ -1,6 +1,6 @@
 //- Script to load in custom functionality:
 //- Useful for splitting queries 
-
+.ps.periodtohour:{{"J"$(ssr[;".";""]string x),string `hh$y} . "dv"$x}
 \d .dacustomfuncs
 
 //- (i) rollover
@@ -27,12 +27,12 @@ rollover:{[tabname;hdbtime;prc]
 // example @[`date$(starttime;endtime);1;+;not `time~`time]
 partitionrange:{[tabname;hdbtimerange;prc;timecol]
     // Get the partition fields from default rollover 
-    hdbtimerange:rollover[tabname;;prc] each hdbtimerange+00:00;
+    // hdbtimerange:rollover[tabname;;prc] each hdbtimerange+00:00;
     partfield:@[value;`.Q.pf;`];
     C:?[.checkinputs.tablepropertiesconfig;((=;`tablename;(enlist tabname));(=;`proctype;(enlist prc)));();(1#`ptc)!1#`primarytimecolumn];
     // Output the partitions allowing for non-primary timecolumn
     @[hdbtimerange;1;+;any timecol=raze C[`ptc]];
-    if[partfield=`int;hdbtimerange:`long$`timestamp$hdbtimerange];
+    if[partfield=`int;hdbtimerange:.ps.periodtohour each `timestamp$hdbtimerange];
     :hdbtimerange};
 
 // Gets the last rollover

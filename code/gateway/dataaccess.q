@@ -1,4 +1,5 @@
 \d .dataaccess
+hourtoperiod:{if[(x<2000010100);:`timestamp$0];x:string x;(0D1*"I"$x[8 9])+(0D+"D"$"." sv enlist[4#x;x[4 5];x[6 7]])}
 
 forceservers:0b;
 
@@ -152,6 +153,7 @@ attributesrouting:{[options;procdict]
 // Generates a dictionary of `tablename!mindate;maxdate
 partdict:{[input]
     tabname:input[`tablename];
+    procs:input[`procs];
     // Remove duplicate servertypes from the gw.servers
     servers:select from .gw.servers where i=(first;i)fby servertype;
     // extract the procs which have the table defined
@@ -160,6 +162,10 @@ partdict:{[input]
     procdict:exec servertype!attributes[;`partition] from servers;
     // If the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
+    //remove 0 partition from hdb
+    if[`hdb in key procdict;procdict[`hdb]:procdict[`hdb] where not 0=procdict`hdb];
+    //removes either idb/rdb
+    procdict:procs#procdict;
     // returns the dictionary as min date/ max date
     procdict:asc @[procdict;key procdict;{:(min x; max x)}];
     // prevents overlap if more than one process contains a specified date
@@ -175,6 +181,8 @@ adjustqueries:{[options;part]
     if[2>count p:options`procs;:options];
     // get the tablename
     tabname:options[`tablename];
+    procs:options[`procs];
+    par1:procs[1];
     // remove duplicate servertypes from the gw.servers
     servers:select from .gw.servers where i=(first;i)fby servertype;
     // extract the procs which have the table defined
@@ -183,18 +191,20 @@ adjustqueries:{[options;part]
     procdict:exec servertype!attributes[;`partition] from servers;
     // if the response is a dictionary index into the tablename
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
+    //remove 0 partition from hdb
+    if[`hdb in key procdict;procdict[`hdb]:procdict[`hdb] where not 0=procdict`hdb];
     // create list of all available partitions
     possparts:raze value procdict;
 
     //group partitions to relevant process
     partitions:group key[part]where each{within[y;]each value x}[part]'[possparts];
     partitions:possparts{(min x;max x)}'[partitions];
-    partitions:`timestamp$partitions;
+    partitions:{hourtoperiod each x} each partitions;
 
     // adjust the times to account for period end time when int partitioned
-    c:first[partitions`hdb],-1+ first[partitions`rdb];
-    d:first[partitions`rdb],options `endtime;
-    partitions:@[@[partitions;`hdb;:;c];`rdb;:;d];
+    c:first[partitions`hdb],-1+ first[partitions par1];
+    d:first[partitions par1],options `endtime;
+    partitions:@[@[partitions;`hdb;:;c];par1;:;d];
 
     // if start/end time not a date, then adjust dates parameter for the correct types
     if[not a:-12h~tp:type start:options`starttime;
