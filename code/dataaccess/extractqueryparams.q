@@ -26,9 +26,20 @@ extractqueryparams:{[inputparams;queryparams]
 
 extracttablename:{[inputparams;queryparams]@[queryparams;`tablename;:;inputparams`tablename]};
 
+extractidbpartfilter:{[inputparams;queryparams]
+  instrumentcolumn:`int; 
+  instruments:enlist inputparams`instruments;
+  filterfunc:$[1=count first instruments;=;in];
+  instrumentfilter:enlist(filterfunc;instrumentcolumn;(`maptoint;instruments));
+  :@[queryparams;`partitionfilter;:;instrumentfilter];
+ };
+
 extractpartitionfilter:{[inputparams;queryparams]
   //If an RDB return the partitionfilters as empty
   if[`rdb~inputparams[`metainfo;`proctype];:@[queryparams;`partitionfilter;:;()]];
+  //If an IDB and and no instrumnets return the partitionfilters as blank
+  if[(`idb~inputparams[`metainfo;`proctype]) and (not `instruments in key inputparams);:@[queryparams;`partitionfilter;:;()]];
+  if[(`idb~inputparams[`metainfo;`proctype]) and (`instruments in key inputparams);:extractidbpartfilter[inputparams;queryparams]];
   //Get the  partition range function 
   getpartrangef:.checkinputs.gettableproperty[inputparams;`getpartitionrange];
   // Get the time column
