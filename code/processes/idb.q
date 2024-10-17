@@ -32,7 +32,8 @@ loaddb:{[]
 /- sets current partition and force loads the idb and the sym file. Called by the WDB after EOD.
 rollover:{[pt]
     currentpartition::pt;
-    idbdir::.Q.dd[savedir; currentpartition];
+    idbdir::.Q.dd[savedir; $[writedownmode~`default;`;currentpartition]];
+    .lg.o[`rollover;"IDB folder has been set to: ",string[idbdir]];
     loaddb[];
  };
 
@@ -41,7 +42,7 @@ intradayreload:{[]
     starttime:.proc.ct[];
     if[symfilehaschanged[];loadsym[]];
     if[partitioncounthaschanged[];loadidb[]];
-    .lg.o[`intradayreload;"IDB reload has been finished for partition: ",string[savedir],". Time taken(ms): ",string .proc.ct[]-starttime];
+    .lg.o[`intradayreload;"IDB reload has been finished for partition: ",string[currentpartition],". Time taken(ms): ",string .proc.ct[]-starttime];
  };
 
 /- checks if sym file has changed since last reload of the IDB. Records new sym size if changed.
