@@ -42,6 +42,7 @@ intradayreload:{[]
     starttime:.proc.ct[];
     if[symfilehaschanged[];loadsym[]];
     if[partitioncounthaschanged[];loadidb[]];
+    clearrowcountcache[];
     .lg.o[`intradayreload;"IDB reload has been finished for partition: ",string[currentpartition],". Time taken(ms): ",string .proc.ct[]-starttime];
  };
 
@@ -56,6 +57,10 @@ partitioncounthaschanged:{[]
     if[writedownmode~`default;:0b];
     $[partitionsize<>c:count key idbdir;[partitionsize::c; 1b];0b]
  };
+
+/- each time data gets appended to current partition we are invalidating the row count cache
+/- this makes sure running "count trade" queries will return correct row count
+clearrowcountcache:{.Q.pn:.Q.pt!(count .Q.pt)#()};
 
 setparametersfromwdb:{[wdbHandle]
     .lg.o[`init;"querying WDB, HDB locations, current partition and writedown mode from WDB"];
