@@ -104,6 +104,9 @@
 .pm.adduser[`;`local;`md5;md5"pass"]
 .pm.assignrole[`;`systemuser]
 .pm.addtogroup[`;`systemuser]
+.pm.adduser[`idb;`local;`md5;md5"pass"]
+.pm.assignrole[`idb;`systemuser]
+.pm.addtogroup[`idb;`systemuser]
 
 //The gateway is made an administrator as it cannot properly permission without total access,
 //the user used to login to the gateway will still be permissioned.
