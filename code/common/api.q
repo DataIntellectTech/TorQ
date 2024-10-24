@@ -1,6 +1,8 @@
 // some functions to help build up an api and help the programmer
 // allows searching of the q memory space for variables/functions based on pattern matching, returns any associated api entries
 // could be used in conjunction with help.q
+// Test Example- Niall Norris
+
 
 \d .api
 
