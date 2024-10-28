@@ -77,9 +77,8 @@ setparametersfromwdb:{[wdbHandle]
 
 init:{[]
     .lg.o[`init; "searching for servers"];
-    .servers.startup[];
     /- If no valid conneciton to wdb, reattempt
-    if[0Ni=first exec w from .servers.SERVERS where proctype=`wdb;.servers.startupdepcycles[`wdb;wdbconnsleepintv;wdbcheckcycles]]; 
+    .servers.startupdepcycles[`wdb;wdbconnsleepintv;wdbcheckcycles];
     .lg.o[`init;"getting connection handle to the WDB"];
     w:.servers.gethandlebytype[wdbtypes;`any];
     /-exit if no valid handle
