@@ -62,7 +62,7 @@ replay:@[value;`replay;1b];                                                /-rep
 schema:@[value;`schema;1b];                                                /-retrieve schema from tickerplant
 settimer:@[value;`settimer;0D00:00:10];                                    /-set timer interval for row check
 
-reloadorder:@[value;`reloadorder;`hdb`rdb];                                /-order to reload hdbs, rdbs
+reloadorder:@[value;`reloadorder;`hdb`rdb`idb];                            /-order to reload hdbs, rdbs, idbs
 sortcsv:@[value;`sortcsv;`:config/sort.csv];                               /-location of csv file
 permitreload:@[value;`permitreload;1b];                                    /-enable reload of hdbs/rdbs
 
@@ -256,7 +256,7 @@ doreload:{[pt]
     reloadcomplete::0b;
     /-inform gateway of reload start
     informgateway(`reloadstart;`);
-    getprocs[;pt] each reloadorder;
+    getprocs[;pt] each reloadorder where reloadorder in .servers.SERVERS[`proctype];
     $[eodwaittime>0;
         .timer.one[timeouttime::.proc.cp[]+eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
         .wdb.flushend[]
@@ -427,7 +427,7 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
     resetcompression[16 0 0]
     };
 
-/-function to send reload message to rdbs/hdbs
+/-function to send reload message to rdbs/hdbs/idbs
 reloadproc:{[h;d;ptype]
         /-count of processes to be reloaded
         countreload::count[raze .servers.getservers[`proctype;;()!();1b;0b]each reloadorder];
