@@ -72,7 +72,7 @@ mergebypart:{[tablename;dest;partchunks]
    .lg.o[`merge;"upserting ",(string count chunks)," rows to ",string dest];
    /-merge columns to permanent storage
    .[upsert;(dest;chunks);                     
-     {.lg.e[`merge;"failed to merge to ", string[dest], " from segments ", (", " sv string chunks)];}];
+     {[e;d;p].lg.e[`merge;raze "failed to merge to ", string[d], " from segments ", (", " sv string p), " Error is - ",string[]e]}[;dest;partchunks]];
    };
 
 /-merge data from partition in temporary storage to permanent storage, column by column rather than by entire partition
