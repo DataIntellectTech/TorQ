@@ -256,7 +256,7 @@ doreload:{[pt]
     reloadcomplete::0b;
     /-inform gateway of reload start
     informgateway(`reloadstart;`);
-    getprocs[;pt] each reloadorder where reloadorder in .servers.SERVERS[`proctype];
+    getprocs[;pt] each reloadorder inter .servers.SERVERS[`proctype];
     $[eodwaittime>0;
         .timer.one[timeouttime::.proc.cp[]+eodwaittime;(value;".wdb.flushend[]");"release all hdbs and rdbs as timer has expired";0b];
         .wdb.flushend[]
