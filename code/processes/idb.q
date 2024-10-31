@@ -96,8 +96,11 @@ init:{[]
 
 \d .
 
-// Get the relevant IDB attributes
-.proc.getattributes:{`partition`tables!(.idb.currentpartition;tables[])}
+/- set the reload the function
+reload:.idb.intradayreload;
+
+/-Get the relevant IDB attributes
+.proc.getattributes:{`partition`tables!(.idb.currentpartition;tables[])};
 
 .idb.init[];
 
