@@ -48,7 +48,7 @@ getpartchunks:{[partdirs;mergelimit]
   /-get list of limits (rowcount or bytesize) to be used to get chunks of partitions to get merged in batch
   r:$[.merge.mergebybytelimit;exec bytes from t;exec rowcount from t];
   /-return list of partitions to be called in batch
-  l:(where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]),(select count i from .merge.partsizes)[`x];
+  l:(where r={$[z<x+y;y;x+y]}\[0;r;mergelimit]),(select count i from t)[`x];
   /-where there are more than set partlimit, split the list
   s:-1_distinct asc raze {$[(x[y]-x[y-1])<=.merge.partlimit;x[y];x[y], first each .merge.partlimit cut x[y-1]+til x[y] - x[y-1]]}/:[l;til count l];
   /-return list of partitions
