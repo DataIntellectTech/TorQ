@@ -2,6 +2,8 @@
 \d .idb
 
 wdbtypes:@[value;wdbtypes;`wdb];
+wdbconnsleepintv:@[value;`wdbconnsleepintv;10];
+wdbcheckcycles:@[value;`wdvcheckcycles;0W];
 
 /-these parameters are only used once their value has been set with values retrieved from the WBD.
 writedownmode:idbdir:savedir:currentpartition:symfilepath:`;
@@ -75,7 +77,8 @@ setparametersfromwdb:{[wdbHandle]
 
 init:{[]
     .lg.o[`init; "searching for servers"];
-    .servers.startup[];
+    /- If no valid conneciton to wdb, reattempt
+    .servers.startupdepcycles[`wdb;wdbconnsleepintv;wdbcheckcycles];
     .lg.o[`init;"getting connection handle to the WDB"];
     w:.servers.gethandlebytype[wdbtypes;`any];
     /-exit if no valid handle
