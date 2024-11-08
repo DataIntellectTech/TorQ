@@ -166,7 +166,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
 savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode];savetables];
 
 savetodisk:{[]
-    changes:savetables[savedir;getpartition[];0b;] each tablelist[];
+    changes:savetables[savedir;getpartition[];1b;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
     if[any[changes] and writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
