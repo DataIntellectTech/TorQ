@@ -41,7 +41,7 @@ mergenumbytes:@[value;`mergenumbytes;500000000];                             /-d
 
 mergenumrows:@[value;`mergenumrows;100000];                                /-default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];                /-specify number of rows per table for merge process
-forcesave:@[value;`forcesave;0b];                                          /-disregards .wdb.maxrows and writes down data every time timer calls .wdb.savetodisk
+immediate:@[value;`immediate;0b];                                          /-disregards .wdb.maxrows and writes down data every time timer calls .wdb.savetodisk
 
 hdbtypes:@[value;`hdbtypes;`hdb];                                          /-list of hdb types to look for and call in hdb reload
 rdbtypes:@[value;`rdbtypes;`rdb];                                          /-list of rdb types to look for and call in rdb reload
@@ -167,7 +167,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
 savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode];savetables];
 
 savetodisk:{[]
-    changes:savetables[savedir;getpartition[];forcesave;] each tablelist[];
+    changes:savetables[savedir;getpartition[];immediate;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
     if[any[changes] and writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
