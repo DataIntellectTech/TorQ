@@ -1,0 +1,10 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,update active:0b from `.timer.timer,,"Disable timer"
+before,0,0,q,.wdb.immediate:1b,,"Enable immediate write down"
+before,0,0,q,quotetmp:quote,,"Store quotes from tplog"
+before,0,0,q,".wdb.ignorelist,:`KUT`KUTR`quotetmp",,"Ignore `KUT`KUTR`quotetmp tables for save down"
+before,0,0,q,.wdb.savetodisk[],1,,"Write down all tables and clear in-memory"
+before,0,0,q,quote:([] time:2#.z.p; sym:`NVDA`TSLA; bid:148.75 299.10; ask:148.85 299.15; bsize:2000 1500; asize:500 750; mode:"ZZ"; ex:"LO"; src:`BARX`GETGO),,"Make small number of quotes for test"
+true,0,0,q,(counts < .wdb.maxrows `quote) and (0 < counts:count quote),1,,"Given quote table exists but row count is under threshold of .wdb.maxrows[`quote]"
+true,0,0,q,.wdb.savetodisk[]; 0 = count quote,1,,"Quote table therefore cleared using forcesave param and maxrows inequality disregarded"
+true,0,0,q,system " " sv (enlist "l"; "/" sv ((getenv `KDBWDB); string .z.d)); (count quote) > (count quotetmp),,"And data is successfully written to disk"
