@@ -4,5 +4,3 @@ logs/*
 !logs/dummy.log
 
 tplogs/*
-
-config/filealerterprocessed
