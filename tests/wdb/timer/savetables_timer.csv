@@ -1,5 +1,6 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,update active:0b from `.timer.timer,,"Disable timer"
+before,0,0,q,.wdb.immediate:1b,,"Enable immediate write down"
 before,0,0,q,quotetmp:quote,,"Store quotes from tplog"
 before,0,0,q,".wdb.ignorelist,:`KUT`KUTR`quotetmp",,"Ignore `KUT`KUTR`quotetmp tables for save down"
 before,0,0,q,.wdb.savetodisk[],1,,"Write down all tables and clear in-memory"

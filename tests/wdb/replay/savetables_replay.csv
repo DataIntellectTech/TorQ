@@ -1,4 +1,5 @@
 action,ms,bytes,lang,code,repeat,minver,comment
 before,0,0,q,update active:0b from `.timer.timer,,"Disable timer"
-true,0,0,q,(counts < .wdb.maxrows `quote) and (0 < counts:count quote),1,,"Show number of quotes played back form tplog are less than .wdb.maxrows[`quote]"
+before,0,0,q,.wdb.immediate:1b,,"Show that immediate write not used in .wdb.replayupd"
+true,0,0,q,(counts < .wdb.maxrows `quote) and (0 < counts:count quote),1,,"Show number of quotes played back from tplog are less than .wdb.maxrows[`quote]"
 true,0,0,q,delete quote from `.; system " " sv (enlist "l"; "/" sv ((getenv `KDBWDB); string .z.d)); 0 = count quote,1,,"Show that replayupd does not trigger savetables when quote is less than .wdb.maxrows[`quote]"
