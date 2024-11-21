@@ -206,12 +206,6 @@ endofday:{[pt;processdata]
     if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
     currentpartition::pt+1;
     /- in case of default/partbyenum writedown mode we want to initialise the new partition with all the table schemas
-    /- then notify idb processes of the new db
-    if[writedownmode in `partbyenum`default;
-       .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
-       initmissingtables[];
-       .lg.o[`eod;"notifying idbs for newly created partition"];
-       notifyidbs[`.idb.rollover;currentpartition]];
     .lg.o[`eod;"end of day is now complete"];
     if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     };
@@ -313,7 +307,10 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
-
+  
+  
+  idbReload[pt];
+  
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
@@ -482,7 +479,7 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;merge
         ];
         [.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
          // try to run the sort locally
-         endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]]];
+         endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod;]]];
     };
 
 /-function to set the timer for the save to disk function	
@@ -593,6 +590,16 @@ getsortparams:{[]
         .lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
     ];
     };
+
+idbReload:{[pt]
+    .lg.o[`idb;"starting idb reload"];
+    if[writedownmode in `partbyenum`default;
+        .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
+        $[.proc.proctype~`sort;{ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[])}[];initmissingtables[]];
+        .lg.o[`eod;"notifying idbs for newly created partition"];
+        notifyidbs[`.idb.rollover;currentpartition]];
+    .lg.o[`idb;"idb reload complete"];
+    };;
 
 \d .
 
