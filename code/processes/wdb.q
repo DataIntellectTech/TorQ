@@ -524,20 +524,21 @@ fixpartition:{[subto]
 
 /- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
-initmissingtables:{[]
-    .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string currentpartition];
-    inittable each tablelist[];
-    filldb[];
+initmissingtables:{[currentPt]
+    $[currentPt;pt:currentpartition;pt:currentpartition+1];
+    .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string pt];
+    inittable[;pt] each tablelist[];
+    filldb[pt];
  }
 
-filldb:{[]
+filldb:{[pt]
     /- for all enumerated partitions we want to make sure that all tables are present
-    .Q.chk[.Q.par[hsym savedir; currentpartition; `]];
+    .Q.chk[.Q.par[hsym savedir; pt; `]];
  }
 
 /- initialises table t in db with its schema in part
-inittable:{[t]
-    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;currentpartition];0;t]; .Q.par[hsym savedir;currentpartition;t]],`;
+inittable:{[t;pt]
+    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;pt];0;t]; .Q.par[hsym savedir;pt;t]],`;
     if[() ~ key tabledir;tabledir set .Q.en[hsym hdbdir;0#value t]];
  }
 
@@ -595,7 +596,7 @@ idbReload:{[pt]
     .lg.o[`idb;"starting idb reload"];
     if[writedownmode in `partbyenum`default;
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
-        $[.proc.proctype~`sort;{ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[])}[];initmissingtables[]];
+        $[.proc.proctype~`sort;{ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[1b])}[];initmissingtables[0b]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
         notifyidbs[`.idb.rollover;currentpartition]];
     .lg.o[`idb;"idb reload complete"];

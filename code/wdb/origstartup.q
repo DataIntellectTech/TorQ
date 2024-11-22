@@ -15,7 +15,7 @@ startup:{[]
          ];
        subscribe[];
        /- add missing tables to partitions in case an IDB process wants to connect. Only applicable for partbyenum writedown mode
-       if[.wdb.writedownmode in `default`partbyenum;initmissingtables[]];
+       if[.wdb.writedownmode in `default`partbyenum;initmissingtables[1b]];
       ];
     @[`.; `upd; :; .wdb.upd];
  }
