@@ -308,9 +308,8 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
   
-  
-  idbReload[pt];
-  
+  idbreload[pt];
+
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
@@ -479,7 +478,7 @@ informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;merge
         ];
         [.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
          // try to run the sort locally
-         endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod;]]];
+         endofdaysort[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]]];
     };
 
 /-function to set the timer for the save to disk function	
@@ -524,8 +523,9 @@ fixpartition:{[subto]
 
 /- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
-initmissingtables:{[currentPt]
-    $[currentPt;pt:currentpartition;pt:currentpartition+1];
+/- currentpt - boolean; if true initialises partition for value of currentpartition; if false initialises partition for next value of currentpartition
+initmissingtables:{[currentpt]
+    $[currentpt;pt:currentpartition;pt:currentpartition+1];
     .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string pt];
     inittable[;pt] each tablelist[];
     filldb[pt];
@@ -592,7 +592,8 @@ getsortparams:{[]
     ];
     };
 
-idbReload:{[pt]
+/- funtion to initialise partition at EOD and notifyidbs to rollover, if .wdb.mode is not a sort mode, initmissingtables done on sort proc
+idbreload:{[pt]
     .lg.o[`idb;"starting idb reload"];
     if[writedownmode in `partbyenum`default;
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
