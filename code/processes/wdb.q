@@ -308,8 +308,6 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
   
-  idbreload[pt];
-
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
@@ -420,6 +418,8 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
         endofdaysortdate[dir;pt;key tablist;hdbsettings]
     ];
+    /- run steps to rollover idb
+    idbreload[pt+1];
     /- reset compression level (.z.zd)
     resetcompression[16 0 0]
     };
@@ -596,10 +596,10 @@ getsortparams:{[]
 idbreload:{[pt]
     .lg.o[`idb;"starting idb reload"];
     if[writedownmode in `partbyenum`default;
-        .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
+        .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
         $[.proc.proctype~`sort;{ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[1b])}[];initmissingtables[0b]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
-        notifyidbs[`.idb.rollover;currentpartition]];
+        notifyidbs[`.idb.rollover;pt]];
     .lg.o[`idb;"idb reload complete"];
     };;
 
