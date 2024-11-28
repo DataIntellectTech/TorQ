@@ -307,7 +307,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
-  
+
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
@@ -419,7 +419,7 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         endofdaysortdate[dir;pt;key tablist;hdbsettings]
     ];
     /- run steps to rollover idb
-    idbreload[pt+1];
+    idbreload[currentpartition+1];
     /- reset compression level (.z.zd)
     resetcompression[16 0 0]
     };
@@ -523,9 +523,8 @@ fixpartition:{[subto]
 
 /- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
-/- currentpt - boolean; if true initialises partition for value of currentpartition; if false initialises partition for next value of currentpartition
-initmissingtables:{[currentpt]
-    $[currentpt;pt:currentpartition;pt:currentpartition+1];
+/- pt - date; partition for which the function should initialise
+initmissingtables:{[pt]
     .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string pt];
     inittable[;pt] each tablelist[];
     filldb[pt];
@@ -597,7 +596,7 @@ idbreload:{[pt]
     .lg.o[`idb;"starting idb reload"];
     if[writedownmode in `partbyenum`default;
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
-        $[.proc.proctype~`sort;{ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[1b])}[];initmissingtables[0b]];
+        $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[pt])}[pt];initmissingtables[pt]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
         notifyidbs[`.idb.rollover;pt]];
     .lg.o[`idb;"idb reload complete"];
