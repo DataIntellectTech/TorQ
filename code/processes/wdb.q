@@ -54,6 +54,8 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-num
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
 
+wdbtypes:@[value;`wdbtypes;`wdb];                                          /-list of wdb types for sort processes to look for on initmissingtables
+
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
 subsyms:@[value;`subsyms;`];                                               /-list of syms to subscription to
 upd:@[value;`upd;{insert}];                                                /-value of the upd function
@@ -75,7 +77,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 .save.savedownmanipulation:@[value;`.save.savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`.save.postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
 
-/ - end of default parameters
+ - end of default parameters
 
 / - define .z.pd in order to connect to any worker processes
 .dotz.set[`.z.pd;{$[.z.K<3.3;
@@ -307,7 +309,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
-
+  
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
@@ -598,7 +600,8 @@ idbreload:{[pt]
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
         $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[pt])}[pt];initmissingtables[pt]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
-        notifyidbs[`.idb.rollover;pt]];
+        notifyidbs[`.idb.rollover;pt]
+    ];
     .lg.o[`idb;"idb reload complete"];
     };;
 
