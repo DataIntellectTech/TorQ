@@ -77,7 +77,7 @@ eodwaittime:@[value;`eodwaittime;0D00:00:10.000];                          /-len
 .save.savedownmanipulation:@[value;`.save.savedownmanipulation;()!()];           /-a dict of table!function used to manipulate tables at EOD save
 .save.postreplay:@[value;`.save.postreplay;{{[d;p] }}];                          /-post EOD function, invoked after all the tables have been written down
 
- - end of default parameters
+/ - end of default parameters
 
 / - define .z.pd in order to connect to any worker processes
 .dotz.set[`.z.pd;{$[.z.K<3.3;
@@ -593,12 +593,13 @@ getsortparams:{[]
     ];
     };
 
-/- funtion to initialise partition at EOD and notifyidbs to rollover, if .wdb.mode is not a sort mode, initmissingtables done on sort proc
+/- Function to trigger idb reload steps, The initmissingtables function needs to be ran on wdb process, however this function can be ran on the sort processes
+/- If the function is ran on sort process send initmissingtables command to wdbs
 idbreload:{[pt]
     .lg.o[`idb;"starting idb reload"];
     if[writedownmode in `partbyenum`default;
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
-        $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;`wdb;()!();1b;0b];[first ws](`.wdb.initmissingtables;[pt])}[pt];initmissingtables[pt]];
+        $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;wdbtypes;()!();1b;0b];{[ws;pt]ws(`.wdb.initmissingtables;[pt])}[;pt] each ws}[pt];initmissingtables[pt]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
         notifyidbs[`.idb.rollover;pt]
     ];
