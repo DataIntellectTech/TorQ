@@ -309,7 +309,7 @@ endofdaysortdate:{[dir;pt;tablist;hdbsettings]
   .lg.o[`mvtohdb;"Moving partition from the temp wdb ",(dw:.os.pth -1 _ string .Q.par[dir;pt;`])," directory to the hdb directory ",hw:.os.pth -1 _ string .Q.par[hdbsettings[`hdbdir];pt;`]];
   .lg.o[`mvtohdb;"Attempting to move ",(", "sv string key hsym`$dw)," from ",dw," to ",hw];
   .[movetohdb;(dw;hw;pt);{.lg.e[`mvtohdb;"Function movetohdb failed with error: ",x]}];
-  
+
   /-call the posteod function
   .save.postreplay[hdbsettings[`hdbdir];pt];
   if[permitreload;
