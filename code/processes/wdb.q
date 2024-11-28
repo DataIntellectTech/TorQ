@@ -54,6 +54,8 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-num
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
 
+wdbtypes:@[value;`wdbtypes;`wdb];                                          /-list of wdb types for sort processes to look for on initmissingtables
+
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
 subsyms:@[value;`subsyms;`];                                               /-list of syms to subscription to
 upd:@[value;`upd;{insert}];                                                /-value of the upd function
@@ -206,12 +208,6 @@ endofday:{[pt;processdata]
     if[.finspace.enabled;.finspace.notifyhdb[;changeset] each .finspace.hdbclusters];
     currentpartition::pt+1;
     /- in case of default/partbyenum writedown mode we want to initialise the new partition with all the table schemas
-    /- then notify idb processes of the new db
-    if[writedownmode in `partbyenum`default;
-       .lg.o[`eod;"initialising wdbhdb for partition: ",string[currentpartition]];
-       initmissingtables[];
-       .lg.o[`eod;"notifying idbs for newly created partition"];
-       notifyidbs[`.idb.rollover;currentpartition]];
     .lg.o[`eod;"end of day is now complete"];
     if[.finspace.enabled;.os.hdeldir[getenv[`KDBSCRATCH];0b]];
     };
@@ -424,6 +420,8 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
         endofdaysortdate[dir;pt;key tablist;hdbsettings]
     ];
+    /- run steps to rollover idb
+    idbreload[currentpartition+1];
     /- reset compression level (.z.zd)
     resetcompression[16 0 0]
     };
@@ -527,20 +525,21 @@ fixpartition:{[subto]
 
 /- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
-initmissingtables:{[]
-    .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string currentpartition];
-    inittable each tablelist[];
-    filldb[];
+/- pt - date; partition for which the function should initialise
+initmissingtables:{[pt]
+    .lg.o[`fixpartition;"Adding missing tables(empty) to partition ",string pt];
+    inittable[;pt] each tablelist[];
+    filldb[pt];
  }
 
-filldb:{[]
+filldb:{[pt]
     /- for all enumerated partitions we want to make sure that all tables are present
-    .Q.chk[.Q.par[hsym savedir; currentpartition; `]];
+    .Q.chk[.Q.par[hsym savedir; pt; `]];
  }
 
 /- initialises table t in db with its schema in part
-inittable:{[t]
-    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;currentpartition];0;t]; .Q.par[hsym savedir;currentpartition;t]],`;
+inittable:{[t;pt]
+    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;pt];0;t]; .Q.par[hsym savedir;pt;t]],`;
     if[() ~ key tabledir;tabledir set .Q.en[hsym hdbdir;0#value t]];
  }
 
@@ -593,6 +592,19 @@ getsortparams:{[]
         .lg.o[`init;"parted attribute p set at least once for each table in sort.csv"];
     ];
     };
+
+/- Function to trigger idb reload steps, The initmissingtables function needs to be ran on wdb process, however this function can be ran on the sort processes
+/- If the function is ran on sort process send initmissingtables command to wdbs
+idbreload:{[pt]
+    .lg.o[`idb;"starting idb reload"];
+    if[writedownmode in `partbyenum`default;
+        .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
+        $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;wdbtypes;()!();1b;0b];{[ws;pt]ws(`.wdb.initmissingtables;[pt])}[;pt] each ws}[pt];initmissingtables[pt]];
+        .lg.o[`eod;"notifying idbs for newly created partition"];
+        notifyidbs[`.idb.rollover;pt]
+    ];
+    .lg.o[`idb;"idb reload complete"];
+    };;
 
 \d .
 

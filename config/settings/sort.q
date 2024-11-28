@@ -5,6 +5,7 @@ ignorelist:`heartbeat`logmsg            // list of tables to ignore
 hdbtypes:`hdb                           // list of hdb types to look for and call in hdb reload
 rdbtypes:`rdb                           // list of rdb types to look for and call in rdb reload
 tickerplanttypes:`tickerplant           // list of tickerplant types to try and make a connection to
+wdbtypes:`wdb                           // list of wdb types to look for and call in wdb init tables
 subtabs:`                               // list of tables to subscribe for (` for all)
 subsyms:`                               // list of syms to subscribe for (` for all)
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                        // location to save wdb data
@@ -46,5 +47,5 @@ eodwaittime:0D00:00:10.000              // time to wait for async calls to compl
 
 // Server connection details
 \d .servers
-CONNECTIONS:`hdb`tickerplant`rdb`gateway // list of connections to make at start up
+CONNECTIONS:`wdb`hdb`tickerplant`rdb`gateway // list of connections to make at start up
 STARTUP:1b                              // create connections
