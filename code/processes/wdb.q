@@ -421,7 +421,7 @@ endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         endofdaysortdate[dir;pt;key tablist;hdbsettings]
     ];
     /- run steps to rollover idb
-    idbreload[currentpartition+1];
+    idbreload[pt+1];
     /- reset compression level (.z.zd)
     resetcompression[16 0 0]
     };
