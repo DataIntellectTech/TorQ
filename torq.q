@@ -301,7 +301,7 @@ exitifnull:{[variable]
 \d .rmvr
 
 removeenvvar:{
- 	// positions of {}
+	// positions of {}
 	pos:ss[x]each"{}";
 	// check the formatting is ok
 	$[0=count first pos; :x;
@@ -310,7 +310,13 @@ removeenvvar:{
 	()];
 
 	// cut out each environment variable, and retrieve the meaning
-	raze {$["{"=first x;getenv`$1 _ -1 _ x;x]}each (raze flip 0 1+pos) cut x}		
+	// ascertain if string is an env var by checking if first char is a {
+	raze {$["{"~first x;resolveandcheckenvvar[x];x]}each (raze flip 0 1+pos) cut x}
+
+resolveandcheckenvvar:{[s]
+	ev:getenv[`$1 _ -1 _ s];
+	if[""~ev;.lg.w[`resolveandcheckenvvar;"warning, could not resolve environment variable: ",s]];
+	ev}
 		
 // Process initialisation
 \d .proc
@@ -426,14 +432,14 @@ readprocfile:{[file]
                 .err.ex[`readprocfile;"Current host does not match host specified in ",string[file],". Parameters are host: ", string[output`host], ", port: ", string[output`port], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]];
 	// exit if no port passed via command line or specified in config
 	if[null[output`port]&0i=system"p";
-		.err.ex[`readprocfile;"No port passed via -p flag or found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
+		.err.ex[`readprocfile;"No port number passed via -p flag or no port number found in ",string[file],". Parameters are host: ", string[output`host], ", proctype: ", string[output`proctype], ", procname: ",string output`procname;1]]; 
 	// .finspace.enabled flag here is a temporarily bug fix for Finspace DEV clusters - port is set later so is empty when we reach this point. AWS investigating
 	if[not[.finspace.enabled]&not[output[`port] = system"p"]& 0i = system"p";
 		@[system;"p ",string[output[`port]];.err.ex[`readprocfile;"failed to set port to ",string[output[`port]]]];
 		.lg.o[`readprocfile;"port set to ",string[output[`port]]]
 		];
 	output
-	}	
+	}
 
 .lg.o[`init;"attempting to read required process parameters ",("," sv string req)," from file ",string file];
 // Read in the file, pull out the rows which are applicable and set the local variables
