@@ -55,8 +55,9 @@ symfilehaschanged:{[]
 
 /- checks if count of partitions has changed since last reload of the IDB. Records new partition count if changed.
 /- the default writedown method doesn't need db reloading as no new directory is being created there.
+/- First check is to ensure that a single intraday partition exists (so loadidb doesn't fail)
 partitioncounthaschanged:{[]
-    if[writedownmode~`default;:0b];
+    if[(1j~partitionsize)&writedownmode~`default;:0b];
     $[partitionsize<>c:count key idbdir;[partitionsize::c; 1b];0b]
  };
 
