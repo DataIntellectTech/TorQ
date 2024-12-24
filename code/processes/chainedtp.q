@@ -1,5 +1,18 @@
 / Chained tickerplant 
 
+/- subscribers use this to determine what type of process they are talking to
+tptype:`chained;
+
+/- functions used by subscribers
+tablelist:{.stpps.t}
+
+/- subscribers who want to replay need this info 
+subdetails:{[tabs;instruments]
+  r:.ctp.sub[tabs;instruments];
+  /- reshape dict, make sure logfilelist is an empty list if no log file
+  `schemalist`logfilelist`rowcounts`date!r@/:(`schema;$[r[`logfile]~();();enlist`i`logfile];`icounts;`d)
+  }
+
 \d .ctp
 
 /- user defined variables
@@ -152,7 +165,7 @@ upd:$[createlogfile;
 sub:{[subtabs;subsyms]
   r:(`schema`icounts`i`logfile`d)!();
   /- get schema & subscribe
-  r[`schema]:.u.sub[subtabs;subsyms];
+  r[`schema]:$[-11h=type subtabs;first;::] .u.sub\:[subtabs,();subsyms];
   /- add icounts if subscribing to all syms
   if[subscribesyms~`;r[`icounts]:.u.icounts];
   /- if logfile, add logfile & i
