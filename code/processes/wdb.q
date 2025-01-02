@@ -548,10 +548,14 @@ replayupd:{[f;t;d]
     /- execute the supplied function
         f . (t;d);
     /- if the data count is greater than the threshold, then flush data to disk
-    if[(rpc:count[value t]) > lmt:maxrows[t];
-        .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
-        savetables[savedir;getpartition[];0b;t]]
+    replaymaxrowcheck[t;replaymaxrows[t]];
     }[upd];
+
+replaymaxrowcheck:{[t;lmt]
+    if[(rpc:count[value t]) > lmt;
+        .lg.o[`replayupd;"row limit (",string[lmt],") exceeded for ",string[t],". Table count is : ",string[rpc],". Flushing table to disk..."];
+        savetables[savedir;getpartition[];0b;t]];
+    };
 
 / - if there is data in the wdb directory for the partition remove it before replay
 / - is only for wdb processes that are saving data to disk
