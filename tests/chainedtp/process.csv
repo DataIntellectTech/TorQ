@@ -1,0 +1,6 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,tickerplant,tp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/tickerplant.q,1,-schemafile ${KDBTESTS}/chainedtp/database -tplogdir ${KDBTESTS}/chainedtp/tplogs,q
+localhost,{KDBBASEPORT}+102,chainedtp,ctp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/chainedtp.q,1,-.ctp.tickerplantname tp1 -.ctp.createlogfile 1 -.ctp.logdir :${KDBTESTS}/chainedtp/tplogs,q
+localhost,{KDBBASEPORT}+103,chainedtp,ctp2,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/chainedtp.q,1,-.ctp.tickerplantname tp1 -.ctp.createlogfile 0,q
+localhost,{KDBBASEPORT}+104,rdb,rdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.tickerplanttypes chainedtp -.rdb.replaylog 1 -.rdb.gatewaytypes none,q
