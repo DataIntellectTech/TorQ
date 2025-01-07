@@ -99,7 +99,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   $[tptype=`standard;
     [tablesfunc:{key `.u.w};
       subfunc:{`schemalist`logfilelist`rowcounts`date!(.u.sub\:[x;y];enlist(.u`i`L);(.u `icounts);(.u `d))}];
-    tptype=`segmented;
+    tptype in `chained`segmented;
     [tablesfunc:`tablelist;
       subfunc:`subdetails];
     [.lg.e[`subscribe;e:"unrecognised tickerplant type: ",string tptype]; 'e]];
@@ -125,7 +125,7 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // the date from the name of the tickerplant log file (assuming the tp log has a name like `: sym2014.01.01
   // plus .u.i and .u.icounts if existing on TP - details[1;0] is .u.i, details[2] is .u.icounts (or null)
   logdate:0Nd;
-  if[tptype=`standard;
+  if[tptype in `standard`chained;
     d:(`subtables`tplogdate!(details[`schemalist][;0];(first "D" $ -10 sublist string last first details[`logfilelist])^logdate));
     :d,{(where 101 = type each x)_x}(`i`icounts`d)!(details[`logfilelist][0;0];details[`rowcounts];details[`date])];
   if[tptype~`segmented;
