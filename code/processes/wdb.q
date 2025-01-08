@@ -171,7 +171,7 @@ savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode]
 savetodisk:{[]
     changes:savetables[savedir;getpartition[];immediate;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[any[changes] and writedownmode in `partbyenum`default;filldb[];notifyidbs[`.idb.intradayreload;enlist()]]};
+    if[any[changes] and writedownmode in `partbyenum`default;filldb getpartition[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
 /- send an intraday reload message to idbs:
 notifyidbs:{[func;params]
