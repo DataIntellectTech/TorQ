@@ -16,6 +16,11 @@ startup:{[]
        subscribe[];
        /- add missing tables to partitions in case an IDB process wants to connect. Only applicable for partbyenum writedown mode
        if[.wdb.writedownmode in `default`partbyenum;initmissingtables[currentpartition]];
+       // if for replay table maxrows were customised, we want to check row count for each table, save and gc where needed
+       if[(not .wdb.numtab~.wdb.replaynumtab)or .wdb.numrows<>.wdb.replaynumrows;
+          tabs:exec table from .sub.SUBSCRIPTIONS;
+          tabmaxrowpairs:{(x;.wdb.maxrows[x])}each tabs;
+          {replaymaxrowcheck[first x;last x]}each tabmaxrowpairs];
       ];
     @[`.; `upd; :; .wdb.upd];
  }

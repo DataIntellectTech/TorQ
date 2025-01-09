@@ -14,6 +14,8 @@ subsyms:`                                                                       
 savedir:hsym`$getenv[`TORQHOME],"/wdbhdb"                                                   // location to save wdb data
 numrows:100000                                                                              // default number of rows
 numtab:`quote`trade!10000 50000                                                             // specify number of rows per table
+replaynumrows:numrows                                                                       // 0W                       for replaying all messages at once then flushing
+replaynumtab:numtab                                                                         // enlist[`]!enlist 0W      for replaying all messages at once then flushing
 mode:`save                                                                                  // the wdb process can operate in three modes	
                                                                                             // 1. saveandsort:     the process will subscribe for data,
                                                                                             //                     periodically write data to disk and at EOD it will flush
