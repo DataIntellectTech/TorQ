@@ -6,7 +6,7 @@ dashparams:`o`w`r`limit!(0;0i;0i;0W)
 
 // function to be called from the dashboards
 dashexec:{[q;s;j]
- .gw.asyncexecjpt[(dashremote;q;dashparams);(),s;dashjoin[j];();0Wn]
+ .gw.syncexecj[q;(),s;j]
  }
 
 // execute the request
@@ -24,18 +24,13 @@ dashjoin:{[joinfunc;r]
   (`.dash.snd_err;r[0;1;`w];r[0;1;`r];r[0;1;`result])]
  }
 
+// this function is to be inserted into .z.ps to set the .kxdash.dashparams variable
 dashps:{
  // check the query coming in meets the format
- $[@[{`f`w`r`x`u~first 1_ value first x};x;0b];
+ if[@[{`f`w`r`x`u~first 1_ value first x};x;0b];
    // pull out the values we need to return to the dashboards
-   [dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0]);
-    // execute the query part, which must look something like
-    // .kxdash.dashexec["select from t";`rdb`hdb;raze]
-    value x[4;1];
-    ];
-   //
-   value x]
- }
+   dashparams::`o`w`r`limit!(last value x 1;x 2;x 3;x[4;0])];
+ };
 
 
 // need this to handle queries that only hit one backend process
@@ -57,5 +52,5 @@ init:{
  // incorporate dashps into the .z.ps definition
  .dotz.set[`.z.ps;{x@y;.kxdash.dashps y}@[value;.dotz.getcommand[`.z.ps];{{value x}}]];
  };
- 
+
 if[enabled;init[]];
