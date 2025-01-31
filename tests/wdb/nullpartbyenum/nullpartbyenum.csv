@@ -1,0 +1,40 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+beforeany,0,0,q,system "sleep 5",1,,"Wait for processes to start"
+before,0,0,q,.servers.startup[],1,,"Start connection management"
+before,0,0,q,system "sleep 2",1,,"Wait for connections"
+before,0,0,q,stpHandle:gethandle[`stp1],1,,"Open handle to STP"
+before,0,0,q,wdbEnumHandle:gethandle[`wdbenum],1,,"Open handle to WDB enum"
+before,0,0,q,idbHandle:gethandle[`idbenum],1,,"Open handle to IDB"
+before,0,0,q,hdbEnumHandle:gethandle[`hdbenum],1,,"Open handle to partbyenum HDB"
+before,0,0,q,"wdbEnumSym:` sv (wdbEnumHandle(`.wdb.hdbsettings;`hdbdir)),`sym",1,,"Get location of partbyenum hdb sym file"
+before,0,0,q,wdbEnumHandle(set;`.wdb.numtab;`quote`trade!12 15),1,,"Set low treshold numbers for merging on partbyenum WDB"
+
+before,0,0,q,stpHandle(`.stplg.init;testlogdb),1,,"Create test stplog test directory"
+before,0,0,q,logdir:1_string stpHandle(`.stplg.dldir),1,,"Get location of log directory"
+before,0,0,q,.proc.sys "sleep 3",1,,"Wait for connections to get set up"
+before,0,0,q,.os.md temphdbpartbyenumdir,1,,"Creating HDB directory for partbyenum DB"
+
+run,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,,"Send trade and quote updates to STP"
+run,0,0,q,.proc.sys "sleep 2",1,,"Wait for updates to publish"
+true,0,0,q,count[first testtrade]~wdbEnumHandle "count trade",1,,"Check trade update was correctly published to partbyenum WDB"
+true,0,0,q,count[first testquote]~wdbEnumHandle "count quote",1,,"Check quote update was correctly published to partbyenum WDB"
+
+run,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,,"Send trade and quote updates to STP to force a writedown"
+run,0,0,q,.proc.sys "sleep 3",1,,"Wait for updates to publish and writedown to happen"
+true,0,0,q,"all (distinct `TORQNULLSYMBOL^(testtrade[0]),(testquote[0])) in get wdbEnumSym",1,,"Check if all symbols are enumerated against partbyenum hdb sym, fill null sym in test data with TORQNULLSYMBOL to confirm this has been enumerated against"
+
+true,0,0,q,all {any x like/: y}[;folder_patterns] exec ptdir from wdbEnumHandle `.merge.partsizes,1,,"Check if all partitions are placed in the correct enumerated tables in the partbyenum WDB dir"
+
+true,0,0,q,(2*count[where null [first[testquote]]]) ~ idbHandle"count select from quote where int=maptoint[`]",1,,"Check maptoint function is querying null sym correctly on quote"
+true,0,0,q,(2*count[where null [first[testquote]]]) ~ idbHandle"count select from trade where int=maptoint[`]",1,,"Check maptoint function is querying null sym correctly on trade"
+
+run,0,0,q,wdbEnumHandle(`.u.end;`.wdb.currentpartition),1,,"Trigger EOD on partbyenum WDB"
+run,0,0,q,.proc.sys "sleep 5",1,,"Wait for merge to HDB to happen"
+true,0,0,q,(2*count[first testtrade])~hdbEnumHandle "count select from trade",1,,"Check trade in hdb"
+true,0,0,q,(2*count[first testquote])~hdbEnumHandle "count select from quote",1,,"Check quote in hdb"
+
+after,0,0,q,hclose each (wdbEnumHandle;stpHandle;idbHandle;hdbEnumHandle);,1,,"Close handles"
+after,0,0,q,kill9proc each ("stp1";"wdbenum";"hdbenum";"idbenum";"sort1"),1,,"Stop all procs"
+after,0,0,q,.os.deldir logdir,1,,"Delete test segmented tickerplant logs"
+after,0,0,q,.os.deldir 1_string temphdbpartbyenumdir,1,,"Delete temp WDB"
+after,0,0,q,.os.deldir 1_string wdbpartbyenumdir,1,,"Delete temp WDB"

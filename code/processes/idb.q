@@ -107,5 +107,5 @@ reload:.idb.intradayreload;
 
 /- helper function to support queries against the sym column
 maptoint:{[symbol]
-    sym?symbol
+    sym?`TORQNULLSYMBOL^symbol
  };
