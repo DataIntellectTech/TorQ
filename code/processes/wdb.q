@@ -120,11 +120,11 @@ ensuresymlist:{[s] -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} 
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
     /- enumerate current extra partition against the hdb sym file
-    /- if extra partition is null, send to a partition enumerated against `NONE symbol
+    /- if extra partition is null, send to a partition enumerated against `TORQNULLSYMBOL symbol
     if[writedownmode~`partbyenum;i:`long$(` sv hdbsettings[`hdbdir],`sym)? first[`TORQNULLSYMBOL^ ensuresymlist[expt]]];
     /- create directory location for selected partiton
     /- replace non-alphanumeric characters in symbols with _
-    /- convert to symbols and replace any null values with `NONE
+    /- convert to symbols and replace any null values with `TORQNULLSYMBOL
     directory:$[writedownmode~`partbyenum;
                 ` sv .Q.par[dir;pt;`$string i],tablename,`;
                 ` sv .Q.par[dir;pt;tablename],(`$"_"^.Q.an .Q.an?"_" sv string `TORQNULLSYMBOL^ ensuresymlist[expt]),`];
