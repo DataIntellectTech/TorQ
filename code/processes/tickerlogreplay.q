@@ -165,13 +165,9 @@ checkcount:{[h;p;counter;td]
   .replay.currentcount:0]}
 
 // function used to finish off the replay
-// generally this will be to re-sort the table, and set an attribute
 finishreplay:{[h;p;td]
  // save down any tables which haven't been saved
  savetab[td;h;p] each tabsincountorder[.replay.tablestoreplay];
- // sort data and apply the attributes
- if[sortafterreplay;applysortandattr[.replay.pathlist]];
-
  // invoke any user defined post replay function
  .save.postreplay[h;p];
  }
@@ -190,7 +186,7 @@ replaylog:{[logfile]
 	[.lg.o[`replay;"skipping first ",(string firstmessage)," messages"];
          @[`.;`upd;:;.replay.initialupd]];
 	@[`.;`upd;:;.replay.realupd]];
- .replay.tablecounts:.replay.errorcounts:.replay.pathlist:()!();
+ .replay.tablecounts:.replay.errorcounts:()!();
 
  // If not running in segmented mode, reset replay date and clean HDB directory on each loop
  .replay.zipped:$[logfile like "*.gz";1b;0b];
@@ -415,7 +411,9 @@ initandrun:{
 
   // Replay all logs and exit
   .lg.o[`initandrun;"Replaying the following log(s): ",csv sv 1_'string .replay.logstoreplay];
+  .replay.pathlist:()!();
   .replay.replaylog each .replay.logstoreplay;
+  if[sortafterreplay;applysortandattr[.replay.pathlist]];
   if[partandmerge;postreplaymerge[tempdir;.replay.replaydate;hdbdir]];  
   .lg.o[`replay;"replay complete"];
   if[.replay.exitwhencomplete;exit 0];
