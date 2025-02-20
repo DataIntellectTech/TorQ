@@ -150,12 +150,6 @@ top() {
 stop() {
   procno=$(awk '/,'$1',/{print NR}' "$CSVPATH")
   host=$(getfield "$procno" "host")
-  if [[ $host == "localhost" || $host == `hostname -i`  ||
-        ${hostips[@]}  =~ $host || ${hostnames[@]} =~ $host ]]; then
-    kcmd="kill -15"
-  else
-    kcmd="$cmd"
-  fi
   if [[ -z $(findproc "$1") ]]; then
     echo "$(date '+%H:%M:%S') | $1 is not currently running"
   else
@@ -166,7 +160,7 @@ stop() {
     if [[ ! $port =~ ^[0-9]+$ ]]; then
       port=$(($(eval echo \$$port)))
     fi
-    eval "$kcmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
   fi
  }
 
