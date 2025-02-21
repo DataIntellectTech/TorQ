@@ -11,6 +11,7 @@ numtab:@[value;`numtab;`quote`trade!10000 50000];                          /-spe
 
 
 maxrows:{[tabname] numrows^numtab[tabname]};                               /- extract user defined row counts
+replaymaxrows:{[tabname] replaynumrows^replaynumtab[tabname]};
 
 partitiontype:@[value;`partitiontype;`date];                               /-set type of partition (defaults to `date)
 
