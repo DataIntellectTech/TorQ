@@ -31,7 +31,7 @@ tempdir:@[value;`tempdir;`:tempmergedir];                               // locat
 mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
 mergenumbytes:@[value;`mergenumbytes;500000000];                        // default number of bytes for merge process
-mergemethod:@[value;`mergemethod;`part];                                // the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemethod:@[value;`mergemethod;`part];                                // the partbyattr writedown mode can merge data from temporary storage to the hdb in three ways:
                                                                         // 1. part                      -       the entire partition is merged to the hdb 
                                                                         // 2. col                       -       each column in the temporary partitions are merged individually 
                                                                         // 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit       
