@@ -27,12 +27,11 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /- 1. default                   -       the data is partitioned by [ partitiontype ]
                                                                            /-                                      at EOD the data will be sorted and given attributes according to sort.csv before being moved to hdb
                                                                            /- 2. partbyattr                -       the data is partitioned by [ partitiontype ] and the column(s) assigned the parted attributed in sort.csv
-                                                                           /-                                      at EOD the data will be merged from each partiton before being moved to hdb
-                                                                           /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol column with parted attribution assigned in sort.csv
-                                                                           /-                                      at EOD the data will be merged from each partiton before being moved to hdb
-enumcol:@[value;`enumcol;`sym];                                            /-symbol column to enumerate by. Only used with writedownmode: partbyenum.
+                                                                           /-                                      at EOD the data will be merged from each partition before being moved to hdb
+                                                                           /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol or integer column with parted attribution assigned in sort.csv
+                                                                           /-                                      at EOD the data will be merged from each partition before being moved to hdb
 
-mergemode:@[value;`mergemode;`part];                                       /-the partbyattr writdown mode can merge data from tenmporary storage to the hdb in three ways:
+mergemode:@[value;`mergemode;`part];                                       /-the partbyattr writedown mode can merge data from temporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb
                                                                            /- 2. col                       -       each column in the temporary partitions are merged individually
                                                                            /- 3. hybrid                    -       partitions merged by column or entire partittion based on byte limit
@@ -117,12 +116,20 @@ tablelist:{[] sortedlist:exec tablename from `bytes xdesc tabsizes;
 /- function that ensures a list of syms is returned no matter what is passed to it
 ensuresymlist:{[s] -1 _ `${@[x; where not ((type each x) in (10 -10h));string]} s,(::)}
 
+/- vectorized function to map partition value(s) to int partition(s) in partbyenum mode
+maptoint:{[val]
+    $[(abs type val) in 5 6 7h;
+        /- if using an integer column, clamp value between 0 and max int (null maps to 0)
+        0| 2147483647& `long$ val;
+        /- if using a symbol column, enumerate against the hdb sym file
+        `long$ (` sv hdbsettings[`hdbdir],`sym)?`TORQNULLSYMBOL^val]
+    };
+
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
-    /- enumerate current extra partition against the hdb sym file
-    /- if extra partition is null, send to a partition enumerated against `TORQNULLSYMBOL symbol
-    if[writedownmode~`partbyenum;i:`long$(` sv hdbsettings[`hdbdir],`sym)? first[`TORQNULLSYMBOL^ ensuresymlist[expt]]];
-    /- create directory location for selected partiton
+    /- enumerate first extra partition value
+    if[writedownmode~`partbyenum;i:maptoint first expt];
+    /- create directory location for selected partition
     /- replace non-alphanumeric characters in symbols with _
     /- convert to symbols and replace any null values with `TORQNULLSYMBOL
     directory:$[writedownmode~`partbyenum;
@@ -150,9 +157,9 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
           ];
         /- check each partition type actually is a column in the selected table
         .merge.checkpartitiontype[tablename;extrapartitiontype];
-        /- check if provided symbol column extrapartitiontype indeed has a symbol type in table
-        if[writedownmode~`partbyenum;.merge.checksymboltype[tablename;extrapartitiontype]];
-        /- get list of distinct combiniations for partition directories
+        /- check if provided column extrapartitiontype indeed has an enumerable type in table
+        if[writedownmode~`partbyenum;.merge.checkenumerabletype[tablename;extrapartitiontype]];
+        /- get list of distinct combinations for partition directories
         extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
         /- enumerate data to be upserted
         enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
@@ -191,7 +198,7 @@ endofday:{[pt;processdata]
         /- set what type of merge method to be used
         mergemethod:mergemode;
     /- create a dictionary of tables and merge limits, byte or row count limit depending on settings
-    .lg.o[`merge;"merging partitons by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
+    .lg.o[`merge;"merging partitions by ",$[.merge.mergebybytelimit;"byte estimate";"row count"]," limit"];
     mergelimits:(tablelist[],())!($[.merge.mergebybytelimit;{(count x)#mergenumbytes};{[x] mergenumrows^mergemaxrows[x]}]tablelist[]),();
     tablist:tablelist[]!{0#value x} each tablelist[];
     / Need to download sym file to scratch directory if this is Finspace application
@@ -273,7 +280,7 @@ resetcompression:{setcompression 16 0 0 }
 
 //check if the hdb directory contains current partition
 //if yes check if patition is empty and if it is not see if any of the tables exist in both the 
-//temporary parition and the hdb partition. If there is a clash abort operation otherwise copy 
+//temporary partition and the hdb partition. If there is a clash abort operation otherwise copy 
 //each table to the hdb partition
 movetohdb:{[dw;hw;pt]
   $[not(`$string pt)in key hsym`$-10 _ hw;
@@ -376,7 +383,7 @@ removetablefromenumdir:{[partdir]
   };
 
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode]
-  /- merge data from partitons
+  /- merge data from partitions
   /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   tempfix2:$[.finspace.enabled;0b;(0 < count .z.pd[])];
   $[tempfix2 and ((system "s")<0);
@@ -513,14 +520,14 @@ subscribe:{[]
 fixpartition:{[subto]
     /- check if the tp logdate matches current date
     if[not (tplogdate:subto[`tplogdate])~orig:currentpartition;
-        .lg.o[`fixpartition;"Current partiton date does not match the ticker plant log date"];
-        /- set the current partiton date to the log date
+        .lg.o[`fixpartition;"Current partition date does not match the ticker plant log date"];
+        /- set the current partition date to the log date
         currentpartition::tplogdate;
         /- move the data that has been written to correct partition
         pth1:.os.pth[-1 _ string .Q.par[savedir;orig;`]];
         pth2:.os.pth[-1 _ string .Q.par[savedir;tplogdate;`]];
         if[not ()~key hsym `$.os.pthq pth1;
-          /- delete any data in the current partiton directory
+          /- delete any data in the current partition directory
               clearwdbdata[];
           .lg.o[`fixpartition;"Moving data from partition ",(.os.pthq pth1) ," to partition ",.os.pthq pth2];
           .[.os.ren;(pth1;pth2);{.lg.e[`fixpartition;"Failed to move data from wdb partition ",x," to wdb partition ",y," : ",z]}[pth1;pth2]]];

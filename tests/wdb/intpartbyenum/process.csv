@@ -1,0 +1,7 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+100,discovery,discovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+101,gateway,gateway1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/gateway.q,1,,q
+localhost,{KDBBASEPORT}+102,segmentedtickerplant,stp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${KDBTESTS}/wdb/intpartbyenum/database.q,q
+localhost,{KDBBASEPORT}+103,hdb,hdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBTESTS}/wdb/intpartbyenum/temphdb,1,,q
+localhost,{KDBBASEPORT}+104,wdb,wdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/wdb.q,1,-.wdb.writedownmode partbyenum -.wdb.mode saveandsort -.wdb.sortcsv ${KDBTESTS}/wdb/intpartbyenum/sort.csv -.wdb.savedir ${KDBTESTS}/wdb/intpartbyenum/tempwdb -.wdb.hdbdir ${KDBTESTS}/wdb/intpartbyenum/temphdb,q
+localhost,{KDBBASEPORT}+105,idb,idb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,,${KDBCODE}/processes/idb.q,1,,q

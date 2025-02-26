@@ -27,15 +27,15 @@ checkpartitiontype:{[tablename;extrapartitiontype]
                 .lg.o[`checkpart;"all parted columns defined in sort.csv are present in ",(string tablename)," table"]];
 	};
 
-/- function to check if the extra partition column has a symbol type
-checksymboltype:{[tablename;extrapartitiontype]
-        $[all extrapartitiontype in exec c from meta[tablename] where t="s";
-                .lg.o[`checksymbol;"all columns do have a symbol type in ",(string tablename)," table"];
-                .lg.e[`checksymbol;"not all columns ",string[extrapartitiontype]," do have a symbol type in ",(string tablename)," table"]];
+/- function to check if the extra partition column has an enumerable type
+checkenumerabletype:{[tablename;extrapartitiontype]
+        $[all extrapartitiontype in exec c from meta[tablename] where t in "hijs";
+                .lg.o[`checkenumerable;"all columns do have an enumerable type in ",(string tablename)," table"];
+                .lg.e[`checkenumerable;"not all columns ",string[extrapartitiontype]," do have an enumerable type in ",(string tablename)," table"]];
         };
 
 
-/- function to get list of distinct combiniations for partition directories
+/- function to get list of distinct combinations for partition directories
 /- functional select equivalent to: select distinct [ extrapartitiontype ] from [ tablenme ]
 getextrapartitions:{[tablename;extrapartitiontype]
         value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]

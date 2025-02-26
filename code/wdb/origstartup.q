@@ -6,7 +6,7 @@ startup:{[]
     $[writedownmode~`partbyattr;
       .lg.o[`init; "partition has been set to [savedir]/[",(string partitiontype),"]/[tablename]/[parted column(s)]/"];
       writedownmode~`partbyenum;
-      .lg.o[`init; "partition has been set to [savedir]/[",(string partitiontype),"]/[parted symbol column enumerated]/[tablename]/"];
+      .lg.o[`init; "partition has been set to [savedir]/[",(string partitiontype),"]/[parted column enumerated]/[tablename]/"];
       .lg.o[`init; "partition has been set to [savedir]/[",(string partitiontype),"]/[tablename]/"]];
     if[saveenabled;
        //check if tickerplant is available and if not exit with error
