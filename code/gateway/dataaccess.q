@@ -154,6 +154,8 @@ partdict:{[input]
     tabname:input[`tablename];
     // Remove duplicate servertypes from the gw.servers
     servers:select from .gw.servers where i=(first;i)fby servertype;
+    // Only target specified procs if defined
+    if[`procs in key input;servers:select from servers where servertype in ((),input`procs)];
     // extract the procs which have the table defined
     servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // Create a dictionary of the attributes against servertypes
@@ -162,6 +164,8 @@ partdict:{[input]
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
     procdict:asc @[procdict;key procdict;{:(min x; max x)}];
+    // Let idb take precedence over rdb to prevent data duplication
+    if[all `rdb`idb in key procdict;procdict:delete rdb from procdict];
     // prevents overlap if more than one process contains a specified date
     if[1<count procdict;
         procdict:{:$[y~`date$();x;$[within[x 0;(min y;max y)];(1+max[y];x 1);x]]}':[procdict]];
@@ -177,6 +181,8 @@ adjustqueries:{[options;part]
     tabname:options[`tablename];
     // remove duplicate servertypes from the gw.servers
     servers:select from .gw.servers where i=(first;i)fby servertype;
+    // only target specified procs if defined
+    if[`procs in key options;servers:select from servers where servertype in ((),options`procs)];
     // extract the procs which have the table defined
     servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
     // create a dictionary of the attributes against servertypes
@@ -192,9 +198,7 @@ adjustqueries:{[options;part]
     partitions:`timestamp$partitions;
 
     // adjust the times to account for period end time when int partitioned
-    c:first[partitions`hdb],-1+ first[partitions`rdb];
-    d:first[partitions`rdb],options `endtime;
-    partitions:@[@[partitions;`hdb;:;c];`rdb;:;d];
+    partitions:{x[0],-1+x[1]+1D}each partitions;
 
     // if start/end time not a date, then adjust dates parameter for the correct types
     if[not a:-12h~tp:type start:options`starttime;
