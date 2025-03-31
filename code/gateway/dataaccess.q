@@ -197,16 +197,11 @@ adjustqueries:{[options;part]
     partitions:possparts{(min x;max x)}'[partitions];
     partitions:`timestamp$partitions;
 
-    // adjust the times to account for period end time when int partitioned
-    partitions:{x[0],-1+x[1]+1D}each partitions;
-
-    // if start/end time not a date, then adjust dates parameter for the correct types
-    if[not a:-12h~tp:type start:options`starttime;
-        // converts partitions dictionary to timestamps/datetimes
-        partitions:$[-15h~tp;"z"$;]{(0D+x 0;x[1]+1D-1)}'[partitions];
-        // convert first and last timestamp to start and end time
-        partitions:@[partitions;f;:;(start;partitions[f:first key partitions;1])];
-        partitions:@[partitions;l;:;(partitions[l:last key partitions;0];options`endtime)]];
+    // adjust the query times accordingly
+    options:@[@[options;`starttime;:;"p"$options`starttime];`endtime;:;$[-14h~type et:options`endtime;-1+1D+et;"p"$et]]; //ensure st/et are timestamps; if date adjust endtime
+    partitions:{x[0],x[1]+1D-1}each partitions; //create dict of datetime coverage for each process
+    partitions:@[partitions;f;:;(st:"p"$options`starttime;min(et:"p"$options`endtime;partitions[f:first key partitions;1]))]; //amend query datetimes on hdb
+    partitions:@[partitions;l;:;(max(st;partitions[l:last key partitions;0]);et)]; //amend query datetimes on rdb/idb
 
     // adjust map reducable aggregations to get correct components
     if[(1<count partitions)&`aggregations in key options;
