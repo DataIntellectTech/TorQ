@@ -27,7 +27,7 @@ clean:@[value;`clean;1b]                                                // clean
 sortcsv:@[value;`sortcsv;hsym first .proc.getconfigfile["sort.csv"]]    // location of  sort csv file
 compression:@[value;`compression;()];                                   // specify the compress level, empty list if no required
 partandmerge:@[value;`partandmerge;0b];                                 // setting to do a replay where the data is partitioned and then merged on disk
-tempdir:@[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
+tempdir:hsym @[value;`tempdir;`:tempmergedir];                               // location to save data for partandmerge replay
 mergenumrows:@[value;`mergenumrows;10000000];                           // default number of rows for merge process
 mergenumtab:@[value;`mergenumtab;`quote`trade!10000 50000];             // specify number of rows per table for merge process
 mergenumbytes:@[value;`mergenumbytes;500000000];                        // default number of bytes for merge process
