@@ -106,6 +106,10 @@ reload:.idb.intradayreload;
 .idb.init[];
 
 /- helper function to support queries against the sym column
-maptoint:{[symbol]
-    sym?`TORQNULLSYMBOL^symbol
+maptoint:{[val]
+    $[(abs type val) in 5 6 7h;
+        /- if using an integer column, clamp value between 0 and max int (null maps to 0)
+        0| 2147483647& `long$ val;
+        /- if using a symbol column, enumerate against the hdb sym file
+        sym?`TORQNULLSYMBOL^val]
  };

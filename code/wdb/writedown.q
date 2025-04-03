@@ -20,7 +20,7 @@ getpartition:@[value;`getpartition;                                        /-fun
         {{@[value;`.wdb.currentpartition;
                 (`date^partitiontype)$.proc.cd[]]}}];
 
-currentpartition:.wdb.getpartition[];                                      /- Initialise current partiton
+currentpartition:.wdb.getpartition[];                                      /- Initialise current partition
 
 tabsizes:([tablename:`symbol$()] rowcount:`long$(); bytes:`long$());       /- keyed table to track the size of tables on disk
 

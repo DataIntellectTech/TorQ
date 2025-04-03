@@ -1022,12 +1022,15 @@ sorting at the end of the day.
 -   partbyenum - Data is persisted to a partition scheme where the partition
       is derived from parameters in the sort.csv file. In this mode partition
       only can be done by one column which has parted attribute applied on it
-      and it also has to be of a symbol type. The partitioning on disk will
-      be the enumerated symbol entries of the parted symbol column. The
-      enumeration is done against the HDB sym file.
-      The general partition scheme is of the form
-      \[wdbdir\]/\[partitiontype\]/\[parted enumerated symbol column\]/\[table(s)\]/.
-      A typical partition directory would be similar to(for ex sym: MSFT_N)
+      and it also has to be of a symbol or integer (short, int, long) type.
+      If the column is a symbol type, the partitioning on disk will
+      be the symbol entries enumerated against the HDB sym file.
+      If the column is an integer type, the partitioning on disk will
+      be the raw integer values clamped between 0 and 2,147,483,647
+      (the maximum int value), with negative and null values
+      mapped to 0. The general partition scheme is of the form
+      \[wdbdir\]/\[partitiontype\]/\[parted enumerated column\]/\[table(s)\]/.
+      A typical partition directory would be similar to (for ex sym: MSFT_N)
       wdb/database/2015.11.26/456/trade/
       In the above example, the data is parted by sym, and number 456 is
       the order of MSFT_N symbol entry in the HDB sym file.
