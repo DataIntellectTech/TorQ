@@ -164,11 +164,6 @@ partdict:{[input]
     procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
     // returns the dictionary as min date/ max date
     procdict:asc @[procdict;key procdict;{:(min x; max x)}];
-    // Let idb take precedence over rdb to prevent data duplication
-    if[all `rdb`idb in key procdict;procdict:delete rdb from procdict];
-    // prevents overlap if more than one process contains a specified date
-    if[1<count procdict;
-        procdict:{:$[y~`date$();x;$[within[x 0;(min y;max y)];(1+max[y];x 1);x]]}':[procdict]];
     :procdict;
     };
 
@@ -177,31 +172,16 @@ partdict:{[input]
 adjustqueries:{[options;part]
     // if only one process then no need to adjust
     if[2>count p:options`procs;:options];
-    // get the tablename
-    tabname:options[`tablename];
-    // remove duplicate servertypes from the gw.servers
-    servers:select from .gw.servers where i=(first;i)fby servertype;
-    // only target specified procs if defined
-    if[`procs in key options;servers:select from servers where servertype in ((),options`procs)];
-    // extract the procs which have the table defined
-    servers:select from servers where {[x;tabname]tabname in @[x;`tables]}[;tabname] each attributes;
-    // create a dictionary of the attributes against servertypes
-    procdict:exec servertype!attributes[;`partition] from servers;
-    // if the response is a dictionary index into the tablename
-    procdict:@[procdict;key procdict;{[x;tabname]if[99h=type x;:x[tabname]];:x}[;tabname]];
-    // create list of all available partitions
-    possparts:raze value procdict;
 
-    //group partitions to relevant process
-    partitions:group key[part]where each{within[y;]each value x}[part]'[possparts];
-    partitions:possparts{(min x;max x)}'[partitions];
-    partitions:`timestamp$partitions;
-
-    // adjust the query times accordingly
-    options:@[@[options;`starttime;:;"p"$options`starttime];`endtime;:;$[-14h~type et:options`endtime;-1+1D+et;"p"$et]]; //ensure st/et are timestamps; if date adjust endtime
-    partitions:{x[0],x[1]+1D-1}each partitions; //create dict of datetime coverage for each process
-    partitions:@[partitions;f;:;(st:"p"$options`starttime;min(et:"p"$options`endtime;partitions[f:first key partitions;1]))]; //amend query datetimes on hdb
-    partitions:@[partitions;l;:;(max(st;partitions[l:last key partitions;0]);et)]; //amend query datetimes on rdb/idb
+    // ensure st/et are timestamps; if date adjust endtime
+    options:@[@[options;`starttime;:;st:"p"$options`starttime];`endtime;:;et:$[-14h~type et:options`endtime;-1+1D+et;"p"$et]];
+    // create dict of datetime coverage for each process
+    partitions:{"p"$x[0],x[1]+1D-1}each part;
+    // amend query datetimes on hdb
+    if[`hdb in key partitions;partitions:@[partitions;`hdb;:;(st;min(et;partitions[`hdb;1]))]];
+    // amend query datetimes on rdb/idb
+    if[`idb in key partitions;partitions:@[partitions;`idb;:;(max(st;partitions[`idb;0]);et)]];
+    if[`rdb in key partitions;partitions:@[partitions;`rdb;:;(max(st;partitions[`rdb;0]);et)]];
 
     // adjust map reducable aggregations to get correct components
     if[(1<count partitions)&`aggregations in key options;
