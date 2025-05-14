@@ -286,9 +286,10 @@ init:{[dbname]
 
 // Flushing in memory data to disk during unexpected shutdown when batchmode is set to memorybatch
   if[.stplg.batchmode=`memorybatch;
-     .lg.o[`flushToDisk;"STP shutdown unexpectedly, batchmode = `memorybatch, therefore flushing any remaining data to the on-disk log file"];
+     .lg.o[`stpexit;"STP shutdown unexpectedly, batchmode = `memorybatch, therefore flushing any remaining data to the on-disk log file"];
      .stplg.zts.memorybatch[];
-     .lg.o[`flushToDisk; "Complete!"]];
+     .lg.o[`stpexit; "Complete!"]
+    ];
 
   // exit before logs are touched if process is an sctp NOT in create mode
   if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
