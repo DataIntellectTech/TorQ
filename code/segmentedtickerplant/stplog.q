@@ -284,7 +284,8 @@ init:{[dbname]
   if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
 
-  if[.stplg.batchmode=`memorybatch;      // Flushing in memory data to disk during unexpected shutdown when batchmode is set to memorybatch
+  // flushing in memory data to disk during unexpected shutdown when batchmode is set to memorybatch
+  if[.stplg.batchmode=`memorybatch;      
      .lg.o[`stpexit;"STP shutdown unexpectedly, batchmode = `memorybatch, therefore flushing any remaining data to the on-disk log file"];
      .stplg.zts.memorybatch[];
      .lg.o[`stpexit; "Complete!"]
