@@ -107,6 +107,7 @@ if[partandmerge and sortafterreplay;(sortafterreplay:0b; .lg.o[`replayinit;"Sett
 \d .replay
 
 .lg.o[`replayinit;"hdb directory is set to ",string hdbdir:hsym hdbdir];
+.lg.o[`replayinit;"tempdir directory is set to ",string tempdir:hsym tempdir];
 
 // the path to the table to save
 pathtotable:{[h;p;t] `$(string .Q.par[h;partitiontype$p;t]),"/"}
