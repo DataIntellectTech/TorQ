@@ -129,7 +129,15 @@ showcomp:{[hdbpath;csvpath;maxage]
 
 compressfromtable:{[table]
     statstab::([] file:`$(); algo:`int$(); compressedLength:`long$();uncompressedLength:`long$());
-    {compress[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize]} each table;}
+    / Check if process is single threaded - if multi then compress in parallel then clean up after
+    $[0= system"s";
+        [.lg.o[`compression; "Single threaded process, compress applied sequentially"];
+            {compress[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize];cleancompressed[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize]} each table];
+        [.lg.o[`compression; "Multithreaded process, compress applied in parallel "];
+            {compress[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize]} peach table;
+            {cleancompressed[x `fullpath;x `calgo;x `cblocksize;x `clevel; x `currentsize]} each table;]]}
+
+
 
 /- call the compression with a max age paramter implemented
 compressmaxage:{[hdbpath;csvpath;maxage]
@@ -162,20 +170,29 @@ compress:{[filetoCompress;algo;blocksize;level;sizeuncomp]
          / perform the compression/decompression
         if[0=algo;comprL:(-21!filetoCompress)`compressedLength];
         -19!(filetoCompress;compressedFile;blocksize;algo;level);
-         / check the compressed/decomp file and move if appropriate; else delete compressed file and log error
-        $[((get compressedFile)~sf:get filetoCompress) & (count -21!compressedFile) or algo=0;
-            [.lg.o[`compression;"File ",cmp,"compressed ","successfully; matches orginal. Deleting original."];
-                system "r ", (last ":" vs string compressedFile)," ", last ":" vs string filetoCompress;
-                / move the hash files too.
-                hashfilecheck[compressedFile;filetoCompress;sf];
-                /-log to the table if the algo wasn't 0
-                statstab,:$[not 0=algo;(filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);(filetoCompress;algo;comprL;sizeuncomp)]];
-            [$[not count -21!compressedFile;
-		[.lg.o[`compression; "Failed to compress file ",string[filetoCompress]];hdel compressedFile];
-		[.lg.o[`compression;cmp,"compressed ","file ",string[compressedFile]," doesn't match original. Deleting new file"];hdel compressedFile]]]]
         ];
         / if already compressed/decompressed, then log that and skip.
         .lg.o[`compression; "file ", (string filetoCompress), " is already ",cmp,"compressed",". Skipping this file"]]}
+
+cleancompressed:{[filetoCompress;algo;blocksize;level;sizeuncomp]
+    / Run after "compress" to clean up the compression files, moves files and deletes where applicable 
+    compressedFile: hsym `$(string filetoCompress),"_kdbtempzip";
+    cmp:$[algo=0;"de";""];
+    if[0=algo;comprL:(-21!filetoCompress)`compressedLength];
+    / Check if the compressed file exists, if key returns empty list then file doesnt exist 
+    $[()~ key compressedFile;
+        .lg.o[`compression; "No compressed file present for the following file - ",string[filetoCompress]];
+         $[((get compressedFile)~sf:get filetoCompress) & (count -21!compressedFile) or algo=0;
+                [.lg.o[`compression;"File ",cmp,"compressed ",string[filetoCompress]," successfully; matches orginal. Deleting original."];
+                    system "r ", (last ":" vs string compressedFile)," ", last ":" vs string filetoCompress;
+                    / move the hash files too.
+                    hashfilecheck[compressedFile;filetoCompress;sf];
+                    /-log to the table if the algo wasn't 0
+                    statstab,:$[not 0=algo;(filetoCompress;algo;(-21!filetoCompress)`compressedLength;sizeuncomp);(filetoCompress;algo;comprL;sizeuncomp)]];
+                [$[not count -21!compressedFile;
+    		[.lg.o[`compression; "Failed to compress file ",string[filetoCompress]];hdel compressedFile];
+    		[.lg.o[`compression;cmp,"compressed ","file ",string[compressedFile]," doesn't match original. Deleting new file"];hdel compressedFile]]]]]}
+
 
 hashfilecheck:{[compressedFile;filetoCompress;sf]
     / if running 3.6 or higher, account for anymap type for nested lists
