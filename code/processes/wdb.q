@@ -55,7 +55,6 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-num
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
-`partbyfirstchar
 wdbtypes:@[value;`wdbtypes;`wdb];                                          /-list of wdb types for sort processes to look for on initmissingtables
 
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
