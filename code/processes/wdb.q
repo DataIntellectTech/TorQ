@@ -367,7 +367,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
        .merge.mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
-    $[writedownmode in `partbyenum;
+    $[writedownmode in `partbyenum`partbyfirstchar;
       removetablefromenumdir each partdirs;
       .os.deldir .os.pth[[string[tabledir]]]
      ];
@@ -435,7 +435,7 @@ endofdaysortandmerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writed
    /- .z.pd function in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
    tempfix1:$[.finspace.enabled;0b;count[.z.pd[]]];
    tnds:raze{y,/:.Q.dd[x;]each key[x],\:y}[.Q.dd[dir;pt]]each key tablist;
-   tnds where 0<>count each key each tnds[;1];
+   tnds:tnds where tnds[;1] in exec ptdir from .merge.partsizes; 
    $[tempfix1&0>system"s";
     [.lg.o[`sortandmerge;"sorting on worker sort", string .z.p];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
