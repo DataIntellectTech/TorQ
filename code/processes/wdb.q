@@ -127,11 +127,16 @@ maptoint:{[val]
         `long$ (` sv hdbsettings[`hdbdir],`sym)?`TORQNULLSYMBOL^val]
     };
 
+mapfctoint:{[val]
+     count[.Q.nA]^$[type[val]>0;raze first each where each .Q.nA=/:string[val][;0];first where .Q.nA=string[val][0]]
+ };
+
+
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
     /- enumerate first extra partition value
     if[writedownmode~`partbyenum;i:maptoint first expt];
-    if[writedownmode~`partbyfirstchar;i:$[(c1:first upper string first expt)in .Q.nA;first where c1=.Q.nA;count .Q.nA]];
+    if[writedownmode~`partbyfirstchar;i:mapfctoint first expt];
     /- create directory location for selected partition
     /- replace non-alphanumeric characters in symbols with _
     /- convert to symbols and replace any null values with `TORQNULLSYMBOL

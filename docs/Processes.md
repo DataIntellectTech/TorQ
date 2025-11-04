@@ -1035,6 +1035,41 @@ sorting at the end of the day.
       In the above example, the data is parted by sym, and number 456 is
       the order of MSFT_N symbol entry in the HDB sym file.
 
+-   partbyfirstchar - Data is persisted to a partition scheme where the partition
+      is derived from the first character in sym colum present in the sort.csv
+      file. Like partbyenum, this can be only be done by one column which has the
+      parted attribute applied to it. It must be a symbol column due the nature
+      of the character extraction. The numerical value for characters will map
+      to the index of the character in the .Q.nA, levveraging upper chase letters.
+      For those that arent contained within .Q.nA, they will map to the count of
+      .Q.nA, effectively the next numeric. Partitioning in this way means that the
+      data within each partition is no sorted for the parted attribute to be applied,
+      which means in the end of day process the data must be sorted before being
+      merged. This sort happens partition by partition rather than as a whole.
+      The wdb partition scheme is of the form
+      \[wdbdir\]/\[partitiontype\]/\[first char index .Q.nA\]/\[table(s)\]/
+      A typical partition directory would be similar to (for ex sym: MSFT_N)
+      wdb/database/2025.11.04/22/trade
+      In the above example, the data is parted by sym, and number 22 is the
+      index position of M in .Q.nA.
+
+Data is persisted to a partition scheme where the partition
+      is derived from parameters in the sort.csv file. In this mode partition
+      only can be done by one column which has parted attribute applied on it
+      and it also has to be of a symbol or integer (short, int, long) type.
+      If the column is a symbol type, the partitioning on disk will
+      be the symbol entries enumerated against the HDB sym file.
+      If the column is an integer type, the partitioning on disk will
+      be the raw integer values clamped between 0 and 2,147,483,647
+      (the maximum int value), with negative and null values
+      mapped to 0. The general partition scheme is of the form
+      \[wdbdir\]/\[partitiontype\]/\[parted enumerated column\]/\[table(s)\]/.
+      A typical partition directory would be similar to (for ex sym: MSFT_N)
+      wdb/database/2015.11.26/456/trade/
+      In the above example, the data is parted by sym, and number 456 is
+      the order of MSFT_N symbol entry in the HDB sym file.
+
+
       The advantage of partbyenum over partbyattr could be that the
       directory structure it uses represents a HDB that is ready to be loaded
       intraday. At the end of the day the data gets upserted to the HDB the
@@ -1046,7 +1081,10 @@ data sets with a low cardinality (ie. small number of distinct elements)
 the optional method may provide a significant time saving, upwards of
 50%. The optional method should also reduce the memory usage at the end
 of day event, as joining data is generally less memory intensive than
-sorting.
+sorting. The optional partbyfirstchar method allows a method for subdividing
+data with a high cardinality to reduce the number of partitions being
+written to, while providing a means for reduced memory footprint on final sort
+versus default.
 
 <a name="idb"></a>
 
@@ -1056,13 +1094,19 @@ Intraday Database (IDB)
 The Intraday Database or IDB is a simple process that allows access to
 data written down intraday. This assumes that there is an existing WDB
 (and HDB) process creating a DB on disk that can be loaded with a simple
-load command. As of now default and partbyenum WDB writedown modes are supported.
-The responsibility of an IDB is therefore:
+load command. As of now default, partbyenum and partbyfirstchar WDB writedown 
+modes are supported. The responsibility of an IDB is therefore:
 
 1.  Serving queries. Since partbyenum writedown mode is done by enumerated
     symbol columns a helper function maptoint is implemented to support
     symbol lookup in sym file:
     select from trade where int=maptoint[`MSFT_N]
+    Also with partbyfirstchar being an alternate approach to create a
+    numerical partition, there is a helper function to locate the correct
+    value:
+    select from trade where int=mapfctoint[`MSFT],sym=`MSFT
+    select from trade where int in mapfctoint[`MSFT`AAPL],sym in `MSFT`AAPL
+    
 
 2.  Can be triggered for a reload. This is usually done by the WDB process
     periodically.
@@ -1096,6 +1140,10 @@ As such, the following are some considerations that must be made when creating a
 The IDB can be queried just like any other HDB. If writedown mode partbyenum is used it has a useful "maptoint" function which can be used.
 ```
 neg[gwHandle](`.gw.asyncexec;"select from trade where int=maptoint[`GOOG]";`idb);gwHandle[]
+```
+Likewise if partbyfirstchar writedown mode is used there is a "mapfctoint" which can be used
+```
+neg[gwHandle](`.gw.asyncexec;"select from trade where int in maptoint[`GOOG`MSFT],sym in `GOOG`MSFT";`idb);gwHandle[]
 ```
 
 ### Scalability
