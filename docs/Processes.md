@@ -1040,34 +1040,17 @@ sorting at the end of the day.
       file. Like partbyenum, this can be only be done by one column which has the
       parted attribute applied to it. It must be a symbol column due the nature
       of the character extraction. The numerical value for characters will map
-      to the index of the character in the .Q.nA, levveraging upper chase letters.
-      For those that arent contained within .Q.nA, they will map to the count of
-      .Q.nA, effectively the next numeric. Partitioning in this way means that the
-      data within each partition is no sorted for the parted attribute to be applied,
-      which means in the end of day process the data must be sorted before being
-      merged. This sort happens partition by partition rather than as a whole.
-      The wdb partition scheme is of the form
-      \[wdbdir\]/\[partitiontype\]/\[first char index .Q.nA\]/\[table(s)\]/
+      to the index of the character in the .Q.an. For those that arent contained i
+      within .Q.an, they will map to the count of .Q.an. Partitioning in this way 
+      means that the data within each partition is not sorted for the parted 
+      attribute to be applied, which means in the EOD process the data needs sorted 
+      before being merged. This sort happens partition by partition rather than 
+      as a whole. The wdb partition scheme is of the form
+      \[wdbdir\]/\[partitiontype\]/\[first char index .Q.an\]/\[table(s)\]/
       A typical partition directory would be similar to (for ex sym: MSFT_N)
-      wdb/database/2025.11.04/22/trade
-      In the above example, the data is parted by sym, and number 22 is the
-      index position of M in .Q.nA.
-
-Data is persisted to a partition scheme where the partition
-      is derived from parameters in the sort.csv file. In this mode partition
-      only can be done by one column which has parted attribute applied on it
-      and it also has to be of a symbol or integer (short, int, long) type.
-      If the column is a symbol type, the partitioning on disk will
-      be the symbol entries enumerated against the HDB sym file.
-      If the column is an integer type, the partitioning on disk will
-      be the raw integer values clamped between 0 and 2,147,483,647
-      (the maximum int value), with negative and null values
-      mapped to 0. The general partition scheme is of the form
-      \[wdbdir\]/\[partitiontype\]/\[parted enumerated column\]/\[table(s)\]/.
-      A typical partition directory would be similar to (for ex sym: MSFT_N)
-      wdb/database/2015.11.26/456/trade/
-      In the above example, the data is parted by sym, and number 456 is
-      the order of MSFT_N symbol entry in the HDB sym file.
+      wdb/database/2025.11.04/38/trade
+      In the above example, the data is parted by sym, and number 38 is the
+      index position of M in .Q.an.
 
 
       The advantage of partbyenum over partbyattr could be that the

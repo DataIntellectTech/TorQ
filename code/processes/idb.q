@@ -116,7 +116,5 @@ maptoint:{[val]
 
 /- helper function to support queries against the sym column in partbyfirstchar 
 mapfctoint:{[val]
-     count[.Q.nA]^$[type[val]>0;raze first each where each .Q.nA=/:string[val][;0];first where .Q.nA=string[val][0]]   
+     .Q.an?$[0<type x;first each;first] string val
  };
-
-

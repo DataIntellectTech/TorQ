@@ -128,9 +128,8 @@ maptoint:{[val]
     };
 
 mapfctoint:{[val]
-     count[.Q.nA]^$[type[val]>0;raze first each where each .Q.nA=/:string[val][;0];first where .Q.nA=string[val][0]]
+     .Q.an?$[0<type x;first each;first] string val
  };
-
 
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
