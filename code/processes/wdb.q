@@ -128,7 +128,7 @@ maptoint:{[val]
     };
 
 mapfctoint:{[val]
-     .Q.an?$[0<type x;first each;first] string val
+     .Q.an?$[0<type val;first each;first] string val
  };
 
 /- function to upsert to specified directory
