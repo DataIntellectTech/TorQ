@@ -113,3 +113,8 @@ maptoint:{[val]
         /- if using a symbol column, enumerate against the hdb sym file
         sym?`TORQNULLSYMBOL^val]
  };
+
+/- helper function to support queries against the sym column in partbyfirstchar 
+mapfctoint:{[val]
+     .Q.an?$[0<type val;first each;first] string val
+ };

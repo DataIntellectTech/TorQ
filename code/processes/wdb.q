@@ -30,6 +30,9 @@ writedownmode:@[value;`writedownmode;`default];                            /-the
                                                                            /-                                      at EOD the data will be merged from each partition before being moved to hdb
                                                                            /- 3. partbyenum                -       the data is partitioned by [ partitiontype ] and a symbol or integer column with parted attribution assigned in sort.csv
                                                                            /-                                      at EOD the data will be merged from each partition before being moved to hdb
+                                                                           /- 3. partbyfirstchar           -       the data is partitioned by [ partitiontype ] and a symbol column based on the first character with parted attribution assigned in sort.csv
+                                                                           /-                                      at EOD the data will be sorted and merged from each partition before being moved to hdb
+
 
 mergemode:@[value;`mergemode;`part];                                       /-the partbyattr writedown mode can merge data from temporary storage to the hdb in three ways:
                                                                            /- 1. part                      -       the entire partition is merged to the hdb
@@ -52,7 +55,6 @@ tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-num
 
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
-
 wdbtypes:@[value;`wdbtypes;`wdb];                                          /-list of wdb types for sort processes to look for on initmissingtables
 
 subtabs:@[value;`subtabs;`];                                               /-list of tables to subscribe for
@@ -92,7 +94,7 @@ saveenabled: any `save`saveandsort in mode;
 sortenabled: any `sort`saveandsort in mode;
 
 /- parted writedown modes have special behaviour during merging or WDB initialisation
-partwritemodes:`partbyattr`partbyenum;
+partwritemodes:`partbyattr`partbyenum`partbyfirstchar;
 
 / - log which modes are enabled
 switch: string `off`on;
@@ -125,19 +127,24 @@ maptoint:{[val]
         `long$ (` sv hdbsettings[`hdbdir],`sym)?`TORQNULLSYMBOL^val]
     };
 
+mapfctoint:{[val]
+     .Q.an?$[0<type val;first each;first] string val
+ };
+
 /- function to upsert to specified directory
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
     /- enumerate first extra partition value
     if[writedownmode~`partbyenum;i:maptoint first expt];
+    if[writedownmode~`partbyfirstchar;i:mapfctoint first expt];
     /- create directory location for selected partition
     /- replace non-alphanumeric characters in symbols with _
     /- convert to symbols and replace any null values with `TORQNULLSYMBOL
-    directory:$[writedownmode~`partbyenum;
+    directory:$[writedownmode in `partbyenum`partbyfirstchar;
                 ` sv .Q.par[dir;pt;`$string i],tablename,`;
-                ` sv .Q.par[dir;pt;tablename],(`$"_"^.Q.an .Q.an?"_" sv string `TORQNULLSYMBOL^ ensuresymlist[expt]),`];
+                  ` sv .Q.par[dir;pt;tablename],(`$"_"^.Q.an .Q.an?"_" sv string `TORQNULLSYMBOL^ ensuresymlist[expt]),`];
     .lg.o[`save;"saving ",(string tablename)," data to partition ",string directory];
     /- selecting rows of table with matching partition
-    r:?[tabdata;$[writedownmode~`partbyenum;enlist(in;first expttype;expt);{(x;y;(),z)}[in;;]'[expttype;expt]];0b;()];
+    r:?[tabdata;$[writedownmode in `partbyenum`partbyfirstchar;enlist(in;first expttype;expt);{(x;y;(),z)}[in;;]'[expttype;expt]];0b;()];
     /- upsert selected data matched on partition to specific directory
     .[upsert;(directory;r);{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
     .lg.o[`track;"appending details to partsizes"];
@@ -152,8 +159,8 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
         .lg.o[`rowcheck;"the ",(string tablename)," table consists of ", (string arows), " rows"];
         /- get additional partition(s) defined by parted attribute in sort.csv
         extrapartitiontype:.merge.getextrapartitiontype[tablename];
-        if[(writedownmode~`partbyenum) and 1<c:count extrapartitiontype;
-           .lg.e[`partbyenum;"only 1 parted attribute should be defined on table when partbyenum writedown mode is used but we have ",string c]
+        if[(writedownmode in `partbyenum`partbyfirstchar) and 1<c:count extrapartitiontype;
+           .lg.e[writedownmode;"only 1 parted attribute should be defined on table when using partbyenum and partbyfirstchar writedown modes, but we have ",string c]
           ];
         /- check each partition type actually is a column in the selected table
         .merge.checkpartitiontype[tablename;extrapartitiontype];
@@ -182,7 +189,7 @@ savetables:$[writedownmode in partwritemodes;savetablesbypart[;;;;writedownmode]
 savetodisk:{[]
     changes:savetables[savedir;getpartition[];immediate;] each tablelist[];
     /- we have to let the idbs know of the changes in the wdbhdb. using filldb[] to make sure it is a db with all the tables
-    if[any[changes] and writedownmode in `partbyenum`default;filldb getpartition[];notifyidbs[`.idb.intradayreload;enlist()]]};
+    if[any[changes] and writedownmode in `partbyenum`partbyfirstchar`default;filldb getpartition[];notifyidbs[`.idb.intradayreload;enlist()]]};
 
 /- send an intraday reload message to idbs:
 notifyidbs:{[func;params]
@@ -332,8 +339,8 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
   setcompression[hdbsettings[`compression]];
   /- get tablename
   tabname:tableinfo[0];
-  /- get list of partition directories for specified table - partbyenum uses different folder structure vs partbyattr/default
-  partdirs:$[writedownmode in `partbyenum;
+  /- get list of partition directories for specified table - partbyenum & partbyfirstchar use different folder structures vs partbyattr/default
+  partdirs:$[writedownmode in `partbyenum`partbyfirstchar;
              p where 0<count each key each p:` sv' ((-1_` vs p),/:key p:.Q.par[hsym dir;pt;`]),\: tabname;
              ` sv' tabledir,/:key tabledir:.Q.par[hsym dir;pt;tabname]];
   /- we only really have to merge those partitions where we have received some updates, otherwise table is empty
@@ -363,7 +370,7 @@ merge:{[dir;pt;tableinfo;mergelimits;hdbsettings;mergemethod;writedownmode]
        .merge.mergehybrid[tableinfo;dest;partdirs;mergelimits[tabname]]
     ];
     .lg.o[`merge;"removing segments ", (", " sv string[partdirs])];
-    $[writedownmode in `partbyenum;
+    $[writedownmode in `partbyenum`partbyfirstchar;
       removetablefromenumdir each partdirs;
       .os.deldir .os.pth[[string[tabledir]]]
      ];
@@ -384,7 +391,7 @@ removetablefromenumdir:{[partdir]
 
 endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode]
   /- merge data from partitions
-  /- .z.pd funciton in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+  /- .z.pd function in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
   tempfix2:$[.finspace.enabled;0b;(0 < count .z.pd[])];
   $[tempfix2 and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
@@ -423,12 +430,34 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode
     ];
   };
 
+/- end of day sort and merge only used by writedown mode sortbyfirstchar, requiring sort pre-merge
+endofdaysortandmerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode]
+   /-sort permitted tables in database
+   /- sort the table and garbage collect (if enabled)
+   .lg.o[`sort;"starting to sort data"];
+   /- .z.pd function in finspace will cause an error. Add in this check to skip over the use of .z.pd. This should be temporary and will be removed when issue resolved by AWS.
+   tempfix1:$[.finspace.enabled;0b;count[.z.pd[]]];
+   tnds:raze{y,/:.Q.dd[x;]each key[x],\:y}[.Q.dd[dir;pt]]each key tablist;
+   tnds:tnds where tnds[;1] in exec ptdir from .merge.partsizes; 
+   $[tempfix1&0>system"s";
+    [.lg.o[`sortandmerge;"sorting on worker sort", string .z.p];
+     {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
+     {[x;compression] setcompression compression;.sort.sorttab x;if[gc;.gc.run[]]}[;hdbsettings`compression] peach tnds];
+    [.lg.o[`sort;"sorting on main sort"];
+     reloadsymfile[.Q.dd[hdbsettings `hdbdir;`sym]];
+    {[x] .sort.sorttab[x];if[gc;.gc.run[]]} each tnds]];
+   .lg.o[`sort;"finished sorting data"]; 
+   endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
+ };
+
 /- end of day sort [depends on writedown mode]
 endofdaysort:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
     /- set compression level (.z.zd)
     setcompression[hdbsettings[`compression]];
     $[writedownmode in partwritemodes;
-        endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
+        $[writedownmode~`partbyfirstchar;                                                             /-partbyfirstchar will not be sorted by sym within each parition, this needs done first
+          endofdaysortandmerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode];
+          endofdaymerge[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode]];
         endofdaysortdate[dir;pt;key tablist;hdbsettings]
     ];
     /- run steps to rollover idb
@@ -534,7 +563,7 @@ fixpartition:{[subto]
         ];
     }
 
-/- for writedown modes partbyenum/default we make sure that partition 0/currentpartition has all the tables.
+/- for writedown modes partbyenum/partbyfirstchar/default we make sure that partition 0/currentpartition has all the tables.
 /- In that case we can use .Q.chk later to fill the db making it useable for intraday processes
 /- pt - date; partition for which the function should initialise
 initmissingtables:{[pt]
@@ -550,7 +579,7 @@ filldb:{[pt]
 
 /- initialises table t in db with its schema in part
 inittable:{[t;pt]
-    tabledir:` sv $[writedownmode~`partbyenum; .Q.par[.Q.dd[hsym savedir;pt];0;t]; .Q.par[hsym savedir;pt;t]],`;
+    tabledir:` sv $[writedownmode in `partbyenum`partbyfirstchar; .Q.par[.Q.dd[hsym savedir;pt];0;t]; .Q.par[hsym savedir;pt;t]],`;
     if[() ~ key tabledir;tabledir set .Q.en[hsym hdbdir;0#value t]];
  }
 
@@ -590,7 +619,7 @@ getsortparams:{[]
     /- get the attributes csv file
     /-even if running with a sort process should read this file to cope with backups
     .sort.getsortcsv[sortcsv];
-    /- check the sort.csv for parted attributes `p if the writedownmode `partbyattr or `partbyenum is selected
+    /- check the sort.csv for parted attributes `p if the writedownmode `partbyattr, `partbyenum or `partbyfirstchar is selected
     /- if each table does not have at least one `p attribute the process will exit
     if[writedownmode in partwritemodes;
 
@@ -612,7 +641,7 @@ getsortparams:{[]
 /- If the function is ran on sort process send initmissingtables command to wdbs
 idbreload:{[pt]
     .lg.o[`idb;"starting idb reload"];
-    if[writedownmode in `partbyenum`default;
+    if[writedownmode in `partbyenum`default`partbyfirstchar;
         .lg.o[`eod;"initialising wdbhdb for partition: ",string[pt]];
         $[.proc.proctype~`sort;{[pt]ws:exec w from .servers.getservers[`proctype;wdbtypes;()!();1b;0b];{[ws;pt]ws(`.wdb.initmissingtables;[pt])}[;pt] each ws}[pt];initmissingtables[pt]];
         .lg.o[`eod;"notifying idbs for newly created partition"];
