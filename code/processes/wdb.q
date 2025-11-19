@@ -135,7 +135,7 @@ mapfctoint:{[val]
 upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
     /- enumerate first extra partition value
     if[writedownmode~`partbyenum;i:maptoint first expt];
-    if[writedownmode~`partbyfirstchar;i:mapfctoint first expt];
+    if[writedownmode~`partbyfirstchar;i:mapfctoint first first expt];
     /- create directory location for selected partition
     /- replace non-alphanumeric characters in symbols with _
     /- convert to symbols and replace any null values with `TORQNULLSYMBOL
@@ -144,7 +144,9 @@ upserttopartition:{[dir;tablename;tabdata;pt;expttype;expt;writedownmode]
                   ` sv .Q.par[dir;pt;tablename],(`$"_"^.Q.an .Q.an?"_" sv string `TORQNULLSYMBOL^ ensuresymlist[expt]),`];
     .lg.o[`save;"saving ",(string tablename)," data to partition ",string directory];
     /- selecting rows of table with matching partition
-    r:?[tabdata;$[writedownmode in `partbyenum`partbyfirstchar;enlist(in;first expttype;expt);{(x;y;(),z)}[in;;]'[expttype;expt]];0b;()];
+    r:?[tabdata;$[writedownmode~`partbyenum;enlist(in;first expttype;expt);
+        writedownmode~`partbyfirstchar;enlist(in;first expttype;enlist raze expt);
+        {(x;y;(),z)}[in;;]'[expttype;expt]];0b;()];
     /- upsert selected data matched on partition to specific directory
     .[upsert;(directory;r);{[e] .lg.e[`savetablesbypart;"Failed to save table to disk : ",e];'e}];
     .lg.o[`track;"appending details to partsizes"];
@@ -168,6 +170,9 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
         if[writedownmode~`partbyenum;.merge.checkenumerabletype[tablename;extrapartitiontype]];
         /- get list of distinct combinations for partition directories
         extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
+        /- get list of syms grouped by first character
+        if[writedownmode~`partbyfirstchar; 
+            extrapartitions:value extrapartitions group {`$first x} each string raze extrapartitions];
         /- enumerate data to be upserted
         enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
         .lg.o[`save;"enumerated ",(string tablename)," table"];
