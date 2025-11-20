@@ -171,7 +171,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
         /- get list of distinct combinations for partition directories
         extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
         if[writedownmode~`partbyfirstchar; 
-            extrapartitions:value extrapartitions group {`$first x} each string raze extrapartitions];
+            extrapartitions:value extrapartitions group .Q.fu[{first each string x}; raze extrapartitions]];
         /- enumerate data to be upserted
         enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
         .lg.o[`save;"enumerated ",(string tablename)," table"];
