@@ -61,7 +61,7 @@ bucketlmchartdata:{[x] x:`minute$$[x=0;1;x];0!select errcount:count i by (0D00:0
 
 /- Data functions - These are functions that are requested by the front end
 /- start is sent on each connection and refresh. Where there are more than one table it is wise to identify each one using a dictionary as shown
-start:{.html.wssub each `heartbeat`logmsg`lmchart;
+start:{.html.wssub each `heartbeat`logmsg;
        .html.dataformat["start";(`hbtable`lmtable`lmchart)!(hbdata[];lmdata[];lmchart[])]}
 bucketlmchart:{.html.dataformat["bucketlmchart";enlist bucketlmchartdata[x]]}
 monitorui:.html.readpagereplaceHP["index.html"]
