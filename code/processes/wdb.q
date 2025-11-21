@@ -50,9 +50,10 @@ rdbtypes:@[value;`rdbtypes;`rdb];                                          /-lis
 idbtypes:@[value;`idbtypes;`idb];                                          /-list of idb types to look for and call in idb reload
 gatewaytypes:@[value;`gatewaytypes;`gateway];                              /-list of gateway types to inform at reload
 tickerplanttypes:@[value;`tickerplanttypes;`tickerplant];                  /-list of tickerplant types to try and make a connection to
+tickerplantnames:@[value;`tickerplantnames;()];                            /-list of tickerplant procnames to try and make a connnection to
 tpconnsleepintv:@[value;`tpconnsleepintv;10];                              /-number of seconds between attempts to connect to the tp
 tpcheckcycles:@[value;`tpcheckcycles;0W];                                  /-number of attempts to connect to tp before process is killed
-
+s
 sorttypes:@[value;`sorttypes;`sort];                                       /-list of sort types to look for upon a sort
 sortworkertypes:@[value;`sortworkertypes;`sortworker];                     /-list of sort types to look for upon a sort being called with worker process
 wdbtypes:@[value;`wdbtypes;`wdb];                                          /-list of wdb types for sort processes to look for on initmissingtables
@@ -539,7 +540,7 @@ starttimer:{[]
 
 /-function to subscribe to tickerplant
 subscribe:{[]
-    s:.sub.getsubscriptionhandles[tickerplanttypes;();()!()];
+    s:.sub.getsubscriptionhandles[tickerplanttypes;tickerplantnames;()!()];
     if[count s;
         .lg.o[`subscribe;"tickerplant found - subscribing to ", string (subproc: first s)`procname];
         /- return the tables subscribed to and the tickerplant log date
