@@ -168,9 +168,7 @@ savetablesbypart:{[dir;pt;forcesave;tablename;writedownmode]
         /- check if provided column extrapartitiontype indeed has an enumerable type in table
         if[writedownmode~`partbyenum;.merge.checkenumerabletype[tablename;extrapartitiontype]];
         /- get list of distinct combinations for partition directories
-        extrapartitions:.merge.getextrapartitions[tablename;extrapartitiontype];
-        if[writedownmode~`partbyfirstchar; 
-            extrapartitions:value extrapartitions group .Q.fu[{first each string x}; extrapartitions:raze extrapartitions]];
+       extrapartitions:$[writedownmode~`partbyfirstchar;.merge.getfirstcharpartitions;.merge.getextrapartitions][tablename;extrapartitiontype];
         /- enumerate data to be upserted
         enumdata:.Q.en[hdbsettings[`hdbdir];0!.save.manipulate[tablename;`. tablename]];
         .lg.o[`save;"enumerated ",(string tablename)," table"];
