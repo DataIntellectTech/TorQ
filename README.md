@@ -41,6 +41,48 @@ Head to the address it gives you to check if your changes have worked. More info
 ## Licences
 Third party licenses have been used, see Licenses, Apache 2.0 and OpenLDAP, kdbldap.so   
 ## Release Notes
+- **v5.2.12, Nov 2025**
+  * Update to Partbyfirstchar to group save by first character 
+- **v5.2.11, Nov 2025**
+  * Partbyfirstchar for parting WDB on disk by first symbol char
+- **v5.2.10, Sep 2025**
+  * Partbyenum on int column
+  * .z.exit update when STP is in memory batch mode
+  * Fix: default tempdir to be an hsym in tickerlogreplay.q
+  * Add parallel compression for multithreaded process 
+- **v5.2.9, Mar 2025**
+  * Sort and apply attributes once per table partition
+  * Remove kill command override
+  * Adding replaymaxrows for optional row count on recovery 
+- **v5.2.8, Jan 2025**
+  * Fix partbyenum to enumerate against placeholding symbol
+- **v5.2.7, Jan 2025**
+  * Add subscriber info to CTP
+  * Fix IDB intraday write
+- **v5.2.6, Dec 2024**
+  * Add warning if environment variable is not set and improve logging
+  * fix idbreload issues
+- **v5.2.5, Nov 2024**
+  * Make sort process call initmissingtables and notifyidbs instead
+- **v5.2.4, Nov 2024**
+  * Support immediate writing in WDB
+- **v5.2.3, Nov 2024**
+  * Correct .merge.mergebypart error trap on upsert
+  * Correct .merge.getpartchunks to use the filtered view
+  * IDB WDB connection retry
+  * Ensure idb process is reloaded after wdb savedown
+- **v5.2.2, Oct 2024**
+  * IDB reload fix for default writedown mode, fixed table row counts
+  * WDB 0 eodwaittime - reload of backends fixed
+  * IDB documentation enhanced
+- **v5.2.1, Sep 2024**
+  * Fix for IDB on Windows: WDB EOD now doesn't fail when deleting WDB folder
+  * IDB notification bugfix: WDB was constantly sending IDB reloads, even if no write down happened
+- **v5.2.0, Sep 2024**
+  * New IDB (Intraday DataBase) process
+  * New WDB writedown mode partbyenum
+  * Fix for processes storing entire tables instead of schema after pubsub init
+  * Datecheck function period fix
 - **5.1.0, May 2024**
   * Added support for DataAcess API using int partitions
   * Adding support for FinSpace STP, WDB and AWS Dataviews
