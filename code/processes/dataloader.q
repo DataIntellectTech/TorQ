@@ -1,53 +1,60 @@
+//this process is used to take csv files of factset data and save them down to our hdb location
+//the factset data we are current getting is level 1 and level 2
+
 \d .dl
 
+//level 1 quote meta
 l1QuoteTypes: "SID*JFJJFFJSFJSFSJJSSFFSFFSSSSTTTSFSSDTJSJP";
+
+//what is this?
 l1QuoteNames: `TICKER`MSG_TYPE`DATE`TIME`SEQUENCE`LAST_PRICE`LAST_VOL`CVOL`VWAP`BID`BID_VOL`BID_EXCH`ASK`ASK_VOL`ASK_EXCH`MID`SECURITY_STATUS`MSG_BITMASK`ORIG_SEQUENCE`TRADE_CONDITION`VENUE`ASK_YIELD`BID_YIELD`BUY_ID`CURRENT_YIELD`MID_YIELD`ORDER_CODE`REPORTING_SIDE`SELL_ID`PRODUCT`MID_TIME`BID_TIME`ASK_TIME`SECURITY_TYPE`YIELD_PRICE`ISO_CODE`LAST_EXCH`LAST_DATE`LAST_TIME`ORDER_NUM`ISO`CCVOL`UTC_TIME
 
+//what are these
 quoteNames: `TICKER`ISO_CODE`DATE`TIME`BID_OPEN_PRC`BID_CLOSE_PRC`BID_SUM_VOL`ASK_OPEN_PRC`ASK_CLOSE_PRC`ASK_SUM_VOL`COUNT`MEDIAN_SPREAD`UTC_TIME
 tradeNames: `ISO_CODE`TICKER`DATE`TIME`TRADE_OPEN`TRADE_HIGH`TRADE_LOW`TRADE_CLOSE`TRADE_VOLUME`SECURITY_TYPE`TRADE_NUMBER`TRADE_VWAP`UTC_TIME
+
+//level 2 tables col types
 quoteTypes: "SSD*FFJFFJJFP"
 tradeTypes: "SSD*FFFFJJJFP"
+
+
 seenFilesPath: hsym `$(getenv `TORQDATAHOME), "/data/factset_data/seenfiles.txt"
 seen: ()
 files:()
 
-// Parameters that could be passed to the script
-hdbDirectory:hsym `$(getenv `KDBHDB);
-fifoDirectory:(getenv `TORQDATAHOME), "/data/factset_data/fifo";
+
+hdbDirectory:hsym `$(getenv `KDBHDB);  //hdb location
+fifoDirectory:(getenv `TORQDATAHOME), "/data/factset_data/fifo";  //location of the csv files
 dirPath:"/home/shared/factsetdata/minutebars/";
 batchSize:20;
 
+//used record what files have been saved down to disk, saves the file path
 saveSeen:{
-    seenFilesPath set .dl.seen  // Saves seen file paths to txt file 
+    seenFilesPath set .dl.seen;
  };
 
+//loads in the file paths  which have been previously read
 loadSeen:{
     if[0 > count key seenFilesPath;
-        .dl.seen: get seenFilesPath;  / load seen file paths
+        .dl.seen: get seenFilesPath;
     ];
  };
 
+//discovers the new files that have been sent in
 getNewFiles:{[dir]
     / find all gzip csv files
-    allFiles: `${":",x} each system "find ", dir, " -type f -name '*.csv.gz'";
-
-    / only files we have not seen yet
-    new: allFiles except .dl.seen;
-
-    .lg.o[`dataWorker;"Getting processed files"]
-
+    allFiles: `${":",x} each system "find ", dir, " -type f -name '*.csv.gz'";  //find all gzip csv files
+    new: allFiles except .dl.seen; //only files we have not seen yet
+    .lg.o[`dataWorker;"Getting processed files"];
     if[(count new) > 0;
         .dl.seen: .dl.seen , new;
         .lg.o[`dataWorker;"Appending to seenFiles.txt"]
-
         .dl.saveSeen[];
     ];
-
-    new
+    new;
  };
 
 // Files should be checked every x seconds to see if any files are new. seenFiles.txt should be looked at and compared with current files. If any changes, add files in x batches
-
 createTable:{[tabName; tabType]
   $[(tabType = `quotes) & not any tabName in key `.dl;    // Create quote table if it does not already exist
       @[`.dl; tabName; :; flip quoteNames!quoteTypes$\:()];     
@@ -56,6 +63,7 @@ createTable:{[tabName; tabType]
     ]
  };
 
+//give description
 parsePath:{[path]
   parts: "/" vs string path;    // Split path
   tabType:  raze parts where (parts like "quotes") or parts like "trades";  // Extract table type
