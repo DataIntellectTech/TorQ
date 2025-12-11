@@ -40,6 +40,10 @@ checkenumerabletype:{[tablename;extrapartitiontype]
 getextrapartitions:{[tablename;extrapartitiontype]
         value each ?[tablename;();1b;extrapartitiontype!extrapartitiontype]
         };
+/ - functional select equivilent to select distinct [ extrapartitiontype ] from [ tablename ] group exec {first each string x} distinct [ extrapartitiontype ] from [ tablename ]
+
+getfirstcharpartitions:{[tablename;extrapartitiontype] raze each value (?[tablename;();();(distinct;first extrapartitiontype)]) group  ?[tablename;();();({first each string x};(distinct;first extrapartitiontype))]};
+
 
 /-function to return partition directory chunks that will be called in batch by mergebypart function
 getpartchunks:{[partdirs;mergelimit]
