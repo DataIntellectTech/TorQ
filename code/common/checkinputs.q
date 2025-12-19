@@ -219,8 +219,8 @@ checkjoin:{[dict;parameter]:checktype[107h;dict;parameter];};
 
 checkpostback:{[dict;parameter]
     if[()~dict parameter;:dict];
-    if[not `sync in key dict;'`$.schema.errors[`asyncpostback;`errormessage]]
-    if[not dict`sync;'`$.schema.errors[`asyncpostback;`errormessage]]
+    if[not `sync in key dict;'`$.schema.errors[`asyncpostback;`errormessage]];
+    if[not dict`sync;'`$.schema.errors[`asyncpostback;`errormessage]];
     :checkpostprocessing[dict;parameter]};
 
 checktimeout:{[dict;parameter]
