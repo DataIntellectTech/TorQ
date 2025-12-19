@@ -112,10 +112,10 @@ results:(enlist 0Nj)!enlist(0Ni;(enlist `)!enlist(0Ni;(::);0b))
 servers:([serverid:`u#`int$()]handle:`int$(); servertype:`symbol$(); inuse:`boolean$();active:`boolean$();querycount:`int$();lastquery:`timestamp$();usage:`timespan$();attributes:();disconnecttime:`timestamp$())
 addserverattr:{[handle;servertype;attributes] `.gw.servers upsert (nextserverid[];handle;servertype;0b;1b;0i;0Np;0D;attributes;0Np)}
 addserver:addserverattr[;;()!()]
-setserverstate:{[serverh;use] 
- $[use;
-   update inuse:use,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
-   update inuse:use,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
+setserverstate:{[serverh;usestate] 
+ $[usestate;
+   update inuse:usestate,lastquery:.proc.cp[],querycount+1i from `.gw.servers where handle in serverh;
+   update inuse:usestate,usage:usage+.proc.cp[] - lastquery from `.gw.servers where handle in serverh]}
 setderegserverids:{[serverh]
   if[@[value;`.finspace.enabled;0b] and @[value;`.finspace.dereginprog;0b];
     svrIDs:exec serverid from .gw.servers where not null handle, handle in serverh;
