@@ -227,7 +227,7 @@ $[.rdb.connectonstart;
   .servers.startupdepcycles[.rdb.tickerplanttypes;.rdb.tpconnsleepintv;.rdb.tpcheckcycles];
   .rdb.subscribe[];
  ];
-  .rdb.tplogdate:.proc.cd[]; // defines tplogdate for setpartition
+  .rdb.tplogdate:.proc.cd[] // defines tplogdate for setpartition
  ]
 
 /-set the partition that is held in the rdb (for use by the gateway)
