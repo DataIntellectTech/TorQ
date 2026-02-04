@@ -65,7 +65,7 @@ tableToDataStream:{[params]
   
   // Have hdb evaluate select statement.
   t:@[params[`h];
-      (eval;(?;params[`tn];enlist wherec;0b;()));
+      (eval;.backtest.query:(?;params[`tn];enlist wherec;0b;()));
       {.lg.e[`dataloader;"Failed to evauluate query on hdb: ",x]}
      ];
 
@@ -108,5 +108,3 @@ tablesToDataStream:{[params]
   };
 
 \d .
-
-//! initial commit
