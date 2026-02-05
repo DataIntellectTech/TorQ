@@ -11,8 +11,8 @@ SERVERS:@[value;`.servers.SERVERS;([]procname:`symbol$();proctype:`symbol$();hpu
 
 enabled:@[value;`enabled;1b]                                                                    // whether server tracking is enabled
 CONNECTIONS:@[value;`CONNECTIONS;`]                                                             // the list of connections to make at start up
-DISCOVERYREGISTER:@[value;`DISCOVERYREGISTER;1b]                                                // whether to register with the discovery service
-CONNECTIONSFROMDISCOVERY:@[value;`CONNECTIONSFROMDISCOVERY;1b]                                  // whether to get connection details from the discovery service (as opposed to the static file)
+DISCOVERYREGISTER:@[value;`DISCOVERYREGISTER;0b]                                                // whether to register with the discovery service
+CONNECTIONSFROMDISCOVERY:@[value;`CONNECTIONSFROMDISCOVERY;0b]                                  // whether to get connection details from the discovery service (as opposed to the static file)
 SUBSCRIBETODISCOVERY:@[value;`SUBSCRIBETODISCOVERY;1b]                                          // whether to subscribe to the discovery service for new processes becoming available
 DISCOVERYRETRY:@[value;`DISCOVERYRETRY;0D00:05]                                                 // how often to retry the connection to the discovery service.  If 0, no connection is made
 TRACKNONTORQPROCESS:@[value;`TRACKNONTORQPROCESS;0b]                                            // whether to track and register non torQ processes

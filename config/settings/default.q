@@ -59,8 +59,8 @@ enabled:0b			// prevent write access to clients if enabled
 \d .servers
 enabled:1b											// whether server tracking is enabled
 CONNECTIONS:`rdb`hdb										// list of connections to make at start up
-DISCOVERYREGISTER:1b										// whether to register with the discovery service
-CONNECTIONSFROMDISCOVERY:1b									// whether to get connection details from the discovery service (as opposed to the static file).
+DISCOVERYREGISTER:0b										// whether to register with the discovery service
+CONNECTIONSFROMDISCOVERY:0b									// whether to get connection details from the discovery service (as opposed to the static file).
 TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes
 NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   			// non torQ processes file
 SUBSCRIBETODISCOVERY:1b										// whether to subscribe to the discovery service for new processes becoming available
