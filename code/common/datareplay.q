@@ -6,18 +6,20 @@ getBuckets:{[s;e;p](s+p*til(ceiling 1+e%p)-(ceiling s%p))}
 //  params[`t] is table data
 //  params[`tc] is time column to cut on
 //  params[`tn] is table name
-//  params[`interval] is the time interval to bucket the messages into.
+//  params[`timerinterval] is the timer time interval to bucket the messages into.
+//  params[`datainterval] is the data time interval to bucket the messages into.
 tableDataToDataStream:{[params]
+  .dbg.params:params;
   // Sort table by time column.
   params[`t]:params[`tc] xasc delete date from params[`t];
   
   // get all times from table
   t_times:params[`t][params[`tc]];
 
-  $[not null params[`interval];
+  $[not null params[`datainterval];
     [ // if there is an interval, bucket messages into this interval
-      // make bukets of ten second intervals
-      times:getBuckets[params[`sts];params[`ets];params[`interval]];
+      // make buckets of ten second intervals
+      times:getBuckets[params[`sts];params[`ets];params[`datainterval]];
        
       // put start time in fornt of t_times
       t_times:params[`sts],t_times;
@@ -38,7 +40,7 @@ tableDataToDataStream:{[params]
       // Return table of times and message chunks
       -1_([]time:time;msg:{(`upd;x;y)}[params[`tn]] each msgs)
     ];
-    // if there is no intevral, cut by distinct time.
+    // if there is no interval, cut by distinct time.
     ([]
       time:distinct t_times;
       msg:{(`upd;x;$[1<count y;flip y;first y])}[params[`tn]] each 
@@ -74,10 +76,10 @@ tableToDataStream:{[params]
 
 // params[`sts] is start of time window to get
 // params[`ets] is end of time window to get
-// params[`tp] is the inrement between times
+// params[`tp] is the increment between times
 // params[`timerfunc] is the timer function to use
 getTimers:{[params]
- times:getBuckets[params[`sts];params[`ets];params[`interval]];
+ times:getBuckets[params[`sts];params[`ets];params[`replayinterval]];
  ([]time:times;msg:params[`timerfunc],'times)
  }
 
@@ -86,24 +88,25 @@ getTimers:{[params]
 // params[`sts] is start of time window to get - Required
 // params[`ets] is end of time window to get - Required
 // params[`syms] is list of instruments to get - Default all syms
-// params[`where] is an additional where clause in functional form - Not Reuqired
+// params[`where] is an additional where clause in functional form - Not Required
 // params[`timer] is whether or not to retrieve timer - Default 0b
 // params[`h] is handle to hdb - Default 0 (self)
-// params[`interval] is the time interval to bucket the messages into. - Not Required
+// params[`timerinterval] is the time interval to bucket the timer messages into. - Not Required
+// params[`datainterval] is the time interval to bucket the upd messages into. - Not Required
 // prarms[`tc] is the time column of the tables specified - Defualt `time
 // params[`timerfunc] is the timer function to use in timer messages - Default `.z.ts
 tablesToDataStream:{[params]
-  defaults:`timer`h`syms`interval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`time;`.z.ts;());
+  defaults:`timer`h`syms`datainterval`replayinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
   params:defaults,params;
 
   // check for default parameters `tabs`sts`ets
-  if[count missing:`tabs`sts`ets except key params;'"mising prameters: "," " sv string missing;];
+  if[count missing:`tabs`sts`ets except key params;'"missing parameters: "," " sv string missing;];
   params[`tabs]:(),params[`tabs];
 
   ds:raze {tableToDataStream x,(enlist `tn)!enlist y}[params] each params[`tabs];
-
+  
   $[params[`timer];
-    `time xasc ds,getTimers[params,enlist[`interval]! enlist $[null k:params[`interval];0D00:00:10.00;k]];
+    `time xasc ds,getTimers[params,enlist[`timerinterval]! enlist $[null k:params[`timerinterval];0D00:00:10.00;k]];
     `time xasc ds]
   };
 
