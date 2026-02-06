@@ -32,15 +32,21 @@ pub:{[t;d]
 
 / To run backtest, optional where
 run:{[params]
-   if[.proc.procname=`backtestpub;'"Backtest should be ran from the process you are backtesting not backtest instance itself"];
-   if[not initRan;'"Please run .backtest.init to override functions to backtest before running .backtest.run";];
-   if[not all `name`version`tabs`sts`ets`interval`timer`timerfunc in key params;'"Please ensure all mandatory params have been populated";];
-   / Remove optional where, when not required
-   if[`wherei in key params; if[not count params`where;params:`where _params]];
-   / Random guid generated to easily pair up config to output
+   params:validaterun[params];
+   / Random guid generated to match config to output
    .backtest.id:first -1?0Ng;
    / Kick off backtest from backtestpub which will replay the data back through the process running backtest
    pubh(`.backtest.datareplay;params;.backtest.id); 
+ };
+
+validaterun:{[params]
+   if[.proc.procname=`backtestpub;'"Backtest should be ran from the process you are backtesting not backtest instance itself"];
+   if[not initRan;'"Please run .backtest.init to override functions to backtest before running .backtest.run";];
+   if[not all `name`version`tabs`sts`ets`interval`timer`timerfunc in key params;'"Please ensure all mandatory params have been populated";];
+   if[count where null params;'"Not all mandatory keys have been populated"];
+   / Remove optional where, when not required
+   if[`where in key params; if[not count params`where;params:`where _params]];
+   params
  };
 
 \d .
