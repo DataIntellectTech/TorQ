@@ -6,8 +6,7 @@ getBuckets:{[s;e;p](s+p*til(ceiling 1+e%p)-(ceiling s%p))}
 //  params[`t] is table data
 //  params[`tc] is time column to cut on
 //  params[`tn] is table name
-//  params[`timerinterval] is the timer time interval to bucket the messages into.
-//  params[`datainterval] is the data time interval to bucket the messages into.
+//  params[`replayinterval] is the data time interval to bucket the messages into.
 tableDataToDataStream:{[params]
   .dbg.params:params;
   // Sort table by time column.
@@ -16,10 +15,10 @@ tableDataToDataStream:{[params]
   // get all times from table
   t_times:params[`t][params[`tc]];
 
-  $[not null params[`datainterval];
+  $[not null params[`replayinterval];
     [ // if there is an interval, bucket messages into this interval
       // make buckets of ten second intervals
-      times:getBuckets[params[`sts];params[`ets];params[`datainterval]];
+      times:getBuckets[params[`sts];params[`ets];params[`replayinterval]];
        
       // put start time in fornt of t_times
       t_times:params[`sts],t_times;
@@ -79,7 +78,7 @@ tableToDataStream:{[params]
 // params[`tp] is the increment between times
 // params[`timerfunc] is the timer function to use
 getTimers:{[params]
- times:getBuckets[params[`sts];params[`ets];params[`replayinterval]];
+ times:getBuckets[params[`sts];params[`ets];params[`timerinterval]];
  ([]time:times;msg:params[`timerfunc],'times)
  }
 
@@ -92,11 +91,10 @@ getTimers:{[params]
 // params[`timer] is whether or not to retrieve timer - Default 0b
 // params[`h] is handle to hdb - Default 0 (self)
 // params[`timerinterval] is the time interval to bucket the timer messages into. - Not Required
-// params[`datainterval] is the time interval to bucket the upd messages into. - Not Required
 // prarms[`tc] is the time column of the tables specified - Defualt `time
 // params[`timerfunc] is the timer function to use in timer messages - Default `.z.ts
 tablesToDataStream:{[params]
-  defaults:`timer`h`syms`datainterval`replayinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
+  defaults:`timer`h`syms`replayinterval`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
   params:defaults,params;
 
   // check for default parameters `tabs`sts`ets
