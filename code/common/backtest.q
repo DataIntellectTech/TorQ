@@ -1,11 +1,11 @@
 \d .backtest
 
 / Params to be passed to .backtest.run to kick off backtest, edit to fit usecase
-test:`name`version`tabs`sts`ets`interval`timer`timerfunc!(`;1;`;0Np;0Np;0D00:10:00.00;0b;`);
+test:`name`version`tabs`sts`ets`datainterval`timer`timerinterval`timerfunc!(`;1;`;0Np;0Np;0Nn;0b;0Nn;`);
 initRan:0b;
 
 / TO BE DELETED, TESTING ONLY
-test:`name`version`tabs`sts`ets`interval`timer`timerfunc!(`vwappublisher;1;`trade;2026.01.22D00:00:00.00;2026.01.22D01:00:00.00;0D00:10:00.00;1b;`.vwapsub.logvwap);
+test:`name`version`tabs`sts`ets`datainterval`timer`timerinterval`timerfunc!(`vwappublisher;1;`trade;2026.01.22D00:00:00.00;2026.01.22D01:00:00.00;0Nn;1b;0D00:10:00.00;`.vwapsub.logvwap);
 
 init:{[]
    requiredProcs:`backtestdb`backtestpub;
@@ -42,8 +42,8 @@ run:{[params]
 validaterun:{[params]
    if[.proc.procname=`backtestpub;'"Backtest should be ran from the process you are backtesting not backtest instance itself"];
    if[not initRan;'"Please run .backtest.init to override functions to backtest before running .backtest.run";];
-   if[not all `name`version`tabs`sts`ets`interval`timer`timerfunc in key params;'"Please ensure all mandatory params have been populated";];
-   if[count where null params;'"Not all mandatory keys have been populated"];
+   if[not all (key[test]except `where) in key params;'"Please ensure all mandatory params have been populated";];
+   if[count where null `datainterval _params;'"Not all mandatory keys have been populated"];
    / Remove optional where, when not required
    if[`where in key params; if[not count params`where;params:`where _params]];
    params
