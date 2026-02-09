@@ -58,7 +58,7 @@ enabled:0b			// prevent write access to clients if enabled
 // Server connection details
 \d .servers
 enabled:1b											// whether server tracking is enabled
-CONNECTIONS:`rdb`hdb										// list of connections to make at start up
+CONNECTIONS:()										// list of connections to make at start up
 DISCOVERYREGISTER:0b										// whether to register with the discovery service
 CONNECTIONSFROMDISCOVERY:0b									// whether to get connection details from the discovery service (as opposed to the static file).
 TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes
