@@ -8,11 +8,14 @@ initRan:0b;
 test:`name`version`tabs`sts`ets`replayinterval`timer`timerinterval`timerfunc!(`vwappublisher;1;`trade;2026.01.22D00:00:00.00;2026.01.22D01:00:00.00;0Nn;1b;0D00:10:00.00;`.vwapsub.logvwap);
 
 init:{[]
-   proctypes:exec proctype from(("SSSS";enlist",")0:hsym`$getenv`TORQPROCESSES)where proctype like "*backtest*";
+   system"l ",getenv[`KDBCONFIG],"/settings/backtest.q";
+   proctypes:outputdbtype,pubproctype;
+   rdbname:dbproc;
+   pubname:pubproc;
    .servers.registerfromdiscovery[proctypes;1b];
    servers:select w, procname from .servers.SERVERS where proctype in proctypes;
-   .backtest.rdbh:neg first exec w from servers where procname like "*db";
-   .backtest.pubh:neg first exec w from servers where procname like "*pub*";
+   .backtest.rdbh:neg first exec w from servers where procname=rdbname;
+   .backtest.pubh:neg first exec w from servers where procname=pubname;
    `.u.pub set .backtest.pub;
    .backtest.initRan:1b;
  };
