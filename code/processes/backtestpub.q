@@ -1,12 +1,14 @@
 \d .backtest
 
 init:{[]
-   .servers.CONNECTIONS:`hdb,outputdbtype;
+   .servers.CONNECTIONS:inputdbtype,outputdbtype;
    .servers.startup[];
+   hdbtype:inputdbtype;
+   rdbname:dbproc;
    / Used to get data from source to replay as real time 
-   .backtest.hdb:first exec w from .servers.SERVERS where proctype=`hdb;
+   .backtest.hdb:first exec w from .servers.SERVERS where proctype=hdbtype;
    / Used to send results of the backtest
-   .backtest.rdb:neg first exec w from .servers.SERVERS where procname=`backtestdb;
+   .backtest.rdb:neg first exec w from .servers.SERVERS where procname=rdbname;
  };
 
 datareplay:{[params;id]
