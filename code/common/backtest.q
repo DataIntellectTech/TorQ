@@ -9,13 +9,10 @@ test:`name`version`tabs`sts`ets`replayinterval`timer`timerinterval`timerfunc!(`v
 
 init:{[]
    system"l ",getenv[`KDBCONFIG],"/settings/backtest.q";
-   proctypes:outputdbtype,pubproctype;
-   rdbname:dbproc;
-   pubname:pubproc;
    .servers.registerfromdiscovery[proctypes;1b];
-   servers:select w, procname from .servers.SERVERS where proctype in proctypes;
-   .backtest.rdbh:neg first exec w from servers where procname=rdbname;
-   .backtest.pubh:neg first exec w from servers where procname=pubname;
+   servers:.servers.getservers[`proctype;`backtest`backtestdb;()!();0b;0b];
+   .backtest.rdbh:neg first exec w from .servers.getservers[`procname;dbprocname;()!();0b;0b];
+   .backtest.pubh:neg first exec w from .servers.getservers[`procname;pubprocname;()!();0b;0b];
    `.u.pub set .backtest.pub;
    .backtest.initRan:1b;
  };
