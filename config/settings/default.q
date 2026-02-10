@@ -57,24 +57,25 @@ enabled:0b			// prevent write access to clients if enabled
 
 // Server connection details
 \d .servers
-enabled:1b											// whether server tracking is enabled
-CONNECTIONS:()										// list of connections to make at start up
-DISCOVERYREGISTER:0b										// whether to register with the discovery service
-CONNECTIONSFROMDISCOVERY:0b									// whether to get connection details from the discovery service (as opposed to the static file).
-TRACKNONTORQPROCESS:1b          								// whether to track and register non torQ processes
-NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   			// non torQ processes file
-SUBSCRIBETODISCOVERY:1b										// whether to subscribe to the discovery service for new processes becoming available
-DISCOVERYRETRY:0D00:05										// how often to retry the connection to the discovery service.  If 0, no connection is made. This also dictates if the discovery service can connect it and cause it to re-register itself (val > 0)
-HOPENTIMEOUT:2000 										// new connection time out value in milliseconds
-RETRY:0D00:05											// period on which to retry dead connections.  If 0, no reconnection attempts
-RETAIN:`long$0D00:30 										// length of time to retain server records
-AUTOCLEAN:0b											// clean out old records when handling a close
-DEBUG:1b											// log messages when opening new connections
-LOADPASSWORD:1b											// load the external username:password from ${KDBCONFIG}/passwords
-STARTUP:0b    											// whether to automatically make connections on startup
-DISCOVERY:enlist`										// list of discovery services to connect to (if not using process.csv)
-SOCKETTYPE:enlist[`]!enlist `                                                                   // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
-PASSWORDS:enlist[`]!enlist `        								// dict of host:port!user:pass
+enabled:1b																	// whether server tracking is enabled
+CONNECTIONS:()																// list of connections to make at start up
+DISCOVERYCONNECT:$[`lim in key`.Q;$[0W=.Q.lim[][`conns];1b;0b];1b]          // check for limit on process connections (relevant for KDB-X community edition)
+DISCOVERYREGISTER:DISCOVERYCONNECT											// whether to register with the discovery service
+CONNECTIONSFROMDISCOVERY:DISCOVERYREGISTER									// whether to get connection details from the discovery service (as opposed to the static file).
+TRACKNONTORQPROCESS:1b          											// whether to track and register non torQ processes
+NONTORQPROCESSFILE:hsym first .proc.getconfigfile["nontorqprocess.csv"]   	// non torQ processes file
+SUBSCRIBETODISCOVERY:1b														// whether to subscribe to the discovery service for new processes becoming available
+DISCOVERYRETRY:0D00:05														// how often to retry the connection to the discovery service.  If 0, no connection is made. This also dictates if the discovery service can connect it and cause it to re-register itself (val > 0)
+HOPENTIMEOUT:2000 															// new connection time out value in milliseconds
+RETRY:0D00:05																// period on which to retry dead connections.  If 0, no reconnection attempts
+RETAIN:`long$0D00:30 														// length of time to retain server records
+AUTOCLEAN:0b																// clean out old records when handling a close
+DEBUG:1b																	// log messages when opening new connections
+LOADPASSWORD:1b																// load the external username:password from ${KDBCONFIG}/passwords
+STARTUP:0b    																// whether to automatically make connections on startup
+DISCOVERY:enlist`															// list of discovery services to connect to (if not using process.csv)
+SOCKETTYPE:enlist[`]!enlist `                                               // dict of proctype -> sockettype e.g. `hdb`rdb`tp!`tcps`tcp`unix
+PASSWORDS:enlist[`]!enlist `        										// dict of host:port!user:pass
 
 // functions to ignore when called async - bypass all permission checking and logging
 \d .zpsignore
