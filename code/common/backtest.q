@@ -10,6 +10,8 @@ test:`name`version`tabs`sts`ets`replayinterval`timer`timerinterval`timerfunc!(`v
 init:{[]
    system"l ",getenv[`KDBCONFIG],"/settings/backtest.q";
    .servers.registerfromdiscovery[proctypes;1b];
+   / Unsubscribe from tp (Probably a better way of doing this to get the exact upstream process)
+   .servers.removerows exec i from .servers.SERVERS where proctype like "*tickerplant";
    servers:.servers.getservers[`proctype;`backtest`backtestdb;()!();0b;0b];
    .backtest.rdbh:neg first exec w from .servers.getservers[`procname;dbprocname;()!();0b;0b];
    .backtest.pubh:neg first exec w from .servers.getservers[`procname;pubprocname;()!();0b;0b];
@@ -40,6 +42,7 @@ run:{[params]
    pubh(`.backtest.datareplay;params;.backtest.id); 
  };
 
+/ Cannot run .backtest.run params until params is in correct format with helpful instruction on how to fix
 validateparams:{[params]
    if[.proc.procname like "*backtest*";
       '"Backtest should be ran from the process you are backtesting not backtest instance itself";
@@ -65,5 +68,6 @@ validateparams:{[params]
       ];
    params
  };
+
 
 \d .
