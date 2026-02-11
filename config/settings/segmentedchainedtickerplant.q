@@ -37,4 +37,4 @@ enabled:1b                                        // switch on subscribercutoff
 
 \d .servers
 CONNECTIONS,:`segmentedtickerplant
-CONNECTIONSFROMDISCOVERY:DISCOVERYCONNECT
+CONNECTIONSFROMDISCOVERY:1b
