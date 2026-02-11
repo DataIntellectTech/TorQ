@@ -59,7 +59,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
  [-test]:\t\t\tset to run unit tests
- [-jsonlogs]:\t\t\toutput logs in json format"]
+ [-jsonlogs]:\t\t\toutput logs in json format"
+ [-backtest]:\t\t\tset to run backtest mode]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
@@ -711,3 +712,8 @@ if[(`test in key .proc.params);
 		.lg.e[`init;"environment variable KDBTESTS undefined"]
 		]
  ];
+
+// Overwrite pub/sub channels when in backtest mode
+if[`backtest in key .proc.params;
+   .backtest.init[];
+   ];
