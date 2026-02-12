@@ -532,7 +532,7 @@ if[@[{value x;1b};`.z.ws;{0b}];.dotz.set[`.z.ws;{.gw.pgs[.z.w;0b];x@y}value .dot
 .servers.startup[]
 
  /-check if the gateway  has connected to discovery process, block the process until a connection is established
-while[0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
+while[.servers.DISCOVERYREGISTER and 0 = count .servers.getservers[`proctype;`discovery;()!();0b;1b];
  /-while no connected make the process sleep for X seconds and then run the subscribe function again
  .os.sleep[5];
  /-run the servers startup code again (to make connection to discovery)
