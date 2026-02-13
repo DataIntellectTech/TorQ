@@ -10,7 +10,6 @@ init:{[]
  };
 
 datareplay:{[params;id]
-   .dbg.replay:(params;id;.z.w);
    params[`h]:hdbh;
    / Return the messages to be replayed
    msgs:.datareplay.tablesToDataStream `name`version _params;
