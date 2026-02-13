@@ -4,15 +4,11 @@
 requiredparams:`name`version`tabs`sts`ets`replayinterval`timer`timerinterval`timerfunc!(`;1;`;0Np;0Np;0Nn;0b;0Nn;`);
 initRan:0b;
 
-/ TO BE DELETED, TESTING ONLY
-test:`name`version`tabs`sts`ets`replayinterval`timer`timerinterval`timerfunc!(`vwappublisher;1;`trade;2026.01.22D00:00:00.00;2026.01.22D01:00:00.00;0Nn;1b;0D00:10:00.00;`.vwapsub.logvwap);
-
 init:{[]
    system"l ",getenv[`KDBCONFIG],"/settings/backtest.q";
    .servers.registerfromdiscovery[proctypes;1b];
-   / Unsubscribe from tp (Probably a better way of doing this to get the exact upstream process)
-   .servers.removerows exec i from .servers.SERVERS where proctype like "*tickerplant";
-   servers:.servers.getservers[`proctype;`backtest`backtestdb;()!();0b;0b];
+   / Close open subscriptions to tickerplant
+   .servers.removerows exec i from .servers.SERVERS where w in exec w from .sub.SUBSCRIPTIONS;
    .backtest.rdbh:neg first exec w from .servers.getservers[`procname;dbprocname;()!();0b;0b];
    .backtest.pubh:neg first exec w from .servers.getservers[`procname;pubprocname;()!();0b;0b];
    `.u.pub set .backtest.pub;
@@ -21,7 +17,6 @@ init:{[]
 
 / Receive full message from datareplay, extract details from msg before running msg func
 extractmessage:{[msgs]
-   .dbg.msg:msgs;
    msg:msgs`msg;
    .backtest.simtime:msgs`time;
    .backtest.name:first msg;
@@ -29,7 +24,6 @@ extractmessage:{[msgs]
  };
 
 pub:{[t;d]
-   .dbg.pub:(t;d);
    rdbh(`upd;`output;(.z.p;id;simtime;name;d));
  };
 

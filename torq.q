@@ -59,8 +59,8 @@ stdoptionusage:@[value;`stdoptionusage;"Standard options:
  [-localtime]:\t\t\tuse local time instead of GMT
  [-usage]:\t\t\tprint usage info
  [-test]:\t\t\tset to run unit tests
- [-jsonlogs]:\t\t\toutput logs in json format"
- [-backtest]:\t\t\tset to run backtest mode]
+ [-jsonlogs]:\t\t\toutput logs in json format
+ [-backtest]:\t\t\tset to run backtest mode"]
  
 // extra info - used to extend the usage info 
 extrausage:@[value;`extrausage;""]
