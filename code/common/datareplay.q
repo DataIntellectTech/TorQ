@@ -8,7 +8,6 @@ getBuckets:{[s;e;p](s+p*til(ceiling 1+e%p)-(ceiling s%p))}
 //  params[`tn] is table name
 //  params[`replayinterval] is the data time interval to bucket the messages into.
 tableDataToDataStream:{[params]
-  .dbg.params:params;
   // Sort table by time column.
   params[`t]:params[`tc] xasc delete date from params[`t];
   
@@ -42,7 +41,7 @@ tableDataToDataStream:{[params]
     // if there is no interval, cut by distinct time.
     ([]
       time:distinct t_times;
-      msg:{(`upd;x;$[1<count y;flip y;first y])}[params[`tn]] each 
+      msg:{(`upd;x;y)}[params[`tn]] each 
           (where differ t_times) cut params[`t]
     )
   ]
@@ -53,25 +52,34 @@ tableDataToDataStream:{[params]
 // params[`h] is handle to hdb process
 // params[`tn] is table name used to query hdb
 // params[`syms] is list of instruments to get
-// params[`where] is an additional where clause in functional form - Not Reuqired
+// params[`where] is an additional where clause in functional form - Not Required
 // params[`sts] is start of time window to get
 // params[`ets] is end of time window to get
 tableToDataStream:{[params]
-
-  // Build where clause
-  wherec:(enlist (within;`date;(enlist;`date$params[`sts];`date$params[`ets]))) // date in daterange
-            ,$[count params[`syms];enlist (in;`sym;enlist params[`syms]);()] //if syms is empty, omit sym in syms
-            ,$[count params[`where];params[`where];()] // custom where clause (optional)
-            ,enlist (within;params[`tc];(enlist;params[`sts];params[`ets])); // time within (sts;ets)
-  
   // Have hdb evaluate select statement.
   t:@[params[`h];
-      (eval;.backtest.query:(?;params[`tn];enlist wherec;0b;()));
+      (eval;tableSelectStatement params);
       {.lg.e[`dataloader;"Failed to evauluate query on hdb: ",x]}
      ];
 
   tableDataToDataStream[params,enlist[`t]!enlist t]
  };
+
+// params[`tn] is table name used to query hdb
+// params[`syms] is list of instruments to get
+// params[`where] is an additional where clause in functional form - Not Required
+// params[`sts] is start of time window to get
+// params[`ets] is end of time window to get
+tableSelectStatement:{[params]
+  // Build where clause
+  wherec:(enlist (within;`date;(enlist;`date$params[`sts];`date$params[`ets]))) // date in daterange
+            ,$[count params[`syms];enlist (in;`sym;enlist params[`syms]);()] //if syms is empty, omit sym in syms
+            ,$[count params[`where];params[`where];()] // custom where clause (optional)
+            ,enlist (within;params[`tc];(enlist;params[`sts];params[`ets])); // time within (sts;ets)
+
+  (?;params[`tn];enlist wherec;0b;())
+ };
+
 
 // params[`sts] is start of time window to get
 // params[`ets] is end of time window to get
@@ -94,7 +102,7 @@ getTimers:{[params]
 // prarms[`tc] is the time column of the tables specified - Defualt `time
 // params[`timerfunc] is the timer function to use in timer messages - Default `.z.ts
 tablesToDataStream:{[params]
-  defaults:`timer`h`syms`replayinterval`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
+  defaults:`timer`h`syms`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`time;`.z.ts;());
   params:defaults,params;
 
   // check for default parameters `tabs`sts`ets
