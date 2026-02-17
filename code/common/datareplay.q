@@ -102,7 +102,7 @@ getTimers:{[params]
 // prarms[`tc] is the time column of the tables specified - Defualt `time
 // params[`timerfunc] is the timer function to use in timer messages - Default `.z.ts
 tablesToDataStream:{[params]
-  defaults:`timer`h`syms`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`time;`.z.ts;());
+  defaults:`timer`h`syms`replayinterval`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
   params:defaults,params;
 
   // check for default parameters `tabs`sts`ets
