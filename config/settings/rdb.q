@@ -35,6 +35,5 @@ loadprocesscode:1b  // whether to load the process specific code defined at ${KD
 
 // Server connection details
 \d .servers
-CONNECTIONS:`hdb    // list of connections to make at start up
+CONNECTIONS:enlist `hdb    // list of connections to make at start up
 STARTUP:1b          // create connections
-
