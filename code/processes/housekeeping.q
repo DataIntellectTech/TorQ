@@ -55,8 +55,7 @@ csvloader:{[CSV]
 //-Sees if the function in the CSV file is in the function list. if so- it carries out that function on files that match the parameters in the csv [using find function]
 wrapper:{[DICT]
 	if[not DICT[`function] in key `.;:.lg.e[`housekeeping;"Could not find function: ",string DICT`function]];
-	p:find[.rmvr.removeenvvar DICT`path;;DICT`age;DICT`agemin;DICT`checkfordirectory];
-	value[DICT`function] each p[DICT`match] except p DICT`exclude}
+	value[DICT`function] each find[.rmvr.removeenvvar DICT`path;DICT`match;DICT`exclude;DICT`age;DICT`agemin;DICT`checkfordirectory]}
 
 
 
@@ -73,16 +72,15 @@ kdbzip:{[FILE]
 \d .unix
 
 //-locates files or directories with path, matching string and age
-find:{[path;match;age;agemin;checkfordirectory]
+find:{[path;match;exclude;age;agemin;checkfordirectory]
 	$[0=checkfordirectory;[fileordir:"files";flag:"f"];[fileordir:"directories";flag:"d"]];
 	dayormin:$[0=agemin;"mtime";"mmin"];
-	findmatches:{[path;match;age;fileordir;flag;dayormin] 
+	findmatches:{[path;match;exclude;age;fileordir;flag;dayormin]
 			.lg.o[`housekeeping;"Searching for ",fileordir,": ",path,match];
-			.proc.sys "/usr/bin/find ",path," -maxdepth 1 -type ",flag," -name \"",match,"\" -",dayormin," +",raze string age};
-	matches:.[findmatches;(path;match;age;fileordir;flag;dayormin);{.lg.e[`housekeeping;"Find function failed: ",x];()}];
+			.proc.sys "/usr/bin/find ",path," -maxdepth 1 -type ",flag," -name \"",match,"\" -",dayormin," +",(raze string age)," ! -name \"",exclude,"\""};
+	matches:.[findmatches;(path;match;exclude;age;fileordir;flag;dayormin);{.lg.e[`housekeeping;"Find function failed: ",x];()}];
 	if[0=count matches;.lg.o[`housekeeping;"No matching ",fileordir," located"]];
 	matches}
-
 
 //-removes files
 rm:{[FILE]
