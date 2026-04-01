@@ -11,7 +11,7 @@
 // params[`timerinterval] is the interval to bucket the timer messages into - Default 10 seconds, only used if timer is true
 // prarms[`tc] is the time column of the tables specified - Default `time
 // params[`timerfunc] is the timer function to use in timer messages - Default `.z.ts
-tablesToDataStream:{[params]
+tablestodatastream:{[params]
   defaults:`timer`h`syms`replayinterval`timerinterval`tc`timerfunc`where!(0b;0;`symbol$();`timespan$0n;`timespan$0n;`time;`.z.ts;());
   params:defaults,params;
 
@@ -19,19 +19,19 @@ tablesToDataStream:{[params]
   if[count missing:`tabs`sts`ets except key params;'"missing parameters: "," " sv string missing;];
   params[`tabs]:(),params[`tabs];
 
-  ds:raze {tableToDataStream x,(enlist `tn)!enlist y}[params] each params[`tabs];
+  ds:raze {tabletodatastream x,(enlist `tn)!enlist y}[params] each params[`tabs];
   
   $[params[`timer];
-    `time xasc ds,getTimers[params,enlist[`timerinterval]! enlist $[null k:params[`timerinterval];0D00:00:10.00;k]];
+    `time xasc ds,gettimers[params,enlist[`timerinterval]! enlist $[null k:params[`timerinterval];0D00:00:10.00;k]];
     `time xasc ds]
   };
 
 // Generate times between two input times in p intervals
-getBuckets:{[s;e;p](s+p*til(ceiling 1+e%p)-(ceiling s%p))};
+getbuckets:{[s;e;p](s+p*til(ceiling 1+e%p)-(ceiling s%p))};
 
 //  params[`t] is table data
 //  params[`tn] is table name
-tableDataToDataStream:{[params]
+tabledatatodatastream:{[params]
   // Sort table by time column.
   params[`t]:params[`tc] xasc delete date from params[`t];
   
@@ -41,7 +41,7 @@ tableDataToDataStream:{[params]
   $[not null params[`replayinterval];
     [ // If there is an interval, bucket messages into this interval
       // Make buckets of ten second intervals
-      times:getBuckets[params[`sts];params[`ets];params[`replayinterval]];
+      times:getbuckets[params[`sts];params[`ets];params[`replayinterval]];
        
       // Put start time in front of t_times
       t_times:params[`sts],t_times;
@@ -71,17 +71,17 @@ tableDataToDataStream:{[params]
   ] 
   };
 
-tableToDataStream:{[params]
+tabletodatastream:{[params]
   // Evaluate select statement in HDB
   t:@[params[`h];
-      (eval;tableSelectStatement params);
+      (eval;tableselectstatement params);
       {.lg.e[`dataloader;"Failed to evauluate query on hdb: ",x]}
      ];
 
-  tableDataToDataStream[params,enlist[`t]!enlist t]
+  tabledatatodatastream[params,enlist[`t]!enlist t]
  };
 
-tableSelectStatement:{[params]
+tableselectstatement:{[params]
   // Build where clause
   wherec:(enlist (within;`date;(enlist;`date$params[`sts];`date$params[`ets]))) // date in daterange
             ,$[count params[`syms];enlist (in;`sym;enlist params[`syms]);()] //if syms is empty, omit sym in syms
@@ -91,8 +91,8 @@ tableSelectStatement:{[params]
   (?;params[`tn];enlist wherec;0b;())
  };
 
-getTimers:{[params]
-  times:getBuckets[params[`sts];params[`ets];params[`timerinterval]];
+gettimers:{[params]
+  times:getbuckets[params[`sts];params[`ets];params[`timerinterval]];
   ([]time:times;msg:params[`timerfunc],'times)
   };
 
