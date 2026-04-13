@@ -134,7 +134,7 @@ compressfromtable:{[table]
     table:update compressionvaluepre:{(-21!x)`compressedLength}'[fullpath] from table;
     $[0= system"s";
         singlethreadcompress[table];
-        multithreadcompress[table]];
+        $[0<system "s";multithreadcompress[table];{[x;y] compressfromtable select from x where table=y}[table;] peach distinct table`table]];
     / Update the stats tab table after the compression 
     {statstabupdate[x`fullpath;x`calgo;x`currentsize;x`compressionvaluepre]} each table}
 
