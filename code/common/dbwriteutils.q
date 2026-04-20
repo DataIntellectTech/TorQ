@@ -68,8 +68,8 @@ applyattr:{[dloc;colname;att]
 / - these functions are common across the TorQ processes that persist save to the data base
 \d .save
 
-/ - define a default dictionary of manipulation functions to apply of tables before it is enumerated an persisted to disk
-savedownmanipulation:()!();
+/ - define a default dictionary of manipulation functions to apply to tables before they're enumerated and persisted to disk
+savedownmanipulation:@[value;`savedownmanipulation;()!()];
 
 /- manipulate a table at save down time
 manipulate:{[t;x] 
