@@ -14,6 +14,7 @@ nav:
     - Monitoring: monit.md 
     - Visualisation: visualisation.md
     - Testing: unittesting.md
+    - Claude Skill: claude-skill.md
     - TorQ Blog Posts: blog.md
 
 
