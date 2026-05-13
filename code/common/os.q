@@ -14,7 +14,6 @@ hdeldir:{[dirpath;pdir]
  .lg.o[`deldir;"deleting from  directory : ",dirpath];
  hdel each desc filelist}
 md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
-ren:{system("mv ";"move ")[NT],pth[x]," ",pth y}
 cpy:{system("cp ";"copy ")[NT],pth[x]," ",pth y}
 Vex:not 0h~type key`.@
 df:{(`$("/";"\\")[NT]sv -1_v;`$-1#v:("/";"\\")[NT]vs pth(string x;x)[10h=type x])} 
@@ -22,3 +21,14 @@ run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
 sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
+ren:{[x;y]
+ / Convert the incoming q values into OS path strings.
+ src:pth x;
+ dst:pth y;
+ / On non-Windows platforms a normal mv already handles file and directory renames.
+ if[not NT;
+  :system "mv \"",src,"\" \"",dst,"\""];
+ / Escape single quotes so a path can be embedded safely in a PowerShell literal string.
+ psqlit:{[p] "'",ssr[p;"'";"''"],"'"};
+ / Move-Item gives us native Windows move semantics for files, directories and cross-volume moves.
+ :system "powershell -NoProfile -Command Move-Item -LiteralPath ",psqlit[src]," -Destination ",psqlit[dst]}
