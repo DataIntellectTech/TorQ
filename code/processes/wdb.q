@@ -427,7 +427,7 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode
   .save.postreplay[hdbsettings[`hdbdir];pt];
   $[permitreload;
     doreload[pt];
-    if[gc;.gc.run[]];
+    if[gc;.gc.run[]]
     ];
   };
 
