@@ -64,6 +64,22 @@ fail,,,q,.pm.expr[`harry; ({x+a};1)]~2,,,harry cannot run regular lambda which a
 fail,,,q,.pm.expr[`harry; ("{x+a}";1)]~2,,,harry cannot run string lambda which accesses var a
 
 comment,,,,,,,test defined projection
-run,,,q,fn:{x+y}[1],,,creating a projection 
+run,,,q,fn:{x+y}[1],,,creating a projection
 true,,,q,.pm.expr[`tom;(`fn;1)]~2,,,tom can run projection
 fail,,,q,.pm.expr[`harry;(`fn;1)]~2,,,harry cannot run projection
+
+comment,,,,,,,test projection handling for multiple fixed parameters
+run,,,q,pf:{[w;x;y;z] w+x+y+z},,,define 4-arg function for projection tests
+run,,,q,.pm.grantfunction[`pf;`role1;{1b}],,,grant role1 access to pf
+run,,,q,p1:pf[1],,,projection with one fixed leading parameter
+run,,,q,p2:pf[1;2],,,projection with two fixed leading parameters
+run,,,q,p3:pf[;2;3],,,projection with fixed non-first parameters
+run,,,q,p4:pf[;;;4],,,projection with fixed last paramater
+true,,,q,10~.pm.expr[`tom;(`p1;2;3;4)],,,single fixed leading param projection works
+true,,,q,10~.pm.expr[`tom;(`p2;3;4)],,,two fixed leading params projection works
+true,,,q,10~.pm.expr[`tom;(`p3;1;4)],,,non-first fixed param projection works
+true,,,q,10~.pm.expr[`tom;(`p4;1;2;3)],,,last fixed param projection works
+fail,,,q,.pm.expr[`harry;(`p1;2;3;4)],,,harry cannot run projection with fixed leading param
+fail,,,q,.pm.expr[`harry;(`p2;3;4)],,,harry cannot run projection with two fixed params
+fail,,,q,.pm.expr[`harry;(`p3;1;4)],,,harry cannot run projection with non-first fixed param
+fail,,,q,.pm.expr[`harry;(`p4;1;2;3)],,,harry cannot run projection with last fixed param
