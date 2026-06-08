@@ -78,8 +78,10 @@ pdict:{[f;a]
   d:d,$[not ca:count a; ();
         f~`select; ();
         (1=count a) and (99h=type first a); first a;
-        /if projection first obtain a list of function and fixed parameters (fnfp) 
-        104h=type value f; [fnfp:value value f; (value[fnfp 0][1])!fnfp[1],a];
+        /if projection first obtain a list of function and fixed parameters (fnfp)
+        /pargs contains all projected args with :: marking unfixed positions
+        /allargs fills the full param list, then replaces :: positions with actual args a
+        104h=type value f; [fnfp:value value f;params:value[fnfp 0][1];pargs:1_ fnfp;allargs:(count params)#enlist[::];allargs[til count pargs]:pargs;allargs[where 101h=type each allargs]:a;params!allargs];
         /get paramaters and make a dictionary with the arguments
         101h<>type fp:value[value[f]][1]; fp!a;
         ((),(`$string til ca))!a
@@ -179,7 +181,7 @@ mainexpr:{[u;e;b;pr]
   ];
   / named function calls
   if[-11h=type f;
-    if[not fchk[u;f;1_ e]; $[b;'err[`func][f]; :0b]];
+    if[not fchk[u;f;1_ (),e]; $[b;'err[`func][f]; :0b]];
     $[b; :exe ie; :1b];
   ];
   / queries - select/update/delete
