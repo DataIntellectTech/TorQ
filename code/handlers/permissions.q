@@ -155,11 +155,7 @@ lamq:{[u;e;b;pr]
   / allow public tables to always be accessed
   rt:rt except distinct exec object from access where entity=`public;
   / flatten expression & tokenize to extract any possible variable references
-  / k lambdas (e.g. from pykx) may fail to tokenize - fall back to superuser check
-  pq:@[{`$distinct -4!raze(str flatten x),'" "};e;`symbol$()];
-  if[0=count pq;
-    if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][first e];:0b]];
-    :$[b;exe e;1b]];
+  pq:`$distinct -4!raze(str flatten e),'" ";
   / filter expression tokens to those matching defined variables
   rqt:rt inter pq;
   prohibited:rqt where not achk[u;;`read;pr] each rqt;

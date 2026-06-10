@@ -103,14 +103,3 @@ run,,,q,.pm.assignrole[`alice;`role2],,,assign role2 (no ALL grant) to alice
 run,,,q,.pm.grantfunction[`symarg;`role2;{[d] `abc~d`x}],,,grant role2 access to symarg with paramcheck on arg value
 true,,,q,.pm.allowed[`alice;`symarg`abc],,,paramcheck passes when correct symbol arg given
 true,,,q,not .pm.allowed[`alice;`symarg`xyz],,,paramcheck fails when wrong symbol arg given
-
-comment,,,,,,,test pykx k lambda expressions do not crash permissions module
-run,,,q,"kfn:value ""k){x}""",,,build k lambda simulating expression type sent by pykx over ipc
-run,,,q,pykxe:(kfn;`.q),,,apply k lambda to namespace symbol as pykx does
-fail,,,q,.pm.requ[`harry;pykxe],,,unpermissioned user should get unsupported expression error not paren crash
-true,,,q,.pm.allowed[`harry;pykxe]~0b,,,check-only mode returns false for unpermissioned user with k lambda
-true,,,q,`.q~.pm.requ[`tom;pykxe],,,superuser executes k lambda and gets back result
-true,,,q,.pm.allowed[`tom;pykxe],,,check-only mode returns true for superuser with k lambda
-comment,,,,,,,regression: lamq variable scan still enforces access correctly after k lambda fix
-fail,,,q,.pm.requ[`harry;({1+a};`)],,,harry still blocked from lambda referencing variable a
-true,,,q,2=.pm.requ[`tom;({1+a};`)],,,tom still permitted to run lambda referencing variable a
