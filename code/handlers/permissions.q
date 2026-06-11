@@ -181,7 +181,7 @@ mainexpr:{[u;e;b;pr]
   ];
   / named function calls
   if[-11h=type f;
-    if[not fchk[u;f;1_ (),e]; $[b;'err[`func][f]; :0b]];
+x`    if[not fchk[u;f;1_ (),e]; $[b;'err[`func][f]; :0b]];
     $[b; :exe ie; :1b];
   ];
   / queries - select/update/delete
@@ -189,7 +189,7 @@ mainexpr:{[u;e;b;pr]
   / .q keywords
   if[xdq e;:dotqf[u;e;b;pr]];
   / lambdas - value any dict args before razing
-  if[any (100 104h)in type each raze @[e;where 99h=type'[e];value]; :lamq[u;ie;b;pr]];
+  if[any (100 104h)in type each raze @[e;where 99h=type'[(),e];value]; :lamq[u;ie;b;pr]];
   / if we get down this far we don't have specific handling for the expression - require superuser
   if[not (fchk[u;ALL;()] or fchk[u;`$string(first e);()]); $[b;'err[`expr][f]; :0b]];
   $[b; exe ie; 1b]}
