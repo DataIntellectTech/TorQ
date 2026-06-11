@@ -181,7 +181,7 @@ mainexpr:{[u;e;b;pr]
   ];
   / named function calls
   if[-11h=type f;
-x`    if[not fchk[u;f;1_ (),e]; $[b;'err[`func][f]; :0b]];
+    if[not fchk[u;f;1_ (),e]; $[b;'err[`func][f]; :0b]];
     $[b; :exe ie; :1b];
   ];
   / queries - select/update/delete
