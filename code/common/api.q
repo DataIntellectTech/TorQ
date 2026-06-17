@@ -26,7 +26,7 @@ list:{[ns;vartype]
 	api iasc (exec name from .api.detail)?api`name}
 
 // get all the namespaces in . form
-allns:{`$(enlist enlist "."),".",/:string key `}
+allns:{a:`$(enlist enlist "."),".",/:string key `;a where 1<count each key each a}
 
 // Dump out everything across all name spaces
 fullapi:{
