@@ -37,4 +37,4 @@ enabled:1b                                        // switch on subscribercutoff
 
 \d .servers
 CONNECTIONS,:`segmentedtickerplant
-CONNECTIONSFROMDISCOVERY:$[`lim in key`.Q;@[{$[0W=x[`conns];1b;0b]};.Q.lim[];1b];1b] // check for limit on process connections (relevant for KDB-X community edition; error-trapped for Community edition where .Q.lim[] may not return expected dict)
+CONNECTIONSFROMDISCOVERY:$[`lim in key`.Q;@[{$[0W=x[`conns][`lim];1b;0b]};.Q.lim[];1b];1b] // check for limit on process connections (relevant for KDB-X community edition; error-trapped for Community edition where .Q.lim[] may not return expected dict)
