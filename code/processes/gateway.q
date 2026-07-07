@@ -592,6 +592,9 @@ if[@[value;`.timer.enabled;0b];
  .timer.repeat[.proc.cp[];0Wp;0D00:00:05;(`.gw.checktimeout;`);"Timeout queries which have been waiting too long"];
  .timer.repeat[.proc.cp[];0Wp;0D00:05;(`.gw.removeinactive;.gw.clearinactivetime);"Remove data for inactive handles"]];
 
+//AnyCache sample analytic
+.anycache.sampleanalytic:{ .gw.syncexec["select by sym from trade";`rdb] };
+
 // add in some api details 
 .api.add[`.gw.asyncexecjpt;1b;"Execute a function asynchronously.  The result is posted back to the client either directly down the socket (in which case the client must block and wait for the result - deferred synchronous) or wrapped in the postback function";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against; lambda: the function used to join the resulting data; symbol or lambda: postback;timespan: query timeout]";"The result of the query either directly or through the postback function"]
 .api.add[`.gw.asyncexec;1b;"Execute a function asynchronously.  The result is posted back to the client directly down the socket. The client must block and wait for the result - deferred synchronous.  Equivalent to .gw.asyncexecjpt with join function of raze, no postback and no timeout";"[(string | mixed list): the query to execute; symbol(list): the list of servers to query against]";"The result of the query"]
