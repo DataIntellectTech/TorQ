@@ -1,5 +1,5 @@
-.anymap.writeToAnyMap:{[data;filePath] (hsym filePath) 1: data; :(::)}
-.anymap.deriveAnymapFiles:{[filePath] strPath: string[filePath]; `$(strPath;strPath,"#";strPath,"##")}
-.anymap.util.copyAnyMap:{[fromFilePath; destFilePath] fromFilePaths:.anymap.deriveAnymapFiles[fromFilePath]; system (("cp "," " sv string fromFilePaths), " ", string destFilePath)}
-.anymap.util.removeAnyMap:{[filePath] filePaths:.anymap.deriveAnymapFiles[filePath]; system ("rm "," " sv string filePaths)}
-.anymap.util.moveAnyMap:{[fromFilePath; destFilePath] fromFilePaths:.anymap.deriveAnymapFiles[fromFilePath]; system (("mv "," " sv string fromFilePaths), " ", string destFilePath)}
+.anymap.writetoanymap:{[filepath;data] (hsym filepath) 1: data; :(::)}
+.anymap.deriveanymapfiles:{[filepath] `$string[filepath],/:("";"#";"##")}
+.anymap.util.copyanymap:{[fromfilepath; destfilepath] fromfilepaths:.anymap.deriveanymapfiles[fromfilepath]; .os.cpy[;destfilepath] each fromfilepaths)}
+.anymap.util.removeanymap:{[filepath] filepaths:.anymap.deriveanymapfiles[filepath]; .os.del each filepaths)}
+.anymap.util.moveanymap:{[fromfilepath; destfilepath] fromfilepaths:.anymap.deriveanymapfiles[fromfilepath]; .os.ren[;destfilepath] each fromfilepaths)}
