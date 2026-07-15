@@ -1,6 +1,6 @@
 // Setter process to set cache to disk
 
-\d .setter
+\d .anycache.setter
 
 // Save cache down to disk
 savecachedowntodisk:{[data;filePath] (hsym filePath) set data };
