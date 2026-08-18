@@ -19,7 +19,7 @@ Vex:not 0h~type key`.@
 df:{(`$("/";"\\")[NT]sv -1_v;`$-1#v:("/";"\\")[NT]vs pth(string x;x)[10h=type x])} 
 run:{system"q ",x}
 kill:{[p]@[(`::p);"\\\\";1];}
-sleep:{x:string x; system("sleep ",x;"timeout /t ",x," >nul")[NT]}
+sleep:{x:string x; system("sleep ",x;"powershell.exe -NoProfile -NonInteractive -Command Start-Sleep -Seconds ",x)[NT]}
 pthq:{[x] $[10h=type x;ssr [x;"\\";"/"];`$ -1 _ ssr [string (` sv x,`);"\\";"/"]]}
 ren:{[x;y]
  / Convert the incoming q values into OS path strings.
