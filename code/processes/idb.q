@@ -1,9 +1,9 @@
 /-default parameters
 \d .idb
 
-wdbtypes:@[value;wdbtypes;`wdb];
+wdbtypes:@[value;`wdbtypes;`wdb];
 wdbconnsleepintv:@[value;`wdbconnsleepintv;10];
-wdbcheckcycles:@[value;`wdvcheckcycles;0W];
+wdbcheckcycles:@[value;`wdbcheckcycles;0W];
 
 /-these parameters are only used once their value has been set with values retrieved from the WBD.
 writedownmode:idbdir:savedir:currentpartition:symfilepath:`;
