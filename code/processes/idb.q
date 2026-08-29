@@ -92,6 +92,8 @@ init:{[]
     .lg.o[`init;"registering IDBs on WDB process..."];
     /-send sync message to WDB to register the existing IDBs.
     @[w;(`.servers.registerfromdiscovery;`idb;0b);{.lg.e[`connection;"Failed to register IDB with WDB."];'x}];
+    /-dataaccess initialisation must be done after wdb loaded.
+    if[`dataaccess in key .proc.params;.dataaccess.init[]];
     .lg.o[`init; "Initialisation of the IDB is done."];
     }
 
@@ -101,7 +103,7 @@ init:{[]
 reload:.idb.intradayreload;
 
 /-Get the relevant IDB attributes
-.proc.getattributes:{`partition`tables!(.idb.currentpartition;tables[])};
+.proc.getattributes:{`partition`tables!(enlist .idb.currentpartition;tables[])};
 
 .idb.init[];
 

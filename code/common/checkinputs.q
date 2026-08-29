@@ -226,3 +226,5 @@ checkpostback:{[dict;parameter]
 checktimeout:{[dict;parameter]
     checktype[-16h;dict;parameter];
     :dict};
+
+checkprocs:{[dict;parameter]:.checkinputs.checktype[-11 11h;dict;parameter];};
