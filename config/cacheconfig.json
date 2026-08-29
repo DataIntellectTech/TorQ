@@ -1,0 +1,21 @@
+{ 
+    "cacheRootDir": "/opt/anycache/",
+    "componentCaches":{ 
+        "cache1": { 
+            "analytic": "analytic1", 
+            "dataSource": "connection1" 
+        }, 
+        "cache2": { 
+            "analytic": "analytic2", 
+            "dataSource": "connection2" 
+        } 
+    }, 
+   "getter":{ 
+    "interval": "0D00:05"
+   },
+   "setter":{ 
+    "mode": "timer", 
+    "interval": "0D00:30", 
+    "compression": "16 3 0"
+   }
+} 
