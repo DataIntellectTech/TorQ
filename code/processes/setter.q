@@ -52,7 +52,7 @@ detectcachetobuild:{
     :`cachename`newcache!(cachewithmaxstarttime;0b)}[]
 
     if[latestcache[`newcache];writetoken[latestcache[`cachename];`start]]
-    if[latestcache[`newcache]; cachewithmaxstarttime:` sv maincachepath,latestcache[`cachename]]
+    if[latestcache[`newcache]; cachewithmaxstarttime:` sv maincachepath,`$latestcache[`cachename]]
 
     componentcaches:` sv' cachewithmaxstarttime,/:key .setter.cacheconfig.componentCaches
     incompletecomponentcaches:key[d2] where not `end in/: value d2:componentcaches!key each componentcaches
