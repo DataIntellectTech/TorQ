@@ -1,15 +1,15 @@
 { 
-    "cacherootdir": "opt/anycache",
+    "cacherootdir": "/home/user/torq/opt/anycache",
     "cachename": "myfirstcache",
     "asyncprocessname": "asynccache",
     "componentcaches":{ 
         "cache1": { 
             "analytic": "analytic1", 
-            "dataSource": "connection1" 
+            "datasource": "connection1" 
         }, 
         "cache2": { 
             "analytic": "analytic2", 
-            "dataSource": "connection2" 
+            "datasource": "connection2" 
         } 
     }, 
    "getter":{ 
