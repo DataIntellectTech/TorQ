@@ -12,6 +12,11 @@ setter.cacheconfig:.j.k raze read0 hsym first setter.cacheconfiglocation;
 // Mode of cache
 setter.isrequest: "request" ~ setter.cacheconfig.setter.mode;
 
+setter.init:{
+    // Register timers
+    setter.registertimers[];
+ };
+
 setter.detectandwritecache:{ 
     cacheinfo:setter.detectcachetobuild[];
     if[not count cacheinfo;
@@ -43,11 +48,11 @@ setter.detectcachetobuild:{
     asyncprocessname: setter.cacheconfig`asyncprocessname;
     maincachepath:` sv (hsym `$setter.cacheconfig.cacherootdir),`$cachename;
     caches:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like cachename,"_*";
-    if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1] where not `end in/: value d1:caches!key each caches];
+    if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches]];
 
     latestcache:{[caches;cachename;cachewithmaxstarttime]
     if[0 = count caches; :`cachename`newcache!(cachename,"_",string .z.P;1b)];
-    if[(not setter.isrequest) and ("N"$setter.cacheconfig.setter.interval) < .z.P - "P"$@[last "_" vs string cachewithmaxstarttime;13 16 19;:;"::."];:`cachename`newcache!(cachename,"_",string .z.P;1b)];
+    if[(not setter.isrequest) and (("N"$setter.cacheconfig.setter.interval) - 0D00:00:03) < .z.P - "P"$@[last "_" vs string cachewithmaxstarttime;13 16 19;:;"::."];:`cachename`newcache!(cachename,"_",string .z.P;1b)];
     :`cachename`newcache!(cachewithmaxstarttime;0b)}[caches;cachename;cachewithmaxstarttime];
 
     if[latestcache[`newcache]; setter.writetoken[` sv maincachepath,`$latestcache[`cachename];`start]];
@@ -89,5 +94,11 @@ setter.completecache:{[maincachepath]
     if[not setter.isrequest; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
     if[not setter.isrequest; dir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]}; nuke: hdel each desc dir@; nuke each ` sv' maincachepath,'(key maincachepath) except (`$cachename;`$latestcache)]
  };
+
+setter.registertimers:{
+    .timer.repeat[.proc.cp[];0D02:00 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer for two hours"];
+ };
+
+setter.init[];
 
 \d .
