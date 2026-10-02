@@ -22,7 +22,8 @@ export KDBHDB=${TORQDATA}/hdb
 export KDBWDB=${TORQDATA}/wdbhdb
 export KDBTPLOG=${TORQDATA}/tplogs
 
-export KDBBASEPORT=6000                                                                             # set KDBBASEPORT to the default value for a TorQ Installation
+export KDBBASEPORT=8888
+export KDBX="/opt/kdbx/5.0/2026.07.23/bin/q"                                                                          # set KDBBASEPORT to the default value for a TorQ Installation
 export KDBSTACKID="-stackid ${KDBBASEPORT}"
 export TORQPROCESSES=${KDBAPPCONFIG}/process.csv                                                    # set TORQPROCESSES to the default process csv
 
