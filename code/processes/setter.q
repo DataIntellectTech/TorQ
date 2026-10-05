@@ -73,10 +73,10 @@ setter.detectcachetobuild:{
 
 setter.generateandwritecache:{[cachepath; args] 
     cachename:last ` vs cachepath;
-    connectiondetails: setter.cacheconfig.componentcaches[cachename].datasource;
-    cache: connectiondetails".anycache.sampleanalytic[(::)]";
+    // connectiondetails: setter.cacheconfig.componentcaches[cachename].datasource;
+    // cache: connectiondetails".anycache.sampleanalytic[(::)]";
     // Mock data
-    // cache:`a`b`c!(1 2 3; (`d`e!4 5); 6);
+    cache:`a`b`c!(1 2 3; (`d`e!4 5); 6);
     .anymap.writetoanymap[` sv cachepath,`data;cache];
     :1b
  };
