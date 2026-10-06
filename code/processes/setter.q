@@ -51,7 +51,7 @@ setter.detectcachetobuild:{
     if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches]];
 
     latestcache:{[caches;cachename;cachewithmaxstarttime]
-    if[0 = count caches; :`cachename`newcache!(cachename,"_",string .z.P;1b)];
+    if[(0 = count caches) or (setter.isrequest); :`cachename`newcache!(cachename,"_",string .z.P;1b)];
     if[(not setter.isrequest) and (("N"$setter.cacheconfig.setter.interval) - 0D00:00:03) < .z.P - "P"$@[last "_" vs string cachewithmaxstarttime;13 16 19;:;"::."];:`cachename`newcache!(cachename,"_",string .z.P;1b)];
     :`cachename`newcache!(cachewithmaxstarttime;0b)}[caches;cachename;cachewithmaxstarttime];
 
