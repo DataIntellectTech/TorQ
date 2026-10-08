@@ -71,7 +71,10 @@ run:{[]
 \d .
 
 // Extend CONNECTIONS to include our target
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,`.myproc.targetproctype
+// append the VALUE of the config var (a backtick here would append the literal symbol `.myproc.targetproctype)
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.myproc.targetproctype
+// torq.q only runs .servers.startup[] if .servers.STARTUP is 1b (default 0b) - a new proctype must start it itself
+.servers.startup[]
 
 // Register timer
 if[@[value;`.timer.enabled;0b];
@@ -94,7 +97,7 @@ if[@[value;`.timer.enabled;0b];
 // Config (all overridable)
 targettp:@[value;`targettp;`tickerplant]
 publishinterval:@[value;`publishinterval;0D00:00:01]
-tables:@[value;`tables;`trade`quote]
+tablelist:@[value;`tablelist;`trade`quote]   // not `tables` - that shadows the q keyword
 
 // Track TP handle
 tph:`int$()
@@ -123,7 +126,8 @@ publishquote:{[]
 \d .
 
 // Set CONNECTIONS
-.servers.CONNECTIONS:distinct .servers.CONNECTIONS,`.feed.targettp
+.servers.CONNECTIONS:distinct .servers.CONNECTIONS,.feed.targettp
+.servers.startup[]
 
 // Register timers
 if[@[value;`.timer.enabled;0b];
@@ -181,27 +185,25 @@ upd:{[t;x]
 \d .wdb
 mode:`saveandsort              // saveandsort | save | sort
 writedownmode:`default         // default | partbyattr | partbyenum | partbyfirstchar
-maxrows:enlist[`]!enlist 500000  // default max rows before writedown (per table)
-// or per-table:
-// maxrows:`trade`quote!200000 100000
+numrows:500000                 // default max rows before writedown
+numtab:`trade`quote!200000 100000  // per-table overrides (.wdb.maxrows is a function over these)
 settimer:0D00:00:30            // check row counts every 30s
 gc:1b                          // GC after each save
 eodwaittime:0D00:00:30         // wait 30s for reload callbacks at EOD
 reloadorder:`hdb`rdb           // reload HDBs first, then RDBs
 \d .
 
-// Sort configuration (sort.csv)
-// Format: tablename,att,sortKey1,sortKey2,...
-// trade,p,sym,time      ← parted attribute on sym, sorted by sym then time
-// quote,p,sym,time      ← parted attribute on sym, sorted by sym then time
+// Sort configuration (sort.csv): one row per column - see "sort.csv Format" below
 ```
 
 ---
 
 ## Gateway Extension Template
 
+**Caution:** `gateway.q` assigns `.servers.addprocscustom` outright (`gateway.q:543`, body: `.servers.retry[]`, `addserversfromconnectiontable`, `runnextquery[]`) and wraps `.servers.connectcustom` itself (`gateway.q:603-606`). A definition in `appconfig/settings/gateway.q` is therefore overwritten (addprocscustom) or wrapped twice (connectcustom). Override these only from code that loads **after** `gateway.q`, and keep all of the default steps. The `.gw.*` settings below are safe in settings files.
+
 ```q
-// Gateway extension (put in appconfig/settings/gateway.q or code/gateway/)
+// Gateway extension (settings: appconfig/settings/gateway.q; hook overrides: code loaded after gateway.q)
 
 // Allow sync calls (disabled by default)
 .gw.synccallsallowed:1b
@@ -211,9 +213,10 @@ reloadorder:`hdb`rdb           // reload HDBs first, then RDBs
 
 // Extend server connection hook: called when new processes register
 .servers.addprocscustom:{[connectiontab;procs]
-  // Call default behaviour
-  .gw.runnextquery[];
+  // Call default behaviour (same steps and order as gateway.q:543)
+  .servers.retry[];
   .gw.addserversfromconnectiontable[.servers.CONNECTIONS];
+  .gw.runnextquery[];
   // Custom: log new process registration
   .lg.o[`addprocs;"new processes registered: "," " sv string exec procname from connectiontab];
   }
@@ -328,17 +331,22 @@ Rules:
 
 ## sort.csv Format
 
+One row per column (`config/sort.csv`; parsed as `("SSSB";enlist",")0:` in `dbwriteutils.q:20`):
+
 ```csv
-tablename,att,sortKey1,sortKey2,...
-trade,p,sym,time
-quote,p,sym,time
+tabname,att,column,sort
+default,p,sym,1
+default,,time,1
+trade,p,sym,1
+trade,,time,1
 ```
 
 | Column | Description |
 |---|---|
-| `tablename` | Table to configure |
-| `att` | Attribute to apply to sort key 1: `p`=parted, `g`=grouped, `u`=unique, `s`=sorted |
-| `sortKey1...N` | Columns to sort by (in order) |
+| `tabname` | Table name; `default` applies to tables without their own rows |
+| `att` | Attribute for this column: `p`=parted, `g`=grouped, `u`=unique, `s`=sorted, empty=none |
+| `column` | Column name |
+| `sort` | `1` = sort on this column (in row order), `0` = don't |
 
 ---
 

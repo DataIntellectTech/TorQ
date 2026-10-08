@@ -32,15 +32,15 @@ These two principles are not duplicated by the specific rules below — everythi
 
 - **Rule C1**: Every config variable must use the guard pattern: `myvar:@[value;\`myvar;default]`. This allows override from config files and command line. (`torq.q`)
 - **Rule C2**: Config layering order (each layer overrides previous): `$KDBCONFIG/settings/default.q` → `$KDBSERVCONFIG/settings/default.q` → `$KDBAPPCONFIG/settings/default.q` → then each does `parentproctype.q` → `proctype.q` → `procname.q`. (`torq.q`)
-- **Rule C3**: Any namespaced variable (`.ns.var`) can be overridden from the command line: `-ns.var value`. (`gettingstarted.md`)
+- **Rule C3**: Any namespaced variable can be overridden from the command line with a leading dash and the full dotted name: `-.ns.var value`. Only variables that already exist with a basic type are overridden, and the value is cast to that type. (`torq.q` `overrideconfig`)
 - **Rule C4**: Never define config without a guard; if it is set before the config file loads it will be silently overwritten.
 - **Rule C5**: The guard `@[value;\`myvar;default]` inside `\d .ns` resolves `.ns.myvar`, not root `.myvar`. To pre-set a config variable before loading (e.g. in tests or startup scripts), set the fully-qualified name: `.ns.myvar:value` — setting a root-level `myvar` will be ignored.
 
 ## Logging
 
 - **Rule L1**: Standard output: `.lg.o[\`label;"message"]`. Error: `.lg.e[\`label;"message"]`. Warning: `.lg.w[\`label;"message"]`. (`torq.q`)
-- **Rule L2**: `.lg.o` writes to stdout log (`out_` file). `.lg.e` writes to stderr log (`err_` file). Both write to in-memory `logmsg` table and publish via `.ps` if pubsub is active. (`torq.q`)
-- **Rule L3**: Extend logging with `.lg.ext:{[loglevel;procname;label;msg] ...}` hook — this fires on every log call. (`torq-patterns.md`)
+- **Rule L2**: `.lg.o` (and `.lg.w`) write to stdout (`out_` file); `.lg.e` writes to stderr (`err_` file) (`.lg.outmap`). Only levels with `.lg.pubmap` set (WARN/ERR, not INF) are published to `logmsg` via `.ps`; the local `logmsg` table is only filled on the monitor process. (`torq.q:199-220`)
+- **Rule L3**: Extend logging with the `.lg.ext:{[loglevel;proctype;proc;id;message;dict] ...}` hook — this fires on every log call. (`torq.q:246`)
 - **Rule L4**: Use `-jsonlogs` flag to switch log format to JSON (`.lg.format` is set by `torq.q` on startup).
 
 ## Message Handlers
@@ -53,7 +53,7 @@ These two principles are not duplicated by the specific rules below — everythi
 ## Timers
 
 - **Rule T1**: Repeating timer: `.timer.repeat[starttime;endtime;period;func;"description"]`. One-shot: `.timer.once[firetime;func;"description"]`. (`torq-patterns.md`)
-- **Rule T2**: Timer modes — 0: reschedule at `T0+P` (fixed rate); 1: reschedule at `T1+P` (from fire time); 2: reschedule at `T2+P` (from completion). (`utilities.md`)
+- **Rule T2**: Timer modes — 0: reschedule at `T0+P` (fixed rate); 1: reschedule at `T1+P` (from fire time); 2: reschedule at `T2+P` (from completion). `.timer.repeat` takes exactly 5 args and uses `.timer.nextscheduledefault` (default 2); for a per-timer mode call `.timer.rep[start;end;period;funcparam;mode;descrip;dupcheck]`. (`timer.q:7-47`)
 - **Rule T3**: A timer function that throws an error is removed from the timer (active set to 0b). Always wrap error-prone timer functions. (`.timer.timer` table, `cheatsheet.md`)
 - **Rule T4**: Check timer is enabled: `if[not .timer.enabled; .lg.e[...]]` before registering timers. (`rdb.q:39`)
 
@@ -75,7 +75,7 @@ These two principles are not duplicated by the specific rules below — everythi
 
 ## Connection Management
 
-- **Rule M1**: Declare which process types to connect to: `.servers.CONNECTIONS:\`rdb\`hdb\`gateway` (source: `trackservers.q:13`). Then call `.servers.startup[]` explicitly at the end of the load file — TorQ does NOT call this automatically; every process is responsible for calling it itself. The RDB/WDB call it inside their own startup functions. (`rdb.q:211`, `gateway.q:532`, `filealerter.q:191`)
+- **Rule M1**: Declare which process types to connect to: `.servers.CONNECTIONS:\`rdb\`hdb\`gateway` (source: `trackservers.q:13`). Then make sure `.servers.startup[]` runs: `torq.q` calls it only when `.servers.STARTUP` is `1b` (default `0b`, `torq.q:673`). The rdb/wdb/hdb/idb/sort/sortworker/chainedtp settings set it; gateway, discovery, filealerter, monitor, kill and reporter call `.servers.startup[]` themselves (`gateway.q:532`, `filealerter.q:191`). A new process type must do one or the other.
 - **Rule M2**: Get handles: `.servers.getservers[\`proctype;\`hdb;()!();1b;0b]` returns a table with `w` (handle), `procname`, `proctype`, `hpup`, `attributes`, `attribmatch`. (`trackservers.q:75-89`)
 - **Rule M3**: Shortcut: `.servers.gethandlebytype[\`hdb;\`roundrobin]` returns a single handle using `roundrobin`, `any`, or `last` selection. (`trackservers.q:106`)
 - **Rule M4**: `.servers.SERVERS` table columns: `procname`, `proctype`, `hpup`, `w` (handle int), `hits` (int), `startp` (timestamp), `lastp` (timestamp), `endp` (timestamp), `attributes` (dict). (`trackservers.q:10`)
@@ -160,7 +160,7 @@ Tasks:
    - Entry function that only logs (e.g. `run:{[] .lg.o[\`run;"stub"]}`) — no real work
    - Return to root: `\d .`
    - Root-level `upd` if the process subscribes (Rule S3)
-3. **Connections** — `.servers.CONNECTIONS:\`typeA\`typeB\`…` listing every downstream proctype (Rule M1). Call `.servers.startup[]` at end of file.
+3. **Connections** — `.servers.CONNECTIONS:\`typeA\`typeB\`…` listing every downstream proctype (Rule M1). Set `.servers.STARTUP:1b` in the process settings, or call `.servers.startup[]` at end of file.
 4. **Credentials** — create `$KDBAPPCONFIG/passwords/{proctype}.txt` AND append the user to the `U` access list of every process this one will connect to (checklist item 17).
 5. **Register** — add a row to `$KDBAPPCONFIG/process.csv` (column format in `torq-process-templates.md`).
 6. **Subscribe (if applicable)** — block until the TP is up with `.servers.startupdepcycles`, then call `.sub.subscribe` with the proc dict from `.sub.getsubscriptionhandles` (Rule P1).
@@ -237,7 +237,7 @@ select from .usage.usage where time within (start;end)
 | `'timeout` | `hopen` timeout (`.servers.HOPENTIMEOUT`); or query timeout (`-T`) |
 | `'access` | Auth failure or `.access` restrictions; check `.z.pw` / access list |
 | `'stack` | Recursion too deep; replace with iterators |
-| `'globals` | Too many global variables in function (max 8 params) |
+| `'params` | More than 8 parameters in a function; pass a dictionary |
 | `'assign` | Attempt to modify a constant or read-only table |
 
 ## Debugging Workflow
@@ -266,9 +266,9 @@ When a table is not populating and there are no obvious errors, work from the da
 
 2. **Call `upd` directly** — every subscriber has a root-level `upd` (or equivalent function). Call it manually with a representative row and check whether the downstream state updates as expected.
 
-4. **Trace logic line by line** — copy the body of the suspect function into the q session and run each statement in isolation using real values from the live state. Check intermediate results: empty tables after a filter, null handles, and wrong timestamps all become obvious immediately without needing to reason about the surrounding framework.
+3. **Trace logic line by line** — copy the body of the suspect function into the q session and run each statement in isolation using real values from the live state. Check intermediate results: empty tables after a filter, null handles, and wrong timestamps all become obvious immediately without needing to reason about the surrounding framework.
 
-5. **Check the plumbing last** — only if data exists upstream, `upd` works with test input, and the logic is sound should you look at the subscription layer: `.u.w` on the TP, `.servers.SERVERS` on the subscriber, recent errors in `.usage.usage`.
+4. **Check the plumbing last** — only if data exists upstream, `upd` works with test input, and the logic is sound should you look at the subscription layer: `.u.w` on the TP, `.servers.SERVERS` on the subscriber, recent errors in `.usage.usage`.
 
 ## localtime vs Data Timestamps
 
