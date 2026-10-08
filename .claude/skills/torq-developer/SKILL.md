@@ -23,7 +23,7 @@ These two principles are not duplicated by the specific rules below — everythi
 
 ## Namespace and Structure
 
-- **Rule N1**: All process-specific code lives in a dedicated namespace, written with **fully qualified names** — `.myproc.run:{...}`, `.myproc.pollinterval:...`. Do not use `\d .myproc` / `\d .` to switch namespace. Qualify every reference inside function bodies too (`.myproc.pollinterval`, not `pollinterval`): without `\d`, a bare name resolves to root. Assigning a dotted name inside a function (`.myproc.h:...`) sets the global directly, so no `::` is needed. Only names that other processes call by name stay at root: `upd`, `endofday`, `reload`. (Existing TorQ framework code still uses `\d`; this rule applies to new code.)
+- **Rule N1**: All process-specific code lives in a dedicated namespace, written with **fully qualified names** — `.myproc.run:{...}`, `.myproc.pollinterval:...`. Do not use `\d .myproc` / `\d .` to switch namespace. Qualify every reference inside function bodies too (`.myproc.pollinterval`, not `pollinterval`): without `\d`, a bare name resolves to root. Assigning a dotted name inside a function (`.myproc.h:...`) sets the global directly, so no `::` is needed. Only names that other processes call by name stay at root: `upd`, `endofday`, `reload`. (Existing TorQ framework code still uses `\d`; this rule applies to modularised code.)
 - **Rule N2**: Use `.proc.proctype` and `.proc.procname` to identify the current process — never hardcode process identity. (`torq.q`)
 - **Rule N3**: The `parentproctype` flag loads shared code for a parent type before the child type. Use `-parentproctype wdb` for sort/sortworker processes that share wdb code. (FSP `process.csv`)
 - **Rule N4**: `.api.add` every public function with signature and description. (`gateway.q:596-601`)
@@ -119,7 +119,7 @@ These two principles are not duplicated by the specific rules below — everythi
 
 # CODE REVIEW CHECKLIST
 
-1. **Namespace discipline** — No `\d` namespace switches in new code; every global defined and referenced by its full `.ns.name` (including inside function bodies, guard symbols and timer/API symbols)? No accidental root-namespace pollution (only `upd`/`endofday`/`reload` at root)?
+1. **Namespace discipline** — No `\d` namespace switches in modularised code; every global defined and referenced by its full `.ns.name` (including inside function bodies, guard symbols and timer/API symbols)? No accidental root-namespace pollution (only `upd`/`endofday`/`reload` at root)?
 2. **Config guard pattern** — Every config variable uses `@[value;\`var;default]`?
 3. **No raw `hopen`** — All connections go through `.servers.*` functions?
 4. **`CONNECTIONS` completeness** — Every proctype passed to `.servers.gethandlebytype` or `.servers.getservers` is explicitly listed in `.servers.CONNECTIONS`? A missing entry silently produces `0Ni` handles at runtime with no error at definition time.
