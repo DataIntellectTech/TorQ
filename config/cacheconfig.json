@@ -1,0 +1,23 @@
+{ 
+    "cacherootdir": "/home/user/torq/opt/anycache",
+    "cachename": "myfirstcache",
+    "asyncprocessname": "asynccache",
+    "componentcaches":{ 
+        "cache1": { 
+            "analytic": "analytic1", 
+            "datasource": "rdb" 
+        }, 
+        "cache2": { 
+            "analytic": "analytic2", 
+            "datasource": "rdb" 
+        } 
+    }, 
+   "getter":{ 
+    "interval": "0D00:05"
+   },
+   "setter":{ 
+    "mode": "request", 
+    "interval": "0D00:01", 
+    "compression": "16 3 0"
+   }
+}
