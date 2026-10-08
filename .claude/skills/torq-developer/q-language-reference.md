@@ -450,6 +450,8 @@ q)0Np = 0Np    // 1b (same-type nulls compare equal; use null to test)
 
 ## 7. Namespace and Context Traps
 
+These traps describe how `\d` behaves when reading existing TorQ code. In new code, don't switch namespace; use fully qualified names (SKILL.md Rule N1), which avoids all of them.
+
 **Trap 1 — `\d` persists for rest of file:**
 ```q
 \d .myns
