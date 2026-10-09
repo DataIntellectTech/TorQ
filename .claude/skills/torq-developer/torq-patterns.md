@@ -8,7 +8,7 @@
 | `.lg` | `torq.q` | Logging: `.lg.o`/`.lg.e`/`.lg.w`, JSON log support, hook `.lg.ext` |
 | `.timer` | `timer.q` | Multiple function timer: `.timer.repeat`/`.timer.once`/`.timer.timer` |
 | `.hb` | `heartbeat.q` | Heartbeat publication and monitoring |
-| `.sub` | `pubsub.q` | Subscription: `.sub.subscribe`, `.sub.SUBSCRIPTIONS`, `.sub.getsubscriptionhandles` |
+| `.sub` | `subscriptions.q` | Subscription: `.sub.subscribe`, `.sub.SUBSCRIPTIONS`, `.sub.getsubscriptionhandles` |
 | `.ps` | `pubsub.q` | Publish/subscribe: `.ps.publish`, `.ps.subscribe`, `.ps.initialise` |
 | `.api` | `api.q` | Function documentation, search, memory usage |
 | `.dotz` | `dotz.q` | Handler management: `.dotz.set`, `.dotz.getcommand` |
@@ -17,25 +17,25 @@
 | `.access` | `controlaccess.q` | Access control: user whitelist, IP restriction, function restriction |
 | `.usage` | `logusage.q` | Query logging: `.usage.usage`, LEVEL config |
 | `.os` | `os.q` | OS utilities: `.os.sleep`, `.os.pth`, `.os.ren`, `.os.deldir` |
-| `.gc` | `gc.q` | Garbage collection wrapper: `.gc.run[]` |
-| `.loader` | `loader.q` | CSV/flat file loading utilities |
-| `.cache` | `cache.q` | Function result caching: `.cache.add`, `.cache.maxsize` |
+| `.gc` | `dbwriteutils.q` | Garbage collection wrapper: `.gc.run[]` |
+| `.loader` | `dataloader.q` | CSV/flat file loading utilities |
+| `.cache` | `cache.q` | Function result caching: `.cache.execute`, `.cache.maxsize` |
 | `.async` | `async.q` | Async helpers: `.async.deferred`, `.async.postback` |
-| `.cmp` | `compression.q` | Compression utilities |
+| `.cmp` | `compress.q` | Compression utilities |
 | `.email` | `email.q` | Email sending via C lib |
 | `.tz` | `timezone.q` | Timezone conversions: `.tz.lg`, `.tz.gl` |
 | `.eodtime` | `eodtime.q` | EOD roll time: `.eodtime.nextroll`, `.eodtime.dailyadj` |
-| `.ds` | `datasource.q` | Data source abstraction |
+| `.ds` | `pubsub.q` | Data striping for segmented tickerplants: `.ds.stripe` |
 | `.rdb` | `rdb.q` | RDB-specific: `endofday`, `reload`, `subscribe`, `writedown` |
 | `.wdb` | `wdb.q` | WDB-specific: `endofday`, `savetodisk`, modes, merge |
 | `.gw` | `gateway.q` | Gateway: `asyncexec`, `syncexec`, `asyncexecjpt`, `servers`, `queryqueue` |
-| `.pm` | `permissioning.q` | Permission management: `.pm.allowed` |
+| `.pm` | `handlers/permissions.q` | Permission management: `.pm.allowed` |
 | `.ldap` | `ldap.q` | LDAP authentication |
 | `.readonly` | `writeaccess.q` | Read-only mode |
 | `.zpsignore` | `zpsignore.q` | Async message pattern filtering |
-| `.mon` | `monitor.q` | Process monitoring |
+| `.mon` | `monitoringchecks.q` | Process monitoring |
 | `.save` | `dbwriteutils.q` | EOD hooks: `.save.postreplay`, `.save.savedownmanipulation`, `.save.manipulate` |
-| `.sort` | `sort.q` | Sort configuration from sort.csv: `.sort.sorttab`, `.sort.getsortcsv` |
+| `.sort` | `dbwriteutils.q` | Sort configuration from sort.csv: `.sort.sorttab`, `.sort.getsortcsv` |
 | `.merge` | `merge.q` | WDB merge operations for partbyattr modes |
 | `.finspace` | (FinSpace code) | AWS FinSpace integration flag: `.finspace.enabled` |
 
@@ -70,7 +70,7 @@ command line: -.ns.var value         ← overrides everything
 .lg.w[`label;"warning message"]     // WRN → out_ log file
 
 // Extend all logging (fires on every .lg.* call)
-.lg.ext:{[loglevel;procname;label;msg]
+.lg.ext:{[loglevel;proctype;proc;id;message;dict]
   // e.g. push to monitoring system, alert on ERR
   if[loglevel=`ERR; .email.send[...]]
   }
@@ -115,8 +115,9 @@ Available handlers (from `handlers.md`):
 // mode 0: reschedule at T0+P (fixed rate — can backlog if slow)
 // mode 1: reschedule at T1+P (from when it fired — can drift)
 // mode 2: reschedule at T2+P (from when it finished — safest for slow functions)
-.timer.repeat[starttime; endtime; period; func; "description"; mode]
-// mode defaults to 0 if omitted
+.timer.repeat[starttime; endtime; period; func; "description"]   // exactly 5 args
+// .timer.repeat uses .timer.nextscheduledefault (default 2); for a per-timer mode:
+.timer.rep[starttime; endtime; period; func; mode; "description"; 1b]   // last arg = dupcheck
 
 // One-shot timer
 .timer.once[firetime; func; "description"]
@@ -139,7 +140,7 @@ subinfo:.sub.subscribe[
   `;                 // syms (` = all)
   1b;                // retrieve schema?
   1b;                // replay log?
-  handle             // TP handle
+  first handles      // proc: a server record (dict) from .sub.getsubscriptionhandles, NOT a raw handle
   ]
 
 // Get subscription handles (for a process type)
@@ -207,7 +208,7 @@ neg[h] (`.gw.asyncexecjpt; query; `rdb; raze; `.myns.callback; 0Wn)
 // Declare connections at startup
 .servers.CONNECTIONS:`rdb`hdb`gateway
 
-// Then call startup (usually done automatically by TorQ)
+// Then call startup: torq.q only does this if .servers.STARTUP is 1b (default 0b)
 .servers.startup[]
 
 // Get all available HDB handles
@@ -229,7 +230,7 @@ tab:.servers.getservers[`proctype;`hdb;req;1b;0b]
 
 // Block until required processes are available
 .servers.startupdepcycles[`tickerplant; 10; 100]  // wait up to 100*10s=1000s
-.servers.startupdependent[`hdb]                   // wait forever
+.servers.startupdependent[`hdb;10]                // wait forever, retrying every 10s
 ```
 
 ---
@@ -260,10 +261,10 @@ tab:.servers.getservers[`proctype;`hdb;req;1b;0b]
 ## Caching
 
 ```q
-// Cache result of expensive function
-cachedresult:.cache.add[{expensivequery[]}; `mycachekey; `status]
+// Cache result of expensive function: reuse a cached result younger than age
+cachedresult:.cache.execute[(`.myns.expensivequery;arg); 0D00:01]
 
-// Config
+// Config (defaults: maxsize 100MB, maxindividual 50MB, capped at maxsize)
 .cache.maxsize:500000000      // max total cache size in bytes
 .cache.maxindividual:50000000 // max size of single cache entry
 ```
