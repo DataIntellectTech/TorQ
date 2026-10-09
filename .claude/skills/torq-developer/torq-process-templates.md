@@ -54,20 +54,22 @@ Source: TorQ-Finance-Starter-Pack `appconfig/process.csv`
 ```q
 // myproc.q — load via: q torq.q -load code/processes/myproc.q -proctype myproc -procname myproc1
 
-// Fully qualified names throughout - no \d (Rule N1)
+\d .myproc
 
 // Config with guard pattern (all overridable from config files or command line)
-.myproc.targetproctype:@[value;`.myproc.targetproctype;`hdb]
-.myproc.pollinterval:@[value;`.myproc.pollinterval;0D00:01]
-.myproc.query:@[value;`.myproc.query;"count select from trade"]
+targetproctype:@[value;`targetproctype;`hdb]
+pollinterval:@[value;`pollinterval;0D00:01]
+query:@[value;`query;"count select from trade"]
 
 // Main logic
-.myproc.run:{[]
-  h:first exec w from .servers.getservers[`proctype;.myproc.targetproctype;()!();1b;0b];
-  if[null h; .lg.w[`run;"no handle to ",string .myproc.targetproctype]; :()];
-  res:@[h;.myproc.query;{.lg.e[`run;"query failed: ",x]}];
+run:{[]
+  h:first exec w from .servers.getservers[`proctype;targetproctype;()!();1b;0b];
+  if[null h; .lg.w[`run;"no handle to ",string targetproctype]; :()];
+  res:@[h;query;{.lg.e[`run;"query failed: ",x]}];
   .lg.o[`run;"got ",string count res," rows"];
   }
+
+\d .
 
 // Extend CONNECTIONS to include our target
 // append the VALUE of the config var (a backtick here would append the literal symbol `.myproc.targetproctype)
@@ -91,36 +93,38 @@ if[@[value;`.timer.enabled;0b];
 // feedhandler.q
 // Start: q torq.q -load code/processes/feedhandler.q -proctype feed -procname feed1
 
-// Fully qualified names throughout - no \d (Rule N1)
+\d .feed
 
 // Config (all overridable)
-.feed.targettp:@[value;`.feed.targettp;`tickerplant]
-.feed.publishinterval:@[value;`.feed.publishinterval;0D00:00:01]
-.feed.tablelist:@[value;`.feed.tablelist;`trade`quote]   // not `tables` - that shadows the q keyword
+targettp:@[value;`targettp;`tickerplant]
+publishinterval:@[value;`publishinterval;0D00:00:01]
+tablelist:@[value;`tablelist;`trade`quote]   // not `tables` - that shadows the q keyword
 
 // Track TP handle
-.feed.tph:0Ni
+tph:0Ni
 
 // Connect to tickerplant
-.feed.gettph:{[]
-  .feed.tph:first exec w from .servers.getservers[`proctype;.feed.targettp;()!();1b;1b];
-  if[null .feed.tph; .lg.w[`gettph;"no tickerplant available"]];
-  .feed.tph}
+gettph:{[]
+  tph::first exec w from .servers.getservers[`proctype;targettp;()!();1b;1b];
+  if[null tph; .lg.w[`gettph;"no tickerplant available"]];
+  tph}
 
 // Publish data to TP
-.feed.publishtrade:{[]
-  if[null h:.feed.gettph[]; :()];
+publishtrade:{[]
+  if[null h:gettph[]; :()];
   data:(enlist .z.p; enlist `AAPL; enlist 150.5; enlist 100i; enlist 0b; enlist " "; enlist "N"; enlist `nasdaq);
   @[neg[h]; (`upd;`trade;flip `time`sym`price`size`stop`cond`ex`src!data); 
     {.lg.e[`publish;"failed to publish: ",x]}]
   }
 
-.feed.publishquote:{[]
-  if[null h:.feed.gettph[]; :()];
+publishquote:{[]
+  if[null h:gettph[]; :()];
   data:(enlist .z.p; enlist `AAPL; enlist 150.4; enlist 150.6; enlist 100; enlist 100; enlist " "; enlist "N"; enlist `nasdaq);
   @[neg[h]; (`upd;`quote;flip `time`sym`bid`ask`bsize`asize`mode`ex`src!data);
     {.lg.e[`publish;"failed to publish: ",x]}]
   }
+
+\d .
 
 // Set CONNECTIONS
 .servers.CONNECTIONS:distinct .servers.CONNECTIONS,.feed.targettp
@@ -142,10 +146,12 @@ if[@[value;`.timer.enabled;0b];
 
 // Override specific settings BEFORE rdb.q is loaded
 // (put this in appconfig/settings/myrdb.q)
-.rdb.ignorelist:`heartbeat`logmsg`myinternaltable   // add to ignore list
-.rdb.gc:1b                                           // enable GC at EOD
-.rdb.reloadenabled:1b                                // use WDB-managed reload
-.rdb.subscribeto:`trade`quote                        // only these tables
+\d .rdb
+ignorelist:`heartbeat`logmsg`myinternaltable   // add to ignore list
+gc:1b                                           // enable GC at EOD
+reloadenabled:1b                                // use WDB-managed reload
+subscribeto:`trade`quote                        // only these tables
+\d .
 
 // Post-subscribe hook: runs after subscription is set up
 // Put in code/myrdb/ directory or use .proc.addinitlist
@@ -177,14 +183,16 @@ upd:{[t;x]
 
 ```q
 // Settings for WDB (appconfig/settings/wdb.q or appconfig/settings/wdb1.q)
-.wdb.mode:`saveandsort              // saveandsort | save | sort
-.wdb.writedownmode:`default         // default | partbyattr | partbyenum | partbyfirstchar
-.wdb.numrows:500000                 // default max rows before writedown
-.wdb.numtab:`trade`quote!200000 100000  // per-table overrides (.wdb.maxrows is a function over these)
-.wdb.settimer:0D00:00:30            // check row counts every 30s
-.wdb.gc:1b                          // GC after each save
-.wdb.eodwaittime:0D00:00:30         // wait 30s for reload callbacks at EOD
-.wdb.reloadorder:`hdb`rdb           // reload HDBs first, then RDBs
+\d .wdb
+mode:`saveandsort              // saveandsort | save | sort
+writedownmode:`default         // default | partbyattr | partbyenum | partbyfirstchar
+numrows:500000                 // default max rows before writedown
+numtab:`trade`quote!200000 100000  // per-table overrides (.wdb.maxrows is a function over these)
+settimer:0D00:00:30            // check row counts every 30s
+gc:1b                          // GC after each save
+eodwaittime:0D00:00:30         // wait 30s for reload callbacks at EOD
+reloadorder:`hdb`rdb           // reload HDBs first, then RDBs
+\d .
 
 // Sort configuration (sort.csv): one row per column - see "sort.csv Format" below
 ```

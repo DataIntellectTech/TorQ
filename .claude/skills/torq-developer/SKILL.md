@@ -23,18 +23,18 @@ These two principles are not duplicated by the specific rules below — everythi
 
 ## Namespace and Structure
 
-- **Rule N1**: All process-specific code lives in a dedicated namespace, written with **fully qualified names** — `.myproc.run:{...}`, `.myproc.pollinterval:...`. Do not use `\d .myproc` / `\d .` to switch namespace. Qualify every reference inside function bodies too (`.myproc.pollinterval`, not `pollinterval`): without `\d`, a bare name resolves to root. Assigning a dotted name inside a function (`.myproc.h:...`) sets the global directly, so no `::` is needed. Only names that other processes call by name stay at root: `upd`, `endofday`, `reload`. (Existing TorQ framework code still uses `\d`; this rule applies to modularised code.)
+- **Rule N1**: All process-specific code lives in a dedicated namespace (e.g., `\d .myproc`). Return to root at end of file with `\d .`. (`torq.q` pattern) **Exception — code converted to a KDB-X module** (loaded with `use`): drop the namespace altogether. Remove the `\d` and every absolute `.myproc.` prefix (`.myproc.func` → `func`, in definitions and in references inside functions); the module runs in its own private namespace. Use `.z.m`/`.z.M` only for reserved names, functions called from q-sql, local/global clashes, or legacy APIs that need a symbol name. See the [KX module guide](https://code.kx.com/kdb-x/modules/module-framework/quickstart.html#converting-a-legacy-library-to-a-module).
 - **Rule N2**: Use `.proc.proctype` and `.proc.procname` to identify the current process — never hardcode process identity. (`torq.q`)
 - **Rule N3**: The `parentproctype` flag loads shared code for a parent type before the child type. Use `-parentproctype wdb` for sort/sortworker processes that share wdb code. (FSP `process.csv`)
 - **Rule N4**: `.api.add` every public function with signature and description. (`gateway.q:596-601`)
 
 ## Config Variables
 
-- **Rule C1**: Every config variable must use the guard pattern with its full name: `.myproc.myvar:@[value;\`.myproc.myvar;default]`. This allows override from config files and command line. (`torq.q`)
+- **Rule C1**: Every config variable must use the guard pattern: `myvar:@[value;\`myvar;default]`. This allows override from config files and command line. (`torq.q`)
 - **Rule C2**: Config layering order (each layer overrides previous): `$KDBCONFIG/settings/default.q` → `$KDBSERVCONFIG/settings/default.q` → `$KDBAPPCONFIG/settings/default.q` → then each does `parentproctype.q` → `proctype.q` → `procname.q`. (`torq.q`)
 - **Rule C3**: Any namespaced variable can be overridden from the command line with a leading dash and the full dotted name: `-.ns.var value`. Only variables that already exist with a basic type are overridden, and the value is cast to that type. (`torq.q` `overrideconfig`)
 - **Rule C4**: Never define config without a guard; if it is set before the config file loads it will be silently overwritten.
-- **Rule C5**: The symbol passed to `value` must be the full name (`\`.ns.myvar`). A bare `\`myvar` looks up root `myvar`, so a settings-file value for `.ns.myvar` would be silently ignored. Likewise, to pre-set a config variable before loading (e.g. in tests or startup scripts), set `.ns.myvar:value`; a root-level `myvar` is ignored.
+- **Rule C5**: The guard `@[value;\`myvar;default]` inside `\d .ns` resolves `.ns.myvar`, not root `.myvar`. To pre-set a config variable before loading (e.g. in tests or startup scripts), set the fully-qualified name: `.ns.myvar:value` — setting a root-level `myvar` will be ignored.
 
 ## Logging
 
@@ -119,7 +119,7 @@ These two principles are not duplicated by the specific rules below — everythi
 
 # CODE REVIEW CHECKLIST
 
-1. **Namespace discipline** — No `\d` namespace switches in modularised code; every global defined and referenced by its full `.ns.name` (including inside function bodies, guard symbols and timer/API symbols)? No accidental root-namespace pollution (only `upd`/`endofday`/`reload` at root)?
+1. **Namespace discipline** — Does all code use `\d .ns` / `\d .` correctly? No accidental root-namespace pollution?
 2. **Config guard pattern** — Every config variable uses `@[value;\`var;default]`?
 3. **No raw `hopen`** — All connections go through `.servers.*` functions?
 4. **`CONNECTIONS` completeness** — Every proctype passed to `.servers.gethandlebytype` or `.servers.getservers` is explicitly listed in `.servers.CONNECTIONS`? A missing entry silently produces `0Ni` handles at runtime with no error at definition time.
@@ -155,9 +155,10 @@ Tasks:
 
 1. **Schemas** — define any new published tables in the tickerplant's `-schemafile` (Rule S4). Unkeyed (Rule S7); `time` first, `sym` second with `` `g# `` (Rules S1, S2).
 2. **Skeleton** (`code/processes/myproc.q`):
-   - Fully qualified names throughout, no `\d` (Rule N1)
+   - Open namespace: `\d .myproc`
    - Config guards on every tunable (Rule C1)
-   - Entry function that only logs (e.g. `.myproc.run:{[] .lg.o[\`run;"stub"]}`) — no real work
+   - Entry function that only logs (e.g. `run:{[] .lg.o[\`run;"stub"]}`) — no real work
+   - Return to root: `\d .`
    - Root-level `upd` if the process subscribes (Rule S3)
 3. **Connections** — `.servers.CONNECTIONS:\`typeA\`typeB\`…` listing every downstream proctype (Rule M1). Set `.servers.STARTUP:1b` in the process settings, or call `.servers.startup[]` at end of file.
 4. **Credentials** — create `$KDBAPPCONFIG/passwords/{proctype}.txt` AND append the user to the `U` access list of every process this one will connect to (checklist item 17).
