@@ -14,7 +14,7 @@ setter.isrequest: "request" ~ setter.cacheconfig.setter.mode;
 
 setter.init:{
     // Register timers
-    setter.registertimers[];
+    if[not setter.isrequest; setter.registertimers[]];
  };
 
 setter.detectandwritecache:{ 
@@ -74,7 +74,7 @@ setter.detectcachetobuild:{
 setter.generateandwritecache:{[cachepath; args] 
     cachename:last ` vs cachepath;
     connectiondetails: `$ (setter.cacheconfig.componentcaches[cachename])`datasource;
-    querydetails: args`query;
+    $[setter.isrequest; querydetails: args`query; querydetails: "select by sym from trade"];
     .servers.startupdepcycles[connectiondetails;3;1];
     connection:.servers.gethandlebytype[connectiondetails;`any];
     cache: connection querydetails;
@@ -95,11 +95,11 @@ setter.completecache:{[maincachepath]
     latestcachefilepath: ` sv maincachepath,`$latestcache;
     setter.writetoken[latestcachefilepath;`end];
     if[not setter.isrequest; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
-    if[not setter.isrequest; dir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]}; nuke: hdel each desc dir@; nuke each ` sv' maincachepath,'(key maincachepath) except (`$cachename;`$latestcache)]
+    if[not setter.isrequest; dir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]}; nuke: hdel each desc dir@; nuke each ` sv' maincachepath,'{x where not x like "asynccache*"} (key maincachepath) except (`$cachename;`$latestcache)]
  };
 
 setter.registertimers:{
-    .timer.repeat[.proc.cp[];0D02:00 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer for two hours"];
+    .timer.repeat[.proc.cp[];0D01:00 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer"];
  };
 
 setter.init[];
