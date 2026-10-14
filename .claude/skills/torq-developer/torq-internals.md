@@ -37,12 +37,12 @@ torq.q begins by entering `\d .proc` and defining:
 .lg.outmap  — dict of log level → output handle (default: 1 for stdout)
 .lg.pubmap  — dict of log level → whether to publish via .ps
 .lg.format  — log line formatter (plain or JSON depending on -jsonlogs)
-.lg.publish — publishes to logmsg table via .ps.publish if pubsub active
+.lg.publish — publishes to logmsg via .ps.publish, only for levels in .lg.pubmap (WARN/ERR)
 .lg.l       — low-level log function
 .lg.o       — info (INF) log
 .lg.e       — error (ERR) log  
 .lg.w       — warning (WRN) log
-.lg.ext     — empty hook; override to extend all logging
+.lg.ext     — empty hook {[loglevel;proctype;proc;id;message;dict]}; override to extend all logging
 ```
 
 ### Stage 3: Environment Variable Substitution
@@ -56,11 +56,11 @@ Reads `process.csv` via `readprocfile`. Identifies itself by matching `host` + `
 ### Stage 5: Log File Redirection
 
 stdout and stderr redirected to timestamped files in `$KDBLOGS`:
-- `out_{proctype}_{procname}_{timestamp}.log`
-- `err_{proctype}_{procname}_{timestamp}.log`
-- `usage_{proctype}_{procname}_{timestamp}.log`
+- `out_{procname}_{timestamp}.log`
+- `err_{procname}_{timestamp}.log`
+- `usage_{procname}_{timestamp}.log`
 
-Aliases created without timestamp suffix (unless `-noredirectalias`).
+Symlinks `out_{procname}.log` / `err_{procname}.log` are created without the timestamp (unless `-suppressalias`; the usage text says `-noredirectalias`, but the code checks `suppressalias`, `torq.q:497`).
 
 ### Stage 6: Config Loading
 
@@ -74,19 +74,18 @@ Files that don't exist are silently skipped.
 
 ### Stage 7: Code Loading
 
-`reloadallcode` function iterates code roots (`KDBCODE`, `KDBSERVCODE`, `KDBAPPCODE`) and for each loads:
+Code loads level by level, each level across the code roots (`KDBCODE`, `KDBSERVCODE`, `KDBAPPCODE`) (`torq.q:572, 640-654`):
 1. `common/` — shared utilities
 2. `{parentproctype}/` — parent type code
 3. `{proctype}/` — process type specific code
-4. `{procname}/` — process name specific code
-5. `handlers/` — message handler customisations
+4. `{procname}/` — process name specific code (only if `.proc.loadnamecode`, default `0b`)
 
-Then loads any `-load` / `-loaddir` files specified on command line.
+Then `-loaddir` directories, then `handlers/` (unless `.proc.loadhandlers:0b`), then `-load` files.
 
 ### Stage 8: Pubsub and Servers Initialisation
 
 1. `.ps.initialise[]` — initialise publish/subscribe system
-2. `.servers.startup[]` — read process.csv, connect to discovery, make initial connections
+2. `.servers.startup[]` — read process.csv, connect to discovery, make initial connections. **Only if `.servers.STARTUP` is `1b`** (default `0b`; `torq.q:673`). Processes whose settings don't set it must call `.servers.startup[]` themselves.
 
 ### Stage 9: Init Callbacks and Finalisation
 

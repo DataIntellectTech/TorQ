@@ -183,7 +183,7 @@ Source: https://code.kx.com/q/kb/http/
 // .j.j on a table gives [{"col1":val,...}, ...]
 // Timestamps become strings: .j.j 2024.01.01D00:00:00 → "2024-01-01T00:00:00.000000000"
 // Nulls: .j.j 0N → "null" ; .j.j 0n → "null"
-// Long vs float: .j.j 42 → "42" ; .j.j 42.0 → "42.0"
+// Long vs float: .j.j 42 → "42" ; .j.j 42.0 → "42" (float type is lost)
 ```
 
 ### JSON Edge Cases
@@ -241,6 +241,8 @@ Source: https://code.kx.com/q/kb/websockets/
 
 ### Server-Side WebSocket Handler
 
+Plain-kdb+ examples. In a TorQ process, install handlers with `.dotz.set` and wrap the existing one (Rule H1/H2) rather than assigning `.z.ws`/`.z.wo`/`.z.wc`/`.z.ph`/`.z.pp` directly.
+
 ```q
 // Start q with port: q myfile.q -p 5000
 
@@ -265,9 +267,9 @@ Source: https://code.kx.com/q/kb/websockets/
     req[`type]~"query";
     // execute query and return result
     [result:@[value;req`query;{`error`msg!(`error;x)}];
-     neg[.z.w] -8! .j.j result];  // -8! = serialize to bytes for WS
+     neg[.z.w] .j.j result];      // JSON text frame: send the string itself
     // unknown
-    neg[.z.w] -8! .j.j `error`msg!(`unknown;"unknown message type")
+    neg[.z.w] .j.j `error`msg!(`unknown;"unknown message type")
     ]
   }
 
@@ -275,7 +277,7 @@ Source: https://code.kx.com/q/kb/websockets/
 pubws:{[table;data]
   subs:select handle from wssubs where table in tables;
   msg:.j.j (`type`table`data!(`update;table;data));
-  (neg each exec handle from subs) @\: -8! msg;
+  (neg each exec handle from subs) @\: msg;
   }
 ```
 
@@ -283,11 +285,11 @@ pubws:{[table;data]
 
 ```q
 // Messages arrive as:
-// - byte vectors (-8h type): serialized kdb+ (use -9! to deserialize)
+// - byte vectors (4h type): serialized kdb+ (use -9! to deserialize)
 // - char vectors (10h type): text/JSON (use .j.k to parse)
 
 .z.ws:{[x]
-  msg:$[-8h=type x; -9!x; .j.k x];  // handle both formats
+  msg:$[4h=type x; -9!x; .j.k x];   // handle both formats
   ...
   }
 ```

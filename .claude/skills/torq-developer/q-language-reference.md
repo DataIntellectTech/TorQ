@@ -63,11 +63,13 @@ q)type (1;2.0)   // 0h  (mixed: int and float don't auto-promote in parens)
 0h
 ```
 
-**Trap 4 — Char vector vs list of chars:**
+**Trap 4 — Char vector vs list of strings:**
 ```q
-q)type "abc"         // 10h (string = char vector)
+q)type "abc"             // 10h (string = char vector)
 10h
-q)type ("a";"b";"c") // 0h  (generic list of chars, NOT a string)
+q)type ("a";"b";"c")     // 10h — a list of char atoms collapses to a string
+10h
+q)type ("ab";"cd")       // 0h  (list of strings)
 0h
 ```
 
@@ -86,11 +88,13 @@ An enumerated column has type 20h-76h (depends on which domain). After loading f
 
 **Trap 7 — Null comparisons:**
 ```q
-q)0N = 0N    // 0b! (null != null in q, unlike SQL IS NULL)
-0b
-q)null 0N    // 1b  (use null function)
+q)0N = 0N    // 1b — unlike SQL, same-type nulls compare equal
 1b
-q)null each (0N;1;0Ni;0n)  // 1010b
+q)0N < 5     // 1b — nulls sort lowest, so `where x<5` also returns nulls
+1b
+q)null 0N    // 1b  (use null to test explicitly)
+1b
+q)null each (0N;1;0Ni;0n)  // 1011b
 ```
 
 ### Casting
@@ -100,16 +104,17 @@ q)null each (0N;1;0Ni;0n)  // 1010b
 `float$42       // 42f
 `long$42h       // 42
 
-// Downcast (truncates, may overflow)
-`int$2147483648 // 0Ni (overflow wraps to null!)
-`short$40000    // 0Nh (overflow)
+// Narrowing casts (KDB-X 5.0 saturates to infinity; check behaviour on your version)
+`int$2147483648 // 0Wi
+`short$40000    // 0Wh
+`long$3.7       // 4 (float to integral rounds, it does not truncate)
 
 // String to symbol
 `$"hello"       // `hello
 
-// Type code cast
-9h$3            // 3f  (cast using type code)
--7h$3.7         // 3   (truncates)
+// Type code cast (positive type codes only; -7h$3.7 signals 'type)
+9h$3            // 3f
+7h$3.7          // 4
 
 // Date arithmetic: dates are ints from 2000.01.01
 `int$2000.01.01  // 0
@@ -156,7 +161,7 @@ q)0 +/ 1 2 3 4 5   // 15
 q)(+/) 1 2 3 4 5   // 15 (same, unary projection)
 
 // Scan (all intermediate results)
-q)0 +\ 1 2 3 4 5   // 0 1 3 6 10 15
+q)0 +\ 1 2 3 4 5   // 1 3 6 10 15 (the seed is not included)
 q)(+\) 1 2 3 4 5   // 1 3 6 10 15  (no seed — starts from first element)
 
 // Convergence form (iterate until stable)
@@ -165,8 +170,8 @@ q){x*x}/ 0.5       // 0 (converges to 0)
 // N-times form
 q)2 {x*2}/ 1       // 4 (apply 2 times: 1→2→4)
 
-// Until condition form
-q){x<1000} {x*2}/ 1  // 1024 (apply while condition is false)
+// While form: apply while the condition is true
+q){x<1000} {x*2}/ 1  // 1024
 ```
 
 **Trap — over with seed vs without:**
@@ -176,10 +181,11 @@ q)0 +/ 1 2 3   // 6  (explicit seed)
 q)1 +/ 1 2 3   // 7  (seed=1, result is 1+1+2+3=7)
 ```
 
-**Trap — scan returns INCLUDING seed:**
+**Trap — scan does NOT include the seed:**
 ```q
-q)0 +\ 1 2 3   // 0 1 3 6  (includes seed 0)
-q)(+\) 1 2 3   // 1 3 6    (no seed, starts accumulation from element 1)
+q)0 +\ 1 2 3   // 1 3 6
+q)1 +\ 1 2 3   // 2 4 7
+q)(+\) 1 2 3   // 1 3 6
 ```
 
 ### Each-Prior (`':`)
@@ -196,11 +202,11 @@ q)1 -': 1 3 6 10   // 0 2 3 4  (explicit prior seed of 1)
 q){system"sleep 1";x} peach 1 2 3 4  // runs in parallel on 4 threads
 ```
 
-**Trap — peach shares nothing, beware global state:**
+**Trap — peach cannot write globals:**
 ```q
-// Global modification in peach workers is not thread-safe
-// Each worker has a copy of the process state at fork time
-// Results are merged back; side effects on globals are lost
+// Secondary threads (-s N) can read globals but not set them
+q){g::x} peach 1 2      // 'noupdate
+// Return values instead and assign in the main thread
 ```
 
 ---
@@ -259,7 +265,7 @@ neg[h] "invalid_expression"  // no error raised in caller process
 ```q
 -8! x   // serialize (convert to bytes)
 -9! x   // deserialize (bytes to q value)
-// Use for WebSocket JSON frames or file persistence
+// For binary (kdb+ IPC) frames; JSON over WebSockets is sent as a plain string
 ```
 
 ---
@@ -270,8 +276,8 @@ neg[h] "invalid_expression"  // no error raised in caller process
 
 ```q
 // Two-arg trap: function and error handler
-@[f; x; handler]              // equivalent to: @[f[x]; handler]
-.[f; (x;y); handler]          // binary trap (multiarg)
+@[f; x; handler]              // unary trap: evaluates f[x]
+.[f; (x;y); handler]          // multi-argument trap
 
 // Error handler receives error string
 @[{1+`a}; ::; {0N! "caught: ",x}]  // prints "caught: type"
@@ -280,13 +286,14 @@ neg[h] "invalid_expression"  // no error raised in caller process
 result:@[{1+`a}; ::; {0N}]    // returns 0N (long null) on error
 ```
 
-**Trap — scoping of variables in trap:**
+**Trap — traps do not roll back:**
 ```q
-// Variables modified inside trap handler ARE visible outside if assigned globally
+// Global assignments made before the error are kept
 a:1;
-@[{a::2; `err}; ::; {a::3}];
-a  // 3 — the error handler ran and set a to 3
-   // a::2 ran before the error, then error rolled back to handler scope
+@[{a::2; 1+`a}; ::; {x}];
+a  // 2 — nothing is rolled back
+@[{a::2; 1+`a}; ::; {a::3}];
+a  // 3 — the handler ran after the body's a::2
 ```
 
 **Trap — nested errors and stack:**
@@ -338,11 +345,9 @@ select from trade where sym=`AAPL   // slow on large table
 
 **Trap 3 — Column extraction vs table query:**
 ```q
-// Slow: full table scan for one column
+// Both return the column as a list on an unkeyed table
 exec sym from trade
-
-// Fast if you need just one column:
-trade`sym    // direct column access, no copy
+trade`sym
 ```
 
 **Trap 4 — `count` before expensive operations:**
@@ -391,7 +396,7 @@ r:somevalue[] each til 1000
 **Trap 1 — Date arithmetic types:**
 ```q
 q)2024.01.01 + 1         // 2024.01.02   (int+date=date)
-q)2024.01.01 + 1.0       // type error!  (float+date not allowed)
+q)2024.01.01 + 1.0       // 2024.01.02T00:00:00.000 (becomes a datetime, no error)
 q)2024.01.02 - 2024.01.01  // 1          (date-date=int, not date)
 ```
 
@@ -420,9 +425,9 @@ q)"d"$2024.01.01    // same date (explicit cast)
 
 **Trap 5 — Time arithmetic:**
 ```q
-q)12:00:00.000 + 1        // type error — can't add int to time
+q)12:00:00.000 + 1        // 12:00:00.001 (int counts milliseconds)
 q)12:00:00.000 + 00:01    // 12:01:00.000 (time + minute = time)
-q)12:00:00.000 + 0D00:01  // type error — timespan ≠ minute
+q)12:00:00.000 + 0D00:01  // 0D12:01:00.000000000 (result is a timespan)
 q)12:00:00.000 + 00:01:00.000000000  // 12:01:00.000 (time + timespan)
 ```
 
@@ -438,7 +443,7 @@ q)12:00:00.000 + 00:01:00.000000000  // 12:01:00.000 (time + timespan)
 ```q
 q)null 0Np      // 1b (timestamp null)
 q)null 0Nd      // 1b (date null)
-q)0Np = 0Np    // 0b (null != null — always use null[] function)
+q)0Np = 0Np    // 1b (same-type nulls compare equal; use null to test)
 ```
 
 ---
@@ -453,7 +458,7 @@ myfunc:{x+1}   // becomes .myns.myfunc
 
 \d .
 // Back to root
-otherfunc:{x+1}  // becomes .otherfunc (root namespace)
+otherfunc:{x+1}  // root `otherfunc` (no namespace)
 ```
 
 **Trap 2 — Backtick lookup in namespaces:**
@@ -506,8 +511,7 @@ myvar:@[value;`myvar;42]
 
 // Null-safe operations
 42^0N                          // 42 (fill null with 42)
-0N^42                          // 42 (null^non-null = non-null... wait: ^ fills LEFT nulls)
-0^0N                           // 0 (fill null 0N with 0)
+0^0N 1 0N                      // 0 1 0 (x^y fills nulls in y with x)
 
 // In-place table update
 update col:value from `mytable where condition
