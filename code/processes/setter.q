@@ -91,15 +91,16 @@ setter.cleanupcache:{[cachepath]
 
 setter.completecache:{[maincachepath]
     cachename: string last ` vs maincachepath;
-    latestcache:first system"ls -lt ",(1_string maincachepath), " | grep ", cachename, " | grep -vE '(^l|total)' | head -n 1 | awk '{print $NF}'";
+    caches:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like cachename,"_*";
+    latestcache:string last ` vs starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches];
     latestcachefilepath: ` sv maincachepath,`$latestcache;
     setter.writetoken[latestcachefilepath;`end];
     if[not setter.isrequest; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
-    if[not setter.isrequest; dir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]}; nuke: hdel each desc dir@; nuke each ` sv' maincachepath,'{x where not x like "asynccache*"} (key maincachepath) except (`$cachename;`$latestcache)]
+    if[not setter.isrequest; .os.deldir each ` sv' maincachepath,'{x where not x like "asynccache*"} (key maincachepath) except (`$cachename;`$latestcache)]
  };
 
 setter.registertimers:{
-    .timer.repeat[.proc.cp[];0D01:00 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer"];
+    .timer.repeat[0D00:00:15 + .proc.cp[];0D01:00:00:15 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer"];
  };
 
 setter.init[];
