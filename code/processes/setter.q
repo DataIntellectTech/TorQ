@@ -95,7 +95,13 @@ setter.completecache:{[maincachepath]
     latestcache:string last ` vs starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches];
     latestcachefilepath: ` sv maincachepath,`$latestcache;
     setter.writetoken[latestcachefilepath;`end];
-    if[not setter.isrequest; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
+    if[not setter.isrequest and not .os.NT; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
+    if[not setter.isrequest and .os.NT;
+        target: .os.pth 1_string latestcachefilepath;
+        link: .os.pth (1_string maincachepath), "/", cachename;
+        system"cmd /c if exist \"", link, "\" rmdir \"", link, "\"";
+        system"cmd /c mklink /J \"", link, "\" \"", target, "\"";
+    ];
     if[not setter.isrequest; .os.deldir each ` sv' maincachepath,'{x where not x like "asynccache*"} (key maincachepath) except (`$cachename;`$latestcache)]
  };
 
