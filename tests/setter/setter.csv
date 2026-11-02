@@ -59,6 +59,8 @@ run,0,0,q,.tst.mkcache 0D00:00:01,1,,Mock a cache built 1 second ago
 run,0,0,q,.tst.build[],1,,Run a cache build
 true,0,0,q,".tst.logged ""resuming main cache build *""",1,,Check setter checked the existing cache
 true,0,0,q,".tst.logged ""component caches to build: none""",1,,Check nothing needs building when the cache is younger than the interval
+true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check the resumed cache is still completed when nothing is left to build
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build when there are none
 true,0,0,q,1=count .tst.builds[],1,,Check no new cache is built when the cache is younger than the interval
 
 comment,0,,STATIC mode - old cache is deleted
@@ -76,6 +78,7 @@ true,0,0,q,"all .tst.logged each ""requesting data for component cache "",/:(""c
 true,0,0,q,"all .tst.logged each ""saving data for component cache "",/:(""cache1 to *"";""cache2 to *"")",1,,Check saving data is logged for each component cache
 true,0,0,q,"all .tst.logged each ""data save completed for component cache "",/:(""cache1"";""cache2"")",1,,Check data save completed is logged for each component cache
 true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check main cache completion is logged
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build after a full build
 true,0,0,q,".tst.inorder (""starting new main cache build *"";""requesting data for component cache cache1 *"";""saving data for component cache cache1 *"";""data save completed for component cache cache1"";""main cache build completed *"")",1,,"Check the steps are logged in order: start, requesting, saving, save completed, main cache completed"
 true,0,0,q,".tst.logged ""deleting old cache *""",1,,Check deleting the old cache is logged
 true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
@@ -123,6 +126,7 @@ true,0,0,q,"all .tst.logged each ""requesting data for component cache "",/:(""c
 true,0,0,q,"all .tst.logged each ""saving data for component cache "",/:(""cache1 to *"";""cache2 to *"")",1,,Check saving data is logged for each component cache
 true,0,0,q,"all .tst.logged each ""data save completed for component cache "",/:(""cache1"";""cache2"")",1,,Check data save completed is logged for each component cache
 true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check main cache completion is logged
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build after a full build
 true,0,0,q,".tst.inorder (""starting new main cache build *"";""requesting data for component cache cache1 *"";""saving data for component cache cache1 *"";""data save completed for component cache cache1"";""main cache build completed *"")",1,,"Check the steps are logged in order: start, requesting, saving, save completed, main cache completed"
 true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
 
@@ -213,6 +217,27 @@ run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date in 2026.13.
 run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,not .tst.complete[],1,,Check it is not built
 true,0,0,q,".tst.logged ""cache build failed for component cache cache1: 2026.13.45""",1,,Check the parse error is logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.bracketed 2,1,,Request a 2 day range written in brackets - it parses as (enlist;date1;date2)
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a range in brackets is built
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has every trade in the range - the rdb's and the hdb's 2
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.bracketed 8,1,,Request 8 days written in brackets
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check an 8 day range in brackets is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 spans 8 days, over the maxdatespan of 7, not building""",1,,Check the span is worked out from the dates in brackets
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date in enlist "",string .tst.today",1,,Request a single date with enlist - it parses as (enlist;date)
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a single date with enlist is built
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date within ("",string[.tst.today-1],"";.z.d)""",1,,Request a range ending on .z.d rather than a date
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 has no date, or an invalid value, not building""",1,,Check dates that are not literals are rejected - the span can't be checked
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
 run,0,0,q,.tst.reset 1b,1,,Clear down
 run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""delete from `trade"",.tst.ondate[]",1,,Request a query that would delete trades on the rdb
 run,0,0,q,.tst.build[],1,,Trigger the build on setter

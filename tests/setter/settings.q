@@ -82,6 +82,7 @@ stopproc:startorstopproc["stop";;processcsv];
 
 // Point the getter (what readers use) at the test caches, and read a component cache the way a reader does
 .anycache.getter.cacheconfig[`cacherootdir]:.tst.root;
+.anycache.getter.cacherootdir:`$.tst.root;
 .tst.read:{.anycache.getter.loadcaches[]; get ` sv `.anycache.cache,x};
 
 // Date of the mock data - set from the rdb in setter.csv, as the stp timestamps the data when it arrives
@@ -98,6 +99,9 @@ stopproc:startorstopproc["stop";;processcsv];
 
 // Request args for a range of the given number of days, ending on the mock data's date
 .tst.within:{[days] .tst.where " where date within ",-3!.tst.today-(days-1),0};
+
+// Request args for a range of the given number of days ending on the mock data's date, with the dates written in brackets
+.tst.bracketed:{[days] .tst.where " where date within (",string[.tst.today-days-1],";",string[.tst.today],")"};
 
 // Check if the latest main cache build completed
 .tst.complete:{`end in key .tst.latest[]};
