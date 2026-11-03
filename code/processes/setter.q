@@ -23,10 +23,6 @@ setter.maxdatespan:$[`maxdatespan in key setter.cacheconfig`setter; "j"$setter.c
 
 setter.detectandwritecache:{ 
     cacheinfo:setter.detectcachetobuild[];
-    if[not count cacheinfo;
-        .lg.e[`anycache; "main cache build failed, no cache info"];
-        :(::)
-    ];
     setter.writetoken[;`start] each cachepath:cacheinfo`cachepath;
     //Included some basic error trapping here
     success:{.[setter.generateandwritecache; (x;y); {[cachepath;err] .lg.e[`anycache; "cache build failed for component cache ",(string last ` vs cachepath),": ",err];0b}[x]]}'[cachepath; cacheinfo`args];
@@ -57,22 +53,24 @@ setter.writetoken:{[dir;stage]
 
 //Returns a new build's name and 1b, or the newest build's path and 0b
 setter.getlatestcache:{[caches;cachename;cachewithmaxstarttime]
-    if[(0 = count caches) or setter.isrequest; :`cachename`newcache!(cachename,"_",string .z.P;1b)];
-    if[(not setter.isrequest) and (("N"$setter.cacheconfig.setter.interval) - 0D00:00:03) < .z.P - "P"$@[last "_" vs string cachewithmaxstarttime;13 16 19;:;"::."];:`cachename`newcache!(cachename,"_",string .z.P;1b)];
+    if[setter.isrequest or 0 = count caches; :`cachename`newcache!(cachename,"_",string .z.P;1b)];
+    if[(("N"$setter.cacheconfig.setter.interval) - 0D00:00:03) < .z.P - "P"$@[last "_" vs string cachewithmaxstarttime;13 16 19;:;"::."];:`cachename`newcache!(cachename,"_",string .z.P;1b)];
     :`cachename`newcache!(cachewithmaxstarttime;0b)
  };
 
 setter.detectcachetobuild:{
     cachename: setter.cacheconfig`cachename;
     asyncprocessname: setter.cacheconfig`asyncprocessname;
-    maincachepath:` sv (hsym `$setter.cacheconfig.cacherootdir),`$cachename;
+    maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",cachename;
     caches:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like cachename,"_*";
-    if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches]];
+    if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:caches!{get ` sv x,`start} each caches];
 
     latestcache:setter.getlatestcache[caches;cachename;cachewithmaxstarttime];
 
-    if[latestcache `newcache; setter.writetoken[` sv maincachepath,`$latestcache `cachename; `start]];
-    if[latestcache`newcache; cachewithmaxstarttime:` sv maincachepath,`$latestcache `cachename];
+    if[latestcache`newcache;
+        cachewithmaxstarttime:` sv maincachepath,`$latestcache`cachename;
+        setter.writetoken[cachewithmaxstarttime;`start]
+        ];
     .lg.o[`anycache; $[latestcache`newcache; "starting new main cache build "; "resuming main cache build "],1_string cachewithmaxstarttime];
 
     componentcaches:` sv' cachewithmaxstarttime,/:key setter.cacheconfig.componentcaches;
@@ -152,6 +150,9 @@ setter.checkdates:{[cachename;query]
         .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select or exec, not building"];
         :0b
         ];
+    if[not type[parsed 3] in -1 99h;
+        .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select, not building"];
+        'nyi];
     constraints:raze parsed 2;
     constraints:constraints where (first each constraints) in (=;within;in);
     d:raze {$[enlist~first x; 1_x; x]} each last each constraints where `date~/:constraints[;1];
@@ -196,12 +197,12 @@ setter.removeoldrequestcaches:{[maincachepath]
 setter.completecache:{[maincachepath]
     cachename: string last ` vs maincachepath;
     caches:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like cachename,"_*";
-    latestcache:string last ` vs starts ? max starts:cands!{get ` sv x,`start} each cands:key[d1:caches!key each caches];
+    latestcache:string last ` vs starts ? max starts:caches!{get ` sv x,`start} each caches;
     latestcachefilepath: ` sv maincachepath,`$latestcache;
     setter.writetoken[latestcachefilepath;`end];
     .lg.o[`anycache; "main cache build completed ",1_string latestcachefilepath];
     if[setter.isrequest; setter.removeoldrequestcaches maincachepath];
-    if[(not setter.isrequest) and not .os.NT; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
+    if[not setter.isrequest or .os.NT; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
     if[(not setter.isrequest) and .os.NT;
         target: .os.pth 1_string latestcachefilepath;
         link: .os.pth (1_string maincachepath), "/", cachename;
@@ -214,7 +215,7 @@ setter.completecache:{[maincachepath]
 //Delete caches every 24 hours
 //e.g. setter.flushcaches[]
 setter.flushcaches:{
-    maincachepath:` sv (hsym `$setter.cacheconfig.cacherootdir),`$setter.cacheconfig`cachename;
+    maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
     setter.deleteoldcache each ` sv' maincachepath,'key maincachepath
  };
 
@@ -231,7 +232,7 @@ setter.readtoken:{[dir;stage] $[stage in key dir; get ` sv (dir;stage); 0Np]};
 //  ---------------------------------------------------------------------------------------------------------------------
 //  myfirstcache_2026.10.28D09:42:28.548395000 2026.10.28D09:42:28.548419000 2026.10.28D09:42:28.578025000 "cache1, cache2"
 setter.cachebuilds:{
-    maincachepath:` sv (hsym `$setter.cacheconfig.cacherootdir),`$setter.cacheconfig`cachename;
+    maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
     builds:(key maincachepath) where (key maincachepath) like setter.cacheconfig[`cachename],"_*";
     paths:` sv' maincachepath,'builds;
     `start xdesc ([]
@@ -246,7 +247,7 @@ setter.cachebuilds:{
 //  `:/path/to/anycachedemodata/myfirstcache/myfirstcache_2026.10.28D09:42:28.548395000
 setter.latestcache:{
     completed:exec build from setter.cachebuilds[] where not null end;
-    maincachepath:` sv (hsym `$setter.cacheconfig.cacherootdir),`$setter.cacheconfig`cachename;
+    maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
     $[count completed; ` sv maincachepath,first completed; `]
  };
 
@@ -262,7 +263,7 @@ setter.getcache:{[cachename]
  };
 
 setter.registertimers:{
-    .timer.repeat[0D00:00:01 + .proc.cp[];0D01:00:01 + .proc.cp[];"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer"];
+    .timer.repeat[0D00:00:01 + .proc.cp[];0Wp;"N"$setter.cacheconfig.setter.interval;(`.anycache.setter.detectandwritecache; `);"Running static cachebuilder on a timer"];
  };
 
 setter.registerflushtimer:{

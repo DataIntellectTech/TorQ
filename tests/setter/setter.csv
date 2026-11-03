@@ -244,6 +244,24 @@ run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,not .tst.complete[],1,,Check it is not built
 true,0,0,q,".tst.logged ""query for component cache cache1 is not a select or exec, not building""",1,,Check queries other than select and exec are rejected
 true,0,0,q,"3=rdbh""count trade""",1,,Check the rdb still has its trades
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""exec last price from trade"",.tst.ondate[]",1,,Request an exec
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 is not a select, not building""",1,,Check the exec is logged
+true,0,0,q,".tst.logged ""cache build failed for component cache cache1: nyi""",1,,Check exec gives a nyi error - only selects are allowed for now
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""exec price by sym from trade"",.tst.ondate[]",1,,Request an exec with a by clause
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""cache build failed for component cache cache1: nyi""",1,,Check it gives a nyi error too
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!{enlist[`query]!enlist x} each (""select by sym from trade"";""select by sym from quote""),\:.tst.ondate[]",1,,Request a select with a by clause
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a select with a by clause is still built - the exec check doesn't catch it
+true,0,0,q,"`AAPL`IBM`MSFT~asc exec sym from 0!get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has a row for each of the rdb's syms
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
 
 comment,0,,REQUEST mode - maxdatespan can be changed
 run,0,0,q,"setterh"".anycache.setter.maxdatespan:1""",1,,Lower maxdatespan to 1 day
