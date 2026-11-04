@@ -95,11 +95,12 @@ setter.detectcachetobuild:{
 //  setter.generateandwritecache[`:/path/to/anycachedemodata/myfirstcache/myfirstcache_2026.10.28D09:42:28.548395000/cache1;enlist[`query]!enlist "select by sym from trade where date = 2026.10.28"]
 setter.generateandwritecache:{[cachepath; args] 
     cachename:last ` vs cachepath;
-    connectiondetails: $[setter.isrequest; `hdb`rdb; `$trim each "," vs (setter.cacheconfig.componentcaches cachename)`datasource];
+    connectiondetails: `$trim each "," vs (setter.cacheconfig.componentcaches cachename)`datasource;
     if[`rdb`hdb ~ connectiondetails; connectiondetails: `hdb`rdb];
     $[setter.isrequest; querydetails: args`query; querydetails: (setter.cacheconfig.componentcaches cachename)`staticmode];
     // Request queries must have a date or date span
     if[not $[setter.isrequest; setter.checkdates[cachename;querydetails]; 1b]; :0b];
+    if[setter.isrequest; connectiondetails:setter.requestservertypes querydetails];
     gateway:.servers.gethandlebytype[`gateway;`any];
     .lg.o[`anycache; "requesting data for component cache ",(string cachename)," from ",(", " sv string connectiondetails)];
     cache: setter.querygateway[gateway;querydetails;connectiondetails];
@@ -118,7 +119,7 @@ setter.generateandwritecache:{[cachepath; args]
 //Runs a query on one server type through the gateway and waits for the result
 //e.g. setter.queryservertype[gateway;"select by sym from trade";`rdb]
 setter.queryservertype:{[gateway;query;servertype]
-    if[`rdb~servertype; query:ssr[query;" date ";" time.date "]];
+    if[setter.isrequest and `rdb~servertype; query:setter.dropdatefilter query];
     //Send the query to the gateway asynchronously and flush it, then wait for the gateway's reply
     neg[gateway](`.gw.asyncexecjpt;query;enlist servertype;raze;();0Wn);
     neg[gateway][];
@@ -133,26 +134,40 @@ setter.querygateway:{[gateway;query;servertypes]
     raze {$[`date in cols x; delete date from x; x]} each results
  };
 
-//Checks a request query is a select or exec that filters on date first, on a date, list of dates or date range of at most maxdatespan days.
+//Whether a where clause constraint from parse filters on date, e.g. (within;`date;(enlist;2026.11.03;2026.11.04))
+setter.isdatefilter:{[constraint] $[1<count constraint; `date~constraint 1; 0b]};
+
+//Server types a request query needs: the hdb if it asks for before today, and the rdb if it asks for today
+setter.requestservertypes:{[query]
+    datefilter:c where setter.isdatefilter each c:raze (parse query) 2;
+    dates:raze {$[enlist~first x; 1_x; x]} each last each datefilter;
+    today:.proc.cd[];
+    `hdb`rdb where (today > min dates;0 < count ?[([] date:enlist today);datefilter;0b;()])
+ };
+
+//A request query with its date filter dropped, returned as a functional select for the rdb
+setter.dropdatefilter:{[query]
+    parsed:parse query;
+    @[parsed;2;:;c where not setter.isdatefilter each c:raze parsed 2]
+ };
+
+//Checks a request query is a select that filters on date first, on a date, list of dates or date range of at most maxdatespan days.
 //Returns 1b if the query can be built, otherwise logs why and returns 0b
 //e.g. setter.checkdates[`cache1;"select by sym from trade where date within 2026.10.27 2026.10.28, sym in `AAPL`GOOG"]
 //  1b
 //e.g. setter.checkdates[`cache1;"select by sym from trade where sym = `AAPL"]
 //  0b
 setter.checkdates:{[cachename;query]
-    //Request queries must be a select or exec, filtering on a date or a date range of at most maxdatespan days
+    //Request queries must be a select, filtering on a date or a date range of at most maxdatespan days
     if[(not query like "* where date in *") and (not query like "* where date = *") and (not query like "* where date within *");
         .lg.e[`anycache; "query for component cache ",(string cachename)," does not filter on a date first, not building"];
         :0b
     ];
     parsed:parse query;
-    if[not (?) ~ first parsed;
-        .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select or exec, not building"];
-        :0b
-        ];
-    if[not type[parsed 3] in -1 99h;
+    if[not ((?) ~ first parsed) and type[parsed 3] in -1 99h;
         .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select, not building"];
-        'nyi];
+         :0b
+         ];
     constraints:raze parsed 2;
     constraints:constraints where (first each constraints) in (=;within;in);
     d:raze {$[enlist~first x; 1_x; x]} each last each constraints where `date~/:constraints[;1];
@@ -161,6 +176,10 @@ setter.checkdates:{[cachename;query]
         .lg.e[`anycache; "query for component cache ",(string cachename)," has no date, or an invalid value, not building"];
          :0b
          ];
+    if[.proc.cd[] < min dates;
+        .lg.e[`anycache; "query for component cache ",(string cachename)," only asks for days after today, not building"];
+        :0b
+        ];
     if[(setter.maxdatespan < span:1+(max dates)-min dates) or setter.maxdatespan < count dates;
         .lg.e[`anycache; "query for component cache ",(string cachename)," spans ",(string span)," days, over the maxdatespan of ",(string setter.maxdatespan),", not building"];
         :0b
@@ -209,7 +228,7 @@ setter.completecache:{[maincachepath]
         system"cmd /c if exist \"", link, "\" rmdir \"", link, "\"";
         system"cmd /c mklink /J \"", link, "\" \"", target, "\"";
     ];
-    if[not setter.isrequest; setter.deleteoldcache each ` sv' maincachepath,'{x where not x like "asynccache*"} (key maincachepath) except (`$cachename;`$latestcache)]
+    if[not setter.isrequest; setter.deleteoldcache each ` sv' maincachepath,'{x where not x like (setter.cacheconfig`asyncprocessname),"_*"} (key maincachepath) except (`$cachename;`$latestcache)]
  };
 
 //Delete caches every 24 hours

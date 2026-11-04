@@ -72,7 +72,7 @@ stopproc:startorstopproc["stop";;processcsv];
   d
  };
 
-// A proc's usage log records the queries it runs - used to check the hdb is sent date and the rdb time.date
+// A proc's usage log records the queries it runs - used to check the hdb is sent the date filter and the rdb isn't
 .tst.usagelog:{[proc] read0 hsym `$getenv[`KDBLOG],"/usage_",(string proc),".log"};
 
 // Call setter's read API - what KX Dashboards queries
