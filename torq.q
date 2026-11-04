@@ -6,6 +6,9 @@ loaded:1b
 // Initialised flag - used to check if the process is still initialisation
 initialised:0b
 
+// q engine (kdb+/KDB-X, L or PeachQ) and what it can do: .proc.engine, .proc.enginename, .proc.capabilities 
+system"l ",$[count getenv`KDBCODE;getenv`KDBCODE;(-6_string .z.f),"code"],"/common/engine.q"
+
 // function to add functions to initialisation list
 initlist:()
 initexecuted:()
@@ -136,6 +139,7 @@ checkdependency:{[path]
         /- check TorQ config file is supplied
         if[()~key hsym last path;[.lg.e[`config;"TorQ config file not supplied ",string last path]]];
         /-load config csv files
+        if[not `a in key `.proc; .proc.a:()];
         a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
         /- check for kdb verion
         if[not `kdb in a[`app];a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
@@ -262,7 +266,7 @@ banner:{
  -1 format"w :     www.dataintellect.com";
  -1 format"e : torqsupport@dataintellect.com";
  -1 blank; 
- -1 format"Running on ","kdb+ ",(string .z.K)," ",string .z.k;
+ -1 format"Running on ",.proc.enginename," ",.proc.engineversion;
  if[count customtext:.proc.getapplication[];-1 format each customtext;-1 blank]; // prints custom text from file
  -1 full;}
 
@@ -498,6 +502,9 @@ rolllogauto:{[]
 
 // Create log files as long as they haven't been switched off 
 if[not any `debug`noredirect in key params; rolllogauto[]];
+
+// the engine and what it can do, in the log (after the redirect above, so it goes in the out log)
+.proc.logengine[]
 
 // utilities to load individual files / paths, and also a complete directory
 // this should then be enough to bootstrap

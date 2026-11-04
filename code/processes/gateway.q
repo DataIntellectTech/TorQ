@@ -386,7 +386,7 @@ asyncexecjpts:{[query;servertype;joinfunction;postback;timeout;sync]
   ];
  query:({[u;q]$[`.pm.execas ~ key `.pm.execas;value (`.pm.execas; q; u);`.pm.valp ~ key `.pm.valp; .pm.valp q; value q]}; .z.u; query);
  /- if sync calls are allowed disable async calls to avoid query conflicts
- $[.gw.synccallsallowed and .z.K<3.6;
+ $[.gw.synccallsallowed and not .proc.capabilities`deferred;
    errstr:.gw.errorprefix,"only synchronous calls are allowed";
    [errstr:"";
    if[99h<>type servertype;
@@ -473,7 +473,7 @@ syncexecjt:{[query;servertype;joinfunction;timeout]
  .[asyncexecjpts;(query;servertype;joinfunction;();timeout;1b);{-30!(x;1b;y)}[.z.w;]];
  }; 
 
-$[.z.K < 3.6;
+$[not .proc.capabilities`deferred;
   [syncexecj:syncexecjpre36;
    syncexec:syncexecjpre36[;;raze]];
   [syncexecj:syncexecjt[;;;0Wn];

@@ -258,13 +258,7 @@ refreshattributes:{
     }
 
 // return true if unix domain sockets can be used
-domainsocketsenabled:{[]
-        // unix domain sockets only works on unix and not windows
-        notwin:not .z.o like "w*";
-    // v3.4 brought in the first version of unix domain sockets ipc
-        iskdbv:3.4<=.z.K;
-        :notwin and iskdbv;
-    }
+domainsocketsenabled:{[] :.proc.capabilities`unixsockets}
 
 // format hpup from procs table, take into account ipc type
 // IPCTYPE [-11h] (`tcp;`tcps;`unix);
