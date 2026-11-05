@@ -21,6 +21,11 @@ setter.maxresultmb:$[`maxresultmb in key setter.cacheconfig`setter; setter.cache
 // Max number of days a request query can cover, counting both ends of its date range
 setter.maxdatespan:$[`maxdatespan in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxdatespan; 7];
 
+//Setter's main function
+//Builds the caches, and completes the main cache build once every component cache is built
+//Static mode's timer runs it every interval, and in request mode it builds the request when triggered
+//If a component cache fails, the run's component caches are removed and the build isn't completed
+//e.g. setter.detectandwritecache[]
 setter.detectandwritecache:{ 
     cacheinfo:setter.detectcachetobuild[];
     setter.writetoken[;`start] each cachepath:cacheinfo`cachepath;
@@ -58,6 +63,13 @@ setter.getlatestcache:{[caches;cachename;cachewithmaxstarttime]
     :`cachename`newcache!(cachewithmaxstarttime;0b)
  };
 
+//Picks the main cache build to write to: either a new one, or the newest one to resume - and lists its unfinished component caches
+//Returns the main cache path, the component cache paths and each one's args
+//e.g. static mode, with no builds yet
+//  setter.detectcachetobuild[]
+//  maincachepath| `:/path/to/anycachedemodata/myfirstcache
+//  cachepath    | `:/path/to/anycachedemodata/myfirstcache/myfirstcache_2026.10.28D09:42:28.548395000/cache1`:/path/to/anycachedemodata/myfirstcache/myfirstcache_2026.10.28D09:42:28.548395000/cache2
+//  args         | ``
 setter.detectcachetobuild:{
     cachename: setter.cacheconfig`cachename;
     asyncprocessname: setter.cacheconfig`asyncprocessname;
@@ -196,6 +208,8 @@ setter.cleanupcache:{[cachepath]
     .os.deldir cachepath
  };
 
+//Deletes an old cache
+//e.g. setter.deleteoldcache `:/path/to/anycachedemodata/myfirstcache/myfirstcache_2026.10.28D09:42:28.548395000
 setter.deleteoldcache:{[cachepath]
     .lg.o[`anycache; "deleting old cache ",1_string cachepath];
     .os.deldir cachepath
@@ -308,6 +322,7 @@ setter.registerconnections:{
 .api.add[`.anycache.setter.cachebuilds;1b;"Main cache builds on disk, newest first, with their start and end times and component caches";"[]";"table"];
 .api.add[`.anycache.setter.latestcache;1b;"Path of the newest completed main cache build";"[]";"symbol - null if no build has completed"];
 
+//Starts setter when setter.q loads: the build timer in static mode, the flush timer, and the gateway connection
 setter.init:{
     // Register timers
     if[not setter.isrequest; setter.registertimers[]];
