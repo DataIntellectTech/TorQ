@@ -63,6 +63,7 @@ setter.detectcachetobuild:{
     asyncprocessname: setter.cacheconfig`asyncprocessname;
     maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",cachename;
     caches:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like cachename,"_*";
+    cachewithmaxstarttime:`;
     if[not 0 = count caches; cachewithmaxstarttime:starts ? max starts:caches!{get ` sv x,`start} each caches];
 
     latestcache:setter.getlatestcache[caches;cachename;cachewithmaxstarttime];
@@ -131,7 +132,7 @@ setter.queryservertype:{[gateway;query;servertype]
 setter.querygateway:{[gateway;query;servertypes]
     results:setter.queryservertype[gateway;query] each servertypes;
     if[any errors:10h=type each results; :first results where errors];
-    raze {$[`date in cols x; delete date from x; x]} each results
+    raze {$[(`date in cols x) and not `date in keys x; delete date from x; x]} each results
  };
 
 //Whether a where clause constraint from parse filters on date, e.g. (within;`date;(enlist;2026.11.03;2026.11.04))
@@ -141,7 +142,7 @@ setter.isdatefilter:{[constraint] $[1<count constraint; `date~constraint 1; 0b]}
 setter.requestservertypes:{[query]
     datefilter:c where setter.isdatefilter each c:raze (parse query) 2;
     dates:raze {$[enlist~first x; 1_x; x]} each last each datefilter;
-    today:.proc.cd[];
+    today:.eodtime.getday .z.p;
     `hdb`rdb where (today > min dates;0 < count ?[([] date:enlist today);datefilter;0b;()])
  };
 
@@ -176,7 +177,7 @@ setter.checkdates:{[cachename;query]
         .lg.e[`anycache; "query for component cache ",(string cachename)," has no date, or an invalid value, not building"];
          :0b
          ];
-    if[.proc.cd[] < min dates;
+    if[.eodtime.getday[.z.p] < min dates;
         .lg.e[`anycache; "query for component cache ",(string cachename)," only asks for days after today, not building"];
         :0b
         ];
@@ -223,19 +224,29 @@ setter.completecache:{[maincachepath]
     if[setter.isrequest; setter.removeoldrequestcaches maincachepath];
     if[not setter.isrequest or .os.NT; system"ln -sfn ", latestcache, " ", (1_string maincachepath), "/", cachename];
     if[(not setter.isrequest) and .os.NT;
-        target: .os.pth 1_string latestcachefilepath;
-        link: .os.pth (1_string maincachepath), "/", cachename;
+        target: .os.pth latestcachefilepath;
+        link: .os.pth ` sv maincachepath,`$cachename;
         system"cmd /c if exist \"", link, "\" rmdir \"", link, "\"";
         system"cmd /c mklink /J \"", link, "\" \"", target, "\"";
     ];
     if[not setter.isrequest; setter.deleteoldcache each ` sv' maincachepath,'{x where not x like (setter.cacheconfig`asyncprocessname),"_*"} (key maincachepath) except (`$cachename;`$latestcache)]
  };
 
-//Delete caches every 24 hours
+//Windows has no find, so this works out the age of each entry in the main cache folder in q instead
+//e.g. setter.oldcaches `:/path/to/anycachedemodata/myfirstcache
+setter.oldcaches:{[maincachepath]
+    paths:` sv' maincachepath,'key maincachepath;
+    times:{$[`end in k:key x; get ` sv x,`end; `start in k; get ` sv x,`start; "P"$last "_" vs string last ` vs x]} each paths;
+    paths where times < .z.P-1D
+ };
+
+//Delete caches more than 24 hours old
 //e.g. setter.flushcaches[]
 setter.flushcaches:{
     maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
-    setter.deleteoldcache each ` sv' maincachepath,'key maincachepath
+    if[() ~ key maincachepath; :(::)];
+    old:$[.os.NT; setter.oldcaches maincachepath; hsym `$system "find \"",(1_string maincachepath),"\" -mindepth 1 -maxdepth 1 -mmin +1440"];
+    setter.deleteoldcache each old
  };
 
 // Read API for KX Dashboards - reads the newest completed build from disk
@@ -286,7 +297,7 @@ setter.registertimers:{
  };
 
 setter.registerflushtimer:{
-    .timer.repeat[1D + .proc.cp[];0Wp;1D;(`.anycache.setter.flushcaches; `);"Delete caches every 24 hours"];
+    .timer.repeat[0D01 + .proc.cp[];0Wp;0D01;(`.anycache.setter.flushcaches; `);"Delete caches older than 24 hours, checked every hour"];
  };
 
 setter.registerconnections:{

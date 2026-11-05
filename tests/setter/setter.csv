@@ -318,17 +318,32 @@ run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cac
 run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,.tst.complete[],1,,Check results under maxresultmb are built
 
-comment,0,,Caches are flushed every 24 hours in both modes - cache requests are deleted too
-true,0,0,q,"(enlist (1D;0Wp))~setterh""exec (period,'periodend) from .timer.timer where (`.anycache.setter.flushcaches;`)~/:funcparam""",1,,Check setter started one flush timer every 24 hours with no end time
+comment,0,,Caches not modified in the last 24 hours are flushed every hour in both modes - cache requests are flushed too
+true,0,0,q,"(enlist (0D01;0Wp))~setterh""exec (period,'periodend) from .timer.timer where (`.anycache.setter.flushcaches;`)~/:funcparam""",1,,Check setter started one flush timer every hour with no end time
 run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
 run,0,0,q,"do[2;.anycache.getter.requestnewcache .tst.args ""AAPL"";.tst.build[]]",1,,Make and build 2 requests
 true,0,0,q,2=count .tst.requests[],1,,Check there are requests to flush
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,2=count .tst.builds[],1,,Check builds from the last 24 hours are kept
+true,0,0,q,2=count .tst.requests[],1,,Check requests from the last 24 hours are kept
+run,0,0,q,"old:(first .tst.builds[];` sv .tst.main,first .tst.requests[])",1,,Save the first build and request
+run,0,0,q,.tst.age old,1,,Make them over a day old
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,not old[0] in .tst.builds[],1,,Check the old build was deleted
+true,0,0,q,"not (last ` vs old 1) in .tst.requests[]",1,,Check the old request was deleted
+true,0,0,q,1=count .tst.builds[],1,,Check the newer build is kept
+true,0,0,q,1=count .tst.requests[],1,,Check the newer request is kept
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make everything over a day old
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
 true,0,0,q,0=count .tst.builds[],1,,Check every cache was deleted
 true,0,0,q,0=count .tst.requests[],1,,Check the requests were deleted too
 true,0,0,q,0=count key .tst.main,1,,Check nothing is left in the cache directory
 run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
 run,0,0,q,.tst.mkcache 0D00:05,1,,Mock a static cache with the cachename link pointing at it
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,1=count .tst.builds[],1,,Check a static cache from the last 24 hours is kept
+true,0,0,q,`myfirstcache in key .tst.main,1,,Check its cachename link is kept
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make the static cache and its link over a day old
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
 true,0,0,q,0=count .tst.builds[],1,,Check the static cache was deleted
 true,0,0,q,not `myfirstcache in key .tst.main,1,,Check the cachename link was deleted

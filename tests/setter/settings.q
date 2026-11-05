@@ -72,6 +72,9 @@ stopproc:startorstopproc["stop";;processcsv];
   d
  };
 
+// Make cache paths over a day old for the flush, by setting their modified time to midnight 2 days ago - -h touches a link itself, not what it points at
+.tst.age:{[paths] system "touch -h -t ",(ssr[string .z.D-2;".";""]),"0000 ",(" " sv 1_'string (),paths)};
+
 // A proc's usage log records the queries it runs - used to check the hdb is sent the date filter and the rdb isn't
 .tst.usagelog:{[proc] read0 hsym `$getenv[`KDBLOG],"/usage_",(string proc),".log"};
 
