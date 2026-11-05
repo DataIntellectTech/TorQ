@@ -1,0 +1,7 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+170,discovery,testdiscovery1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/discovery.q,1,,q
+localhost,{KDBBASEPORT}+171,segmentedtickerplant,teststp1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/segmentedtickerplant.q,1,-schemafile ${TORQHOME}/database.q -tplogdir ${KDBTESTS}/setter/tmptplogs,q
+localhost,{KDBBASEPORT}+172,rdb,testrdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,180,,${KDBCODE}/processes/rdb.q,1,-.rdb.replaylog 0b,q
+localhost,{KDBBASEPORT}+173,gateway,testgateway1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,,4000,${KDBCODE}/processes/gateway.q,1,,q
+localhost,{KDBBASEPORT}+174,setter,testsetter1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/setter.q,1,,q
+localhost,{KDBBASEPORT}+175,hdb,testhdb1,${TORQHOME}/appconfig/passwords/accesslist.txt,1,1,60,4000,${KDBTESTS}/setter/tmphdb,1,,q
