@@ -6,7 +6,7 @@ loaded:1b
 // Initialised flag - used to check if the process is still initialisation
 initialised:0b
 
-// q engine (kdb+/KDB-X, L or PeachQ) and what it can do: .proc.engine, .proc.enginename, .proc.capabilities 
+// q engine (kdb+/KDB-X, L, PeachQ or Korze) and what it can do: .proc.engine, .proc.enginename, .proc.capabilities 
 system"l ",$[count getenv`KDBCODE;getenv`KDBCODE;(-6_string .z.f),"code"],"/common/engine.q"
 
 // function to add functions to initialisation list
@@ -140,9 +140,10 @@ checkdependency:{[path]
         if[()~key hsym last path;[.lg.e[`config;"TorQ config file not supplied ",string last path]]];
         /-load config csv files
         if[not `a in key `.proc; .proc.a:()];
-        a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
+        /- .proc.a named in full: on Korze, x,: on a global in a function called from an exec replaces x
+        .proc.a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
         /- check for kdb verion
-        if[not `kdb in a[`app];a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
+        if[not `kdb in a[`app];.proc.a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
         /- get current app versions
         dict:exec version by app from a;
         /- update table to contain string dependencies
@@ -508,13 +509,13 @@ if[not any `debug`noredirect in key params; rolllogauto[]];
 
 // utilities to load individual files / paths, and also a complete directory
 // this should then be enough to bootstrap
-loadedf:enlist enlist""
+loadedf:0#` 
 loadf0:{[reload;x]
-  if[not[reload]&x in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
+  if[not[reload]&(`$x) in loadedf;.lg.o[`fileload;"already loaded ",x];:()];
   .lg.o[`fileload;"loading ",x];
   $[`debug in key params;system"l ",x;@[system;"l ",x;{.lg.e[`fileload;"failed to load ",x," : ",y]}[x]]];
   // if we got this far, file is loaded
-  loadedf,:enlist x;
+  .proc.loadedf,:`$x;
   .lg.o[`fileload;"successfully loaded ",x]
  }
 loadf:loadf0[0b]   /load a file if it hasn't been loaded

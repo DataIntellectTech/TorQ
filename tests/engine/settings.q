@@ -8,11 +8,11 @@
 .et.cleanup:{[] {system "rm -rf '",x,"'"} each .et.dirs; .et.dirs:(); 1b};
 
 // ---------------------------------------------------------------- engine detection
-.et.engineknown:{[] .proc.engine in `kdb`l`peachq`unknown};
+.et.engineknown:{[] .proc.engine in `kdb`l`peachq`korze`unknown};
 .et.engineexpected:{[] $[count e:getenv`TORQTEST_ENGINE; .proc.engine~`$e; 1b]};
 .et.detectstable:{[] .proc.engine~.proc.getengine[]};
 .et.names:{[] (10h=type .proc.enginename) and (10h=type .proc.engineversion) and (0<count .proc.enginename) and 0<count .proc.engineversion};
-.et.nameformengine:{[] .proc.enginename~$[.proc.engine=`kdb;$[5<=.z.K;"KDB-X";"kdb+"];.proc.engine=`l;enlist "L";.proc.engine=`peachq;"PeachQ";"unknown q engine"]};
+.et.nameformengine:{[] .proc.enginename~$[.proc.engine=`kdb;$[5<=.z.K;"KDB-X";"kdb+"];.proc.engine=`l;enlist "L";.proc.engine=`peachq;"PeachQ";.proc.engine=`korze;"Korze";"unknown q engine"]};
 
 // ---------------------------------------------------------------- capabilities
 .et.atstart:{[] $[.proc.engine=`kdb;.proc.features`feature;exec feature from .proc.features where atstart]};         / the features checked at start-up (all of them on kdb+); others are added to the end of the capabilities when asked for
@@ -73,6 +73,9 @@
 // ---------------------------------------------------------------- grafana.q: type map sized to .Q.t
 .et.grafana:{[] (key[.grafana.types]~.Q.t) and (count .grafana.types)=count .Q.t};
 
+// ---------------------------------------------------------------- torq.q: a file is loaded once (Korze's in never matched the loaded-files list)
+.et.loadonce:{[] f:.et.tmp[],"/once.q"; (hsym`$f) 0: enlist ".et.loadcount+:1"; .et.loadcount:0; .proc.loadf f; .proc.loadf f; 1=.et.loadcount};
+
 // ---------------------------------------------------------------- torq.q: checkdependency appends to .proc.a
 .et.depdefined:{[] (98h=type .proc.a) and all `TorQ`kdb in .proc.a`app};
 .et.depappends:{[] n:count .proc.a; .et.lgcapture[.proc.checkdependency;.proc.getconfig["dependency.csv";1]]; (count .proc.a)>n};
@@ -120,9 +123,9 @@
 .et.probebits:"-1 \"BITS=\",raze string value .proc.probecapabilities[]";
 .et.childbits:{[envs;exe] 5_first r where (r:.et.childout[envs;exe;"";.et.probebits]) like "BITS=*"};
 
-// one row per feature, each with a probe; the version rules list every feature; capabilities hold the features checked at start-up (all of them on kdb+), in the same order
+// one row per feature, each naming a probe function that exists; the version rules list every feature; capabilities hold the features checked at start-up (all of them on kdb+), in the same order
 .et.featuretable:{[] f:.proc.features;
-  ((count f`feature)=count distinct f`feature) and (all 100h=type each f`probe) and ((key .proc.versioncapabilities[.z.K;.z.k])~f`feature) and (.et.atstart[])~(count .et.atstart[])#key .proc.capabilities};
+  ((count f`feature)=count distinct f`feature) and (all 100h=type each .proc f`probe) and ((key .proc.versioncapabilities[.z.K;.z.k])~f`feature) and (.et.atstart[])~(count .et.atstart[])#key .proc.capabilities};
 // the .h.val check puts .h.val back as it found it
 .et.hvalrestored:{[] had:`val in key `.h; old:$[had;.h.val;::]; .proc.probecapabilities[]; (had~`val in key `.h) and $[had;old~.h.val;1b]};
 // off Linux the pipe is not probed (TorQ replays zipped logs through a pipe on Linux only)
@@ -141,6 +144,10 @@
 // loading engine.q again (as code/common does) keeps the capabilities instead of probing again
 .et.reloadkeeps:{[] c:.proc.capabilities; .proc.capabilities[`zzmarker]:1b; system "l ",.et.enginefile;
   r:(1b~.proc.capabilities`zzmarker) and .proc.engine~.proc.getengine[]; .proc.capabilities:c; r};
+
+// init runs once: called again (as a second load of engine.q does) it keeps the engine, its name and version, and the capabilities
+.et.initonce:{[] c:.proc.capabilities; e:(.proc.engine;.proc.enginename;.proc.engineversion); .proc.capabilities[`zzinit]:1b; .proc.init[];
+  r:(.proc.capabilities`zzinit) and e~(.proc.engine;.proc.enginename;.proc.engineversion); .proc.capabilities:c; r};
 
 // starting TorQ runs no shell commands: the answers are the same when there is no PATH to find any command on
 .et.noshell:{[] (.et.childbits["PATH=/nonexistent";.et.exe[]])~.et.cleanbits[]};

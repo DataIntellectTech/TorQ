@@ -1,8 +1,8 @@
 \d .proc
 // engine.q - which q engine TorQ is running on, and what that engine can do
-// TorQ runs on kdb+, L and PeachQ. torq.q loads this file first, so the engine is known before anything else;
+// TorQ runs on kdb+, L, PeachQ and Korze. torq.q loads this file first, so the engine is known before anything else;
 // it is loaded again with the rest of code/common, where init finds the capabilities already set and does nothing.
-// The engine can be given on start-up with -engine (kdb, l or peachq) or the KDBENGINE environment variable;
+// The engine can be given on start-up with -engine (kdb, l, peachq or korze) or the KDBENGINE environment variable;
 // otherwise it is detected only once.
 
 // set everything up, in order: the engine, its name and version, then the capabilities dict.
@@ -15,7 +15,8 @@ init:{[]
   .proc.enginename:$[engine=`kdb;
                       $[5<=.z.K;"KDB-X";"kdb+"];
                         engine=`l;enlist "L";
-                          engine=`peachq;"PeachQ";"unknown q engine"];
+                          engine=`peachq;"PeachQ";
+                            engine=`korze;"Korze";"unknown q engine"];
 
   .proc.engineversion:$[engine=`peachq;
                           @[{$[10h=type v:value x;v;string v]};`.pq.version;(string .z.K)," ",string .z.k];
@@ -41,9 +42,13 @@ getengine:{[]
       :`$lower requested
       ];
 
-  //detect engine (kdb, l or peachq)
+  //detect engine (kdb, l, peachq or korze)
   if[`version in key `.pq; 
       :`peachq
+      ];
+  //korze: its .z.K is a long (float for other engines), and it has the .S namespace
+  if[(-7h=type .z.K) or `ckpt in key `.S;
+      :`korze
       ];                                         
   if[any(`l~`$first .z.X;`pq in key `); 
       :`l
@@ -58,18 +63,18 @@ getengine:{[]
 probebroadcast:{[found] -25!(0#0i;::); 1b}
 
 // -30!(handle;0b;msg) answers a deferred sync request; fails with 'domain when handle is not in .z.W.
-// As 0Ni never is. An engine without -30! fails with something else
-probedeferred:{[found] @[{-30!(0Ni;0b;1); 1b};::;{x~"domain"}]}
+// As 0Wi never is. An engine without -30! fails with something else
+probedeferred:{[found] @[{-30!(0Wi;0b;1); 1b};::;{x~"domain"}]}
 
 // a unix socket which does not exist: an engine with unix sockets reports the failed connection (the operating system's
-// "connection refused" or "no such file"), one without them reports something else (PeachQ: 'nyi)
+// "connection refused" or "no such file"; Korze a bare 'hop), one without them reports something else (PeachQ: 'nyi)
 // by default on port 5 as unused by convention (below 1024: no q process can listen there unless run as root)
 probeunixsockets:{[found]
   // for windows (w32, w64), 0b
   if[.z.o like "w*"; 
       :0b]; 
   // try socket, if it opens 1b. Else, see error message                                     
-  @[{hclose hopen `:unix://5; 1b};::;{any (x like "*refused*";x like "*No such file*")}]
+  @[{hclose hopen `:unix://5; 1b};::;{any x like/: ("*refused*";"*[Nn]o such file*";"hop")}]
   };        
 
 probereval:{[found] 2~reval(value;"1+1")}
@@ -121,15 +126,15 @@ probepipereplay:{[found]
 // feature  - what TorQ checks
 // kdbK     - the kdb+ release which introduced it, with the date it first worked where the release was not enough (0Nd: no date)
 // atstart  - 1b: checked when TorQ starts; 0b: checked by supports the first time it is asked for
-// probe    - how to check it on any other engine: 1b if it works
+// probe    - the name of the function in .proc which checks it on any other engine, 1b if it works
 features:flip `feature`kdbK`kdbdate`atstart`probe!flip (
   / feature      kdbK   kdbdate      atstart  probe                 used in
-  (`broadcast;   3.4;   0Nd;         1b;      probebroadcast);      / -25! broadcast publish                     u.q, pubsub.q
-  (`deferred;    3.6;   0Nd;         1b;      probedeferred);       / -30! deferred sync responses               gateway.q
-  (`unixsockets; 3.4;   0Nd;         1b;      probeunixsockets);    / unix domain sockets                        trackservers.q
-  (`reval;       3.3;   0Nd;         1b;      probereval);          / reval, to block writes                     writeaccess.q
-  (`hval;        3.5;   2019.11.13;  1b;      probehval);           / .z.ph evaluates requests with .h.val       permissions.q
-  (`pipereplay;  4.0;   0Nd;         0b;      probepipereplay))     / -11! replay from a named pipe              tickerlogreplay.q
+  (`broadcast;   3.4;   0Nd;         1b;      `probebroadcast);     / -25! broadcast publish                     u.q, pubsub.q
+  (`deferred;    3.6;   0Nd;         1b;      `probedeferred);      / -30! deferred sync responses               gateway.q
+  (`unixsockets; 3.4;   0Nd;         1b;      `probeunixsockets);   / unix domain sockets                        trackservers.q
+  (`reval;       3.3;   0Nd;         1b;      `probereval);         / reval, to block writes                     writeaccess.q
+  (`hval;        3.5;   2019.11.13;  1b;      `probehval);          / .z.ph evaluates requests with .h.val       permissions.q
+  (`pipereplay;  4.0;   0Nd;         0b;      `probepipereplay))    / -11! replay from a named pipe                tickerlogreplay.q
 
 // run f with a scratch directory, which is removed afterwards (q creates it when the first file is written)
 withscratch:{[f]
@@ -157,7 +162,7 @@ probecapabilities:{[]
 // 0b for a name which is not a feature
 supports:{[name]
   if[not name in key capabilities;
-      probes:exec probe from features where feature=name;
+      probes:.proc exec probe from features where feature=name;
       .proc.capabilities:capabilities,(enlist name)!enlist $[count probes;1b~@[first probes;capabilities;0b];0b]
       ];
   capabilities name
