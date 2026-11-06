@@ -11,9 +11,10 @@ advancedsymdtd:{[tab;func;vars]
   /- a utility function for the conditional
   f:{" "sv({x,'".",'y}/){$[10h=type x;x;string x]}each x` vs y};
   /- if everything matches, then proceed to 1b on the result. if not, check what is missing from today/missing from yesterday
+  /- (missy, not mfy: L has a built-in called mfy, which cannot be assigned)
   $[(all b in a)and all(a:keyst 0)in b:keyst 1;
     (1b;"All keys from day ",(string last .Q.PV)," matched keys from ",string first -2#.Q.PV);
-    (0b;"Error: ",$[count mfy:a where not a in b;" ",f[mfy;vars]," missing from T-1.";""],$[count mft:b where not b in a;" ",f[mft;vars]," missing from T-2.";""])]
+    (0b;"Error: ",$[count missy:a where not a in b;" ",f[missy;vars]," missing from T-1.";""],$[count mft:b where not b in a;" ",f[mft;vars]," missing from T-2.";""])]
   }
 
 // This function checks if count from tables of resultdata has changed

@@ -39,7 +39,7 @@ getengine:{[]
               $[count e:getenv`KDBENGINE;e;""]
                 ];
   if[count requested; 
-      :`$lower requested
+      :`$lower trim requested
       ];
 
   //detect engine (kdb, l, peachq or korze)
@@ -78,6 +78,9 @@ probeunixsockets:{[found]
   };        
 
 probereval:{[found] 2~reval(value;"1+1")}
+
+// .Q.w[], the memory statistics (Korze has no .Q.w)
+probememstats:{[found] 99h=type .Q.w[]}
 
 // does .z.ph evaluate "?expr" requests through .h.val? (PeachQ has .h.val but .z.ph never calls it, so existence is not enough)
 // the second argument is the HTTP header dictionary q passes to .z.ph; it must hold Accept-Encoding. .h.val is put back afterwards
@@ -134,7 +137,8 @@ features:flip `feature`kdbK`kdbdate`atstart`probe!flip (
   (`unixsockets; 3.4;   0Nd;         1b;      `probeunixsockets);   / unix domain sockets                        trackservers.q
   (`reval;       3.3;   0Nd;         1b;      `probereval);         / reval, to block writes                     writeaccess.q
   (`hval;        3.5;   2019.11.13;  1b;      `probehval);          / .z.ph evaluates requests with .h.val       permissions.q
-  (`pipereplay;  4.0;   0Nd;         0b;      `probepipereplay))    / -11! replay from a named pipe                tickerlogreplay.q
+  (`pipereplay;  4.0;   0Nd;         0b;      `probepipereplay);     / -11! replay from a named pipe             tickerlogreplay.q
+  (`memstats;    2.0;   0Nd;         1b;      `probememstats))      / .Q.w[] memory statistics                   dbwriteutils.q, monitoringchecks.q, memoryusage.q
 
 // run f with a scratch directory, which is removed afterwards (q creates it when the first file is written)
 withscratch:{[f]
@@ -161,9 +165,13 @@ probecapabilities:{[]
 // feature -> 1b/0b: from the capabilities, or checked the first time it is asked for (pipereplay) and remembered;
 // 0b for a name which is not a feature
 supports:{[name]
+  if[11h=type name; 
+  	:.proc.supports each name];
   if[not name in key capabilities;
-      probes:.proc exec probe from features where feature=name;
-      .proc.capabilities:capabilities,(enlist name)!enlist $[count probes;1b~@[first probes;capabilities;0b];0b]
+      // a name that is not in the features table is not supported
+      if[not count probes:.proc exec probe from features where feature=name; 
+      	:0b];
+      .proc.capabilities:capabilities,(enlist name)!enlist 1b~@[first probes;capabilities;0b]
       ];
   capabilities name
   }

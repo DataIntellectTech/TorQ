@@ -31,6 +31,10 @@
 .et.pipeworks:{[] @[{d:.et.tmp[]; l:hsym`$d,"/log"; l set (); h:hopen l; do[3;h enlist (`.et.pupd;1)]; hclose h;
   p:d,"/pipe"; system "mkfifo ",p; system "(timeout 5 cat ",(1_string l)," > ",p,") >/dev/null 2>&1 &";
   .et.pc:0; -11!hsym`$p; system "rm -rf ",d; 3=.et.pc};::;0b]};
+.et.memstatsworks:{[] @[{99h=type .Q.w[]};::;0b]};                                        / .Q.w[] gives the memory statistics (Korze has no .Q.w)
+// a name that is not a feature: 0b, nothing added to the capabilities; several names: an answer for each
+.et.supportsunknown:{[] k:key .proc.capabilities; (0b~.proc.supports`zznosuch) and (0b~.proc.supports`) and k~key .proc.capabilities};
+.et.supportslist:{[] (.proc.supports`broadcast`zznosuch`deferred)~(.proc.supports`broadcast;0b;.proc.supports`deferred)};
 .et.matches:{[f;works] works~.proc.capabilities f};
 
 // ---------------------------------------------------------------- pubsub.q: .stpps.pub with and without -25!
@@ -108,6 +112,7 @@
   `$7_first r where r like "ENGINE=*"};
 .et.paramwins:{[] `l~.et.child["KDBENGINE=peachq";"-engine l"]};
 .et.envused:{[] `peachq~.et.child["KDBENGINE=peachq";""]};
+.et.envtrimmed:{[] `peachq~.et.child["KDBENGINE=' PeachQ '";""]};                     / spaces and case in KDBENGINE are ignored
 .et.detected:{[] $[count getenv`KDBENGINE;1b;.proc.engine~.et.child["";""]]};
 // a chosen engine decides where capabilities come from: kdb -> version, anything else -> probes
 .et.chosenkdb:{[] f:.et.tmp[],"/caps.q";
