@@ -14,9 +14,9 @@ enabled:@[value;`enabled;0b]				// whether read only is enabled
 .lg.o[`readonly;"read only mode is ",("disabled";"enabled").readonly.enabled];
 if[.readonly.enabled;
 	// Check if the current KDB version supports blocking write access to clients
-	if[3.3>.z.K;
-		.lg.e[`readonly;"current KDB+ version ",(string .z.K),
-		" does not support blocking write access,a minimum of KDB+ version 3.3 is required"]
+	if[not .proc.capabilities`reval;
+		.lg.e[`readonly;"current engine ",.proc.enginename," ",.proc.engineversion,
+		" does not support blocking write access, a minimum of KDB+ version 3.3 is required"]
 		];		
 	// Modify the sync message handler	
 	.dotz.set[`.z.pg;{[x;y] $[10h=type y;reval(x;y); x y]}value .dotz.getcommand[`.z.pg]];
