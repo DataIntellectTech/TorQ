@@ -155,7 +155,7 @@ versioncapabilities:{[K;k]
 probecapabilities:{[]
   {[found;f;p] found,(enlist f)!enlist 1b~@[p;found;0b]}/[(`symbol$())!`boolean$();
     exec feature from features where atstart;
-    exec probe from features where atstart]
+    .proc exec probe from features where atstart]
     }
 
 // feature -> 1b/0b: from the capabilities, or checked the first time it is asked for (pipereplay) and remembered;
