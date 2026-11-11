@@ -12,7 +12,9 @@ ticks:@[value;`.grafana.ticks;1000];
 del:@[value;`.grafana.del;"."];
 
 // json types of kdb datatypes
-types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
+// (.Q.t!`array`boolean,(3#`null),(5#`number),11#`string)~.Q.t!(count .Q.t)#`array`boolean,(3#`null),(5#`number),11#`string on kdb,peachQ
+// .Q.t!`array`boolean,(3#`null),(5#`number),11#`string throws 'length on L version 1 2026.11.01
+types:.Q.t!(count .Q.t)#`array`boolean,(3#`null),(5#`number),11#`string;
 // milliseconds between 1970 and 2000
 epoch:946684800000;
 

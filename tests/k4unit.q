@@ -135,7 +135,7 @@ KUact:{[action;lang;code;repeat;ms;bytes;file;line]
 		r:KUpexec["";lang;code;repeat;0b];failed:not KUrunerr[action;r,file,line];
 		ok:failed;okms:okbytes:valid:1b];
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z;line);
-	}
+	1b}  / KUrt runs this inside an exec, which fails on Korze if every call returns ::
 
 KUrtf:{ / (refresh test file) updates test file x with realistic <ms>/<bytes>/<repeat> based on seen values of msx/bytesx from KUTR
 	if[not x in exec file from KUTR;'"no test results found"];

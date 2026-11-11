@@ -230,7 +230,7 @@ cleanhdb:{[dt]
 replayinner:{[msgnum;logfile]
   if[not .replay.zipped;-11!(msgnum;logfile);:()];
   if[not .z.o like "l*";.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on Linux systems"];'m];
-  if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
+  if[not .proc.supports`pipereplay;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
 
   .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," over named pipe"];
   -11!(msgnum;hsym `$fifo:.replay.readintofifo f);
