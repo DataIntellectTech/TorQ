@@ -82,6 +82,21 @@ pub:{[t;x]
     ];
    };
 
+// Publish table data on an engine without -25! (broadcast): the same, with one message per subscriber
+pubeach:{[t;x]
+  if[not count x;:()];
+  if[count h:subrequestall[t];neg[h]@\:(`upd;t;x)];
+  if[t in .stpps.subrequestfiltered`tbl;
+    {[t;x;sels] data:eval(?;x;sels`filts;0b;sels`columns);
+         if[count data;neg[sels`handle](`upd;t;data)]}[t;x;]
+           each select handle,filts,columns from .stpps.subrequestfiltered where tbl=t
+    ];
+   };
+
+// Chosen once, at load, so no publish pays for the check: kdb+ (and any engine with -25!) keeps pub, any other uses
+// pubeach. It must stay above .u.pub:.stpps.pub and .ps.publish:.stpps.pub, which copy pub when this file loads
+if[not @[{.proc.capabilities`broadcast};::;1b]; pub:pubeach];
+
 // publish and clear tables
 pubclear:{
  .stpps.pub'[x;value each x,:()];
