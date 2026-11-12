@@ -21,6 +21,9 @@ setter.maxresultmb:$[`maxresultmb in key setter.cacheconfig`setter; setter.cache
 // Max number of days a request query can cover, counting both ends of its date range
 setter.maxdatespan:$[`maxdatespan in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxdatespan; 7];
 
+// Hours a main cache build or cache request is kept before the flush deletes it
+setter.flushhours:$[`flushhours in key setter.cacheconfig`setter; setter.cacheconfig.setter.flushhours; 24];
+
 //Setter's main function
 //Builds the caches, and completes the main cache build once every component cache is built
 //Static mode's timer runs it every interval, and in request mode it builds the request when triggered
@@ -251,15 +254,15 @@ setter.completecache:{[maincachepath]
 setter.oldcaches:{[maincachepath]
     paths:` sv' maincachepath,'key maincachepath;
     times:{$[`end in k:key x; get ` sv x,`end; `start in k; get ` sv x,`start; "P"$last "_" vs string last ` vs x]} each paths;
-    paths where times < .z.P-1D
+    paths where times < .z.P-"n"$0D01*setter.flushhours
  };
 
-//Delete caches more than 24 hours old
+//Delete caches more than flushhours old - 24 hours unless the cache config sets it
 //e.g. setter.flushcaches[]
 setter.flushcaches:{
     maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
     if[() ~ key maincachepath; :(::)];
-    old:$[.os.NT; setter.oldcaches maincachepath; hsym `$system "find \"",(1_string maincachepath),"\" -mindepth 1 -maxdepth 1 -mmin +1440"];
+    old:$[.os.NT; setter.oldcaches maincachepath; hsym `$system "find \"",(1_string maincachepath),"\" -mindepth 1 -maxdepth 1 -mmin +",string "j"$60*setter.flushhours];
     setter.deleteoldcache each old
  };
 
@@ -311,7 +314,7 @@ setter.registertimers:{
  };
 
 setter.registerflushtimer:{
-    .timer.repeat[0D01 + .proc.cp[];0Wp;0D01;(`.anycache.setter.flushcaches; `);"Delete caches older than 24 hours, checked every hour"];
+    .timer.repeat[0D01 + .proc.cp[];0Wp;0D01;(`.anycache.setter.flushcaches; `);"Delete caches older than flushhours, checked every hour"];
  };
 
 setter.registerconnections:{

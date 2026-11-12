@@ -16,7 +16,7 @@ beforeany,0,0,q,stph(`.u.upd;`trade;.tst.trade),1,,Publish mock trades
 beforeany,0,0,q,stph(`.u.upd;`quote;.tst.quote),1,,Publish mock quotes
 beforeany,0,0,q,"system ""sleep 2""",1,,Wait for the stp to publish to the rdb
 beforeany,0,0,q,".tst.today:first rdbh""exec time.date from trade""",1,,Save the mock data's date - request queries filter on it
-beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep!.anycache.setter`maxdatespan`maxresultmb`cachestokeep""",1,,Save setter's configured safety limits
+beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours""",1,,Save setter's configured safety limits
 beforeany,0,0,q,setterh({.anycache.setter.cacheconfig[`cacherootdir]:x};.tst.root),1,,Build setter's caches in the test cache directory
 beforeany,0,0,q,".tst.cache2query:setterh"".anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]""",1,,Save cache2's static mode query
 beforeany,0,0,q,".tst.setterinterval:setterh"".anycache.setter.cacheconfig[`setter;`interval]""",1,,Save setter's configured interval
@@ -166,6 +166,7 @@ comment,0,,Safety limits are read from cacheconfig.json
 true,0,0,q,"(setterh"".anycache.setter.maxdatespan"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxdatespan]""",1,,Check maxdatespan comes from the config
 true,0,0,q,"(setterh"".anycache.setter.maxresultmb"")~setterh"".anycache.setter.cacheconfig[`setter;`maxresultmb]""",1,,Check maxresultmb comes from the config
 true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`cachestokeep]""",1,,Check cachestokeep comes from the config
+true,0,0,q,"(setterh"".anycache.setter.flushhours"")~setterh"".anycache.setter.cacheconfig[`setter;`flushhours]""",1,,Check flushhours comes from the config
 
 comment,0,,REQUEST mode - queries need a single date or a date range of at most maxdatespan days
 run,0,0,q,"setterh"".anycache.setter.maxdatespan:7""",1,,Use a 7 day maxdatespan
@@ -318,22 +319,22 @@ run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cac
 run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,.tst.complete[],1,,Check results under maxresultmb are built
 
-comment,0,,Caches not modified in the last 24 hours are flushed every hour in both modes - cache requests are flushed too
+comment,0,,Caches not modified in the last flushhours (24 by default) are flushed every hour in both modes - cache requests are flushed too
 true,0,0,q,"(enlist (0D01;0Wp))~setterh""exec (period,'periodend) from .timer.timer where (`.anycache.setter.flushcaches;`)~/:funcparam""",1,,Check setter started one flush timer every hour with no end time
 run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
 run,0,0,q,"do[2;.anycache.getter.requestnewcache .tst.args ""AAPL"";.tst.build[]]",1,,Make and build 2 requests
 true,0,0,q,2=count .tst.requests[],1,,Check there are requests to flush
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
-true,0,0,q,2=count .tst.builds[],1,,Check builds from the last 24 hours are kept
-true,0,0,q,2=count .tst.requests[],1,,Check requests from the last 24 hours are kept
+true,0,0,q,2=count .tst.builds[],1,,Check builds newer than flushhours are kept
+true,0,0,q,2=count .tst.requests[],1,,Check requests newer than flushhours are kept
 run,0,0,q,"old:(first .tst.builds[];` sv .tst.main,first .tst.requests[])",1,,Save the first build and request
-run,0,0,q,.tst.age old,1,,Make them over a day old
+run,0,0,q,.tst.age old,1,,Make them 2 to 3 days old - older than flushhours
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
 true,0,0,q,not old[0] in .tst.builds[],1,,Check the old build was deleted
 true,0,0,q,"not (last ` vs old 1) in .tst.requests[]",1,,Check the old request was deleted
 true,0,0,q,1=count .tst.builds[],1,,Check the newer build is kept
 true,0,0,q,1=count .tst.requests[],1,,Check the newer request is kept
-run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make everything over a day old
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make everything 2 to 3 days old
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
 true,0,0,q,0=count .tst.builds[],1,,Check every cache was deleted
 true,0,0,q,0=count .tst.requests[],1,,Check the requests were deleted too
@@ -341,9 +342,14 @@ true,0,0,q,0=count key .tst.main,1,,Check nothing is left in the cache directory
 run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
 run,0,0,q,.tst.mkcache 0D00:05,1,,Mock a static cache with the cachename link pointing at it
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
-true,0,0,q,1=count .tst.builds[],1,,Check a static cache from the last 24 hours is kept
+true,0,0,q,1=count .tst.builds[],1,,Check a static cache newer than flushhours is kept
 true,0,0,q,`myfirstcache in key .tst.main,1,,Check its cachename link is kept
-run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make the static cache and its link over a day old
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make the static cache and its link 2 to 3 days old
+run,0,0,q,setterh({.anycache.setter.flushhours:x};96),1,,Raise flushhours to 96 hours - the aged cache is 2 to 3 days old
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,1=count .tst.builds[],1,,Check the aged static cache is kept while it is under flushhours old
+true,0,0,q,`myfirstcache in key .tst.main,1,,Check its cachename link is kept too
+run,0,0,q,setterh({.anycache.setter.flushhours:x};.tst.limits`flushhours),1,,Put flushhours back
 run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
 true,0,0,q,0=count .tst.builds[],1,,Check the static cache was deleted
 true,0,0,q,not `myfirstcache in key .tst.main,1,,Check the cachename link was deleted
