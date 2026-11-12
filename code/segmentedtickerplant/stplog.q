@@ -5,6 +5,9 @@ currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 
 // View of log file handles for faster lookups
 loghandles::exec tbl!handle from currlog
+// Re-establish the view above. A chained tickerplant which is not creating logs replaces it with a dictionary of
+// no-ops (see init); without this, switching that process to create its own logs opened them but wrote nothing
+restoreloghandles:{value "loghandles::exec tbl!handle from currlog"};
 
 \d .stplg
 
@@ -184,7 +187,8 @@ endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.pr
 // passes on eop messages to subscribers and rolls logs
 endofperiod:{[currentpd;nextpd;data]
   .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  // the published tables only: pubclear resets a table from the publish schemas, which have no entry for logmsg
+  .stpps.pubclear[.stpps.t];
   .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!(currentpd;nextpd)];
   .stpps.endp[currentpd;nextpd;data];                   // sends endofperiod message to subscribers
   currperiod::nextpd;                                   // increments current period
@@ -195,7 +199,8 @@ endofperiod:{[currentpd;nextpd;data]
 // eop log roll is stopped if eod is also going to be triggered (roll is not stopped in SCTP)
 stpeoperiod:{[currentpd;nextpd;data;rolllogs]
   .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  // the published tables only: pubclear resets a table from the publish schemas, which have no entry for logmsg
+  .stpps.pubclear[.stpps.t];
   .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
   .stpps.endp[currentpd;nextpd;data];                      // sends endofperiod message to subscribers
   currperiod::nextperiod;                                  // increments current period
@@ -215,7 +220,8 @@ periodrollover:{[data]
 // common eod for STP and SCTP to send out eod messages and roll logs
 endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  // the published tables only: pubclear resets a table from the publish schemas, which have no entry for logmsg
+  .stpps.pubclear[.stpps.t];
   .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];  // sends endofday message to subscribers
   dayrollover[data];
@@ -259,6 +265,7 @@ init:{[dbname]
   seqnum::0;
   
   if[(value `..createlogs) or .sctp.loggingmode=`create;
+    if[.sctp.chainedtp;`.[`restoreloghandles][]];
     createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
     // If appropriate, roll error log
@@ -294,6 +301,6 @@ init:{[dbname]
   // exit before logs are touched if process is an sctp NOT in create mode
   if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
   .lg.o[`stpexit;"Closing off log files"];
-  .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
-  .stplg.closelog each .stpps.t;
+  .stpm.updmeta[.stplg.multilog][`close;.stplg.logtabs;.z.p];
+  .stplg.closelog each .stplg.logtabs;
  }]

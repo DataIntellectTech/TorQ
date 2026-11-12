@@ -14,10 +14,10 @@ ${TORQHOME}/torq.sh start discovery1 stp1 sctp1 rdball rdbsymfilt rdbonetab  -cs
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
-  -results ${KDBTESTS}/stp/results/ \
+  -testresults ${KDBTESTS}/stp/results/ \
   -procfile ${testpath}/process.csv \
   -runtime $run \
-  $debug $stop $quiet
+  $debug $stop $write $quiet
 
 # Shut down procs
 ${TORQHOME}/torq.sh stop discovery1 stp1 sctp1 rdball rdbsymfilt rdbonetab -csv ${testpath}/process.csv

@@ -16,6 +16,8 @@ isalive:{[proc] any "q" in' @[system;"pgrep -lf ",proc," -u $USER";" "]};
 
 // Have slightly more fluid handle opening mechanic - update: force it to open a new handle each time
 gethandle:{[name] 
-	.z.pc exec first w from .servers.SERVERS where procname=name;
+	.z.pc h:exec first w from .servers.SERVERS where procname=name;
+	// close the old handle as well: .z.pc only marks it closed, and a process can run out of connections
+	if[not null h;@[hclose;h;()]];
 	exec first w from .servers.getservers[`procname;name;()!();1b;1b]
 	};

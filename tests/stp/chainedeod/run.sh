@@ -14,10 +14,10 @@ ${TORQHOME}/torq.sh start discovery1 stptest1 sctptest1 rdb1 -csv ${testpath}/pr
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
-  -results ${KDBTESTS}/stp/results/ \
+  -testresults ${KDBTESTS}/stp/results/ \
   -procfile ${testpath}/process.csv \
   -runtime $run \
-  $debug $stop $quiet
+  $debug $stop $write $quiet
 
 # Shut down procs
 ${TORQHOME}/torq.sh stop discovery1 stptest1 sctptest1 rdb1 -csv ${testpath}/process.csv
