@@ -35,6 +35,8 @@
 // a name that is not a feature: 0b, nothing added to the capabilities; several names: an answer for each
 .et.supportsunknown:{[] k:key .proc.capabilities; (0b~.proc.supports`zznosuch) and (0b~.proc.supports`) and k~key .proc.capabilities};
 .et.supportslist:{[] (.proc.supports`broadcast`zznosuch`deferred)~(.proc.supports`broadcast;0b;.proc.supports`deferred)};
+// kdb+'s alphabet constants exist on every engine (engine.q defines them where the engine does not: Korze)
+.et.alphabets:{[] (.Q.A~"ABCDEFGHIJKLMNOPQRSTUVWXYZ") and .Q.a~"abcdefghijklmnopqrstuvwxyz"};
 .et.matches:{[f;works] works~.proc.capabilities f};
 
 // ---------------------------------------------------------------- u.q: .u.pub uses -25! only when it can

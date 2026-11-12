@@ -14,6 +14,7 @@ true,0,0,q,.et.matches[`unixsockets;.et.unixworks[]],1,,"capability unixsockets 
 true,0,0,q,.et.matches[`reval;.et.revalworks[]],1,,"capability reval matches whether reval evaluates"
 true,0,0,q,.et.matches[`hval;.et.hvalworks[]],1,,"capability hval matches whether .z.ph evaluates through .h.val"
 true,0,0,q,.et.matches[`memstats;.et.memstatsworks[]],1,,"engine.q: the memstats capability matches whether .Q.w[] works"
+true,0,0,q,.et.alphabets[],1,,"engine.q: .Q.A and .Q.a exist and hold the alphabets on every engine"
 true,0,0,q,.et.supportsunknown[],1,,"engine.q: supports gives 0b for a name that is not a feature, and stores nothing"
 true,0,0,q,.et.supportslist[],1,,"engine.q: supports with several names gives an answer for each"
 true,0,0,q,$[.z.o like "l*";(.et.pipeworks[])~.proc.supports`pipereplay;1b],1,,"capability pipereplay (checked when first asked for) matches whether -11! replays from a named pipe (Linux)"

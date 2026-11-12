@@ -29,6 +29,7 @@ true,0,0,q,all raze `GOOG=wdbHandles[`sym]"exec distinct sym from trade",1,,"Che
 fail,0,0,q,wdbHandles[`tab]"count trade",1,,"Check final WDB still has no trade table"
 run,0,0,q,"wdbHandles[`all`sym] @\: (`.wdb.savetables;temphdbdir;.z.d;1b;`trade)",1,,"Force save trade table to disk"
 run,0,0,q,"(value wdbHandles) @\: (`.wdb.savetables;temphdbdir;.z.d;1b;`quote)",1,,"Force save quote table to disk"
+run,0,0,q,"sym:get ` sv (wdbHandles[`all]"".wdb.hdbsettings`hdbdir""),`sym",1,,"Load the sym list the WDBs enumerated against (Korze cannot read an enumerated column without it)"
 run,0,0,q,"system ""l "",1_string temphdbdir",1,,"Load in temp HDB"
 true,0,0,q,(sum each (t2;q2))~count each (trade;quote),1,,"Check data was saved correctly to disk"
 true,0,0,q,all 0=wdbHandles[`all`sym] @\: "count trade",1,,"Check trade table is flushed from WDBs"

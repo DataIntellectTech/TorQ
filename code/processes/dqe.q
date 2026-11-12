@@ -27,9 +27,11 @@ init:{
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
-  st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
+  /- (exec, not .timer.timer[;`periodstart]: indexing a keyed table that way differs between engines, and PeachQ has none)
+  st:.dqe.writedownperiodengine+min exec periodstart from .timer.timer;
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
-  if[((.z.Z,.z.z).dqe.utctime)>st;st:((.z.Z,.z.z).dqe.utctime)+.dqe.writedownperiodengine];
+  /- (timestamps: PeachQ cannot add a timespan to a datetime)
+  if[((.z.P,.z.p).dqe.utctime)>st;st:((.z.P,.z.p).dqe.utctime)+.dqe.writedownperiodengine];
   .lg.o[`init;"start time of periodic writedown is: ",string st];
   .lg.o[`init;"end time of periodic writedown is: ",string et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];

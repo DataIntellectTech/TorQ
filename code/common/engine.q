@@ -185,3 +185,6 @@ logengine:{[]
 init[];
 
 \d .
+
+// kdb+'s alphabet constants, on an engine which does not define them (Korze has .Q.n and .Q.an but no .Q.A or .Q.a)
+if[not `A in key `.Q; .Q.A:"ABCDEFGHIJKLMNOPQRSTUVWXYZ"; .Q.a:lower .Q.A];

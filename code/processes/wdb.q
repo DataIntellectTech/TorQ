@@ -124,7 +124,8 @@ maptoint:{[val]
         /- if using an integer column, clamp value between 0 and max int (null maps to 0)
         0| 2147483647& `long$ val;
         /- if using a symbol column, enumerate against the hdb sym file
-        `long$ (` sv hdbsettings[`hdbdir],`sym)?`TORQNULLSYMBOL^val]
+        /- (enumerated as a list, and the first item taken back for a single value: L cannot enumerate a symbol atom)
+        $[0>type val;first;::] `long$ (` sv hdbsettings[`hdbdir],`sym)?(),`TORQNULLSYMBOL^val]
     };
 
 mapfctoint:{[val]
