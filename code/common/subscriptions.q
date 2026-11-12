@@ -98,7 +98,8 @@ subscribe:{[tabs;instrs;setschema;replaylog;proc]
   // the tables and subscriptions
   $[tptype=`standard;
     [tablesfunc:{key `.u.w};
-      subfunc:{`schemalist`logfilelist`rowcounts`date!(.u.sub\:[x;y];enlist(.u`i`L);(.u `icounts);(.u `d))}];
+      // (.u.sub\:) in parentheses: Korze cannot run the bare .u.sub\:[x;y] in a function sent to another process
+      subfunc:{`schemalist`logfilelist`rowcounts`date!((.u.sub\:)[x;y];enlist(.u`i`L);(.u `icounts);(.u `d))}];
     tptype in `chained`segmented;
     [tablesfunc:`tablelist;
       subfunc:`subdetails];

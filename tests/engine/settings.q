@@ -61,7 +61,7 @@
   .replay.zipped:1b; m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher";
   r:@[replayinner[0];`:/tmp/torqengtest_none.log.gz;{x}];
   .replay.zipped:0b;
-  $[.proc.supports`pipereplay; not r~m; r~m]};
+  not r~m};
 
 // ---------------------------------------------------------------- helpers
 .et.lgcapture:{[f;x] olde:.lg.e; .et.errs:(); .lg.e:{[x;y] .et.errs,:enlist (x;y)}; r:@[f;x;{x}]; .lg.e:olde; (r;.et.errs)};
@@ -194,7 +194,7 @@
   grid:((3.3;2016.01.01);(3.4;2016.06.01);(3.5;2017.06.01);(3.5;2019.11.12);(3.5;2019.11.13);(3.6;2018.05.18);(3.6;2020.05.04);(4.0;2020.03.04);(4.0;2023.08.11);(4.1;2024.04.29);(5.0;2026.10.15));
   all {[p] want:.et.originalrules[p 0;p 1]; want~(key want)#.proc.versioncapabilities[p 0;p 1]} each grid};
 
-// ---------------------------------------------------------------- tickerlogreplay.q: a zipped log really replays through a named pipe where it can, and is refused cleanly where it cannot
+// ---------------------------------------------------------------- tickerlogreplay.q: a zipped log really replays on Linux: through a named pipe where the engine can, from a temporary unzipped copy where it cannot
 .et.gzreplay:{[]
   f:read0 hsym`$getenv[`KDBCODE],"/processes/tickerlogreplay.q";
   grab:{[f;head] i:first where f like head; j:i+first where (i _ f) like " };*"; "\n" sv f i+til 1+j-i};
@@ -207,4 +207,4 @@
   r:.et.childout["";.et.exe[];"";code];
   got:first 6_first r where r like "COUNT=*";
   system "rm -rf '",d,"'";
-  $[(.z.o like "l*") and .proc.supports`pipereplay;"3"~got;"0"~got]};
+  $[.z.o like "l*";"3"~got;"0"~got]};
