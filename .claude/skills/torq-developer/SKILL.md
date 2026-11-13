@@ -1,7 +1,6 @@
 ---
 name: torq-developer
 description: TorQ framework and kdb+/q development. TRIGGER when: file is .q or in a TorQ repo; user asks about TorQ namespaces (.servers, .gw, .sub, .lg, .timer), process.csv, tickerplant/RDB/WDB/HDB/gateway, or EOD; user writes/reviews/debugs q code; kdb+ integration with Python (PyKX), Grafana, REST, or WebSockets. SKIP: unrelated q-named tooling (e.g. Qt, Q# language).
-type: skill
 ---
 
 TorQ is the Data Intellect production framework that wraps kdb+ with process management, connection tracking, logging, timers, pub/sub, and EOD lifecycle management. The authoritative source is the TorQ framework repo (commonly `$TORQHOME`); the Finance Starter Pack is the layered reference application.
