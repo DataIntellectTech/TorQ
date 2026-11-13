@@ -43,16 +43,17 @@ getengine:{[]
       ];
 
   //detect engine (kdb, l, peachq or korze)
+  //.z.KK names the engine where it is defined (Korze has it; on kdb+ it is an error, hence the trap)
+  if[-11h=type e:@[value;".z.KK";0b];
+      :e
+      ];
+  //l: .z.L is a number
+  if[(type @[value;".z.L";`]) in -9 -8 -7 -6 -5h;
+      :`l
+      ];
   if[`version in key `.pq; 
       :`peachq
       ];
-  //korze: its .z.K is a long (float for other engines), and it has the .S namespace
-  if[(-7h=type .z.K) or `ckpt in key `.S;
-      :`korze
-      ];                                         
-  if[any(`l~`$first .z.X;`pq in key `); 
-      :`l
-      ];                                 
   //kdb+: a licence in .z.l (trapped: older kdb+ has no .z.l), or a free 32-bit edition, where .z.l is empty
   :$[any(@[{0<count .z.l};::;1b];.z.o in `l32`m32`w32);
     `kdb;

@@ -99,27 +99,7 @@ serverid:0
 nextserverid:{.gw.serverid:.gw.serverid+1; .gw.serverid}
 
 // Store the incoming queries
-// Korze cannot select a column of functions, so on Korze each query's join and postback live in queryfuncs (by queryid).
-// $[funcsapart;...] picks the path once at load: two paths to maintain, so kdb+/L/PeachQ keep the original columns unchanged.
-funcsapart:.proc.engine=`korze
 queryqueue:([queryid:`u#`long$()] time:`timestamp$(); clienth:`g#`int$(); query:(); servertype:(); queryattributes:(); join:(); postback:(); timeout:`timespan$(); submittime:`timestamp$(); returntime:`timestamp$(); error:`boolean$();attributequery:`boolean$();sync:`boolean$())
-queryqueue:{[x] $[funcsapart;delete join,postback from x;x]} queryqueue
-if[funcsapart; 
-    // only Korze has it; u# keys, like queryqueue's
-    queryfuncs:(`u#`long$())!()] 
-// add a query to the queue: r is a row of queryqueue, with its join and postback (items 6 and 7)
-addquery:$[funcsapart;
-            {[r] .gw.queryfuncs[first r]:r 6 7; `.gw.queryqueue upsert (6#r),8_r};
-            {[r] `.gw.queryqueue upsert r}]
-
-// the join function or postback (f) of query qid, whose queryqueue row is details
-queryfunc:$[funcsapart;
-              {[qid;details;f] .gw.queryfuncs[qid;`join`postback?f]};
-              {[qid;details;f] details f}]
-// after the purge of old queries, drop theirs from queryfuncs
-trimfuncs:$[funcsapart;
-              {.gw.queryfuncs:(exec queryid from .gw.queryqueue)#.gw.queryfuncs};
-              {}]
 
 // client details
 clients:([]time:`timestamp$(); clienth:`g#`int$(); user:`symbol$(); ip:`int$(); host:`symbol$())
@@ -175,15 +155,14 @@ canberun:{
 
 // Manage client queries
 addquerytimeout:{[query;servertype;queryattributes;join;postback;timeout;sync]
-  .gw.addquery (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;{$[11=type x;enlist x;x]}postback;timeout;0Np;0Np;0b;0<count queryattributes;sync);
+  `.gw.queryqueue upsert (nextqueryid[];.proc.cp[];.z.w;query;servertype;queryattributes;join;{$[11=type x;enlist x;x]}postback;timeout;0Np;0Np;0b;0<count queryattributes;sync);
   };
 removeclienthandle:{
  update submittime:2000.01.01D0^submittime,returntime:2000.01.01D0^returntime from `.gw.queryqueue where clienth=x;
  deleteresult exec queryid from .gw.queryqueue where clienth=x;}
 addclientdetails:{`.gw.clients insert (.proc.cp[];x;.z.u;.z.a;.z.h)}
 removequeries:{[age] 
- .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where not null returntime, .proc.cp[] > returntime+age;
- .gw.trimfuncs[]}
+ .gw.queryqueue:update `u#queryid,`g#clienth from delete from (update `#clienth from queryqueue) where not null returntime, .proc.cp[] > returntime+age}
 
 // scheduling function to get the next query to execute. Need to ensure we avoid starvation
 // possibilities : 
@@ -248,7 +227,7 @@ checkresults:{[queryid]
   // get the rest of the detail from the query table
   querydetails:queryqueue[queryid];
   // apply the join function to the results
-  res:@[{(0b;$[10h=type x;value(x;y); x @ y])}[.gw.queryfunc[queryid;querydetails;`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
+  res:@[{(0b;$[10h=type x;value(x;y); x @ y])}[querydetails[`join]];value r[1;;1];{(1b;.gw.errorprefix,"failed to apply join function to result sets: ",x)}];
   // send the results back to the client.
   sendclientreply[queryid;last res;not res 0];
   // finish the query
@@ -260,9 +239,9 @@ sendclientreply:{[queryid;result;status]
  querydetails:queryqueue[queryid];
  // if query has already been sent an error, don't send another one
  if[querydetails`error; :()];
- tosend:$[()~pb:.gw.queryfunc[queryid;querydetails;`postback];
+ tosend:$[()~querydetails[`postback];
    result;
-   pb,enlist[querydetails`query],enlist result];
+   querydetails[`postback],enlist[querydetails`query],enlist result];
  $[querydetails`sync;
    // return sync response
    @[-30!;(querydetails`clienth;not status;$[status;.gw.formatresponse[1b;1b;result];result]);{.lg.o[`syncexec;x]}];
@@ -474,7 +453,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // check if there are any errors in the returned results
  :$[all res[;0];
   // no errors - join the results
-  [s:@[{(1b;$[10h=type x;value(x;y);x y])}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];   // a string join applied as on the deferred path (x y would index the string)
+  [s:@[{(1b;$[10h=type x;value(x;y);x y])}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
    .gw.formatresponse[s 0;1b;s 1]];
   [failed:where not res[;0];
    .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]
@@ -675,6 +654,5 @@ neg[h](`.gw.asyncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb));h
 neg[h](`.gw.asyncexecjpt;(`.q.system;"sleep 10");enlist[`servertype]!enlist`rdb`hdb;raze;();0D00:00:03);h[]
 h(`.gw.syncexec;"`$last .z.x";enlist[`tables]!enlist enlist`logmsgXXX)
 h(`.gw.syncexec;"`$last .z.x";`tables`servertype!(enlist`data;`rdb`hdb))
-
 
 

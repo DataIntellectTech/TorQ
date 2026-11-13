@@ -77,9 +77,7 @@ getservers:{[nameortype;lookups;req;autoopen;onlyone]
         nameortype~`proctype; select procname,proctype,lastp,w,hpup,attributes,index:i from .servers.SERVERS where proctype in lookups;
         select procname,proctype,lastp,w,hpup,attributes,index:i from .servers.SERVERS where procname in lookups];
     // no servers found matching the criteria - so throw them back
-    // (the same columns as the result below, so that the results for several types or names can be joined:
-    //  Korze does not join tables whose columns differ, even when one of them is empty)
-    if[not count r;:select procname,proctype,lastp,w,hpup,attributes,attribmatch:attributes from r];
+    if[0=count r;:update attributematch:attributes from r];
     r:update alive:.dotz.liveh w from r;
     // try to automatically reopen handles if there are closed ones, and we need more than one connection
     if[autoopen;

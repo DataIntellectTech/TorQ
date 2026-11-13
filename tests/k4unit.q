@@ -71,18 +71,18 @@ KUrt:{ / (run tests) - run contents of KUT, save results to KUTR
 	update csvline:(raze value exec 2+til count i by file from KUT) from `KUT;
 	before:count KUTR;uf:exec asc distinct file from KUT;i:0;
 	if[.KU.VERBOSE;.lg.o[`k4unit;"start"]];
-	KUerrparse[`beforeany;] exec KUexecb'[lang;code;repeat],file,csvline from KUT where action=`beforeany;
+	KUerrparse[`beforeany;] exec KUexec'[lang;code;repeat],file,csvline from KUT where action=`beforeany;
 	do[count uf;
 		ufi:uf[i];KUTI:select from KUT where file=ufi;
 		if[.KU.VERBOSE;.lg.o[`k4unit;(string ufi)," ",(string exec count i from KUTI where action in `run`true`fail)," test(s)"]];
-		KUerrparse[`beforeach;] exec KUexecb'[lang;code;repeat],file,csvline from KUT where action=`beforeeach;
-		KUerrparse[`before;] exec KUexecb'[lang;code;repeat],file,csvline from KUTI where action=`before;
+		KUerrparse[`beforeach;] exec KUexec'[lang;code;repeat],file,csvline from KUT where action=`beforeeach;
+		KUerrparse[`before;] exec KUexec'[lang;code;repeat],file,csvline from KUTI where action=`before;
 		/ preserve run,true,fail order
 		exec KUact'[action;lang;code;repeat;ms;bytes;file;csvline] from KUTI where action in`true`fail`run;
-		KUerrparse[`after;] exec KUexecb'[lang;code;repeat],file,csvline from KUTI where action=`after;
-		KUerrparse[`aftereach;] exec KUexecb'[lang;code;repeat],file,csvline from KUT where action=`aftereach;
+		KUerrparse[`after;] exec KUexec'[lang;code;repeat],file,csvline from KUTI where action=`after;
+		KUerrparse[`aftereach;] exec KUexec'[lang;code;repeat],file,csvline from KUT where action=`aftereach;
 		i+:1];
-	KUerrparse[`afterall;] exec KUexecb'[lang;code;repeat],file,csvline from KUT where action=`afterall;
+	KUerrparse[`afterall;] exec KUexec'[lang;code;repeat],file,csvline from KUT where action=`afterall;
 	if[.KU.VERBOSE;.lg.o[`k4unit;"end"]];
 	neg before-count KUTR}
 
@@ -94,9 +94,6 @@ KUpexec:{[prefix;lang;code;repeat;allowfail]
 
 // If in error - it now returns the error as well as the offending code
 KUexec:KUpexec["";;;;1b]
-// For the before and after phases, where the result is only checked for errors: a result of :: becomes ()
-// (on Korze an exec fails with 'type if its function returns :: for any row)
-KUexecb:{[lang;code;repeat] r:KUexec[lang;code;repeat]; $[(::)~r;();r]}
 
 // Generate error logs from beforeeach, before, after and aftereach tests
 KUerrparse:{[action;out]
@@ -138,7 +135,7 @@ KUact:{[action;lang;code;repeat;ms;bytes;file;line]
 		r:KUpexec["";lang;code;repeat;0b];failed:not KUrunerr[action;r,file,line];
 		ok:failed;okms:okbytes:valid:1b];
 	`KUTR insert(action;ms;bytes;lang;code;repeat;file;msx;bytesx;ok;okms;okbytes;valid;.z.Z;line);
-	1b}  / KUrt runs this inside an exec, which fails on Korze if every call returns ::
+	}
 
 KUrtf:{ / (refresh test file) updates test file x with realistic <ms>/<bytes>/<repeat> based on seen values of msx/bytesx from KUTR
 	if[not x in exec file from KUTR;'"no test results found"];

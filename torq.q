@@ -148,6 +148,9 @@ checkdependency:{[path]
         dict:exec version by app from a;
         /- update table to contain string dependencies
         t:update vs[";";]each string dependency from (select from a where dependency<>`);
+        /- a "kdb x.y" requirement can only be judged on kdb+: on another engine .z.K is that engine's own version
+        /- number (Korze's is 1.07), and what the engine can do is in .proc.capabilities
+        if[not .proc.engine=`kdb;t:update {x where not x like "kdb *"}each dependency from t];
         /-check each dependency within t
         {[t;dict] runchk[dict;t;]'[t[`dependency]]}[;dict]'[t]]}
 

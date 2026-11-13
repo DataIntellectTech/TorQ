@@ -95,7 +95,6 @@ getinfo:{[filebinary;x;flags;windowscale]
 
 getips:{[filebinary;x]
  // ip data starts at 28th byte
- // sv/: (each right), not sv ': Korze has no each-both with an atom on the left here
- elements: `$"." sv/: string 4 cut "i"$datafromfile[filebinary;x;28;8];
+ elements: `$"." sv ' string 4 cut "i"$datafromfile[filebinary;x;28;8];
  `src`dest!elements
  } 

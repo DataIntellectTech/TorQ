@@ -61,15 +61,14 @@ addfiltered:{[x;y]
 
   // Run these clauses in a test query, add to table if successful, throw error if not
   @[eval;(?;.stpps.schemas[x];filters;0b;columns);.stpps.errparse[;"Query"]];
-  // as a one-row table: Korze drops a level of the filter's nesting from a list row
-  `.stpps.subrequestfiltered upsert enlist `tbl`handle`filts`columns!(x;.z.w;filters;columns);
+  `.stpps.subrequestfiltered upsert (x;.z.w;filters;columns);
  };
 
 // Add handle for subscriber using old API (filter is list of syms)
 selfiltered:{[x;y]
   filts:enlist enlist (in;`sym;enlist y);
   @[eval;(?;.stpps.schemas[x];filts;0b;());.stpps.errparse[;"Query"]];
-  `.stpps.subrequestfiltered upsert enlist `tbl`handle`filts`columns!(x;.z.w;filts;());
+  `.stpps.subrequestfiltered upsert (x;.z.w;filts;());
  };
 
 // Publish table data
