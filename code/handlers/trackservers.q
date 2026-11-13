@@ -77,7 +77,9 @@ getservers:{[nameortype;lookups;req;autoopen;onlyone]
         nameortype~`proctype; select procname,proctype,lastp,w,hpup,attributes,index:i from .servers.SERVERS where proctype in lookups;
         select procname,proctype,lastp,w,hpup,attributes,index:i from .servers.SERVERS where procname in lookups];
     // no servers found matching the criteria - so throw them back
-    if[0=count r;:update attributematch:attributes from r];
+    // (the same columns as the result below, so that the results for several types or names can be joined:
+    //  Korze does not join tables whose columns differ, even when one of them is empty)
+    if[not count r;:select procname,proctype,lastp,w,hpup,attributes,attribmatch:attributes from r];
     r:update alive:.dotz.liveh w from r;
     // try to automatically reopen handles if there are closed ones, and we need more than one connection
     if[autoopen;
@@ -258,13 +260,7 @@ refreshattributes:{
     }
 
 // return true if unix domain sockets can be used
-domainsocketsenabled:{[]
-        // unix domain sockets only works on unix and not windows
-        notwin:not .z.o like "w*";
-    // v3.4 brought in the first version of unix domain sockets ipc
-        iskdbv:3.4<=.z.K;
-        :notwin and iskdbv;
-    }
+domainsocketsenabled:{[] :.proc.capabilities`unixsockets}
 
 // format hpup from procs table, take into account ipc type
 // IPCTYPE [-11h] (`tcp;`tcps;`unix);

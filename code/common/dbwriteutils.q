@@ -85,7 +85,7 @@ postreplay:@[value;`postreplay;{[d;p] }];
 \d .gc
 
 / - format the process memory stat's into a string for logging
-memstats:{"mem stats: ",{"; "sv "=" sv'flip (string key x;(string value x),\:" MB")}`long$.Q.w[]%1048576}
+memstats:{"mem stats: ",$[.proc.capabilities`memstats;{"; "sv "=" sv'flip (string key x;(string value x),\:" MB")}`long$.Q.w[]%1048576;"not available on this engine"]}
 
 / - run garbage collection and log out memory stats
 run:{

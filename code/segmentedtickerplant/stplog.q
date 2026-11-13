@@ -251,7 +251,8 @@ init:{[dbname]
   msgcount::rowcount::t!count[t]#0;
   tmpmsgcount::tmprowcount::(`symbol$())!`long$();
   logtabs::$[multilog~`custom;key custommode;t];
-  rolltabs::$[multilog~`custom;logtabs except where custommode in `tabular`singular;t];
+  // except in bracket form: Korze fails on the infix form "logtabs except where ..." here
+  rolltabs::$[multilog~`custom;except[logtabs;where custommode in `tabular`singular];t];
   currperiod::multilogperiod xbar .z.p+.eodtime.dailyadj;
   nextperiod::multilogperiod+currperiod;
   getnextendUTC[];
@@ -281,7 +282,8 @@ init:{[dbname]
 
 // Close logs on clean exit
 .dotz.set[`.z.exit;{
-  if[not x~0i;.lg.e[`stpexit;"Bad exit!"];:()];
+  // the value, not an exact match with 0i: Korze passes the exit code as a long
+  if[not 0=x;.lg.e[`stpexit;"Bad exit!"];:()];
   .lg.o[`stpexit;"Exiting process"];
 
   // flushing in memory data to disk during unexpected shutdown when batchmode is set to memorybatch

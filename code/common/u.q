@@ -21,7 +21,7 @@ sub:{if[x~`;:sub[;y]each t];if[not x in t;'x];del[x].z.w;add[x;y]}
 end:{(neg union/[w[;;0]])@\:(`.u.end;x)}
 
 // broadcasting. will override .u.pub with -25!
-if[broadcast and .z.K>=3.4;
+if[broadcast and .proc.capabilities`broadcast;
         // group subscribers by their sym subscription
         pub_broadcast:{[t;x]
                 subgroups:flip (w[t;;0]@/:value g;key g:group w[t;;1]);

@@ -27,9 +27,11 @@ init:{
   /- store i numbers of rows to be saved down to DB
   .dqe.tosavedown:()!();
   .dqe.configtimer[];
-  st:.dqe.writedownperiodengine+min .timer.timer[;`periodstart];
+  /- (exec, not .timer.timer[;`periodstart]: indexing a keyed table that way differs between engines, and PeachQ has none)
+  st:.dqe.writedownperiodengine+min exec periodstart from .timer.timer;
   et:.eodtime.nextroll-.dqe.writedownperiodengine;
-  if[((.z.Z,.z.z).dqe.utctime)>st;st:((.z.Z,.z.z).dqe.utctime)+.dqe.writedownperiodengine];
+  /- (timestamps: PeachQ cannot add a timespan to a datetime)
+  if[((.z.P,.z.p).dqe.utctime)>st;st:((.z.P,.z.p).dqe.utctime)+.dqe.writedownperiodengine];
   .lg.o[`init;"start time of periodic writedown is: ",string st];
   .lg.o[`init;"end time of periodic writedown is: ",string et];
   .timer.repeat[st;et;.dqe.writedownperiodengine;(`.dqe.writedownengine;`);"Running periodic writedown on resultstab"];
@@ -57,6 +59,16 @@ qpostback:{[proc;query;params;querytype;result]
   .lg.o[`qpostback;"Postback successful for ",string first proc];
   }
 
+/- Korze only (see runquery): the checks which are waiting for a result, by id, and the postback which finds them again
+pendingid:0;
+pending:(`long$())!();
+sourcepostback:{[x]
+  if[10h=type x;.lg.e[`sourcepostback;"check failed on the remote process: ",x];:()];
+  d:.dqe.pending x 0;
+  .dqe.pending:(enlist x 0)_.dqe.pending;
+  .dqe.qpostback[d 0;d 1;d 2;d 3;x 1];
+  }
+
 /- sends queries to test processes
 runquery:{[query;params;querytype;rs]
   temp:(`,(value value query)[1])!(::), params;
@@ -65,6 +77,15 @@ runquery:{[query;params;querytype;rs]
   if[not rs in exec procname from .servers.SERVERS;.lg.e[`runquery;"error: remote service must be a proctype";:()]];
 
   h:.dqe.gethandles[(),rs];
+  /- Korze cannot run a functional select, or f'[x;y], inside a function which arrived from another process, and both
+  /- the checks and the postback are such functions. So on Korze a check which is a plain function goes as its source
+  /- text, compiled where it runs, and the postback goes by name with an id for what the projection would have carried
+  if[(.proc.engine=`korze) and 100h=type value query;
+    .dqe.pendingid+:1;
+    .dqe.pending[.dqe.pendingid]:(h`procname;query;temp;querytype);
+    .async.postback[h`w;({[i;s;a] (i;(value s) . a)};.dqe.pendingid;last value value query;(),params);`.dqe.sourcepostback];
+    .lg.o[`runquery;"query successfully ran for ",string query];
+    :()];
   .async.postback[h`w;((value query),params);.dqe.qpostback[h`procname;query;temp;querytype]];
   .lg.o[`runquery;"query successfully ran for ",string query];
   }

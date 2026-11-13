@@ -230,7 +230,16 @@ cleanhdb:{[dt]
 replayinner:{[msgnum;logfile]
   if[not .replay.zipped;-11!(msgnum;logfile);:()];
   if[not .z.o like "l*";.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on Linux systems"];'m];
-  if[.z.K<4.0;.lg.e[`replaylog;m:"Zipped log files can only be directly replayed on kdb+ 4.0 or higher"];'m];
+  // an engine which cannot replay from a named pipe (kdb+ before 4.0, L, PeachQ, Korze): unzip to a temporary file and replay that
+  if[not .proc.supports`pipereplay;
+    .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," from a temporary unzipped copy"];
+    tmp:"/tmp/logunzip",string .z.i;
+    // "&& true": q adds its own redirect to the end of a system command, which would otherwise take gunzip's output
+    r:@[{system "gunzip -cd ",x," > ",y," && true";-11!(z;hsym `$y);`ok}[f;tmp];msgnum;{x}];
+    system "rm -f ",tmp;
+    .replay.zipped:0b;
+    if[not `ok~r;.lg.e[`replaylog;m:"Failed to replay the unzipped copy of ",f," : ",r];'m];
+    :()];
 
   .lg.o[`replay;"Replaying logfile ",(f:1_string logfile)," over named pipe"];
   -11!(msgnum;hsym `$fifo:.replay.readintofifo f);

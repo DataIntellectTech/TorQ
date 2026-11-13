@@ -69,7 +69,8 @@ datafromfile:{[filebinary;x;start;numofbytes]
 
 getflags:{[filebinary;x]
  // flag data stored at 49th byte
- bools: 2 vs filebinary[globheader+packetheader+x[0]+49];
+ // as longs: on L, 2 vs a byte gives ints, which do not join the long padding below
+ bools: "j"$2 vs filebinary[globheader+packetheader+x[0]+49];
  `CWR`ECE`URG`ACK`PSH`RST`SYN`FIN where ((8 - count bools)#0), bools
  }
 
@@ -94,6 +95,7 @@ getinfo:{[filebinary;x;flags;windowscale]
 
 getips:{[filebinary;x]
  // ip data starts at 28th byte
- elements: `$"." sv ' string 4 cut "i"$datafromfile[filebinary;x;28;8];
+ // sv/: (each right), not sv ': Korze has no each-both with an atom on the left here
+ elements: `$"." sv/: string 4 cut "i"$datafromfile[filebinary;x;28;8];
  `src`dest!elements
  } 

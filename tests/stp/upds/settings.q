@@ -18,3 +18,7 @@ stopproc:startorstopproc["stop";;processcsv];
 
 // Flag to save tests to disk
 .k4.savetodisk:0b;
+
+// Read the messages of a tickerplant log which call fn (upd, or upderr in the error log), by replaying it.
+// get on a log file returns the messages on kdb+, but nothing on Korze
+readlog:{[fn;f] `.tst.msgs set (); orig:@[value;fn;{{[t;x]}}]; fn set {[fn;t;x] .tst.msgs,:enlist(fn;t;x)}[fn]; r:@[{-11!x;1b};f;{x}]; fn set orig; if[not 1b~r;'r]; .tst.msgs};
