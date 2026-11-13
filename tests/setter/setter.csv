@@ -16,7 +16,7 @@ beforeany,0,0,q,stph(`.u.upd;`trade;.tst.trade),1,,Publish mock trades
 beforeany,0,0,q,stph(`.u.upd;`quote;.tst.quote),1,,Publish mock quotes
 beforeany,0,0,q,"system ""sleep 2""",1,,Wait for the stp to publish to the rdb
 beforeany,0,0,q,".tst.today:first rdbh""exec time.date from trade""",1,,Save the mock data's date - request queries filter on it
-beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours""",1,,Save setter's configured safety limits
+beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows""",1,,Save setter's configured safety limits
 beforeany,0,0,q,setterh({.anycache.setter.cacheconfig[`cacherootdir]:x};.tst.root),1,,Build setter's caches in the test cache directory
 beforeany,0,0,q,".tst.cache2query:setterh"".anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]""",1,,Save cache2's static mode query
 beforeany,0,0,q,".tst.setterinterval:setterh"".anycache.setter.cacheconfig[`setter;`interval]""",1,,Save setter's configured interval
@@ -167,6 +167,8 @@ true,0,0,q,"(setterh"".anycache.setter.maxdatespan"")~""j""$setterh"".anycache.s
 true,0,0,q,"(setterh"".anycache.setter.maxresultmb"")~setterh"".anycache.setter.cacheconfig[`setter;`maxresultmb]""",1,,Check maxresultmb comes from the config
 true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`cachestokeep]""",1,,Check cachestokeep comes from the config
 true,0,0,q,"(setterh"".anycache.setter.flushhours"")~setterh"".anycache.setter.cacheconfig[`setter;`flushhours]""",1,,Check flushhours comes from the config
+true,0,0,q,"(setterh"".anycache.setter.maxrows"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxrows]""",1,,Check maxrows comes from the config
+true,0,0,q,"(setterh"".anycache.setter.querytimeout"")~""N""$setterh"".anycache.setter.cacheconfig[`setter;`querytimeout]""",1,,Check querytimeout comes from the config
 
 comment,0,,REQUEST mode - queries need a single date or a date range of at most maxdatespan days
 run,0,0,q,"setterh"".anycache.setter.maxdatespan:7""",1,,Use a 7 day maxdatespan
@@ -306,18 +308,34 @@ run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
 run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
 run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,not .tst.complete[],1,,Check the oversized result is not built
-true,0,0,q,".tst.logged ""result for component cache cache1 is *""",1,,Check the size error is logged
+true,0,0,q,".tst.logged ""query for component cache cache1 failed on the gateway: error: *""",1,,Check the size error comes back through the gateway - the rdb stops the result before sending it
+true,0,0,q,"any .tst.newlogs[] like ""*over the maxresultmb of*""",1,,Check the size error is logged
 true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check nothing oversized was left on disk
 run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
 run,0,0,q,.tst.mkcache 0D00:05,1,,Mock a cache built 5 minutes ago
 run,0,0,q,.tst.build[],1,,Run a static cache build
-true,0,0,q,".tst.logged ""result for component cache cache1 is *""",1,,Check static mode results are capped too
+true,0,0,q,"any .tst.newlogs[] like ""*over the maxresultmb of*""",1,,Check static mode results are capped too
 true,0,0,q,([]old:enlist 1b)~.tst.read`cache1,1,,Check readers still get the previous cache
 run,0,0,q,setterh({.anycache.setter.maxresultmb:x};.tst.limits`maxresultmb),1,,Put maxresultmb back
 run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
 run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
 run,0,0,q,.tst.build[],1,,Trigger the build on setter
 true,0,0,q,.tst.complete[],1,,Check results under maxresultmb are built
+
+comment,0,,Gateway safety - row limit and query timeout on every query and a memory limit on setter
+run,0,0,q,setterh({.anycache.setter.maxrows:x};1),1,,Cap results at 1 row
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.where .tst.ondate[]",1,,Request every trade and quote for today - 3 rows each
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check the result over maxrows is not built
+true,0,0,q,"any .tst.newlogs[] like ""*result has 3 rows, over the maxrows of 1""",1,,Check the rdb's row limit error is logged
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check nothing over the limit was left on disk
+run,0,0,q,setterh({.anycache.setter.maxrows:x};.tst.limits`maxrows),1,,Put maxrows back
+run,0,0,q,".anycache.getter.requestnewcache .tst.where .tst.ondate[]",1,,Request the same again
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check results under maxrows are built
+true,0,0,q,"(setterh"".anycache.setter.querytimeout"")~gwh""exec last timeout from .gw.queryqueue""",1,,Check the gateway was given setter's query timeout
+true,0,0,q,"(4000*1024*1024)=setterh""(system \""w\"") 3""",1,,Check setter started with a 4000 MB memory limit
 
 comment,0,,Caches not modified in the last flushhours (24 by default) are flushed every hour in both modes - cache requests are flushed too
 true,0,0,q,"(enlist (0D01;0Wp))~setterh""exec (period,'periodend) from .timer.timer where (`.anycache.setter.flushcaches;`)~/:funcparam""",1,,Check setter started one flush timer every hour with no end time

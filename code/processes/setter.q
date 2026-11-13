@@ -18,6 +18,16 @@ setter.cachestokeep:$[`cachestokeep in key setter.cacheconfig`setter; "j"$setter
 // Max size in MB of the data a component cache query can return
 setter.maxresultmb:$[`maxresultmb in key setter.cacheconfig`setter; setter.cacheconfig.setter.maxresultmb; 1024];
 
+// Max number of rows a component cache query can return from each server
+setter.maxrows:$[`maxrows in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxrows; 10000000];
+
+// Longest a component cache query can take before the gateway times it out
+setter.querytimeout:$[`querytimeout in key setter.cacheconfig`setter; "N"$setter.cacheconfig.setter.querytimeout; 0D00:01];
+
+// Run on the rdb or hdb around each query, so a result over maxrows or maxresultmb errors there and is never sent back through the gateway
+// Kept as a string so the server evaluates it in its own root namespace
+setter.limitquery:"{[query;maxrows;maxmb] result:value query; if[maxrows<count result; '\"result has \",(string count result),\" rows, over the maxrows of \",string maxrows]; if[maxmb<sizemb:(-22!result)%1024*1024; '\"result is \",(string sizemb),\" MB, over the maxresultmb of \",string maxmb]; result}";
+
 // Max number of days a request query can cover, counting both ends of its date range
 setter.maxdatespan:$[`maxdatespan in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxdatespan; 7];
 
@@ -123,7 +133,7 @@ setter.generateandwritecache:{[cachepath; args]
     //The gateway sends errors back as strings
     if[10h=type cache;
         .lg.e[`anycache; "query for component cache ",(string cachename)," failed on the gateway: ",cache];:0b];
-    //Return an error if the cache is over the size limit
+    //Each server's result is under the size limit - return an error if they are over it once joined
     if[setter.maxresultmb < sizemb:(-22!cache)%1024*1024;
         .lg.e[`anycache; "result for component cache ",(string cachename)," is ",(string sizemb)," MB, over the maxresultmb of ",(string setter.maxresultmb),", not saving"];:0b];
     .lg.o[`anycache; "saving data for component cache ",(string cachename)," to ",1_string datapath:` sv cachepath,`data];
@@ -137,7 +147,8 @@ setter.generateandwritecache:{[cachepath; args]
 setter.queryservertype:{[gateway;query;servertype]
     if[setter.isrequest and `rdb~servertype; query:setter.dropdatefilter query];
     //Send the query to the gateway asynchronously and flush it, then wait for the gateway's reply
-    neg[gateway](`.gw.asyncexecjpt;query;enlist servertype;raze;();0Wn);
+    //The server checks the result against maxrows and maxresultmb, and the gateway gives up after querytimeout
+    neg[gateway](`.gw.asyncexecjpt;(setter.limitquery;query;setter.maxrows;setter.maxresultmb);enlist servertype;raze;();setter.querytimeout);
     neg[gateway][];
     gateway[]
  };
