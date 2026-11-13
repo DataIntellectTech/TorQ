@@ -29,23 +29,23 @@ These two principles are not duplicated by the specific rules below — everythi
 
 ## Config Variables
 
-- **Rule C1**: Every config variable must use the guard pattern: `myvar:@[value;\`myvar;default]`. This allows override from config files and command line. (`torq.q`)
+- **Rule C1**: Every config variable must use the guard pattern: ``myvar:@[value;`myvar;default]``. This allows override from config files and command line. (`torq.q`)
 - **Rule C2**: Config layering order (each layer overrides previous): `$KDBCONFIG/settings/default.q` → `$KDBSERVCONFIG/settings/default.q` → `$KDBAPPCONFIG/settings/default.q` → then each does `parentproctype.q` → `proctype.q` → `procname.q`. (`torq.q`)
 - **Rule C3**: Any namespaced variable can be overridden from the command line with a leading dash and the full dotted name: `-.ns.var value`. Only variables that already exist with a basic type are overridden, and the value is cast to that type. (`torq.q` `overrideconfig`)
 - **Rule C4**: Never define config without a guard; if it is set before the config file loads it will be silently overwritten.
-- **Rule C5**: The guard `@[value;\`myvar;default]` inside `\d .ns` resolves `.ns.myvar`, not root `.myvar`. To pre-set a config variable before loading (e.g. in tests or startup scripts), set the fully-qualified name: `.ns.myvar:value` — setting a root-level `myvar` will be ignored.
+- **Rule C5**: The guard `` @[value;`myvar;default] `` inside `\d .ns` resolves `.ns.myvar`, not root `.myvar`. To pre-set a config variable before loading (e.g. in tests or startup scripts), set the fully-qualified name: `.ns.myvar:value` — setting a root-level `myvar` will be ignored.
 
 ## Logging
 
-- **Rule L1**: Standard output: `.lg.o[\`label;"message"]`. Error: `.lg.e[\`label;"message"]`. Warning: `.lg.w[\`label;"message"]`. (`torq.q`)
+- **Rule L1**: Standard output: `` .lg.o[`label;"message"] ``. Error: `` .lg.e[`label;"message"] ``. Warning: `` .lg.w[`label;"message"] ``. (`torq.q`)
 - **Rule L2**: `.lg.o` (and `.lg.w`) write to stdout (`out_` file); `.lg.e` writes to stderr (`err_` file) (`.lg.outmap`). Only levels with `.lg.pubmap` set (WARN/ERR, not INF) are published to `logmsg` via `.ps`; the local `logmsg` table is only filled on the monitor process. (`torq.q:199-220`)
 - **Rule L3**: Extend logging with the `.lg.ext:{[loglevel;proctype;proc;id;message;dict] ...}` hook — this fires on every log call. (`torq.q:246`)
 - **Rule L4**: Use `-jsonlogs` flag to switch log format to JSON (`.lg.format` is set by `torq.q` on startup).
 
 ## Message Handlers
 
-- **Rule H1**: All `.z.*` overrides use `.dotz.set[\`.z.xx; newfunc]`. Never assign `.z.pc` etc. directly. (`torq.q`, `discovery.q`, `gateway.q`)
-- **Rule H2**: To chain onto an existing handler: `{x@y; .myns.mypc[y]}@[value;.dotz.getcommand[\`.z.pc];{{[x]}}]`. (`gateway.q:523`)
+- **Rule H1**: All `.z.*` overrides use `` .dotz.set[`.z.xx; newfunc] ``. Never assign `.z.pc` etc. directly. (`torq.q`, `discovery.q`, `gateway.q`)
+- **Rule H2**: To chain onto an existing handler: `` {x@y; .myns.mypc[y]}@[value;.dotz.getcommand[`.z.pc];{{[x]}}] ``. (`gateway.q:523`)
 - **Rule H3**: `.dotz.set` in FinSpace uses `.awscust.z` namespace — another reason to never bypass it. (`torq.q`)
 - **Rule H4**: Message handlers loaded from `$KDBCODE/handlers/` directory. Disable all handlers with `.proc.loadhandlers:0b` in config. (`handlers.md`)
 
@@ -59,7 +59,7 @@ These two principles are not duplicated by the specific rules below — everythi
 ## Table Schemas
 
 - **Rule S1**: Tables must have `time` as first column and `sym` as second column (for tickerplant subscription compatibility). (`SKILL.md`)
-- **Rule S2**: `sym` column must carry `` `g# `` attribute in RDB in-memory tables for fast lookup: `sym:\`g#\`symbol$()`. (`database.q`, `tickerplant.q:40`)
+- **Rule S2**: `sym` column must carry `` `g# `` attribute in RDB in-memory tables for fast lookup: `` sym:`g#`symbol$() ``. (`database.q`, `tickerplant.q:40`)
 - **Rule S3**: `upd` function must be at root namespace (not namespaced) so the tickerplant can call it. (`SKILL.md`, `tickerplant.q:34`)
 - **Rule S4**: Any table that is published must have its schema defined on the receiving process. By default all schemas should be added to whatever schema file the tickerplant loads at startup (identified by the schemafile argument)
 - **Rule S5**: Tables saved to HDB must be enumerated against the sym file using `.Q.en[hdbdir; table]` before writing. (`rdb.q:56`, `wdb.q`)
@@ -74,22 +74,22 @@ These two principles are not duplicated by the specific rules below — everythi
 
 ## Connection Management
 
-- **Rule M1**: Declare which process types to connect to: `.servers.CONNECTIONS:\`rdb\`hdb\`gateway` (source: `trackservers.q:13`). Then make sure `.servers.startup[]` runs: `torq.q` calls it only when `.servers.STARTUP` is `1b` (default `0b`, `torq.q:673`). The rdb/wdb/hdb/idb/sort/sortworker/chainedtp settings set it; gateway, discovery, filealerter, monitor, kill and reporter call `.servers.startup[]` themselves (`gateway.q:532`, `filealerter.q:191`). A new process type must do one or the other.
-- **Rule M2**: Get handles: `.servers.getservers[\`proctype;\`hdb;()!();1b;0b]` returns a table with `w` (handle), `procname`, `proctype`, `hpup`, `attributes`, `attribmatch`. (`trackservers.q:75-89`)
-- **Rule M3**: Shortcut: `.servers.gethandlebytype[\`hdb;\`roundrobin]` returns a single handle using `roundrobin`, `any`, or `last` selection. (`trackservers.q:106`)
+- **Rule M1**: Declare which process types to connect to: `` .servers.CONNECTIONS:`rdb`hdb`gateway `` (source: `trackservers.q:13`). Then make sure `.servers.startup[]` runs: `torq.q` calls it only when `.servers.STARTUP` is `1b` (default `0b`, `torq.q:673`). The rdb/wdb/hdb/idb/sort/sortworker/chainedtp settings set it; gateway, discovery, filealerter, monitor, kill and reporter call `.servers.startup[]` themselves (`gateway.q:532`, `filealerter.q:191`). A new process type must do one or the other.
+- **Rule M2**: Get handles: `` .servers.getservers[`proctype;`hdb;()!();1b;0b] `` returns a table with `w` (handle), `procname`, `proctype`, `hpup`, `attributes`, `attribmatch`. (`trackservers.q:75-89`)
+- **Rule M3**: Shortcut: `` .servers.gethandlebytype[`hdb;`roundrobin] `` returns a single handle using `roundrobin`, `any`, or `last` selection. (`trackservers.q:106`)
 - **Rule M4**: `.servers.SERVERS` table columns: `procname`, `proctype`, `hpup`, `w` (handle int), `hits` (int), `startp` (timestamp), `lastp` (timestamp), `endp` (timestamp), `attributes` (dict). (`trackservers.q:10`)
-- **Rule M5**: IPC type per proctype: `.servers.SOCKETTYPE:enlist[\`tickerplant]!enlist \`unix`. Options: `` `tcp`tcps`unix ``. (`conn.md`, `trackservers.q:29`)
+- **Rule M5**: IPC type per proctype: `` .servers.SOCKETTYPE:enlist[`tickerplant]!enlist `unix ``. Options: `` `tcp`tcps`unix ``. (`conn.md`, `trackservers.q:29`)
 - **Rule M6**: Password file location: `$KDBCONFIG/passwords/`. Hierarchical: `default.txt` → `proctype.txt` → `procname.txt`. (`trackservers.q:44`)
 - **Rule M7**: Non-TorQ processes go in `$KDBCONFIG/settings/nontorqprocess.csv`. Enable with `.servers.TRACKNONTORQPROCESS:1b`. (`conn.md`)
 
 ## Gateway Patterns
 
-- **Rule G1**: Async (deferred-sync) call: `neg[h](`.gw.asyncexec`;query;\`rdb); h[]`. The `h[]` blocks until result returns. (`gateway.q:597`)
+- **Rule G1**: Async (deferred-sync) call: `` neg[h](`.gw.asyncexec;query;`rdb); h[] ``. The `h[]` blocks until result returns. (`gateway.q:597`)
 - **Rule G2**: Async with join function and postback: `.gw.asyncexecjpt[query;servertype;joinfunction;postback;timeout]`. (`gateway.q:596`)
-- **Rule G3**: Sync call: `h(`.gw.syncexec`;query;\`rdb\`hdb)`. Uses `-30!` deferred sync on kdb+≥3.6. (`gateway.q:479`)
+- **Rule G3**: Sync call: `` h(`.gw.syncexec;query;`rdb`hdb) ``. Uses `-30!` deferred sync on kdb+≥3.6. (`gateway.q:479`)
 - **Rule G4**: `servertype` argument can be: symbol list `` `rdb`hdb `` (OR — any matching type), or a dict of attributes `` enlist[`tables]!enlist enlist`trade `` (filter by attribute). (`gateway.q:392-408`)
 - **Rule G5**: Gateway blocks queries during EOD reload (`.gw.eod` flag). `reloadstart` propagates timeout errors to in-flight queries; `reloadend` re-enables after HDB reload. (`gateway.q:560-577`)
-- **Rule G6**: Register process attributes for routing: `update attributes:(enlist mydict) from \`.gw.servers where servertype=\`hdb`. Use `.proc.getattributes` to expose process attributes. (`gateway.q:579-587`)
+- **Rule G6**: Register process attributes for routing: `` update attributes:(enlist mydict) from `.gw.servers where servertype=`hdb ``. Use `.proc.getattributes` to expose process attributes. (`gateway.q:579-587`)
 - **Rule G7**: `.servers.addprocscustom` on the gateway calls `runnextquery[]` and `addserversfromconnectiontable` when new processes register. (`gateway.q:543-548`)
 
 ## q Language Pitfalls
@@ -101,25 +101,25 @@ These two principles are not duplicated by the specific rules below — everythi
 ## EOD Patterns
 
 - **Rule E1**: Add custom EOD logic by overriding `.save.postreplay:{[hdbdir;date] ...}`. This is called after all tables are written, before HDB reload. (`rdb.q:43`, `wdb.q:79`)
-- **Rule E2**: Manipulate tables before EOD writedown via `.save.savedownmanipulation:enlist[\`trade]!enlist myFunc`. (`rdb.q:42`)
+- **Rule E2**: Manipulate tables before EOD writedown via `` .save.savedownmanipulation:enlist[`trade]!enlist myFunc ``. (`rdb.q:42`)
 - **Rule E3**: `endofday` function is placed at root namespace (`endofday:.rdb.endofday`) so tickerplant can call it by name. (`rdb.q:214`)
 - **Rule E4**: WDB modes: `saveandsort` (default), `save` (save only, signal sort process), `sort` (sort only). Set via `.wdb.mode`. (`wdb.q:12`)
-- **Rule E5**: WDB notifies gateway via `informgateway(\`reloadstart;\`)` before sorting, `informgateway(\`reloadend;\`)` after. (`wdb.q:261`, `wdb.q:278`)
+- **Rule E5**: WDB notifies gateway via `` informgateway(`reloadstart;`) `` before sorting, `` informgateway(`reloadend;`) `` after. (`wdb.q:261`, `wdb.q:278`)
 - **Rule E6**: HDB reload triggered by WDB calling `notifyhdb` which sends `` (`reload;date) `` to each HDB handle. (`rdb.q:82-83`)
 - **Rule E7**: RDB with `reloadenabled:1b` does not save to disk — instead stores row counts, then WDB calls `reload` on the RDB to drop old rows. (`rdb.q:95-101`)
 
 ## API Documentation
 
-- **Rule A1**: Document all public functions: `.api.add[\`.ns.func;1b;"description";"params";"return"]`. (`gateway.q:596`)
-- **Rule A2**: Search functions: `.api.f\`pattern` (all), `.api.p\`pattern` (public), `.api.u\`pattern` (user-defined). (`.api.s"*pattern*"` searches function bodies.) (`utilities.md`)
-- **Rule A3**: Export current config: `.api.exportconfig[\`.myns]` returns table of all variables with current values. (`utilities.md`)
+- **Rule A1**: Document all public functions: `` .api.add[`.ns.func;1b;"description";"params";"return"] ``. (`gateway.q:596`)
+- **Rule A2**: Search functions: `` .api.f`pattern `` (all), `` .api.p`pattern `` (public), `` .api.u`pattern `` (user-defined). (`.api.s"*pattern*"` searches function bodies.) (`utilities.md`)
+- **Rule A3**: Export current config: `` .api.exportconfig[`.myns] `` returns table of all variables with current values. (`utilities.md`)
 
 ---
 
 # CODE REVIEW CHECKLIST
 
 1. **Namespace discipline** — Does all code use `\d .ns` / `\d .` correctly? No accidental root-namespace pollution?
-2. **Config guard pattern** — Every config variable uses `@[value;\`var;default]`?
+2. **Config guard pattern** — Every config variable uses `` @[value;`var;default] ``?
 3. **No raw `hopen`** — All connections go through `.servers.*` functions?
 4. **`CONNECTIONS` completeness** — Every proctype passed to `.servers.gethandlebytype` or `.servers.getservers` is explicitly listed in `.servers.CONNECTIONS`? A missing entry silently produces `0Ni` handles at runtime with no error at definition time.
 5. **`.dotz.set` for handlers** — No direct `.z.*` assignment?
@@ -129,7 +129,7 @@ These two principles are not duplicated by the specific rules below — everythi
 9. **`endofday` at root** — `endofday` and `reload` assigned to root namespace so TP can call them?
 10. **EOD hooks** — Custom EOD logic uses `.save.postreplay`/`.save.savedownmanipulation` rather than modifying core functions?
 11. **`.api.add`** — All public functions documented?
-12. **Error trapping** — `@[f;arg;{.lg.e[\`label;x]}]` or `.[f;args;{.lg.e[\`label;x]}]` used around operations that can fail?
+12. **Error trapping** — `` @[f;arg;{.lg.e[`label;x]}] `` or `` .[f;args;{.lg.e[`label;x]}] `` used around operations that can fail?
 13. **Subscription** — Uses `.sub.subscribe`, respects `ignorelist`, handles `reloadenabled` flag?
 14. **Gateway routing** — `servertype` can be dict for attribute-based routing; EOD guard in place?
 15. **IPC type** — Connection type (tcp/tcps/unix) configured via `.servers.SOCKETTYPE` not hardcoded?
@@ -156,10 +156,10 @@ Tasks:
 2. **Skeleton** (`code/processes/myproc.q`):
    - Open namespace: `\d .myproc`
    - Config guards on every tunable (Rule C1)
-   - Entry function that only logs (e.g. `run:{[] .lg.o[\`run;"stub"]}`) — no real work
+   - Entry function that only logs (e.g. `` run:{[] .lg.o[`run;"stub"]} ``) — no real work
    - Return to root: `\d .`
    - Root-level `upd` if the process subscribes (Rule S3)
-3. **Connections** — `.servers.CONNECTIONS:\`typeA\`typeB\`…` listing every downstream proctype (Rule M1). Set `.servers.STARTUP:1b` in the process settings, or call `.servers.startup[]` at end of file.
+3. **Connections** — `` .servers.CONNECTIONS:`typeA`typeB`… `` listing every downstream proctype (Rule M1). Set `.servers.STARTUP:1b` in the process settings, or call `.servers.startup[]` at end of file.
 4. **Credentials** — create `$KDBAPPCONFIG/passwords/{proctype}.txt` AND append the user to the `U` access list of every process this one will connect to (checklist item 17).
 5. **Register** — add a row to `$KDBAPPCONFIG/process.csv` (column format in `torq-process-templates.md`).
 6. **Subscribe (if applicable)** — block until the TP is up with `.servers.startupdepcycles`, then call `.sub.subscribe` with the proc dict from `.sub.getsubscriptionhandles` (Rule P1).
@@ -175,7 +175,7 @@ Start the process and confirm **every** item below before writing a single line 
 - [ ] `out_{procname}_*.log` shows the expected startup/connection messages
 - [ ] In qcon: `select proctype, w from .servers.SERVERS where proctype in .servers.CONNECTIONS` — every row has a non-null `w`
 - [ ] If subscribing: `.sub.SUBSCRIPTIONS` shows the expected tables/syms, and on the TP `exec w from .u.w.{table}` includes this process's handle
-- [ ] If publishing: the receiving process has the table schema loaded (`tables \`.` includes the new table)
+- [ ] If publishing: the receiving process has the table schema loaded (`` tables `. `` includes the new table)
 
 If any check fails: stop, diagnose, and fix. Do not proceed to Stage 2 to "see if it still works" — it will mask whichever Stage 1 issue is still broken.
 
@@ -304,6 +304,3 @@ Only read when the current task matches — these are not auto-loaded.
 - **`torq-process-templates.md`** — read when creating a new process, editing `process.csv`, setting up deployment, or needing a concrete template (minimal proc, feedhandler, RDB, WDB, gateway). Also holds env vars, `setenv.sh`, `torq.sh` commands, and the deployment checklist.
 - **`q-language-reference.md`** — general q/kdb+ reference (not TorQ-specific). Read when hitting type errors, iterator edge cases, IPC quirks, date/time traps, or performance issues.
 - **`kdb-ecosystem.md`** — read when integrating kdb+ with Python (PyKX/embedPy), Grafana, REST/HTTP, WebSockets, or C API.
-```
-
----
