@@ -364,7 +364,6 @@ trade,,time,1
 - [ ] Timer enabled (`-t 1000` in extras or `system"t 1000"` in code) where required (RDB requires it)
 - [ ] EOD hooks (`.save.postreplay`, `.save.savedownmanipulation`) tested against replay
 - [ ] Log directory writable by process user
-```
 
 ---
 
@@ -439,5 +438,3 @@ Then: `-load` file(s) specified on command line.
 ./deploy/bin/torq.sh top rdb1               # show top.q stats
 ./deploy/bin/torq.sh stop rdb1 -force       # kill -9
 ```
-
----

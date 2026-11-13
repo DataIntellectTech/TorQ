@@ -128,7 +128,7 @@ clients:([]handle:`int$(); connecttime:`timestamp$())
 3. **`addquerytimeout`** inserts row into `queryqueue`
 4. **`runnextquery`** → `runquery` checks if any queries in queue can be served
 5. **`availableserverstable`** finds servers not `inuse` that match required servertype/attributes
-6. **`sendquerytoserver`** sends async: `(neg handles)@\:(serverexecute;queryid;query)` 
+6. **`sendquerytoserver`** sends async: `(neg handles)@\:(serverexecute;queryid;query)`
 7. **Backend executes** `serverexecute[queryid;query]` → sends result back: `neg[.z.w](`.gw.addserverresult`;queryid;result)`
 8. **`addserverresult`** / **`addservererror`** stores result row
 9. **`checkresults`** fires when all parts of a query are complete: applies join function
@@ -165,7 +165,7 @@ syncexec:$[.z.K<3.6; syncexecjpre36[;;raze]; syncexecjt[;;raze;0Wn]]
 ### Server Routing Logic
 
 `getserverids[servertype]` resolves the servertype argument:
-- If symbol list: looks up matching server IDs in `.gw.servers` 
+- If symbol list: looks up matching server IDs in `.gw.servers`
 - If dict (attributes): calls `getserversindependent` which finds minimum set of servers needed to cover all attribute requirements independently
 
 `getserversindependent[req;att;besteffort]` uses a greedy coverage algorithm — sorts servers by how many requirements they satisfy, removes redundant overlapping servers.
@@ -233,9 +233,9 @@ Source: `code/processes/discovery.q`, `code/handlers/trackservers.q`
 
 **At every process startup** (`trackservers.q:startup`):
 
-1. Read `process.csv` → `procstab` 
+1. Read `process.csv` → `procstab`
 2. If `DISCOVERYREGISTER` or `CONNECTIONSFROMDISCOVERY`: register discovery entries, call `retrydiscovery[]`
-3. `retrydiscovery[]` opens connections to all discovery services in the SERVERS table, then sends async `(`..register;\`)` to each
+3. `retrydiscovery[]` opens connections to all discovery services in the SERVERS table, then sends async `` (`..register;`) `` to each
 4. If `CONNECTIONSFROMDISCOVERY`: call `registerfromdiscovery[CONNECTIONS;0b]` → queries discovery for known process types
 5. If not `CONNECTIONSFROMDISCOVERY`: call `register[procs;proctype;0b]` for each required type from process.csv
 
@@ -451,6 +451,3 @@ If sort process uses -parentproctype wdb, it gets:
   config: settings/wdb.q then settings/sort.q
   code: code/wdb/ then code/sort/
 ```
-```
-
----
