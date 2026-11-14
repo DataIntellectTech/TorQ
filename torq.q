@@ -140,10 +140,9 @@ checkdependency:{[path]
         if[()~key hsym last path;[.lg.e[`config;"TorQ config file not supplied ",string last path]]];
         /-load config csv files
         if[not `a in key `.proc; .proc.a:()];
-        /- .proc.a named in full: on Korze, x,: on a global in a function called from an exec replaces x
-        .proc.a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
+        a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
         /- check for kdb verion
-        if[not `kdb in a[`app];.proc.a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
+        if[not `kdb in a[`app];a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
         /- get current app versions
         dict:exec version by app from a;
         /- update table to contain string dependencies

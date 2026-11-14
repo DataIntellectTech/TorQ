@@ -100,8 +100,7 @@ if[not @[{.proc.capabilities`broadcast};::;1b]; pub:pubeach];
 // publish and clear tables
 pubclear:{
  .stpps.pub'[x;value each x,:()];
- // one table at a time: Korze does not pair a list of names with a list of values here
- {@[`.;x;:;.stpps.schemasnoattributes x]} each x;
+ @[`.;x;:;.stpps.schemasnoattributes[x]];
  }
 
 // Remove handle from subrequestall
