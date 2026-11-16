@@ -17,7 +17,7 @@ ${TORQHOME}/torq.sh start discovery1 stp1 sctp1 rdb1 -csv ${testpath}/process.cs
   -testresults ${KDBTESTS}/stp/results/ \
   -procfile ${testpath}/process.csv \
   -runtime $run \
-  $debug $stop $quiet
+  $debug $stop $write $quiet
 
 # Shut down procs
 ${TORQHOME}/torq.sh stop discovery1 stp1 sctp1 rdb1 -csv ${testpath}/process.csv

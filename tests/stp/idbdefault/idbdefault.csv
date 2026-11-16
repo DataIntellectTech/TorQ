@@ -16,7 +16,7 @@ true,0,0,q,neg[gwHandle](`.gw.asyncexec;"select from trade where date=.z.D";`idb
 run,0,0,q,"stpHandle @/: `.u.upd ,/: ((`trade;testtrade);(`quote;testquote))",1,,"Send trade and quote updates to STP"
 run,0,0,q,.proc.sys "sleep 3",1,,"Wait for updates to get published"
 true,0,0,q,"neg[gwHandle](`.gw.asyncexec;""select from trade where date=.z.D, sym=`GOOG"";`idb);5~count gwHandle[]",1,,"Check trade update was correctly published"
-true,0,0,q,"neg[gwHandle](`.gw.asyncexec;""select from quote_iex where date=.z.D"";`idb);0~count gwHandle[]",1,,"Check if table that not have been published has 0 rows"
+true,0,0,q,"neg[gwHandle](`.gw.asyncexec;""select from packets where date=.z.D"";`idb);0~count gwHandle[]",1,,"Check if table that not have been published has 0 rows"
 run,0,0,q,wdbHandle(`.u.end;`.wdb.currentpartition),1,,"Trigger EOD on WDB"
 run,0,0,q,.proc.sys "sleep 3",1,,"Wait for merge to HDB to happen"
 true,0,0,q,neg[gwHandle](`.gw.asyncexec;"select from trade where sym in `GOOG";`hdb);5~count gwHandle[],1,,"Check if HDB has the merged data"
