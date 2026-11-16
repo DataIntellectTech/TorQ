@@ -84,7 +84,7 @@ str:string each til 1000000
 ```
 
 **Trap 6 — Enumeration types:**
-An enumerated column has type 20h-76h (depends on which domain). After loading from disk, sym columns are enums. `value enum_col` gives symbol list. `enum_col~`mysym` works correctly.
+An enumerated column has type 20h-76h (depends on which domain). After loading from disk, sym columns are enums. `value enum_col` gives symbol list. `` enum_col~`mysym `` works correctly.
 
 **Trap 7 — Null comparisons:**
 ```q
@@ -533,6 +533,3 @@ d1,d2
 "result: ",(string 42)  // "result: 42"
 .Q.s1 value             // format any value as string (like 0N! but no print)
 ```
-```
-
----

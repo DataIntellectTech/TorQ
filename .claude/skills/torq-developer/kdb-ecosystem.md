@@ -417,4 +417,3 @@ r0(result);
 | Production system integration | q IPC or PyKX |
 | Grafana/monitoring | HTTP/.z.ph or Grafana plugin |
 | Bulk data loading | q loader or PyKX |
-```

@@ -326,6 +326,3 @@ Expose process capabilities for intelligent gateway routing:
 // Document a function
 .api.add[`.ns.func; 1b; "description"; "params"; "return"]
 ```
-```
-
----
