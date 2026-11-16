@@ -1,0 +1,438 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+comment,0,,"Setup - connect to the procs, publish mock data and point setter at the test cache directory"
+beforeany,0,0,q,"system ""sleep 3""",1,,Wait for setter to come up
+beforeany,0,0,q,.servers.startup[],1,,Connect to the procs
+beforeany,0,0,q,rdbh:gethandle`testrdb1,1,,Handle to the rdb
+beforeany,0,0,q,stph:gethandle`teststp1,1,,Handle to the stp
+beforeany,0,0,q,setterh:gethandle`testsetter1,1,,Handle to setter
+beforeany,0,0,q,hdbh:gethandle`testhdb1,1,,Handle to the test hdb
+beforeany,0,0,q,gwh:gethandle`testgateway1,1,,Handle to the gateway
+beforeany,0,0,q,.tst.mkhdb[],1,,Build the one-day test hdb in the folder testhdb1 started on
+beforeany,0,0,q,"hdbh""reload[]""",1,,Reload testhdb1 so it picks up the new data
+beforeany,0,0,q,".tst.setterloadmode:setterh"".anycache.setter.isrequest""",1,,Save the mode setter started in - from cacheconfig.json
+beforeany,0,0,q,".tst.setterhadtimer:any .tst.setterfunc~/:setterh""exec funcparam from .timer.timer""",1,,Save whether setter started its own cache timer
+beforeany,0,0,q,setterh(`.timer.removefunc;.tst.setterfunc),1,,Stop setter's own cache timer if it started in static mode - the tests start and stop it themselves
+beforeany,0,0,q,stph(`.u.upd;`trade;.tst.trade),1,,Publish mock trades
+beforeany,0,0,q,stph(`.u.upd;`quote;.tst.quote),1,,Publish mock quotes
+beforeany,0,0,q,"system ""sleep 2""",1,,Wait for the stp to publish to the rdb
+beforeany,0,0,q,".tst.today:first rdbh""exec time.date from trade""",1,,Save the mock data's date - request queries filter on it
+beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows""",1,,Save setter's configured safety limits
+beforeany,0,0,q,setterh({.anycache.setter.cacheconfig[`cacherootdir]:x};.tst.root),1,,Build setter's caches in the test cache directory
+beforeany,0,0,q,".tst.cache2query:setterh"".anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]""",1,,Save cache2's static mode query
+beforeany,0,0,q,".tst.setterinterval:setterh"".anycache.setter.cacheconfig[`setter;`interval]""",1,,Save setter's configured interval
+beforeany,0,0,q,.tst.reset 1b,1,,Start with no caches
+afterall,0,0,q,setterh(`.timer.removefunc;.tst.setterfunc),1,,Make sure the cache timer is stopped
+afterall,0,0,q,.tst.reset 1b,1,,Clear down test caches
+
+comment,0,,Setup checks
+true,0,0,q,not any null (rdbh;stph;setterh),1,,"Check the test proc is connected to the rdb, stp and setter"
+true,0,0,q,"setterh""all {not null first x} each .servers.gethandlebytype[;`any] each `gateway`rdb""",1,,Check setter is connected to the gateway and rdb
+true,0,0,q,"3=rdbh""count trade""",1,,Check the mock trades reached the rdb
+true,0,0,q,"3=rdbh""count quote""",1,,Check the mock quotes reached the rdb
+true,0,0,q,"2 2~hdbh""count each (trade;quote)""",1,,Check the test hdb has its 2 trades and 2 quotes
+true,0,0,q,"`hdb in gwh""exec servertype from .gw.servers where active""",1,,Check the gateway has the test hdb as a server
+true,0,0,q,".tst.setterloadmode~""request""~setterh"".anycache.setter.cacheconfig[`setter;`mode]""",1,,Check setter took its mode from cacheconfig.json
+true,0,0,q,.tst.setterhadtimer~not .tst.setterloadmode,1,,Check setter started its own cache timer only if it started in static mode
+true,0,0,q,"not any .tst.setterfunc~/:setterh""exec funcparam from .timer.timer""",1,,Check no cache timer is running before the tests start
+
+comment,0,,STATIC mode - cache updates every interval (interval shortened to 5 seconds)
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`setter;`interval]:x};string .tst.interval),1,,Set setter's interval to 5 seconds
+run,0,0,q,"setterh"".anycache.setter.registertimers[]""",1,,Start the cache timer
+true,0,0,q,"(enlist .tst.interval)~setterh""exec period from .timer.timer where (`.anycache.setter.detectandwritecache;`)~/:funcparam""",1,,Check the timer runs on the configured interval
+run,0,0,q,.tst.waitfor[{$[count .tst.builds[];.tst.complete[];0b]};0D00:00:15],1,,Wait for the timer's first build to complete - a timer added to a running proc first runs when the proc's next timer is due
+true,0,0,q,1=count .tst.builds[],1,,Check the timer built a cache
+true,0,0,q,all `start`end in key .tst.latest[],1,,Check the cache is marked complete
+run,0,0,q,b1:.tst.latest[],1,,Save the first cache
+run,0,0,q,b1start:.tst.started b1,1,,Save when the first cache was started
+run,0,0,q,"system ""sleep 1""",1,,Wait - less than one interval since the first cache
+true,0,0,q,b1~.tst.latest[],1,,Check no new cache is built before the interval is up
+run,0,0,q,.tst.waitfor[{(not b1~.tst.latest[]) and .tst.complete[] and not any b1~/:.tst.builds[]};0D00:00:15],1,,Wait for the timer's next build to complete and the previous cache to be deleted - setter deletes it just after marking the new one complete
+true,0,0,q,not b1~.tst.latest[],1,,Check a new cache was built once the interval was up
+true,0,0,q,(.tst.started[.tst.latest[]]-b1start) within .tst.interval+0D00:00:00 0D00:00:02,1,,Check the new cache was started one interval after the first
+true,0,0,q,not any b1~/:.tst.builds[],1,,Check the previous cache was deleted
+true,0,0,q,"(rdbh""select by sym from trade"")~.tst.read`cache1",1,,Check readers get the new cache
+run,0,0,q,setterh(`.timer.removefunc;.tst.setterfunc),1,,Stop the cache timer
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`setter;`interval]:x};.tst.setterinterval),1,,Put setter's interval back
+run,0,0,q,.tst.reset 0b,1,,Clear down caches
+run,0,0,q,.tst.mkcache 0D00:00:01,1,,Mock a cache built 1 second ago
+run,0,0,q,.tst.build[],1,,Run a cache build
+true,0,0,q,".tst.logged ""resuming main cache build *""",1,,Check setter checked the existing cache
+true,0,0,q,".tst.logged ""component caches to build: none""",1,,Check nothing needs building when the cache is younger than the interval
+true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check the resumed cache is still completed when nothing is left to build
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build when there are none
+true,0,0,q,1=count .tst.builds[],1,,Check no new cache is built when the cache is younger than the interval
+
+comment,0,,STATIC mode - old cache is deleted
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,old:.tst.mkcache 0D00:05,1,,Mock a cache built 5 minutes ago
+run,0,0,q,.tst.build[],1,,Run a cache build
+true,0,0,q,1=count .tst.builds[],1,,Check only one main cache remains
+true,0,0,q,not old in .tst.builds[],1,,Check the old cache has been deleted
+true,0,0,q,"(rdbh""select by sym from trade"")~.tst.read`cache1",1,,Check readers get the new cache
+
+comment,0,,STATIC mode - setter's log documents each step (uses the build above)
+true,0,0,q,".tst.logged ""starting new main cache build *""",1,,Check the new main cache build is logged
+true,0,0,q,".tst.logged ""component caches to build: cache1, cache2""",1,,Check the component caches to build are logged
+true,0,0,q,"all .tst.logged each ""requesting data for component cache "",/:(""cache1 from rdb"";""cache2 from rdb"")",1,,Check requesting data is logged for each component cache
+true,0,0,q,"all .tst.logged each ""saving data for component cache "",/:(""cache1 to *"";""cache2 to *"")",1,,Check saving data is logged for each component cache
+true,0,0,q,"all .tst.logged each ""data save completed for component cache "",/:(""cache1"";""cache2"")",1,,Check data save completed is logged for each component cache
+true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check main cache completion is logged
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build after a full build
+true,0,0,q,".tst.inorder (""starting new main cache build *"";""requesting data for component cache cache1 *"";""saving data for component cache cache1 *"";""data save completed for component cache cache1"";""main cache build completed *"")",1,,"Check the steps are logged in order: start, requesting, saving, save completed, main cache completed"
+true,0,0,q,".tst.logged ""deleting old cache *""",1,,Check deleting the old cache is logged
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+
+comment,0,,STATIC mode - failed update keeps the previous cache
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,old:.tst.mkcache 0D00:05,1,,Mock a cache built 5 minutes ago
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.badquery),1,,Give cache2 a query the rdb can't run
+run,0,0,q,.tst.build[],1,,Run a cache build - the rdb error should be trapped
+true,0,0,q,".tst.logged ""query for component cache cache2 failed on the gateway: error: *""",1,,Check the gateway's error for the component cache is logged
+true,0,0,q,"any .tst.newlogs[] like ""*nosuchtable""",1,,Check the rdb's error is in the log
+true,0,0,q,".tst.logged ""main cache build failed*""",1,,Check the main cache failure is logged
+true,0,0,q,".tst.logged ""removing failed component cache *""",1,,Check removing the failed component caches is logged
+true,0,0,q,not `end in key .tst.latest[],1,,Check the failed cache is not marked complete
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check the failed component caches have been removed
+true,0,0,q,old in .tst.builds[],1,,Check the previous cache has not been deleted
+true,0,0,q,([]old:enlist 1b)~.tst.read`cache2,1,,Check readers still get the previous cache - not an error or an empty table
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.cache2query),1,,Put cache2's query back
+
+comment,0,,STATIC mode - failed first build has no previous cache to fall back on
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode - no previous cache
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.badquery),1,,Give cache2 a query the rdb can't run
+run,0,0,q,.tst.build[],1,,Run the first cache build - the rdb error should be trapped
+true,0,0,q,".tst.logged ""main cache build failed*""",1,,Check the main cache failure is logged
+fail,0,0,q,.tst.read`cache1,1,,Check readers get an error - not an empty table
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.cache2query),1,,Put cache2's query back
+
+comment,0,,REQUEST mode - cache updated on manual request
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,1=count .tst.builds[],1,,Check a main cache has been built
+true,0,0,q,all `start`end in key .tst.latest[],1,,Check the cache is marked complete
+true,0,0,q,"(rdbh""select from trade where sym=`AAPL"")~get ` sv .tst.latest[],`cache1`data",1,,Check cache1 contains the requested data
+true,0,0,q,"(rdbh""select from quote where sym=`AAPL"")~get ` sv .tst.latest[],`cache2`data",1,,Check cache2 contains the requested data
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""MSFT""",1,,Request a cache for MSFT
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,2=count .tst.builds[],1,,Check a second main cache has been built
+true,0,0,q,"(rdbh""select from trade where sym=`MSFT"")~get ` sv .tst.latest[],`cache1`data",1,,Check the latest cache contains the newly requested data
+
+comment,0,,REQUEST mode - setter's log documents each step (uses the builds above)
+true,0,0,q,".tst.logged ""starting new main cache build *""",1,,Check the new main cache build is logged
+true,0,0,q,".tst.logged ""component caches to build: cache1, cache2""",1,,Check the component caches to build are logged
+true,0,0,q,"all .tst.logged each ""requesting data for component cache "",/:(""cache1 from rdb"";""cache2 from rdb"")",1,,Check requesting data from the rdb is logged for each component cache - a request for today only needs the rdb
+true,0,0,q,"all .tst.logged each ""saving data for component cache "",/:(""cache1 to *"";""cache2 to *"")",1,,Check saving data is logged for each component cache
+true,0,0,q,"all .tst.logged each ""data save completed for component cache "",/:(""cache1"";""cache2"")",1,,Check data save completed is logged for each component cache
+true,0,0,q,".tst.logged ""main cache build completed *""",1,,Check main cache completion is logged
+true,0,0,q,"not any .tst.newlogs[] like ""*still has component caches to build*""",1,,Check setter doesn't report component caches left to build after a full build
+true,0,0,q,".tst.inorder (""starting new main cache build *"";""requesting data for component cache cache1 *"";""saving data for component cache cache1 *"";""data save completed for component cache cache1"";""main cache build completed *"")",1,,"Check the steps are logged in order: start, requesting, saving, save completed, main cache completed"
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+
+comment,0,,REQUEST mode - only the last cachestokeep caches and requests are kept
+run,0,0,q,"do[3;.anycache.getter.requestnewcache .tst.args ""IBM"";.tst.build[]]",1,,Make and build 3 more requests - 5 in total
+true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")=count .tst.builds[]",1,,Check only cachestokeep main caches remain
+true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")=count .tst.requests[]",1,,Check only cachestokeep cache requests remain
+true,0,0,q,"all {(rdbh""select from trade where sym=`IBM"")~get ` sv x,`cache1`data} each .tst.builds[]",1,,Check the oldest caches were deleted - the ones kept are the latest IBM caches
+true,0,0,q,"all {(.tst.args ""IBM"")~get ` sv .tst.main,x,`args} each .tst.requests[]",1,,Check the oldest requests were deleted - the ones kept are the latest IBM requests
+true,0,0,q,".tst.logged ""deleting old cache *""",1,,Check deleting old caches is logged
+
+comment,0,,REQUEST mode - request with no matching data gives an empty table
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""XYZ""",1,,Request a cache for a sym with no data
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,all `start`end in key .tst.latest[],1,,Check the cache is marked complete
+true,0,0,q,"(rdbh""select from trade where sym=`XYZ"")~get ` sv .tst.latest[],`cache1`data",1,,Check cache1 is an empty table - not an error
+true,0,0,q,"0=count get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has no rows
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+
+comment,0,,REQUEST mode - failed update
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+run,0,0,q,".anycache.getter.requestnewcache @[.tst.args ""MSFT"";`cache2;:;enlist[`query]!enlist .tst.badquery,.tst.ondate[]]",1,,Request a cache where cache2's query can't run on the rdb
+run,0,0,q,.tst.build[],1,,Trigger the build on setter - the rdb error should be trapped
+true,0,0,q,".tst.logged ""query for component cache cache2 failed on the gateway: error: *""",1,,Check the gateway's error for the component cache is logged
+true,0,0,q,"any .tst.newlogs[] like ""*nosuchtable""",1,,Check the rdb's error is in the log
+true,0,0,q,".tst.logged ""main cache build failed*""",1,,Check the main cache failure is logged
+true,0,0,q,".tst.logged ""removing failed component cache *""",1,,Check removing the failed component caches is logged
+true,0,0,q,not `end in key .tst.latest[],1,,Check the failed cache is not marked complete
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check the failed component caches have been removed
+fail,0,0,q,"get ` sv .tst.latest[],`cache2`data",1,,Check reading the failed cache gives an error - not an empty table
+true,0,0,q,"(rdbh""select from quote where sym=`AAPL"")~get ` sv first[.tst.builds[]],`cache2`data",1,,Check the previous completed cache is still on disk
+
+comment,0,,Safety limits are read from cacheconfig.json
+true,0,0,q,"(setterh"".anycache.setter.maxdatespan"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxdatespan]""",1,,Check maxdatespan comes from the config
+true,0,0,q,"(setterh"".anycache.setter.maxresultmb"")~setterh"".anycache.setter.cacheconfig[`setter;`maxresultmb]""",1,,Check maxresultmb comes from the config
+true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`cachestokeep]""",1,,Check cachestokeep comes from the config
+true,0,0,q,"(setterh"".anycache.setter.flushhours"")~setterh"".anycache.setter.cacheconfig[`setter;`flushhours]""",1,,Check flushhours comes from the config
+true,0,0,q,"(setterh"".anycache.setter.maxrows"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxrows]""",1,,Check maxrows comes from the config
+true,0,0,q,"(setterh"".anycache.setter.querytimeout"")~""N""$setterh"".anycache.setter.cacheconfig[`setter;`querytimeout]""",1,,Check querytimeout comes from the config
+
+comment,0,,REQUEST mode - queries need a single date or a date range of at most maxdatespan days
+run,0,0,q,"setterh"".anycache.setter.maxdatespan:7""",1,,Use a 7 day maxdatespan
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,.anycache.getter.requestnewcache .tst.where .tst.ondate[],1,,Request a single date
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a single date is built
+true,0,0,q,"(rdbh""select from trade where time.date="",string .tst.today)~get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has that date's trades
+run,0,0,q,.anycache.getter.requestnewcache .tst.within 7,1,,Request exactly 7 days
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a 7 day range is built
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has every trade in the range - the rdb's and the hdb's 2
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.within 8,1,,Request 8 days
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check an 8 day range is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 spans 8 days, over the maxdatespan of 7, not building""",1,,Check the span error is logged
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb was never queried
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check the failed component caches were removed
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where sym=`AAPL""",1,,Request with no date
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check a query with no date is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 does not filter on a date first*""",1,,Check the missing date is logged
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb was never queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.where (),1,,Request with no where clause
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check a query with no where clause is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 does not filter on a date first*""",1,,Check the missing date is logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date>"",string .tst.today-1",1,,Request an open-ended date range
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check an open-ended range is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 does not filter on a date first*""",1,,Check it is treated as having no date
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where sym=`AAPL, date in "",string .tst.today",1,,Request with the date filter second - the hdb would read every date's partition
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 does not filter on a date first*""",1,,Check the date filter needing to come first is logged
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,"{.anycache.getter.requestnewcache .tst.where x; .tst.build[]} each ("" where time.date in "";"" where date="") ,\: string .tst.today",1,,"Request time.date and date= without spaces"
+true,0,0,q,0=sum {`end in key x} each .tst.builds[],1,,Check neither is built
+true,0,0,q,"2=sum .tst.newlogs[] like ""*|anycache|query for component cache cache1 does not filter on a date first*""",1,,Check both are rejected
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date in 2026.13.45""",1,,Request a date that doesn't exist
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""cache build failed for component cache cache1: 2026.13.45""",1,,Check the parse error is logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.bracketed 2,1,,Request a 2 day range written in brackets - it parses as (enlist;date1;date2)
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a range in brackets is built
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has every trade in the range - the rdb's and the hdb's 2
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.bracketed 8,1,,Request 8 days written in brackets
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check an 8 day range in brackets is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 spans 8 days, over the maxdatespan of 7, not building""",1,,Check the span is worked out from the dates in brackets
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date in enlist "",string .tst.today",1,,Request a single date with enlist - it parses as (enlist;date)
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a single date with enlist is built
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date within ("",string[.tst.today-1],"";.z.d)""",1,,Request a range ending on .z.d rather than a date
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 has no date, or an invalid value, not building""",1,,Check dates that are not literals are rejected - the span can't be checked
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""delete from `trade"",.tst.ondate[]",1,,Request a query that would delete trades on the rdb
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 is not a select, not building""",1,,Check queries other than select are rejected
+true,0,0,q,"3=rdbh""count trade""",1,,Check the rdb still has its trades
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""exec last price from trade"",.tst.ondate[]",1,,Request an exec
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 is not a select, not building""",1,,Check the exec is logged
+true,0,0,q,"not .tst.logged ""cache build failed for component cache *""",1,,Check the exec is rejected rather than raising an error
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!2#enlist enlist[`query]!enlist ""exec price by sym from trade"",.tst.ondate[]",1,,Request an exec with a by clause
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 is not a select, not building""",1,,Check it is rejected too
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache `cache1`cache2!{enlist[`query]!enlist x} each (""select by sym from trade"";""select by sym from quote""),\:.tst.ondate[]",1,,Request a select with a by clause
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a select with a by clause is still built - the exec check doesn't catch it
+true,0,0,q,"`AAPL`IBM`MSFT~asc exec sym from 0!get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has a row for each of the rdb's syms
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date = "",string .tst.today-1",1,,Request only yesterday
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check it is built
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from hdb""",1,,Check only the hdb is queried - the rdb only holds today
+true,0,0,q,"(enlist .tst.today-1)~distinct exec `date$time from get ` sv .tst.latest[],`cache1`data",1,,Check cache1 only has yesterday's trades
+true,0,0,q,"2=count get ` sv .tst.latest[],`cache1`data",1,,Check it has the hdb's 2 trades
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date in "",-3!.tst.today-1 0",1,,Request yesterday and today as a list
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check it is built
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from hdb, rdb""",1,,Check the hdb and rdb are both queried - today is in the list
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check cache1 has the hdb's 2 trades and the rdb's
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date within "",-3!.tst.today+0 1",1,,Request today and tomorrow
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check it is built - only some of its days are after today
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from rdb""",1,,Check only the rdb is queried
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache .tst.where "" where date = "",string .tst.today+1",1,,Request only tomorrow
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check it is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 only asks for days after today, not building""",1,,Check a request only for days after today is rejected
+true,0,0,q,"not .tst.logged ""requesting data for component cache *""",1,,Check the rdb and hdb were never queried
+
+comment,0,,REQUEST mode - maxdatespan can be changed
+run,0,0,q,"setterh"".anycache.setter.maxdatespan:1""",1,,Lower maxdatespan to 1 day
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,.anycache.getter.requestnewcache .tst.within 2,1,,Request 2 days
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check 2 days is over a maxdatespan of 1
+true,0,0,q,".tst.logged ""query for component cache cache1 spans 2 days, over the maxdatespan of 1, not building""",1,,Check the new limit is in the log
+run,0,0,q,.anycache.getter.requestnewcache .tst.where .tst.ondate[],1,,Request a single date
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check a single date is within a maxdatespan of 1
+run,0,0,q,setterh({.anycache.setter.maxdatespan:x};.tst.limits`maxdatespan),1,,Put maxdatespan back
+
+comment,0,,Results over maxresultmb are not saved - in both modes
+run,0,0,q,setterh({.anycache.setter.maxresultmb:x};0.000001),1,,Cap results at about 1 byte
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check the oversized result is not built
+true,0,0,q,".tst.logged ""query for component cache cache1 failed on the gateway: error: *""",1,,Check the size error comes back through the gateway - the rdb stops the result before sending it
+true,0,0,q,"any .tst.newlogs[] like ""*over the maxresultmb of*""",1,,Check the size error is logged
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check nothing oversized was left on disk
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,.tst.mkcache 0D00:05,1,,Mock a cache built 5 minutes ago
+run,0,0,q,.tst.build[],1,,Run a static cache build
+true,0,0,q,"any .tst.newlogs[] like ""*over the maxresultmb of*""",1,,Check static mode results are capped too
+true,0,0,q,([]old:enlist 1b)~.tst.read`cache1,1,,Check readers still get the previous cache
+run,0,0,q,setterh({.anycache.setter.maxresultmb:x};.tst.limits`maxresultmb),1,,Put maxresultmb back
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check results under maxresultmb are built
+
+comment,0,,Gateway safety - row limit and query timeout on every query and a memory limit on setter
+run,0,0,q,setterh({.anycache.setter.maxrows:x};1),1,,Cap results at 1 row
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache .tst.where .tst.ondate[]",1,,Request every trade and quote for today - 3 rows each
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,not .tst.complete[],1,,Check the result over maxrows is not built
+true,0,0,q,"any .tst.newlogs[] like ""*result has 3 rows, over the maxrows of 1""",1,,Check the rdb's row limit error is logged
+true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check nothing over the limit was left on disk
+run,0,0,q,setterh({.anycache.setter.maxrows:x};.tst.limits`maxrows),1,,Put maxrows back
+run,0,0,q,".anycache.getter.requestnewcache .tst.where .tst.ondate[]",1,,Request the same again
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,.tst.complete[],1,,Check results under maxrows are built
+true,0,0,q,"(setterh"".anycache.setter.querytimeout"")~gwh""exec last timeout from .gw.queryqueue""",1,,Check the gateway was given setter's query timeout
+true,0,0,q,"(4000*1024*1024)=setterh""(system \""w\"") 3""",1,,Check setter started with a 4000 MB memory limit
+
+comment,0,,Caches not modified in the last flushhours (24 by default) are flushed every hour in both modes - cache requests are flushed too
+true,0,0,q,"(enlist (0D01;0Wp))~setterh""exec (period,'periodend) from .timer.timer where (`.anycache.setter.flushcaches;`)~/:funcparam""",1,,Check setter started one flush timer every hour with no end time
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,"do[2;.anycache.getter.requestnewcache .tst.args ""AAPL"";.tst.build[]]",1,,Make and build 2 requests
+true,0,0,q,2=count .tst.requests[],1,,Check there are requests to flush
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,2=count .tst.builds[],1,,Check builds newer than flushhours are kept
+true,0,0,q,2=count .tst.requests[],1,,Check requests newer than flushhours are kept
+run,0,0,q,"old:(first .tst.builds[];` sv .tst.main,first .tst.requests[])",1,,Save the first build and request
+run,0,0,q,.tst.age old,1,,Make them 2 to 3 days old - older than flushhours
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,not old[0] in .tst.builds[],1,,Check the old build was deleted
+true,0,0,q,"not (last ` vs old 1) in .tst.requests[]",1,,Check the old request was deleted
+true,0,0,q,1=count .tst.builds[],1,,Check the newer build is kept
+true,0,0,q,1=count .tst.requests[],1,,Check the newer request is kept
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make everything 2 to 3 days old
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,0=count .tst.builds[],1,,Check every cache was deleted
+true,0,0,q,0=count .tst.requests[],1,,Check the requests were deleted too
+true,0,0,q,0=count key .tst.main,1,,Check nothing is left in the cache directory
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,.tst.mkcache 0D00:05,1,,Mock a static cache with the cachename link pointing at it
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,1=count .tst.builds[],1,,Check a static cache newer than flushhours is kept
+true,0,0,q,`myfirstcache in key .tst.main,1,,Check its cachename link is kept
+run,0,0,q,".tst.age ` sv' .tst.main,'key .tst.main",1,,Make the static cache and its link 2 to 3 days old
+run,0,0,q,setterh({.anycache.setter.flushhours:x};96),1,,Raise flushhours to 96 hours - the aged cache is 2 to 3 days old
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,1=count .tst.builds[],1,,Check the aged static cache is kept while it is under flushhours old
+true,0,0,q,`myfirstcache in key .tst.main,1,,Check its cachename link is kept too
+run,0,0,q,setterh({.anycache.setter.flushhours:x};.tst.limits`flushhours),1,,Put flushhours back
+run,0,0,q,"setterh"".anycache.setter.flushcaches[]""",1,,Flush the caches
+true,0,0,q,0=count .tst.builds[],1,,Check the static cache was deleted
+true,0,0,q,not `myfirstcache in key .tst.main,1,,Check the cachename link was deleted
+
+comment,0,,STATIC mode - queries go through the gateway and a component cache can use several datasources
+run,0,0,q,".tst.datasource:setterh"".anycache.setter.cacheconfig[`componentcaches;`cache1;`datasource]""",1,,Save cache1's datasource
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,"setterh({.anycache.setter.cacheconfig[`componentcaches;`cache1;`datasource]:x};""rdb,hdb"")",1,,Give cache1 the rdb and hdb as datasources
+run,0,0,q,.tst.build[],1,,Run a static cache build
+true,0,0,q,.tst.complete[],1,,Check the cache is built
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from hdb, rdb""",1,,Check cache1 asks the hdb then the rdb - whatever order the config lists them
+true,0,0,q,".tst.logged ""requesting data for component cache cache2 from rdb""",1,,Check cache2 still only asks its own datasource
+true,0,0,q,99h=type .tst.read`cache1,1,,Check the cache is a keyed table - select by sym
+true,0,0,q,`AAPL`GOOG`IBM`MSFT~asc exec sym from 0!.tst.read`cache1,1,,Check cache1 has the syms from both - GOOG is only in the hdb
+true,0,0,q,.tst.today=first exec `date$time from 0!.tst.read`cache1 where sym=`AAPL,1,,Check the rdb's newer AAPL row wins over the hdb's
+true,0,0,q,(.tst.today-1)=first exec `date$time from 0!.tst.read`cache1 where sym=`GOOG,1,,Check the hdb-only GOOG row is kept
+true,0,0,q,not `date in cols .tst.read`cache1,1,,Check the hdb's date column is dropped
+run,0,0,q,"setterh({.anycache.setter.cacheconfig[`componentcaches;`cache1;`datasource]:x};""hdb,rdb"")",1,,List the datasources the other way round
+run,0,0,q,.tst.reset 0b,1,,Clear down
+run,0,0,q,.tst.build[],1,,Run a static cache build
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from hdb, rdb""",1,,Check the order is the same
+true,0,0,q,.tst.today=first exec `date$time from 0!.tst.read`cache1 where sym=`AAPL,1,,Check the rdb's newer AAPL row still wins
+run,0,0,q,"setterh({.anycache.setter.cacheconfig[`componentcaches;`cache1;`datasource]:x};.tst.datasource)",1,,Put cache1's datasource back
+
+comment,0,,REQUEST mode - queries go through the gateway to the hdb and rdb
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,.tst.marks:count each .tst.usagelog each `testhdb1`testrdb1,1,,Mark the hdb's and rdb's usage logs
+run,0,0,q,.anycache.getter.requestnewcache .tst.within 2,1,,Request yesterday and today
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+run,0,0,q,"sent:.tst.marks _' .tst.usagelog each `testhdb1`testrdb1",1,,Save what the hdb and rdb were sent
+true,0,0,q,"any sent[0] like ""*where date within*""",1,,Check the hdb is sent the query on its date partitions
+true,0,0,q,"not any sent[0] like ""*time.date*""",1,,Check the hdb is never sent time.date
+true,0,0,q,"any sent[1] like ""*(?;`trade;();0b;())*""",1,,Check the rdb is sent the query without its date filter - it only holds today
+true,0,0,q,"not any sent[1] like ""*time.date*""",1,,Check the rdb is never sent time.date
+true,0,0,q,.tst.complete[],1,,Check the cache is built
+true,0,0,q,".tst.logged ""requesting data for component cache cache1 from hdb, rdb""",1,,Check it asks the hdb then the rdb
+true,0,0,q,"98h=type get ` sv .tst.latest[],`cache1`data",1,,Check the cache is a table - not a list of rows
+true,0,0,q,"(cols rdbh""trade"")~cols get ` sv .tst.latest[],`cache1`data",1,,Check the cache has the rdb's columns - the hdb's date column is dropped
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check it has the rdb's trades and the hdb's 2
+true,0,0,q,"`GOOG in exec sym from get ` sv .tst.latest[],`cache1`data",1,,Check the hdb-only GOOG trade is included
+true,0,0,q,"(.tst.today-1)=first exec `date$time from get ` sv .tst.latest[],`cache1`data",1,,Check the hdb's rows come first
+true,0,0,q,"(2+rdbh""count quote"")=count get ` sv .tst.latest[],`cache2`data",1,,Check cache2 has the rdb's quotes and the hdb's 2
+
+comment,0,,Read API for KX Dashboards - setter returns the newest completed build
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode - no builds yet
+true,0,0,q,0=count .tst.cachebuilds[],1,,Check no builds are listed
+true,0,0,q,null .tst.latestcache[],1,,Check there is no latest build
+fail,0,0,q,.tst.getcache`cache1,1,,Check reading a cache gives an error - not an empty table
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+run,0,0,q,".anycache.getter.requestnewcache .tst.args ""MSFT""",1,,Request a cache for MSFT
+run,0,0,q,.tst.build[],1,,Trigger the build on setter
+true,0,0,q,(reverse last each ` vs' .tst.builds[])~exec build from .tst.cachebuilds[],1,,Check both builds are listed newest first
+true,0,0,q,all not null exec end from .tst.cachebuilds[],1,,Check both builds have an end time
+true,0,0,q,"all ""cache1, cache2""~/:exec componentcaches from .tst.cachebuilds[]",1,,Check each build lists its component caches
+true,0,0,q,.tst.latest[]~.tst.latestcache[],1,,Check the latest build is the newest one
+true,0,0,q,"(get ` sv .tst.latest[],`cache1`data)~.tst.getcache`cache1",1,,Check cache1 comes from the newest build - the MSFT request
+true,0,0,q,"(get ` sv .tst.latest[],`cache2`data)~.tst.getcache`cache2",1,,Check cache2 comes from the newest build
+run,0,0,q,lastgood:.tst.latest[],1,,Save the newest completed build
+run,0,0,q,".anycache.getter.requestnewcache @[.tst.args ""IBM"";`cache2;:;enlist[`query]!enlist .tst.badquery,.tst.ondate[]]",1,,Request a cache where cache2's query can't run on the rdb
+run,0,0,q,.tst.build[],1,,Trigger the build on setter - it fails and is left without an end time
+true,0,0,q,null first exec end from .tst.cachebuilds[],1,,Check the failed build is listed first with no end time
+true,0,0,q,lastgood~.tst.latestcache[],1,,Check the latest build is still the last completed one
+true,0,0,q,"(get ` sv lastgood,`cache1`data)~.tst.getcache`cache1",1,,Check readers still get the last completed build's data
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,.tst.build[],1,,Run a static cache build
+true,0,0,q,98h=type .tst.getcache`cache1,1,,Check keyed caches are unkeyed for the dashboard - select by sym is keyed on disk
+true,0,0,q,(0!.tst.read`cache1)~.tst.getcache`cache1,1,,Check it has the same data readers get through the cachename link
