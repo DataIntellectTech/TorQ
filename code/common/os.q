@@ -13,7 +13,7 @@ hdeldir:{[dirpath;pdir]
  if[not pdir;filelist:1_filelist];
  .lg.o[`deldir;"deleting from  directory : ",dirpath];
  hdel each desc filelist}
-md:{if[not Fex x;system"mkdir \"",pth[x],"\""]};
+md:{if[not Fex x;system("mkdir -p \"";"mkdir \"")[NT],pth[x],"\""]};
 cpy:{system("cp ";"copy ")[NT],pth[x]," ",pth y}
 Vex:not 0h~type key`.@
 df:{(`$("/";"\\")[NT]sv -1_v;`$-1#v:("/";"\\")[NT]vs pth(string x;x)[10h=type x])} 
