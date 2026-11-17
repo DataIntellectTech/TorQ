@@ -56,9 +56,30 @@ done
 #define the startline
 sline="$qcmd_arg ${TORQHOME}/torq.q -stackid ${KDBBASEPORT} -proctype $proctype -procname $procname -U $U_arg -localtime $localtime_arg -p $p_arg $extra_arg_arr"
 
+#the stack a TorQ process is in: its -stackid (torq.sh and launchprocess.sh always pass one), or, for a process started
+#by hand without one, the KDBBASEPORT it was started with (on Linux, from /proc/<pid>/environ); empty if it has neither
+#(fails if the process has exited in the meantime, a zombie included)
+stackof()  {
+    local stat args env
+    read -r stat args <<< "$(ps -ww -o stat=,args= -p "$1")"
+    case $stat in ""|Z*) return 1 ;; esac
+    if [[ " $args " == *" -stackid "* ]]; then sed -n 's/.* -stackid \([^ ]*\).*/\1/p' <<< "$args"; return 0; fi
+    if [ -e "/proc/$1" ]; then
+        env=$(tr '\0' '\n' < "/proc/$1/environ" 2>/dev/null) || return 1
+        sed -n 's/^KDBBASEPORT=//p' <<< "$env"
+    fi
+}
+
 #fn to check if a process is running, returns a non-zero search result for success, returns null for failure
+#(found by its torq.q command line, so it does not matter what the q binary is called, among this user's processes, by
+#user id as USER is not always set). A process of that name stops the launch if it is in this stack, or in no stack, as
+#it may be this stack's; one in another stack does not, as another stack of the same user can use the same names
 findproc()  {
-    pgrep -lf "$1" -u "$USER" | grep -ow "$qcmd_arg"
+    local pid s
+    for pid in $(pgrep -u "$(id -u)" -f "torq\.q .*-procname $1( |$)"); do
+        s=$(stackof "$pid") || continue
+        if [ "$s" = "$KDBBASEPORT" ] || [ -z "$s" ]; then echo "$pid"; fi
+    done
 }
 
 #check process isn't already running before attempting to start it

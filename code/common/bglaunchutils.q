@@ -29,11 +29,12 @@ bglaunch:{[params]
         .lg.e[`launchprocess;"Process name and type must be provided"];
         :()];
 
-    /set default values with .Q.def and string the result:
+    /set default values and string the result (not with .Q.def, which is meant for .Q.opt's lists of strings: given plain
+    /strings it casts each value to its default's type and makes symbols of keys with no default, for string to undo)
     pass_arg:first `$.Q.opt[.z.X]`U;
     if[2>count pass_arg;pass_arg:`$getenv[`KDBAPPCONFIG],"/passwords/accesslist.txt"];
     deflt:`procname`proctype`U`localtime`p`qcmd!(`;`;pass_arg;first string .proc.localtime;`$"0W";"q");
-    params:string each .Q.def[deflt] params;
+    params:{$[10h=type x;x;-10h=type x;enlist x;string x]} each deflt,params;
     
     /format the params dictionary as a series of command line args
     f_args:{"-",string[x]," ",y}'[key params;value params];
@@ -41,6 +42,8 @@ bglaunch:{[params]
     syscomm[params;] sline}
 
 /this function calls killprocess.sh from within a TorQ process, 
-/takes a single parameter, a string procname
-bgkill:{[procname] syscomm[procname;] "bash ",getenv[`TORQHOME],"/bin/killprocess.sh ",procname}
+/takes a single parameter, the process name as a string or a symbol
+bgkill:{[procname]
+    if[-11h=type procname;procname:string procname];
+    syscomm[procname;] "bash ",getenv[`TORQHOME],"/bin/killprocess.sh ",procname}
 

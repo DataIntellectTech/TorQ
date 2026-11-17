@@ -2,17 +2,21 @@ startorstopproc:{[startorstop;procname;processcsv]
 	.proc.sys getenv[`TORQHOME],"/torq.sh ",startorstop," ",procname," -csv ",processcsv
 	};
 
+// The pids of this user's processes whose command line matches the pattern (the user by id, as USER is not always
+// set). The process is found by TorQ's own arguments, not by the name of its executable, which is not always q (a
+// wrapper script, or a binary under another name). The first character goes in brackets so that the pattern cannot
+// match this pgrep command itself
+procpids:{[pattern] @[system;"pgrep -u $(id -u) -f \"[",(1#pattern),"]",(1_pattern),"\"";()]};
+
 deadproccheck:{[proctype;procname]
-	/ pairs are of the form "<PID> ssh" for 'PID TTY...' part of pgrep, and "<PID> q" if process is running
-	pidnamepairs:.proc.sys "pgrep -lf \"stackid ",getenv[`KDBBASEPORT]," -proctype ",proctype," -procname ",procname,"\"";
-	not "q" in last each pidnamepairs
+	0=count procpids "stackid ",getenv[`KDBBASEPORT]," -proctype ",proctype," -procname ",procname
 	};
 
 // Kill process dead with -9
-kill9proc:{[proc] a:"q" in' b:@[system;"pgrep -lf ",proc," -u $USER";" "];system "kill -9 ",first " " vs first b where a};
+kill9proc:{[proc] system "kill -9 "," " sv procpids "procname ",proc};
 
 // Returns boolean true if process is alive
-isalive:{[proc] any "q" in' @[system;"pgrep -lf ",proc," -u $USER";" "]};
+isalive:{[proc] 0<count procpids "procname ",proc};
 
 // Have slightly more fluid handle opening mechanic - update: force it to open a new handle each time
 gethandle:{[name] 
