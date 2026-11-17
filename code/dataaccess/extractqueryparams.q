@@ -148,8 +148,8 @@ extractfreeformcolumn:{[inputparams;queryparams]
  };
 
 extractoptimisationkey:{[inputparams;queryparams]
- A:((1#`optimisation)!1#1b)^inputparams;
- :@[queryparams;`optimisation;:;A`optimisation];
+ // optimisation defaults to 1b (set directly rather than by filling one dictionary into another with ^)
+ :@[queryparams;`optimisation;:;$[`optimisation in key inputparams;inputparams`optimisation;1b]];
  };
 
 jointableproperties:{[inputparams;queryparams]queryparams,enlist[`tableproperties]#inputparams};

@@ -49,7 +49,8 @@ checkrepeatparams:{[dict]
 // loop thorugh input parameters to execute parameter specific checks
 checkeachparam:{[dict;isrequired]
     config:select from .checkinputs.checkinputsconfig where parameter in key dict,required=isrequired;
-    :checkparam/[dict;config];
+    // over the row indices rather than over the table itself, which not every q implementation can iterate
+    :{[c;d;i] checkparam[d;c i]}[config]/[dict;til count config];
   };
 
 // extract parameter specific function from config to check the input

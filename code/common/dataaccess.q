@@ -43,6 +43,15 @@ init:{[tablepropertiespath]
   .lg.o[`.dataaccess.init;"running .dataaccess.init - finished"];
  };
 
+// init at the end of start-up: a failure is only logged, as it is when init runs on a new connection (an error in the
+// init list would stop the process)
+startupinit:{[tablepropertiespath] @[init;tablepropertiespath;{.lg.w[`.dataaccess.init;"could not initialise the data access API: ",x]}]};
+
+// 1b when discovery is off. TorQ turns it off under a connection limit, such as KDB-X's free licence (DISCOVERYCONNECT
+// in config/settings/default.q), and then a process may make no connection at all, so init, which runs on each new
+// connection, would never run
+nodiscovery:{[] not @[value;`.servers.DISCOVERYCONNECT;1b]};
+
 connectcustom:{[f;connectiontab]
   @[f;connectiontab;()];
   @[.dataaccess.init;.dataaccess.tablepropertiespath;()];
@@ -55,4 +64,6 @@ if[`dataaccess in key .proc.params;
   .dataaccess.settablepropertiespath[];
   // re-initialize on new connections 
   if[.dataaccess.validtablepropertiespath[];.servers.connectcustom:.dataaccess.connectcustom];
+  // and, with discovery off, once start-up has finished (see nodiscovery)
+  if[.dataaccess.validtablepropertiespath[] and .dataaccess.nodiscovery[];.proc.addinitlist(`.dataaccess.startupinit;.dataaccess.tablepropertiespath)];
   ];
