@@ -1,0 +1,7 @@
+admin:admin
+discovery:pass
+segmentedtickerplant:pass
+rdb:pass
+hdb:pass
+gateway:pass
+setter:pass

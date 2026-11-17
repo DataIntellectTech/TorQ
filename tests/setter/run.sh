@@ -23,6 +23,7 @@ ${RLWRAP} q ${TORQHOME}/torq.q \
   -proctype test -procname test1 \
   -test ${testpath} \
   -load ${KDBTESTS}/helperfunctions.q ${testpath}/settings.q \
+  -cacheconfig ${testpath}/cacheconfig.json \
   -testresults ${KDBTESTS}/setter/results/ \
   -procfile ${testpath}/process.csv \
   -runtime $run \

@@ -6,7 +6,8 @@
 getter.getcachefromdisk:{[filepath] get hsym filepath};
 
 // Get location of cache config and load it in.
-getter.cacheconfiglocation:.proc.getconfigfile["cacheconfig.json"];
+// -cacheconfig on the command line names the file; otherwise cacheconfig.json from the config folders
+getter.cacheconfiglocation:$[`cacheconfig in key .proc.params; hsym `$first .proc.params`cacheconfig; .proc.getconfigfile["cacheconfig.json"]];
 getter.cacheconfig:.j.k raze read0 hsym first getter.cacheconfiglocation;
 getter.cachename: `$getter.cacheconfig`cachename;
 getter.asyncprocessname: getter.cacheconfig`asyncprocessname;
