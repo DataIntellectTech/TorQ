@@ -28,6 +28,9 @@ setter.querytimeout:$[`querytimeout in key setter.cacheconfig`setter; "N"$setter
 // Kept as a string so the server evaluates it in its own root namespace
 setter.limitquery:"{[query;maxrows;maxmb] result:value query; if[maxrows<count result; '\"result has \",(string count result),\" rows, over the maxrows of \",string maxrows]; if[maxmb<sizemb:(-22!result)%1024*1024; '\"result is \",(string sizemb),\" MB, over the maxresultmb of \",string maxmb]; result}";
 
+// Max number of cache requests one user can have waiting to be built
+setter.maxrequestsperuser:$[`maxrequestsperuser in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxrequestsperuser; 5];
+
 // Max number of days a request query can cover, counting both ends of its date range
 setter.maxdatespan:$[`maxdatespan in key setter.cacheconfig`setter; "j"$setter.cacheconfig.setter.maxdatespan; 7];
 
@@ -40,6 +43,15 @@ setter.flushhours:$[`flushhours in key setter.cacheconfig`setter; setter.cacheco
 //If a component cache fails, the run's component caches are removed and the build isn't completed
 //e.g. setter.detectandwritecache[]
 setter.detectandwritecache:{ 
+    //Request mode builds the oldest waiting request, so there is nothing to do if none are waiting
+    if[setter.isrequest;
+        maincachepath:hsym `$setter.cacheconfig.cacherootdir,"/",setter.cacheconfig`cachename;
+        setter.rejectrequests maincachepath;
+        if[not count setter.waitingrequests maincachepath;
+            .lg.o[`anycache; "no cache requests waiting to be built"];
+            :(::)
+        ]
+    ];
     cacheinfo:setter.detectcachetobuild[];
     setter.writetoken[;`start] each cachepath:cacheinfo`cachepath;
     //Included some basic error trapping here
@@ -76,6 +88,54 @@ setter.getlatestcache:{[caches;cachename;cachewithmaxstarttime]
     :`cachename`newcache!(cachewithmaxstarttime;0b)
  };
 
+//Cache requests waiting to be built, oldest first
+//Setter writes a picked token in a request when it starts building it, and a rejected token if it won't build it
+//e.g. setter.waitingrequests `:/path/to/anycachedemodata/myfirstcache
+//  ,`:/path/to/anycachedemodata/myfirstcache/asynccache_2026.10.28D09:35:57.161384000
+setter.waitingrequests:{[maincachepath]
+    requests:` sv' maincachepath,'asc r where (r:key maincachepath) like setter.cacheconfig[`asyncprocessname],"_*";
+    requests where {(`args in x) and not any `picked`rejected in x} each key each requests
+ };
+
+//Dates a request query asks for
+//e.g. setter.requestdates "select from trade where date within 2026.11.10 2026.11.12, sym=`AAPL"
+//  2026.11.10 2026.11.11 2026.11.12
+setter.requestdates:{[query]
+    datefilter:c where setter.isdatefilter each c:raze (parse query) 2;
+    d:d where -14h=type each d:raze {$[enlist~first x; 1_x; x]} each last each datefilter;
+    exec date from ?[([] date:min[d]+til 1+max[d]-min d);datefilter;0b;()]
+ };
+
+//What a request asks for: its component caches, each one's query without its date filter, and each one's dates
+//Queries are compared as parsed, so spacing doesn't matter. Returns (::) for a request that can't be read this way
+setter.requestshape:{[args]
+    @[{[args] caches:asc key args; queries:{x`query} each args caches; (caches;setter.dropdatefilter each queries;setter.requestdates each queries)};args;{[err] (::)}]
+ };
+
+//Whether request x is covered by request y: the same queries apart from the date filter, with all of x's dates inside y's
+setter.iscovered:{[x;y]
+    $[(::)~x; 0b; (::)~y; 0b; not x[0]~y 0; 0b; not x[1]~y 1; 0b; all all each x[2] in' y 2]
+ };
+
+//Rejects waiting requests that are already covered by an older waiting request, or that are over maxrequestsperuser for the user who made them
+//A request is covered if it is identical to the older one, or asks the same queries for dates that are all inside the older one's dates
+//Requests that only partly overlap are both built, as rejecting one would lose the dates only it asks for
+//The oldest requests are kept, and each rejected request is logged and marked with a rejected token so it is never built
+//e.g. setter.rejectrequests `:/path/to/anycachedemodata/myfirstcache
+setter.rejectrequests:{[maincachepath]
+    waiting:setter.waitingrequests maincachepath;
+    args:{get ` sv x,`args} each waiting;
+    users:{@[get;` sv x,`user;`unknown]} each waiting;
+    shapes:setter.requestshape each args;
+    duplicate:{[args;shapes;i] any {[args;shapes;i;j] (args[i]~args j) or setter.iscovered[shapes i;shapes j]}[args;shapes;i] each til i}[args;shapes] each til count waiting;
+    //Covered requests are rejected anyway, so they don't count towards their user's limit
+    overlimit:setter.maxrequestsperuser <= {[users;keep;i] sum keep[til i] and users[til i]=users i}[users;not duplicate] each til count waiting;
+    {[request;user;duplicate]
+        .lg.e[`anycache; "cache request ",(string last ` vs request)," from user ",(string user)," ",$[duplicate; "is already covered by an older waiting request"; "is over the maxrequestsperuser of ",string setter.maxrequestsperuser],", not building"];
+        setter.writetoken[request;`rejected]
+        }'[waiting r;users r;duplicate r:where duplicate or overlimit];
+ };
+
 //Picks the main cache build to write to: either a new one, or the newest one to resume - and lists its unfinished component caches
 //Returns the main cache path, the component cache paths and each one's args
 //e.g. static mode, with no builds yet
@@ -105,10 +165,11 @@ setter.detectcachetobuild:{
     setter.writetoken[;.proc.procname] each incompletecomponentcaches;
     args:(count incompletecomponentcaches)#enlist`;
     if[setter.isrequest;
-        argpaths:` sv' maincachepath,'(key maincachepath) where (key maincachepath) like asyncprocessname,"*";
-        maxstarttime:string first max "P"$-1#' "_" vs' string argpaths;
-        argwithmaxstarttime:first argpaths where argpaths like "*",maxstarttime;
-        args: get ` sv argwithmaxstarttime,`args
+        //Build the oldest waiting request, and mark it as picked so the next run moves on to the one after it
+        request:first setter.waitingrequests maincachepath;
+        setter.writetoken[request;`picked];
+        .lg.o[`anycache; "building cache request ",(string last ` vs request)," from user ",string @[get;` sv request,`user;`unknown]];
+        args: get ` sv request,`args
         ];
     `maincachepath`cachepath`args!(maincachepath;incompletecomponentcaches;args)
  };
@@ -233,7 +294,8 @@ setter.deleteoldcache:{[cachepath]
 //Directory names end in their start timestamp so sorting by name sorts by age
 //e.g. setter.removeoldrequestcaches maincachepath
 setter.removeoldrequestcaches:{[maincachepath]
-    names:key maincachepath;
+    //Requests still waiting to be built are not deleted
+    names:(key maincachepath) except last each ` vs' setter.waitingrequests maincachepath;
     old:raze {neg[setter.cachestokeep] _ asc x where x like y}[names] each setter.cacheconfig[`cachename`asyncprocessname],\:"_*";
     setter.deleteoldcache each ` sv' maincachepath,'old;
  };
