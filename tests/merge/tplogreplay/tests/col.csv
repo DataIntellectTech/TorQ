@@ -15,6 +15,6 @@ true,0,0,q,(count trade) ~ count h"select from trade",1,,"Check all rows of data
 true,0,0,q,(cols trade) ~ h"1_ cols trade",1,,"Check all rows of data have been merged to hdb"
 true,0,0,q,`p~(h"meta select from trade")[`sym]`a,1,,"Check p attribute is on sym column of xdaily in hdb"
 true,0,0,q,(count packets) ~ count h"select from packets",1,,"packets is an empty log file so check merge process can handle empty table"
-true,0,0,q,(cols packets) ~ h"1_ cols packets",1,,"check correct cols merged"#
+true,0,0,q,(cols packets) ~ h"1_ cols packets",1,,"check correct cols merged"
 true,0,0,q,(`symbol$())~key .replay.tempdir,1,,"check temporary storage has been removed"
 after,0,0,q,.os.deldir string .Q.dd[.replay.hdbdir;`2022.06.16],1,,"remove hdb storage for log date"
