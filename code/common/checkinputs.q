@@ -219,8 +219,9 @@ checkjoin:{[dict;parameter]:checktype[107h;dict;parameter];};
 
 checkpostback:{[dict;parameter]
     if[()~dict parameter;:dict];
-    if[not `sync in key dict;'`$.schema.errors[`asyncpostback;`errormessage]];
-    if[not dict`sync;'`$.schema.errors[`asyncpostback;`errormessage]];
+    // a postback is only for async requests: in the gateway, .gw.call says whether the caller's request is sync
+    // (no request can carry a sync key: it is not a valid parameter)
+    if[@[{.gw.call x};.z.w;0b];'`$.schema.errors[`checkpostback;`errormessage]];
     :checkpostprocessing[dict;parameter]};
 
 checktimeout:{[dict;parameter]

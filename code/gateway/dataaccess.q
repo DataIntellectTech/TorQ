@@ -82,8 +82,9 @@ getdata:{[o]
     :$[.gw.call .z.w;
         // if sync
         .gw.syncexecjt[(`getdata;o);options[`procs];autojoin[options];options[`timeout]];
-        // if async
-        .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];options[`postback];options[`timeout]]];
+        // if async: the gateway calls a postback with the query and the result, and the data-access postback takes
+        // the result only
+        .gw.asyncexecjpt[(`getdata;o);options[`procs];autojoin[options];$[()~p:options`postback;();{[f;q;r] f r}p];options[`timeout]]];
     };
 
 
