@@ -1,0 +1,9 @@
+action,ms,bytes,lang,code,repeat,minver,comment
+before,0,0,q,.servers.startup[],1,,"Start TorQ connection management"
+before,0,0,q,monHandle:gethandle[`monitor1],1,,"Open monitor handle"
+true,0,0,q,@[{monHandle"start[]";1b};::;0b],1,,"start runs: .html.wssub subscribes lmchart, a function (it used to stop with 'type)"
+run,0,0,q,"monHandle""start[]""",1,,"Call start again, as a refresh of the page does"
+true,0,0,q,(1 1 1)~count each monHandle(`.html.w;monsubs),1,,"Calling start twice leaves one subscription each"
+true,0,0,q,"all {(-6h=type x 0) and ` ~ x 1} each raze monHandle(`.html.w;monsubs)",1,,"Each subscription is the handle and ` (all syms), as the original wssub registers for a table"
+true,0,0,q,"@[{monHandle(`.html.wssub;`);1b};::;0b]",1,,"wssub ` subscribes every value the monitor publishes (it used to stop with 'type)"
+true,0,0,q,"0b~@[{monHandle(`.html.wssub;`nosuch);1b};::;0b]",1,,"wssub of a name the monitor does not publish is rejected, as before"
