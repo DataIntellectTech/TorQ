@@ -1,6 +1,6 @@
 parameter,parametervalue
 tablename,`xdaily
-starttime,2000.01.010D
+starttime,2000.01.10D
 endtime,.z.p
 timecolumn,`time
 columns,`invalid1`invalid2
