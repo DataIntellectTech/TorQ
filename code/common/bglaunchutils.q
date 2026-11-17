@@ -6,7 +6,8 @@ syscomm:{[params;cmd]
     /params is (i) a dictionary if syscomm has been called by launch, and (ii) a string if it has been called by killproc
     /cmd is the command to be executed, as a string
     
-    prevexitcode:first "I"$system cmd,"; echo $?"; 
+    /the exit code is the last line of the output: killprocess.sh prints the process name and pid before it exits
+    prevexitcode:last "I"$system cmd,"; echo $?";
     id:$[lok:99h=type params;`launchprocess;`killprocess];
     pname:$[lok;params[`procname];params];
     $[0=prevexitcode;

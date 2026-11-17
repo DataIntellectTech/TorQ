@@ -166,7 +166,9 @@ init:{[t]
 
 // Striping data in a TorQ Installation
 // use mod to stripe into number of segments
-.ds.map:{[numseg;sym] sym!(sum each string sym)mod numseg};
+// (the characters are summed as ints, which gives the same segment as summing them on kdb+: not every q implementation
+// sums characters)
+.ds.map:{[numseg;sym] sym!`int$(sum each `int$string sym)mod numseg};
 
 // Initialise subscription request on startup
 .ds.subreq:(`u#`$())!`int$();

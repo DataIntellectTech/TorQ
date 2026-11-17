@@ -453,7 +453,7 @@ syncexecjpre36:{[query;servertype;joinfunction]
  // check if there are any errors in the returned results
  :$[all res[;0];
   // no errors - join the results
-  [s:@[{(1b;x y)}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
+  [s:@[{(1b;$[10h=type x;value(x;y);x y])}joinfunction;res[;2];{(0b;"failed to apply supplied join function to results: ",x)}];
    .gw.formatresponse[s 0;1b;s 1]];
   [failed:where not res[;0];
    .gw.formatresponse[0b;1b;"queries failed on server(s) ",(", " sv string exec servertype from servers where handle in handles failed),".  Error(s) were ","; " sv res[failed][;2]]]
