@@ -27,6 +27,7 @@ hdbdatecheck:{[date; tablelist]
 
 memorycheck:{[size]
     .checks.errs::();
+    if[not .proc.capabilities`memstats; :([]messages:enlist "memory check not available on this engine: it has no .Q.w")];
 
     if [size < (.Q.w[]`heap) + .Q.w[]`symw;
         .checks.errs,:"This process exceeded the warning level of ",numformat[size]," bytes of allocated memory at ",timeformat[],"<br/>";
@@ -37,6 +38,7 @@ memorycheck:{[size]
 
 symwcheck:{[size]
     .checks.errs::();
+    if[not .proc.capabilities`memstats; :([]messages:enlist "symbol memory check not available on this engine: it has no .Q.w")];
 
     if [(h:.Q.w[]`symw) > size;
         .checks.errs,:"This process exceeded the warning for symbol size of ",numformat[size]," bytes at ",timeformat[],"<br />";

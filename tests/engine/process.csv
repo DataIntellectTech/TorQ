@@ -1,0 +1,2 @@
+host,port,proctype,procname,U,localtime,g,T,w,load,startwithall,extras,qcmd
+localhost,{KDBBASEPORT}+120,engsrv,engsrv1,,1,0,,,${KDBTESTS}/engine/server.q,0,,q
