@@ -3,6 +3,9 @@
 #path to test directory
 testpath=${KDBTESTS}/bglaunchprocess/
 
+#remove any port files left by an earlier run (written when discovery is off: see settings.q)
+rm -f ${KDBLOG}/bglaunchprocess_*.port
+
 #start procs
 ${TORQHOME}/torq.sh start all -csv ${testpath}/process.csv
 
@@ -15,3 +18,4 @@ ${TORQHOME}/torq.sh start all -csv ${testpath}/process.csv
 
 #Shut down procs
 ${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv
+rm -f ${KDBLOG}/bglaunchprocess_*.port

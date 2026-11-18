@@ -6,51 +6,22 @@
 #2:process had already been running
 
 #all defaults have been assigned in the q wrspper script: cloudutils.q
-#for each cmd line argument, extract the argument and assign to relevant variable
-cnt=0
-extra_flag_cnt=0
-IFS='-'
-read -ra arg_arr <<< "$@"
-for arg in "${arg_arr[@]}"
-do
-    if [ "$cnt" -gt 0 ]; then
-    IFS=' '
-    read -ra sub_arg_arr <<< "$arg"
-    case ${sub_arg_arr[0]} in 
-        procname )
-	    procname=${sub_arg_arr[1]}
-	    ;;
-	proctype )
-            proctype=${sub_arg_arr[1]}
-	    ;;
-	U )
-	    U_arg=${sub_arg_arr[1]}
-	    ;;
-	localtime )
-	    localtime_arg=${sub_arg_arr[1]}
-	    ;;
-	qcmd )
-	    qcmd_arg=${sub_arg_arr[1]}
-	    ;;
-	p )
-	    p_arg=${sub_arg_arr[1]}
-	    ;;
-	* )
-	    extra_flag_cnt=$(($extra_flag_cnt + 1))
-      	    ;;
+#for each cmd line argument (-name followed by its value, which can be several words), assign it to the relevant variable
+#and keep any other flag, with its value, for the start line
+#(this used to split the whole line on '-', so a value with a '-' in it, such as a path, broke every argument after it)
+extra_arg_arr=""
+while [ $# -gt 0 ]; do
+    key=${1#-}; shift; val=""
+    while [ $# -gt 0 ] && [ "${1:0:1}" != "-" ]; do val="${val:+$val }$1"; shift; done
+    case $key in
+        procname ) procname=$val ;;
+        proctype ) proctype=$val ;;
+        U ) U_arg=$val ;;
+        localtime ) localtime_arg=$val ;;
+        qcmd ) qcmd_arg=$val ;;
+        p ) p_arg=$val ;;
+        * ) extra_arg_arr+=" -$key${val:+ $val}" ;;
     esac
-    fi
-    cnt=$((cnt+1))	
-done
-
-#to deal with any number of extra flags and args, take the last (extra_flag_cnt) arguments from the arg_arr 
-extra_arg_arr=" "
-i=0
-a=$((extra_flag_cnt * -1))
-while [ $i -lt "$extra_flag_cnt" ]
-do 
-    extra_arg_arr+="-"${arg_arr[$(( $a+i ))]}
-    i=$(($i + 1))
 done
 
 #define the startline
