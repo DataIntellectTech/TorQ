@@ -1,0 +1,19 @@
+{
+  "cachename": "myfirstcache",
+  "asyncprocessname": "asynccache",
+  "cacherootdir": "tests/setter/tmpcache",
+  "setter": {
+    "mode": "request",
+    "interval": "0D00:01:00",
+    "cachestokeep": 3,
+    "maxresultmb": 1024,
+    "maxrows": 10000000,
+    "querytimeout": "0D00:01:00",
+    "maxdatespan": 7,
+    "flushhours": 24
+  },
+  "componentcaches": {
+    "cache1": {"datasource": "rdb", "staticmode": "select by sym from trade"},
+    "cache2": {"datasource": "rdb", "staticmode": "select by sym from quote"}
+  }
+}

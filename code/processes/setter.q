@@ -6,7 +6,8 @@
 setter.savecachedowntodisk:{[data;filepath] (hsym filepath) set data };
 
 // Get location of cache config and load it in.
-setter.cacheconfiglocation: .proc.getconfigfile "cacheconfig.json";
+// -cacheconfig on the command line names the file; otherwise cacheconfig.json from the config folders
+setter.cacheconfiglocation:$[`cacheconfig in key .proc.params; hsym `$first .proc.params`cacheconfig; .proc.getconfigfile "cacheconfig.json"];
 setter.cacheconfig:.j.k raze read0 hsym first setter.cacheconfiglocation;
 
 // Mode of cache
