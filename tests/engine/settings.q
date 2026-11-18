@@ -8,11 +8,11 @@
 .et.cleanup:{[] {system "rm -rf '",x,"'"} each .et.dirs; .et.dirs:(); 1b};
 
 // ---------------------------------------------------------------- engine detection
-.et.engineknown:{[] .proc.engine in `kdb`other};
+.et.engineknown:{[] .proc.engine in `kdb`l`pq`z`other};
 .et.engineexpected:{[] $[count e:getenv`TORQTEST_ENGINE; .proc.engine~`$e; 1b]};
 .et.detectstable:{[] .proc.engine~.proc.getengine[]};
 .et.names:{[] (10h=type .proc.enginename) and (10h=type .proc.engineversion) and (0<count .proc.enginename) and 0<count .proc.engineversion};
-.et.nameformengine:{[] .proc.enginename~$[.proc.engine=`kdb;$[5<=.z.K;"KDB-X";"kdb+"];.proc.engine=`other;"another q engine";string .proc.engine]};
+.et.nameformengine:{[] .proc.enginename~$[.proc.engine=`kdb;$[5<=.z.K;"KDB-X";"kdb+"];.proc.engine=`l;enlist "L";.proc.engine=`pq;"PeachQ";.proc.engine=`z;"Korze";.proc.engine=`other;"another q engine";string .proc.engine]};
 
 // ---------------------------------------------------------------- capabilities
 .et.atstart:{[] $[.proc.engine=`kdb;.proc.features`feature;exec feature from .proc.features where atstart]};         / the features checked at start-up (all of them on kdb+); others are added to the end of the capabilities when asked for
@@ -103,7 +103,7 @@
   `$7_first r where r like "ENGINE=*"};
 .et.paramwins:{[] `bar~.et.child["KDBENGINE=foo";"-engine bar"]};
 .et.envused:{[] `foo~.et.child["KDBENGINE=foo";""]};
-.et.envtrimmed:{[] `foo~.et.child["KDBENGINE=' Foo '";""]};                     / spaces and case in KDBENGINE are ignored
+.et.envtrimmed:{[] (`foo~.et.child["KDBENGINE=' Foo '";""]) and (`z~.et.child["KDBENGINE=' Korze '";""]) and `pq~.et.child["";"-engine peachq"]};   / spaces and case are ignored, and a longer name is the short one
 .et.detected:{[] $[count getenv`KDBENGINE;1b;.proc.engine~.et.child["";""]]};
 // a chosen engine decides where capabilities come from: kdb -> version, anything else -> probes
 .et.chosenkdb:{[] f:.et.tmp[],"/caps.q";
@@ -155,7 +155,7 @@
 
 // the engine and capabilities go in the log, once, as one line (torq.q calls logengine for every process)
 .et.logengine:{[] old:.lg.o; .et.logged:(); .lg.o:{[category;message] .et.logged:.et.logged,enlist message}; .proc.logengine[]; .lg.o:old;
-  (1=count .et.logged) and ((first .et.logged) like "running on *") and 0<count ss[first .et.logged;"capabilities: "]};   / (like cannot match "start*middle*": it signals nyi)
+  (1=count .et.logged) and ((first .et.logged) like "running on *") and (0<count ss[first .et.logged;"running on ",.proc.enginename," "]) and 0<count ss[first .et.logged;"capabilities: "]};   / (like cannot match "start*middle*": it signals nyi)
 
 // ---------------------------------------------------------------- the internal functions TorQ calls, as the kx docs describe them
 // (code.kx.com/q/basics/internal: -3! is replaced by .Q.s1 and -19! by set; the others have no replacement). TorQ needs these on every engine

@@ -1,9 +1,9 @@
 \d .proc
-// engine.q - whether TorQ is running on kdb+ or on another q engine, and what the engine can do
-// torq.q loads this file first, so the engine is known before anything else; it is loaded again with the rest of
-// code/common, where init finds the capabilities already set and does nothing.
-// The engine can be given on start-up with -engine or the KDBENGINE environment variable (kdb for kdb+; any other name
-// is taken as another engine); otherwise it is detected, once.
+// engine.q - which q engine TorQ is running on, and what that engine can do
+// TorQ recognises kdb+ (and KDB-X), and other q engines; any unrecognised q engine goes under "other". torq.q loads
+// this file first, so the engine is known before anything else; it is loaded again with the rest of code/common, where
+// init finds the capabilities already set and does nothing.
+// The engine can be given on start-up with -engine or the KDBENGINE environment variable; otherwise it is detected, once.
 
 // set everything up, in order: the engine, its name and version, then the capabilities dict.
 // Runs once: when this file is loaded again (with the rest of code/common), the capabilities are already set
@@ -12,13 +12,17 @@ init:{[]
       :()
       ];
   .proc.engine:getengine[];
-  .proc.enginename:$[engine=`kdb;
-                      $[5<=.z.K;"KDB-X";"kdb+"];
-                        engine=`other;"another q engine";
-                          string engine];
+  .proc.enginename:$[engine=`kdb;$[5<=.z.K;"KDB-X";"kdb+"];
+                     engine=`l;enlist "L";
+                     engine=`pq;"PeachQ";
+                     engine=`z;"Korze";
+                     engine=`other;"another q engine";
+                     string engine];
 
-  // the engine's .z.K and .z.k: on another engine, its own version and date
-  .proc.engineversion:@[{(string .z.K)," ",string .z.k};::;"(no .z.K or .z.k)"];
+  // some engines have their own engine's version (e.g. .pq.version); otherwise .z.K and .z.k, which on another engine are
+  // its own
+  zversion:@[{(string .z.K)," ",string .z.k};::;"(no .z.K or .z.k)"];
+  .proc.engineversion:$[engine=`pq;@[{$[10h=type v:value x;v;string v]};`.pq.version;zversion];zversion];
 
   // compute capabilities dict once
   .proc.capabilities:$[engine=`kdb;
@@ -27,7 +31,7 @@ init:{[]
                           ];
   }
 
-// the engine: kdb (kdb+ and KDB-X) or other, unless given on start-up
+// the engine: kdb (kdb+ and KDB-X), another engine TorQ recognises (see enginename) or other, unless given on start-up
 getengine:{[]
   //get engine given on start-up or KDBENGINE environment variable if given
   cmdlineopts:.Q.opt .z.x;
@@ -36,14 +40,21 @@ getengine:{[]
               first cmdlineopts`engine;
               $[count e:getenv`KDBENGINE;e;""]
                 ];
+  //a few engines can also be given by a longer name
   if[count requested;
-      :`$lower trim requested
+      r:`$lower trim requested;
+      :r^(`peachq`korze!`pq`z) r
       ];
 
-  //another engine can be told by what kdb+ does not define: a symbol in .z.KK, a number in .z.L, or .pq.version
-  //(reading .z.KK or .z.L on kdb+ is an error, hence the traps)
-  if[(-11h=type @[value;".z.KK";0b]) or ((type @[value;".z.L";`]) in -9 -8 -7 -6 -5h) or `version in key `.pq;
-      :`other
+  //the other engines are told by what kdb+ does not define (reading .z.KK or .z.L on kdb+ is an error, hence the traps)
+  if[-11h=type @[value;".z.KK";0b];
+      :`z
+      ];
+  if[(type @[value;".z.L";`]) in -9 -8 -7 -6 -5h;
+      :`l
+      ];
+  if[`version in key `.pq;
+      :`pq
       ];
   //kdb+: a licence in .z.l (trapped: older kdb+ has no .z.l), or a free 32-bit edition, where .z.l is empty
   :$[any(@[{0<count .z.l};::;1b];.z.o in `l32`m32`w32);

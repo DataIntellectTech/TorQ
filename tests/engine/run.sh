@@ -1,7 +1,7 @@
 #!/bin/bash
 # Engine compatibility tests: engine detection, .proc.capabilities and every place TorQ reads it.
-# Runs on whichever engine "q" on the PATH is. Set TORQTEST_ENGINE (kdb, or other for any other engine) to also check
-# the detection.
+# Runs on whichever engine "q" on the PATH is. Set TORQTEST_ENGINE to the .proc.engine expected (kdb, another engine's,
+# or other) to also check the detection.
 
 source $KDBTESTS/flagparse.sh
 
