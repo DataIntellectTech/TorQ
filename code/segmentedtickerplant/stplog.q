@@ -14,6 +14,10 @@ restoreloghandles:{value "loghandles::exec tbl!handle from currlog"};
 // Name of error log file
 errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
 
+// Whether this process writes logs of its own: a tickerplant with createlogs on, or a chained tickerplant creating its
+// own (loggingmode create). init opens them; dayrollover and .z.exit close them only where init opened them
+haslogs:{(value `..createlogs) or .sctp.loggingmode=`create};
+
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
 createdld:{[name;date]
@@ -232,9 +236,12 @@ dayrollover:{[data]
     system"t 0";'"next roll is in the past"];                    // timer off
   getnextendUTC[];                                               // grabs next end time
   .eodtime.d+:1;                                                 // increment current day
-  .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
-  .stpm.metatable:0#.stpm.metatable;
-  closelog each logtabs;                                                // close current day logs
+  // only a process with logs of its own has logs to close: a chained tickerplant in loggingmode none or parent has no
+  // log directory (.stplg.dldir), and closing failed there before the process was reinitialised
+  if[haslogs[];
+    .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
+    .stpm.metatable:0#.stpm.metatable;
+    closelog each logtabs];                                               // close current day logs
   init[string .proc.procname];                                          // reinitialise process
   .lg.o[`dayrollover;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
   }
@@ -263,7 +270,7 @@ init:{[dbname]
   i::1;
   seqnum::0;
   
-  if[(value `..createlogs) or .sctp.loggingmode=`create;
+  if[haslogs[];
     if[.sctp.chainedtp;`.[`restoreloghandles][]];
     createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
@@ -297,8 +304,8 @@ init:{[dbname]
      .lg.o[`stpexit; "Complete!"]
     ];
 
-  // exit before logs are touched if process is an sctp NOT in create mode
-  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
+  // exit before logs are touched if the process has none (an sctp NOT in create mode, or an stp with createlogs off)
+  if[not .stplg.haslogs[]; :()];
   .lg.o[`stpexit;"Closing off log files"];
   .stpm.updmeta[.stplg.multilog][`close;.stplg.logtabs;.z.p];
   .stplg.closelog each .stplg.logtabs;
