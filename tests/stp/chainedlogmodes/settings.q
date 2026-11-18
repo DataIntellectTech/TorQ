@@ -17,5 +17,12 @@ stopproc:startorstopproc["stop";;processcsv];
 // End period function to send to subs
 endp:{[x;y;z] .tst.endp:@[{1+value x};`.tst.endp;0]};
 
+// Wait (up to 30 seconds) for the subscriber's next end of period, then reset its count to none. Each check below waits
+// 11 seconds on a 10-second period and expects exactly one end of period: a wait that starts straight after one holds
+// exactly one, while a wait that started at any time held two whenever a period ended in its first second
+afterperiodend:{[h] c:h"@[value;`.tst.endp;-2]"; t:.z.p+0D00:00:30;
+  while[(c~h"@[value;`.tst.endp;-2]") and .z.p<t; system "sleep 0.1"];
+  h(set;`.tst.endp;-1)};
+
 // Flag to save tests to disk
 .k4.savetodisk:1b;

@@ -9,7 +9,7 @@ before,0,0,q,wdbhandle ".wdb.immediate:1b",1,,"Set WDB to write down immediately
 run,0,0,q,wdbhandle(upsert';`tshort`tint`tlong`tsym;(testtshort;testtint;testtlong;testtsym)),1,,"Upsert test data to WDB"
 run,0,0,q,wdbhandle(`.wdb.savetodisk;`),1,,"Write test data"
 run,0,0,q,system "sleep 5",1,,"Wait for write to finish"
-true,0,0,q,expints ~ asc "J"$ string key .Q.dd[wdbdir;.z.D],1,,"Check WDB directory structure"
+true,0,0,q,expints ~ asc "J"$ string key .Q.dd[wdbdir;.z.d],1,,"Check WDB directory structure"
 true,0,0,q,"(asc `TORQNULLSYMBOL^testtsym[`enumcol]) ~ asc get symfile",1,,"Check all symbols are present in HDB sym file"
 true,0,0,q,idbhandle "exec int~expint from raze ?[;();0b;`int`expint!`int`expint] each `tshort`tint`tlong`tsym",1,,"Check int columns are as expected in IDB"
 true,0,0,q,idbhandle "exec int~enumcol from raze ?[;();0b;`int`enumcol!(`int;(maptoint;`enumcol))] each `tshort`tint`tlong`tsym",1,,"Check maptoint working as expected in IDB"

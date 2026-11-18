@@ -7,6 +7,9 @@ source $KDBTESTS/flagparse.sh
 #path to test directory
 testpath=${KDBTESTS}/schemas
 
+#the suite writes its own HDB: the Starter Pack's sample HDB has partitions without the suite's tables
+rm -rf ${testpath}/temphdb ${testpath}/tempwdb; mkdir -p ${testpath}/temphdb
+
 #start procs
 ${TORQHOME}/torq.sh start discovery1 rdb1 stp1 hdb1 wdb1 -csv ${testpath}/process.csv
 ${TORQHOME}/torq.sh summary -csv ${testpath}/process.csv
@@ -32,3 +35,6 @@ ${TORQHOME}/torq.sh start discovery1 rdb1 stp1 hdb1 wdb1 -csv ${testpath}/proces
 
 #Shut down procs
 ${TORQHOME}/torq.sh stop all -csv ${testpath}/process.csv
+
+#Remove the HDB and WDB data the suite wrote
+rm -rf ${testpath}/temphdb ${testpath}/tempwdb
