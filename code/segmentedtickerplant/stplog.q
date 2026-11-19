@@ -5,11 +5,18 @@ currlog:([tbl:`symbol$()]logname:`symbol$();handle:`int$())
 
 // View of log file handles for faster lookups
 loghandles::exec tbl!handle from currlog
+// Re-establish the view above. A chained tickerplant which is not creating logs replaces it with a dictionary of
+// no-ops (see init); without this, switching that process to create its own logs opened them but wrote nothing
+restoreloghandles:{value "loghandles::exec tbl!handle from currlog"};
 
 \d .stplg
 
 // Name of error log file
 errorlogname:@[value;`.stplg.errorlogname;`segmentederrorlogfile]
+
+// Whether this process writes logs of its own: a tickerplant with createlogs on, or a chained tickerplant creating its
+// own (loggingmode create). init opens them; dayrollover and .z.exit close them only where init opened them
+haslogs:{(value `..createlogs) or .sctp.loggingmode=`create};
 
 // Create stp log directory
 // Log structure `:stplogs/date/tabname_time
@@ -184,10 +191,12 @@ endofdaydata:@[value;`.stplg.endofdaydata;{ {`proctype`procname`tables!(.proc.pr
 // passes on eop messages to subscribers and rolls logs
 endofperiod:{[currentpd;nextpd;data]
   .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  // the published tables only: pubclear resets a table from the publish schemas, which have no entry for logmsg
+  .stpps.pubclear[.stpps.t];
   .lg.o[`endofperiod;"executing end of period for ",.Q.s1 `currentperiod`nextperiod!(currentpd;nextpd)];
   .stpps.endp[currentpd;nextpd;data];                   // sends endofperiod message to subscribers
   currperiod::nextpd;                                   // increments current period
+  nextperiod::nextpd+nextpd-currentpd;                  // and the next one: the SCTP rolls when its parent does
   if[.sctp.loggingmode=`create;periodrollover[data]]    // logs only rolled if in create mode
   };
 
@@ -195,7 +204,7 @@ endofperiod:{[currentpd;nextpd;data]
 // eop log roll is stopped if eod is also going to be triggered (roll is not stopped in SCTP)
 stpeoperiod:{[currentpd;nextpd;data;rolllogs]
   .lg.o[`endofperiod;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  .stpps.pubclear[.stpps.t];
   .lg.o[`stpeoperiod;"passing on endofperiod message to subscribers"];
   .stpps.endp[currentpd;nextpd;data];                      // sends endofperiod message to subscribers
   currperiod::nextperiod;                                  // increments current period
@@ -215,7 +224,7 @@ periodrollover:{[data]
 // common eod for STP and SCTP to send out eod messages and roll logs
 endofday:{[date;data]
   .lg.o[`endofday;"flushing remaining data to subscribers and clearing tables"];
-  .stpps.pubclear[.stplg.t];
+  .stpps.pubclear[.stpps.t];
   .lg.o[`endofday;"executing end of day for ",.Q.s1 .eodtime.d];
   .stpps.end[date;data];  // sends endofday message to subscribers
   dayrollover[data];
@@ -227,9 +236,12 @@ dayrollover:{[data]
     system"t 0";'"next roll is in the past"];                    // timer off
   getnextendUTC[];                                               // grabs next end time
   .eodtime.d+:1;                                                 // increment current day
-  .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
-  .stpm.metatable:0#.stpm.metatable;
-  closelog each logtabs;                                                // close current day logs
+  // only a process with logs of its own has logs to close: a chained tickerplant in loggingmode none or parent has no
+  // log directory (.stplg.dldir), and closing failed there before the process was reinitialised
+  if[haslogs[];
+    .stpm.updmeta[multilog][`close;logtabs;(data`p)+.eodtime.dailyadj];   // update meta tables
+    .stpm.metatable:0#.stpm.metatable;
+    closelog each logtabs];                                               // close current day logs
   init[string .proc.procname];                                          // reinitialise process
   .lg.o[`dayrollover;"end of day complete, new value for date is ",.Q.s1 .eodtime.d];
   }
@@ -258,7 +270,8 @@ init:{[dbname]
   i::1;
   seqnum::0;
   
-  if[(value `..createlogs) or .sctp.loggingmode=`create;
+  if[haslogs[];
+    if[.sctp.chainedtp;`.[`restoreloghandles][]];
     createdld[dbname;.eodtime.d];
     openlog[multilog;dldir;;.z.p+.eodtime.dailyadj]each logtabs;
     // If appropriate, roll error log
@@ -291,9 +304,9 @@ init:{[dbname]
      .lg.o[`stpexit; "Complete!"]
     ];
 
-  // exit before logs are touched if process is an sctp NOT in create mode
-  if[.sctp.chainedtp and not .sctp.loggingmode=`create; :()];
+  // exit before logs are touched if the process has none (an sctp NOT in create mode, or an stp with createlogs off)
+  if[not .stplg.haslogs[]; :()];
   .lg.o[`stpexit;"Closing off log files"];
-  .stpm.updmeta[.stplg.multilog][`close;.stpps.t;.z.p];
-  .stplg.closelog each .stpps.t;
+  .stpm.updmeta[.stplg.multilog][`close;.stplg.logtabs;.z.p];
+  .stplg.closelog each .stplg.logtabs;
  }]

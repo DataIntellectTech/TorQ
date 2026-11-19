@@ -17,7 +17,8 @@ eodinit:{
   if[x in `custom`customoffsetplus`customoffsetminus;
     dt:"p"$0;doff:"n"$0;
     adj:("p"$1+.z.d) - .z.p + 00:00:02 + off:(`custom`customoffsetplus`customoffsetminus!(0D00;0D02;-0D02))[x];
-    `.tz.t upsert (x;dt;adj;doff;adj;dt);
+    // timezoneID, gmtDateTime, adjustment, localDateTime (the table lost gmtOffset and dstOffset in #603)
+    `.tz.t upsert (x;dt;adj;dt);
     .stplg.nextendUTC:"p"$0
     ];
   

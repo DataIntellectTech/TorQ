@@ -397,10 +397,8 @@ endofdaymerge:{[dir;pt;tablist;mergelimits;hdbsettings;mergemethod;writedownmode
   $[tempfix2 and ((system "s")<0);
     [.lg.o[`merge;"merging on worker"];
      {(neg x)(`.wdb.reloadsymfile;y);(neg x)(::)}[;.Q.dd[hdbsettings `hdbdir;`sym]] each .z.pd[];
-     /-upsert .merge.partsize data to sort workers, only needed for part and hybrid method
-     if[(mergemode~`hybrid)or(mergemode~`part);
-       {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
-       ];
+     /-upsert .merge.partsize data to sort workers, whatever the merge method: merge only merges the partitions listed there
+     {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each .z.pd[];
      merge[dir;pt;;mergelimits;hdbsettings;mergemethod;writedownmode] peach flip (key tablist;value tablist);
      /-clear out in memory table, .merge.partsizes, and call sort worker processes to do the same
      .lg.o[`eod;"Delete from partsizes"];
@@ -513,10 +511,8 @@ informgateway:{[message]
 informsortandreload:{[dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod]
         .lg.o[`informsortandreload;"attempting to contact sort process to initiate data ",$[writedownmode~`default;"sort";"merge"]];
     $[count sortprocs:.servers.getservers[`proctype;sorttypes;()!();1b;0b];
-        [if[(mergemode~`hybrid)or(mergemode~`part);
-            // for part and hybrid method sort procs need access to partsizes table data - upsert data tp sort procs
-            {(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;
-           ];
+        // sort procs need the partsizes table data whatever the merge method: merge only merges the partitions listed there
+        [{(neg x)(upsert;`.merge.partsizes;y);(neg x)(::)}[;.merge.partsizes] each exec w from sortprocs;
          {.[{neg[y]@x;neg[y][]};(x;y);{.lg.e[`informsortandreload;"unable to run command on sort and reload process"];'x}]}[(`.wdb.endofdaysort;dir;pt;tablist;writedownmode;mergelimits;hdbsettings;mergemethod);] each exec w from sortprocs;
         ];
         [.lg.e[`informsortandreload;"can't connect to the sortandreload - no sortandreload process detected"];
