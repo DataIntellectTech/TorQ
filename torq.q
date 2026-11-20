@@ -139,7 +139,6 @@ checkdependency:{[path]
         /- check TorQ config file is supplied
         if[()~key hsym last path;[.lg.e[`config;"TorQ config file not supplied ",string last path]]];
         /-load config csv files
-        if[not `a in key `.proc; .proc.a:()];
         a,:raze {("SSS";enlist ",") 0: hsym[x]} each path;
         /- check for kdb verion
         if[not `kdb in a[`app];a,:(`kdb;`$(string .z.K),".",string .z.k;`)];
