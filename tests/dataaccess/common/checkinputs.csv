@@ -23,7 +23,7 @@ true,0,0,q,checkreturnederror[`timebarcount],,1,,"timebar parameter must be a li
 true,0,0,q,checkreturnederror[`timebararg0],,1,,"first argument of timebar must be have type -11h"
 true,0,0,q,checkreturnederror[`timebararg1],,1,,second argument of timebar must be of type -11h
 true,0,0,q,checkreturnederror[`timebararg2],,1,,third argument of timebar must be have type -11h
-true,0,0,q,checkreturnederror[`filterformat],,1,,"check that first argument of filterformat has type 0h - avoid (=;`cond;"J")"
+true,0,0,q,checkreturnederror[`filterformat],,1,,"check that first argument of filterformat has type 0h - avoid (=;`cond;""J"")"
 true,0,0,q,checkreturnederror[`freeformwheretype],,1,,"freeformwhere must be a string"
 true,0,0,q,checkreturnederror[`freeformbytype],,1,,",freeformbytype must be a string"
 true,0,0,q,checkreturnederror[`freeformcolumntype],,1,,"freeformcolumntype must be a string"
