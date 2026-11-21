@@ -160,7 +160,9 @@ stop() {
     if [[ ! $port =~ ^[0-9]+$ ]]; then
       port=$(($(eval echo \$$port)))
     fi
-    eval "$cmd `lsof -i :$port -sTCP:LISTEN | awk '{if(NR>1)print $2}'`"
+    # the pid comes from the process's own arguments (findproc), not from lsof on its port: lsof only lists the
+    # sockets of processes it is allowed to inspect
+    $cmd $(findproc "$1")
   fi
  }
 

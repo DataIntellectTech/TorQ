@@ -1326,7 +1326,14 @@ given default values.
 |     qcmd       |                                                          q                                                                |
 
 The .sys.bgkill function is passed a single argument: the `` `procname`` of the process to
-be terminated, as a string.
+be terminated, as a string or a symbol.
+
+Both functions look only at this user's processes, and work by stack, so that two stacks
+run by the same user can use the same process names. A process's stack is its `-stackid`
+(torq.sh and .sys.bglaunch pass `KDBBASEPORT` as one) or, for a process started by hand
+without one, the `KDBBASEPORT` it was started with (read on Linux only). .sys.bgkill
+terminates only a process of its own stack. .sys.bglaunch does not start a process whose
+name is in use in its own stack, or by a process with no stack, which may be this stack's.
 
 If the default value of "0W" is used for the port, a random port will be chosen
 on which to launch the process. In this case the process will neeed to register

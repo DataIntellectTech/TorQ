@@ -69,7 +69,8 @@ datafromfile:{[filebinary;x;start;numofbytes]
 
 getflags:{[filebinary;x]
  // flag data stored at 49th byte
- bools: 2 vs filebinary[globheader+packetheader+x[0]+49];
+ // as longs, so the bits join the long padding below whatever type 2 vs gives for a byte
+ bools: "j"$2 vs filebinary[globheader+packetheader+x[0]+49];
  `CWR`ECE`URG`ACK`PSH`RST`SYN`FIN where ((8 - count bools)#0), bools
  }
 
