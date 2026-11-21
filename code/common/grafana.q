@@ -12,7 +12,8 @@ ticks:@[value;`.grafana.ticks;1000];
 del:@[value;`.grafana.del;"."];
 
 // json types of kdb datatypes
-types:.Q.t!`array`boolean,(3#`null),(5#`number),11#`string;
+// one type for each character of .Q.t (the same map as before where .Q.t has its usual 21 characters)
+types:.Q.t!(count .Q.t)#`array`boolean,(3#`null),(5#`number),11#`string;
 // milliseconds between 1970 and 2000
 epoch:946684800000;
 

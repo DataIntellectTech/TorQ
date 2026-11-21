@@ -256,7 +256,7 @@ init:{
   .dotz.set[`.z.pi;{$[x in (1#"\n";"");.Q.s value x;.Q.s $[.z.w=0;value;req]@x]}];
   .dotz.set[`.z.pp;{'"pm: HTTP POST requests not permitted"}];
   // from V3.5 2019.11.23, .h.val is used in .z.ph to evaluate request; below that disallow .z.ph
-  $[(.z.K>=3.5)&.z.k>=2019.11.13;.h.val:req;.dotz.set[`.z.ph;{'"pm: HTTP GET requests not permitted"}]];
+  $[.proc.capabilities`hval;.h.val:req;.dotz.set[`.z.ph;{'"pm: HTTP GET requests not permitted"}]];
   .dotz.set[`.z.ws;{'"pm: websocket access not permitted"}];
   .dotz.set[`.z.pw;login];
   .dotz.set[`.z.pc;{droppublic[y];@[x;y]}value .dotz.getcommand[`.z.pc]];

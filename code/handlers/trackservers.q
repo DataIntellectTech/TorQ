@@ -261,9 +261,8 @@ refreshattributes:{
 domainsocketsenabled:{[]
         // unix domain sockets only works on unix and not windows
         notwin:not .z.o like "w*";
-    // v3.4 brought in the first version of unix domain sockets ipc
-        iskdbv:3.4<=.z.K;
-        :notwin and iskdbv;
+    // and only where the engine has them: on kdb+, v3.4 brought in the first version of unix domain sockets ipc
+        :notwin and .proc.capabilities`unixsockets;
     }
 
 // format hpup from procs table, take into account ipc type
