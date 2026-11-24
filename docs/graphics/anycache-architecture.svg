@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="796" viewBox="0 0 1120 796" role="img" aria-labelledby="title desc">
+  <title id="title">AnyCache architecture</title>
+  <desc id="desc">Static and request workflows can run alongside each other in separate released setter deployments. A timer starts a static build. A TorQ getter saves a request to disk, and an IPC trigger starts the newest request. The setter checks date filters, queries the gateway, combines results, and writes AnyMap files. The gateway enforces timeouts. Each query server enforces row and result-size limits, and the setter checks the combined size before writing. Dashboards poll the setter. TorQ readers load static builds through the stable symlink.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10Z" fill="#49617a"/>
+    </marker>
+    <style>
+      text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #182f48; }
+      .title { font-size: 32px; font-weight: 700; }
+      .heading { font-size: 21px; font-weight: 700; }
+      .body { font-size: 16px; }
+      .note { font-size: 15px; fill: #354f68; }
+      .limit { font-size: 15px; font-weight: 700; fill: #794013; }
+      .path { font-family: "SF Mono", Consolas, monospace; font-size: 14px; fill: #294962; }
+      .separator { stroke: #c5d5e2; stroke-width: 1; }
+      .flow { fill: none; stroke: #49617a; stroke-width: 2; stroke-linejoin: round; marker-end: url(#arrow); }
+      .exchange { marker-start: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1120" height="796" rx="18" fill="#f5f8fb"/>
+  <text x="40" y="50" class="title">AnyCache architecture</text>
+
+  <rect x="40" y="105" width="485" height="93" rx="10" fill="#e4f0fd" stroke="#9bbada"/>
+  <text x="60" y="138" class="heading">Static mode</text>
+  <text x="60" y="168" class="body">Timer starts the component queries from cacheconfig.json.</text>
+
+  <rect x="585" y="105" width="495" height="93" rx="10" fill="#e6f4ee" stroke="#a0c8b8"/>
+  <text x="605" y="138" class="heading">Request mode</text>
+  <text x="605" y="164" class="body">TorQ getter writes args to disk.</text>
+  <text x="605" y="185" class="body">A trigger starts the newest request.</text>
+
+  <path d="M130 203 V245" class="flow"/>
+  <path d="M675 203 V221 H270 V245" class="flow"/>
+  <path d="M1085 170 H1100 V615 H710" class="flow"/>
+  <text x="920" y="607" text-anchor="middle" class="note">Save request files</text>
+
+  <rect x="40" y="250" width="315" height="173" rx="10" fill="#fff" stroke="#a5bacb"/>
+  <text x="60" y="283" class="heading">Setter</text>
+  <text x="60" y="310" class="body">Builds and publishes component caches</text>
+  <text x="60" y="332" class="body">Uses data from RDB and HDB</text>
+  <path d="M60 348 H335" class="separator"/>
+  <text x="60" y="373" class="limit">Before dispatch · request date span</text>
+  <text x="60" y="397" class="limit">Before write · combined result size</text>
+
+  <rect x="415" y="250" width="290" height="173" rx="10" fill="#fff" stroke="#a5bacb"/>
+  <text x="435" y="283" class="heading">TorQ gateway</text>
+  <text x="435" y="310" class="body">Routes queries to databases </text>
+  <text x="435" y="332" class="body">Returns replies to the setter</text>
+  <path d="M435 348 H685" class="separator"/>
+  <text x="435" y="373" class="limit">While waiting · query timeout</text>
+
+  <rect x="765" y="250" width="315" height="173" rx="10" fill="#fff" stroke="#a5bacb"/>
+  <text x="785" y="283" class="heading">RDB and HDB</text>
+  <text x="785" y="310" class="body">Feed → STP → RDB (current day)</text>
+  <text x="785" y="332" class="body">STP → WDB → HDB (history)</text>
+  <path d="M785 348 H1060" class="separator"/>
+  <text x="785" y="373" class="limit">Before reply · rows and result size</text>
+  <text x="785" y="397" class="note">Applied on each queried server</text>
+
+  <path d="M360 321 H410" class="flow exchange"/>
+  <path d="M710 321 H760" class="flow exchange"/>
+  <path d="M174 428 V489" class="flow exchange"/>
+  <text x="187" y="454" class="note">
+    <tspan x="187">Read requests and data,</tspan>
+    <tspan x="187" dy="18">write builds</tspan>
+  </text>
+  <path d="M360 410 H385 V471 H747 V534 H760" class="flow exchange"/>
+
+  <rect x="40" y="495" width="665" height="267" rx="10" fill="#edf3f8" stroke="#a5bacb"/>
+  <text x="60" y="529" class="heading">On disk</text>
+  <text x="60" y="554" class="path">&lt;cacherootdir&gt;/&lt;cachename&gt;/</text>
+  <path d="M60 569 H685" class="separator"/>
+  <text x="60" y="594" class="path">&lt;cachename&gt;_&lt;timestamp&gt;/</text>
+  <text x="362" y="594" class="body">Build directory with start and end tokens</text>
+  <text x="82" y="622" class="path">&lt;component&gt;/data</text>
+  <text x="362" y="622" class="body">Anymap and cache result</text>
+  <text x="60" y="650" class="path">&lt;asyncprocessname&gt;_&lt;timestamp&gt;/</text>
+  <text x="362" y="650" class="body">Request directory with args</text>
+  <text x="60" y="678" class="path">&lt;cachename&gt;</text>
+  <text x="362" y="678" class="body">Static symlink to the latest published build</text>
+  <path d="M60 695 H685" class="separator"/>
+  <text x="60" y="727" class="limit">Setter cleanup · hourly age-based flush</text>
+
+  <rect x="765" y="495" width="315" height="93" rx="10" fill="#fff" stroke="#a5bacb"/>
+  <text x="785" y="529" class="heading">KX Dashboards</text>
+  <text x="785" y="557" class="body">Polls completed data over IPC</text>
+
+  <rect x="765" y="637" width="315" height="93" rx="10" fill="#fff" stroke="#a5bacb"/>
+  <text x="785" y="671" class="heading">TorQ getter</text>
+  <text x="785" y="699" class="body">Loads static data via the stable path</text>
+  <path d="M710 672 H760" class="flow"/>
+</svg>

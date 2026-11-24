@@ -1,31 +1,16 @@
 # Anycache System
 
-AnyCache is a caching system meant to be deployed alongside an existing kdb+/q setup. The inspiration came from a recurring client need for a caching system. Anycache runs queries on a schedule (static mode) or on request (request mode), saves the results to disk, and lets any process or KX Dashboards read them.
+## Overview
+
+AnyCache is a caching system meant to be deployed alongside an existing kdb+/q setup. The inspiration came from a recurring client need for a caching system. AnyCache runs queries on a schedule (static mode) or on request (request mode), saves the results to disk, and lets any process or KX Dashboards read them.
 
 ## Architecture
 
 Setter builds on a timer (when in static mode) or when triggered (when in request mode). Setter takes in configuration from the `cacheconfig.json`, and queries the gateway to get the data it builds its caches from. Every main cache can be made up of multiple component caches, which can be specified in the `cacheconfig.json`.
 
-```
-  feed -> stp -> rdb ------------+
-           |                     |
-           +-> wdb -> hdb -------+
-                                 |
-                              gateway        joins hdb and rdb results
-                                 ^
-                                 | queries
-  cacheconfig.json --------->  setter        builds on a timer (static) or when triggered (request)
-                                 |
-                                 | writes builds, reads requests
-                                 v
-  <cacherootdir>/<cachename>/
-    <cachename>_<timestamp>/     one build: start and end times, one folder per component cache
-      cache1/data                anymap file(s)
-    <cachename>                  symlink to the newest build (static mode)
-    asynccache_<timestamp>/args  a cache request (request mode)
+![AnyCache architecture showing static and request workflows, TorQ processes, disk layout, and limit enforcement](graphics/anycache-architecture.svg)
 
-  KX Dashboards ---> setter      .anycache.setter.getcache / .anycache.setter.cachebuilds
-```
+Each main build lives at `<cacherootdir>/<cachename>/<cachename>_<timestamp>/`. The main build and each component have `start` and `end` timestamp files. The setter writes the main `end` only after all components finish. Each component stores its result at `<component>/data`. Static mode provides the stable path through a symbolic link `<cacherootdir>/<cachename>/<cachename>`. Request input lives alongside builds in `<asyncprocessname>_<timestamp>`.
 
 ## Processes
 
@@ -36,7 +21,14 @@ Setter builds on a timer (when in static mode) or when triggered (when in reques
 | TorQ processes | Loads `code/common/getter.q`, which allows it to read static builds and write cache requests. |
 | KX Dashboard | A separate q process that connects to setter and polls its read API. |
 
-## Install
+## Design decisions
+
+- **Dedicated setter.** The setter owns scheduling, validation, result assembly, persistence, and the read API. The gateway continues to own query dispatch to the existing database processes. Builds still use the estate’s gateway and database capacity, and the setter waits for replies during a build.
+- **AnyMap on disk.** The setter writes component results using [`anymaputils.q`](../code/common/anymaputils.q). q readers open the data by its base filename. AnyMap can use companion files with `#` and `##` suffixes, so keep those files with the base file when copying or moving a snapshot. Request writers and filesystem readers need access to the corresponding cache directory.
+- **Stable static path.** On Unix, the setter repoints the `<cachename>` symlink after completing a build and then removes older static builds. The getter can use the same path on every refresh. Consumers that need the exact build can use `latestcache[]` and its timestamped path while it is retained.
+- **Limits at each stage.** Date checks keep oversized request ranges from reaching the gateway. Per-server row and size checks keep oversized results from crossing IPC. The gateway timeout bounds the wait for each server call, and the setter checks the combined size before persisting it. These checks still leave query execution and result assembly subject to the memory available in each process.
+
+## Quick-Start Demo Install
 
 To install, run `demosetup.sh`.
 
@@ -66,25 +58,26 @@ Then in `setenv.sh` set `KDBX` to your KDB-X (5.0) binary and, if needed, `KDBBA
 
 `setter1` starts with the rest, on port `KDBBASEPORT+24`.
 
-## Configure
+## Configuration for existing systems
 
 Setter reads `cacheconfig.json`.
 
-| Field | Meaning |
-| --- | --- |
-| `cacherootdir` | Folder the caches are written to |
-| `cachename` | Name of the cache, used for folder names |
-| `asyncprocessname` | Folder prefix for cache requests |
-| `componentcaches.<name>.staticmode` | Query run for that component cache in static mode |
-| `componentcaches.<name>.datasource` | Where static mode queries run eg `rdb` |
-| `setter.mode` | `request` for request mode, anything else (eg `static`) for static mode |
-| `setter.interval` | Static mode: time between builds, eg `0D00:01` |
-| `setter.cachestokeep` | Request mode: builds and requests kept on disk |
-| `setter.maxresultmb` | Largest result a query can return from a server, and largest result saved, in MB |
-| `setter.maxrows` | Most rows a query can return from a server. 10000000 if not set |
-| `setter.querytimeout` | Longest a query can take before the gateway times it out, eg `0D00:01`, which is used if not set |
-| `setter.maxdatespan` | Request mode: most days a query can cover |
-| `setter.flushhours` | Hours a build or request is kept before the hourly flush deletes it |
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `cacherootdir` | Required | Folder the caches are written to. |
+| `cachename` | Required | Name of the cache, used for folder names. |
+| `asyncprocessname` | Required | Folder prefix for cache requests. |
+| `componentcaches.<name>.datasource` | Required | Where static mode queries run, eg `rdb` |
+| `componentcaches.<name>.staticmode` | Required in static mode | Query run for that component cache in static mode. |
+| `setter.mode` | Required | `request` for request mode, anything else (eg `static`) for static mode |
+| `setter.interval` | Required | In static mode, the time between builds, eg `0D00:01`. |
+| `setter.cachestokeep` | `3` | Request mode: builds and requests kept on disk |
+| `setter.maxresultmb` | `1024` | Largest result a query can return from a server, and largest result saved, in MB |
+| `setter.maxrows` | `10000000` | Most rows a query can return from a server. |
+| `setter.querytimeout` | `0D00:01` | Longest a query can take before the gateway times it out, eg `0D00:01`, which is used if not set |
+| `setter.maxdatespan` | `7` | Request mode: most days a query can cover |
+| `setter.flushhours` | `24` | Hours a build or request is kept before the hourly flush deletes it |
+
 
 Example `cacheconfig.json`:
 
@@ -157,6 +150,8 @@ idb:pass
 setter:pass
 ```
 
+If you have the file above, add the final line `setter:pass` to your existing file.
+
 1. `appconfig/passwords/setter.txt`
 
 ```
@@ -205,11 +200,24 @@ localhost,{KDBBASEPORT}+23,dqedb,dqedb1,${TORQAPPHOME}/appconfig/passwords/acces
 localhost,{KDBBASEPORT}+24,setter,setter1,${TORQAPPHOME}/appconfig/passwords/accesslist.txt,1,0,,,${KDBCODE}/processes/setter.q,1,,q
 ```
 
+If you have the file above, add the final setter line to your existing file.
+
 Config is read when a process starts, so restart setter after a change:
 
 ```
 ./torq.sh stop setter1 && ./torq.sh start setter1
 ```
+
+## Safety and limits
+
+| Where | What is enforced |
+| --- | --- |
+| **Setter before dispatch** | Request queries must be qSQL `select` strings with date filter. The setter checks the number of dates against `maxdatespan`. |
+| **RDB or HDB before reply** | The database evaluates the query, then checks the result against `maxrows` and `maxresultmb`. |
+| **Gateway while waiting** | The gateway returns a timeout error if the queued or running call exceeds `querytimeout`. |
+| **Setter before writing** | The setter combines server results and checks the combined size against `maxresultmb`. |
+
+We can also manage workspace limits through TorQ’s process settings and monitor the gateway, database, and setter processes independently.
 
 ## Running setter
 
@@ -354,6 +362,29 @@ KX Dashboards connects to setter.
 ```
 .anycache.setter.cachebuilds[]
 ```
+
+KX Dashboard showing Anycache system in operation
+![KX Dashboard showing Anycache system in operation](graphics/anycache-kx-dashboard.png)
+
+## Operations
+
+Both modes check every hour and delete caches and requests older than `flushhours`.
+
+| What you see | What to check |
+| --- | --- |
+| No builds or no static refresh | Check `./torq.sh summary`, the resolved config, gateway discovery, and the static `setter.interval`. In request mode, check that the request directory has `args` and that a trigger reached the setter. |
+| Build has a start time and no end time | Check the setter log for the failing component, then check gateway and database logs for query errors, permissions, size or row limits, or timeouts. Verify available disk space and cache-directory permissions if the query succeeded. |
+| Getter cannot load the static cache | Check that the stable path resolves to a completed build and all configured components contain readable AnyMap files. Compare the config loaded by reader and setter. |
+| Dashboard has stale or missing data | Compare the setter port and `latestcache[]` with the last successful build in `cachebuilds[]`. Check the dashboard polling connection and the data grid query. |
+| Old entries remain on disk | Check `flushhours` and the setter log. Both modes register hourly cleanup. Run `.anycache.setter.flushcaches[]` on the setter to apply it immediately. |
+
+Config is read when a process starts, so restart setter after a change.
+
+```bash
+./torq.sh stop setter1 && ./torq.sh start setter1
+```
+
+Reload the config in TorQ readers and request writers as well.
 
 ## Future work
 
