@@ -124,8 +124,8 @@ setter.generateandwritecache:{[cachepath; args]
     connectiondetails: `$trim each "," vs (setter.cacheconfig.componentcaches cachename)`datasource;
     if[`rdb`hdb ~ connectiondetails; connectiondetails: `hdb`rdb];
     $[setter.isrequest; querydetails: args`query; querydetails: (setter.cacheconfig.componentcaches cachename)`staticmode];
-    // Request queries must have a date or date span
-    if[not $[setter.isrequest; setter.checkdates[cachename;querydetails]; 1b]; :0b];
+    // Queries must be a select in both modes, and request queries must also have a date or date span
+    if[not $[setter.isrequest; setter.checkdates[cachename;querydetails]; setter.checkselect[cachename;parse querydetails]]; :0b];
     if[setter.isrequest; connectiondetails:setter.requestservertypes querydetails];
     gateway:.servers.gethandlebytype[`gateway;`any];
     .lg.o[`anycache; "requesting data for component cache ",(string cachename)," from ",(", " sv string connectiondetails)];
@@ -178,6 +178,17 @@ setter.dropdatefilter:{[query]
     @[parsed;2;:;c where not setter.isdatefilter each c:raze parsed 2]
  };
 
+//Checks a parsed query is a select, returns 1b if it is, otherwise logs why and returns 0b
+//e.g. setter.checkselect[`cache1;parse "select from trade"] returns 1b
+//e.g. setter.checkselect[`cache1;parse "exec from trade"] returns 0b
+setter.checkselect:{[cachename;parsed]
+    if[not ((?) ~ first parsed) and type[parsed 3] in -1 99h;
+        .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select, not building"];
+        :0b
+        ];
+    :1b
+ };
+
 //Checks a request query is a select that filters on date first, on a date, list of dates or date range of at most maxdatespan days.
 //Returns 1b if the query can be built, otherwise logs why and returns 0b
 //e.g. setter.checkdates[`cache1;"select by sym from trade where date within 2026.10.27 2026.10.28, sym in `AAPL`GOOG"]
@@ -191,10 +202,7 @@ setter.checkdates:{[cachename;query]
         :0b
     ];
     parsed:parse query;
-    if[not ((?) ~ first parsed) and type[parsed 3] in -1 99h;
-        .lg.e[`anycache; "query for component cache ",(string cachename)," is not a select, not building"];
-         :0b
-         ];
+    if[not setter.checkselect[cachename;parsed]; :0b];
     constraints:raze parsed 2;
     constraints:constraints where (first each constraints) in (=;within;in);
     d:raze {$[enlist~first x; 1_x; x]} each last each constraints where `date~/:constraints[;1];

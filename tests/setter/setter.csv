@@ -106,6 +106,22 @@ true,0,0,q,".tst.logged ""main cache build failed*""",1,,Check the main cache fa
 fail,0,0,q,.tst.read`cache1,1,,Check readers get an error - not an empty table
 run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.cache2query),1,,Put cache2's query back
 
+comment,0,,STATIC mode - queries must be a select
+run,0,0,q,.tst.reset 0b,1,,Clear down and switch setter to static mode
+run,0,0,q,"setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};""delete from `quote"")",1,,Give cache2 a query that would delete quotes on the rdb
+run,0,0,q,.tst.build[],1,,Run a cache build
+true,0,0,q,".tst.logged ""query for component cache cache2 is not a select, not building""",1,,Check queries other than select are rejected
+true,0,0,q,"not .tst.logged ""requesting data for component cache cache2 *""",1,,Check the rdb was never queried for cache2
+true,0,0,q,not .tst.complete[],1,,Check the build is not completed
+run,0,0,q,.tst.reset 0b,1,,Clear down
+run,0,0,q,"setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};""exec last bid by sym from quote"")",1,,Give cache2 an exec
+run,0,0,q,.tst.build[],1,,Run a cache build
+true,0,0,q,".tst.logged ""query for component cache cache2 is not a select, not building""",1,,Check the exec is rejected too
+true,0,0,q,not .tst.complete[],1,,Check the build is not completed
+run,0,0,q,setterh({.anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]:x};.tst.cache2query),1,,Put cache2's query back
+run,0,0,q,.tst.build[],1,,Run a cache build with the select back - it has no date filter
+true,0,0,q,.tst.complete[],1,,Check a select with no date filter is built
+
 comment,0,,REQUEST mode - cache updated on manual request
 run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
 run,0,0,q,".anycache.getter.requestnewcache .tst.args ""AAPL""",1,,Request a cache for AAPL
