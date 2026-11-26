@@ -114,7 +114,16 @@ setter.requestshape:{[args]
 
 //Whether request x is covered by request y: the same queries apart from the date filter, with all of x's dates inside y's
 setter.iscovered:{[x;y]
-    $[(::)~x; 0b; (::)~y; 0b; not x[0]~y 0; 0b; not x[1]~y 1; 0b; all all each x[2] in' y 2]
+    $[
+        // An unreadable request has no comparable shape.
+        (::)~x; 0b;
+        (::)~y; 0b;
+        // Both shapes must list the same component caches and queries with date filters removed.
+        not x[0]~y 0; 0b;
+        not x[1]~y 1; 0b;
+        // Every date in x must be present in y for the corresponding component.
+        all all each x[2] in' y 2
+        ]
  };
 
 //Rejects waiting requests that are already covered by an older waiting request, or that are over maxrequestsperuser for the user who made them
