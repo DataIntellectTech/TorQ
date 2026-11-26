@@ -16,7 +16,7 @@ beforeany,0,0,q,stph(`.u.upd;`trade;.tst.trade),1,,Publish mock trades
 beforeany,0,0,q,stph(`.u.upd;`quote;.tst.quote),1,,Publish mock quotes
 beforeany,0,0,q,"system ""sleep 2""",1,,Wait for the stp to publish to the rdb
 beforeany,0,0,q,".tst.today:first rdbh""exec time.date from trade""",1,,Save the mock data's date - request queries filter on it
-beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows""",1,,Save setter's configured safety limits
+beforeany,0,0,q,".tst.limits:setterh""`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows`maxrequestsperuser!.anycache.setter`maxdatespan`maxresultmb`cachestokeep`flushhours`maxrows`maxrequestsperuser""",1,,Save setter's configured safety limits
 beforeany,0,0,q,setterh({.anycache.setter.cacheconfig[`cacherootdir]:x};.tst.root),1,,Build setter's caches in the test cache directory
 beforeany,0,0,q,".tst.cache2query:setterh"".anycache.setter.cacheconfig[`componentcaches;`cache2;`staticmode]""",1,,Save cache2's static mode query
 beforeany,0,0,q,".tst.setterinterval:setterh"".anycache.setter.cacheconfig[`setter;`interval]""",1,,Save setter's configured interval
@@ -178,11 +178,59 @@ true,0,0,q,not any `cache1`cache2 in key .tst.latest[],1,,Check the failed compo
 fail,0,0,q,"get ` sv .tst.latest[],`cache2`data",1,,Check reading the failed cache gives an error - not an empty table
 true,0,0,q,"(rdbh""select from quote where sym=`AAPL"")~get ` sv first[.tst.builds[]],`cache2`data",1,,Check the previous completed cache is still on disk
 
+comment,0,,"REQUEST mode - requests are queued and built oldest first, and setter rejects duplicates and too many waiting requests from one user"
+run,0,0,q,".tst.rejected:{sum {`rejected in key ` sv .tst.main,x} each .tst.requests[]}",1,,Count the requests setter has rejected
+run,0,0,q,.tst.reset 1b,1,,Clear down and switch setter to request mode
+run,0,0,q,".anycache.getter.requestnewcache each .tst.args each (""AAPL"";""AAPL"";""MSFT"")",1,,Request AAPL twice then MSFT before anything is built
+true,0,0,q,".z.u~get ` sv .tst.main,(first .tst.requests[]),`user",1,,Check a request records the user who made it
+run,0,0,q,.tst.build[],1,,Trigger a build on setter
+true,0,0,q,"(rdbh""select from trade where sym=`AAPL"")~get ` sv .tst.latest[],`cache1`data",1,,Check the oldest request - AAPL - was built first
+true,0,0,q,".tst.logged ""building cache request asynccache_*""",1,,Check the request being built is logged
+true,0,0,q,1=.tst.rejected[],1,,Check the second AAPL request was rejected
+true,0,0,q,"1=sum .tst.newlogs[] like ""*is already covered by an older waiting request, not building""",1,,Check the duplicate is logged
+run,0,0,q,.tst.build[],1,,Trigger another build
+true,0,0,q,"(rdbh""select from trade where sym=`MSFT"")~get ` sv .tst.latest[],`cache1`data",1,,Check the MSFT request was built next - it was not dropped
+run,0,0,q,.tst.build[],1,,Trigger a build with no requests waiting
+true,0,0,q,2=count .tst.builds[],1,,Check no new build was made - the duplicate was never built
+true,0,0,q,".tst.logged ""no cache requests waiting to be built""",1,,Check having nothing to build is logged
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,setterh({.anycache.setter.maxrequestsperuser:x};2),1,,Let a user have 2 requests waiting
+run,0,0,q,".anycache.getter.requestnewcache each .tst.args each (""AAPL"";""MSFT"";""IBM"")",1,,Make 3 different requests as the same user
+run,0,0,q,.tst.build[],1,,Trigger a build on setter
+true,0,0,q,"(rdbh""select from trade where sym=`AAPL"")~get ` sv .tst.latest[],`cache1`data",1,,Check the user's oldest request was built
+true,0,0,q,1=.tst.rejected[],1,,Check the user's third request was rejected
+true,0,0,q,"1=sum .tst.newlogs[] like ""*is over the maxrequestsperuser of 2, not building""",1,,Check the rejection is logged
+run,0,0,q,"do[2;.tst.build[]]",1,,Trigger 2 more builds
+true,0,0,q,2=count .tst.builds[],1,,Check only the first 2 requests were built
+true,0,0,q,"(rdbh""select from trade where sym=`MSFT"")~get ` sv .tst.latest[],`cache1`data",1,,Check the second request - MSFT - is the latest build
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache each .tst.args each (""AAPL"";""AAPL"";""MSFT"")",1,,Request AAPL twice then MSFT - 2 different requests with the limit still at 2
+run,0,0,q,"do[3;.tst.build[]]",1,,Trigger 3 builds
+true,0,0,q,1=.tst.rejected[],1,,Check only the duplicate was rejected - it doesn't count towards the user's limit
+true,0,0,q,2=count .tst.builds[],1,,Check AAPL and MSFT were both built
+true,0,0,q,"(rdbh""select from trade where sym=`MSFT"")~get ` sv .tst.latest[],`cache1`data",1,,Check MSFT is the latest build
+true,0,0,q,"not any .tst.newlogs[] like ""*is over the maxrequestsperuser of*""",1,,Check nothing was rejected for the limit
+run,0,0,q,setterh({.anycache.setter.maxrequestsperuser:x};.tst.limits`maxrequestsperuser),1,,Put maxrequestsperuser back
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache each (.tst.within 3;.tst.where .tst.ondate[];.tst.where ""  where date in "",string .tst.today)",1,,"Request 3 days, then today only twice - once with different spacing"
+run,0,0,q,"do[2;.tst.build[]]",1,,Trigger 2 builds
+true,0,0,q,2=.tst.rejected[],1,,Check both single day requests were rejected - their dates are inside the 3 day request's
+true,0,0,q,"2=sum .tst.newlogs[] like ""*is already covered by an older waiting request, not building""",1,,Check both are logged as covered
+true,0,0,q,1=count .tst.builds[],1,,Check only the 3 day request was built
+true,0,0,q,"(2+rdbh""count trade"")=count get ` sv .tst.latest[],`cache1`data",1,,Check it has every trade in the 3 days
+run,0,0,q,.tst.reset 1b,1,,Clear down
+run,0,0,q,".anycache.getter.requestnewcache each (.tst.where "" where date within "",-3!.tst.today-2 1;.tst.where "" where date within "",-3!.tst.today-1 0;.tst.args ""AAPL"")",1,,"Request 2 ranges that only partly overlap, then today for AAPL only"
+run,0,0,q,"do[3;.tst.build[]]",1,,Trigger 3 builds
+true,0,0,q,0=.tst.rejected[],1,,Check nothing was rejected - a partial overlap or a different filter is not covered
+true,0,0,q,3=count .tst.builds[],1,,Check all 3 requests were built
+true,0,0,q,"not any .tst.newlogs[] like ""*|ERR|anycache|*""",1,,Check no errors are logged
+
 comment,0,,Safety limits are read from cacheconfig.json
 true,0,0,q,"(setterh"".anycache.setter.maxdatespan"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxdatespan]""",1,,Check maxdatespan comes from the config
 true,0,0,q,"(setterh"".anycache.setter.maxresultmb"")~setterh"".anycache.setter.cacheconfig[`setter;`maxresultmb]""",1,,Check maxresultmb comes from the config
 true,0,0,q,"(setterh"".anycache.setter.cachestokeep"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`cachestokeep]""",1,,Check cachestokeep comes from the config
 true,0,0,q,"(setterh"".anycache.setter.flushhours"")~setterh"".anycache.setter.cacheconfig[`setter;`flushhours]""",1,,Check flushhours comes from the config
+true,0,0,q,"(setterh"".anycache.setter.maxrequestsperuser"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxrequestsperuser]""",1,,Check maxrequestsperuser comes from the config
 true,0,0,q,"(setterh"".anycache.setter.maxrows"")~""j""$setterh"".anycache.setter.cacheconfig[`setter;`maxrows]""",1,,Check maxrows comes from the config
 true,0,0,q,"(setterh"".anycache.setter.querytimeout"")~""N""$setterh"".anycache.setter.cacheconfig[`setter;`querytimeout]""",1,,Check querytimeout comes from the config
 

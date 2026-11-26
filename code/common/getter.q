@@ -40,8 +40,10 @@ getter.loadcaches:{
 // q).anycache.getter.requestnewcache `cache1`cache2!{enlist[`query]!enlist x} each (q1;q2)
 // `:<cacherootdir>/myfirstcache/asynccache_2026.10.28D09:35:57.161384000/args
 // ```
+// The request also records the user who made it. To keep track of max queries per user.
 getter.requestnewcache:{[args]
     maincache:` sv (hsym getter.cacherootdir),(getter.cachename),`$getter.asyncprocessname, "_", string .z.P;
+    (` sv maincache,`user) set .z.u;
     (` sv maincache,`args) set args
  };
 
