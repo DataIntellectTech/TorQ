@@ -79,7 +79,7 @@ manipulate:{[t;x]
 
 /- post eod/replay, this is called after the date has been persisted to disk and sorted and 
 /- takes a directory (typically hdb directory) and partition value as parameters
-postreplay:@[value;`postreplay;{[d;p] }];
+postreplay:@[value;`postreplay;{{[d;p] }}];
 	
 / - functions for running and descriptively logging garbage collection
 \d .gc
